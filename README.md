@@ -3,7 +3,9 @@ A work-in-progress attempt at reverse engineering a bitwise perfect compilable s
 
 Built on the work that McMarkis (https://github.com/Mhopkinsinc/NHLHockey) did to get the NHL 92 source compiling, and my work to make the code bitwise perfect to the retail version. Also references chaos' disassembly work of NHL 92-94.
 
-925 / 188924 bytes completed
+Code Disassembly: 925 / 188924 bytes completed = 0.48% complete
+
+Asset Identification: I think this the majority of the remaining 323 kb, and I want to say this is about 90% done. I think the main thing will be to double check the code as I find the references to the files in the disassembly to fine tune the start/ends of files. I'm not sure if I've identified the exact starts of every file, or just where the useful data begins.
 
 ## Features of this version:
 - Retail version is bitwise perfect with retail ROM. Rev A Dev build is bitwise perfect with Rev A Dev build included with original release.
