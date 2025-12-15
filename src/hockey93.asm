@@ -2,7 +2,7 @@
 	include	Main93.Asm		;EA provided code for startup and EA logo
 ; 	include	TeamData.Asm
 ; 	include	Frames.Asm		;graphics data table for Sprites.anim
-; 	include	Ram.Asm			;ram allocation and some equates	
+	include	Ram93.Asm			;ram allocation and some equates	
 
 ; Begin		
 ; 	move	#$2700,SR	
@@ -1017,7 +1017,7 @@
 ; 	rts
 
 ; 	include	Logic.Asm
-; 	include	middle.asm
+	include	middle93.asm
 ; 	include	Penalty.Asm
 
 ; collrad	=	8
@@ -3513,9 +3513,9 @@
 ; 	rts
 ; null	dc.l	0
 	
-; VBjsr
-; 	move.l	vbint,-(a7)
-; 	rts
+VBjsr
+	move.l	vbint,-(a7)
+	rts
 ; PeriodOver	;what to do if period over
 ; 	bsr	forceblack
 ; 	add	#1,gsp	;period number
@@ -5554,38 +5554,38 @@
 ; 	dbf	d0,.2
 ; 	rts
 
-; BusError
-; 	move	#$2700,sr
-; 	bsr	printbigz
-; 	String	-$43,0,0,'Bus Error'
-; 	move.l	10(a7),d0
-; 	move.l	2(a7),d1
-; 	bra	crash
+BusError
+	move	#$2700,sr
+	bsr	printbigz
+	String	-$43,0,0,'Bus Error'
+	move.l	10(a7),d0
+	move.l	2(a7),d1
+	bra	crash
 
-; AddError
-; 	move	#$2700,sr
-; 	bsr	printbigz
-; 	String	-$43,0,0,'Address Error'
-; 	move.l	10(a7),d0
-; 	move.l	2(a7),d1
-; 	bra	crash
+AddError
+	move	#$2700,sr
+	bsr	printbigz
+	String	-$43,0,0,'Address Error'
+	move.l	10(a7),d0
+	move.l	2(a7),d1
+	bra	crash
 
-; Illinst
-; 	move	#$2700,sr
-; 	bsr	printbigz
-; 	String	-$43,0,0,'Illegal Instruction'
-; 	move.l	2(a7),d0
-; 	move.l	d0,d1
-; 	bra	crash
+Illinst
+	move	#$2700,sr
+	bsr	printbigz
+	String	-$43,0,0,'Illegal Instruction'
+	move.l	2(a7),d0
+	move.l	d0,d1
+	bra	crash
 
-; ZeroDiv
-; 	move	#$2700,sr
-; 	bsr	printbigz
-; 	String	-$43,0,0,'Division by zero'
-; 	move.l	2(a7),d0
-; 	move.l	d0,d1
+ZeroDiv
+	move	#$2700,sr
+	bsr	printbigz
+	String	-$43,0,0,'Division by zero'
+	move.l	2(a7),d0
+	move.l	d0,d1
 
-; crash
+crash
 ; 	move.l	#mesarea,a0
 ; 	move	#2+3+8+3+8,(a0)+
 	

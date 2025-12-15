@@ -2,10 +2,10 @@
 ;					Data	  	No.		Address	Description
 	dc.b	'SEGA GENESIS    '	; 01	$100	Sega Genesis ID (16 bytes)
 	dc.b	'(C)T-50 1992.JUL'	; 02	$110	company ID / release date (YYYY.MMM) (16 bytes)
-	dc.b	'NHLPA HOCKEY ''93'	; 03	$120	game title for US market (32 bytes)
+	dc.b	'NHLPA Hockey ''93'	; 03	$120	game title for US market (32 bytes)
 	dc.b	'                '	; 		$130
 	dc.b	'                '	; 		$140
-	dc.b	'NHLPA HOCKEY ''93'	; 04	$150	game title for Japanese market (32 bytes)
+	dc.b	'NHLPA Hockey ''93'	; 04	$150	game title for Japanese market (32 bytes)
 	dc.b	'                '	; 		$160
 	dc.b	'                '	; 		$170
 	dc.b	'GM T-50396 -00'	; 05	$180	cartridge cat., product no., version no. (14 bytes)

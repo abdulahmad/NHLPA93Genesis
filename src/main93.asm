@@ -37,12 +37,8 @@ Stack = $FFFFF6
 	dc.l	Zerodiv
 
 	org     $18
-	IF REV=0 ; RETAIL
-		dcb.b   72,$00      ; $5E - $18 = 70 bytes
-	ELSE ; REV A
-		dcb.b   72,$FF      ; $5E - $18 = 70 bytes
-	ENDIF
-
+	dcb.b   72,$00      ; $5E - $18 = 70 bytes
+	
 	org	$60
 	dc.l	Spurious	; level 0-3 interrupts are not implemented.
 	dc.l	Spurious	; level 0-3 interrupts are not implemented.
@@ -54,11 +50,7 @@ Stack = $FFFFF6
 	dc.l	Spurious	;
 
 	org     $90
-	IF REV=0 ; RETAIL
-		dcb.b   112,$00      ; $5E - $18 = 70 bytes
-	ELSE ; REV A
-		dcb.b   112,$FF      ; $5E - $18 = 70 bytes
-	ENDIF
+	dcb.b   112,$00      ; $5E - $18 = 70 bytes
 
 ErrorStatus
 	dc.l	0,0,0,0
@@ -72,27 +64,27 @@ ErrorStatus
 	org	$100
 
 	include	sega\SegaIDTable.asm
-; Start
-; 	Include	sega\SegaInit.asm
-; 	IF CHECKSUM=1
-; 		jsr ValidationRoutine
-; 	ELSE
-; 		nop
-; 		nop
-; 		nop
-; 	ENDIF
+Start
+	Include	sega\SegaInit.asm
+	IF CHECKSUM=1
+		jsr ValidationRoutine
+	ELSE
+		nop
+		nop
+		nop
+	ENDIF
 	
 ; 	incbin ..\output\modified_EALogo.bin
 
 ; 	bra	Begin
 
-; 	IF REV=0 ; RETAIL
-; 		HBlank:	
-; 			rte
-; 		Spurious:
-; 			rte
-; 	ELSE ; REV A
-; 		HBlank:
-; 		Spurious:	
-; 			rte
-; 	ENDIF
+	IF REV=0 ; RETAIL
+		HBlank:	
+			rte
+		Spurious:
+			rte
+	ELSE ; REV A
+		HBlank:
+		Spurious:	
+			rte
+	ENDIF
