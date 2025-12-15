@@ -63,7 +63,7 @@ ErrorStatus
 
 	org	$100
 
-	include	sega\SegaIDTable.asm
+	include	sega\SegaIDTable93.asm
 Start
 	Include	sega\SegaInit.asm
 	; IF CHECKSUM=1

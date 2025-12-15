@@ -5705,31 +5705,31 @@ crash
 ; EASNmap
 ; 	incbin ..\Extracted\Graphics\EASN.map.jim
 ; 	even
-; 	IF CHECKSUM=1 ; Security Code used during Mastering of Retail Cartridge
-; 		include checksum.asm
-; 		IF REV=0 ; RETAIL
-; 			dcb.b   0x124,$FF
-; 		ELSE ; REV A
-; 			dcb.b   0x108,$FF
-; 		ENDIF
-; 	ENDIF
-; endofcart
-;    	end
+	IF CHECKSUM=1 ; Security Code used during Mastering of Retail Cartridge
+		include checksum.asm
+		IF REV=0 ; RETAIL
+			dcb.b   0x124,$FF
+		ELSE ; REV A
+			dcb.b   0x108,$FF
+		ENDIF
+	ENDIF
+endofcart
+   	end
 
-; ;Notes
+;Notes
 
-; ;Vel*((16*60)/$10000)=pix/sec
-; ;Vel*(15/1024)=pix/sec
+;Vel*((16*60)/$10000)=pix/sec
+;Vel*(15/1024)=pix/sec
 
-; ;	.jim format
-; ;.top
-; ;	dc.l	.pal-.top
-; ;	dc.l	.map-.top
-; ;	dc.w	#of stamps
-; ;	dc...	stamp data
-; ;
-; ;.pal	dc.b	128 bytes of pal data
-; ;
-; ;.map	dc.w	map width
-; ;	dc.w	map height
-; ;	dc...	map data
+;	.jim format
+;.top
+;	dc.l	.pal-.top
+;	dc.l	.map-.top
+;	dc.w	#of stamps
+;	dc...	stamp data
+;
+;.pal	dc.b	128 bytes of pal data
+;
+;.map	dc.w	map width
+;	dc.w	map height
+;	dc...	map data
