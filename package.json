@@ -1,0 +1,24 @@
+{
+  "name": "nhlpa93-build",
+  "version": "1.0.0",
+  "description": "Build scripts for NHPA93",
+  "scripts": {
+    "extractassets": "node extractAssets93.js nhl93retail.bin",
+    "asm": "build93.bat",
+    "asm:logo": "buildEALogo93.bat",
+    "asm:sound": "buildSound93.bat",
+    "fixopcodes": "node fixopcodes.js \"output\\nhl93 .lst\" output\\nhl93.bin",
+    "fixopcodes:logo": "node fixopcodes.js \"output\\EALogo .lst\" output\\EALogo.bin",
+    "fixopcodes:sound": "node fixopcodes.js \"output\\Hockey .lst\" output\\Hockey.snd",
+    "build:retail": "set rev=0&& set checksum=1&& npm run asm && npm run fixopcodes",
+    "build:reva": "set rev=1&& set checksum=1&& npm run asm && npm run fixopcodes",
+    "build:dev": "set rev=1&& set checksum=0&& npm run asm && npm run fixopcodes",
+    "build:logo": "set rev=0&& set checksum=1&& npm run asm:logo && npm run fixopcodes:logo",
+    "build:sound": "set rev=0&& set checksum=1&& npm run asm:sound && npm run fixopcodes:sound"
+  },
+  "devDependencies": {
+    "crc-32": "^1.2.2"
+  },
+  "author": "",
+  "license": "ISC"
+}
