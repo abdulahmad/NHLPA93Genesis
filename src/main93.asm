@@ -66,17 +66,18 @@ ErrorStatus
 	include	sega\SegaIDTable.asm
 Start
 	Include	sega\SegaInit.asm
-	IF CHECKSUM=1
+	; IF CHECKSUM=1
 		jsr ValidationRoutine
-	ELSE
-		nop
-		nop
-		nop
-	ENDIF
+		jsr KillCrowd
+; 	ELSE
+	;	nop
+	;	nop
+	;	nop
+;	ENDIF
 	
 ; 	incbin ..\output\modified_EALogo.bin
 
-; 	bra	Begin
+	bra	Begin
 
 	IF REV=0 ; RETAIL
 		HBlank:	

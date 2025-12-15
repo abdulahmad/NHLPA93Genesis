@@ -39,8 +39,8 @@ const assets = [
     { name: 'devilsv.pal', folder: 'NHL93/Graphics/Pals', start: 0x26CE, end: 0x26EE },
     { name: 'rangersh.pal', folder: 'NHL93/Graphics/Pals', start: 0x2966, end: 0x2986 },
     { name: 'rangersv.pal', folder: 'NHL93/Graphics/Pals', start: 0x2986, end: 0x29A6 },
-    { name: 'senatorsh.pal', folder: 'NHL93/Graphics/Pals', start: 0x2C2E, end: 0x2C4E }, // OTT
-    { name: 'senatorsv.pal', folder: 'NHL93/Graphics/Pals', start: 0x2C4E, end: 0x2C6E },
+    { name: 'otth.pal', folder: 'NHL93/Graphics/Pals', start: 0x2C2E, end: 0x2C4E }, // OTT
+    { name: 'ottv.pal', folder: 'NHL93/Graphics/Pals', start: 0x2C4E, end: 0x2C6E },
     { name: 'flyersh.pal', folder: 'NHL93/Graphics/Pals', start: 0x2E4C, end: 0x2E6C },
     { name: 'flyersv.pal', folder: 'NHL93/Graphics/Pals', start: 0x2E6C, end: 0x2E8C },
     { name: 'penguinsh.pal', folder: 'NHL93/Graphics/Pals', start: 0x3108, end: 0x3128 },
@@ -51,8 +51,8 @@ const assets = [
     { name: 'Sharksv.pal', folder: 'NHL93/Graphics/Pals', start: 0x36A6, end: 0x36C6 },
     { name: 'bluesh.pal', folder: 'NHL93/Graphics/Pals', start: 0x3940, end: 0x3960 },
     { name: 'bluesv.pal', folder: 'NHL93/Graphics/Pals', start: 0x3960, end: 0x3980 },
-    { name: 'lightningh.pal', folder: 'NHL93/Graphics/Pals', start: 0x3BF6, end: 0x3C16 }, // TB
-    { name: 'lightningv.pal', folder: 'NHL93/Graphics/Pals', start: 0x3C16, end: 0x3C36 },
+    { name: 'tbh.pal', folder: 'NHL93/Graphics/Pals', start: 0x3BF6, end: 0x3C16 }, // TB
+    { name: 'tbv.pal', folder: 'NHL93/Graphics/Pals', start: 0x3C16, end: 0x3C36 },
     { name: 'mapleleafsh.pal', folder: 'NHL93/Graphics/Pals', start: 0x3E34, end: 0x3E54 },
     { name: 'mapleleafsv.pal', folder: 'NHL93/Graphics/Pals', start: 0x3E54, end: 0x3E74 },
     { name: 'canucksh.pal', folder: 'NHL93/Graphics/Pals', start: 0x40EE, end: 0x410E },
