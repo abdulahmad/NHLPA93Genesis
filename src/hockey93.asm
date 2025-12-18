@@ -4,7 +4,7 @@
 ; 	include	Frames.Asm		;graphics data table for Sprites.anim
 	include	Ram93.Asm			;ram allocation and some equates	
 
-; Begin		
+Begin		
 ; 	move	#$2700,SR	
 ; 	move.l	#Stack,sp	
 ; 	move.l	#varstart,a0	;clear out ram
@@ -5706,7 +5706,7 @@ crash
 ; 	incbin ..\Extracted\Graphics\EASN.map.jim
 ; 	even
 	IF CHECKSUM=1 ; Security Code used during Mastering of Retail Cartridge
-		include checksum.asm
+		include checksum93.asm
 		IF REV=0 ; RETAIL
 			dcb.b   0x124,$FF
 		ELSE ; REV A
