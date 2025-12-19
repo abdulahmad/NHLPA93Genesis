@@ -1,6 +1,6 @@
 
 	include	Main93.Asm		;EA provided code for startup and EA logo
-; 	include	TeamData.Asm
+	include	TeamData93.Asm
 ; 	include	Frames.Asm		;graphics data table for Sprites.anim
 	include	Ram93.Asm			;ram allocation and some equates	
 
@@ -2762,7 +2762,7 @@ Begin
 ; 	st	(a1)
 ; rtss	rts	
 ; ;--------------------------------------END OF GAME LOGIC
-; 	include	Video.asm
+ 	include	Video93.asm
 
 ; setupice	;set all variables
 ; 	;send non purgeable graphics

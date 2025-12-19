@@ -1,3 +1,5 @@
+	dc.l    $0000
+
 TeamList
 	dc.l	Boston
 	dc.l	Buffalo

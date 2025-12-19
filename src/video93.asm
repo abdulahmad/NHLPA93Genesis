@@ -46,6 +46,10 @@
 ; 	addq	#1,Vcount
 ; 	rte
 
+HBlank:
+Spurious:	
+	rte
+	
 ; ;------------------------------------
 ; DumpSprites
 ; 	;transfer (by dma) scroll stuff, sprite table, vram data in dmalist

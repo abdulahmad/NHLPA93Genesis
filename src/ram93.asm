@@ -1,5 +1,5 @@
 ; ;Variables
-; Asound	=	$c00011 	;analog sound
+Asound	=	$c00011 	;analog sound
 ; Vdata	=	$c00000	;video ports
 ; Vctrl	=	Vdata+4
 
