@@ -41,25 +41,32 @@ Wales ; ASE
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
-	dc.w	.sr-.0
+	;dc.w	.sr-.0
 	dc.w	.ls-.0
-	dc.w	.sodds-.0 ; TODO -- This has changed to track something else
+	dc.w	.unknown-.0
+	dc.w	.unknown2-.0
+	;dc.w	.sodds-.0 ; TODO -- This has changed to track something else
 
 .sodds	; dc.b	0,0 TODO -- delete this?
 
 .pad
 	incbin ..\Extracted\Graphics\Pals\Walesh.pal
 	incbin ..\Extracted\Graphics\Pals\Walesv.pal
+.unknown
+	dc.b	0x70,0x20,0x00,0xD6,0x99,0x99,0x90,0x99
+.unknown2
+	dc.b	0xD8,0xA0
 .ls
-	dc.b	01,20,06,15,21,07,09,0	;line
-	dc.b	01,05,03,16,14,09,07,0	;line
-	dc.b	01,17,04,12,10,18,07,0	;line
-	dc.b	01,20,06,12,21,07,09,0	;line
-	dc.b	01,17,05,16,13,11,07,0	;line
-	dc.b	01,04,03,12,19,11,07,0	;line
-	dc.b	01,17,05,15,08,09,07,0	;line
+	dc.b	01,17,18,14,04,11,05,0	;line
+	dc.b	01,19,20,15,05,12,04,0	;line
+	dc.b	01,21,22,16,06,13,04,0	;line
+	dc.b	01,17,18,14,04,11,05,0	;line
+	dc.b	01,19,20,16,05,12,04,0	;line
+	dc.b	01,21,22,16,08,15,07,0	;line
+	dc.b	01,20,17,15,07,16,08,0	;line
 .pld
-	hex2	334e,ecc0,01dd,eef0	;1
+; 	hex2	334e,ecc0,01dd,eef0	;1
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF
 	hex2	351b,baa0,01bb,bbf0	;2
 	hex2	024e,ec68,51e4,faf4	;3
 	hex2	04ae,bb35,b085,add6	;4
@@ -79,7 +86,7 @@ Wales ; ASE
 	hex2	3089,6586,f038,f33e	;18
 	hex2	3959,c8a6,916d,f457	;19
 	hex2	779f,fdef,f1f3,fff7	;20
-    hex2  	669f,ffcf,90fd,fec3	;21
+    hex2  	669f,ffcf,90fd,fec3	;
 .tn	
 	String	'Wales All Stars'
 .sr
@@ -421,9 +428,6 @@ Edmonton
 .pad
 	incbin ..\Extracted\Graphics\Pals\oilersh.pal
 	incbin ..\Extracted\Graphics\Pals\oilersv.pal
-
-	dc.b	0x70,0x20,0x00,0xD6,0x99,0x99,0x90,0x99,0xD8,0xA0
-
 .ls
 	dc.b	01,04,05,06,03,07,08,0	;line 1
 	dc.b	01,09,10,11,08,12,03,0	;line 2

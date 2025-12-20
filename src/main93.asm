@@ -1,4 +1,4 @@
-	include	macros\genesis.mac
+	include	macros\genesis93.mac
 
 ;	68000
 ;	ABSOLUTE

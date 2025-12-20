@@ -66,6 +66,26 @@ HEX2 MACRO    ; macro for hex data
     dc.w    $\1,$\2,$\3,$\4     ; handle 4 words at a time, add $ prefix
     ENDM
 
+PLAYER MACRO
+    ; Store current position
+@begin = *
+    ; Reserve space for prefix: dc.b $00, length_byte
+    dc.b $00, $00
+    ; Output the name bytes
+    dc.b \1
+    ; Pad with 0x00 if name length is odd (to make name even)
+    IF *&1
+        dc.b $00  ; or use $20 for space if preferred
+    ENDIF
+@end = *
+    ; Now write the length byte at the reserved position (total size: prefix 2 + name + pad)
+    org @begin+1
+    dc.b @end-@begin
+    org @end
+    ; Output the remaining hex words
+    dc.w $\2,$\3,$\4,$\5
+    ENDM
+
 ; PIX macro for
 PIX     MACRO
         ; First parameter
