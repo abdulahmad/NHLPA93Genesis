@@ -25,8 +25,8 @@ TeamList
 	dc.l	Vancouver
 	dc.l	Washington
 	dc.l	Winnipeg
-	dc.l	Campbell
 	dc.l	Wales
+	dc.l	Campbell
 
 NumofTeams	=	(*-TeamList)/4
 Playerdata	=	0
@@ -43,9 +43,9 @@ Wales ; ASE
 	dc.w	.tn-.0
 	dc.w	.sr-.0
 	dc.w	.ls-.0
-	dc.w	.sodds-.0
+	dc.w	.sodds-.0 ; TODO -- This has changed to track something else
 
-.sodds	dc.b	0,0
+.sodds	; dc.b	0,0 TODO -- delete this?
 
 .pad
 	incbin ..\Extracted\Graphics\Pals\Walesh.pal
@@ -421,6 +421,9 @@ Edmonton
 .pad
 	incbin ..\Extracted\Graphics\Pals\oilersh.pal
 	incbin ..\Extracted\Graphics\Pals\oilersv.pal
+
+	dc.b	0x70,0x20,0x00,0xD6,0x99,0x99,0x90,0x99,0xD8,0xA0
+
 .ls
 	dc.b	01,04,05,06,03,07,08,0	;line 1
 	dc.b	01,09,10,11,08,12,03,0	;line 2
