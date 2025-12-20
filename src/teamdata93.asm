@@ -41,9 +41,8 @@ Wales ; ASE
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
-	;dc.w	.sr-.0
 	dc.w	.ls-.0
-	dc.w	.unknown-.0
+	dc.w	.sr-.0
 	dc.w	.unknown2-.0
 	;dc.w	.sodds-.0 ; TODO -- This has changed to track something else
 
@@ -52,8 +51,29 @@ Wales ; ASE
 .pad
 	incbin ..\Extracted\Graphics\Pals\Walesh.pal
 	incbin ..\Extracted\Graphics\Pals\Walesv.pal
-.unknown
-	dc.b	0x70,0x20,0x00,0xD6,0x99,0x99,0x90,0x99
+;------------------------
+;u - unknown
+;n - unknown
+;p - power play advantage
+;u - unknown
+
+;u - unknown
+;u - unknown
+;u - unknown
+;u - unknown
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
+.sr		;	uupu,uuuu,skpd,cfgo
+	hex2	7020,00D6,9999,9099
 .unknown2
 	dc.b	0xD8,0xA0
 .ls
@@ -65,8 +85,7 @@ Wales ; ASE
 	dc.b	01,21,22,16,08,15,07,0	;line
 	dc.b	01,20,17,15,07,16,08,0	;line
 .pld
-; 	hex2	334e,ecc0,01dd,eef0	;1
-	Player	'Patrick Roy',335F,AFFF,0100,FFFF
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;1
 	hex2	351b,baa0,01bb,bbf0	;2
 	hex2	024e,ec68,51e4,faf4	;3
 	hex2	04ae,bb35,b085,add6	;4
@@ -89,7 +108,6 @@ Wales ; ASE
     hex2  	669f,ffcf,90fd,fec3	;
 .tn	
 	String	'Wales All Stars'
-.sr
 
 Campbell ; ASW
 .0

@@ -142,3 +142,4 @@ Extracted/**
 output/**
 nhl*.bin
 nhl*.md
+*.bak
