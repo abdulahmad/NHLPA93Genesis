@@ -31,16 +31,26 @@ function parseString(buf, offset, length) {
   return str.trim(); // Trim trailing space if any
 }
 
+function getSortedIndices(arr) {
+  // Create an array of indices [0, 1, 2, ..., arr.length - 1]
+  const indices = Array.from({ length: arr.length }, (_, i) => i);
+  
+  // Sort the indices based on the corresponding values in arr (smallest to largest)
+  indices.sort((a, b) => arr[a] - arr[b]);
+  
+  return indices;
+}
+
 // Main function to parse and generate source
 function generateTeamSource(romPath) {
   const rom = fs.readFileSync(romPath);
-  const startOffset = 0x37C;
+  const startOffset = 0x314;
   const numTeams = 26;
   const teamLabels = [
     'Boston', 'Buffalo', 'Calgary', 'Chicago', 'Detroit', 'Edmonton', 'Hartford', 'LongIsland',
     'LosAngeles', 'Minnesota', 'Montreal', 'NewJersey', 'NewYork', 'Ottawa', 'Philadelphia',
     'Pittsburgh', 'Quebec', 'SanJose', 'StLouis', 'TampaBay', 'Toronto', 'Vancouver',
-    'Washington', 'Winnipeg', 'Wales', 'Campbell'
+    'Washington', 'Winnipeg', 'AllStarsEast', 'AllStarsWest'
   ];
 
   let output = 'TeamList\n';
@@ -50,14 +60,24 @@ function generateTeamSource(romPath) {
   output += `\nNumofTeams\t=\t(*-TeamList)/4\n`;
   output += 'Playerdata\t=\t0\nPalettedata\t=\t2\nTeamname\t=\t4\nScoutReport\t=\t6\nLineSets\t=\t8\nScoreOdds\t=\t10\n\n';
 
+  let teamPtrArray = [];
   // Parse pointer table
   for (let teamIdx = 0; teamIdx < numTeams; teamIdx++) {
-    const ptrOffset = startOffset + teamIdx * 2;
-    const teamPtr = rom.readUInt16BE(ptrOffset); // Absolute pointer to team data
+    const ptrOffset = startOffset + teamIdx * 4;
+    console.log(ptrOffset.toString(16).toUpperCase().padStart(6, '0'));
+    teamPtrArray[teamIdx] = rom.readUInt32BE(ptrOffset); // Absolute pointer to team data
+  }
+  let sortedTeamIndices = getSortedIndices(teamPtrArray);
 
-    let teamOutput = `${teamLabels[teamIdx]}\n.0\n`;
+  console.log(teamPtrArray);
+  console.log(sortedTeamIndices);
+
+  // Process each team in sorted order
+  for (let teamIdx = 0; teamIdx < numTeams; teamIdx++) {
+    let teamOutput = `${teamLabels[sortedTeamIndices[teamIdx]]}\n.0\n`;
 
     // Read relative offsets
+    const teamPtr = teamPtrArray[sortedTeamIndices[teamIdx]];
     const relPlayer = rom.readUInt16BE(teamPtr);
     const relPalette = rom.readUInt16BE(teamPtr + 2);
     const relTeamName = rom.readUInt16BE(teamPtr + 4);
