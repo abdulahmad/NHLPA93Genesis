@@ -8,11 +8,11 @@ TeamList
 	dc.l	Detroit
 	dc.l	Edmonton
 	dc.l	Hartford
+	dc.l	LongIsland
 	dc.l	LosAngeles
 	dc.l	Minnesota
 	dc.l	Montreal
 	dc.l	NewJersey
-	dc.l	NewYorkI
 	dc.l	NewYorkR
 	dc.l	Ottawa ; NEW in 93!
 	dc.l	Philadelphia
@@ -579,6 +579,55 @@ LosAngeles
 	String	'Los Angeles Kings'
 .sr
 
+LongIsland
+.0
+	dc.w	.pld-.0
+	dc.w	.pad-.0
+	dc.w	.tn-.0
+	dc.w	.sr-.0
+	dc.w	.ls-.0
+	dc.w	.sodds-.0
+
+.sodds	dc.b	6,3
+
+.pad
+	incbin ..\Extracted\Graphics\Pals\islandersh.pal
+	incbin ..\Extracted\Graphics\Pals\islandersv.pal
+.ls
+	dc.b	01,04,05,06,03,07,08,0	;line 1
+	dc.b	01,09,10,11,08,12,03,0	;line 2
+	dc.b	01,14,15,16,13,17,03,0	;line 3
+	dc.b	01,04,10,20,03,07,08,0	;line 4
+	dc.b	01,15,19,06,13,22,08,0	;line 5
+	dc.b	01,04,09,20,08,22,03,0	;line 6
+	dc.b	01,19,05,21,18,17,03,0	;line 7
+.pld
+     hex2  3525,7aa0,0199,7760
+     hex2  0121,0660,0144,4430
+     hex2  163d,fd4d,40ab,ac94
+     hex2  0867,a817,41a1,a8d1
+     hex2  3697,7447,7140,a598
+     hex2  254d,a937,4145,ac75
+     hex2  2674,7a54,7049,aa87
+     hex2  2134,4947,7146,aa74
+     hex2  17b4,4114,a140,a137
+     hex2  0641,1501,4173,a794
+     hex2  2784,4964,4179,a864
+     hex2  15a1,1511,1045,a252
+     hex2  334d,d734,41ac,a546
+     hex2  4784,4024,d111,a01a
+     hex2  29aa,a4b1,7172,a388
+     hex2  2471,4021,a111,a00e
+     hex2  1264,4021,7012,a10d
+     hex2  393a,a314,4147,5210
+     hex2  0251,1011,4114,5005
+     hex2  1164,a734,7177,5a34
+     hex2  0454,4454,4115,5426
+     hex2  1461,1321,1114,5512
+.tn	
+	String	'New York Islanders'
+.sr
+
 Minnesota
 .0
 	dc.w	.pld-.0
@@ -725,55 +774,6 @@ NewJersey
      hex2  2295,884e,8056,5e38
 .tn	
 	String	'New Jersey Devils'
-.sr
-
-NewYorkI
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.sr-.0
-	dc.w	.ls-.0
-	dc.w	.sodds-.0
-
-.sodds	dc.b	6,3
-
-.pad
-	incbin ..\Extracted\Graphics\Pals\islandersh.pal
-	incbin ..\Extracted\Graphics\Pals\islandersv.pal
-.ls
-	dc.b	01,04,05,06,03,07,08,0	;line 1
-	dc.b	01,09,10,11,08,12,03,0	;line 2
-	dc.b	01,14,15,16,13,17,03,0	;line 3
-	dc.b	01,04,10,20,03,07,08,0	;line 4
-	dc.b	01,15,19,06,13,22,08,0	;line 5
-	dc.b	01,04,09,20,08,22,03,0	;line 6
-	dc.b	01,19,05,21,18,17,03,0	;line 7
-.pld
-     hex2  3525,7aa0,0199,7760
-     hex2  0121,0660,0144,4430
-     hex2  163d,fd4d,40ab,ac94
-     hex2  0867,a817,41a1,a8d1
-     hex2  3697,7447,7140,a598
-     hex2  254d,a937,4145,ac75
-     hex2  2674,7a54,7049,aa87
-     hex2  2134,4947,7146,aa74
-     hex2  17b4,4114,a140,a137
-     hex2  0641,1501,4173,a794
-     hex2  2784,4964,4179,a864
-     hex2  15a1,1511,1045,a252
-     hex2  334d,d734,41ac,a546
-     hex2  4784,4024,d111,a01a
-     hex2  29aa,a4b1,7172,a388
-     hex2  2471,4021,a111,a00e
-     hex2  1264,4021,7012,a10d
-     hex2  393a,a314,4147,5210
-     hex2  0251,1011,4114,5005
-     hex2  1164,a734,7177,5a34
-     hex2  0454,4454,4115,5426
-     hex2  1461,1321,1114,5512
-.tn	
-	String	'New York Islanders'
 .sr
 
 NewYorkR

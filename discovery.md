@@ -33,28 +33,22 @@ By default, `NumTeams = 26`
 | `0x06..0x07`  | `<unit16>` | Pointer to Line Combinations |
 | `0x08..0x09`  | `<unit16>` | Pointer to Scouting Report Data |
 | `0x0A..0x0B`  | `<unit16>` | Pointer to Unknown Team Data |
-| `0x0C..0x2B`  | `<HomePalette>` | Home Palette Data. 32 Bytes long. 2 Genesis Palettes |
-| `0x2C..0x4B`  | `<AwayPalette>` | Away Palette Data. 32 Bytes long. 2 Genesis Palettes |
-Scouting Report
-Unknown
-Lines
-Player Data
-Team Name
+| `0x0C..0x2B`  | `<HomePalette>` | Home Palette Data. 32 Bytes long. 2 3-bit 16 color Genesis Palettes |
+| `0x2C..0x4B`  | `<AwayPalette>` | Away Palette Data. 32 Bytes long. 2 3-bit 16 color Genesis Palettes |
+| `0x4C..0x53`  | `<ScoutingReport>` | Scouting Report Data. 8 bytes in length. |
+| `0x54..0x55`  | `<UnknownTeamData>` | Unknown Team Data. 2 bytes in length. |
+| `0x56..0x8D`  | `<Lines>` | Lines. 7 Lines * 8 bytes in length = 56 bytes in length. |
+| `0x8E..endOfPlayerData`  | `<PlayerData>` | Player Data. 20 to 23 players. |
+| `endOfPlayerData+1..endOfTeamNameSection`  | `<TeamNameSection>` | Team Name & Abbreviation. |
 
-## NHLPA93 PlayerData Section (Big Endian)
+## NHLPA93 Scouting Report Section (Big Endian)
 | `0x00..0x01`  | `<PlayerData>` | Pointer to Player Data |
-| `0x02..0x03`  | `<JerseyPalettes>` | Pointer to Jersey Palettes |
-| `0x04..0x05`  | `<string>` | Pointer to Team Name |
-| `0x06..0x07`  | `<Lines>` | Pointer to Line Combinations |
-| `0x08..0x09`  | `<ScoutingReportData>` | Pointer to Scouting Report Data |
-| `0x10..0x11`  | `<UnknownData>` | Pointer to Unknown Team Data |
 
-| `0x06-FrameDataEnd`                   | `<Frame Data>`        | List of Frames in .ANIM file                      |
-| `0x(FrameDataEnd+1)-(FrameDataEnd+2)` | `"CC"`                | Character Content (Tile Data) Header              |
-| `0x(FrameDataEnd+3)-(FrameDataEnd+4)` | `<uint16>`             | Number of Tiles in ANIM file                      |
-| `0x(FrameDataEnd+5)-(TileDataEnd)`    | `<Sprite Tile Data>`  | 8x8 Tiles, 4 bits per pixel, Column-Major order. In the retail ROM, sprites are grouped together in order of descending height. See `Size Table` Definition Section for Sprite Sizes. Sprites seem to be in opposite order of tileIndex in each size group.                                        |
-| `0x(TileDataEnd+1)-(TileDataEnd+2)`   | `"PP"`                | Palette Section Header                            |
-| `0x(TileDataEnd+3)-(TileDataEnd+82)`  | `<Palette Data>`      | 128 bytes of Palette Data. 4 palettes of 16 colors (9bpp Sega Genesis Format).                                                                                               |
-| `0x(TileDataEnd+83)-(TileDataEnd+84)`| `"DD"`                 | Unknown Data Section Header                       |
-| `0x(TileDataEnd+85)-(TileDataEnd+94)`| `<DD Data>`            | 16 bytes of Unknown Data                          |
-| `0x(TileDataEnd+95)-(TileDataEnd+96)`| `"ZZ"`                 | End of File Footer                                |
+## NHLPA93 Lines Section (Big Endian)
+| `0x00..0x01`  | `<PlayerData>` | Pointer to Player Data |
+
+## NHLPA93 Player Data Section (Big Endian)
+| `0x00..0x01`  | `<PlayerData>` | Pointer to Player Data |
+
+## NHLPA93 Team Name Section (Big Endian)
+| `0x00..0x01`  | `<PlayerData>` | Pointer to Player Data |
