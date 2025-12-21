@@ -23,12 +23,12 @@ function parseString(buf, offset, length) {
   let str = '';
   for (let i = 0; i < length; i++) {
     const char = buf[offset + i];
-    if (char === 0x20 && i === length - 1 && length % 2 === 0) { // Padding space if uneven
+    if (char === 0x00 && i === length - 1) { // Skip trailing null padding
       continue;
     }
     str += String.fromCharCode(char);
   }
-  return str.trim(); // Trim trailing space if any
+  return str.trim(); // Trim any trailing whitespace if present
 }
 
 function getSortedIndices(arr) {
@@ -39,6 +39,17 @@ function getSortedIndices(arr) {
   indices.sort((a, b) => arr[a] - arr[b]);
   
   return indices;
+}
+
+function convertAttrs(buffer) {
+  if (buffer.length < 8) return '';
+  const uniform = buffer[0].toString(16).toUpperCase().padStart(2, '0');
+  const weight = buffer[1].toString(16).toUpperCase().padStart(2, '0');
+  const first = uniform + weight;
+  const word1 = ((buffer[2] << 8) | buffer[3]).toString(16).toUpperCase().padStart(4, '0');
+  const word2 = ((buffer[4] << 8) | buffer[5]).toString(16).toUpperCase().padStart(4, '0');
+  const word3 = ((buffer[6] << 8) | buffer[7]).toString(16).toUpperCase().padStart(4, '0');
+  return `${first},${word1},${word2},${word3}`;
 }
 
 // Main function to parse and generate source
@@ -69,8 +80,8 @@ function generateTeamSource(romPath) {
   }
   let sortedTeamIndices = getSortedIndices(teamPtrArray);
 
-  console.log(teamPtrArray);
-  console.log(sortedTeamIndices);
+//   console.log(teamPtrArray);
+//   console.log(sortedTeamIndices);
 
   // Process each team in sorted order
   for (let teamIdx = 0; teamIdx < numTeams; teamIdx++) {
@@ -123,23 +134,23 @@ function generateTeamSource(romPath) {
     let currentPos = playerStart;
     teamOutput += '.pld\n';
 
-    while (currentPos < teamNameStart) {
+    while (currentPos < teamNameStart-2) {
+      console.log(currentPos, teamNameStart);
       const nameLenPlus2 = rom.readUInt16BE(currentPos);
+      console.log(`NameLenPlus2: ${nameLenPlus2} at ${currentPos.toString(16).toUpperCase().padStart(6, '0')}`);
       const nameLen = nameLenPlus2 - 2;
       const nameStart = currentPos + 2;
       const name = parseString(rom, nameStart, nameLen);
-      const attrStart = nameStart + nameLen + (nameLen % 2 === 1 ? 1 : 0); // Padding if odd
-      const attrs = rom.slice(attrStart, attrStart + 9);
+      const attrStart = nameStart + nameLen;
+      const playerAttributes = rom.slice(attrStart, attrStart + 8);
+      console.log(playerAttributes);
 
-      // Convert attrs to 4 hex words: first byte uniform, then 8 bytes as 4 words
-      const uniform = attrs[0].toString(16).toUpperCase().padStart(2, '0');
-      const attrWords = bufferToHexWords(attrs.slice(1), 2);
+      teamOutput += `\tPlayer\t'${name}',${convertAttrs(playerAttributes)}\n`;
 
-      teamOutput += `\tPlayer\t'${name}',${uniform}${attrs[1].toString(16).toUpperCase().padStart(2, '0')},${attrWords}\n`;
-
-      currentPos = attrStart + 9;
+      currentPos = attrStart + 8;
     }
-
+    //output += teamOutput;
+    // break;
     // Team Name Section
     const tnLenPlus1 = rom.readUInt16BE(teamNameStart);
     const tnLen = tnLenPlus1 - 1;
@@ -155,6 +166,7 @@ function generateTeamSource(romPath) {
     teamOutput += `.tn\n\tStringB\t'${teamNameStr}'\n.ta\n\tStringB\t'${abbrevStr}'\n\n`;
 
     output += teamOutput;
+    break;
   }
 
   // Write to file instead of just console
