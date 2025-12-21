@@ -137,7 +137,9 @@ function generateTeamSource(romPath) {
     output += teamOutput;
   }
 
-  console.log(output);
+  // Write to file instead of just console
+  fs.writeFileSync('team_data.asm', output, 'utf8');
+  console.log('Output written to team_data.asm'); // Optional: confirm in console
 }
 
 // Usage: node script.js path_to_nhlpa93_rom.bin
