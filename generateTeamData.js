@@ -23,10 +23,12 @@ function parseString(buf, offset, length) {
   let str = '';
   for (let i = 0; i < length; i++) {
     const char = buf[offset + i];
-    if (char === 0x00 && i === length - 1) { // Skip trailing null padding
+    // console.log(char, i, char === 0x00, i=== length - 1);
+    if (char === 0x00) { // Skip trailing null padding
       continue;
     }
     str += String.fromCharCode(char);
+    // console.log(str);
   }
   return str.trim(); // Trim any trailing whitespace if present
 }
@@ -75,7 +77,7 @@ function generateTeamSource(romPath) {
   // Parse pointer table
   for (let teamIdx = 0; teamIdx < numTeams; teamIdx++) {
     const ptrOffset = startOffset + teamIdx * 4;
-    console.log(ptrOffset.toString(16).toUpperCase().padStart(6, '0'));
+    // console.log(ptrOffset.toString(16).toUpperCase().padStart(6, '0'));
     teamPtrArray[teamIdx] = rom.readUInt32BE(ptrOffset); // Absolute pointer to team data
   }
   let sortedTeamIndices = getSortedIndices(teamPtrArray);
@@ -135,15 +137,15 @@ function generateTeamSource(romPath) {
     teamOutput += '.pld\n';
 
     while (currentPos < teamNameStart-2) {
-      console.log(currentPos, teamNameStart);
+    //   console.log(currentPos, teamNameStart);
       const nameLenPlus2 = rom.readUInt16BE(currentPos);
-      console.log(`NameLenPlus2: ${nameLenPlus2} at ${currentPos.toString(16).toUpperCase().padStart(6, '0')}`);
+    //   console.log(`NameLenPlus2: ${nameLenPlus2} at ${currentPos.toString(16).toUpperCase().padStart(6, '0')}`);
       const nameLen = nameLenPlus2 - 2;
       const nameStart = currentPos + 2;
       const name = parseString(rom, nameStart, nameLen);
       const attrStart = nameStart + nameLen;
       const playerAttributes = rom.slice(attrStart, attrStart + 8);
-      console.log(playerAttributes);
+    //   console.log(playerAttributes);
 
       teamOutput += `\tPlayer\t'${name}',${convertAttrs(playerAttributes)}\n`;
 
@@ -158,7 +160,7 @@ function generateTeamSource(romPath) {
     const teamNameStr = parseString(rom, tnStrStart, tnLen);
 
     const abbrevStart = tnStrStart + tnLen;
-    const abLenPlus1 = rom.readUInt16BE(abbrevStart); // Fix this 8-bit
+    const abLenPlus1 = rom.readUInt8(abbrevStart); // Fix this 8-bit
     const abLen = abLenPlus1 - 1;
     const abStrStart = abbrevStart + 1;
     const abbrevStr = parseString(rom, abStrStart, abLen);
@@ -166,7 +168,7 @@ function generateTeamSource(romPath) {
     teamOutput += `.tn\n\tStringB\t'${teamNameStr}'\n.ta\n\tStringB\t'${abbrevStr}'\n\n`;
 
     output += teamOutput;
-    break;
+    // break;
   }
 
   // Write to file instead of just console
