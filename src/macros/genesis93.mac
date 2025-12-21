@@ -62,6 +62,66 @@ String  MACRO
         org     @end1
     ENDM
 
+StringB  MACRO
+        ; Store current position
+@begin1  =   *
+        ; Reserve space for length word
+        dc.b    0
+        ; Output the string bytes
+        dc.b    \1     ; first param
+    IF NARG>1
+        dc.b    \2     ; second param
+    ENDIF
+    IF NARG>2
+        dc.b    \3     ; third param
+    ENDIF
+    IF NARG>3
+        dc.b    \4     ; fourth param
+    ENDIF
+    IF NARG>4
+        dc.b    \5     ; fifth param
+    ENDIF
+    IF NARG>5
+        dc.b    \6     ; sixth param
+    ENDIF
+    IF NARG>6
+        dc.b    \7     ; seventh param
+    ENDIF
+    IF NARG>7
+        dc.b    \8     ; eighth param
+    ENDIF
+    IF NARG>8
+        dc.b    \9     ; ninth param
+    ENDIF
+    IF NARG>9
+        dc.b    \10    ; tenth param
+    ENDIF
+    IF NARG>10
+        dc.b    \11    ; eleventh param
+    ENDIF
+    IF NARG>11
+        dc.b    \12    ; twelfth param
+    ENDIF
+    IF NARG>12
+        dc.b    \13    ; thirteenth param
+    ENDIF
+    IF NARG>13
+        dc.b    \14    ; fourteenth param
+    ENDIF
+    IF NARG>14
+        dc.b    \15    ; fifteenth param
+    ENDIF
+        ; Pad with zero if needed for word alignment
+    IF *&1
+        dc.b    0
+    ENDIF
+@end1    =   *
+        ; Now write the length at the reserved position
+        org     @begin1
+        dc.b    @end1-@begin1  ; Total length
+        org     @end1
+    ENDM
+
 HEX2 MACRO    ; macro for hex data
     dc.w    $\1,$\2,$\3,$\4     ; handle 4 words at a time, add $ prefix
     ENDM

@@ -43,7 +43,7 @@ Wales ; ASE
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
-	dc.w	.unknown2-.0
+	dc.w	.unknown-.0
 	;dc.w	.sodds-.0 ; TODO -- This has changed to track something else
 
 .sodds	; dc.b	0,0 TODO -- delete this?
@@ -53,7 +53,7 @@ Wales ; ASE
 	incbin ..\Extracted\Graphics\Pals\Walesv.pal
 ;------------------------
 ;u - unknown
-;n - unknown
+;u - unknown
 ;p - power play advantage
 ;u - unknown
 
@@ -72,11 +72,11 @@ Wales ; ASE
 ;g - goalkeeping
 ;o - overall
 ;------------------------
-.sr		;	uupu,uuuu,skpd,cfgo
+.sr		;	uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	7020,00D6,9999,9099
-.unknown2
+.unknown ; TODO - rename this once unknowns are discovered
 	dc.b	0xD8,0xA0
-.ls
+.ls		;   -G,LD,RD,LW,-C,RW,XA,0
 	dc.b	01,17,18,14,04,11,05,0	;line
 	dc.b	01,19,20,15,05,12,04,0	;line
 	dc.b	01,21,22,16,06,13,04,0	;line
@@ -86,28 +86,30 @@ Wales ; ASE
 	dc.b	01,20,17,15,07,16,08,0	;line
 .pld
 	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;1
-	hex2	351b,baa0,01bb,bbf0	;2
-	hex2	024e,ec68,51e4,faf4	;3
-	hex2	04ae,bb35,b085,add6	;4
-	hex2	05d5,58a5,8055,f8c6	;5
-	hex2	077f,fd1f,61f6,fdfa	;6
-	hex2	089f,feec,f06c,ff98	;7
-	hex2	094e,eb58,b1e7,ab93	;8
-	hex2	104f,9f6c,91fe,fac4	;9
-	hex2	115e,8e5b,e0eb,fbc8	;10
-	hex2	1575,8c8f,5059,fe7a	;11
-	hex2	1668,ec65,b08a,ac8d	;12
-	hex2	173d,fd4d,40ab,ac94	;13
-	hex2	194a,ae0a,41ac,fcb2	;14
-	hex2	2288,bc7b,f0bb,fc7a	;15
-	hex2	25b9,fc66,916a,ad9a	;16
-	hex2	2859,c569,9192,f797	;17
-	hex2	3089,6586,f038,f33e	;18
-	hex2	3959,c8a6,916d,f457	;19
-	hex2	779f,fdef,f1f3,fff7	;20
-    hex2  	669f,ffcf,90fd,fec3	;
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;2
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;3
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;4
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;5
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;6
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;7
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;8
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;9
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;10
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;11
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;12
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;13
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;14
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;15
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;16
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;17
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;18
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;19
+	Player	'Patrick Roy',335F,AFFF,0100,FFFF ;20
+    Player	'Patrick Roy',335F,AFFF,0100,FFFF ;
 .tn	
-	String	'Wales All Stars'
+	StringB	'All Stars East'
+.ta
+	StringB	'ASE'
 
 Campbell ; ASW
 .0
