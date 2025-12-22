@@ -65,6 +65,12 @@ function generateTeamSource(romPath) {
     'Pittsburgh', 'Quebec', 'SanJose', 'StLouis', 'TampaBay', 'Toronto', 'Vancouver',
     'Washington', 'Winnipeg', 'AllStarsEast', 'AllStarsWest'
   ];
+  const palNames = [
+    'Bruins', 'sabres', 'flames', 'Blackhawks', 'redwings', 'oilers', 'whalers', 'islanders',
+    'Kings', 'northstars', 'canadiens', 'devils', 'rangers', 'ott', 'flyers',
+    'penguins', 'nordiques', 'Sharks', 'blues', 'tb', 'mapleleafs', 'canucks',
+    'capitals', 'jets', 'Wales', 'Campbell'
+  ];
 
   let output = 'TeamList\n';
   for (let i = 0; i < numTeams; i++) {
@@ -107,8 +113,10 @@ function generateTeamSource(romPath) {
 
     teamOutput += '.pad\n';
     // Instead of incbin, output as dc.b for self-contained
-    teamOutput += `\tdc.b\t${bufferToDcB(homePal)}\n`;
-    teamOutput += `\tdc.b\t${bufferToDcB(awayPal)}\n`;
+    // teamOutput += `\tdc.b\t${bufferToDcB(homePal)}\n`;
+    // teamOutput += `\tdc.b\t${bufferToDcB(awayPal)}\n`;
+    teamOutput += `\tincbin\t..\\Extracted\\Graphics\\Pals\\${palNames[sortedTeamIndices[teamIdx]]}h.pal\n`;
+    teamOutput += `\tincbin\t..\\Extracted\\Graphics\\Pals\\${palNames[sortedTeamIndices[teamIdx]]}v.pal\n`;
 
     // Scouting Report (8 bytes)
     const scoutStart = teamPtr + relScout;
