@@ -15,7 +15,11 @@ function bufferToHexWords(buf, bytesPerWord = 2) {
 
 // Function to buffer to dc.b string
 function bufferToDcB(buf) {
-  return buf.map(b => '0x' + b.toString(16).toUpperCase().padStart(2, '0')).join(',');
+    let array = [];
+    for (let i = 0; i < buf.length; i++) {
+        array[i] = buf[i].toString().padStart(2, '0');
+    }
+  return array.join(',');
 }
 
 // Function to parse string from buffer, stop at length
@@ -153,19 +157,45 @@ function generateTeamSource(romPath) {
     // Lines (56 bytes)
     const linesStart = teamPtr + relLines;
     const linesBuf = rom.slice(linesStart, linesStart + 56);
-    teamOutput += '.ls\n';
+    teamOutput += '.ls\t;\t\t-G,LD,RD,LW,-C,RW,XA,00\n';
     // Output as dc.b in groups of 8 for each line
     for (let line = 0; line < 7; line++) {
       const lineBuf = linesBuf.slice(line * 8, (line + 1) * 8);
-      teamOutput += `\tdc.b\t${bufferToDcB(lineBuf)}\n`;
+      console.log(lineBuf,bufferToDcB(lineBuf));
+      teamOutput += `\tdc.b\t${bufferToDcB(lineBuf)}\t;line ${line+1}\n`;
     }
 
     // Player Data
     const playerStart = teamPtr + relPlayer;
     const teamNameStart = teamPtr + relTeamName;
     let currentPos = playerStart;
-    teamOutput += '.pld\n';
+    
+    if (teamIdx === 0) {
+        teamOutput += `;------------------------\n`;
+        teamOutput += `;u - uniform # x10\n`;
+        teamOutput += `;n - uniform # x1\n`;
+        teamOutput += `;w - weight\n`;
+        teamOutput += `;l - leg power\n`;
 
+        teamOutput += `;s - speed\n`;
+        teamOutput += `;o - offensive awareness\n`;
+        teamOutput += `;d - defensive awareness\n`;
+        teamOutput += `;p - shot power / NA for goalie\n\n`;
+
+        teamOutput += `;c - checking strength / NA\n`;
+        teamOutput += `;h - shooting hand / glove hand\n`;
+        teamOutput += `;g - stickhandling / glove left saves\n`;
+        teamOutput += `;a - shooting accuracy / glove right saves\n\n`;
+
+        teamOutput += `;e - endurance / stick right saves\n`;
+        teamOutput += `;y - shot/pass decision / stick left saves\n`;
+        teamOutput += `;t - passing accuracy / consistency\n`;
+        teamOutput += `;m - aggressiveness (PIM) / NA\n`;
+        teamOutput += `;------------------------\n`;
+    }
+    teamOutput += '.pld\t;\t\t\t\t  unwl,sodp,chga,eytm\n';
+
+    let playerCount = 1;
     while (currentPos < teamNameStart-2) {
     //   console.log(currentPos, teamNameStart);
       const nameLenPlus2 = rom.readUInt16BE(currentPos);
@@ -177,9 +207,10 @@ function generateTeamSource(romPath) {
       const playerAttributes = rom.slice(attrStart, attrStart + 8);
     //   console.log(playerAttributes);
 
-      teamOutput += `\tPlayer\t'${name}',${convertAttrs(playerAttributes)}\n`;
+      teamOutput += `\tPlayer\t'${name}',${convertAttrs(playerAttributes)}\t;$${playerCount}\n`;
 
       currentPos = attrStart + 8;
+      playerCount++;
     }
     //output += teamOutput;
     // break;
