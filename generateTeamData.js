@@ -80,7 +80,7 @@ function generateTeamSource(romPath) {
 
   let output = '\tdc.l\t$0000\n\n';
   output += 'TeamList\n';
-  
+
   for (let i = 0; i < numTeams; i++) {
     output += `\tdc.l\t${teamLabels[i]}\n`;
   }
@@ -245,7 +245,9 @@ function generateTeamSource(romPath) {
 
     console.log(tnLenPlus1, tnLen, tnStrStart, teamNameStr, abbrevStart, abLenPlus1);
     // console.log(tnLenPlus1, tnLen, teamNameStr, abLenPlus1, abLen, abbrevStr);
-    teamOutput += `.tn\n\tStringB\t'${teamNameStr}'\n.ta\n\tStringB\t'${abbrevStr}'\n\n`;
+    teamOutput += `.tn\n`;
+    teamOutput += `\tdc.b 0,2\t; TODO not sure why this is here\n`;
+    teamOutput += `\tStringB\t'${teamNameStr}'\n.ta\n\tStringB\t'${abbrevStr}'\n\n`;
 
     output += teamOutput;
     // break;
