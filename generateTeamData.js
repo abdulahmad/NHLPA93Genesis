@@ -121,7 +121,28 @@ function generateTeamSource(romPath) {
     // Scouting Report (8 bytes)
     const scoutStart = teamPtr + relScout;
     const scoutBuf = rom.slice(scoutStart, scoutStart + 8);
-    teamOutput += `.sr\n\thex2\t${bufferToHexWords(scoutBuf)}\n`;
+    if (teamIdx === 0) {
+        teamOutput += `;------------------------\n`;
+        teamOutput += `;u - unknown\n`;
+        teamOutput += `;u - unknown\n`;
+        teamOutput += `;p - power play advantage\n`;
+        teamOutput += `;u - unknown\n\n`;
+        teamOutput += `;u - unknown\n`;
+        teamOutput += `;u - unknown\n`;
+        teamOutput += `;u - unknown\n`;
+        teamOutput += `;u - unknown\n\n`;
+        teamOutput += `;s - shooting\n`;
+        teamOutput += `;k - skating\n`;
+        teamOutput += `;p - passing\n`;
+        teamOutput += `;d - defense\n\n`;
+        teamOutput += `;c - checking\n`;
+        teamOutput += `;f - fighting\n`;
+        teamOutput += `;g - goalkeeping\n`;
+        teamOutput += `;o - overall\n`;
+        teamOutput += `;------------------------\n`;
+    }
+    teamOutput += `.sr\t;\t\tuupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes\n`;
+    teamOutput += `\thex2\t${bufferToHexWords(scoutBuf)}\n`;
 
     // Unknown (2 bytes)
     const unknownStart = teamPtr + relUnknown;
