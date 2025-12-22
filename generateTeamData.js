@@ -147,7 +147,8 @@ function generateTeamSource(romPath) {
     // Unknown (2 bytes)
     const unknownStart = teamPtr + relUnknown;
     const unknownBuf = rom.slice(unknownStart, unknownStart + 2);
-    teamOutput += `.unknown\n\tdc.b\t${bufferToDcB(unknownBuf)}\n`;
+    teamOutput += `.unknown\t; TODO - rename this once unknowns are discovered\n`;
+    teamOutput += `\tdc.b\t${bufferToDcB(unknownBuf)}\n`;
 
     // Lines (56 bytes)
     const linesStart = teamPtr + relLines;
