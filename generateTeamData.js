@@ -169,10 +169,12 @@ function generateTeamSource(romPath) {
 
     const abbrevStart = tnStrStart + tnLen;
     const abLenPlus1 = rom.readUInt8(abbrevStart); // Fix this 8-bit
-    const abLen = abLenPlus1 - 1;
+    const abLen = abLenPlus1 - 2;
     const abStrStart = abbrevStart + 1;
     const abbrevStr = parseString(rom, abStrStart, abLen);
 
+    console.log(tnLenPlus1, tnLen, tnStrStart, teamNameStr, abbrevStart, abLenPlus1);
+    // console.log(tnLenPlus1, tnLen, teamNameStr, abLenPlus1, abLen, abbrevStr);
     teamOutput += `.tn\n\tStringB\t'${teamNameStr}'\n.ta\n\tStringB\t'${abbrevStr}'\n\n`;
 
     output += teamOutput;
