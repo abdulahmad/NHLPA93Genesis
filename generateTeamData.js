@@ -253,11 +253,11 @@ function generateTeamSource(romPath) {
     // break;
   }
 
+  // READ 544 BYTES AND FORMAT INTO PLAYOFF SEATS, start at offset 0x491A
+
   // Write to file instead of just console
   fs.writeFileSync('team_data.asm', output, 'utf8');
   console.log('Output written to team_data.asm'); // Optional: confirm in console
-  console.log('Max player name length:', maxNameLength);
-  console.log('Max player name:', maxName);
 }
 
 // Usage: node script.js path_to_nhlpa93_rom.bin
