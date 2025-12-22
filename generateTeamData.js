@@ -254,7 +254,27 @@ function generateTeamSource(romPath) {
   }
 
   // READ 544 BYTES AND FORMAT INTO PLAYOFF SEATS, start at offset 0x491A
+  // Playoff seats (544 bytes at 0x491A)
+  const playoffOffset = 0x491A;
+  const playoffSize = 544;
+  const playoffBuf = rom.slice(playoffOffset, playoffOffset + playoffSize);
 
+  output += '\nplayoffseats\n';
+
+  for (let i = 0; i < playoffSize; i += 16) {
+    let numbers = [];
+    for (let j = 0; j < 16; j++) {
+      numbers.push(playoffBuf[i + j]);
+    }
+
+    let groups = [];
+    for (let g = 0; g < 4; g++) {
+      groups.push(numbers.slice(g * 4, g * 4 + 4).join(','));
+    }
+
+    output += `\tdc.b\t${groups.join(', ')}\n`;
+  }
+  
   // Write to file instead of just console
   fs.writeFileSync('team_data.asm', output, 'utf8');
   console.log('Output written to team_data.asm'); // Optional: confirm in console
