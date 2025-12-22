@@ -245,8 +245,8 @@ function generateTeamSource(romPath) {
 
     console.log(tnLenPlus1, tnLen, tnStrStart, teamNameStr, abbrevStart, abLenPlus1);
     // console.log(tnLenPlus1, tnLen, teamNameStr, abLenPlus1, abLen, abbrevStr);
-    teamOutput += `.tn\n`;
     teamOutput += `\tdc.b 0,2\t; TODO not sure why this is here\n`;
+    teamOutput += `.tn\n`;
     teamOutput += `\tStringB\t'${teamNameStr}'\n.ta\n\tStringB\t'${abbrevStr}'\n\n`;
 
     output += teamOutput;
