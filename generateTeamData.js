@@ -78,7 +78,9 @@ function generateTeamSource(romPath) {
     'capitals', 'jets', 'Wales', 'Campbell'
   ];
 
-  let output = 'TeamList\n';
+  let output = '\tdc.l\t$0000\n\n';
+  output += 'TeamList\n';
+  
   for (let i = 0; i < numTeams; i++) {
     output += `\tdc.l\t${teamLabels[i]}\n`;
   }
