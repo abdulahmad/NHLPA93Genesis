@@ -60,6 +60,8 @@ function convertAttrs(buffer) {
 
 // Main function to parse and generate source
 function generateTeamSource(romPath) {
+  let maxNameLength = 0;
+  let maxName = '';
   const rom = fs.readFileSync(romPath);
   const startOffset = 0x314;
   const numTeams = 26;
@@ -193,7 +195,7 @@ function generateTeamSource(romPath) {
         teamOutput += `;m - aggressiveness (PIM) / NA\n`;
         teamOutput += `;------------------------\n`;
     }
-    teamOutput += '.pld\t;\t\t\t\t  unwl,sodp,chga,eytm\n';
+    teamOutput += '.pld\t;\t\t\t\t\t\t\tunwl,sodp,chga,eytm\n';
 
     let playerCount = 1;
     while (currentPos < teamNameStart-2) {
@@ -206,8 +208,21 @@ function generateTeamSource(romPath) {
       const attrStart = nameStart + nameLen;
       const playerAttributes = rom.slice(attrStart, attrStart + 8);
     //   console.log(playerAttributes);
-
-      teamOutput += `\tPlayer\t'${name}',${convertAttrs(playerAttributes)}\t;$${playerCount}\n`;
+        if (nameLen > maxNameLength) {
+            maxNameLength = nameLen;
+            maxName = name;
+        }
+      let tabs = '';
+      if (nameLen >= 17) {
+        tabs = '\t';
+      } else if (nameLen >= 13) {
+        tabs = '\t\t';
+      } else if (nameLen >= 9) {
+        tabs = '\t\t\t';
+      } else if (nameLen >= 5) {
+        tabs = '\t\t\t\t';
+      }
+      teamOutput += `\tPlayer\t'${name}',${tabs}${convertAttrs(playerAttributes)}\t;${playerCount}\n`;
 
       currentPos = attrStart + 8;
       playerCount++;
@@ -237,6 +252,8 @@ function generateTeamSource(romPath) {
   // Write to file instead of just console
   fs.writeFileSync('team_data.asm', output, 'utf8');
   console.log('Output written to team_data.asm'); // Optional: confirm in console
+  console.log('Max player name length:', maxNameLength);
+  console.log('Max player name:', maxName);
 }
 
 // Usage: node script.js path_to_nhlpa93_rom.bin
