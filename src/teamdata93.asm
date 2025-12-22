@@ -13,7 +13,7 @@ TeamList
 	dc.l	Minnesota
 	dc.l	Montreal
 	dc.l	NewJersey
-	dc.l	NewYorkR
+	dc.l	NewYork
 	dc.l	Ottawa ; NEW in 93!
 	dc.l	Philadelphia
 	dc.l	Pittsburgh
@@ -25,15 +25,15 @@ TeamList
 	dc.l	Vancouver
 	dc.l	Washington
 	dc.l	Winnipeg
-	dc.l	Wales
-	dc.l	Campbell
+	dc.l	AllStarsEast
+	dc.l	AllStarsWest
 
 NumofTeams	=	(*-TeamList)/4
 Playerdata	=	0
 Palettedata	=	2
 Teamname	=	4
-ScoutReport	=	6
-LineSets	=	8
+LineSets	=	6
+ScoutReport	=	8
 ScoreOdds	=	10
 
 Wales ; ASE

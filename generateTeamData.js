@@ -83,7 +83,7 @@ function generateTeamSource(romPath) {
     output += `\tdc.l\t${teamLabels[i]}\n`;
   }
   output += `\nNumofTeams\t=\t(*-TeamList)/4\n`;
-  output += 'Playerdata\t=\t0\nPalettedata\t=\t2\nTeamname\t=\t4\nScoutReport\t=\t6\nLineSets\t=\t8\nScoreOdds\t=\t10\n\n';
+  output += 'Playerdata\t=\t0\nPalettedata\t=\t2\nTeamname\t=\t4\nLineSets\t=\t6\nScoutReport\t=\t8\nScoreOdds\t=\t10\n\n';
 
   let teamPtrArray = [];
   // Parse pointer table
@@ -108,9 +108,9 @@ function generateTeamSource(romPath) {
     const relTeamName = rom.readUInt16BE(teamPtr + 4);
     const relLines = rom.readUInt16BE(teamPtr + 6);
     const relScout = rom.readUInt16BE(teamPtr + 8);
-    const relUnknown = rom.readUInt16BE(teamPtr + 10);
+    const relScoringOdds = rom.readUInt16BE(teamPtr + 10);
 
-    teamOutput += `\tdc.w\t.pld-.0\n\tdc.w\t.pad-.0\n\tdc.w\t.tn-.0\n\tdc.w\t.ls-.0\n\tdc.w\t.sr-.0\n\tdc.w\t.unknown-.0\n`;
+    teamOutput += `\tdc.w\t.pld-.0\n\tdc.w\t.pad-.0\n\tdc.w\t.tn-.0\n\tdc.w\t.ls-.0\n\tdc.w\t.sr-.0\n\tdc.w\t.sodds-.0\n`;
 
     // Palettes (32 bytes home + 32 away)
     const paletteStart = teamPtr + relPalette;
@@ -150,11 +150,11 @@ function generateTeamSource(romPath) {
     teamOutput += `.sr\t;\t\tuupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes\n`;
     teamOutput += `\thex2\t${bufferToHexWords(scoutBuf)}\n`;
 
-    // Unknown (2 bytes)
-    const unknownStart = teamPtr + relUnknown;
-    const unknownBuf = rom.slice(unknownStart, unknownStart + 2);
-    teamOutput += `.unknown\t; TODO - rename this once unknowns are discovered\n`;
-    teamOutput += `\tdc.b\t${bufferToDcB(unknownBuf)}\n`;
+    // Scoring Odds (2 bytes)
+    const scoringOddsStart = teamPtr + relScoringOdds;
+    const scoringOddsBuf = rom.slice(scoringOddsStart, scoringOddsStart + 2);
+    teamOutput += `.sodds\t; TODO - rename this once unknowns/sodds are confirmed\n`;
+    teamOutput += `\tdc.b\t${bufferToDcB(scoringOddsBuf)}\n`;
 
     // Lines (56 bytes)
     const linesStart = teamPtr + relLines;
