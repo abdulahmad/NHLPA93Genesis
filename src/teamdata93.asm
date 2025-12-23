@@ -1496,75 +1496,71 @@ playoffseats
 	dc.b	3,9,4,18, 21,5,8,23, 10,1,0,6, 12,15,22,11
 	dc.b	3,18,4,9, 21,23,8,5, 10,6,0,1, 12,11,22,15
 	dc.b	3,9,4,18, 21,5,8,23, 10,1,0,6, 12,15,22,11
-	
+
 	dc.b	3,19,4,9, 21,23,8,5, 10,13,0,1, 12,11,22,15
 	dc.b	3,18,4,19, 21,23,8,5, 10,6,0,13, 12,11,22,15
 
 
 Credits
-	String	'Team names and logos'
-	String	'depicted are Officially'
-	String	'Licensed Trademarks of the'
-	String	'National Hockey League'
-	String	'$ NHL 1991'
+	String	'$ 1992 Electronic Arts'
+	String	'Licensed by'
+	String	'Sega Enterprises Ltd.'
 	String	-1
+	dc.b	0,2 ;	TODO -- this is strange-- maybe something missing from the macro?
+	String  -1
 
-	String	'Designed by'
+	String	'Design adapted by'
+	String	'Michael Brook'
 	String	'Scott Orr'
 	String	'Richard Hilleman'
-	String	'Michael Brook'
-	String	'Jim Simmons'
-	String	-1
-
-	String	'Developed by'
-	String	'Park Place Production Team'
 	String	-1
 
 	String	'Programmed by'
 	String	'Jim Simmons'
 	String	-1
 
-	String	'Graphics Design by'
+	String	'Graphics by'
+	String	'George Simmons'
 	String	'Brian O''Hara'
-	String	'Steve Quinn'
 	String	'Curt Toumanian'
 	String	-1
 
-	String	'Production Assistance by'
-	String	'Michael Knox'
-	String	'Troy Lyndon'
-	String	'Jim Haldy'
-	String	'for Park Place Production Team'
-	String	-1
-
 	String	'Music and Sound by'
-	String	'Rob Hubbard'
-	String	-1
-
-	String	'Executive Producer'
-	String	'Richard Hilleman'
+	String	'Jim Simmons'
 	String	-1
 
 	String	'Produced by'
 	String	'Michael Brook'
 	String	-1
 
-	String	'Technical Director'
-	String	'Scott Cronce'
+	String	'Assistant Producer'
+	String	'Steve Matulac'
 	String	-1
 
-	String	'Assistant Producer'
-	String	'Ed Gwynn'
+	String	'Technical Directors'
+	String	'Scott Cronce'
+	String	'Tom DeBry'
+	String	-1
+
+	String	'Testing by'
+	String	'Robert Zalot'
+	String	'Yun Shin'
+	String	'Joel Simmons'
+	String	-1
+
+	String	'Player Ratings by'
+	String	'Igor Kuperman'
 	String	-1
 
 	String	'Special Thanks to'
-	IF REV=0 ; RETAIL
-		String	'Mark Hughes and Scooter Hanson'
-	ELSE ; REV A
-		String	'Mark Hughes and Scooter Henson'
-	ENDIF
-	String	'of the San Diego Gulls'
+	String	'Bob Borgen'
+	String	'Ted Saskin'
+	String	'Ian Pulver'
+	String	'Rob Blake'
+	String	'John McIntyre'
+	String	-1
 
+	
 	String	''
 	String	-1
 	String	-1
