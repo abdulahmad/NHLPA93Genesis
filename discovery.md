@@ -94,3 +94,54 @@ By default, `NumTeams = 26`
 | `0x02..0x02+TeamNameLength`  | `<string>` | Team's Name. If Length is uneven, a blank space is added to the end for alignment |
 | `0xTeamNameLength+1..0xTeamNameLength+2`  | `<TeamAbbreviationLength+1>` | Length of Team Abbreviation + 1. Includes extra alignment blank space as part of count if name is uneven |
 | `0xTeamNameLength+2..0xTeamNameLength+TeamAbbreviationLength+3`  | `<string>` | Team's Abbreviation. If Length is uneven, a blank space is added to the end for alignment |
+
+
+Sprite animation frames:
+SPFskatewp = 1
+SPFskate = 41
+SPFturnl = 81
+SPFturnr = 89
+SPFswing = 97
+SPFstop = 145
+SPFskateb = 161
+SPFcelebrate = 185
+SPFpump = 201
+SPFcup = 217
+SPFhipl = 225
+SPFhipr = 233
+SPFshoulderl = 241
+SPFshoulderr = 249
+SPFsweep = 257
+SPFfallback = 273
+SPFfallfwd = 305
+SPFduck = 337
+SPFHold = 345
+SPFgloves = 353
+SPFfight = 354
+SPFPen = 371
+SPFarrow = 378
+SPFpad = 384
+SPFpuck = 387
+SPFgoal = 398
+SPFGoalie = 400
+SPFLogos = 512
+SPFSiren = 536
+
+Changes from 92 to 93
+93.371-93.376 are new-- fight fall & injured -> NAME = 
+92.371 -> shifted to 93.377 (+6 offset)
+93.393 -> new instant replay cursor -> NAME = 
+92.387 -> shifted to 93.394 (+7 offset)
+92.486 = 93.493
+92.511 = 93.518
+92.512-535 = logos
+93.519-534 - new goalie dive -> NAME = 
+93.535-538 - new goalie glove wide save -> NAME = 
+93.539-554 - goalie smack stick on ice -> NAME = 
+92.536-549 -> shifted to 93.555-568 (+19 offset)
+93.569-584 - new player bat puck animation -> NAME = 
+93.585-600 - new player hook -> NAME = 
+93.601-624 - player flail/off balance -> NAME = 
+93.625-632 - player flip -> NAME =
+93.633-644 - player injured -> NAME = 
+93.645-649 - glass break -> NAME = 

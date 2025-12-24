@@ -1,7 +1,7 @@
 
 	include	Main93.Asm		;EA provided code for startup and EA logo
 	include	TeamData93.Asm
-; 	include	Frames.Asm		;graphics data table for Sprites.anim
+	include	Frames93.Asm		;graphics data table for Sprites.anim
 	include	Ram93.Asm			;ram allocation and some equates	
 
 Begin		
