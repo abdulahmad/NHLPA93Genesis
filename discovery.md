@@ -214,3 +214,65 @@ Changes from 92 to 93
 <frame 1 dir 5> <-time> <addional frame/time groups>
 <frame 1 dir 6> <-time> <addional frame/time groups>
 <frame 1 dir 7> <-time> <addional frame/time groups>
+
+NHL 94 PC Demo:
+0x36270 -- goalie animation
+0x0196, 0x021A, 0x21B, 0x21A, 0x21B, 0x196, 0x21A, 0x21B, 0x21A,
+406, 538, 539, 538, 539, 406, 538, 539 538
+
+96 01 B4 00 1A 02 0A 00 1B 02 0A 00 1A 02 0A 00 1B 02 0A 00 96 01 F0 00 1A 02 0A 00 1B 02 0A 00 1A 02 F6 FF
+
+NHL92:
+0x35B8 - start of SPAList
+first frame seems to be 0x190 aka 400, gready
+- 4 bytes per frame
+
+00 00 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 90 FF F8 01 93 FF F8 01 96 FF F8 01 99 FF F8 01 9C FF F8 01 9F FF F8 01 A2 FF F8 01 A5 FF F8 
+
+0000 -> SPA List
+0012 -> ptr to gready dir 0
+0016 -> ptr to gready dir 1
+001A -> ptr to gready dir 2
+001E -> ptr to gready dir 3 
+0022 -> ptr to gready dir 4 
+0026 -> ptr to gready dir 5 
+002A -> ptr to gready dir 6 
+002E -> ptr to gready dir 7 
+0000 -> Animation flags for gready
+01 90 FF F8 -> gready dir 0 frame 1,-time
+01 93 FF F8 -> gready dir 1 frame 1,-time
+01 96 FF F8 -> gready dir 2 frame 1,-time
+01 99 FF F8 -> gready dir 3 frame 1,-time
+01 9C FF F8 -> gready dir 4 frame 1,-time
+01 9F FF F8 -> gready dir 5 frame 1,-time
+01 A2 FF F8 -> gready dir 6 frame 1,-time
+01 A5 FF F8 -> gready dir 7 frame 1,-time
+
+NHL93
+0x4D90 - start of SPAList
+first frame seems to be 0x197 aka 407, gready
+- 24 bytes per frame
+00 00 00 12 00 36 00 5A 00 7E 00 A2 00 C6 00 EA 01 0E 00 01 01 97 00 B4 02 1B 00 0A 02 1C 00 0A 02 1B 00 0A 02 1C 00 0A 01 97 00 F0 02 1B 00 0A 02 1C 00 0A 02 1B FF F6 01 9A 00 82 02 1D 00 0A 02 1E 00 0A 02 1D 00 0A 02 1E 00 0A 01 9A 01 2C 02 1D 00 0A 02 1E 00 0A 02 1D FF F6 01 9D 00 D2 02 1F 00 0A 02 20 00 0A 02 1F 00 0A 02 20 00 0A 01 9D 00 78 02 1F 00 0A 02 20 00 0A 02 1F FF F6 01 A0 00 64 02 21 00 0A 02 22 00 0A 02 21 00 0A 02 22 00 0A 01 A0 00 C8 02 21 00 0A 02 22 00 0A 02 21 FF F6 01 A3 00 F0 02 23 00 0A 02 24 00 0A 02 23 00 0A 02 24 00 0A 01 A3 00 3C 02 23 00 0A 02 24 00 0A 02 23 FF F6 01 A6 00 B4 02 25 00 0A 02 26 00 0A 02 25 00 0A 02 26 00 0A 01 A6 00 F0 02 25 00 0A 02 26 00 0A 02 25 FF F6 01 A9 00 78 02 27 00 0A 02 28 00 0A 02 27 00 0A 02 28 00 0A 01 A9 00 78 02 27 00 0A 02 28 00 0A 02 27 FF F6 01 AC 00 B4 02 29 00 0A 02 2A 00 0A 02 29 00 0A 02 2A 00 0A 01 AC 00 B4 02 29 00 0A 02 2A 00 0A 02 29 FF F6
+
+0000 -> SPA List
+0012 -> ptr to gready dir 0
+0036 -> ptr to gready dir 1
+005A -> ptr to gready dir 2
+007E -> ptr to gready dir 3
+00A2 -> ptr to gready dir 4
+00C6 -> ptr to gready dir 5
+00EA -> ptr to gready dir 6
+010E -> ptr to gready dir 7
+0001 -> Animation flags for gready
+01 97 00 B4 02 1B 00 0A 02 1C 00 0A 02 1B 00 0A 02 1C 00 0A 01 97 00 F0
+02 1B 00 0A 02 1C 00 0A 02 1B FF F6 01 9A 00 82 02 1D 00 0A 02 1E 00 0A
+02 1D 00 0A 02 1E 00 0A 01 9A 01 2C 02 1D 00 0A 02 1E 00 0A 02 1D FF F6
+01 9D 00 D2 02 1F 00 0A 02 20 00 0A 02 1F 00 0A 02 20 00 0A 01 9D 00 78
+02 1F 00 0A 02 20 00 0A 02 1F FF F6 01 A0 00 64 02 21 00 0A 02 22 00 0A
+02 21 00 0A 02 22 00 0A 01 A0 00 C8 02 21 00 0A 02 22 00 0A 02 21 FF F6
+01 A3 00 F0 02 23 00 0A 02 24 00 0A 02 23 00 0A 02 24 00 0A 01 A3 00 3C
+02 23 00 0A 02 24 00 0A 02 23 FF F6 01 A6 00 B4 02 25 00 0A 02 26 00 0A
+02 25 00 0A 02 26 00 0A 01 A6 00 F0 02 25 00 0A 02 26 00 0A 02 25 FF F6
+01 A9 00 78 02 27 00 0A 02 28 00 0A 02 27 00 0A 02 28 00 0A 01 A9 00 78
+02 27 00 0A 02 28 00 0A 02 27 FF F6 01 AC 00 B4 02 29 00 0A 02 2A 00 0A
+02 29 00 0A 02 2A 00 0A 01 AC 00 B4 02 29 00 0A 02 2A 00 0A 02 29 FF F6
