@@ -127,6 +127,56 @@ SPFGoalie = 400
 SPFLogos = 512
 SPFSiren = 536
 
+SPAgready_table
+SPAgglover_table
+SPAgglovel_table
+SPAgstickr_table
+SPAgstickl_table
+SPAgstackr_table
+SPAgstackl_table
+SPAgswing_table
+SPAgskate_table
+SPApflip_table
+SPAglide_table
+SPAskatewp_table
+SPAskate_table
+SPAturnl_table
+SPAturnr_table
+SPAstop_table
+SPApassf_table
+SPApassb_table
+SPAshotf_table
+SPAshotb_table
+SPAglideback_table
+SPAskateback_table
+SPAsweepchk_table
+SPAshoulderchkl_table
+SPAshoulderchkr_table
+SPAhipchkl_table
+SPAhipchkr_table
+SPAburst_table
+SPAHold_table
+SPAHold2_table
+SPAflail_table
+SPAfallfwd_table
+SPAfallback_table
+SPAcelebrate_table
+SPApump_table
+SPAfight_table
+SPAfgrab_table
+SPAfheld_table
+SPAfhigh_table
+SPAflow_table
+SPAfhith_table
+SPAfhitl_table
+SPAffall_table
+SPAwallright_table
+SPAwallleft_table
+SPAfaceoff_table
+SPAfaceoffr_table
+SPAsiren_table
+SPAstanley_table
+
 Changes from 92 to 93
 93.371-93.376 are new-- fight fall & injured -> NAME = 
 92.371 -> shifted to 93.377 (+6 offset)
@@ -145,3 +195,22 @@ Changes from 92 to 93
 93.625-632 - player flip -> NAME =
 93.633-644 - player injured -> NAME = 
 93.645-649 - glass break -> NAME = 
+
+92 frame.asm format:
+<offset from SPAList> - buffer or alignment byte -> pointer to Animation 1 gready
+<ptr to dir 0>
+<ptr to dir 1>
+<ptr to dir 2>
+<ptr to dir 3>
+<ptr to dir 4>
+<ptr to dir 5>
+<ptr to dir 7>
+<animFlags>
+<frame 1 dir 0> <-time> <addional frame/time groups>
+<frame 1 dir 1> <-time> <addional frame/time groups>
+<frame 1 dir 2> <-time> <addional frame/time groups>
+<frame 1 dir 3> <-time> <addional frame/time groups>
+<frame 1 dir 4> <-time> <addional frame/time groups>
+<frame 1 dir 5> <-time> <addional frame/time groups>
+<frame 1 dir 6> <-time> <addional frame/time groups>
+<frame 1 dir 7> <-time> <addional frame/time groups>
