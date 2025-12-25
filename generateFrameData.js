@@ -252,6 +252,8 @@ for (key in SPA) {
     lines.push(`.${dirLabels[dir]}`);
 
     let frameSeq = [];
+    let uniqueSPF = new Set();
+
     while (true) {
       const frame = readWord();
       const time = readSignedWord();
@@ -260,6 +262,7 @@ for (key in SPA) {
         frameSeq[frameSeq.length - 1] += `,${time}`;
         break;
       }
+      uniqueSPF.add(getSPF(frame)); // TODO WIP here
       frameSeq.push(`${getSPF(frame)},${time}`);
       if (time < -0x100) break; // safety
     }
