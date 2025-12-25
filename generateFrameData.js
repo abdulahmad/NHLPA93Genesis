@@ -78,6 +78,31 @@ function getSPF(frame) {
   return null; // before first animation
 }
 
+/**
+ * Returns the Unique SPF animation key that corresponds to the given frame number.
+ * @param {number} frame - The frame number to look up.
+ * @returns {string|null} The matching key, or null if the frame is before the first animation.
+ */
+function getUniqueSPF(frame) {
+  if (typeof frame !== 'number' || frame < 1) return null;
+
+  const entries = Object.entries(SPF)
+    .sort((a, b) => a[1] - b[1]); // sort by start frame
+
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const [key, start] = entries[i];
+    const nextStart = i + 1 < entries.length ? entries[i + 1][1] : Infinity;
+
+    if (frame >= start && frame < nextStart) {
+      // const offset = frame - start;
+      // return offset === 0 ? key : `${key}+${offset}`;
+      return key;
+    }
+  }
+
+  return null; // before first animation
+}
+
 // Ordered list of SPA (Sprite Animation) names with confidence vs NHL '92
 // Confidence: 100% = identical binary to '92 version, 90% = minor timing change, etc.
 const SPA = {
@@ -262,9 +287,15 @@ for (key in SPA) {
         frameSeq[frameSeq.length - 1] += `,${time}`;
         break;
       }
-      uniqueSPF.add(getSPF(frame)); // TODO WIP here
+      uniqueSPF.add(getUniqueSPF(frame)); // TODO WIP here
       frameSeq.push(`${getSPF(frame)},${time}`);
       if (time < -0x100) break; // safety
+    }
+    
+    let letter = 'a';
+    for (const spf of uniqueSPF) {
+      lines.push(`.${letter}\t=\t${spf}`);
+      letter = String.fromCharCode(letter.charCodeAt(0) + 1); // next letter
     }
 
     lines.push('\tdc.w\t' + frameSeq.join(','));
