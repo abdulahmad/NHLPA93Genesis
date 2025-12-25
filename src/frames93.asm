@@ -3,37 +3,49 @@
 ;This list equates the sections of the alice animation file Sprites.anim
 
 SPFskatewp	=	1
-SPFskate	=	SPFskatewp+40
-SPFturnl	=	SPFskate+40
-SPFturnr	=	SPFturnl+8
-SPFswing	=	SPFturnr+8
-SPFstop	=	SPFswing+48
-SPFskateb	=	SPFstop+16
-SPFcelebrate	=	SPFskateb+24
-SPFpump	=	SPFcelebrate+16
-SPFcup	=	SPFpump+16
-SPFhipl	=	SPFcup+8
-SPFhipr	=	SPFhipl+8
-SPFshoulderl	=	SPFhipr+8
-SPFshoulderr	=	SPFshoulderl+8
-SPFsweep	=	SPFshoulderr+8
+SPFskate	=	SPFskatewp+40 ; 41
+SPFturnl	=	SPFskate+40 ; 81
+SPFturnr	=	SPFturnl+8 ; 89
+SPFswing	=	SPFturnr+8 ; 97
+SPFstop	=	SPFswing+48 ; 145
+SPFskateb	=	SPFstop+16 ; 161
+SPFcelebrate	=	SPFskateb+24 ; 185
+SPFpump	=	SPFcelebrate+16 ; 201
+SPFcup	=	SPFpump+16 ; 217
+SPFhipl	=	SPFcup+8 ; 225
+SPFhipr	=	SPFhipl+8 ; 233
+SPFshoulderl	=	SPFhipr+8 ;	241
+SPFshoulderr	=	SPFshoulderl+8 ; 249
+SPFsweep	=	SPFshoulderr+8 ; 257
 
-SPFfallback	=	SPFsweep+16
-SPFfallfwd	=	SPFfallback+32
-SPFduck	=	SPFfallfwd+32
-SPFHold	=	SPFduck+8
+SPFfallback	=	SPFsweep+16 ; 273
+SPFfallfwd	=	SPFfallback+32 ; 305
+SPFduck	=	SPFfallfwd+32 ; 337
+SPFHold	=	SPFduck+8 ; 345
 
-SPFgloves	=	SPFHold+8
-SPFfight	=	SPFgloves+1
-SPFPen	=	SPFfight+17
+SPFgloves	=	SPFHold+8 ; 353
+SPFfight	=	SPFgloves+1 ; 354
+SPFfinjury	=	SPFfight+17 ; 371 - NEW for 93
+SPFPen	=	SPFfinjury+6 ; 377
 
-SPFarrow	=	SPFpen+7
-SPFpad	=	SPFarrow+6
-SPFpuck	=	SPFpad+3
-SPFgoal	=	SPFpuck+11
-SPFGoalie	=	SPFgoal+2
-SPFLogos	=	SPFGoalie+80+32
-SPFSiren	=	SPFLogos+24	
+SPFarrow	=	SPFpen+7 ; 384
+SPFpad	=	SPFarrow+6 ; 390
+SPFreplay	=	SPFpad+3 ; 393 - NEW for 93
+SPFpuck	=	SPFreplay+1 ; 394
+SPFgoal	=	SPFpuck+11 ; 405
+SPFGoalie	=	SPFgoal+2 ; 407
+SPFgdive	=	SPFGoalie+80+32 ; 519 - NEW for 93
+SPFglovel2	=	SPFgdive+16 ; 535 - NEW for 93
+SPFgready2	=	SPFglovel2+4 ; 539 - NEW for 93
+SPFSiren	=	SPFgready2+16 ; 555
+
+SPFcatch = SPFSiren+14 ; 569 - NEW for 93
+SPFhook = SPFcatch+16 ; 585 - NEW for 93
+SPFstumble = SPFhook+16 ; 601 - NEW for 93
+SPFflip = SPFstumble+24 ; 625 - NEW for 93
+SPFinjury1 = SPFflip+8 ; 633 - NEW for 93
+SPFbglass = SPFinjury1+12 ; 645 - NEW for 93
+
 
 SPAlist
 	dc.w	0

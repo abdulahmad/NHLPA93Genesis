@@ -197,7 +197,8 @@ Changes from 92 to 93
 93.645-649 - glass break -> NAME = 
 
 92 frame.asm format:
-<offset from SPAList> - buffer or alignment byte -> pointer to Animation 1 gready
+<offset from SPAList> - header or offset byte -> pointer to Animation 1
+gready:
 <ptr to dir 0>
 <ptr to dir 1>
 <ptr to dir 2>
@@ -206,14 +207,14 @@ Changes from 92 to 93
 <ptr to dir 5>
 <ptr to dir 7>
 <animFlags>
-<frame 1 dir 0> <-time> <addional frame/time groups>
-<frame 1 dir 1> <-time> <addional frame/time groups>
-<frame 1 dir 2> <-time> <addional frame/time groups>
-<frame 1 dir 3> <-time> <addional frame/time groups>
-<frame 1 dir 4> <-time> <addional frame/time groups>
-<frame 1 dir 5> <-time> <addional frame/time groups>
-<frame 1 dir 6> <-time> <addional frame/time groups>
-<frame 1 dir 7> <-time> <addional frame/time groups>
+<frame 1 dir 0> <-time> <additional frame/time groups>
+<frame 1 dir 1> <-time> <additional frame/time groups>
+<frame 1 dir 2> <-time> <additional frame/time groups>
+<frame 1 dir 3> <-time> <additional frame/time groups>
+<frame 1 dir 4> <-time> <additional frame/time groups>
+<frame 1 dir 5> <-time> <additional frame/time groups>
+<frame 1 dir 6> <-time> <additional frame/time groups>
+<frame 1 dir 7> <-time> <additional frame/time groups>
 
 NHL 94 PC Demo:
 0x36270 -- goalie animation
@@ -264,15 +265,24 @@ first frame seems to be 0x197 aka 407, gready
 00EA -> ptr to gready dir 6
 010E -> ptr to gready dir 7
 0001 -> Animation flags for gready
-01 97 00 B4 02 1B 00 0A 02 1C 00 0A 02 1B 00 0A 02 1C 00 0A 01 97 00 F0
-02 1B 00 0A 02 1C 00 0A 02 1B FF F6 01 9A 00 82 02 1D 00 0A 02 1E 00 0A
-02 1D 00 0A 02 1E 00 0A 01 9A 01 2C 02 1D 00 0A 02 1E 00 0A 02 1D FF F6
-01 9D 00 D2 02 1F 00 0A 02 20 00 0A 02 1F 00 0A 02 20 00 0A 01 9D 00 78
-02 1F 00 0A 02 20 00 0A 02 1F FF F6 01 A0 00 64 02 21 00 0A 02 22 00 0A
-02 21 00 0A 02 22 00 0A 01 A0 00 C8 02 21 00 0A 02 22 00 0A 02 21 FF F6
-01 A3 00 F0 02 23 00 0A 02 24 00 0A 02 23 00 0A 02 24 00 0A 01 A3 00 3C
-02 23 00 0A 02 24 00 0A 02 23 FF F6 01 A6 00 B4 02 25 00 0A 02 26 00 0A
-02 25 00 0A 02 26 00 0A 01 A6 00 F0 02 25 00 0A 02 26 00 0A 02 25 FF F6
-01 A9 00 78 02 27 00 0A 02 28 00 0A 02 27 00 0A 02 28 00 0A 01 A9 00 78
-02 27 00 0A 02 28 00 0A 02 27 FF F6 01 AC 00 B4 02 29 00 0A 02 2A 00 0A
-02 29 00 0A 02 2A 00 0A 01 AC 00 B4 02 29 00 0A 02 2A 00 0A 02 29 FF F6
+01 97 00 B4 02 1B 00 0A 02 1C 00 0A 02 1B 00 0A 02 1C 00 0A 01 97 00 F0 02 1B 00 0A 02 1C 00 0A 02 1B FF F6
+01 9A 00 82 02 1D 00 0A 02 1E 00 0A 02 1D 00 0A 02 1E 00 0A 01 9A 01 2C 02 1D 00 0A 02 1E 00 0A 02 1D FF F6
+01 9D 00 D2 02 1F 00 0A 02 20 00 0A 02 1F 00 0A 02 20 00 0A 01 9D 00 78 02 1F 00 0A 02 20 00 0A 02 1F FF F6
+01 A0 00 64 02 21 00 0A 02 22 00 0A 02 21 00 0A 02 22 00 0A 01 A0 00 C8 02 21 00 0A 02 22 00 0A 02 21 FF F6
+01 A3 00 F0 02 23 00 0A 02 24 00 0A 02 23 00 0A 02 24 00 0A 01 A3 00 3C 02 23 00 0A 02 24 00 0A 02 23 FF F6
+01 A6 00 B4 02 25 00 0A 02 26 00 0A 02 25 00 0A 02 26 00 0A 01 A6 00 F0 02 25 00 0A 02 26 00 0A 02 25 FF F6
+01 A9 00 78 02 27 00 0A 02 28 00 0A 02 27 00 0A 02 28 00 0A 01 A9 00 78 02 27 00 0A 02 28 00 0A 02 27 FF F6
+01 AC 00 B4 02 29 00 0A 02 2A 00 0A 02 29 00 0A 02 2A 00 0A 01 AC 00 B4 02 29 00 0A 02 2A 00 0A 02 29 FF F6
+
+
+92
+length of ptr list = 16
+length of animation flag = 2
+length of animation data = 4 bytes * 8 = 32
+= 50 bytes = 0x32
+
+93
+length of ptr list = 16
+length of animation flag = 2
+length of animation data = 36 bytes * 8 = 288
+= 306 = 0x132
