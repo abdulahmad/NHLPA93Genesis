@@ -144,3 +144,4 @@ nhl*.bin
 nhl*.md
 *.bak
 team_data.asm
+frames_data.asm
