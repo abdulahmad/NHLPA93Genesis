@@ -85,8 +85,8 @@ const SPA_ORDER = [
   "hipchkl",      // 100%
   "hipchkr",      // 100%
   "burst",        // 100%
-  "Hold",         // 100%
-  "Hold2",        // 100% (being held)
+  "hold",         // 100%
+  "hold2",        // 100% (being held)
   "flail",        // 100%
   "fallfwd",      // 100%
   "fallback",     // 100%
@@ -152,9 +152,25 @@ lines.push('; NHLPA Hockey \'93 (Sega Genesis) - Auto-generated Frames.asm');
 lines.push('; Generated on ' + new Date().toISOString().split('T')[0]);
 lines.push('; Matches ROM binary exactly');
 lines.push('');
+lines.push(';This is a data table for animating the graphics in Sprites.anim\n;This list equates the sections of the alice animation file Sprites.anim\n');
 lines.push('; Sprite Frame (SPF) base indices');
+let lastVal = 0;
+let lastKey = '';
 for (const [key, val] of Object.entries(SPF)) {
-  lines.push(`SPF${key}\t=\t${val}`);
+  if(val === 1) {
+    lines.push(`SPF${key}\t=\t${val}`);
+  } else {
+    if (key === 'finjury' || key === 'replay' || key === 'gdive' || key === 'glovel2' || key === 'gready2' || key === 'catch' || key === 'hook' || key === 'stumble' || key === 'flip' || key === 'injury1' || key === 'bglass') {
+      lines.push(`SPF${key}\t=\tSPF${lastKey}+${val-lastVal}; ${val} - New in NHLPA93`);
+    } else {
+      lines.push(`SPF${key}\t=\tSPF${lastKey}+${val-lastVal}; ${val}`);
+    }
+  }
+  lastKey = key;
+  lastVal = val;
+  if (key === 'sweep' || key === 'Hold' || key === 'Pen' || key === 'Siren') {
+    lines.push('');
+  }
 }
 lines.push('');
 
