@@ -9,7 +9,7 @@ const path = require('path');
 // ==================== CONFIGURATION ====================
 
 // ROM offset where the animation list starts (SPAlist)
-const ANIMATION_LIST_OFFSET = 0x4D8D;
+const ANIMATION_LIST_OFFSET = 0x4D8E;
 
 // SPF (Sprite Frame) base offsets - MUST match your reversed values exactly
 const SPF = {
@@ -135,12 +135,14 @@ let pos = ANIMATION_LIST_OFFSET;
 
 function readWord() {
   const w = rom.readUInt16BE(pos);
+  console.log(`Read word 0x${w.toString(16).padStart(4,'0')} at pos 0x${pos.toString(16).padStart(6,'0')}`);
   pos += 2;
   return w;
 }
 
 function readSignedWord() {
   const w = rom.readInt16BE(pos);
+  console.log(`Read signed word ${w} at pos 0x${pos.toString(16).padStart(6,'0')}`);
   pos += 2;
   return w;
 }
@@ -175,7 +177,7 @@ for (const [key, val] of Object.entries(SPF)) {
 lines.push('');
 
 lines.push('SPAlist');
-lines.push('\tdc.w\t0');
+lines.push(`\tdc.w\t${readWord()}`);
 lines.push('');
 
 let animationIndex = 0;
@@ -195,8 +197,8 @@ while (true) {
     (name.endsWith('(guess)') ? '60%' : 
      name.includes('new') ? '80%' : '100%');
 
-  lines.push(`${name.toUpperCase().padEnd(15)} =\t*-SPAlist\t; ${confidence} match to NHL '92`);
-  lines.push(`${name.toUpperCase()}_table:`);
+  lines.push(`SPA${name}\t=\t*-SPAlist\t; ${confidence} match to NHL '92`);
+  lines.push(`SPA${name}_table:`);
   lines.push('.t');
 
   // Offset table
@@ -243,6 +245,7 @@ while (true) {
 
   lines.push('');
   animationIndex++;
+  break; // TODO remove
 }
 
 // Final output
