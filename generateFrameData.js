@@ -54,76 +54,100 @@ const SPF = {
   bglass:     645    // new
 };
 
+/**
+ * Returns the SPF animation key that corresponds to the given frame number.
+ * @param {number} frame - The frame number to look up.
+ * @returns {string|null} The matching key, or null if the frame is before the first animation.
+ */
+function getSPF(frame) {
+  if (typeof frame !== 'number' || frame < 1) return null;
+
+  const entries = Object.entries(SPF)
+    .sort((a, b) => a[1] - b[1]); // sort by start frame
+
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const [key, start] = entries[i];
+    const nextStart = i + 1 < entries.length ? entries[i + 1][1] : Infinity;
+
+    if (frame >= start && frame < nextStart) {
+      const offset = frame - start;
+      return offset === 0 ? key : `${key}+${offset}`;
+    }
+  }
+
+  return null; // before first animation
+}
+
 // Ordered list of SPA (Sprite Animation) names with confidence vs NHL '92
 // Confidence: 100% = identical binary to '92 version, 90% = minor timing change, etc.
-const SPA_ORDER = [
-  "gready",       // 100% - goalie ready, but longer cycle in '93
-  "gglover",      // 100%
-  "gglovel",      // 100%
-  "gstickr",      // 100%
-  "gstickl",      // 100%
-  "gstackr",      // 100%
-  "gstackl",      // 100%
-  "gswing",       // 100%
-  "gskate",       // 95% - longer skate cycle
-  "pflip",        // 100% - puck flip
-  "glide",        // 100%
-  "skatewp",      // 95% - different cycle length
-  "skate",        // 95%
-  "turnl",        // 100%
-  "turnr",        // 100%
-  "stop",         // 100%
-  "passf",        // 90% - possibly one-timer variant
-  "passb",        // 90%
-  "shotf",        // 90% - likely includes one-timer
-  "shotb",        // 90%
-  "glideback",    // 100%
-  "skateback",    // 100%
-  "sweepchk",     // 100%
-  "shoulderchkl", // 100%
-  "shoulderchkr", // 100%
-  "hipchkl",      // 100%
-  "hipchkr",      // 100%
-  "burst",        // 100%
-  "hold",         // 100%
-  "hold2",        // 100% (being held)
-  "flail",        // 100%
-  "fallfwd",      // 100%
-  "fallback",     // 100%
-  "celebrate",    // 100%
-  "pump",         // 100%
-  "fight",        // 95% - extended in '93
-  "fgrab",        // 95%
-  "fheld",        // 95%
-  "fhigh",        // 95%
-  "flow",         // 95%
-  "fhith",        // 95%
-  "fhitl",        // 95%
-  "ffall",        // 95%
-  "wallright",    // 100%
-  "wallleft",     // 100%
-  "faceoff",      // 100%
-  "faceoffr",     // 100%
-  "siren",        // 100%
-  "stanley",      // 100%
-  "gdive_r",      // 70% - new goalie dive right (guess)
-  "gdive_l",      // 70% - new goalie dive left (guess)
-  "onetime_f",    // 60% - one-timer forehand (guess)
-  "onetime_b",    // 60% - one-timer backhand (guess)
-  "injury_fall",  // 80% - injury collapse
-  "injury_lie",   // 80% - lying injured
-  "bglass_shatter", // 90% - board glass break
-  "hook_anim",    // 70% - stick hook
-  "flip_pass",    // 70% - flip/saucer pass
-  "flip_shot",    // 60% - flip shot (guess)
-  "catch_puck",   // 70% - glove catch (guess)
-  "replay_icon"   // 90% - replay overlay
-];
+const SPA = {
+  "gready":       100, // goalie ready, but longer cycle in '93
+  "gglover":      100,
+  "gglovel":      100,
+  "gstickr":      100,
+  "gstickl":      100,
+  "gstackr":      100,
+  "gstackl":      100,
+  "gswing":       100,
+  "gskate":        95, // longer skate cycle
+  "pflip":        100, // puck flip
+  "glide":        100,
+  "skatewp":       95, // different cycle length
+  "skate":         95,
+  "turnl":        100,
+  "turnr":        100,
+  "stop":         100,
+  "passf":         90, // possibly one-timer variant
+  "passb":         90,
+  "shotf":         90, // likely includes one-timer
+  "shotb":         90,
+  "glideback":    100,
+  "skateback":    100,
+  "sweepchk":     100,
+  "shoulderchkl": 100,
+  "shoulderchkr": 100,
+  "hipchkl":      100,
+  "hipchkr":      100,
+  "burst":        100,
+  "hold":         100,
+  "hold2":        100, // (being held)
+  "flail":        100,
+  "fallfwd":      100,
+  "fallback":     100,
+  "celebrate":    100,
+  "pump":         100,
+  "fight":         95, // extended in '93
+  "fgrab":         95,
+  "fheld":         95,
+  "fhigh":         95,
+  "flow":          95,
+  "fhith":         95,
+  "fhitl":         95,
+  "ffall":         95,
+  "wallright":    100,
+  "wallleft":     100,
+  "faceoff":      100,
+  "faceoffr":     100,
+  "siren":        100,
+  "stanley":      100,
+  "gdive_r":       70, // new goalie dive right (guess)
+  "gdive_l":       70, // new goalie dive left (guess)
+  "onetime_f":     60, // one-timer forehand (guess)
+  "onetime_b":     60, // one-timer backhand (guess)
+  "injury_fall":   80, // injury collapse
+  "injury_lie":    80, // lying injured
+  "bglass_shatter":90, // board glass break
+  "hook_anim":     70, // stick hook
+  "flip_pass":     70, // flip/saucer pass
+  "flip_shot":     60, // flip shot (guess)
+  "catch_puck":    70, // glove catch (guess)
+  "replay_icon":   90  // replay overlay
+};
 
 // ======================================================
 
 if (process.argv.length < 3) {
-  console.log('Usage: node generate_frames_asm.js <rom_path> [output.asm]');
+  console.log('Usage: node generateFrameData.js <rom_path> [output.asm]');
   process.exit(1);
 }
 
@@ -182,7 +206,7 @@ lines.push('');
 
 let animationIndex = 0;
 
-while (true) {
+for (key in SPA) {
   const startOffset = pos;
   const tableOffsets = [];
   for (let i = 0; i < 8; i++) {
@@ -190,25 +214,26 @@ while (true) {
   }
   const flags = readWord();
 
-  if (tableOffsets.every(o => o === 0) && flags === 0) break; // end of list?
+  // if (tableOffsets[.every(o => o === 0) && flags === 0]) break; // end of list?
 
-  const name = SPA_ORDER[animationIndex] || `unknown${animationIndex}`;
-  const confidence = name.includes('unknown') ? '0%' : 
-    (name.endsWith('(guess)') ? '60%' : 
-     name.includes('new') ? '80%' : '100%');
+  const name = key;
+  const confidence = SPA[key];
 
   lines.push(`SPA${name}\t=\t*-SPAlist\t; ${confidence} match to NHL '92`);
   lines.push(`SPA${name}_table:`);
-  lines.push('.t');
+  lines.push('.t\t;offset to each direction of animation (0-7)');
 
   // Offset table
-  lines.push('\tdc.w\t' + tableOffsets.map(o => {
-    if (o === 0) return '0';
-    const rel = o - (startOffset + 18); // +18 = after 9 words (8 offsets + flags)
-    return `.${rel >> 1}-.t`; // divide by 2 since dc.w
-  }).join(', '));
+  for (let direction=0; direction < 8; direction++) {
+    lines.push(`\tdc.w\t.${direction}-.t ; 0x${tableOffsets[direction].toString(16).padStart(4,'0')}`);
+  }
+  // lines.push('\tdc.w\t' + tableOffsets.map(o => {
+  //   if (o === 0) return '0';
+  //   const rel = o - (startOffset + 18); // +18 = after 9 words (8 offsets + flags)
+  //   return `.${rel >> 1}-.t`; // divide by 2 since dc.w
+  // }).join(', '));
 
-  lines.push('\tdc.w\t' + flags);
+  lines.push('\tdc.w\t' + flags + '\n');
 
   // Now parse each direction
   let dirLabels = ['0','1','2','3','4','5','6','7'];
@@ -235,7 +260,7 @@ while (true) {
         frameSeq[frameSeq.length - 1] += `,${time}`;
         break;
       }
-      frameSeq.push(`${frame},${time}`);
+      frameSeq.push(`${getSPF(frame)},${time}`);
       if (time < -0x100) break; // safety
     }
 
