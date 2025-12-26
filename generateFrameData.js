@@ -231,83 +231,167 @@ lines.push('');
 
 let animationIndex = 0;
 
-for (key in SPA) {
+while (true) {  // changed to a proper loop that stops at the null entry
   const startOffset = pos;
+
+  // Read 8 direction offsets + flags word
   const tableOffsets = [];
   for (let i = 0; i < 8; i++) {
     tableOffsets.push(readWord());
   }
   const flags = readWord();
 
-  // if (tableOffsets[.every(o => o === 0) && flags === 0]) break; // end of list?
+  // Detect end of list: all offsets 0 and flags 0
+  if (tableOffsets.every(o => o === 0) && flags === 0) {
+    break;
+  }
 
-  const name = key;
-  const confidence = SPA[key];
+  // Find the corresponding SPA name by index (we rely on Object.keys order)
+  const name = Object.keys(SPA)[animationIndex];
+  if (!name) {
+    console.warn(`Warning: More animations in ROM than expected SPA entries (index ${animationIndex})`);
+    break;
+  }
+  const confidence = SPA[name];
 
   lines.push(`SPA${name}\t=\t*-SPAlist\t; ${confidence} match to NHL '92`);
   lines.push(`SPA${name}_table:`);
   lines.push('.t\t;offset to each direction of animation (0-7)');
 
-  // Offset table
-  for (let direction=0; direction < 8; direction++) {
+  // Output direction offset table
+  for (let direction = 0; direction < 8; direction++) {
     lines.push(`\tdc.w\t.${direction}-.t ; 0x${tableOffsets[direction].toString(16).padStart(4,'0')}`);
   }
-  // lines.push('\tdc.w\t' + tableOffsets.map(o => {
-  //   if (o === 0) return '0';
-  //   const rel = o - (startOffset + 18); // +18 = after 9 words (8 offsets + flags)
-  //   return `.${rel >> 1}-.t`; // divide by 2 since dc.w
-  // }).join(', '));
+  lines.push(`\tdc.w\t${flags}\n`);
 
-  lines.push('\tdc.w\t' + flags + '\n');
+  // === Analyze all directions to collect unique SPFs and compute offsets ===
+  const uniqueSPFs = new Map(); // baseName → {baseFrame: number, alias: string}
 
-  // Now parse each direction
-  let dirLabels = ['0','1','2','3','4','5','6','7'];
-  let hasComplex = false;
-
+  // First pass: collect every used base SPF across all directions
+  const savedPos = pos;
   for (let dir = 0; dir < 8; dir++) {
-    if (tableOffsets[dir] === 0) {
-      lines.push(`.${dirLabels[dir]}\t; (empty)`);
-      continue;
-    }
+    if (tableOffsets[dir] === 0) continue;
 
-    const dirPos = startOffset + tableOffsets[dir];
-    const savedPos = pos;
-    pos = dirPos;
-
-    // lines.push(`.${dirLabels[dir]}`);
-
-    let frameSeq = [];
-    let uniqueSPF = new Set();
+    pos = startOffset + tableOffsets[dir];
 
     while (true) {
       const frame = readWord();
       const time = readSignedWord();
-      if (time < 0 && frameSeq.length > 0) {
-        // last entry has negative time
-        frameSeq[frameSeq.length - 1] += `,${time}`;
-        break;
+      const base = getUniqueSPF(frame);
+      if (base) {
+        if (!uniqueSPFs.has(base)) {
+          uniqueSPFs.set(base, { baseFrame: frame - (frame - SPF[base]), alias: null });
+        }
       }
-      uniqueSPF.add(getUniqueSPF(frame)); // TODO WIP here
-      frameSeq.push(`SPF${getSPF(frame)},${time}`);
-      if (time < -0x100) break; // safety
+      if (time < 0) break;
     }
-    
-    if(dir === 0) {
-      let letter = 'a';
-      for (const spf of uniqueSPF) {
-        lines.push(`.${letter}\t=\tSPF${spf}`);
-        letter = String.fromCharCode(letter.charCodeAt(0) + 1); // next letter
+  }
+  pos = savedPos;
+
+  // Assign aliases .a, .b, ...
+  let letter = 'a'.charCodeAt(0);
+  for (const base of uniqueSPFs.keys()) {
+    uniqueSPFs.get(base).alias = String.fromCharCode(letter++);
+  }
+
+  // Compute regular offset for each alias (difference between consecutive directions)
+  const aliasOffsets = new Map(); // alias → offset
+  for (const [base, info] of uniqueSPFs) {
+    const alias = info.alias;
+    // Look at direction 0 and direction 1 to detect pattern
+    let offset = 0;
+    let found = false;
+
+    if (tableOffsets[0] !== 0 && tableOffsets[1] !== 0) {
+      const pos0 = startOffset + tableOffsets[0];
+      const pos1 = startOffset + tableOffsets[1];
+      let tempPos = pos0;
+      pos = pos0;
+      let frame0 = null;
+      while (true) {
+        const f = readWord();
+        const t = readSignedWord();
+        if (getUniqueSPF(f) === base) { frame0 = f; break; }
+        if (t < 0) break;
       }
+
+      tempPos = pos1;
+      pos = pos1;
+      while (true) {
+        const f = readWord();
+        const t = readSignedWord();
+        if (getUniqueSPF(f) === base) {
+          offset = f - frame0;
+          found = true;
+          break;
+        }
+        if (t < 0) break;
+      }
+    }
+    pos = savedPos;
+
+    aliasOffsets.set(alias, found ? offset : 0);
+  }
+
+  // === Output aliases and offsets ===
+  for (const [base, info] of uniqueSPFs) {
+    lines.push(`.${info.alias}\t=\tSPF${base}`);
+  }
+  for (const [alias, offset] of aliasOffsets) {
+    if (offset !== 0) {
+      lines.push(`.${alias}off\t=\t${offset}`);
+    }
+  }
+  if (uniqueSPFs.size > 0) lines.push('');
+
+  // === Output each direction using aliases ===
+  for (let dir = 0; dir < 8; dir++) {
+    if (tableOffsets[dir] === 0) {
+      lines.push(`.${dir}\t; (empty)`);
+      continue;
     }
 
-    lines.push(`.${dirLabels[dir]}`);
+    const dirPos = startOffset + tableOffsets[dir];
+    pos = dirPos;
+
+    let frameSeq = [];
+
+    while (true) {
+      const frame = readWord();
+      const time = readSignedWord();
+
+      const base = getUniqueSPF(frame);
+      if (base) {
+        const info = uniqueSPFs.get(base);
+        const alias = info.alias;
+        const offsetInDir = frame - info.baseFrame;
+        const offsetFromOff = aliasOffsets.get(alias);
+        let expr = `.${alias}`;
+        if (offsetFromOff !== 0) {
+          const relative = offsetInDir / offsetFromOff;
+          if (relative !== 0 && Number.isInteger(relative)) {
+            expr += relative > 0 ? `+${relative}*${alias}off` : `${relative}*${alias}off`;
+          } else if (offsetInDir !== 0) {
+            expr += `+${offsetInDir}`;
+          }
+        } else if (offsetInDir !== 0) {
+          expr += `+${offsetInDir}`;
+        }
+        frameSeq.push(`${expr},${time}`);
+      } else {
+        // fallback if somehow no base found
+        frameSeq.push(`SPF${getSPF(frame)},${time}`);
+      }
+
+      if (time < 0) break;
+    }
+
+    lines.push(`.${dir}`);
     lines.push('\tdc.w\t' + frameSeq.join(','));
-    pos = savedPos;
   }
 
   lines.push('');
   animationIndex++;
-  break; // TODO remove
 }
 
 // Final output
