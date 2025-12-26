@@ -55,33 +55,7 @@ const SPF = {
 };
 
 /**
- * Returns the SPF animation key that corresponds to the given frame number.
- * @param {number} frame - The frame number to look up.
- * @returns {string|null} The matching key, or null if the frame is before the first animation.
- */
-function getSPF(frame) {
-  if (typeof frame !== 'number' || frame < 1) return null;
-
-  const entries = Object.entries(SPF)
-    .sort((a, b) => a[1] - b[1]); // sort by start frame
-
-  for (let i = entries.length - 1; i >= 0; i--) {
-    const [key, start] = entries[i];
-    const nextStart = i + 1 < entries.length ? entries[i + 1][1] : Infinity;
-
-    if (frame >= start && frame < nextStart) {
-      const offset = frame - start;
-      return offset === 0 ? key : `${key}+${offset}`;
-    }
-  }
-
-  return null; // before first animation
-}
-
-/**
  * Returns the Unique SPF animation key that corresponds to the given frame number.
- * @param {number} frame - The frame number to look up.
- * @returns {string|null} The matching key, or null if the frame is before the first animation.
  */
 function getUniqueSPF(frame) {
   if (typeof frame !== 'number' || frame < 1) return null;
@@ -94,19 +68,16 @@ function getUniqueSPF(frame) {
     const nextStart = i + 1 < entries.length ? entries[i + 1][1] : Infinity;
 
     if (frame >= start && frame < nextStart) {
-      // const offset = frame - start;
-      // return offset === 0 ? key : `${key}+${offset}`;
       return key;
     }
   }
 
-  return null; // before first animation
+  return null;
 }
 
 // Ordered list of SPA (Sprite Animation) names with confidence vs NHL '92
-// Confidence: 100% = identical binary to '92 version, 90% = minor timing change, etc.
 const SPA = {
-  "gready":       100, // goalie ready, but longer cycle in '93
+  "gready":       100,
   "gglover":      100,
   "gglovel":      100,
   "gstickr":      100,
@@ -114,17 +85,17 @@ const SPA = {
   "gstackr":      100,
   "gstackl":      100,
   "gswing":       100,
-  "gskate":        95, // longer skate cycle
-  "pflip":        100, // puck flip
+  "gskate":        95,
+  "pflip":        100,
   "glide":        100,
-  "skatewp":       95, // different cycle length
+  "skatewp":       95,
   "skate":         95,
   "turnl":        100,
   "turnr":        100,
   "stop":         100,
-  "passf":         90, // possibly one-timer variant
+  "passf":         90,
   "passb":         90,
-  "shotf":         90, // likely includes one-timer
+  "shotf":         90,
   "shotb":         90,
   "glideback":    100,
   "skateback":    100,
@@ -135,13 +106,13 @@ const SPA = {
   "hipchkr":      100,
   "burst":        100,
   "hold":         100,
-  "hold2":        100, // (being held)
+  "hold2":        100,
   "flail":        100,
   "fallfwd":      100,
   "fallback":     100,
   "celebrate":    100,
   "pump":         100,
-  "fight":         95, // extended in '93
+  "fight":         95,
   "fgrab":         95,
   "fheld":         95,
   "fhigh":         95,
@@ -155,24 +126,24 @@ const SPA = {
   "faceoffr":     100,
   "siren":        100,
   "stanley":      100,
-  "gdive_r":       70, // new goalie dive right (guess)
-  "gdive_l":       70, // new goalie dive left (guess)
-  "onetime_f":     60, // one-timer forehand (guess)
-  "onetime_b":     60, // one-timer backhand (guess)
-  "injury_fall":   80, // injury collapse
-  "injury_lie":    80, // lying injured
-  "bglass_shatter":90, // board glass break
-  "hook_anim":     70, // stick hook
-  "flip_pass":     70, // flip/saucer pass
-  "flip_shot":     60, // flip shot (guess)
-  "catch_puck":    70, // glove catch (guess)
-  "replay_icon":   90  // replay overlay
+  "gdive_r":       70,
+  "gdive_l":       70,
+  "onetime_f":     60,
+  "onetime_b":     60,
+  "injury_fall":   80,
+  "injury_lie":    80,
+  "bglass_shatter":90,
+  "hook_anim":     70,
+  "flip_pass":     70,
+  "flip_shot":     60,
+  "catch_puck":    70,
+  "replay_icon":   90
 };
 
 // ======================================================
 
 if (process.argv.length < 3) {
-  console.log('Usage: node generateFrameData.js <rom_path> [output.asm]');
+  console.log('Usage: node generate_frames_asm.js <rom_path> [output.asm]');
   process.exit(1);
 }
 
@@ -184,14 +155,12 @@ let pos = ANIMATION_LIST_OFFSET;
 
 function readWord() {
   const w = rom.readUInt16BE(pos);
-  console.log(`Read word 0x${w.toString(16).padStart(4,'0')} at pos 0x${pos.toString(16).padStart(6,'0')}`);
   pos += 2;
   return w;
 }
 
 function readSignedWord() {
   const w = rom.readInt16BE(pos);
-  console.log(`Read signed word ${w} at pos 0x${pos.toString(16).padStart(6,'0')}`);
   pos += 2;
   return w;
 }
@@ -203,19 +172,20 @@ lines.push('; NHLPA Hockey \'93 (Sega Genesis) - Auto-generated Frames.asm');
 lines.push('; Generated on ' + new Date().toISOString().split('T')[0]);
 lines.push('; Matches ROM binary exactly');
 lines.push('');
-lines.push(';This is a data table for animating the graphics in Sprites.anim\n;This list equates the sections of the alice animation file Sprites.anim\n');
+lines.push(';This is a data table for animating the graphics in Sprites.anim');
+lines.push(';This list equates the sections of the alice animation file Sprites.anim');
+lines.push('');
 lines.push('; Sprite Frame (SPF) base indices');
 let lastVal = 0;
 let lastKey = '';
 for (const [key, val] of Object.entries(SPF)) {
-  if(val === 1) {
+  if (val === 1) {
     lines.push(`SPF${key}\t=\t${val}`);
   } else {
-    if (key === 'finjury' || key === 'replay' || key === 'gdive' || key === 'glovel2' || key === 'gready2' || key === 'catch' || key === 'hook' || key === 'stumble' || key === 'flip' || key === 'injury1' || key === 'bglass') {
-      lines.push(`SPF${key}\t=\tSPF${lastKey}+${val-lastVal}; ${val} - New in NHLPA93`);
-    } else {
-      lines.push(`SPF${key}\t=\tSPF${lastKey}+${val-lastVal}; ${val}`);
-    }
+    const comment = (key === 'finjury' || key === 'replay' || key === 'gdive' || key === 'glovel2' || key === 'gready2' || key === 'catch' || key === 'hook' || key === 'stumble' || key === 'flip' || key === 'injury1' || key === 'bglass')
+      ? `; ${val} - New in NHLPA93`
+      : `; ${val}`;
+    lines.push(`SPF${key}\t=\tSPF${lastKey}+${val - lastVal}${comment}`);
   }
   lastKey = key;
   lastVal = val;
@@ -226,30 +196,30 @@ for (const [key, val] of Object.entries(SPF)) {
 lines.push('');
 
 lines.push('SPAlist');
-lines.push(`\tdc.w\t${readWord()}`);
+lines.push(`\tdc.w\t${readWord()}`);  // first pointer (usually points to first animation)
 lines.push('');
 
 let animationIndex = 0;
+const spaNames = Object.keys(SPA);
 
-while (true) {  // changed to a proper loop that stops at the null entry
+while (true) {
   const startOffset = pos;
 
-  // Read 8 direction offsets + flags word
+  // Read 8 direction offsets + flags
   const tableOffsets = [];
   for (let i = 0; i < 8; i++) {
     tableOffsets.push(readWord());
   }
   const flags = readWord();
 
-  // Detect end of list: all offsets 0 and flags 0
+  // End of list detection
   if (tableOffsets.every(o => o === 0) && flags === 0) {
     break;
   }
 
-  // Find the corresponding SPA name by index (we rely on Object.keys order)
-  const name = Object.keys(SPA)[animationIndex];
+  const name = spaNames[animationIndex];
   if (!name) {
-    console.warn(`Warning: More animations in ROM than expected SPA entries (index ${animationIndex})`);
+    console.warn(`Warning: More animations found than SPA entries (index ${animationIndex})`);
     break;
   }
   const confidence = SPA[name];
@@ -258,56 +228,40 @@ while (true) {  // changed to a proper loop that stops at the null entry
   lines.push(`SPA${name}_table:`);
   lines.push('.t\t;offset to each direction of animation (0-7)');
 
-  // Output direction offset table
   for (let direction = 0; direction < 8; direction++) {
     lines.push(`\tdc.w\t.${direction}-.t ; 0x${tableOffsets[direction].toString(16).padStart(4,'0')}`);
   }
   lines.push(`\tdc.w\t${flags}\n`);
 
-  // === Analyze all directions to collect unique SPFs and compute offsets ===
-  const uniqueSPFs = new Map(); // baseName → {baseFrame: number, alias: string}
+  // === Collect unique SPFs and detect offsets ===
+  const uniqueSPFs = new Map(); // baseName → {alias: string, offset: number}
 
-  // First pass: collect every used base SPF across all directions
   const savedPos = pos;
   for (let dir = 0; dir < 8; dir++) {
     if (tableOffsets[dir] === 0) continue;
-
     pos = startOffset + tableOffsets[dir];
-
     while (true) {
       const frame = readWord();
       const time = readSignedWord();
       const base = getUniqueSPF(frame);
-      if (base) {
-        if (!uniqueSPFs.has(base)) {
-          uniqueSPFs.set(base, { baseFrame: frame - (frame - SPF[base]), alias: null });
-        }
+      if (base && !uniqueSPFs.has(base)) {
+        uniqueSPFs.set(base, { alias: null, offset: 0 });
       }
       if (time < 0) break;
     }
   }
   pos = savedPos;
 
-  // Assign aliases .a, .b, ...
-  let letter = 'a'.charCodeAt(0);
-  for (const base of uniqueSPFs.keys()) {
-    uniqueSPFs.get(base).alias = String.fromCharCode(letter++);
-  }
-
-  // Compute regular offset for each alias (difference between consecutive directions)
-  const aliasOffsets = new Map(); // alias → offset
+  // Assign aliases and detect offset (using dir 0 → dir 1)
+  let letterCode = 'a'.charCodeAt(0);
   for (const [base, info] of uniqueSPFs) {
-    const alias = info.alias;
-    // Look at direction 0 and direction 1 to detect pattern
-    let offset = 0;
-    let found = false;
+    info.alias = String.fromCharCode(letterCode++);
 
     if (tableOffsets[0] !== 0 && tableOffsets[1] !== 0) {
-      const pos0 = startOffset + tableOffsets[0];
-      const pos1 = startOffset + tableOffsets[1];
-      let tempPos = pos0;
-      pos = pos0;
-      let frame0 = null;
+      let frame0 = null, frame1 = null;
+
+      // dir 0
+      pos = startOffset + tableOffsets[0];
       while (true) {
         const f = readWord();
         const t = readSignedWord();
@@ -315,82 +269,72 @@ while (true) {  // changed to a proper loop that stops at the null entry
         if (t < 0) break;
       }
 
-      tempPos = pos1;
-      pos = pos1;
+      // dir 1
+      pos = startOffset + tableOffsets[1];
       while (true) {
         const f = readWord();
         const t = readSignedWord();
-        if (getUniqueSPF(f) === base) {
-          offset = f - frame0;
-          found = true;
-          break;
-        }
+        if (getUniqueSPF(f) === base) { frame1 = f; break; }
         if (t < 0) break;
       }
+
+      if (frame0 !== null && frame1 !== null && frame1 > frame0) {
+        info.offset = frame1 - frame0;
+      }
     }
-    pos = savedPos;
-
-    aliasOffsets.set(alias, found ? offset : 0);
   }
+  pos = savedPos;
 
-  // === Output aliases and offsets ===
+  // Output aliases and offsets
   for (const [base, info] of uniqueSPFs) {
     lines.push(`.${info.alias}\t=\tSPF${base}`);
-  }
-  for (const [alias, offset] of aliasOffsets) {
-    if (offset !== 0) {
-      lines.push(`.${alias}off\t=\t${offset}`);
+    if (info.offset > 0) {
+      lines.push(`.${info.alias}off\t=\t${info.offset}`);
     }
   }
   if (uniqueSPFs.size > 0) lines.push('');
 
-  // === Output each direction using aliases ===
+    // Output each direction: advance aliases at start of direction (except dir 0)
   for (let dir = 0; dir < 8; dir++) {
     if (tableOffsets[dir] === 0) {
       lines.push(`.${dir}\t; (empty)`);
       continue;
     }
 
-    const dirPos = startOffset + tableOffsets[dir];
-    pos = dirPos;
+    pos = startOffset + tableOffsets[dir];
 
-    let frameSeq = [];
+    lines.push(`.${dir}`);
 
+    // Advance all aliases that have a positive offset, but only if this is not direction 0
+    if (dir > 0) {
+      for (const [base, info] of uniqueSPFs) {
+        if (info.offset > 0) {
+          lines.push(`.${info.alias}\tset\t.${info.alias}+.${info.alias}off`);
+        }
+      }
+    }
+
+    // Now output the frame sequence for this direction
     while (true) {
       const frame = readWord();
       const time = readSignedWord();
 
       const base = getUniqueSPF(frame);
-      if (base) {
-        const info = uniqueSPFs.get(base);
-        const alias = info.alias;
-        const offsetInDir = frame - info.baseFrame;
-        const offsetFromOff = aliasOffsets.get(alias);
-        let expr = `.${alias}`;
-        if (offsetFromOff !== 0) {
-          const relative = offsetInDir / offsetFromOff;
-          if (relative !== 0 && Number.isInteger(relative)) {
-            expr += relative > 0 ? `+${relative}*${alias}off` : `${relative}*${alias}off`;
-          } else if (offsetInDir !== 0) {
-            expr += `+${offsetInDir}`;
-          }
-        } else if (offsetInDir !== 0) {
-          expr += `+${offsetInDir}`;
-        }
-        frameSeq.push(`${expr},${time}`);
+      if (base && uniqueSPFs.has(base)) {
+        const { alias } = uniqueSPFs.get(base);
+        lines.push(`\tdc.w\t.${alias},${time}\t;frame,time  (last entry indicated by neg. time)`);
       } else {
-        // fallback if somehow no base found
-        frameSeq.push(`SPF${getSPF(frame)},${time}`);
+        // Fallback for frames not belonging to a detected base (very rare)
+        lines.push(`\tdc.w\t${frame},${time}\t;raw frame (no base match)`);
       }
 
       if (time < 0) break;
     }
 
-    lines.push(`.${dir}`);
-    lines.push('\tdc.w\t' + frameSeq.join(','));
+    lines.push(''); // blank line after each direction
   }
 
-  lines.push('');
+  lines.push(''); // blank line between animations
   animationIndex++;
 }
 
