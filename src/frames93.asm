@@ -36,8 +36,8 @@ SPFgoal	=	SPFpuck+11 ; 405
 SPFGoalie	=	SPFgoal+2 ; 407
 SPFgdive	=	SPFGoalie+80+32 ; 519 - NEW for 93
 SPFglovel2	=	SPFgdive+16 ; 535 - NEW for 93
-SPFgready2	=	SPFglovel2+4 ; 539 - NEW for 93
-SPFSiren	=	SPFgready2+16 ; 555
+SPFgready	=	SPFglovel2+4 ; 539 - NEW for 93
+SPFSiren	=	SPFgready+16 ; 555
 
 SPFcatch = SPFSiren+14 ; 569 - NEW for 93
 SPFhook = SPFcatch+16 ; 585 - NEW for 93

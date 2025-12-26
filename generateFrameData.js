@@ -44,7 +44,7 @@ const SPF = {
   Goalie:     407,
   gdive:      519,   // new/extended
   glovel2:    535,   // new
-  gready2:    539,   // new
+  gready:    539,   // new
   Siren:      555,
   catch:      569,   // new
   hook:       585,   // new
@@ -203,6 +203,7 @@ let animationIndex = 0;
 const spaNames = Object.keys(SPA);
 
 while (true) {
+  console.log('starting animation index', animationIndex);
   const startOffset = pos;
 
   // Read 8 direction offsets + flags
@@ -225,7 +226,7 @@ while (true) {
   const confidence = SPA[name];
 
   lines.push(`SPA${name}\t=\t*-SPAlist\t; ${confidence} match to NHL '92`);
-  lines.push(`SPA${name}_table:`);
+  lines.push(`SPA${name}_table: ; 0x${(startOffset).toString(16).padStart(6,'0')}`);
   lines.push('.t\t;offset to each direction of animation (0-7)');
 
   for (let direction = 0; direction < 8; direction++) {
@@ -245,7 +246,7 @@ while (true) {
       const time = readSignedWord();
       const base = getUniqueSPF(frame);
       if (base && !uniqueSPFs.has(base)) {
-        uniqueSPFs.set(base, { alias: null, offset: 0 });
+        uniqueSPFs.set(base, { alias: null, offset: 0, originalFrame: frame, baseFrame: SPF[base]});
       }
       if (time < 0) break;
     }
@@ -256,7 +257,7 @@ while (true) {
   let letterCode = 'a'.charCodeAt(0);
   for (const [base, info] of uniqueSPFs) {
     info.alias = String.fromCharCode(letterCode++);
-
+    console.log(info, 'aatest');
     if (tableOffsets[0] !== 0 && tableOffsets[1] !== 0) {
       let frame0 = null, frame1 = null;
 
@@ -285,8 +286,10 @@ while (true) {
   }
   pos = savedPos;
 
+  console.log(uniqueSPFs);
   // Output aliases and offsets
   for (const [base, info] of uniqueSPFs) {
+    console.log(info);
     lines.push(`.${info.alias}\t=\tSPF${base}`);
     if (info.offset > 0) {
       lines.push(`.${info.alias}off\t=\t${info.offset}`);
@@ -303,8 +306,6 @@ while (true) {
 
     pos = startOffset + tableOffsets[dir];
 
-    lines.push(`.${dir}`);
-
     // Advance all aliases before this direction (skip for dir 0)
     if (dir > 0) {
       for (const [base, info] of uniqueSPFs) {
@@ -313,6 +314,8 @@ while (true) {
         }
       }
     }
+
+    lines.push(`.${dir}`);
 
     // Collect all frame/time pairs for this direction
     const frameEntries = [];
@@ -335,14 +338,15 @@ while (true) {
 
     // Output all entries on one line
     if (frameEntries.length > 0) {
-      lines.push(`\tdc.w\t${frameEntries.join(',')}\t;frame,time  (last entry indicated by neg. time)`);
+      lines.push(`\tdc.w\t${frameEntries.join(',')}`);
     }
 
-    lines.push(''); // blank line after direction
+    // lines.push(''); // blank line after direction
   }
 
   lines.push(''); // extra blank between animations
   animationIndex++;
+  if (animationIndex == 39) break; // TODO
 }
 
 // Final output
