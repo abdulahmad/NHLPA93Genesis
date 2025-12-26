@@ -3,6 +3,7 @@
 // and generate a matching Frames.asm
 // Usage: node generate_frames_asm.js path/to/nhlpa93.bin [output.asm]
 
+const { table } = require('console');
 const fs = require('fs');
 const path = require('path');
 
@@ -302,6 +303,11 @@ while (true) {
     if (tableOffsets[dir] === 0) {
       lines.push(`.${dir}\t; (empty)`);
       continue;
+    } 
+    
+    if (dir < 7 && tableOffsets[dir] === tableOffsets[dir + 1]) { // group together animation frame data when pointers are shared between directions
+      lines.push(`.${dir}`);
+      continue;
     }
 
     pos = startOffset + tableOffsets[dir];
@@ -315,11 +321,10 @@ while (true) {
       }
     }
 
-    lines.push(`.${dir}`);
+    // lines.push(`.${dir}`);
 
     // Collect all frame/time pairs for this direction
     const frameEntries = [];
-
     while (true) {
       const frame = readWord();
       const time = readSignedWord();
@@ -338,7 +343,7 @@ while (true) {
 
     // Output all entries on one line
     if (frameEntries.length > 0) {
-      lines.push(`\tdc.w\t${frameEntries.join(',')}`);
+      lines.push(`.${dir}\tdc.w\t${frameEntries.join(',')}`);
     }
 
     // lines.push(''); // blank line after direction
