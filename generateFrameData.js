@@ -333,7 +333,7 @@ while (true) {
       const base = getUniqueSPF(frame);
       if (base && uniqueSPFs.has(base)) {
         const { alias } = uniqueSPFs.get(base);
-        frameEntries.push(`.${alias},${time}`);
+        frameEntries.push(`.${alias},${time}`); // TODO-- need to handle offset between alias and this frame
       } else {
         // Rare fallback — use raw frame number
         frameEntries.push(`${frame},${time}`);
