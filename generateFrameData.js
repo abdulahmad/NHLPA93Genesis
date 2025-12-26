@@ -274,7 +274,7 @@ for (key in SPA) {
     const savedPos = pos;
     pos = dirPos;
 
-    lines.push(`.${dirLabels[dir]}`);
+    // lines.push(`.${dirLabels[dir]}`);
 
     let frameSeq = [];
     let uniqueSPF = new Set();
@@ -298,6 +298,7 @@ for (key in SPA) {
       letter = String.fromCharCode(letter.charCodeAt(0) + 1); // next letter
     }
 
+    lines.push(`.${dirLabels[dir]}`);
     lines.push('\tdc.w\t' + frameSeq.join(','));
     pos = savedPos;
   }
