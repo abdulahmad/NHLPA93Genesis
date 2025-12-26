@@ -313,3 +313,4 @@ SPAgstackr
 SPAgstackl
 SPApflip -- kind of
 
+two bugs-- 1-- its not adding frame offset, and secondly the script assumes when there is an offset between directions is always constant-- need to make sure this doesn't mess things up and/or have to check all 8 directions before deciding to use offset
