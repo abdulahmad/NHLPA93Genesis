@@ -305,7 +305,7 @@ while (true) {
 
     lines.push(`.${dir}`);
 
-    // Advance all aliases that have a positive offset, but only if this is not direction 0
+    // Advance all aliases before this direction (skip for dir 0)
     if (dir > 0) {
       for (const [base, info] of uniqueSPFs) {
         if (info.offset > 0) {
@@ -314,7 +314,9 @@ while (true) {
       }
     }
 
-    // Now output the frame sequence for this direction
+    // Collect all frame/time pairs for this direction
+    const frameEntries = [];
+
     while (true) {
       const frame = readWord();
       const time = readSignedWord();
@@ -322,19 +324,24 @@ while (true) {
       const base = getUniqueSPF(frame);
       if (base && uniqueSPFs.has(base)) {
         const { alias } = uniqueSPFs.get(base);
-        lines.push(`\tdc.w\t.${alias},${time}\t;frame,time  (last entry indicated by neg. time)`);
+        frameEntries.push(`.${alias},${time}`);
       } else {
-        // Fallback for frames not belonging to a detected base (very rare)
-        lines.push(`\tdc.w\t${frame},${time}\t;raw frame (no base match)`);
+        // Rare fallback — use raw frame number
+        frameEntries.push(`${frame},${time}`);
       }
 
       if (time < 0) break;
     }
 
-    lines.push(''); // blank line after each direction
+    // Output all entries on one line
+    if (frameEntries.length > 0) {
+      lines.push(`\tdc.w\t${frameEntries.join(',')}\t;frame,time  (last entry indicated by neg. time)`);
+    }
+
+    lines.push(''); // blank line after direction
   }
 
-  lines.push(''); // blank line between animations
+  lines.push(''); // extra blank between animations
   animationIndex++;
 }
 
