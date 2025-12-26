@@ -244,6 +244,7 @@ while (true) {
     pos = startOffset + tableOffsets[dir];
     while (true) {
       const frame = readWord();
+      console.log('frame read', frame, 'pos', pos.toString(16));
       const time = readSignedWord();
       const base = getUniqueSPF(frame);
       if (base && !uniqueSPFs.has(base)) {
@@ -291,7 +292,7 @@ while (true) {
   // Output aliases and offsets
   for (const [base, info] of uniqueSPFs) {
     console.log(info);
-    lines.push(`.${info.alias}\t=\tSPF${base}`);
+    lines.push(`.${info.alias}\t=\tSPF${base}`); // TODO need to have logic to have offset between original and base frame
     if (info.offset > 0) {
       lines.push(`.${info.alias}off\t=\t${info.offset}`);
     }
@@ -351,7 +352,7 @@ while (true) {
 
   lines.push(''); // extra blank between animations
   animationIndex++;
-  if (animationIndex == 39) break; // TODO
+  if (animationIndex == 3) break; // TODO
 }
 
 // Final output
