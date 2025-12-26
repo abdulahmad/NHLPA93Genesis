@@ -292,10 +292,12 @@ for (key in SPA) {
       if (time < -0x100) break; // safety
     }
     
-    let letter = 'a';
-    for (const spf of uniqueSPF) {
-      lines.push(`.${letter}\t=\t${spf}`);
-      letter = String.fromCharCode(letter.charCodeAt(0) + 1); // next letter
+    if(dir === 0) {
+      let letter = 'a';
+      for (const spf of uniqueSPF) {
+        lines.push(`.${letter}\t=\t${spf}`);
+        letter = String.fromCharCode(letter.charCodeAt(0) + 1); // next letter
+      }
     }
 
     lines.push(`.${dirLabels[dir]}`);
