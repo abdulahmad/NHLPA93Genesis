@@ -288,14 +288,14 @@ for (key in SPA) {
         break;
       }
       uniqueSPF.add(getUniqueSPF(frame)); // TODO WIP here
-      frameSeq.push(`${getSPF(frame)},${time}`);
+      frameSeq.push(`SPF${getSPF(frame)},${time}`);
       if (time < -0x100) break; // safety
     }
     
     if(dir === 0) {
       let letter = 'a';
       for (const spf of uniqueSPF) {
-        lines.push(`.${letter}\t=\t${spf}`);
+        lines.push(`.${letter}\t=\tSPF${spf}`);
         letter = String.fromCharCode(letter.charCodeAt(0) + 1); // next letter
       }
     }
