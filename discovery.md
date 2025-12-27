@@ -11,6 +11,8 @@ By default, `NumTeams = 26`
 | `endofTeamList+1..endofTeamIndex0`                            | `<TeamAtIndexData>`          | Team Data. Includes Jersey Palettes, Scouting Report, Lines, Player Attributes, Team Name |
 
 ## NHLPA93 TeamAtIndexData Section (Big Endian)
+| Byte (All values in hexadecimal)                              | Value                 | Description |
+| --------                                                      | -------               | -------     |
 | `0x00..0x01`  | `<uint16>` | Absolute pointer to Team at Index 0 |
 | `0x02..0x03`  | `<uint16>` | Absolute pointer to Team at Index 1 |
 | `0x04..0x05`  | `<uint16>` | Absolute pointer to Team at Index 2 |
@@ -18,6 +20,8 @@ By default, `NumTeams = 26`
 | `0x0((NumTeams-1)*2)..0x0((NumTeams-1)*2+1)`  | `<uint16>` | Absolute pointer to Team at Index (NumTeams-1) |
 
 ## NHLPA93 TeamAtIndexData Section (Big Endian)
+| Byte (All values in hexadecimal)                              | Value                 | Description |
+| --------                                                      | -------               | -------     |
 | `0x00..0x01`  | `<uint16>` | Relative pointer from `TeamAtIndexDataStart` to `PlayerData` |
 | `0x02..0x03`  | `<uint16>` | Relative pointer from `TeamAtIndexDataStart` to `HomePalette` |
 | `0x04..0x05`  | `<uint16>` | Relative pointer from `TeamAtIndexDataStart` to `TeamNameSection` |
@@ -33,6 +37,8 @@ By default, `NumTeams = 26`
 | `endOfPlayerData+1..endOfTeamNameSection`  | `<TeamNameSection>` | Team Name & Abbreviation. |
 
 ## NHLPA93 Scouting Report Section (Big Endian)
+| Byte (All values in hexadecimal)                              | Value                 | Description |
+| --------                                                      | -------               | -------     |
 | `0x00`  | `<uint8>:Bits 7-4` | Unknown |
 | `0x00`  | `<uint8>:Bits 3-0` | Unknown |
 | `0x01`  | `<uint8>:Bits 7-4` | Power Play Advantage |
@@ -51,6 +57,8 @@ By default, `NumTeams = 26`
 | `0x07`  | `<uint8>:Bits 3-0` | Overall |
 
 ## NHLPA93 Lines Section (Big Endian)
+| Byte (All values in hexadecimal)                              | Value                 | Description |
+| --------                                                      | -------               | -------     |
 | `0x00..0x07`  | `<LineAtIndexData>` | Line 1 |
 | `0x08..0x0E`  | `<LineAtIndexData>` | Line 2 |
 | `0x0F..0x15`  | `<LineAtIndexData>` | Line 3 |
@@ -60,6 +68,8 @@ By default, `NumTeams = 26`
 | `0x2B..0x31`  | `<LineAtIndexData>` | Line 7 |
 
 ## NHLPA93 LineAtIndexData Section (Big Endian)
+| Byte (All values in hexadecimal)                              | Value                 | Description |
+| --------                                                      | -------               | -------     |
 | `0x00`  | `<unit8>` | Team Player ID for Goalie |
 | `0x01`  | `<unit8>` | Team Player ID for Left Defense |
 | `0x02`  | `<unit8>` | Team Player ID for Right Defense |
@@ -70,6 +80,8 @@ By default, `NumTeams = 26`
 | `0x07`  | `00`      | Alignment Byte |
 
 ## NHLPA93 Player Data Section (Big Endian)
+| Byte (All values in hexadecimal)                              | Value                 | Description |
+| --------                                                      | -------               | -------     |
 | `0x00..0x01`  | `<PlayerNameLength+2>` | Length of Player Name + 2. Includes extra alignment blank space as part of count if name is uneven |
 | `0x02..0x02+PlayerNameLength`  | `<string>` | Player's Name. If Length is uneven, a blank space is added to the end for alignment |
 | `EndofName+1`  | `<uint8>:Bits 7-4` | uniform # x10 |
@@ -90,6 +102,8 @@ By default, `NumTeams = 26`
 | `EndofName+8`  | `<uint8>:Bits 3-0` | aggressiveness (PIM) / NA |
 
 ## NHLPA93 Team Name Section (Big Endian)
+| Byte (All values in hexadecimal)                              | Value                 | Description |
+| --------                                                      | -------               | -------     |
 | `0x00..0x01`  | `<TeamNameLength+1>` | Length of Team Name + 1. Includes extra alignment blank space as part of count if name is uneven |
 | `0x02..0x02+TeamNameLength`  | `<string>` | Team's Name. If Length is uneven, a blank space is added to the end for alignment |
 | `0xTeamNameLength+1..0xTeamNameLength+2`  | `<TeamAbbreviationLength+1>` | Length of Team Abbreviation + 1. Includes extra alignment blank space as part of count if name is uneven |
