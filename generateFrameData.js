@@ -59,7 +59,7 @@ const SPF = {
  * Returns the Unique SPF animation key that corresponds to the given frame number.
  */
 function getUniqueSPF(frame) {
-  console.log('getUniqueSPF called with frame', frame);
+  // console.log('getUniqueSPF called with frame', frame);
   if (typeof frame !== 'number' || frame < 1) return null;
 
   const entries = Object.entries(SPF)
@@ -245,7 +245,7 @@ while (true) {
     pos = startOffset + tableOffsets[dir];
     while (true) {
       const frame = readWord();
-      console.log('frame read', frame, 'pos', pos.toString(16));
+      // console.log('frame read', frame, 'pos', pos.toString(16));
       const time = readSignedWord();
       const base = getUniqueSPF(frame);
       if (base && !uniqueSPFs.has(base)) {
@@ -260,30 +260,32 @@ while (true) {
   let letterCode = 'a'.charCodeAt(0);
   for (const [base, info] of uniqueSPFs) { // TODO ensure that offset is used across all 8 directions
     info.alias = String.fromCharCode(letterCode++);
-    console.log(info, 'aatest');
-    if (tableOffsets[0] !== 0 && tableOffsets[1] !== 0) {
-      let frame0 = null, frame1 = null;
+    // console.log(info, 'aatest');
+    if (tableOffsets[0] !== 0 && tableOffsets[1] !== 0  && tableOffsets[2] !== 0 && tableOffsets[3] !== 0 && tableOffsets[4] !== 0 && tableOffsets[5] !== 0 && tableOffsets[6] !== 0 && tableOffsets[7] !== 0) {
+      // let frame0 = null;
+      // let frame1 = null;
+      let frame = [];
+      for (let dir = 0; dir <= 7; dir++) {
+        // dir 0
+        pos = startOffset + tableOffsets[dir];
+        while (true) {
+          const f = readWord();
+          const t = readSignedWord();
+          if (getUniqueSPF(f) === base) { frame[dir] = f; break; }
+          if (t < 0) break;
+        }
 
-      // dir 0
-      pos = startOffset + tableOffsets[0];
-      while (true) {
-        const f = readWord();
-        const t = readSignedWord();
-        if (getUniqueSPF(f) === base) { frame0 = f; break; }
-        if (t < 0) break;
+      // // dir 1
+      // pos = startOffset + tableOffsets[1];
+      // while (true) {
+      //   const f = readWord();
+      //   const t = readSignedWord();
+      //   if (getUniqueSPF(f) === base) { frame1 = f; break; }
+      //   if (t < 0) break;
+      // }
       }
-
-      // dir 1
-      pos = startOffset + tableOffsets[1];
-      while (true) {
-        const f = readWord();
-        const t = readSignedWord();
-        if (getUniqueSPF(f) === base) { frame1 = f; break; }
-        if (t < 0) break;
-      }
-
-      if (frame0 !== null && frame1 !== null && frame1 > frame0) {
-        info.offset = frame1 - frame0;
+      if (frame[0] !== null && frame[1] !== null && frame[2] !== null && frame[3] !== null && frame[4] !== null && frame[5] !== null && frame[6] !== null && frame[7] !== null && frame[1] - frame[0] === frame[2] - frame[1] && frame[1] - frame[0] === frame[3] - frame[2] && frame[1] - frame[0] === frame[4] - frame[3] && frame[1] - frame[0] === frame[5] - frame[4] && frame[1] - frame[0] === frame[6] - frame[5] && frame[1] - frame[0] === frame[7] - frame[6]) {
+        info.offset = frame[1] - frame[0];
       }
     }
   }
@@ -292,7 +294,7 @@ while (true) {
   console.log(uniqueSPFs);
   // Output aliases and offsets
   for (const [base, info] of uniqueSPFs) {
-    console.log(info, 'AA TESTX');
+    // console.log(info, 'AA TESTX');
     if (info.originalFrame > info.baseFrame) { // Animation uses offset frame of SPF as it's base
       lines.push(`.${info.alias}\t=\tSPF${base}+${info.originalFrame - info.baseFrame}`);
     } else { // Animation uses first frame of SPF as it's base
@@ -338,7 +340,7 @@ while (true) {
       const base = getUniqueSPF(frame);
       if (base && uniqueSPFs.has(base)) {
         const { alias } = uniqueSPFs.get(base);
-        console.log('found base', base, alias, frame, time, uniqueSPFs.get(base).baseFrame);
+        // console.log('found base', base, alias, frame, time, uniqueSPFs.get(base).baseFrame);
         if (frame > uniqueSPFs.get(base).baseFrame) {
           frameEntries.push(`.${alias}+${frame - uniqueSPFs.get(base).baseFrame},${time}`);
         } else {
@@ -363,7 +365,7 @@ while (true) {
 
   lines.push(''); // extra blank between animations
   animationIndex++;
-  if (animationIndex == 1) break; // TODO
+  if (animationIndex == 10) break; // TODO
 }
 
 // Final output
