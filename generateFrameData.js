@@ -291,8 +291,12 @@ while (true) {
   console.log(uniqueSPFs);
   // Output aliases and offsets
   for (const [base, info] of uniqueSPFs) {
-    console.log(info);
-    lines.push(`.${info.alias}\t=\tSPF${base}`); // TODO need to have logic to have offset between original and base frame
+    console.log(info, 'AA TESTX');
+    if (info.originalFrame > info.baseFrame) { // Animation uses offset frame of SPF as it's base
+      lines.push(`.${info.alias}\t=\tSPF${base}+${info.originalFrame - info.baseFrame}`);
+    } else { // Animation uses first frame of SPF as it's base
+      lines.push(`.${info.alias}\t=\tSPF${base}`);
+    }
     if (info.offset > 0) {
       lines.push(`.${info.alias}off\t=\t${info.offset}`);
     }
