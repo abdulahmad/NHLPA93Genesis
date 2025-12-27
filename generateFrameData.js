@@ -59,6 +59,7 @@ const SPF = {
  * Returns the Unique SPF animation key that corresponds to the given frame number.
  */
 function getUniqueSPF(frame) {
+  console.log('getUniqueSPF called with frame', frame);
   if (typeof frame !== 'number' || frame < 1) return null;
 
   const entries = Object.entries(SPF)
@@ -257,7 +258,7 @@ while (true) {
 
   // Assign aliases and detect offset (using dir 0 → dir 1)
   let letterCode = 'a'.charCodeAt(0);
-  for (const [base, info] of uniqueSPFs) {
+  for (const [base, info] of uniqueSPFs) { // TODO ensure that offset is used across all 8 directions
     info.alias = String.fromCharCode(letterCode++);
     console.log(info, 'aatest');
     if (tableOffsets[0] !== 0 && tableOffsets[1] !== 0) {
@@ -337,7 +338,13 @@ while (true) {
       const base = getUniqueSPF(frame);
       if (base && uniqueSPFs.has(base)) {
         const { alias } = uniqueSPFs.get(base);
-        frameEntries.push(`.${alias},${time}`); // TODO-- need to handle offset between alias and this frame
+        console.log('found base', base, alias, frame, time, uniqueSPFs.get(base).baseFrame);
+        if (frame > uniqueSPFs.get(base).baseFrame) {
+          frameEntries.push(`.${alias}+${frame - uniqueSPFs.get(base).baseFrame},${time}`);
+        } else {
+          frameEntries.push(`.${alias},${time}`);
+        }
+        // frameEntries.push(`.${alias},${time}`); // TODO-- need to handle offset between alias and this frame
       } else {
         // Rare fallback — use raw frame number
         frameEntries.push(`${frame},${time}`);
@@ -356,7 +363,7 @@ while (true) {
 
   lines.push(''); // extra blank between animations
   animationIndex++;
-  if (animationIndex == 3) break; // TODO
+  if (animationIndex == 1) break; // TODO
 }
 
 // Final output
