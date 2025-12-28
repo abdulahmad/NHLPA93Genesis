@@ -82,7 +82,8 @@ const SPA = {
   "gready":       95,
   "gready2":      95,
   "gglover":      100,
-  "gglovel":      100, // glovel2?
+  "gglovel":      100,
+  "gglovel2":    100,
   "gstickr":      100,
   "gstickl":      100,
   "gstackr":      100,
