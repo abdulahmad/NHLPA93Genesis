@@ -79,9 +79,10 @@ function getUniqueSPF(frame) {
 
 // Ordered list of SPA (Sprite Animation) names with confidence vs NHL '92
 const SPA = {
-  "gready":       100,
+  "gready":       95,
+  "gready2":      95,
   "gglover":      100,
-  "gglovel":      100,
+  "gglovel":      100, // glovel2?
   "gstickr":      100,
   "gstickl":      100,
   "gstackr":      100,
@@ -121,20 +122,20 @@ const SPA = {
   "flow":          95,
   "fhith":         95,
   "fhitl":         95,
-  "ffall":         95,
+  "ffall":         95, // there may be an finjury here?
   "wallright":    100,
   "wallleft":     100,
   "faceoff":      100,
   "faceoffr":     100,
-  "siren":        100,
+  "siren":        100, // bglass after this?
   "stanley":      100,
-  "gdive_r":       70,
-  "gdive_l":       70,
-  "onetime_f":     60,
-  "onetime_b":     60,
-  "injury_fall":   80,
-  "injury_lie":    80,
-  "bglass_shatter":90,
+  "gdive_r":       70, // is this catch?
+  "gdive_l":       70, // is this hook?
+  "onetime_f":     60, // is this hook2?
+  "onetime_b":     60, // is this stumble?
+  "injury_fall":   80, // is this injury1?
+  "injury_lie":    80, // gwallright?
+  "bglass_shatter":90, // gwallleft?
   "hook_anim":     70,
   "flip_pass":     70,
   "flip_shot":     60,
@@ -341,8 +342,13 @@ while (true) {
       if (base && uniqueSPFs.has(base)) {
         const { alias } = uniqueSPFs.get(base);
         // console.log('found base', base, alias, frame, time, uniqueSPFs.get(base).baseFrame);
-        if (frame > uniqueSPFs.get(base).baseFrame) {
-          frameEntries.push(`.${alias}+${frame - uniqueSPFs.get(base).baseFrame},${time}`);
+        const offsetWithinAnimation = frame - uniqueSPFs.get(base).baseFrame;
+        const offsetAcrossDirections = uniqueSPFs.get(base).offset * dir;
+        // console.log('offsetWithinAnimation', offsetWithinAnimation, 'offsetAcrossDirections', offsetAcrossDirections);
+        const finalOffset = offsetWithinAnimation - offsetAcrossDirections;
+        // console.log('finalOffset', finalOffset, 'for frame', frame, 'dir', dir);
+        if (finalOffset > 0) {
+          frameEntries.push(`.${alias}+${finalOffset},${time}`);
         } else {
           frameEntries.push(`.${alias},${time}`);
         }
@@ -365,7 +371,7 @@ while (true) {
 
   lines.push(''); // extra blank between animations
   animationIndex++;
-  if (animationIndex == 10) break; // TODO
+  // if (animationIndex == 2) break; // TODO
 }
 
 // Final output
