@@ -328,3 +328,21 @@ SPAgstackl
 SPApflip -- kind of
 
 two bugs-- 1-- its not adding frame offset, and secondly the script assumes when there is an offset between directions is always constant-- need to make sure this doesn't mess things up and/or have to check all 8 directions before deciding to use offset
+
+NHLPA93Gen Animation data starts at 0x4D8E
+NHL94Gen Animation data starts at 0x5B1C
+NHL95PC Animation data starts at 0x110483 (Hockey.exe)
+NHL94PC Animation data starts at 0x358A6 (Hockey.exe)
+NHL95Gen Animation data starts at 0x5A34
+NHL96Gen Animation data starts at 0x5F96
+NHL97Gen Animation data starts at 0x7947
+00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 90 FF F8 01 93 FF F8 01 96 FF F8 01 99 FF F8 01 9C FF F8 01 9F FF F8 01 A2 FF F8 01 A5 FF F8 
+
+8 frames per animation - 95 skate
+
+00 12 00 32 00 52 00 72
+
+2 frames per animation - 96 shoot
+00 12 00 1A 00 22 00 2A
+
+start of 96 anim: 00 12 00 72 00 D2 01 32
