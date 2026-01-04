@@ -88,6 +88,7 @@ const SPA = {
   "gstickl":      100,
   "gstackr":      100,
   "gstackl":      100,
+  "gdive_new":       100,
   "gswing":       100,
   "gskate":        95,
   "pflip":        100,
@@ -294,6 +295,15 @@ while (true) {
   pos = savedPos;
 
   console.log(uniqueSPFs);
+  const aliasMap = new Map();
+
+  for (const [frameName, data] of uniqueSPFs.entries()) {
+      aliasMap.set(data.alias, {
+          ...data,
+          baseSPF: frameName
+      });
+  }
+  // console.log('Alias Map:', aliasMap);
   // Output aliases and offsets
   for (const [base, info] of uniqueSPFs) {
     // console.log(info, 'AA TESTX');
@@ -332,8 +342,9 @@ while (true) {
     }
 
     // lines.push(`.${dir}`);
-
+    // console.log(aliasMap)
     // Collect all frame/time pairs for this direction
+    // console.log('Processing direction', dir);
     const frameEntries = [];
     while (true) {
       const frame = readWord();
@@ -343,9 +354,13 @@ while (true) {
       if (base && uniqueSPFs.has(base)) {
         const { alias } = uniqueSPFs.get(base);
         // console.log('found base', base, alias, frame, time, uniqueSPFs.get(base).baseFrame);
-        const offsetWithinAnimation = frame - uniqueSPFs.get(base).baseFrame;
+        const offsetWithinAnimation = frame - uniqueSPFs.get(base).originalFrame;
         const offsetAcrossDirections = uniqueSPFs.get(base).offset * dir;
+        // console.log(frame, uniqueSPFs.get(base).baseFrame);
         // console.log('offsetWithinAnimation', offsetWithinAnimation, 'offsetAcrossDirections', offsetAcrossDirections);
+        // originalFrame = 408
+        // baseFrame = 407
+        
         const finalOffset = offsetWithinAnimation - offsetAcrossDirections;
         // console.log('finalOffset', finalOffset, 'for frame', frame, 'dir', dir);
         if (finalOffset > 0) {
@@ -372,7 +387,7 @@ while (true) {
 
   lines.push(''); // extra blank between animations
   animationIndex++;
-  // if (animationIndex == 2) break; // TODO
+  // if (animationIndex == 5) break; // TODO
 }
 
 // Final output

@@ -336,6 +336,7 @@ NHL94PC Animation data starts at 0x358A6 (Hockey.exe)
 NHL95Gen Animation data starts at 0x5A34
 NHL96Gen Animation data starts at 0x5F96
 NHL97Gen Animation data starts at 0x7947
+NHL96PC Animation data likely starts 0x1884D4 -- 0x150820 another location
 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 90 FF F8 01 93 FF F8 01 96 FF F8 01 99 FF F8 01 9C FF F8 01 9F FF F8 01 A2 FF F8 01 A5 FF F8 
 
 8 frames per animation - 95 skate
