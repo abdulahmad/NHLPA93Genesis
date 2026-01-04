@@ -32,7 +32,7 @@ const SPF = {
   fallback:   273,
   fallfwd:    305,
   duck:       337,
-  Hold:       345,
+  hold:       345,
   gloves:     353,
   fight:      354,
   finjury:    371,   // new in '93
@@ -79,29 +79,29 @@ function getUniqueSPF(frame) {
 
 // Ordered list of SPA (Sprite Animation) names with confidence vs NHL '92
 const SPA = {
-  "gready":       95,
-  "gready2":      95,
+  "gready":       100, // changed from 92
+  "gready2":      100, // similar to 92 gready
   "gglover":      100,
   "gglovel":      100,
-  "gglovel2":    100,
+  "gglovel2":     100, // new in '93
   "gstickr":      100,
   "gstickl":      100,
   "gstackr":      100,
   "gstackl":      100,
-  "gdive_new":       100,
+  "gdive":        100, // new in '93
   "gswing":       100,
-  "gskate":        95,
+  "gskate":       100,
   "pflip":        100,
   "glide":        100,
-  "skatewp":       95,
-  "skate":         95,
-  "turnl":        100,
-  "turnr":        100,
+  "skatewp":      100, // change to end of animation cycle
+  "skate":        100, // change to end of animation cycle
+  "turnl":        100, // change to end of animation cycle
+  "turnr":        100, // change to end of animation cycle
   "stop":         100,
-  "passf":         90,
-  "passb":         90,
-  "shotf":         90,
-  "shotb":         90,
+  "passf":        100,
+  "passb":        100,
+  "shotf":        100,
+  "shotb":        100,
   "glideback":    100,
   "skateback":    100,
   "sweepchk":     100,
@@ -110,18 +110,18 @@ const SPA = {
   "hipchkl":      100,
   "hipchkr":      100,
   "burst":        100,
-  "hold":         100,
-  "hold2":        100,
+  "Hold":         100,
+  "Hold2":        100,
   "flail":        100,
   "fallfwd":      100,
   "fallback":     100,
   "celebrate":    100,
   "pump":         100,
-  "fight":         95,
-  "fgrab":         95,
-  "fheld":         95,
-  "fhigh":         95,
-  "flow":          95,
+  "fight":        100,
+  "fgrab":        100,
+  "fheld":        100,
+  "fhigh":        100,
+  "flow":         100, // verified up to here
   "fhith":         95,
   "fhitl":         95,
   "ffall":         95, // there may be an finjury here?
