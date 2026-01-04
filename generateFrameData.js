@@ -121,11 +121,12 @@ const SPA = {
   "fgrab":        100,
   "fheld":        100,
   "fhigh":        100,
-  "flow":         100, // verified up to here
-  "fhith":         95,
-  "fhitl":         95,
-  "ffall":         95, // there may be an finjury here?
-  "wallright":    100,
+  "flow":         100,
+  "fhith":        100,
+  "fhitl":        100,
+  "ffall":        100,
+  "finjury":      100, // new in '93
+  "wallright":    100, // TODO fix some sort of bug here
   "wallleft":     100,
   "faceoff":      100,
   "faceoffr":     100,
@@ -390,7 +391,7 @@ while (true) {
 
   lines.push(''); // extra blank between animations
   animationIndex++;
-  // if (animationIndex == 44) break; // TODO
+  if (animationIndex == 48) break; // TODO
 }
 
 // Final output
