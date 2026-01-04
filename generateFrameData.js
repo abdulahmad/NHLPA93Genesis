@@ -365,7 +365,10 @@ while (true) {
         // console.log('finalOffset', finalOffset, 'for frame', frame, 'dir', dir);
         if (finalOffset > 0) {
           frameEntries.push(`.${alias}+${finalOffset},${time}`);
-        } else {
+        } else if (finalOffset < 0) {
+          frameEntries.push(`.${alias}${finalOffset},${time}`);
+        }
+        else {
           frameEntries.push(`.${alias},${time}`);
         }
         // frameEntries.push(`.${alias},${time}`); // TODO-- need to handle offset between alias and this frame
@@ -387,7 +390,7 @@ while (true) {
 
   lines.push(''); // extra blank between animations
   animationIndex++;
-  // if (animationIndex == 5) break; // TODO
+  // if (animationIndex == 44) break; // TODO
 }
 
 // Final output
