@@ -391,7 +391,7 @@ while (true) {
 
   lines.push(''); // extra blank between animations
   animationIndex++;
-  if (animationIndex == 48) break; // TODO
+  if (animationIndex == 49) break; // TODO
 }
 
 // Final output
