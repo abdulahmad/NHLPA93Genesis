@@ -187,7 +187,7 @@ for (const [key, val] of Object.entries(SPF)) {
   if (val === 1) {
     lines.push(`SPF${key}\t=\t${val}`);
   } else {
-    const comment = (key === 'finjury' || key === 'replay' || key === 'gdive' || key === 'glovel2' || key === 'gready2' || key === 'catch' || key === 'hook' || key === 'stumble' || key === 'flip' || key === 'injury1' || key === 'bglass')
+    const comment = (key === 'finjury' || key === 'replay' || key === 'gdive' || key === 'glovel2' || key === 'gready' || key === 'catch' || key === 'hook' || key === 'stumble' || key === 'flip' || key === 'injury1' || key === 'bglass')
       ? `; ${val} - New in NHLPA93`
       : `; ${val}`;
     lines.push(`SPF${key}\t=\tSPF${lastKey}+${val - lastVal}${comment}`);
@@ -239,61 +239,79 @@ while (true) {
   }
   lines.push(`\tdc.w\t${flags}\n`);
 
-  // === Collect unique SPFs and detect offsets ===
-  const uniqueSPFs = new Map(); // baseName → {alias: string, offset: number}
-
+  // === Collect all frames by base and dir ===
+  const framesByBaseAndDir = new Map(); // base → [ [dir0 frames], [dir1 frames], ... ]
   const savedPos = pos;
   for (let dir = 0; dir < 8; dir++) {
     if (tableOffsets[dir] === 0) continue;
-    if (skipDirList.includes(spaNames[animationIndex]) && dir === 7) continue;
+    if (skipDirList.includes(name) && dir === 7) continue;
     pos = startOffset + tableOffsets[dir];
     while (true) {
       const frame = readWord();
-      // console.log('frame read', frame, 'pos', pos.toString(16));
       const time = readSignedWord();
       const base = getUniqueSPF(frame);
-      if (base && !uniqueSPFs.has(base)) {
-        uniqueSPFs.set(base, { alias: null, offset: 0, originalFrame: frame, baseFrame: SPF[base]});
+      if (base) {
+        if (!framesByBaseAndDir.has(base)) {
+          framesByBaseAndDir.set(base, Array.from({ length: 8 }, () => []));
+        }
+        framesByBaseAndDir.get(base)[dir].push(frame);
       }
       if (time < 0) break;
     }
   }
   pos = savedPos;
 
-  // Assign aliases and detect offset (using dir 0 → dir 1)
-  let letterCode = 'a'.charCodeAt(0);
-  for (const [base, info] of uniqueSPFs) {
-    info.alias = String.fromCharCode(letterCode++);
-    // console.log(info, 'aatest');
-    if (tableOffsets[0] !== 0 && tableOffsets[1] !== 0  && tableOffsets[2] !== 0 && tableOffsets[3] !== 0 && tableOffsets[4] !== 0 && tableOffsets[5] !== 0 && tableOffsets[6] !== 0 && tableOffsets[7] !== 0) {
-      // let frame0 = null;
-      // let frame1 = null;
-      let frame = [];
-      for (let dir = 0; dir <= 7; dir++) {
-        // dir 0
-        pos = startOffset + tableOffsets[dir];
-        while (true) {
-          const f = readWord();
-          const t = readSignedWord();
-          if (getUniqueSPF(f) === base) { frame[dir] = f; break; }
-          if (t < 0) break;
-        }
+  // Unique SPFs
+  const uniqueSPFs = new Map();
+  for (const base of framesByBaseAndDir.keys()) {
+    uniqueSPFs.set(base, { alias: null, offset: 0, originalFrame: null, baseFrame: SPF[base] });
+  }
 
-      // // dir 1
-      // pos = startOffset + tableOffsets[1];
-      // while (true) {
-      //   const f = readWord();
-      //   const t = readSignedWord();
-      //   if (getUniqueSPF(f) === base) { frame1 = f; break; }
-      //   if (t < 0) break;
-      // }
+  // Assign aliases
+  let letterCode = 'a'.charCodeAt(0);
+  for (const base of uniqueSPFs.keys()) {
+    uniqueSPFs.get(base).alias = String.fromCharCode(letterCode++);
+  }
+
+  // Detect offsets using min frame per dir
+  for (const [base, info] of uniqueSPFs) {
+    const dirFrames = framesByBaseAndDir.get(base);
+    const minFramePerDir = dirFrames.map(frames => frames.length > 0 ? Math.min(...frames) : null);
+
+    const frame = minFramePerDir;
+
+    if (frame.every(f => f !== null)) {
+      const diffs = [];
+      for (let i = 1; i < 8; i++) {
+        diffs.push(frame[i] - frame[i - 1]);
       }
-      if (frame[0] !== null && frame[1] !== null && frame[2] !== null && frame[3] !== null && frame[4] !== null && frame[5] !== null && frame[6] !== null && frame[7] !== null && frame[1] - frame[0] === frame[2] - frame[1] && frame[1] - frame[0] === frame[3] - frame[2] && frame[1] - frame[0] === frame[4] - frame[3] && frame[1] - frame[0] === frame[5] - frame[4] && frame[1] - frame[0] === frame[6] - frame[5] && frame[1] - frame[0] === frame[7] - frame[6]) {
-        info.offset = frame[1] - frame[0];
+      const uniqueDiffs = new Set(diffs);
+      if (uniqueDiffs.size === 1) {
+        const diff = diffs[0];
+        if (diff > 0) {
+          info.offset = diff;
+        }
       }
     }
   }
-  pos = savedPos;
+
+  // Set originalFrame as the min adjusted frame across all
+  for (const [base, info] of uniqueSPFs) {
+    const dirFrames = framesByBaseAndDir.get(base);
+    let minAdjusted = Infinity;
+    for (let dir = 0; dir < 8; dir++) {
+      if (dirFrames[dir].length === 0) continue;
+      for (const frame of dirFrames[dir]) {
+        const adjusted = frame - (info.offset * dir);
+        if (adjusted < minAdjusted) minAdjusted = adjusted;
+      }
+    }
+    if (minAdjusted !== Infinity) {
+      info.originalFrame = minAdjusted;
+    } else {
+      info.originalFrame = info.baseFrame; // fallback, though shouldn't happen
+    }
+  }
 
   console.log(uniqueSPFs);
   const aliasMap = new Map();
