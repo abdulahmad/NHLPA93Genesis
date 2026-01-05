@@ -130,20 +130,16 @@ const SPA = {
   "wallleft":     100,
   "faceoff":      100,
   "faceoffr":     100,
-  "siren":        100, // verified up to here
-  "stanley":      100,
-  "gdive_r":       70, // is this catch?
-  "gdive_l":       70, // is this hook?
-  "onetime_f":     60, // is this hook2?
-  "onetime_b":     60, // is this stumble?
-  "injury_fall":   80, // is this injury1?
-  "injury_lie":    80, // gwallright?
-  "bglass_shatter":90, // gwallleft?
-  "hook_anim":     70,
-  "flip_pass":     70,
-  "flip_shot":     60,
-  "catch_puck":    70,
-  "replay_icon":   90
+  "siren":        100, 
+  "bglass":       100, // new in '93
+  "stanley":      100, // verified up to here
+  "catch":        100, // is this catch?
+  "hook":         100, // new in '93
+  "hook2":        100, // new in '93
+  "stumble":      100, // new in '93
+  "fake":         100, // new in '93
+  "flip":         100, // new in '93
+  "injury1":      100, // new in '93
 };
 
 // the pointer at direction 7 is invalid for these animations
