@@ -126,11 +126,11 @@ const SPA = {
   "fhitl":        100,
   "ffall":        100,
   "finjury":      100, // new in '93
-  "wallright":    100, // TODO fix some sort of bug here
+  "wallright":    100,
   "wallleft":     100,
   "faceoff":      100,
   "faceoffr":     100,
-  "siren":        100, // bglass after this?
+  "siren":        100, // verified up to here
   "stanley":      100,
   "gdive_r":       70, // is this catch?
   "gdive_l":       70, // is this hook?
@@ -145,6 +145,9 @@ const SPA = {
   "catch_puck":    70,
   "replay_icon":   90
 };
+
+// the pointer at direction 7 is invalid for these animations
+const skipDirList = ["wallright", "wallleft"]; 
 
 // ======================================================
 
@@ -246,6 +249,7 @@ while (true) {
   const savedPos = pos;
   for (let dir = 0; dir < 8; dir++) {
     if (tableOffsets[dir] === 0) continue;
+    if (skipDirList.includes(spaNames[animationIndex]) && dir === 7) continue;
     pos = startOffset + tableOffsets[dir];
     while (true) {
       const frame = readWord();
@@ -331,6 +335,12 @@ while (true) {
       continue;
     }
 
+    console.log('Processing direction', dir, 'of animation', name, animationIndex, spaNames[animationIndex]);
+    if (skipDirList.includes(spaNames[animationIndex]) && dir === 7) {
+      lines.push(`.${dir}\t; (skipped)`);
+      continue;
+    }
+
     pos = startOffset + tableOffsets[dir];
 
     // Advance all aliases before this direction (skip for dir 0)
@@ -391,7 +401,7 @@ while (true) {
 
   lines.push(''); // extra blank between animations
   animationIndex++;
-  if (animationIndex == 49) break; // TODO
+  // if (animationIndex == 49) break; // TODO
 }
 
 // Final output
