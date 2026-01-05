@@ -262,7 +262,7 @@ while (true) {
 
   // Assign aliases and detect offset (using dir 0 → dir 1)
   let letterCode = 'a'.charCodeAt(0);
-  for (const [base, info] of uniqueSPFs) { // TODO ensure that offset is used across all 8 directions
+  for (const [base, info] of uniqueSPFs) {
     info.alias = String.fromCharCode(letterCode++);
     // console.log(info, 'aatest');
     if (tableOffsets[0] !== 0 && tableOffsets[1] !== 0  && tableOffsets[2] !== 0 && tableOffsets[3] !== 0 && tableOffsets[4] !== 0 && tableOffsets[5] !== 0 && tableOffsets[6] !== 0 && tableOffsets[7] !== 0) {
@@ -378,7 +378,6 @@ while (true) {
         else {
           frameEntries.push(`.${alias},${time}`);
         }
-        // frameEntries.push(`.${alias},${time}`); // TODO-- need to handle offset between alias and this frame
       } else {
         // Rare fallback — use raw frame number
         frameEntries.push(`${frame},${time}`);
