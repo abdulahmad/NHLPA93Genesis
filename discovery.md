@@ -331,7 +331,7 @@ two bugs-- 1-- its not adding frame offset, and secondly the script assumes when
 
 NHLPA93Gen Animation data starts at 0x4D8E
 NHL94Gen Animation data starts at 0x5B1C
-NHL95PC Animation data starts at 0x110483 (Hockey.exe)
+NHL95PC Animation data starts at 0x110475 (Hockey.exe)
 NHL94PC Animation data starts at 0x358A6 (Hockey.exe)
 NHL95Gen Animation data starts at 0x5A34
 NHL96Gen Animation data starts at 0x5F96
