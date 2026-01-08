@@ -27,12 +27,12 @@ const assets = [
     { name: 'oilersv.pal', folder: 'Graphics/Pals', start: 0x167C, end: 0x169C },
     { name: 'whalersh.pal', folder: 'Graphics/Pals', start: 0x190A, end: 0x192A },
     { name: 'whalersv.pal', folder: 'Graphics/Pals', start: 0x192A, end: 0x194A },
-    { name: 'islandersh.pal', folder: 'Graphics/Pals', start: 0x1E88, end: 0x1EA8 }, // LI
-    { name: 'islandersv.pal', folder: 'Graphics/Pals', start: 0x1EA8, end: 0x1EC8 },
     { name: 'Kingsh.pal', folder: 'Graphics/Pals', start: 0x1BBE, end: 0x1BDE },
     { name: 'Kingsv.pal', folder: 'Graphics/Pals', start: 0x1BDE, end: 0x1BFE },
-    { name: 'northstarsh.pal', folder: 'Graphics/Pals', start: 0x1E88, end: 0x1EA8 },
-    { name: 'northstarsv.pal', folder: 'Graphics/Pals', start: 0x1EA8, end: 0x1EC8 },
+    { name: 'islandersh.pal', folder: 'Graphics/Pals', start: 0x1E88, end: 0x1EA8 }, // LI
+    { name: 'islandersv.pal', folder: 'Graphics/Pals', start: 0x1EA8, end: 0x1EC8 },
+    { name: 'northstarsh.pal', folder: 'Graphics/Pals', start: 0x2134, end: 0x2154 },
+    { name: 'northstarsv.pal', folder: 'Graphics/Pals', start: 0x2154, end: 0x2174 },
     { name: 'canadiensh.pal', folder: 'Graphics/Pals', start: 0x23D6, end: 0x23F6 },
     { name: 'canadiensv.pal', folder: 'Graphics/Pals', start: 0x23F6, end: 0x2416 },
     { name: 'devilsh.pal', folder: 'Graphics/Pals', start: 0x26AE, end: 0x26CE },
