@@ -95,7 +95,7 @@ const assets = [
     // { name: 'BigFont.map.jim', folder: 'Graphics', start: 0x000778D2, end: 0x00078C20 },
     { name: 'SmallFont93.map.jim', folder: 'Graphics', start: 0x0795B8, end: 0x07A286 },
     { name: 'Unknown93-12.map.jzip2', folder: 'Graphics', start: 0x07A286, end: 0x07A375 },
-    { name: 'Unknown93-13.map.jzip2', folder: 'Graphics', start: 0x07A375, end: 0x07C552 },
+    { name: 'Unknown93-13.map.jzip2', folder: 'Graphics', start: 0x07A375, end: 0x07C552 }, // Team Blocks
     { name: 'Unknown93-14.map.jzip2', folder: 'Graphics', start: 0x07C552, end: 0x07C7AD },
     { name: 'Unknown93-15.bin', folder: 'Graphics', start: 0x07C7AD, end: 0x07C946 },
     { name: 'Ronbarr.map.jzip', folder: 'Graphics', start: 0x07C946, end: 0x07CF22 },
