@@ -87,7 +87,7 @@ const assets = [
     { name: 'Sprites93.anim', folder: 'Graphics', start: 0x03A37C, end: 0x0748E6 },
     { name: 'Unknown93-1.anim', folder: 'Graphics', start: 0x0748E6, end: 0x077174 }, // likely Crowd.anim
     { name: 'Unknown93-2.anim', folder: 'Graphics', start: 0x077174, end: 0x0781E8 }, // likely FaceOff.anim
-    { name: 'Unknown93-3.anim', folder: 'Graphics', start: 0x0781E8, end: 0x078D02 }, // likely Zam.anim
+    { name: 'Zam.anim', folder: 'Graphics', start: 0x0781E8, end: 0x078D02 }, // likely Zam.anim
     { name: 'Unknown93-11.jzip2', folder: 'Graphics', start: 0x078D02, end: 0x0795B8 }, // likely BigFont93.map.jzip2
     // { name: 'Crowd.anim', folder: 'Graphics', start: 0x0007216C, end: 0x00075790 },
     // { name: 'FaceOff.anim', folder: 'Graphics', start: 0x00075790, end: 0x0007716C },
