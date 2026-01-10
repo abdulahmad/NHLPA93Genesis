@@ -72,10 +72,10 @@ function generateTeamSource(romPath) {
     'Washington', 'Winnipeg', 'AllStarsEast', 'AllStarsWest'
   ];
   const palNames = [
-    'Bruins', 'sabres', 'flames', 'Blackhawks', 'redwings', 'oilers', 'whalers', 'islanders',
-    'Kings', 'northstars', 'canadiens', 'devils', 'rangers', 'ott', 'flyers',
-    'penguins', 'nordiques', 'Sharks', 'blues', 'tb', 'mapleleafs', 'canucks',
-    'capitals', 'jets', 'Wales', 'Campbell'
+    'BOS', 'BUF', 'CGY', 'CHI', 'DET', 'EDM', 'HFD', 'LI',
+    'LA', 'MIN', 'MTL', 'NJ', 'NY', 'OTW', 'PHI',
+    'PIT', 'QUE', 'SJ', 'STL', 'TBY', 'TOR', 'VAN',
+    'WSH', 'WPG', 'ASE', 'ASW'
   ];
 
   let output = '\tdc.l\t$0000\n\n';

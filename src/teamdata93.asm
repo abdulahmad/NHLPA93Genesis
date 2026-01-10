@@ -1,4 +1,4 @@
-	dc.l    $0000
+	dc.l	$0000
 
 TeamList
 	dc.l	Boston
@@ -14,13 +14,13 @@ TeamList
 	dc.l	Montreal
 	dc.l	NewJersey
 	dc.l	NewYork
-	dc.l	Ottawa ; NEW in 93!
+	dc.l	Ottawa
 	dc.l	Philadelphia
 	dc.l	Pittsburgh
 	dc.l	Quebec
 	dc.l	SanJose
 	dc.l	StLouis
-	dc.l	TampaBay ; NEW in 93!
+	dc.l	TampaBay
 	dc.l	Toronto
 	dc.l	Vancouver
 	dc.l	Washington
@@ -45,8 +45,8 @@ AllStarsEast
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\Walesh.pal
-	incbin	..\Extracted\Graphics\Pals\Walesv.pal
+	incbin	..\Extracted\Graphics\Pals\ASEh.pal
+	incbin	..\Extracted\Graphics\Pals\ASEv.pal
 ;------------------------
 ;u - unknown
 ;u - unknown
@@ -138,8 +138,8 @@ AllStarsWest
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\Campbellh.pal
-	incbin	..\Extracted\Graphics\Pals\Campbellv.pal
+	incbin	..\Extracted\Graphics\Pals\ASWh.pal
+	incbin	..\Extracted\Graphics\Pals\ASWv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	7020,00C7,9999,9099
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -190,8 +190,8 @@ Boston
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\Bruinsh.pal
-	incbin	..\Extracted\Graphics\Pals\Bruinsv.pal
+	incbin	..\Extracted\Graphics\Pals\BOSh.pal
+	incbin	..\Extracted\Graphics\Pals\BOSv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	3311,21E6,6766,6756
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -244,8 +244,8 @@ Buffalo
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\sabresh.pal
-	incbin	..\Extracted\Graphics\Pals\sabresv.pal
+	incbin	..\Extracted\Graphics\Pals\BUFh.pal
+	incbin	..\Extracted\Graphics\Pals\BUFv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	5522,22D8,2442,3933
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -298,8 +298,8 @@ Calgary
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\flamesh.pal
-	incbin	..\Extracted\Graphics\Pals\flamesv.pal
+	incbin	..\Extracted\Graphics\Pals\CGYh.pal
+	incbin	..\Extracted\Graphics\Pals\CGYv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	6622,11D8,4334,4823
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -351,8 +351,8 @@ Chicago
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\Blackhawksh.pal
-	incbin	..\Extracted\Graphics\Pals\Blackhawksv.pal
+	incbin	..\Extracted\Graphics\Pals\CHIh.pal
+	incbin	..\Extracted\Graphics\Pals\CHIv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	3000,21D7,7777,9888
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -405,8 +405,8 @@ Detroit
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\redwingsh.pal
-	incbin	..\Extracted\Graphics\Pals\redwingsv.pal
+	incbin	..\Extracted\Graphics\Pals\DETh.pal
+	incbin	..\Extracted\Graphics\Pals\DETv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	6111,00D7,8879,7878
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -458,8 +458,8 @@ Edmonton
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\oilersh.pal
-	incbin	..\Extracted\Graphics\Pals\oilersv.pal
+	incbin	..\Extracted\Graphics\Pals\EDMh.pal
+	incbin	..\Extracted\Graphics\Pals\EDMv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	6512,11C7,6535,4534
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -511,8 +511,8 @@ Hartford
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\whalersh.pal
-	incbin	..\Extracted\Graphics\Pals\whalersv.pal
+	incbin	..\Extracted\Graphics\Pals\HFDh.pal
+	incbin	..\Extracted\Graphics\Pals\HFDv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	1402,00F6,2222,1342
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -564,8 +564,8 @@ LosAngeles
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\Kingsh.pal
-	incbin	..\Extracted\Graphics\Pals\Kingsv.pal
+	incbin	..\Extracted\Graphics\Pals\LAh.pal
+	incbin	..\Extracted\Graphics\Pals\LAv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	4410,10D8,5664,6535
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -618,8 +618,8 @@ LongIsland
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\islandersh.pal
-	incbin	..\Extracted\Graphics\Pals\islandersv.pal
+	incbin	..\Extracted\Graphics\Pals\LIh.pal
+	incbin	..\Extracted\Graphics\Pals\LIv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	5522,01E7,5455,5234
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -671,8 +671,8 @@ Minnesota
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\northstarsh.pal
-	incbin	..\Extracted\Graphics\Pals\northstarsv.pal
+	incbin	..\Extracted\Graphics\Pals\MINh.pal
+	incbin	..\Extracted\Graphics\Pals\MINv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	1301,11F6,1232,1652
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -724,8 +724,8 @@ Montreal
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\canadiensh.pal
-	incbin	..\Extracted\Graphics\Pals\canadiensv.pal
+	incbin	..\Extracted\Graphics\Pals\MTLh.pal
+	incbin	..\Extracted\Graphics\Pals\MTLv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	3011,22E7,7888,8499
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -778,8 +778,8 @@ NewJersey
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\devilsh.pal
-	incbin	..\Extracted\Graphics\Pals\devilsv.pal
+	incbin	..\Extracted\Graphics\Pals\NJh.pal
+	incbin	..\Extracted\Graphics\Pals\NJv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	5200,11F6,8668,6467
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -831,8 +831,8 @@ NewYork
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\rangersh.pal
-	incbin	..\Extracted\Graphics\Pals\rangersv.pal
+	incbin	..\Extracted\Graphics\Pals\NYh.pal
+	incbin	..\Extracted\Graphics\Pals\NYv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	7120,20F8,7989,7789
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -886,8 +886,8 @@ Ottawa
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\otth.pal
-	incbin	..\Extracted\Graphics\Pals\ottv.pal
+	incbin	..\Extracted\Graphics\Pals\OTWh.pal
+	incbin	..\Extracted\Graphics\Pals\OTWv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	0702,02A6,1111,1411
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -933,8 +933,8 @@ Philadelphia
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\flyersh.pal
-	incbin	..\Extracted\Graphics\Pals\flyersv.pal
+	incbin	..\Extracted\Graphics\Pals\PHIh.pal
+	incbin	..\Extracted\Graphics\Pals\PHIv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	2201,22E8,3443,2353
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -987,8 +987,8 @@ Pittsburgh
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\penguinsh.pal
-	incbin	..\Extracted\Graphics\Pals\penguinsv.pal
+	incbin	..\Extracted\Graphics\Pals\PITh.pal
+	incbin	..\Extracted\Graphics\Pals\PITv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	7621,10E7,5566,5725
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -1040,8 +1040,8 @@ Quebec
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\nordiquesh.pal
-	incbin	..\Extracted\Graphics\Pals\nordiquesv.pal
+	incbin	..\Extracted\Graphics\Pals\QUEh.pal
+	incbin	..\Extracted\Graphics\Pals\QUEv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	2602,22E8,3212,1321
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -1095,8 +1095,8 @@ SanJose
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\Sharksh.pal
-	incbin	..\Extracted\Graphics\Pals\Sharksv.pal
+	incbin	..\Extracted\Graphics\Pals\SJh.pal
+	incbin	..\Extracted\Graphics\Pals\SJv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	0702,12E6,2111,3211
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -1149,8 +1149,8 @@ StLouis
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\bluesh.pal
-	incbin	..\Extracted\Graphics\Pals\bluesv.pal
+	incbin	..\Extracted\Graphics\Pals\STLh.pal
+	incbin	..\Extracted\Graphics\Pals\STLv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	4210,21D8,4364,4564
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -1203,8 +1203,8 @@ TampaBay
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\tbh.pal
-	incbin	..\Extracted\Graphics\Pals\tbv.pal
+	incbin	..\Extracted\Graphics\Pals\TBYh.pal
+	incbin	..\Extracted\Graphics\Pals\TBYv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	0702,02A7,2111,1411
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -1251,8 +1251,8 @@ Toronto
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\mapleleafsh.pal
-	incbin	..\Extracted\Graphics\Pals\mapleleafsv.pal
+	incbin	..\Extracted\Graphics\Pals\TORh.pal
+	incbin	..\Extracted\Graphics\Pals\TORv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	1411,12E8,2123,3232
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -1305,8 +1305,8 @@ Vancouver
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\canucksh.pal
-	incbin	..\Extracted\Graphics\Pals\canucksv.pal
+	incbin	..\Extracted\Graphics\Pals\VANh.pal
+	incbin	..\Extracted\Graphics\Pals\VANv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	4111,10E8,6877,7577
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -1359,8 +1359,8 @@ Winnipeg
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\jetsh.pal
-	incbin	..\Extracted\Graphics\Pals\jetsv.pal
+	incbin	..\Extracted\Graphics\Pals\WPGh.pal
+	incbin	..\Extracted\Graphics\Pals\WPGv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	2020,10E7,4555,2185
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -1413,8 +1413,8 @@ Washington
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
 .pad
-	incbin	..\Extracted\Graphics\Pals\capitalsh.pal
-	incbin	..\Extracted\Graphics\Pals\capitalsv.pal
+	incbin	..\Extracted\Graphics\Pals\WSHh.pal
+	incbin	..\Extracted\Graphics\Pals\WSHv.pal
 .sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	7320,00E7,9697,8458
 .sodds	; TODO - rename this once unknowns/sodds are confirmed
@@ -1457,7 +1457,6 @@ Washington
 	StringB	'Washington'
 .ta
 	StringB	'WSH'
-
 
 
 playoffseats
