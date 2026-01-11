@@ -57,11 +57,12 @@ const assets = [
     { name: 'WSHh.pal', folder: 'Graphics/Pals', start: 0x4666, end: 0x4686 },
     { name: 'WSHv.pal', folder: 'Graphics/Pals', start: 0x4686, end: 0x46A6 },
     // START OF DATA FILES
-    { name: 'GameSetUp93.map.jzip', folder: 'Graphics', start: 0x02E1FC, end: 0x02EFA6 }, // 1.0: ref@0x13A01; 1.1: starts: 0x02E22A ref@0x13A19
-    { name: 'Unknown93-2.map.jzip2', folder: 'Graphics', start: 0x02EFA6, end: 0x02F0B0 }, // ref is offset
-    { name: 'Unknown93-3.map.jzip', folder: 'Graphics', start: 0x02F0B0, end: 0x03128C }, // 1.0: ref@0x134E3; 1.1: starts: 0x02F0DE
-    { name: 'Unknown93-4.map.jzip2', folder: 'Graphics', start: 0x03128C, end: 0x031F14 }, // ref is offset
-    { name: 'Unknown93-5.map.jzip2', folder: 'Graphics', start: 0x031F14, end: 0x0322CE },
+    { name: 'GameSetup93.head.bin', folder: 'Graphics', start: 0x02EFA2, end: 0x02EFAA } // 1.1 2EFD0, offset = +0x2E
+    { name: 'GameSetUp93.map.jzip', folder: 'Graphics', start: 0x02EFA6, end: 0x02F0B0 }, // ref is offset
+    { name: 'Title1.map.jzip2', folder: 'Graphics', start: 0x02F0B0, end: 0x03128C }, // 1.0: ref@0x134E3; 1.1: starts: 0x02F0DE
+    { name: 'Title2.map.jzip2', folder: 'Graphics', start: 0x03128C, end: 0x031F10 }, // ref is offset
+    { name: 'Title3.head.bin', folder: 'Graphics', start: 0x031F10, end: 0x031F18 },
+    { name: 'Title3.map.jzip2', folder: 'Graphics', start: 0x031F18, end: 0x0322CE },
     { name: 'Unknown93-6.map.jzip2', folder: 'Graphics', start: 0x0322CE, end: 0x032860 },
     { name: 'EABkgd93.map.jzip', folder: 'Graphics', start: 0x032860, end: 0x03338C },
     { name: 'Framer93.map.jzip2', folder: 'Graphics', start: 0x03338C, end: 0x033864 }, // theres more files in this area!
