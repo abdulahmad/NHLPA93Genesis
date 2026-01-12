@@ -66,7 +66,7 @@ const assets = [
     { name: 'Unknown93-6.map.jzip2', folder: 'Graphics', start: 0x0322CE, end: 0x032860 },
     { name: 'EABkgd93.map.jzip', folder: 'Graphics', start: 0x032860, end: 0x03338C },
     { name: 'Framer93.map.jzip2', folder: 'Graphics', start: 0x03338C, end: 0x033864 }, // theres more files in this area!
-    { name: 'Unknown93-8.map.jzip', folder: 'Graphics', start: 0x033864, end: 0x03890A }, // likely IceRank94.map.jzip2
+    { name: 'IceRink93.map.jzip', folder: 'Graphics', start: 0x033864, end: 0x03890A }, // likely IceRank94.map.jzip2
     { name: 'Unknown93-9.map.jzip2', folder: 'Graphics', start: 0x03890A, end: 0x039466 },
     { name: 'Unknown93-10.map.jzip2', folder: 'Graphics', start: 0x039466, end: 0x03A37C },
     // { name: 'Hockey.snd', folder: 'Sound', start: 0x0000F4C8, end: 0x00024214 },
@@ -81,10 +81,10 @@ const assets = [
     // { name: 'IceRink.map.jim', folder: 'Graphics', start: 0x00033AAE, end: 0x0003A3DC },
     // { name: 'Refs.map.jim', folder: 'Graphics', start: 0x0003A3DC, end: 0x0003D5EE },
     { name: 'Sprites93.anim', folder: 'Graphics', start: 0x03A37C, end: 0x0748E6 },
-    { name: 'Unknown93-1.anim', folder: 'Graphics', start: 0x0748E6, end: 0x077174 }, // likely Crowd.anim
-    { name: 'Unknown93-2.anim', folder: 'Graphics', start: 0x077174, end: 0x0781E8 }, // likely FaceOff.anim
+    { name: 'Crowd93.anim', folder: 'Graphics', start: 0x0748E6, end: 0x077174 }, // likely Crowd.anim
+    { name: 'FaceOff93.anim', folder: 'Graphics', start: 0x077174, end: 0x0781E8 }, // likely FaceOff.anim
     { name: 'Zam.anim', folder: 'Graphics', start: 0x0781E8, end: 0x078D02 }, // likely Zam.anim
-    { name: 'Unknown93-11.jzip2', folder: 'Graphics', start: 0x078D02, end: 0x0795B8 }, // likely BigFont93.map.jzip2
+    { name: 'BigFont.jzip2', folder: 'Graphics', start: 0x078D02, end: 0x0795B8 }, // likely BigFont93.map.jzip2
     // { name: 'Crowd.anim', folder: 'Graphics', start: 0x0007216C, end: 0x00075790 },
     // { name: 'FaceOff.anim', folder: 'Graphics', start: 0x00075790, end: 0x0007716C },
     // { name: 'Zam.anim', folder: 'Graphics', start: 0x0007716C, end: 0x000778D2 },
