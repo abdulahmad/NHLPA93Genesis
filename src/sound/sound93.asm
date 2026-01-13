@@ -1,9 +1,31 @@
 ; ===============================================================
-; NHLPA '93 / NHL '94 Music & SFX Driver - 68000 Side
+; NHLPA '93 Music & SFX Driver - 68000 Side
 ; COMPLETE listing: $000165F0 – end of provided code + tables
 ; Bit-exact - no instruction changes whatsoever
 ; All labels (including loc_*, sub_*, unk_*) renamed meaningfully
 ; ===============================================================
+
+music_needs_z80_update       EQU $FFCB7C     ; Byte - flag: Z80 needs new command data
+Z80_command_buffer           EQU $FFCB7E     ; 32-byte buffer sent to Z80 (main command area)
+per_channel_attenuation_table EQU $FFCB83    ; 7 bytes - per-channel volume reset table ($7F = silence/max)
+Z80_command_buffer+2         EQU $FFCB80     ; Second command/status byte
+Z80_command_buffer+3         EQU $FFCB81     ; Third command/status byte (used in frequency updates)
+
+fm_track_slots            EQU $FFCDC4     ; Base of 8 music track slots (pointer + state)
+fm_channel_structs           EQU $FFCDA0     ; FM/SFX channel structs (likely 6–8 entries)
+fm_voice_usage_table         EQU $FFCBA0     ; Voice/channel ownership & usage table
+
+music_global_tick_counter    EQU $FFCAEE     ; Word - global music tick counter
+music_tick_divider           EQU $FFCAF0     ; Word - tempo/tick divider/counter
+
+IO_Z80BUS                    EQU $A11100     ; Z80 bus request port
+IO_Z80RES                    EQU $A11200     ; Z80 reset port
+
+Z80_RAM                      EQU $00A00000   ; Base of Z80 RAM (mapped in 68000 address space)
+Z80_RAM+$008E                EQU $00A0008E   ; Z80 special effects/global disable byte
+Z80_RAM+$0096                EQU $00A00096   ; Z80 command/status byte
+Z80_RAM+$0097                EQU $00A00097   ; Z80 busy/ready flag
+Z80_RAM+$2000                EQU $00A02000   ; Start of generated volume/attenuation lookup table
 
 ; ---------------------------------------------------------------
 ; Panic / Full Music & SFX Shutdown
@@ -34,18 +56,18 @@ clear_attenuation_loop:
 ; Main Music Track Playback Request
 ; Input: d0.w = track index (0..$37 valid)
 ; ---------------------------------------------------------------
-play_music_track:               ; CODE XREF: sfx_play+12↑p  song+0E↑p
+play_sfx_or_music_track:               ; CODE XREF: sfx_play+12↑p  song+0E↑p
     cmp.w   #$37,d0
     bgt.w   ReturnToSoundSystem
 
     movem.l d0-d3/a0-a2,-(sp)
 
     cmp.w   #$30,d0
-    blt.s   find_oldest_slot
-    bsr.w   ForceKillCurrentMusic
+    blt.s   play_sfx_in_oldest_channel
+    bsr.w   play_new_song
 
-find_oldest_slot:
-    lea     (music_track_slots).w,a1        ; $FFCDC4 - 8 slots
+play_sfx_in_oldest_channel:
+    lea     (fm_track_slots).w,a1        ; $FFCDC4 - 8 slots
     moveq   #7,d3
 
 find_loop:
@@ -89,10 +111,10 @@ prepare_new_track:
 ; ---------------------------------------------------------------
 ; Force Stop/Replace Current Music (for priority/special tracks)
 ; ---------------------------------------------------------------
-ForceKillCurrentMusic:
+play_new_song:
     movem.l d0-d3/a0-a3,-(sp)
 
-    lea     (music_track_slots).w,a1
+    lea     (fm_track_slots).w,a1
     moveq   #7,d3
     lea     (MusicTrackPointerTable).l,a0
     adda.w  $60(a0),a0
@@ -129,7 +151,7 @@ next_channel:
 exit_force_kill:
     movem.l (sp)+,d0-d3/a0-a3
     rts
-; End of function ForceKillCurrentMusic
+; End of function play_new_song
 
 ; ---------------------------------------------------------------
 ; Main V-Blank Music & SFX Update Routine
@@ -140,7 +162,7 @@ p_music_vblank:                 ; CODE XREF: ROM:00006492↑p  ROM:0001188A↑p 
     clr.b   (Z80_command_buffer+2).w        ; $FFCB82
 
 refresh_all_tracks:
-    lea     (music_track_slots).w,a5
+    lea     (fm_track_slots).w,a5
     moveq   #7,d7
 
 process_music_slot:
@@ -187,7 +209,6 @@ z80_bus_release_delay:
 
 short_delay_loop:
     dbf     d0,short_delay_loop
-    rts
 
 ; ---------------------------------------------------------------
 ; Upload current command buffer + state to Z80
@@ -281,7 +302,7 @@ handle_command_00:              ; formerly loc_167EC
     lsl.w   #8,d0
     move.b  2(a0),d0
 
-    lea     (music_track_slots).w,a2
+    lea     (fm_track_slots).w,a2
     moveq   #5,d1
 
 search_channel_loop:
@@ -589,7 +610,7 @@ stabilize_delay:
 ; Called during init and panic
 ; ---------------------------------------------------------------
 ClearAllTrackAndSFXSlots:
-    lea     (music_track_slots).w,a0
+    lea     (fm_track_slots).w,a0
     moveq   #7,d0
     move.l  #-1,d1
 
@@ -599,7 +620,7 @@ clear_music_slots:
     dbf     d0,clear_music_slots
 
     moveq   #5,d0
-    lea     (music_track_slots+$2A).w,a0
+    lea     (fm_track_slots+$2A).w,a0
 
 clear_sfx_slots:
     subq.w  #6,a0
