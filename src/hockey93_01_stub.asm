@@ -55,7 +55,7 @@ assinsert = $0
 clearpenaltybuffer = $0
 addpenalty2 = $0
 
-;;	.region code
+; .region code
 	org	$6446
 
 ; includes for stubs to replace removed code
@@ -63,6 +63,5 @@ addpenalty2 = $0
     include "stubinc/equals.inc"
     include "stubinc/ram_addrs.inc"
 
-
-; External Functions
+; Main segment code
 	include	hockey93_01.Asm		;EA provided code for startup and EA logo
