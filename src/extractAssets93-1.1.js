@@ -57,7 +57,7 @@ const assets = [
     { name: 'WSHh.pal', folder: 'Graphics/Pals', start: 0x4666, end: 0x4686 },
     { name: 'WSHv.pal', folder: 'Graphics/Pals', start: 0x4686, end: 0x46A6 },
     // START OF DATA FILES
-    { name: 'GameSetup93.head.bin', folder: 'Graphics', start: 0x02EFA2, end: 0x02EFAA } // 1.1 2EFD0, offset = +0x2E
+    { name: 'GameSetup93.map.jim', folder: 'Graphics', start: 0x02EFD0, end: 0x02EFAA } // 1.1 2EFD0, offset = +0x2E
     { name: 'GameSetUp93.map.jzip', folder: 'Graphics', start: 0x02EFA6, end: 0x02F0B0 }, // ref is offset
     { name: 'Title1.map.jzip2', folder: 'Graphics', start: 0x02F0B0, end: 0x03128C }, // 1.0: ref@0x134E3; 1.1: starts: 0x02F0DE
     { name: 'Title2.map.jzip2', folder: 'Graphics', start: 0x03128C, end: 0x031F10 }, // ref is offset
@@ -94,7 +94,7 @@ const assets = [
     { name: 'Unknown93-13.map.jzip2', folder: 'Graphics', start: 0x07A375, end: 0x07C552 }, // Team Blocks
     { name: 'Unknown93-14.map.jzip2', folder: 'Graphics', start: 0x07C552, end: 0x07C7AD },
     { name: 'Unknown93-15.bin', folder: 'Graphics', start: 0x07C7AD, end: 0x07C946 },
-    { name: 'Ronbarr.map.jzip', folder: 'Graphics', start: 0x07C946, end: 0x07CF22 },
+    { name: 'Ronbarr.map.jzip', folder: 'Graphics', start: 0x07C974, end: 0x07CF22 },
     { name: 'Unknown93-16.map.jzip2', folder: 'Graphics', start: 0x07CF22, end: 0x07D308 },
     { name: 'Unknown93-17.map.jzip2', folder: 'Graphics', start: 0x07D308, end: 0x07F4F6 },
     { name: 'Unknown93-18.map.jzip2', folder: 'Graphics', start: 0x07F4F6, end: 0x07FBCC },
