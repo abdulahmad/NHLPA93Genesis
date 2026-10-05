@@ -16,7 +16,8 @@
     "build:reva": "set rev=1&& set checksum=1&& npm run asm && npm run fixopcodes && npm run verify:reva",
     "build:dev": "set rev=1&& set checksum=0&& npm run asm && npm run fixopcodes",
     "build:logo": "set rev=0&& set checksum=1&& npm run asm:logo && npm run fixopcodes:logo",
-    "build:sound": "set rev=0&& set checksum=1&& npm run asm:sound && npm run fixopcodes:sound"
+    "build:sound": "set rev=0&& set checksum=1&& npm run asm:sound && npm run fixopcodes:sound",
+    "build:seg": "buildseg.bat hockey93_01"
   },
   "devDependencies": {
     "crc-32": "^1.2.2"
