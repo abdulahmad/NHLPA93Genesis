@@ -37,6 +37,11 @@ Comments:
 - 93-only code gets a short factual comment from what the bytes do. Do not guess game meaning you cannot see in the code.
 - Mark retail-vs-Rev A differences inline (`;retail v1.1 clear end (Rev A: $CDF4)`).
 - Assembler workarounds (`dc.w` for EA `cmp` encodings) keep the real instruction in the comment.
+- Every global routine and data label gets a header comment on its label line: what it does, when it is called (for example `;called once per second`), and its inputs and outputs (`d7 = elapsed frames`, `return d0 = ...`). Use the 92 header if the routine exists in 92. Otherwise write one from the bytes.
+- Note fall-through and outside entry points in the header (`falls in from InitTeamShots`, `Also entered from puckfaceoff+2E`).
+- Inside a routine, comment every branch condition or magic value that is not obvious: what is tested, what the constant means, and which path is taken. Leave obvious lines alone.
+- Comments describe behaviour you can see in the bytes. If the purpose of a flag or RAM word is unknown, describe the effect (`;set at end of game`) and leave the name alone. Do not rename RAM from a guess.
+- Comment-only passes must not change bytes. Run `npm run seg` afterwards.
 
 Labels:
 
