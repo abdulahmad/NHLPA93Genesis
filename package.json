@@ -17,8 +17,8 @@
     "build:dev": "set rev=1&& set checksum=0&& npm run asm && npm run fixopcodes",
     "build:logo": "set rev=0&& set checksum=1&& npm run asm:logo && npm run fixopcodes:logo",
     "build:sound": "set rev=0&& set checksum=1&& npm run asm:sound && npm run fixopcodes:sound",
-    "build:seg": "buildseg.bat sram93 && node fixopcodes.js \"output\\sram93 .lst\" output\\sram93.bin 0x15FE6",
-    "verify:seg": "node verifySegment.js sram93 0x15FE6 nhlpa93retail.bin",
+    "build:seg": "buildseg.bat sound93 && node fixopcodes.js \"output\\sound93 .lst\" output\\sound93.bin 0x165D8",
+    "verify:seg": "node verifySegment.js sound93 0x165D8 nhlpa93retail.bin",
     "seg": "npm run build:seg && npm run verify:seg",
     "seg:01": "buildseg.bat hockey93_01 && node fixopcodes.js \"output\\hockey93_01 .lst\" output\\hockey93_01.bin 0x6446 && node verifySegment.js hockey93_01 0x6446 nhlpa93retail.bin",
     "seg:menu93": "buildseg.bat menu93 && node fixopcodes.js \"output\\menu93 .lst\" output\\menu93.bin 0x6A00 && node verifySegment.js menu93 0x6A00 nhlpa93retail.bin",
@@ -44,7 +44,9 @@
                 "seg:hockey93_09": "buildseg.bat hockey93_09 && node fixopcodes.js \"output\\hockey93_09 .lst\" output\\hockey93_09.bin 0x14404 && node verifySegment.js hockey93_09 0x14404 nhlpa93retail.bin",
                 "seg:hockey93_10": "buildseg.bat hockey93_10 && node fixopcodes.js \"output\\hockey93_10 .lst\"                 output\\hockey93_10.bin 0x1499E && node verifySegment.js hockey93_10 0x1499E nhlpa93retail.bin",
                                 "seg:hockey93_11": "buildseg.bat hockey93_11 && node fixopcodes.js \"output\\hockey93_11 .lst\"                                 output\\hockey93_11.bin 0x1510A && node verifySegment.js hockey93_11 0x1510A nhlpa93retail.bin",
-                                    "seg:sram93": "buildseg.bat sram93 && node fixopcodes.js \"output\\sram93 .lst\" output\\sram93.bin 0x15FE6 && node verifySegment.js sram93 0x15FE6 nhlpa93retail.bin"                              },
+                                    "seg:sram93": "buildseg.bat sram93 && node fixopcodes.js \"output\\sram93 .lst\" output\\sram93.bin 0x15FE6 && node verifySegment.js sram93 0x15FE6 nhlpa93retail.bin",
+    "seg:sound93": "buildseg.bat sound93 && node fixopcodes.js \"output\\sound93 .lst\" output\\sound93.bin 0x165D8 && node verifySegment.js sound93 0x165D8 nhlpa93retail.bin"
+  },
   "devDependencies": {
     "crc-32": "^1.2.2"
   },
