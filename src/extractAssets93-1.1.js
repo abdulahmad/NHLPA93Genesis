@@ -56,52 +56,59 @@ const assets = [
     { name: 'WPGv.pal', folder: 'Graphics/Pals', start: 0x43C8, end: 0x43E8 },
     { name: 'WSHh.pal', folder: 'Graphics/Pals', start: 0x4666, end: 0x4686 },
     { name: 'WSHv.pal', folder: 'Graphics/Pals', start: 0x4686, end: 0x46A6 },
-    // START OF DATA FILES
-    { name: 'GameSetup93.map.jim', folder: 'Graphics', start: 0x02EFD0, end: 0x02EFAA } // 1.1 2EFD0, offset = +0x2E
-    { name: 'GameSetUp93.map.jzip', folder: 'Graphics', start: 0x02EFA6, end: 0x02F0B0 }, // ref is offset
-    { name: 'Title1.map.jzip2', folder: 'Graphics', start: 0x02F0B0, end: 0x03128C }, // 1.0: ref@0x134E3; 1.1: starts: 0x02F0DE
-    { name: 'Title2.map.jzip2', folder: 'Graphics', start: 0x03128C, end: 0x031F10 }, // ref is offset
-    { name: 'Title3.head.bin', folder: 'Graphics', start: 0x031F10, end: 0x031F18 },
-    { name: 'Title3.map.jzip2', folder: 'Graphics', start: 0x031F18, end: 0x0322CE },
-    { name: 'Unknown93-6.map.jzip2', folder: 'Graphics', start: 0x0322CE, end: 0x032860 },
-    { name: 'EABkgd93.map.jzip', folder: 'Graphics', start: 0x032860, end: 0x03338C },
-    { name: 'Framer93.map.jzip2', folder: 'Graphics', start: 0x03338C, end: 0x033864 }, // theres more files in this area!
-    { name: 'IceRink93.map.jzip', folder: 'Graphics', start: 0x033864, end: 0x03890A }, // likely IceRank94.map.jzip2
-    { name: 'Unknown93-9.map.jzip2', folder: 'Graphics', start: 0x03890A, end: 0x039466 },
-    { name: 'Unknown93-10.map.jzip2', folder: 'Graphics', start: 0x039466, end: 0x03A37C },
-    // { name: 'Hockey.snd', folder: 'Sound', start: 0x0000F4C8, end: 0x00024214 },
-    // { name: 'GameSetUp.map.jim', folder: 'Graphics', start: 0x00024214, end: 0x00025642 },
-    // { name: 'Title1.map.jim', folder: 'Graphics', start: 0x00025642, end: 0x0002ADF0 },
-    // { name: 'Title2.map.jim', folder: 'Graphics', start: 0x0002ADF0, end: 0x0002C0FE },
-    // { name: 'NHLSpin.map.jim', folder: 'Graphics', start: 0x0002C0FE, end: 0x0002E9EC },
-    // { name: 'Puck.anim', folder: 'Graphics', start: 0x0002E9EC, end: 0x0002F262 },
-    // { name: 'Scouting.map.jim', folder: 'Graphics', start: 0x0002F262, end: 0x00033590 },
-    // { name: 'Framer.map.jim', folder: 'Graphics', start: 0x00033590, end: 0x000336B0 },
-    // { name: 'FaceOff.map.jim', folder: 'Graphics', start: 0x000336B0, end: 0x00033AAE },
-    // { name: 'IceRink.map.jim', folder: 'Graphics', start: 0x00033AAE, end: 0x0003A3DC },
-    // { name: 'Refs.map.jim', folder: 'Graphics', start: 0x0003A3DC, end: 0x0003D5EE },
-    { name: 'Sprites93.anim', folder: 'Graphics', start: 0x03A37C, end: 0x0748E6 },
-    { name: 'Crowd93.anim', folder: 'Graphics', start: 0x0748E6, end: 0x077174 }, // likely Crowd.anim
-    { name: 'FaceOff93.anim', folder: 'Graphics', start: 0x077174, end: 0x0781E8 }, // likely FaceOff.anim
-    { name: 'Zam.anim', folder: 'Graphics', start: 0x0781E8, end: 0x078D02 }, // likely Zam.anim
-    { name: 'BigFont.jzip2', folder: 'Graphics', start: 0x078D02, end: 0x0795B8 }, // likely BigFont93.map.jzip2
-    // { name: 'Crowd.anim', folder: 'Graphics', start: 0x0007216C, end: 0x00075790 },
-    // { name: 'FaceOff.anim', folder: 'Graphics', start: 0x00075790, end: 0x0007716C },
-    // { name: 'Zam.anim', folder: 'Graphics', start: 0x0007716C, end: 0x000778D2 },
-    // { name: 'BigFont.map.jim', folder: 'Graphics', start: 0x000778D2, end: 0x00078C20 },
-    { name: 'SmallFont93.map.jim', folder: 'Graphics', start: 0x0795B8, end: 0x07A286 },
-    { name: 'Unknown93-12.map.jzip2', folder: 'Graphics', start: 0x07A286, end: 0x07A375 },
-    { name: 'Unknown93-13.map.jzip2', folder: 'Graphics', start: 0x07A375, end: 0x07C552 }, // Team Blocks
-    { name: 'Unknown93-14.map.jzip2', folder: 'Graphics', start: 0x07C552, end: 0x07C7AD },
-    { name: 'Unknown93-15.bin', folder: 'Graphics', start: 0x07C7AD, end: 0x07C946 },
-    { name: 'Ronbarr.map.jzip', folder: 'Graphics', start: 0x07C974, end: 0x07CF22 },
-    { name: 'Unknown93-16.map.jzip2', folder: 'Graphics', start: 0x07CF22, end: 0x07D308 },
-    { name: 'Unknown93-17.map.jzip2', folder: 'Graphics', start: 0x07D308, end: 0x07F4F6 },
-    { name: 'Unknown93-18.map.jzip2', folder: 'Graphics', start: 0x07F4F6, end: 0x07FBCC },
-    // { name: 'TeamBlocks.map.jim', folder: 'Graphics', start: 0x00079C2E, end: 0x0007E79C },
-    // { name: 'Arrows.map.jim', folder: 'Graphics', start: 0x0007E79C, end: 0x0007EB12 },
-    // { name: 'Stanley.map.jim', folder: 'Graphics', start: 0x0007EB12, end: 0x0007FC20 },
-    // { name: 'EASN.map.jim', folder: 'Graphics', start: 0x0007FC20, end: 0x0007FE8A }
+    // Sound and graphics data: contiguous retail slices (end is exclusive) for the incbins in
+    // src/sound93.asm ($16E53-$2EFA1) and src/graphics93.asm ($2EFA2-$7FB75). Graphics slices start at an
+    // IDA or stub label (retail address = Rev A - $2E) and are named after it; an unlabeled slice is named by its address.
+    { name: 'sound93_16E53.bin', folder: 'Sound', start: 0x016E53, end: 0x02EFA2 }, // Z80 program after Z80_Program_Code ($16E52), then sound data
+    { name: 'GameSetupMap.bin', folder: 'Graphics', start: 0x02EFA2, end: 0x02EFAA },
+    { name: 'GameSetupMapPlus8.bin', folder: 'Graphics', start: 0x02EFAA, end: 0x02F0B0 },
+    { name: 'Titlemap.bin', folder: 'Graphics', start: 0x02F0B0, end: 0x031288 },
+    { name: 'Gfx_31288.bin', folder: 'Graphics', start: 0x031288, end: 0x031F10 }, // no IDA or stub label (Rev A $312B6); 92 Title2Map
+    { name: 'Title3map.bin', folder: 'Graphics', start: 0x031F10, end: 0x031F18 },
+    { name: 'Title3mapPlus8.bin', folder: 'Graphics', start: 0x031F18, end: 0x0322CE },
+    { name: 'Titlemap2.bin', folder: 'Graphics', start: 0x0322CE, end: 0x0322D6 },
+    { name: 'Titlemap2Plus8.bin', folder: 'Graphics', start: 0x0322D6, end: 0x032860 },
+    { name: 'unk_3288E.bin', folder: 'Graphics', start: 0x032860, end: 0x033388 }, // stats93 stub name (IDA Rev A address)
+    { name: 'Framermap.bin', folder: 'Graphics', start: 0x033388, end: 0x033390 },
+    { name: 'FramermapPlus8.bin', folder: 'Graphics', start: 0x033390, end: 0x033400 },
+    { name: 'FaceOffMap.bin', folder: 'Graphics', start: 0x033400, end: 0x033864 },
+    { name: 'IceRinkMap.bin', folder: 'Graphics', start: 0x033864, end: 0x03386C },
+    { name: 'IceRinkMapPlus8.bin', folder: 'Graphics', start: 0x03386C, end: 0x03571C },
+    { name: 'unk_3574A.bin', folder: 'Graphics', start: 0x03571C, end: 0x038906 }, // IDA name (Rev A address)
+    { name: 'RefsMap.bin', folder: 'Graphics', start: 0x038906, end: 0x03890E },
+    { name: 'RefsMapPlus8.bin', folder: 'Graphics', start: 0x03890E, end: 0x039462 },
+    { name: 'RefMap2.bin', folder: 'Graphics', start: 0x039462, end: 0x03946A },
+    { name: 'RefMap2Plus8.bin', folder: 'Graphics', start: 0x03946A, end: 0x03A378 },
+    { name: 'SpritesMap.bin', folder: 'Graphics', start: 0x03A378, end: 0x03A382 },
+    { name: 'Spritetiles.bin', folder: 'Graphics', start: 0x03A382, end: 0x0440F2 },
+    { name: 'unk_44120.bin', folder: 'Graphics', start: 0x0440F2, end: 0x06FAC2 }, // IDA name (Rev A address)
+    { name: 'FrameDataOff.bin', folder: 'Graphics', start: 0x06FAC2, end: 0x06FFD8 },
+    { name: 'SprDataBytes.bin', folder: 'Graphics', start: 0x06FFD8, end: 0x0743CE },
+    { name: 'HotList.bin', folder: 'Graphics', start: 0x0743CE, end: 0x0748E2 },
+    { name: 'CrowdSprites.bin', folder: 'Graphics', start: 0x0748E2, end: 0x0748EA },
+    { name: 'CrowdSpritesPlus8.bin', folder: 'Graphics', start: 0x0748EA, end: 0x077170 },
+    { name: 'FaceOffSprites.bin', folder: 'Graphics', start: 0x077170, end: 0x077178 },
+    { name: 'FaceOffSpritesPlus8.bin', folder: 'Graphics', start: 0x077178, end: 0x0781E4 },
+    { name: 'ZamSprites.bin', folder: 'Graphics', start: 0x0781E4, end: 0x0781EC },
+    { name: 'ZamSpritesPlus8.bin', folder: 'Graphics', start: 0x0781EC, end: 0x078CFE },
+    { name: 'bigfontmap.bin', folder: 'Graphics', start: 0x078CFE, end: 0x078D06 },
+    { name: 'bigfontmapPlus8.bin', folder: 'Graphics', start: 0x078D06, end: 0x0795B4 },
+    { name: 'smallfontmap.bin', folder: 'Graphics', start: 0x0795B4, end: 0x0795BC },
+    { name: 'smallfontmapPlus8.bin', folder: 'Graphics', start: 0x0795BC, end: 0x07A282 },
+    { name: 'unk_7A2B0.bin', folder: 'Graphics', start: 0x07A282, end: 0x07A28A }, // IDA name (Rev A address)
+    { name: 'unk_7A2B8.bin', folder: 'Graphics', start: 0x07A28A, end: 0x07A376 }, // IDA name (Rev A address)
+    { name: 'TeamBlocksmap.bin', folder: 'Graphics', start: 0x07A376, end: 0x07A37E },
+    { name: 'TeamBlocksmapPlus8.bin', folder: 'Graphics', start: 0x07A37E, end: 0x07C54E },
+    { name: 'ArrowsMap.bin', folder: 'Graphics', start: 0x07C54E, end: 0x07C556 },
+    { name: 'ArrowsMapPlus8.bin', folder: 'Graphics', start: 0x07C556, end: 0x07C7AA },
+    { name: 'EASNmap.bin', folder: 'Graphics', start: 0x07C7AA, end: 0x07C7B2 },
+    { name: 'EASNmapPlus8.bin', folder: 'Graphics', start: 0x07C7B2, end: 0x07C946 },
+    { name: 'Ronbarrmap.bin', folder: 'Graphics', start: 0x07C946, end: 0x07CF1E },
+    { name: 'unk_7CF4C.bin', folder: 'Graphics', start: 0x07CF1E, end: 0x07D304 }, // IDA name (Rev A address)
+    { name: 'StanleyMap.bin', folder: 'Graphics', start: 0x07D304, end: 0x07D30C },
+    { name: 'StanleyMapPlus8.bin', folder: 'Graphics', start: 0x07D30C, end: 0x07F4F6 },
+    { name: 'EASNmap2.bin', folder: 'Graphics', start: 0x07F4F6, end: 0x07F4FE },
+    { name: 'EASNmap2Plus8.bin', folder: 'Graphics', start: 0x07F4FE, end: 0x07FB76 },
 ];
 
 // Expected CRC32 checksum (996931775 in hexadecimal)
@@ -210,7 +217,7 @@ NHL 93 Asset Extractor
 
 This script extracts assets from NHLPA Hockey 93 ROM files.
 
-Usage: node extractAssets93.js [options] <rom_file_path>
+Usage: node src/extractAssets93-1.1.js [options] <rom_file_path>
 
 Options:
   -h, --help              Display this help message
@@ -218,12 +225,12 @@ Options:
   -o, --output <dir>      Specify output directory (default: 'Extracted')
 
 Notes:
-  - This script extracts all known assets from the NHL 92 ROM
+  - This script extracts all known assets from the NHLPA 93 retail ROM (nhlpa93retail.bin)
   - ROM checksums are verified to ensure correct ROM is used
 
 Examples:
-  node extractAssets93.js nhl93retail.bin
-  node extractAssets93.js --verbose --output NHL93Assets nhl93retail.bin
+  node src/extractAssets93-1.1.js nhlpa93retail.bin
+  node src/extractAssets93-1.1.js --verbose --output NHL93Assets nhlpa93retail.bin
     `);
 }
 

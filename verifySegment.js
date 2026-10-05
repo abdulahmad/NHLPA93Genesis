@@ -1,14 +1,16 @@
 // Overlay one assembled and fixopcodes-patched segment onto a copy of the reference ROM and compare that range.
-// Usage: node verifySegment.js <segment> <org> <reference.bin>
+// Usage: node verifySegment.js <segment> <org> <reference.bin> [<first> <last>]
 // Example: node verifySegment.js hockey93_01 0x6446 nhlpa93retail.bin
+// <first> <last> (inclusive ROM addresses) compare only that part of the segment, for example
+// node verifySegment.js sound93 0x165D8 nhlpa93retail.bin 0x165D8 0x16E52
 // Reads output/modified_<segment>.bin (written by fixopcodes.js), not the raw assembler output/<segment>.bin.
 // Writes output/<segment>_patched.bin.
 const fs = require('fs');
 const path = require('path');
 
-const [segment, orgArg, referencePath] = process.argv.slice(2);
+const [segment, orgArg, referencePath, firstArg, lastArg] = process.argv.slice(2);
 if (!segment || !orgArg || !referencePath) {
-  console.error('Usage: node verifySegment.js <segment> <org> <reference.bin>');
+  console.error('Usage: node verifySegment.js <segment> <org> <reference.bin> [<first> <last>]');
   process.exit(1);
 }
 
@@ -34,21 +36,29 @@ const patched = Buffer.from(reference);
 built.copy(patched, org);
 fs.writeFileSync(patchedPath, patched);
 
+const first = firstArg === undefined ? org : Number(firstArg);
+const last = lastArg === undefined ? org + built.length - 1 : Number(lastArg);
+if (!Number.isInteger(first) || !Number.isInteger(last) || first < org || last < first || last >= org + built.length) {
+  console.error(`range ${firstArg}-${lastArg} is not inside the ${built.length}-byte segment at ${orgArg}`);
+  process.exit(1);
+}
+const length = last - first + 1;
+
 const mismatches = [];
-for (let i = 0; i < built.length; i++) {
-  if (built[i] !== reference[org + i]) mismatches.push(org + i);
+for (let a = first; a <= last; a++) {
+  if (built[a - org] !== reference[a]) mismatches.push(a);
 }
 
-const start = org.toString(16).padStart(6, '0');
-const end = (org + built.length - 1).toString(16).padStart(6, '0');
+const start = first.toString(16).padStart(6, '0');
+const end = last.toString(16).padStart(6, '0');
 
 if (mismatches.length === 0) {
-  console.log(`MATCH: ${segment} confirmed ${built.length} bytes at 0x${start}-0x${end}`);
+  console.log(`MATCH: ${segment} confirmed ${length} bytes at 0x${start}-0x${end}`);
   console.log(`patched ROM: ${patchedPath}`);
   process.exit(0);
 }
 
-console.error(`MISMATCH: ${mismatches.length} of ${built.length} bytes differ in 0x${start}-0x${end}`);
+console.error(`MISMATCH: ${mismatches.length} of ${length} bytes differ in 0x${start}-0x${end}`);
 for (const offset of mismatches.slice(0, 16)) {
   const i = offset - org;
   console.error(

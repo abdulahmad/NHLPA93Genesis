@@ -503,5 +503,7 @@ ClearAllTrackAndSFXSlots	;free the 8 track slots and reset the 6 channel structs
 	rts
 
 Z80_Program_Code	;IDA name. First byte of the Z80 program ($16E52, movea.l in p_initialZ80); the rest of the
-		;Z80 blob from $16E53 is not covered yet
+		;Z80 blob from $16E53 and the sound data after it are the incbin below
 	dc.b	$18
+	incbin	..\Extracted\Sound\sound93_16E53.bin	;retail $16E53-$2EFA1: rest of the Z80 program, sound data
+	even
