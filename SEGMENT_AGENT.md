@@ -2,10 +2,18 @@
 
 Finish one NHLPA 93 segment so it assembles with SNASM68K and matches the retail ROM bytes. Do not decompile the rest of the ROM.
 
+## Do not write tools
+
+The disassembly already exists. Do not create a disassembler, decoder, listing parser, ROM dumper, or any other tool. Do not add a `.js`, `.py`, or `.md` file for this. `verifySegment.js`, `buildseg.bat`, and `fixopcodes.js` are the only tools, and they already work.
+
+Read the annotated listing and transcribe that range into asm. The named listing is `../EA-NHL-Disassembly-Project/NHL93-Genesis/NHLPA Hockey 93 (USA, Europe) (v1.1).bin.lst`. Open it and search for the routine. It has IDA function names, labels, and comments. `nhlpa93retailRevA.lst` in this repo is the same Rev A ROM with exact bytes and mostly auto names. Use it only to confirm bytes. Neither listing has retail addresses. Convert with the delta table in "ROM map", then confirm the bytes in `nhlpa93retail.bin`.
+
+If you cannot find the listing, stop and say so. Do not work around a missing listing by disassembling the ROM yourself.
+
 ## Sources of truth, in order
 
 1. Retail ROM bytes. `nhlpa93retail.bin` wins over the listing, the current asm, and NHL 92.
-2. IDA names. `EA-NHL-Disassembly-Project/NHL93-Genesis/NHLPA Hockey 93 (USA, Europe) (v1.1).bin.lst` is the name source for functions, labels, and RAM. It is not an assembler listing. Do not pass it to `fixopcodes.js`. Despite the file name, it was built from Rev A (input MD5 `B6FB2CE2...` = `nhlpa93retailRevA.bin`). `nhlpa93retailRevA.lst` (repo root) is the same Rev A ROM with exact addresses and bytes but mostly auto names. Neither listing has retail addresses; convert with the delta table in "ROM map".
+2. IDA names. The v1.1 `.lst` above is the name source for functions, labels, and RAM. It is not an assembler listing. Do not pass it to `fixopcodes.js`. Despite the file name, it was built from Rev A (input MD5 `B6FB2CE2...` = `nhlpa93retailRevA.bin`).
 3. Style. `NHL92Genesis/src/hockey.asm`, `ram.asm`, and `macros/` are the style source. Same mnemonics, `equ`, local labels with `.`, and comment density. Do not paste 92 code over 93.
 4. Current segment. `src/hockey93_02_stub.asm` is `org $8AC4` and includes `src/hockey93_02.asm`. The segment is `$8AC4-$946D` (`ReplayMode` through `checkwindow`; see "ROM map"). RAM names already live in `src/stubinc/ram_addrs.inc`. Include that file. Do not invent a second RAM map.
 
@@ -78,9 +86,9 @@ IDA addresses drift from retail (the listing is Rev A; see "ROM map"). In the na
 
 ## Loop
 
-1. Read `DECOMPILATION_LEARNINGS.md`.
-2. Read only the current segment range from the IDA `.lst` and from `nhlpa93retail.bin`.
-3. Rewrite `src/hockey93_02.asm` in NHL 92 style. Stub external calls that are outside this range. Do not follow those calls.
+1. Read `DECOMPILATION_LEARNINGS.md` and this file.
+2. Open the v1.1 `.lst` and read only the current segment. Transcribe those named instructions. Do not disassemble the ROM. Use `nhlpa93retail.bin` only to check bytes and to fix addresses with the delta table.
+3. Rewrite the current segment asm in NHL 92 style. Stub external calls that are outside this range. Do not follow those calls.
 4. Run `npm run seg`.
 5. If the mismatch is only a known EA `cmp` / `exg` encoding, write that instruction as `dc.w` with the real instruction in the comment (what `hockey93_01` does), because `npm run seg` checks raw assembler output. Do not rewrite `exg d0,d1`. The `0C80` to `B0BC` rule only applies where the ROM byte is `B0BC`.
 6. Stop after 5 failed verifies. Write the first remaining mismatch and what the ROM bytes are. Do not keep editing.
@@ -137,3 +145,4 @@ Labels:
 - `hockey93.asm` and the full-ROM `build:retail` path.
 - Rev A, Rev B, Z80, frame extractor, `extractAssets93.js`, NHL 94.
 - Touch `extractAssets` only after this segment matches and a later segment is a data table the extractor already owns.
+- Any new script, disassembler, or listing generator.
