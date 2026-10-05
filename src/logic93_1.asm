@@ -723,7 +723,7 @@ ShotMode	;shot input
 
 doshot	;stick is at puck so launch puck toward goal
 	movem.l	d0-d7/a0-a3,-(sp)
-	bsr.w	checkgoalp		;93: aim away from the goalie
+	bsr.w	checkgoalp_CalcGoalShotDir	;93: aim away from the goalie
 	move.w	#5,-(sp)		;sound effect (92 SFXshotwiff = 14)
 	move.w	$52(a3),(shotplayer).w
 	bclr	#3,(sflags).w		;sfssdir
@@ -844,7 +844,7 @@ doshot	;stick is at puck so launch puck toward goal
 	dc.w	0,0,-$10,0,-$10,6,-$10,$C
 	dc.w	0,6
 
-checkgoalp	;IDA: checkgoalp_CalcGoalShotDir. 93 only. If the opposing goalie
+checkgoalp_CalcGoalShotDir	;IDA name kept: 92 checkgoalp is the goal/net collision in hockey93_04. 93 only. If the opposing goalie
 	;covers the middle of the net, set passdir 2 or 6 to shoot at the open
 	;side, else 0. Skipped for computer players (pfjoycon clear)
 	btst	#3,$62(a3)		;pfjoycon
