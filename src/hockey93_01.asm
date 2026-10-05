@@ -1,12 +1,14 @@
 ;	NHLPA Hockey 93 (v1.1 retail) segment $6446-$68B3
-;	VBLANK / Begin through the end of clockcont.
-;	Global names from the v1.1 IDA export. Local labels and comments follow
-;	NHL 92 hockey.asm where the code matches. Bytes match nhlpa93retail.bin.
+;	VBjsr / Begin through the end of clockcont.
+;	Global names from the v1.1 IDA export, renamed to the NHL 92 name where the
+;	same routine exists in 92 (IDA name kept in an ;IDA: comment).
+;	Local labels and comments follow NHL 92 hockey.asm where the code matches.
+;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx),
 ;	so those sites are written as dc.w with the instruction in the comment.
 ;	92 equate names in comments are only used where the 93 value is the same.
 
-VBLANK	;vertical blank interrupt (vector $78), jumps through the vbint RAM vector
+VBjsr	;IDA: VBLANK. Vertical blank interrupt (vector $78), jumps through the vbint RAM vector
 	move.l	(vbint).w,-(sp)		;push handler address
 	rts				;and "return" into it
 
@@ -47,7 +49,7 @@ StartGame	;reset game state for a new game, then start the first period
 	clr.w	(word_FFC3F4).w
 	clr.w	(gsp).w			;first period
 	clr.w	(ChkCnt).w
-	bsr.w	InitTeamShots
+	bsr.w	restoreteams
 	jsr	(InitScores).l
 	jsr	(setupice).l
 	jmp	(_sp).l			;on to period start
@@ -59,11 +61,11 @@ ClearShotData	;clear 49 words at $FFCB0A
 	dbf	d0,.0
 	rts
 
-InitTeamShots	;92 restoreteams. Put both teams' rosters on the bench
+restoreteams	;IDA: InitTeamShots. Put both teams' rosters on the bench
 	movea.w	#(hmtmstruct-M68K_RAM),a2	;team 1
-	bsr.w	InitShotStruct
+	bsr.w	.r
 	adda.w	#$1A2,a2		;team 2
-InitShotStruct	;92 restoreteams .r. Reset one team struct (a2), falls in from InitTeamShots
+.r	;IDA: InitShotStruct. Reset one team struct (a2), falls in for team 2
 	move.w	#6,$24(a2)		;no players in pen. box
 	moveq	#$32,d0			;(maxros-1)*2
 .0	move.w	#$FFFE,$66(a2,d0.w)	;all players on bench
@@ -88,12 +90,13 @@ ResetClock	;set period length and stop clock
 	rts
 
 GetPeriodTime	;return d0 = period length in seconds for the period length option
+		;(split out of 92 ResetClock; 92 has no separate name)
 	move.w	(word_FFCADE).w,d0	;92 OptPerlen
 	asl.w	#1,d0
-	lea	PeriodTimeTable(pc),a0
+	lea	.timetab(pc),a0
 	move.w	0(a0,d0.w),d0
 	rts
-PeriodTimeTable	;92 ResetClock .timetab. Period length in seconds: 5, 10, 20 min, 30 sec
+.timetab	;IDA: PeriodTimeTable. Period length in seconds: 5, 10, 20 min, 30 sec
 	dc.w	5*60,10*60,20*60,30
 
 StartPer	;start a period: reset stack, rink and clock, face off, run the game loop

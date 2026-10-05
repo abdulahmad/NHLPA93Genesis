@@ -38,21 +38,37 @@ Comments:
 - Mark retail-vs-Rev A differences inline (`;retail v1.1 clear end (Rev A: $CDF4)`).
 - Assembler workarounds (`dc.w` for EA `cmp` encodings) keep the real instruction in the comment.
 - Every global routine and data label gets a header comment on its label line: what it does, when it is called (for example `;called once per second`), and its inputs and outputs (`d7 = elapsed frames`, `return d0 = ...`). Use the 92 header if the routine exists in 92. Otherwise write one from the bytes.
-- Note fall-through and outside entry points in the header (`falls in from InitTeamShots`, `Also entered from puckfaceoff+2E`).
+- Note fall-through and outside entry points in the header (`falls in for team 2`, `Also entered from puckfaceoff+2E`).
 - Inside a routine, comment every branch condition or magic value that is not obvious: what is tested, what the constant means, and which path is taken. Leave obvious lines alone.
 - Comments describe behaviour you can see in the bytes. If the purpose of a flag or RAM word is unknown, describe the effect (`;set at end of game`) and leave the name alone. Do not rename RAM from a guess.
 - Comment-only passes must not change bytes. Run `npm run seg` afterwards.
 
 Labels:
 
-- Human-named IDA globals (`StartGame`, `InitTeamShots`, `clockcont_0`, ...) stay as-is. They are the cross-reference names other segments will use. Add `;92 <name>` when 92 calls it something else.
+- NHL 92 names win over IDA names when the routine is the same routine. For each global in the segment, find the 92 counterpart: same body shape and constants, or the same caller in 92 (for example, 93 `StartHL+8C` calls `InitTeamShots`, and 92 `StartHL` calls `RestoreTeams`). If it matches, use the 92 name and put the IDA name in the header (`restoreteams ;IDA: InitTeamShots. ...`).
+  - If 92 has it as a local (`restoreteams .r`, `ResetClock .timetab`) and no code outside the segment references it in 93, make it the same local. If outside code references it, keep it global under the 92-style name.
+  - If 93 split a 92 routine into a new one with no 92 name (`GetPeriodTime`), keep the IDA name and say where it came from in the header.
+  - If the 92 routine does something different, keep the IDA name. A similar-looking name is not enough.
+  - SNASM is case-insensitive. Do not rename just for case (`Pausemode` / `PauseMode`).
+- Other human-named IDA globals (`StartGame`, `clockcont_0`, ...) stay as-is.
 - IDA auto names inside the segment (`loc_XXXX`, `locret_XXXX`) and IDA `_xx` / `func_N` pseudo-locals become `.` local labels.
   - Use the 92 local label when the code matches (`.0`, `.1`, `.cf`, `.nf`, `.ns1`, `.sc`, `.t0`, `.t2`, `.t3`, `.n2`, `.eop`).
   - Otherwise pick a short descriptive name (`.x` for a shared `rts`, `.next`, `.set`, `.nomax`, `.eog`).
   - Add `;IDA: loc_XXXX` on the line so the IDA address stays searchable.
 - An auto-named label that is reached from outside the segment (IDA xref outside the range) must stay global. Give it a meaningful name and add `;IDA: loc_XXXX`.
 - Local labels end at the next global label. Check that every branch to a local is still inside its scope before you verify.
-- Stubs for routines outside the segment keep the IDA name, even an auto name. They belong to the segment that owns that code.
+- Stubs for routines outside the segment keep the IDA name, even an auto name. They belong to the segment that owns that code. That segment's pass will rename them to 92 names.
+- Record every rename of a global in the rename table below. Later segments must call the renamed routine by its source name, not its IDA name.
+
+### Renamed globals
+
+| Segment | IDA name | Source name | Why |
+| --- | --- | --- | --- |
+| hockey93_01 | `VBLANK` | `VBjsr` | 92 level 6 vector target, same `move.l vbint,-(sp)` / `rts` |
+| hockey93_01 | `InitTeamShots` | `restoreteams` | 92 body match; 92 `StartHL` calls `RestoreTeams`, 93 `StartHL+8C` calls this |
+| hockey93_01 | `InitShotStruct` | `restoreteams .r` (local) | 92 local; only caller is `restoreteams` |
+| hockey93_01 | `PeriodTimeTable` | `GetPeriodTime .timetab` (local) | 92 `ResetClock .timetab`, same 4 values; only reference is `GetPeriodTime` |
+| hockey93_01 | `loc_649E` | `ChkShortPeriods` | auto name, entered from `PeriodOver+D0`; named from behaviour |
 
 ## Out of scope
 
