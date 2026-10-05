@@ -1,12 +1,16 @@
-;	NHLPA Hockey 93 (v1.1 retail) segment $6446-$68B3
-;	VBjsr / Begin through the end of clockcont.
-;	Global names from the v1.1 IDA export, renamed to the NHL 92 name where the
+;	NHLPA Hockey 93 (retail) segment $6446-$69FF
+;	VBjsr / Begin through seta2: 92 hockey.asm part 1 up to the end of Pausemode,
+;	plus the 93 pause screen draw routine. The menu engine Pausemode calls
+;	follows in menu93.asm ($6A00).
+;	Global names from the IDA export (Rev A listing), renamed to the NHL 92 name where the
 ;	same routine exists in 92 (IDA name kept in an ;IDA: comment).
 ;	Local labels and comments follow NHL 92 hockey.asm where the code matches.
 ;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx),
 ;	so those sites are written as dc.w with the instruction in the comment.
 ;	92 equate names in comments are only used where the 93 value is the same.
+;	Inline print strings after printsmallz use the String macro
+;	(length word includes itself, odd data is padded to a word).
 
 VBjsr	;IDA: VBLANK. Vertical blank interrupt (vector $78), jumps through the vbint RAM vector
 	move.l	(vbint).w,-(sp)		;push handler address
@@ -323,3 +327,95 @@ clockcont_0	;end of period. Also entered from puckfaceoff+2E
 	beq.s	.eog			;gsp 3 with OptPlayMode 0 ends the game
 .eop	move.w	#2,d0			;PenEOP
 	bra.w	AddPenalty2
+
+demoread	;monitor joystick if in demo mode (called every game loop)
+	tst.w	(cont1team).w
+	bne.w	rtss2			;not demo
+	tst.w	(cont2team).w
+	bne.w	rtss2			;not demo
+	bsr.w	Readjoy1
+	btst	#7,d1			;sbut
+	bne.w	startpause1		;start on pad 1 pauses (92 went to Opening)
+	bsr.w	HandleJoy1
+	bsr.w	Readjoy2
+	btst	#7,d1			;sbut
+	bne.w	startpause2
+	;falls into HandleJoy1 with pad 2 in d1
+
+HandleJoy1	;any button on the pad just read (d1) ends the demo
+	;falls in from demoread for pad 2
+	tst.w	d1
+	beq.w	rtss2			;nothing pressed
+	jmp	(loc_12A16).l		;exit demo
+
+startpause1	;pause intiated by cont 1
+	bclr	#1,(sflags).w		;sfpj
+	bra.w	startpause
+startpause2	;pause intiated by cont 2
+	bset	#1,(sflags).w		;sfpj
+startpause
+	bset	#0,(sflags).w		;sfpz
+	rts
+
+Pausemode	;game is in pause mode now
+	jsr	(p_turnoff).l		;shut off sound
+	move.w	(sflags).w,-(sp)
+	bsr.w	forceblack		;fade screen to black
+	bsr.w	seta2			;a2 = team of pausing controller
+	movea.l	#PauseText,a0		;menu item list
+	lea	SetupPauseScreen(pc),a1	;screen draw routine
+	btst	#2,$30(a2)
+	beq.w	.0
+	movea.l	#PauseText2,a0		;alternate item list
+.0	bsr.w	InitMenuState
+.1	bsr.w	MenuWaitVblank		;wait for vblank and read controller
+	bsr.w	getpzjoy
+	bsr.w	ProcessInputWithRepeat
+	bsr.w	HandleMenuInput
+	bne.s	.1			;eq = leave pause
+
+	;92 PauseExit: restore graphics and return from pause mode
+	bsr.w	forceblack
+	move.w	(sp)+,(sflags).w
+	btst	#7,(sflags).w		;sfhor
+	bne.w	.hor
+	jsr	(ClrHor).l
+.hor	movea.l	#VDP_DATA,a0
+	move.w	#$9100,4(a0)
+	move.w	#$9200,4(a0)
+	bset	#3,(disflags).w		;dfclock: clock needs update
+	bclr	#0,(sflags).w		;sfpz
+	jsr	(printscores1).l
+	jsr	(setvideo).l
+	move.w	#$18,(palcount).w
+.wait	tst.w	(palcount).w
+	bpl.s	.wait
+	move.w	(vcount).w,(oldvcount).w
+	rts
+
+SetupPauseScreen	;draw routine for the pause menu (92 Pausemode .pall / .top)
+	;also called from $F9D4
+	movea.l	#VDP_DATA,a0
+	move.w	#$9100,4(a0)		;playfield 3 width
+	move.w	#$921C,4(a0)		;playfield 3 height
+	jsr	(SetHor).l
+	jsr	(setvideo).l
+	jsr	(KillCrowd).l
+	bsr.w	printsmallz		;erase playfield 3
+	String	$FF,3,$FD,0,$FC,0
+	moveq	#$20,d0			;32
+	moveq	#$1C,d1			;28
+	move.w	#$7FF,d2
+	bra.w	eraser
+
+seta2	;IDA: GetTeamFromPause. Set a2 to tmstruct of pause joystick
+	;also called from HandleMenuInput (menu93)
+	movea.w	#(hmtmstruct-M68K_RAM),a2
+	btst	#1,(sflags).w		;sfpj
+	beq.w	.seta20
+	cmpi.w	#1,(cont2team).w
+	bra.w	.seta21
+.seta20	cmpi.w	#1,(cont1team).w
+.seta21	beq.w	.x
+	adda.w	#$1A2,a2		;tmsize
+.x	rts

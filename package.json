@@ -18,8 +18,10 @@
     "build:logo": "set rev=0&& set checksum=1&& npm run asm:logo && npm run fixopcodes:logo",
     "build:sound": "set rev=0&& set checksum=1&& npm run asm:sound && npm run fixopcodes:sound",
     "build:seg": "buildseg.bat hockey93_02",
-    "verify:seg": "node verifySegment.js hockey93_02 0x68B4 nhlpa93retail.bin",
-    "seg": "npm run build:seg && npm run verify:seg"
+    "verify:seg": "node verifySegment.js hockey93_02 0x8AC4 nhlpa93retail.bin",
+    "seg": "npm run build:seg && npm run verify:seg",
+    "seg:01": "buildseg.bat hockey93_01 && node verifySegment.js hockey93_01 0x6446 nhlpa93retail.bin",
+    "seg:menu93": "buildseg.bat menu93 && node verifySegment.js menu93 0x6A00 nhlpa93retail.bin"
   },
   "devDependencies": {
     "crc-32": "^1.2.2"

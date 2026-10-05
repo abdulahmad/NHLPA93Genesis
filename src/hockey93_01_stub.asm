@@ -19,7 +19,7 @@ RAMStart = $FF0000
 ;
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-; External routines outside $6446-$68B3, at their v1.1 retail addresses.
+; External routines outside $6446-$69FF, at their retail addresses.
 ; Stack comes from stubinc/ram_addrs.inc ($FFFFFFFE).
 setupstanleycupcelebrationscreen = $132BA
 backupram_read = $163A4
@@ -37,8 +37,6 @@ _sp = $129B4
 randomd0 = $D7A6
 assreplace = $D048
 song = $D876
-demoread = $68B4
-pausemode = $6904
 updateplayers = $9094
 checkwindow = $9350
 updatereplay = $8FAA
@@ -55,6 +53,22 @@ freezewindow = $933C
 assinsert = $D03E
 clearpenaltybuffer = $EC70
 addpenalty2 = $E552
+readjoy2 = $D9D4
+loc_12a16 = $129FE	; IDA name; retail target is $129FE
+forceblack = $D67C
+pausetext = $1592A
+pausetext2 = $15A56
+getpzjoy = $8DB8
+processinputwithrepeat = $D98E
+clrhor = $EEFE
+printscores1 = $EFA8
+sethor = $EF3C
+killcrowd = $1227E
+printsmallz = $E070
+eraser = $DFB8
+initmenustate = $6A00	; menu93
+handlemenuinput = $6A4E	; menu93
+menuwaitvblank = $6BF4	; menu93
 
 ; .region code
 	org	$6446

@@ -7,9 +7,9 @@ Finish one NHLPA 93 segment so it assembles with SNASM68K and matches the retail
 1. Retail ROM bytes. `nhlpa93retail.bin` wins over the listing, the current asm, and NHL 92.
 2. IDA names. `EA-NHL-Disassembly-Project/NHL93-Genesis/NHLPA Hockey 93 (USA, Europe) (v1.1).bin.lst` is the name source for functions, labels, and RAM. It is not an assembler listing. Do not pass it to `fixopcodes.js`. Despite the file name, it was built from Rev A (input MD5 `B6FB2CE2...` = `nhlpa93retailRevA.bin`). `nhlpa93retailRevA.lst` (repo root) is the same Rev A ROM with exact addresses and bytes but mostly auto names. Neither listing has retail addresses; convert with the delta table in "ROM map".
 3. Style. `NHL92Genesis/src/hockey.asm`, `ram.asm`, and `macros/` are the style source. Same mnemonics, `equ`, local labels with `.`, and comment density. Do not paste 92 code over 93.
-4. Current segment. `src/hockey93_02_stub.asm` is `org $68B4` and includes `src/hockey93_02.asm`. The segment starts at the first instruction after `clockcont` (`demoread`, `$68B4`). RAM names already live in `src/stubinc/ram_addrs.inc`. Include that file. Do not invent a second RAM map.
+4. Current segment. `src/hockey93_02_stub.asm` is `org $8AC4` and includes `src/hockey93_02.asm`. The segment is `$8AC4-$946D` (`ReplayMode` through `checkwindow`; see "ROM map"). RAM names already live in `src/stubinc/ram_addrs.inc`. Include that file. Do not invent a second RAM map.
 
-Do not edit `hockey93_01.asm`. It matches retail (`$6446-$68B3`, 1134 bytes) and is done. Routines it contains are stubs in `hockey93_02_stub.asm`, under the source names from the rename table.
+Do not edit `hockey93_01.asm` (`$6446-$69FF`, 1466 bytes) or `menu93.asm` (`$6A00-$6C09`, 522 bytes). Both match retail and are done; re-check them with `npm.cmd run seg:01` and `npm.cmd run seg:menu93`. Routines they contain are stubs in later segments, under the source names from the rename table.
 
 ## ROM map
 
@@ -52,7 +52,7 @@ Retail (`nhlpa93retail.bin`) ranges, inclusive. Boundaries are routine starts, c
 | (none) | `$02EFA2-$07FB75` | graphics data (`extractAssets93-1.0.js`) |
 | checksum93 | `$07FB76-$07FBC7` | SecurityCheck, ValidationRoutine; `$FF` fill to `$07FFFF` |
 
-The current `hockey93_01.asm` (`$6446-$68B3`) and `hockey93_02.asm` (`$68B4-$6C09`) were matched before this map existed. Their bytes are correct, but the split is wrong: `$68B4-$69FF` belongs to hockey93_01 and `$6A00-$6C09` belongs to menu93. The real hockey93_02 is `$8AC4-$946D`. Fix the split before the next segment.
+Before this map existed, `$68B4-$6C09` was matched as "hockey93_02". That code was moved without byte changes: `$68B4-$69FF` (demoread ... seta2) to the end of `hockey93_01.asm`, and `$6A00-$6C09` to `menu93.asm`. Both re-verified. `menu93` sits between hockey93_01 and hockey93_02 in the ROM, and `stats93` (`$6C0A-$8AC3`) is still not decompiled.
 
 Rev A to retail. Take the Rev A address from either IDA listing and add the delta:
 
@@ -68,7 +68,7 @@ Between the ranges, read the retail bytes directly. Always confirm a converted a
 
 ## Previous segment
 
-`hockey93_01` (`$6446-$68B3`) matched. The notes below in "Loop" use it as the worked example.
+`hockey93_01` (`$6446-$69FF`) and `menu93` (`$6A00-$6C09`) matched. The notes below in "Loop" use hockey93_01 as the worked example.
 
 Original failure, kept for reference: `verifySegment.js` reported `1022 of 1138` bytes differ in `$6446-$68B7`. At `$6460` the ROM is `4E B9` (`jsr abs.l`) and the stub assembled `30 39` (`move.w abs.l`). The old `hockey93_01.asm` was a Rev A disassembly dump. It was rewritten from the retail bytes.
 
@@ -85,7 +85,7 @@ IDA addresses drift from retail (the listing is Rev A; see "ROM map"). In the na
 5. If the mismatch is only a known EA `cmp` / `exg` encoding, write that instruction as `dc.w` with the real instruction in the comment (what `hockey93_01` does), because `npm run seg` checks raw assembler output. Do not rewrite `exg d0,d1`. The `0C80` to `B0BC` rule only applies where the ROM byte is `B0BC`.
 6. Stop after 5 failed verifies. Write the first remaining mismatch and what the ROM bytes are. Do not keep editing.
 
-A match prints `MATCH: hockey93_02 confirmed ... at 0x0068b4-...`. Commit only that.
+A match prints `MATCH: hockey93_02 confirmed 2474 bytes at 0x008ac4-0x00946d`. The byte count must equal the ROM map range. Commit only that.
 
 ## Comments and labels
 
@@ -130,7 +130,7 @@ Labels:
 | hockey93_01 | `InitShotStruct` | `restoreteams .r` (local) | 92 local; only caller is `restoreteams` |
 | hockey93_01 | `PeriodTimeTable` | `GetPeriodTime .timetab` (local) | 92 `ResetClock .timetab`, same 4 values; only reference is `GetPeriodTime` |
 | hockey93_01 | `loc_649E` | `ChkShortPeriods` | auto name, entered from `PeriodOver+D0`; named from behaviour |
-| hockey93_02 | `GetTeamFromPause` | `seta2` | 92 `Pausemode .seta2`, same instructions; stays global because `HandleMenuInput` also calls it |
+| hockey93_01 | `GetTeamFromPause` | `seta2` | 92 `Pausemode .seta2`, same instructions; stays global because `HandleMenuInput` also calls it |
 
 ## Out of scope
 

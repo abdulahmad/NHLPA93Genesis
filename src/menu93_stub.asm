@@ -19,12 +19,17 @@ RAMStart = $FF0000
 ;
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-; External routines and data outside $8AC4-$946D, at their retail addresses.
+; External routines outside $6A00-$6C09, at their retail addresses.
 ; Names are IDA names, or source names from the SEGMENT_AGENT.md rename table.
-; Add stubs here as the segment is decompiled.
+rtss2 = $9092
+seta2 = $69D8		; hockey93_01
+printsmallz = $E070
+printsmall = $E082
+framer = $DFF2
+xyvmmap = $DF8E
 
 ; .region code
-	org	$8AC4
+	org	$6A00
 
 ; includes for stubs to replace removed code
     include "stubinc/ports.inc"
@@ -32,4 +37,4 @@ RAMStart = $FF0000
     include "stubinc/ram_addrs.inc"
 
 ; Main segment code
-	include	hockey93_02.Asm
+	include	menu93.Asm
