@@ -23,7 +23,7 @@ ScoutingReport	;93 pregame scouting report (92 drew ScoutMap and position check 
 	bsr.w	song
 	move.l	#vb2,(vbint).w
 	bsr.w	clearTeamStats		;93: (92 bsr SetTeams)
-	bclr	#1,(disflags).w		;df32c
+	bclr	#df32c,(disflags).w
 	move.w	#6,(Map1col).w
 	move.w	#6,(Map2col).w
 	move.w	#0,d0			;fade to color
@@ -338,7 +338,7 @@ ScrollDisplayUp	;93: next text line for UpdateScoutingDisplay (column 0). After 
 SetupStanleyCupCelebrationScreen	;93: Stanley Cup screen. Five EASN bitmaps at StanleyCupPosTable with
 	;StanleyMap sprites over them, $50 x 4 frames or until a button. Called from Begin+22
 	move.l	#VBlank_StanleyCup,(vbint).l
-	bclr	#1,(disflags).w		;df32c
+	bclr	#df32c,(disflags).w
 	move.w	#5,(Map3col).w
 	move.w	#$A000,(VmMap2).w
 	move.w	#7,(Map2col).w
@@ -417,7 +417,7 @@ UpdateStanleyCupAnimation	;93: one StanleyMap sprite at each StanleyCupPosTable 
 
 VBlank_StanleyCup	;IDA: loc_133EE. 93: vbint handler for the Stanley Cup screen: sprite table dma, cramfade, vcount
 	movem.l	d0-d7/a0-a6,-(sp)
-	btst	#2,(disflags).w		;dfng
+	btst	#dfng,(disflags).w
 	bne.w	.x
 	move.w	(Sattsize).w,d0
 	beq.w	.nos
@@ -445,7 +445,7 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 	move.w	(VDP_CNTR).l,(StanleyCupTimer).w	;seed randomd0 from the H/V counter
 	move.w	(VDP_CNTR).l,(StanleyCupTimer+2).w
 	move.l	#VBlank_TitleScreen,(vbint).l
-	bset	#1,(disflags).w		;df32c
+	bset	#df32c,(disflags).w
 	move.w	#5,(Map3col).w
 	move.w	#$A000,(VmMap2).w
 	move.w	#7,(Map2col).w
@@ -689,7 +689,7 @@ TitleScreen_wait	;wait for vblank, run TitleAnimCallback through CallAnimationCa
 VBlank_TitleScreen	;93: vbint handler for the title screen: line scroll and sprite table dma, Vscroll, cramfade,
 	;vcount, UpdateHorizontalScroll and the music driver
 	movem.l	d0-d7/a0-a6,-(sp)
-	btst	#2,(disflags).w		;dfng
+	btst	#dfng,(disflags).w
 	bne.w	.x
 	movea.w	#(SortCords-M68K_RAM),a0	;line scroll table
 	move.w	(VSCRLPM).w,d1
@@ -707,7 +707,7 @@ VBlank_TitleScreen	;93: vbint handler for the title screen: line scroll and spri
 .nos	bsr.w	cramfade		;IDA: loc_13852
 .x	addq.w	#1,(vcount).w		;IDA: loc_13856
 	bsr.w	UpdateHorizontalScroll
-	jsr	(p_music_vblank).l
+	jsr	p_music_vblank
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
 
@@ -759,7 +759,7 @@ CheckSound	;93: sound test, no caller found (IDA dc.b, Rev A $138D6). Runs only 
 	bne.w	rtss
 	move	#$2500,sr
 	move.l	#vb2,(vbint).w		;(Rev A $11896)
-	jsr	(p_turnoff).l		;(Rev A $165F0)
+	jsr	p_turnoff		;(Rev A $165F0)
 	bsr.w	forceblack
 	move.w	#$18,(palcount).w
 	bsr.w	printsmallz

@@ -21,26 +21,26 @@
 ;	$53 SCnum+1, $62 pflags, $63 pflags2, $66 pnum.
 
 AddPenalty	;add penalty d0 (PenaltyList offset) for player a3. Ignored while the clock is stopped, when penalties are off, or offsides when offsides are off. Falls into AddPenalty2
-	btst	#0,(gmode).w		;gmclock
+	btst	#gmclock,(gmode).w
 	bne.w	rtss
 	cmp.w	#$C,d0			;icing (92 PenIcing = 8)
 	beq.w	AddPenalty2
 	tst.w	(OptPen).w
 	beq.w	rtss			;penalties off
-	btst	#5,(gmode).w		;gmoffs
+	btst	#gmoffs,(gmode).w
 	bne.w	AddPenalty2
 	cmp.w	#$10,d0			;offsides (92 PenOffsides = $A)
 	beq.w	rtss
 
 AddPenalty2	;forced penalties like face off and game over. d0 = penalty number, a3 = player or player on penalized team. 93: penalty numbers from $E (goal) up raise the crowd and play a song
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	bne.w	rtss
 	movem.l	d1/a0-a1,-(sp)
 	cmp.w	#$E,d0			;goal (92 PenGoal = 6) and up
 	blt.w	.nosnd
 	addi.w	#$C8,(crowdlevel).w	;200
 	move.w	#$C,-(sp)		;song $C for the home team
-	btst	#6,pflags(a3)		;pfteam
+	btst	#pfteam,pflags(a3)
 	beq.w	.snd
 	addi.w	#$14,(CwdExciteLvl).w	;visitors: +20 excitement
 	move.w	#$B,(sp)		;song $B
@@ -69,13 +69,13 @@ PenaltyManager	;called periodically. d7 = elapsed time since last call
 	bra.w	UpdatePA
 
 chkprogress	;control progress of ref and game control thru penalty events. When the stop delay runs out and a penalty with minutes is in PenBuf, switch to the horizontal rink for the player to enter the penalty box
-	btst	#2,(gmode).w		;gmpen
+	btst	#gmpen,(gmode).w
 	beq.w	rtss
 	tst.w	(Pencntdwn).w
 	bmi.w	InProgress
 	sub.w	d7,(Pencntdwn).w
 	bpl.w	rtss
-	bclr	#3,(gmode).w		;gmpendel
+	bclr	#gmpendel,(gmode).w
 	movea.w	#(PenBuf-M68K_RAM),a0
 .find	tst.w	(a0)+			;IDA: loc_E610. 93 looks for any penalty with minutes
 	beq.w	rtss
@@ -85,7 +85,7 @@ chkprogress	;control progress of ref and game control thru penalty events. When 
 	adda.w	(a1,d0.w),a1
 	tst.b	1(a1)			;penalty minutes
 	beq.s	.find
-	bset	#2,(sflags2).w		;sf2drec: switch to horizontal mode for player to enter penalty box
+	bset	#sf2drec,(sflags2).w		;switch to horizontal mode for player to enter penalty box
 	move.w	(vcount).w,-(sp)
 	bsr.w	forceblack
 	move.w	(sp)+,(vcount).w
@@ -160,7 +160,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	clr.w	d0
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
-	btst	#6,pflags(a3)		;pfteam
+	btst	#pfteam,pflags(a3)
 	beq.w	.sa1
 	bset	#7,-1(a4)		;log: visitors
 	move.w	#$8000,d0
@@ -210,7 +210,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	bsr.w	USBoard
 	bra.w	.ex
 .sa2	clr.w	(a0)			;IDA: _sa2
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	bne.w	.top
 	bsr.w	SetPA
 	bra.w	.ex
@@ -220,7 +220,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	adda.w	#tmsize,a2
 	bsr.w	coinsearch
 	
-	bclr	#2,(gmode).w		;gmpen
+	bclr	#gmpen,(gmode).w
 	movea.w	#(puckx-M68K_RAM),a3
 	move.w	#$1B,d0			;pfaceoff
 	bsr.w	assreplace
@@ -246,12 +246,12 @@ coinsearch	;IDA name; does the job of 92 InProgress .ap (92 coinsearch is inline
 	rts
 
 checkfornewpen	;look for new penalty (entered thru addpenalty(2)). Stops play at once for penalties without minutes or when the guilty team does not have the puck, otherwise starts a delayed penalty call
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	bne.w	rtss
 	movea.w	#(PenBuf-M68K_RAM),a0
 .next	tst.w	(a0)+			;IDA: _next
 	beq.w	rtss
-	btst	#2,(gmode).w		;gmpen
+	btst	#gmpen,(gmode).w
 	bne.w	.iscalled
 	clr.w	d0
 	move.b	-2(a0),d0
@@ -284,14 +284,14 @@ checkfornewpen	;look for new penalty (entered thru addpenalty(2)). Stops play at
 	move.w	d1,(Pencntdwn).w
 	bra.s	.next
 
-.dc	bset	#3,(gmode).w		;IDA: _dc. gmpendel
+.dc	bset	#gmpendel,(gmode).w		;IDA: _dc
 	bne.s	.next
 	move.w	#$2C,d0			;delayed penalty (92 PenDelay = $24)
 	bsr.w	SetPA
 	bra.s	.next
 
 Stop4Pen	;a0 = penaltylist penalty +2. Stop the clock, set the face off spot from the penalty type, blow the whistle. Also entered from puckfaceoff+38
-	bset	#0,(gmode).w		;gmclock
+	bset	#gmclock,(gmode).w
 	bne.w	.skipfo
 	clr.w	d0
 	clr.w	d1
@@ -312,7 +312,7 @@ Stop4Pen	;a0 = penaltylist penalty +2. Stop the clock, set the face off spot fro
 	asl.w	#7,d1			;scsize
 	adda.w	d1,a3
 	move.w	#$258,d1		;600
-	btst	#7,pflags(a3)		;pfgoal
+	btst	#pfgoal,pflags(a3)
 	movea.l	(sp)+,a3
 	beq.w	.noticing
 	neg.w	d1
@@ -343,7 +343,7 @@ Stop4Pen	;a0 = penaltylist penalty +2. Stop the clock, set the face off spot fro
 	bsr.w	limitfo
 
 .skipfo	clr.w	(Pencntdwn).w		;IDA: _skipfo
-	bset	#2,(gmode).w		;gmpen
+	bset	#gmpen,(gmode).w
 	move.w	#3,-(sp)		;whistle (92 SFXwhistle = 10)
 	bsr.w	sfx
 	move.w	#$A,d0			;whistle (92 PenWhistle = $26)
@@ -364,7 +364,7 @@ limitfo	;limit face off to 5-20 feet from walls of rink. Checks every player in 
 	asl.w	#7,d0			;scsize
 	movea.w	#(SortCords-M68K_RAM),a1
 	move.w	#$58,d1			;92 blueline
-	btst	#7,pflags(a1,d0.w)		;pfgoal
+	btst	#pfgoal,pflags(a1,d0.w)
 	bne.w	.0
 	neg.w	d1
 	cmp.w	(foy).w,d1
@@ -410,7 +410,7 @@ SetPA	;start ref animation. d0 = animation (penalty number). 93: goal also calls
 	bne.w	.0
 	bsr.w	DisplayPlayerAttributeMenu
 .0	move.w	#$7FFF,(word_FFC2BA).w	;IDA: loc_EA8A
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	beq.w	SetPA2
 	move.w	#$3C,(word_FFC2BA).w	;60
 
@@ -445,7 +445,7 @@ PushRef	;tell vblank what to display. d0 = ref frame, $40 clears the window. 93:
 	beq.w	.clearit
 	mulu.w	#$70,d0			;refwidth*refheight*2
 	movea.l	#RefsMap,a0
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	beq.w	.m1
 	movea.l	#RefMap2,a0
 .m1	adda.l	4(a0),a0		;IDA: loc_EB12
@@ -453,14 +453,14 @@ PushRef	;tell vblank what to display. d0 = ref frame, $40 clears the window. 93:
 	adda.w	d0,a0
 	movea.w	#(RefRamMap-M68K_RAM),a1
 	move.w	(ExtraChars).w,d2
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	bne.w	.4
 	ori.w	#$8000,d2		;priority
 .4	moveq	#$37,d0			;IDA: loc_EB30. (refheight*refwidth)-1
 .1	move.w	(a0)+,(a1)		;IDA: loc_EB32
 	add.w	d2,(a1)+
 	dbf	d0,.1
-	bset	#1,(sflags2).w		;sf2refref
+	bset	#sf2refref,(sflags2).w
 	bra.w	.ex
 
 .clearit	btst	#7,(sflags).w		;IDA: _clearit. 93: horizontal mode only clears the line
@@ -469,7 +469,7 @@ PushRef	;tell vblank what to display. d0 = ref frame, $40 clears the window. 93:
 	moveq	#$37,d0			;(refheight*refwidth)-1
 .2	move.w	#$7FF,(a1)+		;IDA: loc_EB54. blank tile (92 1)
 	dbf	d0,.2
-	bset	#1,(sflags2).w		;sf2refref
+	bset	#sf2refref,(sflags2).w
 .cl	moveq	#-1,d0			;IDA: loc_EB62. clear line
 	bsr.w	prefmes
 
@@ -478,7 +478,7 @@ PushRef	;tell vblank what to display. d0 = ref frame, $40 clears the window. 93:
 
 prefmes	;print message for penalty d0 (negative clears it). Vertical mode: framed under the ref. Horizontal mode: one centered line on row $B
 	movem.l	d0-d2/a1,-(sp)
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	bne.w	.hor
 	tst.w	d0
 	bpl.w	.noblank
@@ -564,7 +564,7 @@ ClearPenaltyBuffer	;93: clear PenBuf (92 inlined this in PenGoalStuff). Also cal
 
 updatepentime	;update the time remaining on all penalized players, once a second. 93: sets sflags3 bit 6 on that tick. Falls into ProcessPenaltyList for team 2
 	bclr	#6,(sflags3).w
-	btst	#0,(gmode).w		;gmclock
+	btst	#gmclock,(gmode).w
 	bne.w	rtss
 	sub.w	d7,(Penaltytimer).w
 	bpl.w	rtss
@@ -640,7 +640,7 @@ chkatop	;attack time of possession stat update. Called once a second from update
 	neg.w	d0
 	cmp.w	#$58,d0			;92 blueline
 	blt.w	rtss
-.1	btst	#1,(gmode).w		;IDA: loc_ED98. gmdir
+.1	btst	#gmdir,(gmode).w		;IDA: loc_ED98
 	beq.w	.0
 	eori.w	#tmsize,d1
 .0	movea.w	#(hmtmstruct-M68K_RAM),a2	;IDA: loc_EDA6
@@ -708,19 +708,19 @@ updatepwrplay	;show graphic and time remaining for power plays. 93: plays song $
 	sub.w	tmap(a3),d0
 	beq.w	.clrpwrplay
 	bpl.w	.t0
-	btst	#6,(sflags2).w		;sf2pwrtm
+	btst	#sf2pwrtm,(sflags2).w
 	bne.w	.upp
 	bsr.w	.clrpwrplay
-	bset	#6,(sflags2).w		;sf2pwrtm
+	bset	#sf2pwrtm,(sflags2).w
 	bra.w	.upp
 
 .t0	exg	a2,a3			;IDA: loc_EE8A
-	btst	#6,(sflags2).w		;sf2pwrtm
+	btst	#sf2pwrtm,(sflags2).w
 	beq.w	.upp
 	bsr.w	.clrpwrplay
-	bclr	#6,(sflags2).w		;sf2pwrtm
+	bclr	#sf2pwrtm,(sflags2).w
 
-.upp	bset	#5,(sflags2).w		;IDA: loc_EEA0. sf2pwrplay
+.upp	bset	#sf2pwrplay,(sflags2).w		;IDA: loc_EEA0
 	bne.w	.uppt
 	addq.w	#1,tmPwrPlays(a3)
 	cmpa.w	#(hmtmstruct-M68K_RAM),a3
@@ -744,18 +744,18 @@ updatepwrplay	;show graphic and time remaining for power plays. 93: plays song $
 	movea.w	a3,a1
 	bra.w	print
 
-.clrpwrplay	bclr	#5,(sflags2).w		;IDA: updatepwrplay_clr. sf2pwrplay
+.clrpwrplay	bclr	#sf2pwrplay,(sflags2).w		;IDA: updatepwrplay_clr
 	beq.w	rtss
 	bra.w	DrawEASNLogo
 
 ClrHor	;revert the graphics back to vertical ice rink mode. 93 does not remap the fonts
 	movem.l	d0-d7/a0-a6,-(sp)
-	bclr	#7,(sflags).w		;sfhor
+	bclr	#sfhor,(sflags).w
 	move.w	#$3E8,(Oldrow).w	;1000
 
 	bsr.w	SprSort
 
-	btst	#0,(sflags).w		;sfpz
+	btst	#sfpz,(sflags).w
 	bne.w	.0
 	bsr.w	printz
 	String	$FF,0,0
@@ -769,9 +769,9 @@ ClrHor	;revert the graphics back to vertical ice rink mode. 93 does not remap th
 
 SetHor	;switch graphics to horizontal ice rink graphics mode. 93 does not remap the fonts
 	movem.l	d0-d7/a0-a6,-(sp)
-	bset	#7,(sflags).w		;sfhor
+	bset	#sfhor,(sflags).w
 
-.p	btst	#0,(disflags).w		;IDA: loc_EF5E. dfok
+.p	btst	#dfok,(disflags).w		;IDA: loc_EF5E
 	bne.s	.p
 
 	clr.w	(Hscroll).w
@@ -792,7 +792,7 @@ SetHor	;switch graphics to horizontal ice rink graphics mode. 93 does not remap 
 	bsr.w	dobitmap
 
 	bsr.w	USBoard
-	btst	#0,(sflags).w		;sfpz
+	btst	#sfpz,(sflags).w
 	bne.w	.ex
 	move.w	#$800,d0		;92 $1000
 	move.w	(VmMap1).w,d1

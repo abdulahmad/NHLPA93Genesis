@@ -20,22 +20,22 @@
 VBlank	;IDA: VBlank_org. main vblank code for game play (vbint target, set by setupice).
 	;Not VBjsr: that is the level 6 vector stub in hockey93_01
 	movem.l	d0-d7/a0-a6,-(sp)
-	btst	#2,(disflags).w		;dfng
+	btst	#dfng,(disflags).w
 	bne.w	.nograph		;don't screw with vchip cause I'm using it
-	bclr	#0,(disflags).w		;dfok
+	bclr	#dfok,(disflags).w
 	beq.w	.01
 	bsr.w	DumpSprites
 .01	bsr.w	cramfade		;IDA: _01
 .nograph	;IDA: _nograph
-	btst	#0,(sflags).w		;sfpz
+	btst	#sfpz,(sflags).w
 	bne.w	.c
-	btst	#0,(gmode).w		;gmclock: game clock stopped!
+	btst	#gmclock,(gmode).w		;game clock stopped!
 	bne.w	.c
 	tst.w	(gameclock).w
 	beq.w	.c
 	subi.w	#$AAA,(gameclockPlus2).w	;jiffy ($10000/24)
 	bcc.w	.c
-	bset	#3,(disflags).w		;dfclock
+	bset	#dfclock,(disflags).w
 	subq.w	#1,(gameclock).w
 	cmpi.w	#$3D,(gameclock).w	;61
 	bgt.w	.c
@@ -44,19 +44,19 @@ VBlank	;IDA: VBlank_org. main vblank code for game play (vbint target, set by se
 	move.w	#2,-(sp)		;SFXbeep2 (92 = 2), played when gameclock reaches 60
 	bsr.w	sfx
 .c	addq.w	#1,(vcount).w		;IDA: _c. 92 Vcount
-	jsr	(p_music_vblank).l
+	jsr	p_music_vblank
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
 
 vb2	;vblank used for palfades only no dmas (vbint target).
 	;93 has no rte here: falls into IRQ7
 	movem.l	d0-d7/a0-a6,-(sp)
-	btst	#2,(disflags).w		;dfng
+	btst	#dfng,(disflags).w
 	bne.w	.nograph
 	bsr.w	cramfade
 .nograph	;IDA: _nograph
 	addq.w	#1,(vcount).w
-	jsr	(p_music_vblank).l
+	jsr	p_music_vblank
 	movem.l	(sp)+,d0-d7/a0-a6
 
 IRQ7	;rte only. vb2 falls in; the vector table ($60, $64, ...) points here.
@@ -100,7 +100,7 @@ SetScroll2	;IDA: DoScroller. write Hscroll / Vscroll to the vdp. Called from Dum
 setvideo	;this is not vblank code but sets up ram for vblank transfers.
 	;Called once per game frame (DoGameFrame, Pausemode, ...)
 	movem.l	d0-d7/a0-a6,-(sp)
-.p	btst	#0,(disflags).w		;IDA: _p. dfok: wait for vblank to take the last frame
+.p	btst	#dfok,(disflags).w		;IDA: _p. wait for vblank to take the last frame
 	bne.s	.p
 	movea.w	#(DMAList-M68K_RAM),a5	;dma transfer list
 	bsr.w	show_rink		;93: after a5 is set (92 updatescroll came first)
@@ -124,14 +124,14 @@ setvideo	;this is not vblank code but sets up ram for vblank transfers.
 	lsr.w	#1,d0			;93: halved (92 stored the byte count)
 	move.w	d0,(Sattsize).w
 	move.l	a5,(DMAListend).w
-	bset	#0,(disflags).w		;dfok
+	bset	#dfok,(disflags).w
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts
 
 show_rink	;using hpos and vpos set scroll cords; queue rink map rows on the dma list (a5)
 	;when vertical scrolling needs new rows. Called from setvideo. 93 version of 92
 	;updatescroll: rows go straight from IceRinkMap to the dma list, no tempmap
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	bne.w	rtss
 	moveq	#-$40,d0		;-192+128
 	sub.w	(Hpos).w,d0
@@ -189,20 +189,20 @@ show_rink	;using hpos and vpos set scroll cords; queue rink map rows on the dma 
 
 showref	;draw ref graphics. Called from setvideo.
 	;a5 = dma list, a6 = sprite table, d6 = link counter
-	bclr	#1,(sflags2).w		;sf2refref
+	bclr	#sf2refref,(sflags2).w
 	beq.w	rtss
 	movea.w	#(RefRamMap-M68K_RAM),a0
 	movea.w	#(VmMap1-M68K_RAM),a1
 	move.w	2(a1),d2
 	moveq	#2,d0			;refy
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	beq.w	.1
 	moveq	#$F,d0			;y pos in sb screen
 .1	asl.w	d2,d0			;IDA: loc_11A42
 	moveq	#2,d1
 	asl.w	d2,d1
 	addq.w	#2,d0			;refx
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	beq.w	.2
 	addi.w	#$B,d0
 .2	asl.w	#1,d0			;IDA: loc_11A58
@@ -217,7 +217,7 @@ showref	;draw ref graphics. Called from setvideo.
 	rts
 
 checkfo	;check for face off sprites. Called from setvideo. Falls into checkfo2
-	btst	#0,(sflags).w		;sfpz
+	btst	#sfpz,(sflags).w
 	bne.w	rtss
 	btst	#4,(disflags).w		;93 faceoff flag (92 tests sflags2 sf2faceoff)
 	beq.w	rtss
@@ -345,7 +345,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	adda.l	4(a1),a1		;a1 = frame offset table
 	move.w	(Hpos).w,d4
 	move.w	(Vpos).w,d5
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	beq.w	.v
 	moveq	#-$40,d4
 	move.l	#$100,d5		;(92 also moved a1 by 31 frames here; 93 does it in .sc)
@@ -375,7 +375,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 
 .sc	ext.w	d0			;IDA: showcrowd_sc. d0 = frame, 0 = none
 	beq.w	rtss
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	beq.w	.chk
 	addi.w	#$1F,d0			;horizontal frames are 31 later
 .chk	cmp.w	#$40,d6			;IDA: loc_11C7E. MaxSprites

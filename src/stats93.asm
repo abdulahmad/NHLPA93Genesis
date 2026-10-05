@@ -84,7 +84,7 @@ UpdatePlayerScroll	;called every frame by ShowScores. Add PlayerScrollCtr to
 UpdateVertScrollReg	;write VSRAM word 1 = VertLineScrolling - $30
 	;(playfield B vertical scroll). Saves disflags
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng: don't int graphics
+	bset	#dfng,(disflags).w		;don't int graphics
 	movea.l	#VDP_DATA,a0
 	move.l	#$40020010,4(a0)	;VSRAM write, address 2
 	move.w	#$FFD0,d0
@@ -2122,7 +2122,7 @@ SelectGoalieMenu	;IDA: no label (Rev A $890A). Pick team a2's goalie from a
 	cmpi.w	#-1,tmgoalie(a2)
 	blt.w	.x
 .set	move.w	d0,tmgoalie(a2)		;IDA: loc_8996
-	jsr	(setpersonel).l
+	jsr	setpersonel
 .x	move.w	(sp)+,(dword_FFC9B4+2).w	;IDA: loc_89A0
 	move.w	(sp)+,(dword_FFC9B4).w
 	rts

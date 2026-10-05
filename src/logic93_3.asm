@@ -14,14 +14,14 @@
 ;	goalline+blueline = $108.
 
 asswingo	;player a3 is winger on offense
-	btst	#5,pflags(a3)		;pfalock
+	btst	#pfalock,pflags(a3)
 	bne.w	rtss
-	btst	#0,(gmode).w		;gmclock
+	btst	#gmclock,(gmode).w
 	bne.w	assnothing
 	bsr.w	check4bench
-	btst	#3,pflags(a3)		;pfjoycon
+	btst	#pfjoycon,pflags(a3)
 	bne.w	rtss
-	bclr	#1,pflags(a3)		;pfna
+	bclr	#pfna,pflags(a3)
 	beq.w	.nna
 	st	temp5(a3)			;temp5 = old zone number
 	clr.w	temp1(a3)
@@ -41,7 +41,7 @@ asswingo	;player a3 is winger on offense
 	move.w	(puckvy).w,d3
 	asr.w	#6,d3
 	add.w	d0,d3
-	btst	#7,pflags(a3)		;pfgoal
+	btst	#pfgoal,pflags(a3)
 	bne.w	.de1
 	neg.w	d0
 	neg.w	d3
@@ -230,11 +230,11 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	beq.w	skateto
 	neg.w	d1
 	bra.w	skateto
-.noskate	btst	#1,pflags2(a3)		;IDA: loc_B20A. pf2aip
+.noskate	btst	#pf2aip,pflags2(a3)		;IDA: loc_B20A
 	bne.w	rtss
 	move.w	#2,d1			;SPAgready
 	bsr.w	SetSPA
-	btst	#0,(gmode).w		;gmclock
+	btst	#gmclock,(gmode).w
 	bne.w	rtss
 	tst.w	temp5(a3)			;temp5 = holding time
 	bmi.w	.nofo
@@ -387,7 +387,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	moveq	#1,d2
 	add.w	d0,d2
 	moveq	#$12,d4
-	btst	#3,(sflags).w		;sfssdir
+	btst	#sfssdir,(sflags).w
 	beq.w	.f0
 	addq.w	#8,d4
 .f0	movem.w	(sp)+,d0-d1		;IDA: loc_B486
@@ -410,7 +410,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	bgt.w	.de8
 	cmpi.w	#$FEF8,(pucky).w
 	blt.w	.de8
-	bset	#1,pflags2(a3)		;pf2aip
+	bset	#pf2aip,pflags2(a3)
 	bne.w	.de8
 	move.w	(a0),d0
 	sub.w	(a3),d0
@@ -550,7 +550,7 @@ AdjustFacingDirection	;IDA: AdjustFacingDirecion. Turn facedir one step
 	btst	d1,#$42			;facing 1 or 6
 	beq.w	.add
 	add.w	d0,d1
-	btst	#7,pflags(a3)		;pfgoal
+	btst	#pfgoal,pflags(a3)
 	bne.w	.dn
 	btst	d1,#$83			;0, 1 or 7
 	bra.w	.t
@@ -631,7 +631,7 @@ asspuckc	;player a3 is puck handler
 .nodec	moveq	#6,d0			;IDA: asspuckc_onside
 	add.w	temp3(a3),d0
 	lea	.postab(pc),a0
-	btst	#7,(sflags2).w		;sf2offsig: someone is over the line
+	btst	#sf2offsig,(sflags2).w		;someone is over the line
 	beq.w	.nd1
 	move.w	position(a3),d0
 .nd1	asl.w	#2,d0			;IDA: asspuckc_nd1
@@ -731,15 +731,15 @@ chk4lc	;see if computer should call line change
 
 chkpk	;return z flag set if killing penalty
 	;return z flag clr if not
-	btst	#5,(sflags2).w		;sf2pwrplay
+	btst	#sf2pwrplay,(sflags2).w
 	bne.w	chkpk2
 	eori	#4,ccr			;93: no power play returns ne
 	rts
 
 chkpk2	movem.l	d0-d1,-(sp)
-	btst	#6,(sflags2).w		;sf2pwrtm
+	btst	#sf2pwrtm,(sflags2).w
 	move.w	sr,d0
-	btst	#6,pflags(a3)		;pfteam
+	btst	#pfteam,pflags(a3)
 	move.w	sr,d1
 	eor.w	d1,d0
 	move.w	d0,ccr
@@ -809,7 +809,7 @@ chk4shot	;player a3 looks for shot (computer controlled)
 	move.w	#$108,d1
 	sub.w	d0,d1
 	bmi.w	rtss
-	btst	#7,(sflags2).w		;sf2offsig
+	btst	#sf2offsig,(sflags2).w
 	bne.w	rtss			;player is offsides
 CompShoot	;player a3 shoots (computer controlled player)
 	addq.w	#4,sp			;don't return
@@ -859,7 +859,7 @@ chk4pass	;player a3 looks for good pass (computer controlled)
 	ble.w	rtss			;don't pass to goalie or illegal player
 	btst	#2,pflags2(a0)		;pf2unav
 	bne.w	rtss
-	btst	#5,pflags(a0)		;pfalock
+	btst	#pfalock,pflags(a0)
 	bne.w	rtss			;don't pass to locked player
 	move.w	Ypos(a0),d0		;check for pass across blue line
 	move.w	Ypos(a3),d1
@@ -867,7 +867,7 @@ chk4pass	;player a3 looks for good pass (computer controlled)
 	bne.w	.f0
 	neg.w	d0
 	neg.w	d1
-.f0	btst	#5,(gmode).w		;IDA: _f0. gmoffs
+.f0	btst	#gmoffs,(gmode).w		;IDA: _f0
 	beq.w	.oko
 	movem.w	d0-d1,-(sp)
 	subi.w	#$58,d0

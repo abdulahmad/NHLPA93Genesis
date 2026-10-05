@@ -15,18 +15,18 @@
 ;	Every assignment starts with "btst #pfalock / bne rtss" (93 only).
 
 assbench	;player a3 should goto bench
-	btst	#5,pflags(a3)		;pfalock
+	btst	#pfalock,pflags(a3)
 	bne.w	rtss
 	cmpi.w	#$64,temp1(a3)		;temp1 = 100 flag: at the bench door
 	beq.w	.done
 	bsr.w	check4bench
 	btst	#4,pflags2(a3)		;pf2pen
 	bne.w	assexit
-	bclr	#1,pflags(a3)		;pfna
+	bclr	#pfna,pflags(a3)
 	beq.w	.nna
 	move.w	#8,temp2(a3)
 	moveq	#$50,d0			;80
-	btst	#6,pflags(a3)		;pfteam
+	btst	#pfteam,pflags(a3)
 	bne.w	.0
 	neg.w	d0
 .0	move.w	d0,temp4(a3)		;IDA: loc_A154. temp4 = bench y
@@ -55,7 +55,7 @@ assbench	;player a3 should goto bench
 	bne.w	.gli
 	move.w	#2,d1			;SPAgready
 .gli	bsr.w	SetSPA			;IDA: loc_A1B8
-	bset	#2,pflags(a3)		;pfnc
+	bset	#pfnc,pflags(a3)
 	cmpi.w	#4,facedir(a3)
 	beq.w	.ok
 	addq.w	#1,facedir(a3)		;turn toward the bench
@@ -71,7 +71,7 @@ assbench	;player a3 should goto bench
 	move.w	#2,facedir(a3)
 	move.w	#$1166,d1		;SPAwallleft
 	bsr.w	SetSPA
-	bset	#5,pflags(a3)		;pfalock
+	bset	#pfalock,pflags(a3)
 	move.w	#$64,temp1(a3)		;100
 	rts
 .done	clr.w	frame(a3)			;IDA: loc_A218
@@ -86,7 +86,7 @@ assbench	;player a3 should goto bench
 	move.b	newpnum(a3),d3
 	bsr.w	.nobench2
 	bra.w	setplayer
-.nodec	btst	#2,pflags(a3)		;IDA: loc_A24A. pfnc
+.nodec	btst	#pfnc,pflags(a3)		;IDA: loc_A24A
 	bne.w	rtss
 	move.w	temp3(a3),d0
 	move.w	temp4(a3),d1
@@ -121,7 +121,7 @@ asseben	;player a3 should exit bench area
 	move.w	#$1128,d1		;SPAwallright
 	bra.w	SetSPA
 .nna	move.w	#4,facedir(a3)		;IDA: loc_A2CE
-	bclr	#2,pflags(a3)		;pfnc
+	bclr	#pfnc,pflags(a3)
 	bclr	#5,pflags2(a3)		;pf2npc
 	bclr	#2,pflags2(a3)		;pf2unav
 	clr.w	SPA(a3)
@@ -169,7 +169,7 @@ asspenalty	;player a3 should goto penalty box
 	sub.w	d7,temp1(a3)
 	bpl.w	rtss
 	addq.w	#8,temp1(a3)
-	bset	#2,pflags(a3)		;pfnc
+	bset	#pfnc,pflags(a3)
 	move.w	#$52C,d1		;SPAglide
 	bsr.w	SetSPA
 	moveq	#6,d2
@@ -226,7 +226,7 @@ assepen	;player a3 should exit penalty area
 	bne.w	rtss
 	bclr	#1,pflags(a3)
 	beq.w	.nna
-	bset	#2,pflags(a3)		;pfnc
+	bset	#pfnc,pflags(a3)
 	bset	#2,pflags2(a3)		;pf2unav
 	moveq	#$10,d0
 	moveq	#-$3C,d1		;-60
@@ -247,8 +247,8 @@ assepen	;player a3 should exit penalty area
 .nna	move.w	#4,facedir(a3)		;IDA: loc_A4B6
 	st	newpnum(a3)
 	st	newpos(a3)
-	bclr	#3,pflags(a3)		;pfjoycon
-	bclr	#2,pflags(a3)		;pfnc
+	bclr	#pfjoycon,pflags(a3)
+	bclr	#pfnc,pflags(a3)
 	bclr	#5,pflags2(a3)		;pf2npc
 	bclr	#2,pflags2(a3)		;pf2unav
 	move.w	#$F000,Xvel(a3)		;-$1000
@@ -257,7 +257,7 @@ assepen	;player a3 should exit penalty area
 assfaceoff	;players do nothing until faceoff is over
 	btst	#5,pflags(a3)
 	bne.w	rtss
-	btst	#0,(sflags2).w		;sf2faceoff
+	btst	#sf2faceoff,(sflags2).w
 	beq.w	assexit			;exit once faceoff is over
 	rts
 
@@ -281,9 +281,9 @@ assfaceoffp1	;assignment for players actually participating in faceoff
 	bne.w	.lefty
 	addq.w	#3,d0
 .lefty	move.w	d0,(a0)			;IDA: loc_A542
-	btst	#3,pflags(a3)		;pfjoycon
+	btst	#pfjoycon,pflags(a3)
 	bne.w	rtss
-	bset	#1,pflags2(a3)		;pf2aip
+	bset	#pf2aip,pflags2(a3)
 	bne.w	rtss
 	move.w	#$11A4,d1		;SPAfaceoff
 	cmpi.w	#$10,(word_FFB78A).w	;puckx+temp1
@@ -334,9 +334,9 @@ assfight	;fighting logic
 	add.w	(a0),d0
 	asr.w	#1,d0
 	move.w	d0,(xc1).w		;scroll lock between the fighters
-	btst	#3,pflags(a3)		;pfjoycon
+	btst	#pfjoycon,pflags(a3)
 	bne.w	.j
-	bset	#1,pflags2(a3)		;pf2aip
+	bset	#pf2aip,pflags2(a3)
 	bne.w	.j
 	move.w	(a3),d0			;computer punches only when in range
 	sub.w	(a0),d0
@@ -441,7 +441,7 @@ chkhit	;part of fight to see if player is hit
 	move.b	d0,(glovecords+1).w
 	bra.s	.ex
 .grab	exg	a0,a3			;IDA: _grab
-	bset	#1,pflags2(a3)		;pf2aip
+	bset	#pf2aip,pflags2(a3)
 	move.w	#$FE2,d1		;SPAfheld
 	bsr.w	SetSPA
 	bra.s	.ex
@@ -713,7 +713,7 @@ assscore	;player a3 celebrates, if scoring player then do arm pump
 assdefo	;player a3 is defensive player on offense
 	btst	#5,pflags(a3)
 	bne.w	rtss
-	btst	#0,(gmode).w		;gmclock
+	btst	#gmclock,(gmode).w
 	bne.w	assnothing
 	bsr.w	check4bench
 	btst	#3,pflags(a3)

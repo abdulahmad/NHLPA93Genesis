@@ -18,9 +18,9 @@ setoptions	;options screen display and input. Called from PeriodOver (hockey93_0
 	;random teams after a demo, ends with bra maketree (hockey93_09)
 	move	#$2500,sr		;(92 Rev A order)
 	move.l	#VBlank_SetOptions,(vbint).l	;(92 vb2)
-	bclr	#0,(disflags).w		;dfok
-	bset	#2,(disflags).w		;dfng
-	bclr	#1,(disflags).w		;df32c
+	bclr	#dfok,(disflags).w
+	bset	#dfng,(disflags).w
+	bclr	#df32c,(disflags).w
 	move.w	#0,(VSCRLPM).w
 	move.w	#$B400,(VSPRITES).w
 	move.w	#$B800,(VmMap3).w
@@ -99,7 +99,7 @@ setoptions	;options screen display and input. Called from PeriodOver (hockey93_0
 	bsr.w	.nms
 	bsr.w	.ps
 	move.w	#$18,(palcount).w	;24
-	bclr	#2,(disflags).w		;dfng: fade in graphics now
+	bclr	#dfng,(disflags).w		;fade in graphics now
 ;----------
 .top	move.l	#$5460,d6		;IDA: loc_13ABC. 21600 frames (6 minutes) before the demo (92 40*60)
 .wait	move.w	(vcount).w,d1		;IDA: loc_13AC2
@@ -658,7 +658,7 @@ UpdateTeamSprites	;93: sprite list for the two roster players (92 setvideo end).
 	lsr.w	#1,d0
 	move.w	d0,(Sattsize).w
 	move.l	a5,(DMAListend).w
-	bset	#0,(disflags).w		;dfok
+	bset	#dfok,(disflags).w
 	rts
 
 AddTeamSpriteFrame	;93: add player a3 (x = (a3) + $1C offset, y = $14) and a GameSetupMap frame 1 sprite at
@@ -685,13 +685,13 @@ AddTeamSpriteFrame	;93: add player a3 (x = (a3) + $1C offset, y = $14) and a Gam
 VBlank_SetOptions	;IDA: loc_143EC. 93: vbint handler stored by setoptions. 92 vb2 (cramfade unless dfng), plus
 	;DumpSprites2 when dfok is set
 	movem.l	d0-d7/a0-a6,-(sp)
-	btst	#2,(disflags).w		;dfng
+	btst	#dfng,(disflags).w
 	bne.w	.nograph
-	bclr	#0,(disflags).w		;dfok
+	bclr	#dfok,(disflags).w
 	beq.w	.fade
 	bsr.w	DumpSprites2
 .fade	bsr.w	cramfade		;IDA: loc_14408
 .nograph	addq.w	#1,(vcount).w	;IDA: loc_1440C
-	jsr	(p_music_vblank).l
+	jsr	p_music_vblank
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte

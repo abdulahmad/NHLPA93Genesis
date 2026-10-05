@@ -34,9 +34,9 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	blt.w	rtss			;a3 impact < 10
 	cmpi.w	#$A,impact(a2)
 	blt.w	rtss			;a2 impact < 10
-	btst	#5,pflags(a3)		;pfalock
+	btst	#pfalock,pflags(a3)
 	bne.w	rtss
-	btst	#5,pflags(a2)		;pfalock
+	btst	#pfalock,pflags(a2)
 	bne.w	rtss
 	btst	#4,pflags2(a3)		;caused a penalty (92 pf2pen = 6)
 	bne.w	rtss
@@ -46,11 +46,11 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	beq.w	rtss			;no fights with goalies
 	tst.w	position(a2)
 	beq.w	rtss
-	btst	#0,(gmode).w		;gmclock
+	btst	#gmclock,(gmode).w
 	bne.w	rtss
-	btst	#4,(gmode).w		;gmhl
+	btst	#gmhl,(gmode).w
 	bne.w	rtss
-	btst	#0,(byte_FFB7AD).w	;puckx+pflags2, pf2fight
+	btst	#pf2fight,(byte_FFB7AD).w	;puckx+pflags2
 	bne.w	rtss
 	movem.l	d0-d4/a0-a3,-(sp)
 	movea.w	#(puckx-M68K_RAM),a0
@@ -67,7 +67,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	exg	a2,a3
 	bsr.w	SetInst
 	exg	a2,a3
-	btst	#0,pflags2(a3)		;pf2fight set by SetInst?
+	btst	#pf2fight,pflags2(a3)		;set by SetInst?
 	beq.w	.ex			;no fight
 	clr.w	(ChkCnt).w
 	moveq	#$19,d0			;26 players per team
@@ -77,14 +77,14 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	dbf	d0,.clr
 	addi.w	#$3E8,(crowdlevel).w	;add 1000
 	addi.w	#$23,(CwdExciteLvl).w
-	bclr	#2,(sflags).w		;sfspdir
-	bclr	#3,(sflags).w		;sfssdir
+	bclr	#sfspdir,(sflags).w
+	bclr	#sfssdir,(sflags).w
 	move.w	SCnum(a3),(puckc).w
 	move.w	Ypos(a3),d1		;93 sets only yc1 (92 also set a clamped xc1)
 	add.w	Ypos(a2),d1
 	asr.w	#1,d1
 	move.w	d1,(yc1).w
-	bset	#6,(sflags).w		;sfslock
+	bset	#sfslock,(sflags).w
 	moveq	#2,d1			;make the players face each other
 	move.w	(a3),d0
 	cmp.w	(a2),d0
@@ -100,7 +100,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	movea.w	#(SortCords-M68K_RAM),a3
 	move.l	#$15,d0			;afwatch (92 same), other players watch fight
 	moveq	#$B,d1
-.0	btst	#0,pflags2(a3)		;pf2fight
+.0	btst	#pf2fight,pflags2(a3)
 	bne.w	.next
 	tst.w	position(a3)			;goalie
 	beq.w	.next
@@ -110,7 +110,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 .next	adda.w	#SCstruct,a3
 	dbf	d1,.0
 	movea.w	#(puckx-M68K_RAM),a3
-	bset	#0,pflags2(a3)		;pf2fight
+	bset	#pf2fight,pflags2(a3)
 	move.l	#$1A,d0			;pnothing (92 same)
 	bsr.w	assinsert
 	st	(collflag).w
@@ -133,9 +133,9 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	neg.w	d1
 .sf2	move.w	d1,Xvel(a3)
 	bset	#2,pflags2(a3)		;unavailable (92 pf2unav = 4)
-	bset	#1,pflags2(a3)		;pf2aip
+	bset	#pf2aip,pflags2(a3)
 	bset	#5,pflags2(a3)		;no player coll (92 pf2npc = 7)
-	bclr	#5,pflags(a3)		;pfalock
+	bclr	#pfalock,pflags(a3)
 	move.w	#$F8E,d1		;SPA $F8E (92 SPAfight = $DE8)
 	bra.w	SetSPA
 
@@ -153,7 +153,7 @@ SetInst	;93: d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swa
 	clr.w	d1
 	move.b	pnum(a2),d1
 	movea.w	#(hmtmstruct-M68K_RAM),a0
-	btst	#6,pflags(a2)		;pfteam
+	btst	#pfteam,pflags(a2)
 	beq.w	.tm
 	adda.w	#tmsize,a0
 .tm	adda.w	d1,a0			;IDA: loc_10594
@@ -163,8 +163,8 @@ SetInst	;93: d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swa
 	addi.b	#$10,d1			;d1 = $10 - 2 * check count
 	cmp.b	$74(a2),d1
 	bgt.w	rtss			;a2 fight rating < d1
-	bset	#0,pflags2(a2)		;pf2fight
-	bset	#0,pflags2(a3)		;pf2fight
+	bset	#pf2fight,pflags2(a2)
+	bset	#pf2fight,pflags2(a3)
 	bne.w	rtss			;a3 was already fighting
 	tst.w	(OptPen).w
 	beq.w	rtss
@@ -174,7 +174,7 @@ SetInst	;93: d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swa
 	movea.l	a3,a4
 	moveq	#5,d0
 	movea.w	#(SortCords-M68K_RAM),a3
-	btst	#6,pflags(a4)		;pfteam
+	btst	#pfteam,pflags(a4)
 	beq.w	.1
 	adda.w	#6*SCstruct,a3
 .1	cmpa.w	a3,a4			;IDA: _playerloop
@@ -298,7 +298,7 @@ checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x
 	blt.w	.nod
 	move.w	OldZpos(a3),Zpos(a3)
 	bra.w	.deflectz
-.nod	bclr	#7,pflags(a3)		;IDA: loc_1074A. pfgoal
+.nod	bclr	#pfgoal,pflags(a3)		;IDA: loc_1074A
 	move.w	(puckc).w,d0
 	bmi.w	.nocon			;no puck carrier
 	st	(puckc).w
@@ -306,12 +306,12 @@ checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x
 	movea.w	#(SortCords-M68K_RAM),a0
 	move.b	#8,nopuck(a0,d0.w)		;92 wrote a word
 	move.w	(pucky).w,d1
-	btst	#7,pflags(a0,d0.w)		;pfgoal of the carrier
+	btst	#pfgoal,pflags(a0,d0.w)		;carrier
 	bne.w	.an
 	neg.w	d1
 .an	tst.w	d1			;IDA: loc_10778
 	bpl.w	.nocon
-	bset	#7,pflags(a3)		;pfgoal
+	bset	#pfgoal,pflags(a3)
 .nocon	move.w	#$FF00,d0		;IDA: loc_10784. -256
 	move.l	Ypos(a3),d1
 	sub.l	OldYpos(a3),d1
@@ -338,7 +338,7 @@ checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x
 	eor.w	d0,d3
 	bmi.w	wallcoll
 	neg.w	d0
-	btst	#7,pflags(a3)		;pfgoal
+	btst	#pfgoal,pflags(a3)
 	bne.w	wallcoll
 	cmpi.w	#$D,Zpos(a3)		;.zside, Zpos
 	beq.w	.deflectsf
@@ -350,7 +350,7 @@ checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x
 	bge.w	Goal
 .deflectsf	bsr.w	ChkShotStat		;IDA: loc_107F2. off the post
 	move.w	#$25,-(sp)		;sfx $25 when the clock is stopped (92 SFXpuckpost = 9)
-	btst	#0,(gmode).w		;gmclock
+	btst	#gmclock,(gmode).w
 	bne.w	.snd
 	move.w	#8,(sp)			;sfx 8 (92 SFXoooh = 31) and crowd
 	addi.w	#$12C,(crowdlevel).w	;add 300
@@ -386,7 +386,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	;team), song $30 if the home team scored, a 6 byte ScoreSum entry,
 	;goal/assist counts, PenGoalStuff, printscores1, new assignments for the
 	;scoring team, puck into the net, siren SPA and penalty $E
-	btst	#0,(gmode).w		;gmclock
+	btst	#gmclock,(gmode).w
 	bne.w	rtss
 	bsr.w	ChkShotStat
 	bsr.w	play_new_song		;93 only
@@ -399,7 +399,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	tst.w	Ypos(a3)
 	bpl.w	.g0
 	exg	a2,a1
-.g0	btst	#1,(gmode).w		;gmdir
+.g0	btst	#gmdir,(gmode).w
 	beq.w	.g1
 	exg	a2,a1
 .g1	addq.w	#1,tmscore(a2)
@@ -464,7 +464,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	clr.w	Zpos(a3)
 	st	(puckcrossPlus2).w	;puckcross+2
 	st	(puckcrossPlus6).w	;puckcross+6
-	bset	#2,pflags(a3)		;pfnc
+	bset	#pfnc,pflags(a3)
 	move.w	#$1A,d0			;pnothing (92 same)
 	bsr.w	assreplace
 	move.l	a3,-(sp)
@@ -483,9 +483,9 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	moveq	#5,d3
 .loop	tst.w	position(a3)			;IDA: loc_109D4
 	ble.w	.nl
-	btst	#0,pflags2(a3)		;pf2fight
+	btst	#pf2fight,pflags2(a3)
 	bne.w	.nl
-	bclr	#2,pflags(a3)		;pfnc
+	bclr	#pfnc,pflags(a3)
 	bsr.w	assinsert
 .nl	adda.w	#SCstruct,a3			;IDA: loc_109F0
 	dbf	d3,.loop
@@ -580,8 +580,8 @@ CheckBump	;supply minimum separation velocity for coll with walls/goal/net. a2 =
 	move.w	d1,Yvel(a2)
 	clr.w	Xvel(a3)
 	clr.w	Yvel(a3)
-	bset	#6,(sflags).w		;sfslock
-	btst	#0,(gmode).w		;gmclock
+	bset	#sfslock,(sflags).w
+	btst	#gmclock,(gmode).w
 	bne.w	rtss
 	move.l	#8,d0			;penalty 8 (92 Penghold = $E)
 	bra.w	AddPenalty2
@@ -616,13 +616,13 @@ wallcollb	;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. C
 	bsr.w	sfx
 	addi.w	#$258,(crowdlevel).w	;add 600
 	addi.w	#$F,(CwdExciteLvl).w
-.0	bset	#6,(sflags).w		;sfslock
-	bset	#2,pflags(a3)		;pfnc
+.0	bset	#sfslock,(sflags).w
+	bset	#pfnc,pflags(a3)
 	tst.w	Ypos(a3)
 	bpl.w	.1
 	ori.w	#$8000,attribute(a3)
 .1	clr.w	$86(a3)			;frame+SCstruct
-	btst	#0,(gmode).w		;gmclock
+	btst	#gmclock,(gmode).w
 	bne.w	rtss
 	move.l	a3,-(sp)
 	move.w	(ltplayer).w,d0
@@ -655,7 +655,7 @@ wallcoll	;d0 = cosine, d1 = sine of angle of incidence with wall, a3 = object. C
 	neg.w	d2
 	cmpi.w	#$E,SCnum(a3)		;puckSCnum
 	bne.w	.player
-	bclr	#4,(sflags2).w		;sf2shot
+	bclr	#sf2shot,(sflags2).w
 	tst.w	d2
 	bpl.w	.nocoll
 	asr.w	#2,d2			;reduce normal speed on puck
@@ -764,7 +764,7 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 	asl.w	#7,d4			;scsize
 	movea.w	#(SortCords-M68K_RAM),a2
 	adda.w	d4,a2
-	btst	#2,pflags(a2)		;pfnc
+	btst	#pfnc,pflags(a2)
 	bne.w	.exit			;object has no coll mode on
 	tst.b	nopuck(a2)
 	bne.w	.exit

@@ -29,7 +29,7 @@ DrawMenuScreen	;call the draw routine, frame the menu box, print the items, fade
 
 SetMenuPrintX	;printx = left edge of menu box: 5 in 32 column mode, else 9
 	move.w	#5,(printx).w
-	btst	#1,(disflags).w		;df32c: 32 column mode on
+	btst	#df32c,(disflags).w		;32 column mode on
 	bne.w	rtss2
 	addq.w	#4,(printx).w
 	rts
@@ -135,7 +135,7 @@ PrintTeamData	;copy 2 rows of 12 map words from $FFC210+d0 to printx/printy,
 	;then printx += 12. Saves d0-d2/a0-a1
 	movem.l	d0-d2/a0-a1,-(sp)
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng: don't int graphics
+	bset	#dfng,(disflags).w		;don't int graphics
 	movea.w	#(unk_FFC210-M68K_RAM),a1
 	adda.w	d0,a1
 	moveq	#1,d2			;2 rows

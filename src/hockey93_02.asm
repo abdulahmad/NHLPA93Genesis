@@ -20,7 +20,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	;nearest object in that direction and the camera follows it
 	bsr.w	forceblack
 	move.w	(disflags).w,-(sp)
-	bset	#3,(sflags2).w		;sf2replay: flag that replay is on
+	bset	#sf2replay,(sflags2).w		;flag that replay is on
 	bsr.w	ClrHor			;goto vertical icerink
 	move.w	#$400,d0
 	move.w	(VmMap3).w,d1
@@ -38,16 +38,16 @@ ReplayMode	;this is instant replay play-back control and display code.
 	adda.l	4(a1),a1
 	movea.w	#$310,a2		;92 null
 	bsr.w	dobitmap		;display replay icon
-	bclr	#5,(sflags).w		;sfscrl: manual scroll is off
+	bclr	#sfscrl,(sflags).w		;manual scroll is off
 	bclr	#5,(sflags3).w		;no tracked object
 	st	(byte_FFBE1E).w
 	movea.l	(ReplayBufferPtr).w,a4	;92 recbpr, record buffer pointer (current frame)
 .rwd	bsr.w	suba4			;IDA: RewindToStart. Rewind to first frame
 	tst.w	d7
 	bne.s	.rwd
-	jsr	(SprSort).l
+	jsr	SprSort
 	jsr	(setvideo).l
-	bclr	#1,(sflags3).w		;sf3rmplay: play mode is off
+	bclr	#sf3rmplay,(sflags3).w		;play mode is off
 	move.w	#$18,(palcount).w	;fade in colors now/graphics are ready
 	moveq	#1,d7
 .top	move.w	(vcount).w,d0		;IDA: ReplayMainLoop
@@ -65,7 +65,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	beq.w	.nomans			;no: keep tracking
 .dir	btst	#3,d0			;IDA: CheckDirectionInput
 	bne.w	.nomans			;no d-pad input
-	bset	#5,(sflags).w		;sfscrl: manual scrolling is on
+	bset	#sfscrl,(sflags).w		;manual scrolling is on
 	bne.w	.man
 	move.w	(Hpos).w,(a5)		;first frame: camera starts at the screen
 	move.w	(Vpos).w,$14(a5)
@@ -152,14 +152,14 @@ ReplayMode	;this is instant replay play-back control and display code.
 .nomans	st	$18(a5)			;IDA: HandleNoInput
 	btst	#5,d1			;cbut
 	beq.w	.00
-	bchg	#1,(sflags3).w		;sf3rmplay: switch play mode
+	bchg	#sf3rmplay,(sflags3).w		;switch play mode
 .00	btst	#6,d3			;IDA: CheckRewind. abut
 	beq.w	.0
 	bsr.w	suba4			;fast rewind
 	bsr.w	suba4
 	bsr.w	suba4
 	bsr.w	suba4
-	jsr	(SprSort).l
+	jsr	SprSort
 	jsr	(setvideo).l
 	moveq	#1,d7
 	bclr	#1,(sflags3).w		;turn off play mode
@@ -171,17 +171,17 @@ ReplayMode	;this is instant replay play-back control and display code.
 	bclr	#5,(sflags).w		;a+b but = manual scroll off (hidden feature)
 	bra.w	.top
 .f1	bsr.w	adda4			;IDA: AdvanceOneFrame. Advance 1 frame
-	jsr	(SprSort).l
+	jsr	SprSort
 	jsr	(setvideo).l
 	asl.w	#1,d7			;double delay time between frames = 1/2 speed slow motion
 	bclr	#1,(sflags3).w		;turn off play mode
-.1	btst	#1,(sflags3).w		;IDA: CheckPlayMode. sf3rmplay
+.1	btst	#sf3rmplay,(sflags3).w		;IDA: CheckPlayMode
 	beq.w	.noplay
 	st	(lastsfx).w		;play mode is on = advance one frame at original speed
 	bsr.w	adda4
 	move.w	(lastsfx).w,-(sp)	;play sound effects
 	bsr.w	sfx
-	jsr	(SprSort).l
+	jsr	SprSort
 .noplay	jsr	(setvideo).l		;IDA: CheckExit
 	btst	#7,d1			;sbut
 	beq.w	.top			;no exit yet
@@ -190,8 +190,8 @@ ReplayMode	;this is instant replay play-back control and display code.
 	bclr	#5,(sflags).w
 	movea.l	(ReplayBufferPtr).w,a4	;back to the current frame
 	bsr.w	RestoreReplayFrame
-	jsr	(SprSort).l
-	bclr	#3,(sflags2).w		;sf2replay
+	jsr	SprSort
+	bclr	#sf2replay,(sflags2).w
 	move.w	(sp)+,(disflags).w
 	bsr.w	SetHor
 	jsr	(setvideo).l		;restore old video
@@ -199,7 +199,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	rts				;exit replay mode
 
 getpzjoy	;read the joystick of the pad that paused
-	btst	#1,(sflags).w		;sfpj
+	btst	#sfpj,(sflags).w
 	bne.w	Readjoy2
 	bra.w	Readjoy1
 
@@ -208,7 +208,7 @@ suba4	;IDA: suba4_reverseReplayFrame. a4 = address in replay buffer of current
 	;d7 will be set to delay between frames or zero if at the end of replay
 	cmpa.l	#M68K_RAM,a4		;replaystart
 	bne.w	.1
-	btst	#4,(sflags).w		;sfwrap
+	btst	#sfwrap,(sflags).w
 	beq.w	.end
 	movea.l	#$FFFFAF54,a4		;replayend
 .1	suba.w	#$62,a4			;replaysize
@@ -223,7 +223,7 @@ adda4	;IDA: adda4_advanceReplayFrame. a4 = address in replay buffer of current
 	;frame. Step forward 1 frame and set video parameters for display.
 	;d7 will be set to delay between frames or zero if at the end of replay
 	clr.w	d7
-	btst	#2,(sflags2).w		;sf2drec
+	btst	#sf2drec,(sflags2).w
 	beq.w	adda42
 	move.l	a4,-(sp)
 	bsr.w	adda43
@@ -344,7 +344,7 @@ RestoreReplayFrame	;a4 = current replay frame address to convert into normal
 	move.w	(a0)+,(glovecords).w
 	move.b	(a0)+,(PBnum).w
 	addq.w	#1,a0
-	btst	#5,(sflags).w		;sfscrl
+	btst	#sfscrl,(sflags).w
 	beq.w	.pos
 	movea.w	a5,a3
 	btst	#5,(sflags3).w		;tracking an object?
@@ -362,14 +362,14 @@ RestoreReplayFrame	;a4 = current replay frame address to convert into normal
 	rts
 
 updatereplay	;called every frame to save replay events, d7 = elapsed frames
-	btst	#4,(gmode).w		;gmhl: no recording in highlight mode
+	btst	#gmhl,(gmode).w		;no recording in highlight mode
 	bne.w	rtss2
-	btst	#2,(sflags2).w		;sf2drec
+	btst	#sf2drec,(sflags2).w
 	bne.w	.rec			;record off: keep overwriting this frame
 	addi.l	#$62,(ReplayBufferPtr).w	;replaysize
 	cmpi.l	#$FFFFAF54,(ReplayBufferPtr).w	;replayend
 	bne.w	.rec
-	bset	#4,(sflags).w		;sfwrap
+	bset	#sfwrap,(sflags).w
 	move.l	#M68K_RAM,(ReplayBufferPtr).w	;replaystart
 .rec	movea.l	(ReplayBufferPtr).w,a0	;IDA: loc_8FEE
 	moveq	#$F,d2			;16 objects (92 record)
@@ -432,7 +432,7 @@ rtss2	rts				;shared rts, called from many segments
 updateplayers
 	;this routine calls all collision/animation/assignment code for all the players
 	;d7 = elapse frames since last call
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	bne.w	.u0
 	ori.w	#$F,(PadControlBits).w
 .u0	movea.w	#(SortCords-M68K_RAM),a3	;IDA: _scload
@@ -465,7 +465,7 @@ updateplayers
 	tst.w	Zpos(a3)
 	bne.w	.y2			;no deceleration
 	moveq	#6,d2
-	btst	#0,pflags(a3)		;pfdoff
+	btst	#pfdoff,pflags(a3)
 	beq.w	.off
 	moveq	#9,d2
 .off	move.w	Xvel(a3),d0
@@ -517,9 +517,9 @@ updateplayers
 .done	move.w	SCnum(a3),d6		;IDA: loc_91D6
 	cmp.w	(puckc).w,d6
 	bne.w	.tp			;not puck carrier
-	btst	#0,pflags2(a3)		;pf2fight
+	btst	#pf2fight,pflags2(a3)
 	bne.w	.tp
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	bne.w	.tp
 	moveq	#-2,d4			;pad index for puck carrier
 	bsr.w	setpads
@@ -566,14 +566,14 @@ updateanim	;frame switch control on struct a3. Also called from
 	;UpdateTeamNameAnimation
 	tst.w	SPA(a3)
 	bne.w	.ia
-	bclr	#5,pflags(a3)		;pfalock
-	bclr	#1,pflags2(a3)		;pf2aip
+	bclr	#pfalock,pflags(a3)
+	bclr	#pf2aip,pflags2(a3)
 	rts
 .ia	movea.l	#SPAList,a0		;IDA: loc_929E. Animation data tables (frames)
 	adda.w	SPA(a3),a0
 	move.w	$10(a0),d1		;attributes for anim
 	move.w	facedir(a3),d0
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	beq.w	.nhor
 	cmpi.w	#$C,SCnum(a3)
 	bge.w	.nhor
@@ -619,13 +619,13 @@ updateanim	;frame switch control on struct a3. Also called from
 freezewindow	;lock scrolling to current position
 	move.w	(Vpos).w,(yc1).w
 	move.w	(Hpos).w,(xc1).w
-	bset	#6,(sflags).w		;sfslock
+	bset	#sfslock,(sflags).w
 	rts
 
 checkwindow	;set hpos and vpos according to how screen should follow puck
 	move.w	(yc1).w,d2
 	move.w	(xc1).w,d3		;if locked, use these cordinates
-	btst	#6,(sflags).w		;sfslock
+	btst	#sfslock,(sflags).w
 	bne.w	.dd
 	movea.w	#(puckx-M68K_RAM),a3
 	move.w	(puckc).w,d0
@@ -635,7 +635,7 @@ checkwindow	;set hpos and vpos according to how screen should follow puck
 	adda.w	d0,a3
 	move.w	d7,d0
 	add.w	d0,d0
-	btst	#7,pflags(a3)		;pfgoal
+	btst	#pfgoal,pflags(a3)
 	beq.w	.gd
 	add.w	d0,(yleader).w
 	cmpi.w	#$32,(yleader).w	;.ylmax = 50

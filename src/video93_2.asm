@@ -18,7 +18,7 @@
 
 showclock	;put the game clock in the dma list. Called from setvideo; returns unless dfclock is set.
 	;a5 = dma list, a6 = sprite table, d6 = link counter
-	bclr	#3,(disflags).w		;dfclock
+	bclr	#dfclock,(disflags).w
 	beq.w	rtss
 	cmpi.w	#4,(gsp).w		;93: no clock update when gsp = 4
 	beq.w	rtss
@@ -52,7 +52,7 @@ showclock	;put the game clock in the dma list. Called from setvideo; returns unl
 	movea.w	#(VmMap1-M68K_RAM),a1
 	moveq	#$18,d0			;.clocky = 24
 	moveq	#3,d2			;.clockx = 3
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	beq.w	.cv
 	movea.w	#(VmMap2-M68K_RAM),a1
 	moveq	#4,d0			;.clocky2 = 4
@@ -78,7 +78,7 @@ showclock	;put the game clock in the dma list. Called from setvideo; returns unl
 checksso	;do graphics for sso structure: arrows for the two players when they are off screen.
 	;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter.
 	;93 returns in sfhor mode (92 drew the scoreboard sso objects there); falls into .ca for player 2
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	bne.w	rtss
 	movea.w	#(padsPlusFfosize-M68K_RAM),a0	;92 pads+ffosize
 	movea.w	#(sso-M68K_RAM),a3
@@ -93,7 +93,7 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 	st	frame(a3)
 	move.w	(a0),d0			;Xpos
 	move.w	Ypos(a0),d1
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	beq.w	.nhor
 	exg	d0,d1
 	neg.w	d0
@@ -405,7 +405,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 
 find3d	;input - d0=xfield,d1=yfield,d2=height off field
 	;output - d0=xscreen,d1=yscreen (osflag $4E20 when off screen). Called from addframe
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	beq.w	.nhor
 	exg	d0,d1
 	neg.w	d0

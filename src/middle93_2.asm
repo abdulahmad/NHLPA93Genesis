@@ -19,7 +19,7 @@
 dobitmap	;transfer palette data/map data/tiles data to vram. a0 = palette, a1 = map, a2 = tiles (DecompressGraphics data), d0 = start x, d1 = start y, d2 = width x, d3 = width y, d4 = start char, d5 = pal used bits (0-3) for color fam 1-4. 93: printy is restored and the tiles go last through DecompressGraphics (returns d4 = end char)
 	move.w	(printy).w,-(sp)	;93: keep printy
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng
+	bset	#dfng,(disflags).w
 	movem.l	d0-d3/d5-d6/a0-a3,-(sp)
 	move.w	d1,d6			;93: y start in d6 (92 used 6(a7))
 	movea.w	#(palfadenew-M68K_RAM),a3
@@ -304,7 +304,7 @@ xyVmMap	;use printx/y/m to set vram address. Returns a0 = Vdata. 93 saves d0-d2 
 eraser	;fill rectangle with char. d0/d1 = x/y size of rectangle, d2 = char word to fill with, printx/y/m define top left corner to start at
 	movem.l	d0-d2/a0,-(sp)
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng
+	bset	#dfng,(disflags).w
 	movem.w	d0-d1,-(sp)
 .1	bsr.s	xyVmMap			;IDA: loc_DFE2
 	move.w	(sp),d0
@@ -323,7 +323,7 @@ eraser	;fill rectangle with char. d0/d1 = x/y size of rectangle, d2 = char word 
 Framer	;frame and fill (uses framer.map graphics and assums tiles are already located at framercset). d0/d1 = x/y size of rectangle, printx/y/m define top left corner to start at
 	movem.l	d0-d4/a0-a1,-(sp)
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng
+	bset	#dfng,(disflags).w
 	movem.w	d0-d1,-(sp)
 	move.w	(printa).w,d2
 	add.w	(Framercset).w,d2
@@ -373,7 +373,7 @@ printsmallz	;IDA: printz2 (Rev A lst). 93: see printsmall. String macro should f
 
 printsmall	;93: print string macro a1 at printx/y/m with printa. Bytes > 0 are chars ('@' = blank char $7FF, '^' = skip a column), tile = smallfontmap entry + smallfontchars[word_FFB030]. Bytes <= 0 run ControlCodeJumpTable entry -byte (0 = nothing)
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng
+	bset	#dfng,(disflags).w
 	movem.l	d0-d3/a0/a2-a3,-(sp)
 	movea.w	#(smallfontchars-M68K_RAM),a3	;char set bases, picked by word_FFB030
 	bsr.w	xyVmMap
@@ -496,7 +496,7 @@ printz	;see print. String macro should follow the bsr/jsr to this routine. 93 ke
 
 print	;a1 = string macro, printx/y = x/y cordinate on map for printing, printm = map to print on, printa = attribute for characters. string \-$ab,$xx,$yy,'Sample!'\ : a = map number (1-3), b = color/priority (0-3 = color fam, prio off),(4-7 = color fam, prio on), xx/yy = x/y cord to print at. 93: '@' = char $7FF, '^' = skip a column
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng
+	bset	#dfng,(disflags).w
 	movem.l	d0-d3/a0/a2,-(sp)
 	bsr.w	xyVmMap
 	move.w	(printa).w,d2
@@ -716,7 +716,7 @@ printbigz	;see print big. String macro should follow the bsr/jsr to this routine
 
 printbig	;same as print, only use bigfont.map graphics. a1 = string macro, printx/y = x/y cordinate on map for printing, printm = map to print on, printa = attribute for characters. string \-$ab,$xx,$yy,'Sample!'\ : a = map number (1-3), b = color/priority (0-3 = color fam, prio off),(4-7 = color fam, prio on), xx/yy = x/y cord to print at
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng
+	bset	#dfng,(disflags).w
 	movem.l	d0-d7/a0/a2,-(sp)
 	move.w	(printx).w,d4
 	move.w	(printy).w,d5

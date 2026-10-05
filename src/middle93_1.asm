@@ -13,7 +13,7 @@
 
 remap	;IDA: ConvertAndWriteToVDP. a0 = data (char set), d0 = size in words, d1 = vram dest, a1 = mapping data (93: two color nibbles per byte, high nibble for even colors). Jumped to from DecompressGraphics
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng
+	bset	#dfng,(disflags).w
 	movem.l	d0-d4/a0-a2,-(sp)
 	exg	d1,d0		;(keep EA register order)
 	movea.l	a0,a2
@@ -59,7 +59,7 @@ forcefade	;regardless of interupts/disflags fade in new palettes, don't upset an
 	move.w	sr,-(sp)
 	move.l	(vbint).w,-(sp)
 	move.w	(disflags).w,-(sp)
-	bclr	#2,(disflags).w		;dfng
+	bclr	#dfng,(disflags).w
 	move.l	#vb2,(vbint).l
 	move.w	#$2500,sr
 .1	tst.w	(palcount).w		;IDA: _1
@@ -127,7 +127,7 @@ cramfade	;fade from current color in color ram to color held in palfadenew. This
 CopyPaletteToCRAM	;93: copy all 64 palfadenew colors straight to color ram and set palcount = -1. Protected from vblank (dfng). Entered from cramfade (palcount 100), called from SetupStanleyCupCelebrationScreen
 	movem.l	d0/a0-a1,-(sp)
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng
+	bset	#dfng,(disflags).w
 	movea.w	#(palfadenew-M68K_RAM),a1
 	movea.l	#VDP_DATA,a0
 	move.l	#$C0000000,4(a0)	;cram write 0
@@ -402,7 +402,7 @@ jdtab	;convert buttons l,r,d,u into directions 0-7,8
 
 DoDMApro	;IDA: loc_DA98 (Rev A lst). initiate dma transfer and protect from vblank interuption. d0 = words to transfer, d1 = initial vram address, a0 = address to transfer from. Jumped to from DecompressGraphics
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng
+	bset	#dfng,(disflags).w
 	bsr.w	DoDMA
 	move.w	(sp)+,(disflags).w
 	rts
@@ -468,7 +468,7 @@ DoDMA	;initiate dma transfer (dma transfer bug is compensated for). d0 = words t
 DoDMA_nd2	;93: vram to vram copy by dma (reg 23 = $C0), protected from vblank. d0 = length, d2 = source vram address, d1 = destination vram address. Auto inc 1 during the copy, then 2 again. Called from CopyTeamBlockMapData and ScrollDisplayUp
 	movem.l	d0-d3/a1,-(sp)
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng
+	bset	#dfng,(disflags).w
 	lea	(VDP_CTRL).l,a1
 	move.w	#$8154,(a1)		;$8100+%01010100
 	move.w	#$8F01,(a1)		;auto inc 1
@@ -537,7 +537,7 @@ setVram	;initialize all necesary video parameters based on my variables. d0 = co
 
 setVram_0	;second half of 92 setVram (no fade): clear vram and set the VDP registers from disflags, Map1col, VmMap1-3, VSPRITES and VSCRLPM. Falls in from setVram, called from SetupStanleyCupCelebrationScreen
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng
+	bset	#dfng,(disflags).w
 	move.w	#$8F02,(VDP_CTRL).l	;VmInc 2
 	clr.w	d0
 	bsr.w	Vmaddr
@@ -547,7 +547,7 @@ setVram_0	;second half of 92 setVram (no fade): clear vram and set the VDP regis
 	dbf	d0,.9
 
 	move.w	#$8C00,d0		;8 for shadow mode
-	btst	#1,(disflags).w		;df32c
+	btst	#df32c,(disflags).w
 	bne.w	.i32
 	ori.w	#$81,d0			;%10000001
 .i32	move.w	d0,4(a0)		;IDA: _i32. 40 column mode, no interlace, normal brightness

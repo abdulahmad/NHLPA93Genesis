@@ -23,21 +23,21 @@
 
 printscores1	;draw scoreboard. Vertical rink: period box and the score box (team names and scores). Horizontal rink (.sbscreen): period and both team logos with big scores. Called from USBoard, Pausemode, lcfound2 and others
 	movem.l	d0-d2/a0-a3,-(sp)
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	bne.w	.sbscreen
 	bsr.w	printz
 	String	$BF,0,$17
 	moveq	#9,d0
 	moveq	#5,d1
 	bsr.w	Framer
-	bset	#3,(disflags).w		;dfclock
+	bset	#dfclock,(disflags).w
 	bsr.w	printz
 	String	$BF,1,$18
 	move.w	(gsp).w,d0		;period name (92 .pp)
 	movea.l	#PerLabels,a1
 	bsr.w	PrintStringFromList
 	bsr.w	EASNLogo
-	btst	#0,(sflags3).w		;sf3llcs: lower line change box is up
+	btst	#sf3llcs,(sflags3).w		;lower line change box is up
 	bne.w	.ex
 	bsr.w	printz
 	String	$BF,$17,$17
@@ -101,7 +101,7 @@ PrintTeamLogoAndScore	;IDA: PrintTeamLogoAndScore?. 93: draw the team logo map (
 	bra.w	printbig
 
 EASNLogo	;IDA: DrawEASNLogo. Draw easn.map at x 1, y $19 on the vertical ice rink if no power play. Falls into DrawEASNMap
-	btst	#5,(sflags2).w		;sf2pwrplay
+	btst	#sf2pwrplay,(sflags2).w
 	bne.w	rtss
 	bsr.w	printz
 	String	$BF,1,$19
@@ -120,7 +120,7 @@ DrawEASNMap	;IDA: loc_F0F6. Draw the EASN logo map at the current printx/printy.
 
 USBoard	;update score board, including the players in the penalty box and their time remaining. Called from InProgress and SetHor
 	movem.l	d0-d7/a0-a3,-(sp)
-	bset	#3,(disflags).w		;dfclock
+	bset	#dfclock,(disflags).w
 	bsr.w	printscores1
 	bsr.w	printz
 	String	$BE,$14,8
@@ -246,7 +246,7 @@ AvgCline	;return d0 = average energy of current line on team a2
 	rts
 
 ChkShotStat	;add to shot stat if a shot was taken. 93 also raises the crowd and counts the shot for the shooter and against the other team's goalie
-	bclr	#4,(sflags2).w		;sf2shot
+	bclr	#sf2shot,(sflags2).w
 	beq.w	rtss
 	movem.l	d0-d1/a1-a3,-(sp)
 	addi.w	#$64,(crowdlevel).w	;100
@@ -271,7 +271,7 @@ ChkShotStat	;add to shot stat if a shot was taken. 93 also raises the crowd and 
 loadTeamStruct	;93: return a2 = team struct of player a3, a1 = the other team's struct. Called from ChkShotStat and updateplayers
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
-	btst	#6,pflags(a3)		;pfteam
+	btst	#pfteam,pflags(a3)
 	beq.w	rtss
 	exg	a1,a2
 	rts
@@ -323,7 +323,7 @@ Intermission	;end of period junk (zamboni/stats). 93 opens the pause menu screen
 .ss	asl.w	#2,d0			;IDA: _ss
 	lea	.sslist(pc),a0
 	movea.l	(a0,d0.w),a0
-	bset	#0,(sflags).w		;sfpz
+	bset	#sfpz,(sflags).w
 	movea.l	#SetupPauseScreen,a1	;Rev A $69AA
 	jsr	(InitMenuState).w
 	bsr.w	GetShifter
@@ -341,9 +341,9 @@ Intermission	;end of period junk (zamboni/stats). 93 opens the pause menu screen
 	bsr.w	IntermissionLoop
 	btst	#7,d1			;sbut
 	beq.s	.top
-.clrh	bset	#3,(sflags3).w		;IDA: loc_F3F0. sf3sbut
+.clrh	bset	#sf3sbut,(sflags3).w		;IDA: loc_F3F0
 .doh	bsr.w	DoHiLights		;IDA: loc_F3F6
-	bclr	#3,(sflags3).w		;sf3sbut
+	bclr	#sf3sbut,(sflags3).w
 	bne.w	.clrz
 .wait	move.w	#$1E0,d0		;IDA: loc_F404. 480 frames
 	bsr.w	IntermissionLoop
@@ -554,7 +554,7 @@ ClearTickerArea	;93: erase the ticker box. Called from Intermission and StartHL2
 SetTickerAreaPosition	;93: set printx/printy/printm for the ticker box (x 3, y $17; the $BD map in pause mode). Return d0 = $1A wide, d1 = 5 high. Called from NewTicker3 and ClearTickerArea
 	bsr.w	printz
 	String	$BD,3,$17
-	btst	#0,(sflags).w		;sfpz
+	btst	#sfpz,(sflags).w
 	bne.w	.1
 	bsr.w	printz
 	String	$BF,3,$17
@@ -589,13 +589,13 @@ DoHiLights	;hilites logic: search for hilite game and show hilite (93 has no Opt
 
 StartHL	movem.l	d0-d7/a0-a6,-(sp)	;play hilite for game a0, d1 = game. Called from DoHiLights. Falls into StartHL2
 StartHL2	;play hilite for game a0. Start skips it with a random result. A tied game is replayed (beq StartHL2)
-	btst	#3,(sflags3).w		;sf3sbut
+	btst	#sf3sbut,(sflags3).w
 	bne.w	.nhl0
 	bsr.w	.sv
 	move.w	d1,d3
 	bsr.w	CheckGameTickerStatus
 	bsr.w	NewTicker3		;show score from hilight game
-	btst	#3,(sflags3).w		;sf3sbut
+	btst	#sf3sbut,(sflags3).w
 	bne.w	.nhl1
 	move.w	#4,(printx).w
 	subq.w	#6,(printy).w
@@ -635,18 +635,18 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	move.b	#$10,(gmode).w		;1<<gmhl
 	btst	#0,(gsp+1).w
 	beq.w	.ndi
-	bset	#1,(gmode).w		;gmdir
+	bset	#gmdir,(gmode).w
 .ndi	clr.b	(sflags).w		;IDA: StartHL2_ndi
 	move.b	#4,(sflags2).w		;1<<sf2drec
 	clr.b	(sflags3).w
 	bclr	#4,(disflags).w		;93 only
-	bset	#3,(disflags).w		;dfclock
+	bset	#dfclock,(disflags).w
 	clr.w	(glovecords).w
 	clr.b	(iflags).w
 	st	(RefCnt).w
 	st	(puckcrossPlus2).w
 	st	(puckcrossPlus6).w
-	jsr	(p_turnoff).l
+	jsr	p_turnoff
 	bsr.w	setupice_highlight
 	bsr.w	ClrHor
 	movea.l	#VDP_DATA,a0
@@ -667,7 +667,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	movea.l	#.postab,a0
 	movea.w	#(SortCords-M68K_RAM),a1
 .ploop	move.w	position(a1),d1		;IDA: loc_F904
-	btst	#7,pflags(a1)		;pfgoal
+	btst	#pfgoal,pflags(a1)
 	bne.w	.pl0
 	addq.w	#6,d1
 .pl0	asl.w	#2,d1			;IDA: loc_F914
@@ -682,7 +682,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	move.w	(vcount).w,(oldvcount).w
 	move.w	#$B4,-(sp)		;180 frames after the clock stops
 .0	jsr	(DoGameFrame).w		;IDA: loc_F944. 93 DoGameFrame waits for the vblank (92 inline)
-	btst	#0,(gmode).w		;gmclock
+	btst	#gmclock,(gmode).w
 	beq.w	.1
 	subq.w	#1,(sp)
 	bmi.w	.endhl
@@ -702,8 +702,8 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 .endhl	addq.w	#2,sp			;IDA: loc_F98C
 	movea.l	(sp)+,a0
 	movem.l	d1/a0,-(sp)
-	jsr	(KillCrowd).l
-	jsr	(p_turnoff).l
+	jsr	KillCrowd
+	jsr	p_turnoff
 	movem.l	(sp)+,d1/a0
 	move.w	(tmstructtmscore).w,$A(a0)	;gss1
 	move.w	(tmstructtmscoretmsize).w,$C(a0)	;gss2
@@ -740,7 +740,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	bsr.w	IntermissionLoop
 	btst	#7,d1			;sbut
 	beq.w	.exit
-.exit2	bset	#3,(sflags3).w		;IDA: exit2. sf3sbut
+.exit2	bset	#sf3sbut,(sflags3).w		;IDA: exit2
 .exit	movem.l	(sp)+,d0-d7/a0-a6	;IDA: exit
 	rts
 .nhl1	bsr.w	.lo			;IDA: loc_FA40

@@ -80,4 +80,56 @@ tmflags equ $30		;92 $1E
 tmpde equ $32		;92 $20
 tmpdst equ $66		;92 $54
 tmsize equ $1A2		;92 $88
+; Bit numbers from NHL92Genesis/src/ram.asm, used where a finished segment
+; comment names the bit and the 93 bit number is the 92 value (see
+; SEGMENT_AGENT.md "Bit names"). The flag word is whatever the 93 bytes use.
+; 93 moved pflags2 bits are not defined here: 93 bit 2 is unavailable (92
+; pf2unav = 4), bit 3 line change (92 pf2lcm = 5), bit 4 penalty (92 pf2pen
+; = 6), bit 5 no player coll (92 pf2npc = 7).
+; gmode
+gmclock equ 0
+gmdir equ 1
+gmpen equ 2
+gmpendel equ 3
+gmhl equ 4
+gmoffs equ 5
+; sflags
+sfpz equ 0
+sfpj equ 1
+sfspdir equ 2
+sfssdir equ 3
+sfwrap equ 4
+sfscrl equ 5
+sfslock equ 6
+sfhor equ 7
+; sflags2
+sf2faceoff equ 0
+sf2refref equ 1
+sf2drec equ 2
+sf2replay equ 3
+sf2shot equ 4
+sf2pwrplay equ 5
+sf2pwrtm equ 6
+sf2offsig equ 7
+; sflags3
+sf3llcs equ 0
+sf3rmplay equ 1
+sf3sbut equ 3
+; disflags
+dfok equ 0
+df32c equ 1
+dfng equ 2
+dfclock equ 3
+; pflags
+pfdoff equ 0
+pfna equ 1
+pfnc equ 2
+pfjoycon equ 3
+pfrev equ 4
+pfalock equ 5
+pfteam equ 6
+pfgoal equ 7
+; pflags2
+pf2fight equ 0
+pf2aip equ 1
 ; ----------------------------------

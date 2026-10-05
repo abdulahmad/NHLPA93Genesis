@@ -26,7 +26,7 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 	;Called from StartGame+42 and StartPer+A. 93 decompresses the tile sets with
 	;DoDMA_clearCallbackPointer / DecompressGraphicsWithCallback (92 Buildframelist, DoDMA, ReMap)
 	movem.l	d0-d7/a0-a6,-(sp)
-	bset	#1,(disflags).w		;df32c
+	bset	#df32c,(disflags).w
 	move.w	#$C000,(VmMap2).w	;map 2 address
 	move.w	#6,(Map2col).w		;map 2 width
 	move.w	#$DC00,(VSPRITES).w	;sprites address
@@ -37,10 +37,10 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 	move.w	#$FC00,(VSCRLPM).w	;horizontal scroll address (92 $0000, set first)
 	moveq	#0,d0			;color to fade to
 	bsr.w	setVram
-	bclr	#0,(sflags).w		;sfpz
+	bclr	#sfpz,(sflags).w
 
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng
+	bset	#dfng,(disflags).w
 
 	clr.w	(Hpos).w
 	clr.w	(Vpos).w
@@ -86,11 +86,11 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 
 	move.w	d4,(ExtraChars).w	;char space for extra graphics
 
-	btst	#1,(gmode).w		;gmdir
+	btst	#gmdir,(gmode).w
 	beq.w	.gok
 	movea.w	#(SortCords-M68K_RAM),a3
 	moveq	#$B,d0			;12 players
-.l01	bchg	#7,pflags(a3)		;IDA: loc_123BA. pfgoal in pflags
+.l01	bchg	#pfgoal,pflags(a3)		;IDA: loc_123BA
 	adda.w	#SCstruct,a3
 	dbf	d0,.l01
 .gok	bsr.w	setplayercolors		;IDA: loc_123C8. (92 SetTeamColors, which falls into setplayercolors)
@@ -118,8 +118,8 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 	move.w	(sp)+,(disflags).w	;(92 set palcount = 28 first; 93 does that in setupice_highlight only)
 
 	move.l	#VBlank,(vbint).w
-	bclr	#0,(disflags).w		;dfok
-	bclr	#2,(disflags).w		;dfng
+	bclr	#dfok,(disflags).w
+	bclr	#dfng,(disflags).w
 	move.w	#$2300,sr
 
 	movem.l	(sp)+,d0-d7/a0-a6
@@ -129,9 +129,9 @@ setupice_highlight	;93 only. Rebuild the rink sprites after a highlight replay w
 	;Called from StartHL2 (penalty93_2). Uses the sprite char start saved by setupice in word_FFB024
 	movem.l	d0-d7/a0-a6,-(sp)
 	bsr.w	forceblack
-	bclr	#0,(sflags).w		;sfpz
+	bclr	#sfpz,(sflags).w
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w		;dfng
+	bset	#dfng,(disflags).w
 	clr.w	(Hpos).w
 	clr.w	(Vpos).w
 	move.w	#$7D0,(Oldrow).w	;2000
@@ -139,11 +139,11 @@ setupice_highlight	;93 only. Rebuild the rink sprites after a highlight replay w
 	move.w	(word_FFB024).w,d4	;sprite char start from setupice
 	bsr.w	defaultsprites
 	bsr.w	setupIceRinkMap		;transfer pal 0&1
-	btst	#1,(gmode).w		;gmdir
+	btst	#gmdir,(gmode).w
 	beq.w	.gok
 	movea.w	#(SortCords-M68K_RAM),a3
 	moveq	#$B,d0			;12 players
-.l01	bchg	#7,pflags(a3)		;IDA: loc_12478. pfgoal in pflags
+.l01	bchg	#pfgoal,pflags(a3)		;IDA: loc_12478
 	adda.w	#SCstruct,a3
 	dbf	d0,.l01
 .gok	bsr.w	setplayercolors		;IDA: loc_12486
@@ -169,8 +169,8 @@ setupice_highlight	;93 only. Rebuild the rink sprites after a highlight replay w
 	move.w	#$1C,(palcount).w	;fade in new graphics now (92 setupice: 28)
 	move.w	(sp)+,(disflags).w
 	move.l	#VBlank,(vbint).w
-	bclr	#0,(disflags).w		;dfok
-	bclr	#2,(disflags).w		;dfng
+	bclr	#dfok,(disflags).w
+	bclr	#dfng,(disflags).w
 	move.w	#$2300,sr
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts				;IDA: locret_124F8 (its only xref is a constant, so no label)
@@ -349,7 +349,7 @@ SprSort	;sort objects in struct SortObj and set corresponding tables for keeping
 	movea.l	#SortCords,a0
 	move.w	#$F,d3			;Sortobjs-1
 .loop0	move.w	Ypos(a0),d4		;IDA: loc_1282A
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	beq.w	.l01
 	move.w	(a0),d4			;Xpos
 .l01	move.w	d4,(a1)+		;IDA: loc_1283A. update ylist
@@ -471,7 +471,7 @@ setplayercolors	;copy in correct color data for each team. Called from setupice,
 PeriodOver	;what to do if period over. Branched to from puckfaceoff (logic93_4) when the clock runs out.
 	;93 moves forceblack after the period count and drops the 92 SetHor / SetVideo / palcount
 	addq.w	#1,(gsp).w		;period number
-	bchg	#1,(gmode).w		;gmdir
+	bchg	#gmdir,(gmode).w
 	cmpi.w	#3,(gsp).w
 	blt.w	.0			;periods 1-2 done
 	beq.w	.nop			;3rd period done
@@ -488,7 +488,7 @@ PeriodOver	;what to do if period over. Branched to from puckfaceoff (logic93_4) 
 IntermissionStart	;IDA: _sp. PeriodOver tail (92 PeriodOver .sp): reset the clock, song $36, ticker scores,
 	;playoff team stats at game over, then Intermission. Next period, or GameOver when gsp = 4.
 	;Also jumped to from StartGame (hockey93_01, as _sp) for the pregame intermission
-	jsr	(ResetClock).w
+	jsr	ResetClock
 	move.w	#$36,-(sp)		;song $36 (92 SngEOG = 3 here)
 	bsr.w	song
 	bsr.w	UpdateScores
@@ -505,7 +505,7 @@ GameOver	;IDA: loc_129FC. 92 name. Save the password, show the playoff stats and
 	bsr.w	EncodePW
 	tst.w	(OptPlayMode).w
 	beq.w	.po			;regular season
-	bclr	#1,(sflags).w		;sfpj
+	bclr	#sfpj,(sflags).w
 	jsr	(DisplayTeamStats).w	;"Playoff Stats"
 .po	bsr.w	PlayoffScreen		;IDA: loc_12A12. returns at once outside playoff mode
 
@@ -542,7 +542,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	beq.w	rtss
 
 	move.l	#PlayoffScreenDataTable,(vbint).l	;(92 vb2)
-	bclr	#1,(disflags).w		;df32c
+	bclr	#df32c,(disflags).w
 	move.w	#0,(VSCRLPM).w
 	move.w	#$BC00,(VSPRITES).w
 	move.w	#$B000,(VmMap3).w

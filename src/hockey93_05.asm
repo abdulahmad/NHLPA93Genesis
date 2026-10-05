@@ -33,9 +33,9 @@ puckstick	;puck collides with stick
 	;8, and the catch speed limit is 13000 + 700 * stickhand
 	tst.w	position(a2)
 	bne.w	.0
-	btst	#4,(gmode).w		;gmhl
+	btst	#gmhl,(gmode).w
 	bne.w	rtss
-.0	bclr	#0,pflags(a2)		;IDA: loc_10E90. pfdoff
+.0	bclr	#pfdoff,pflags(a2)		;IDA: loc_10E90
 	move.w	(puckc).w,d1
 	bmi.w	.nosteal		;nobody has the puck
 	asl.w	#7,d1			;scsize
@@ -44,7 +44,7 @@ puckstick	;puck collides with stick
 	move.b	pflags(a0),d1
 	move.b	pflags(a2),d2
 	eor.w	d1,d2
-	btst	#6,d2			;pfteam
+	btst	#pfteam,d2
 	beq.w	rtss			;no steal from team member
 	cmp.l	#$24,d0			;6*6
 	bhi.w	rtss			;smaller range for stealing puck
@@ -76,8 +76,8 @@ puckstick	;puck collides with stick
 	move.b	d0,nopuck(a0)
 	exg	a0,a2
 	move.w	SCnum(a0),(lastplayer).w
-	bclr	#2,(sflags).w		;sfspdir
-	bclr	#3,(sflags).w		;sfssdir
+	bclr	#sfspdir,(sflags).w
+	bclr	#sfssdir,(sflags).w
 .stdef	move.w	#6,-(sp)		;IDA: loc_10F32. stick deflect sound (92 SFXstdef = 5)
 	bsr.w	sfx
 	bsr.w	a2touchpuck
@@ -113,7 +113,7 @@ puckglue	;IDA: loc_10F8A. Player a2 takes the puck (92 puckstick .glue)
 	move.w	d0,(puckc).w
 	movea.w	#(hmtmstruct-M68K_RAM),a0
 	lea	tmsize(a0),a1
-	btst	#6,pflags(a2)		;pfteam
+	btst	#pfteam,pflags(a2)
 	bne.w	.tm
 	exg	a0,a1
 .tm	st	$1A(a0)			;IDA: loc_10FAA. a0 = other team, a1 = a2's team
@@ -134,8 +134,8 @@ puckglue	;IDA: loc_10F8A. Player a2 takes the puck (92 puckstick .glue)
 	bne.w	.nrec
 	addq.w	#1,$14(a1)		;pass reached its receiver: team word $14 + 1
 .nrec	st	(passReceiverPlayerNum).w	;IDA: loc_10FF6
-	bclr	#2,(sflags).w		;sfspdir
-	bclr	#3,(sflags).w		;sfssdir
+	bclr	#sfspdir,(sflags).w
+	bclr	#sfssdir,(sflags).w
 	tst.w	position(a2)
 	bne.w	setd0player
 	bsr.w	ChkShotStat
@@ -200,7 +200,7 @@ puckbody	;puck hits player a2. a3 = puck, d0 = distance^2 (from checkpuckcoll .c
 	cmpi.w	#$C,Zpos(a3)		;Zpos 12
 	bgt.w	FallDown
 	rts
-.slow	bset	#5,pflags(a2)		;IDA: loc_110E2. pfalock
+.slow	bset	#pfalock,pflags(a2)		;IDA: loc_110E2
 	bne.w	rtss			;already in a locked anim
 	move.w	#$128A,d1		;SPA for a2
 	exg	a2,a3
@@ -212,7 +212,7 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	;Save odds from the goalie's save attribute and the frame table .list2.
 	;93: song on a hard shot, a puck carrier loses the puck, and a slow
 	;loose puck (.nopc) is caught through puckglue
-	btst	#4,(gmode).w		;gmhl
+	btst	#gmhl,(gmode).w
 	bne.s	rtss
 	clr.w	d2			;puck region
 	cmpi.w	#8,Zpos(a3)		;Zpos, 3*8/3
@@ -261,7 +261,7 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	cmpi.w	#$D000,(puckvy).w
 	bgt.w	.nosong			;-$3000 < Yvel <= $3000: no song
 .setsfx	move.w	#$B,-(sp)		;song $B (home goalie)
-	btst	#6,pflags(a2)		;pfteam
+	btst	#pfteam,pflags(a2)
 	beq.w	.song
 	move.w	#$D,(sp)		;song $D (visiting goalie)
 .song	bsr.w	song			;IDA: loc_111AE
@@ -275,8 +275,8 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	adda.w	d2,a0
 	move.b	#$14,nopuck(a0)		;carrier nopuck = 20
 	move.w	SCnum(a0),(lastplayer).w
-	bclr	#2,(sflags).w		;sfspdir
-	bclr	#3,(sflags).w		;sfssdir
+	bclr	#sfspdir,(sflags).w
+	bclr	#sfssdir,(sflags).w
 .bounce	clr.w	Zvel(a3)			;IDA: loc_111E6
 	move.b	#$A,nopuck(a2)		;nopuck (92 8)
 	move.w	#4,temp4(a2)
@@ -356,7 +356,7 @@ makepde	;pass d0 as value to be scaled by player a0's energy level
 
 getpde	;get player a3's energy level into d0. Return a2 = his team struct, d1 = pnum*2
 	movea.w	#(hmtmstruct-M68K_RAM),a2
-	btst	#6,pflags(a3)		;pfteam
+	btst	#pfteam,pflags(a3)
 	beq.w	.0
 	adda.w	#tmsize,a2
 .0	move.b	pnum(a3),d1		;IDA: loc_11358
@@ -581,7 +581,7 @@ setplayer	;bring player onto the ice and set his stats
 	;0-15 by ClampNibble
 	bclr	#6,pflags2(a3)		;pflags2 bit 6 (93)
 	movea.w	#(hmtmstruct-M68K_RAM),a0
-	btst	#6,pflags(a3)		;pfteam
+	btst	#pfteam,pflags(a3)
 	beq.w	.0
 	adda.w	#tmsize,a0
 .0	move.b	d3,pnum(a3)
@@ -594,7 +594,7 @@ setplayer	;bring player onto the ice and set his stats
 	cmp.w	#$FFFE,d1		;-2 bench
 	bne.w	.nda
 .da	bsr.w	assinsert
-	bclr	#5,pflags(a3)		;pfalock
+	bclr	#pfalock,pflags(a3)
 	clr.w	SPA(a3)
 .nda	move.w	#$FFFF,tmpdst(a0,d3.w)	;tmpdst -1 on the ice (93)
 	lsr.w	#1,d3
@@ -618,7 +618,7 @@ setplayer	;bring player onto the ice and set his stats
 .nda3	move.b	2(a0),d0
 	andi.b	#$F,d0
 	neg.b	d0			;visitors: -low nibble of byte 2
-	btst	#6,pflags(a3)		;pfteam
+	btst	#pfteam,pflags(a3)
 	bne.w	.tm
 	move.b	2(a0),d0
 	lsr.b	#4,d0			;home: high nibble of byte 2
@@ -633,7 +633,7 @@ setplayer	;bring player onto the ice and set his stats
 .score	move.w	(tmstructtmscore).w,d0	;IDA: loc_116A4. home score
 	sub.w	(tmstructtmscoretmsize).w,d0	;- visitor score
 	beq.w	.close			;tied
-	btst	#6,pflags(a3)		;pfteam
+	btst	#pfteam,pflags(a3)
 	beq.w	.side
 	eori	#8,ccr			;visitors: flip N
 .side	bpl.w	.nomod			;IDA: loc_116BE. leading

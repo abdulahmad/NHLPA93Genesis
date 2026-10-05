@@ -26,11 +26,11 @@ Begin	;cold start, entered from Reset. Clear RAM, init menus and sound, go to ti
 
 	jsr	(SetupStanleyCupCelebrationScreen).l
 	jsr	(BackupRAM_Read).l
-	jsr	(DefaultMenus).l	;set initial menu choices
-	jsr	(orjoy).l		;clear any previous button presses
-	jsr	(p_initialZ80).l	;sound stuff
-	jsr	(p_turnoff).l		;sound stuff
-	jsr	(p_music_vblank).l	;sound stuff
+	jsr	DefaultMenus	;set initial menu choices
+	jsr	orjoy		;clear any previous button presses
+	jsr	p_initialZ80	;sound stuff
+	jsr	p_turnoff		;sound stuff
+	jsr	p_music_vblank	;sound stuff
 	jmp	(Opening).l		;goto title screen and options etc.
 ;----------------------------------------------------
 
@@ -44,7 +44,7 @@ StartGame	;reset game state for a new game, then start the first period
 	clr.b	(gmode).w
 	cmpi.w	#1,(OptPen).w
 	bne.w	.0
-	bset	#5,(gmode).w		;gmoffs: offsides pen. is active
+	bset	#gmoffs,(gmode).w		;offsides pen. is active
 .0	cmpi.w	#1,(OptPlayMode).w
 	ble.w	.1			;OptPlayMode 0-1 keep the shot buffer
 	bsr.w	ClearShotData
@@ -55,7 +55,7 @@ StartGame	;reset game state for a new game, then start the first period
 	clr.w	(ChkCnt).w
 	bsr.w	restoreteams
 	jsr	(InitScores).l
-	jsr	(setupice).l
+	jsr	setupice
 	jmp	(_sp).l			;on to period start
 
 ClearShotData	;clear 49 words at $FFCB0A
@@ -90,7 +90,7 @@ ResetClock	;set period length and stop clock
 	asr.w	#1,d0
 	bsr.w	randomd0
 	sub.w	d0,(word_FFB048).w	;length - random(length/2)
-	bset	#0,(gmode).w		;gmclock: stop clock
+	bset	#gmclock,(gmode).w		;stop clock
 	rts
 
 GetPeriodTime	;return d0 = period length in seconds for the period length option
@@ -105,8 +105,8 @@ GetPeriodTime	;return d0 = period length in seconds for the period length option
 
 StartPer	;start a period: reset stack, rink and clock, face off, run the game loop
 	movea.w	#(Stack-M68K_RAM),sp
-	jsr	(p_turnoff).l		;sound off
-	jsr	(setupice).l
+	jsr	p_turnoff		;sound off
+	jsr	setupice
 	bsr.s	ResetClock
 	ori.w	#$F000,(PadControlBits).w
 	st	(c1playernum).w		;no controlled player yet
@@ -116,8 +116,8 @@ StartPer	;start a period: reset stack, rink and clock, face off, run the game lo
 	clr.w	(foy).w
 	move.l	#$1B,d0			;pfaceoff
 	bsr.w	assreplace		;face off starts period
-	bset	#2,(sflags2).w		;sf2drec: don't record
-	bclr	#4,(sflags).w		;sfwrap: reset replay stuff
+	bset	#sf2drec,(sflags2).w		;don't record
+	bclr	#sfwrap,(sflags).w		;reset replay stuff
 	move.w	#$FFFF,(lastsfx).w
 	move.l	#M68K_RAM,(ReplayBufferPtr).w	;92 replaystart
 	move.w	(vcount).w,(oldvcount).w
@@ -135,7 +135,7 @@ StartPer	;start a period: reset stack, rink and clock, face off, run the game lo
 Gameloop	;main loop for game
 	bsr.w	DoGameFrame
 	bsr.w	demoread		;check if demo mode
-	btst	#0,(sflags).w		;sfpz
+	btst	#sfpz,(sflags).w
 	beq.s	Gameloop
 	bsr.w	Pausemode
 	bra.s	Gameloop
@@ -154,9 +154,9 @@ DoGameFrame	;wait for at least one vblank, then run one frame of game logic
 periodicevents	;called every time thru game loop with d7 = elapsed frames
 	jsr	(PenaltyManager).l
 	bsr.w	updatecrowdf
-	jsr	(updatesound).l
+	jsr	updatesound
 	bsr.w	clockcont
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	bne.w	rtss2			;exit if in horizontal mode
 	sub.w	d7,(lldisp).w		;count down for screen updates
 	bpl.w	rtss2
@@ -258,7 +258,7 @@ updatecrowdf	;this is called every game loop with d7 = elapsed frames
 	rts
 
 clockcont	;monitor period clock and initiate various clock activated events
-	btst	#0,(gmode).w		;gmclock
+	btst	#gmclock,(gmode).w
 	bne.w	rtss2
 	tst.w	(gameclock).w
 	bne.w	rtss2
@@ -297,7 +297,7 @@ clockcont_0	;end of period. Also entered from puckfaceoff+2E
 
 .sc	move.l	#8,d0			;stanley cup assignment (92 astanley = 9)
 	moveq	#$B,d2			;all 12 players lose joystick control
-.t0	bclr	#3,pflags(a3)		;pfjoycon
+.t0	bclr	#pfjoycon,pflags(a3)
 	adda.w	#SCstruct,a3
 	dbf	d2,.t0
 	movea.w	#(SortCords-M68K_RAM),a3
@@ -316,7 +316,7 @@ clockcont_0	;end of period. Also entered from puckfaceoff+2E
 .eog	jsr	(ClearPenaltyBuffer).l	;IDA: _n3. End of game
 	addi.w	#$3E8,(crowdlevel).w	;1000
 	addi.w	#$28,(CwdExciteLvl).w
-	bset	#0,(gmode).w		;gmclock
+	bset	#gmclock,(gmode).w
 	bset	#6,(gmode).w		;set at end of game
 	move.w	#4,d0			;PenEOG
 	bra.w	AddPenalty2
@@ -349,16 +349,16 @@ HandleJoy1	;any button on the pad just read (d1) ends the demo
 	jmp	(loc_12A16).l		;exit demo
 
 startpause1	;pause intiated by cont 1
-	bclr	#1,(sflags).w		;sfpj
+	bclr	#sfpj,(sflags).w
 	bra.w	startpause
 startpause2	;pause intiated by cont 2
-	bset	#1,(sflags).w		;sfpj
+	bset	#sfpj,(sflags).w
 startpause
-	bset	#0,(sflags).w		;sfpz
+	bset	#sfpz,(sflags).w
 	rts
 
 Pausemode	;game is in pause mode now
-	jsr	(p_turnoff).l		;shut off sound
+	jsr	p_turnoff		;shut off sound
 	move.w	(sflags).w,-(sp)
 	bsr.w	forceblack		;fade screen to black
 	bsr.w	seta2			;a2 = team of pausing controller
@@ -377,14 +377,14 @@ Pausemode	;game is in pause mode now
 	;92 PauseExit: restore graphics and return from pause mode
 	bsr.w	forceblack
 	move.w	(sp)+,(sflags).w
-	btst	#7,(sflags).w		;sfhor
+	btst	#sfhor,(sflags).w
 	bne.w	.hor
 	jsr	(ClrHor).l
 .hor	movea.l	#VDP_DATA,a0
 	move.w	#$9100,4(a0)
 	move.w	#$9200,4(a0)
-	bset	#3,(disflags).w		;dfclock: clock needs update
-	bclr	#0,(sflags).w		;sfpz
+	bset	#dfclock,(disflags).w		;clock needs update
+	bclr	#sfpz,(sflags).w
 	jsr	(printscores1).l
 	jsr	(setvideo).l
 	move.w	#$18,(palcount).w
@@ -400,7 +400,7 @@ SetupPauseScreen	;draw routine for the pause menu (92 Pausemode .pall / .top)
 	move.w	#$921C,4(a0)		;playfield 3 height
 	jsr	(SetHor).l
 	jsr	(setvideo).l
-	jsr	(KillCrowd).l
+	jsr	KillCrowd
 	bsr.w	printsmallz		;erase playfield 3
 	String	$FF,3,$FD,0,$FC,0
 	moveq	#$20,d0			;32
@@ -411,7 +411,7 @@ SetupPauseScreen	;draw routine for the pause menu (92 Pausemode .pall / .top)
 seta2	;IDA: GetTeamFromPause. Set a2 to tmstruct of pause joystick
 	;also called from HandleMenuInput (menu93)
 	movea.w	#(hmtmstruct-M68K_RAM),a2
-	btst	#1,(sflags).w		;sfpj
+	btst	#sfpj,(sflags).w
 	beq.w	.seta20
 	cmpi.w	#1,(cont2team).w
 	bra.w	.seta21
