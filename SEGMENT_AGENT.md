@@ -26,6 +26,29 @@ Finish one NHLPA 93 segment so it assembles with SNASM68K and matches the retail
 
 A match prints `MATCH: hockey93_01 confirmed ... at 0x006446-...`. Commit only that.
 
+## Comments and labels
+
+Do this after the bytes match. Run `npm run seg` again afterward; renaming and comments must not change a byte.
+
+Comments:
+
+- Find the matching NHL 92 routine in `NHL92Genesis/src/hockey.asm` (or the file it lives in) and copy its comments onto the instructions that do the same thing in 93.
+- Where 92 uses a symbolic constant (`gmclock`, `sfhor`, `pfjoycon`, `SCstruct`, `PenEOG`, ...), check the 92 value in `ram.asm` / the 92 `.lst`. If the 93 byte is the same, put the 92 name in the comment (`bset #0,(gmode).w ;gmclock`). If the value differs, say so (`;horn (92 SFXhorn = 24)`). Do not add 92 equates to the 93 build.
+- 93-only code gets a short factual comment from what the bytes do. Do not guess game meaning you cannot see in the code.
+- Mark retail-vs-Rev A differences inline (`;retail v1.1 clear end (Rev A: $CDF4)`).
+- Assembler workarounds (`dc.w` for EA `cmp` encodings) keep the real instruction in the comment.
+
+Labels:
+
+- Human-named IDA globals (`StartGame`, `InitTeamShots`, `clockcont_0`, ...) stay as-is. They are the cross-reference names other segments will use. Add `;92 <name>` when 92 calls it something else.
+- IDA auto names inside the segment (`loc_XXXX`, `locret_XXXX`) and IDA `_xx` / `func_N` pseudo-locals become `.` local labels.
+  - Use the 92 local label when the code matches (`.0`, `.1`, `.cf`, `.nf`, `.ns1`, `.sc`, `.t0`, `.t2`, `.t3`, `.n2`, `.eop`).
+  - Otherwise pick a short descriptive name (`.x` for a shared `rts`, `.next`, `.set`, `.nomax`, `.eog`).
+  - Add `;IDA: loc_XXXX` on the line so the IDA address stays searchable.
+- An auto-named label that is reached from outside the segment (IDA xref outside the range) must stay global. Give it a meaningful name and add `;IDA: loc_XXXX`.
+- Local labels end at the next global label. Check that every branch to a local is still inside its scope before you verify.
+- Stubs for routines outside the segment keep the IDA name, even an auto name. They belong to the segment that owns that code.
+
 ## Out of scope
 
 - `hockey93.asm` and the full-ROM `build:retail` path.
