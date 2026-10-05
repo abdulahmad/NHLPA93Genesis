@@ -25,7 +25,7 @@ Do not edit `hockey93_01.asm` (`$6446-$69FF`, 1466 bytes), `menu93.asm` (`$6A00-
 
 ## ROM map
 
-`src/hockey93.asm` is the full-ROM include list and follows NHL 92 file naming. The big 92 files (`hockey.asm`, `logic`, `middle`, `penalty`, `video`) are split into numbered files only so each piece can be verified on its own. Every include in `hockey93.asm` has its retail range as a comment. That comment is the contract: a segment file's `org` is the start of its range, and it must assemble to exactly that range. Do not rename or reorder includes in `hockey93.asm`.
+`src/hockey93.asm` is the full-ROM include list and follows NHL 92 file naming. The big 92 files (`hockey.asm`, `logic`, `middle`, `penalty`, `video`) are split into numbered files only so each piece can be verified on its own. Every include in `hockey93.asm` has its retail range as a comment. That comment is the contract: a segment file's `org` is the start of its range, and it must assemble to exactly that range. Do not rename or reorder includes in `hockey93.asm`. `sound93.asm` and `graphics93.asm` are placeholders marked `NOT COVERED` in `hockey93.asm`: their ranges are fixed, but the files do not exist yet and have no stub or seg script. Do not create or fill them during a code segment pass.
 
 Retail (`nhlpa93retail.bin`) ranges, inclusive. Boundaries are routine starts, checked against the ROM bytes.
 
@@ -60,8 +60,8 @@ Retail (`nhlpa93retail.bin`) ranges, inclusive. Boundaries are routine starts, c
 | hockey93_10 | `$01499E-$015109` | ResolveGames ... exception handlers, crash |
 | hockey93_11 | `$01510A-$015FE5` | data: cd0, asstab, PenaltyList, bfasciicon, linelist, PerLabels, sizetab, sublist, priolist, menu/pause text |
 | sram93 | `$015FE6-$0165D7` | 93 only: BackupRAM_*, BitsToPW, ClearRAMBuffer, ClearVRAM |
-| (none) | `$0165D8-$02EFA1` | sound: 68k driver (p_turnoff), Z80 code at `$016E53`, sound data |
-| (none) | `$02EFA2-$07FB75` | graphics data (`extractAssets93-1.0.js`) |
+| sound93 | `$0165D8-$02EFA1` | not covered: sound driver (68k code from `p_turnoff`), Z80 code at `$016E53`, sound data |
+| graphics93 | `$02EFA2-$07FB75` | not covered: graphics data (92 incbins after hockey.asm part 3; `extractAssets93-1.0.js`) |
 | checksum93 | `$07FB76-$07FBC7` | SecurityCheck, ValidationRoutine; `$FF` fill to `$07FFFF` |
 
 Before this map existed, `$68B4-$6C09` was matched as "hockey93_02". That code was moved without byte changes: `$68B4-$69FF` (demoread ... seta2) to the end of `hockey93_01.asm`, and `$6A00-$6C09` to `menu93.asm`. Both re-verified. `menu93` sits between hockey93_01 and hockey93_02 in the ROM, and `stats93` (`$6C0A-$8AC3`) now matches too.
@@ -369,5 +369,6 @@ Expressions. Where a number is a combination of proven names, write the expressi
 
 - `hockey93.asm` and the full-ROM `build:retail` path.
 - Rev A, Rev B, Z80, frame extractor, `extractAssets93.js`, NHL 94.
+- `sound93.asm` (`$0165D8-$02EFA1`) and `graphics93.asm` (`$02EFA2-$07FB75`) until a pass is opened for them.
 - Touch `extractAssets` only after this segment matches and a later segment is a data table the extractor already owns.
 - Any new script, disassembler, or listing generator.
