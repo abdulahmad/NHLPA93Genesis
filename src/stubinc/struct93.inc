@@ -80,6 +80,17 @@ tmflags equ $30		;92 $1E
 tmpde equ $32		;92 $20
 tmpdst equ $66		;92 $54
 tmsize equ $1A2		;92 $88
+; Game struct (gstruct, one per playoff matchup, 8 of them). Same offsets as
+; NHL92Genesis/src/ram.asm; hockey93_09 maketree / ReadPassBits use them.
+gst1 equ 0
+gst2 equ 2
+gspotwins equ 4
+gspobwins equ 6
+gsper equ 8
+gss1 equ $A
+gss2 equ $C
+gsflags equ $E
+gssize equ $10
 ; Bit numbers from NHL92Genesis/src/ram.asm, used where a finished segment
 ; comment names the bit and the 93 bit number is the 92 value (see
 ; SEGMENT_AGENT.md "Bit names"). The flag word is whatever the 93 bytes use.
@@ -114,6 +125,7 @@ sf2offsig equ 7
 ; sflags3
 sf3llcs equ 0
 sf3rmplay equ 1
+sf3alttree equ 2
 sf3sbut equ 3
 ; disflags
 dfok equ 0
