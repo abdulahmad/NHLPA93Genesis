@@ -7,24 +7,30 @@ Finish one NHLPA 93 segment so it assembles with SNASM68K and matches the retail
 1. Retail ROM bytes. `nhlpa93retail.bin` wins over the listing, the current asm, and NHL 92.
 2. IDA names. `EA-NHL-Disassembly-Project/NHL93-Genesis/NHLPA Hockey 93 (USA, Europe) (v1.1).bin.lst` is the name source for functions, labels, and RAM. It is not an assembler listing. Do not pass it to `fixopcodes.js`.
 3. Style. `NHL92Genesis/src/hockey.asm`, `ram.asm`, and `macros/` are the style source. Same mnemonics, `equ`, local labels with `.`, and comment density. Do not paste 92 code over 93.
-4. Current segment. `src/hockey93_01_stub.asm` is `org $6446` and includes `src/hockey93_01.asm`. RAM names already live in `src/stubinc/ram_addrs.inc`. Include that file. Do not invent a second RAM map.
+4. Current segment. `src/hockey93_02_stub.asm` is `org $68B4` and includes `src/hockey93_02.asm`. The segment starts at the first instruction after `clockcont` (`demoread`, `$68B4`). RAM names already live in `src/stubinc/ram_addrs.inc`. Include that file. Do not invent a second RAM map.
 
-## Current failure
+Do not edit `hockey93_01.asm`. It matches retail (`$6446-$68B3`, 1134 bytes) and is done. Routines it contains are stubs in `hockey93_02_stub.asm`, under the source names from the rename table.
 
-`npm run seg` assembles. `verifySegment.js` then reports `1022 of 1138` bytes differ in `$6446-$68B7`. First real instruction mismatch: at `$6460` the ROM is `4E B9` (`jsr abs.l`) and the stub assembled `30 39` (`move.w abs.l`). The current `hockey93_01.asm` is a disassembly dump, not matching source. Rewrite the instructions from the ROM bytes. Keep IDA names.
+## Previous segment
+
+`hockey93_01` (`$6446-$68B3`) matched. The notes below in "Loop" use it as the worked example.
+
+Original failure, kept for reference: `verifySegment.js` reported `1022 of 1138` bytes differ in `$6446-$68B7`. At `$6460` the ROM is `4E B9` (`jsr abs.l`) and the stub assembled `30 39` (`move.w abs.l`). The old `hockey93_01.asm` was a Rev A disassembly dump. It was rewritten from the retail bytes.
 
 `Stack` is `$FFFFFFFE` in the IDB export. Do not use the `$FFFFF6` equate from `main93.asm`.
+
+IDA addresses drift from retail. In the v1.1 `.lst`, auto labels from `Pausemode` ($6904) on are `$E` higher than the retail bytes (IDA `loc_693E` is retail `$6930`), and far targets drift too (IDA `loc_12A16` is retail `$129FE`, IDA `loc_14D36` is retail `$14D1E`). Take every stub address and branch target from the ROM bytes. Keep the IDA name and note the retail address in the stub comment.
 
 ## Loop
 
 1. Read `DECOMPILATION_LEARNINGS.md`.
-2. Read only `$6446-$68B7` from the IDA `.lst` and from `nhlpa93retail.bin`.
-3. Rewrite `src/hockey93_01.asm` in NHL 92 style. Stub external calls that are outside this range. Do not follow those calls.
+2. Read only the current segment range from the IDA `.lst` and from `nhlpa93retail.bin`.
+3. Rewrite `src/hockey93_02.asm` in NHL 92 style. Stub external calls that are outside this range. Do not follow those calls.
 4. Run `npm run seg`.
-5. If the mismatch is only a known EA `cmp` / `exg` encoding, run `fixopcodes.js` on `output/hockey93_01.lst` and `output/hockey93_01.bin`, then compare `modified_hockey93_01.bin`. Do not rewrite `exg d0,d1`. The `0C80` to `B0BC` rule stays, but it must not fire inside this segment unless the ROM byte is `B0BC`.
+5. If the mismatch is only a known EA `cmp` / `exg` encoding, write that instruction as `dc.w` with the real instruction in the comment (what `hockey93_01` does), because `npm run seg` checks raw assembler output. Do not rewrite `exg d0,d1`. The `0C80` to `B0BC` rule only applies where the ROM byte is `B0BC`.
 6. Stop after 5 failed verifies. Write the first remaining mismatch and what the ROM bytes are. Do not keep editing.
 
-A match prints `MATCH: hockey93_01 confirmed ... at 0x006446-...`. Commit only that.
+A match prints `MATCH: hockey93_02 confirmed ... at 0x0068b4-...`. Commit only that.
 
 ## Comments and labels
 
@@ -69,6 +75,7 @@ Labels:
 | hockey93_01 | `InitShotStruct` | `restoreteams .r` (local) | 92 local; only caller is `restoreteams` |
 | hockey93_01 | `PeriodTimeTable` | `GetPeriodTime .timetab` (local) | 92 `ResetClock .timetab`, same 4 values; only reference is `GetPeriodTime` |
 | hockey93_01 | `loc_649E` | `ChkShortPeriods` | auto name, entered from `PeriodOver+D0`; named from behaviour |
+| hockey93_02 | `GetTeamFromPause` | `seta2` | 92 `Pausemode .seta2`, same instructions; stays global because `HandleMenuInput` also calls it |
 
 ## Out of scope
 

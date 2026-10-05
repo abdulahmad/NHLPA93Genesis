@@ -17,8 +17,8 @@
     "build:dev": "set rev=1&& set checksum=0&& npm run asm && npm run fixopcodes",
     "build:logo": "set rev=0&& set checksum=1&& npm run asm:logo && npm run fixopcodes:logo",
     "build:sound": "set rev=0&& set checksum=1&& npm run asm:sound && npm run fixopcodes:sound",
-    "build:seg": "buildseg.bat hockey93_01",
-    "verify:seg": "node verifySegment.js hockey93_01 0x6446 nhlpa93retail.bin",
+    "build:seg": "buildseg.bat hockey93_02",
+    "verify:seg": "node verifySegment.js hockey93_02 0x68B4 nhlpa93retail.bin",
     "seg": "npm run build:seg && npm run verify:seg"
   },
   "devDependencies": {
