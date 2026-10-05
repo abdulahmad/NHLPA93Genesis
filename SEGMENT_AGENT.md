@@ -2,13 +2,19 @@
 
 Finish one NHLPA 93 segment so it assembles with SNASM68K and matches the retail ROM bytes. Do not decompile the rest of the ROM.
 
-## Do not write tools
+## Listing path — read this first
 
-The disassembly already exists. Do not create a disassembler, decoder, listing parser, ROM dumper, or any other tool. Do not add a `.js`, `.py`, or `.md` file for this. `verifySegment.js`, `buildseg.bat`, and `fixopcodes.js` are the only tools, and they already work.
+The annotated disassembly already exists in the workspace. Before writing any asm, open this file and search it for the routine:
 
-Read the annotated listing and transcribe that range into asm. The named listing is `../EA-NHL-Disassembly-Project/NHL93-Genesis/NHLPA Hockey 93 (USA, Europe) (v1.1).bin.lst`. Open it and search for the routine. It has IDA function names, labels, and comments. `nhlpa93retailRevA.lst` in this repo is the same Rev A ROM with exact bytes and mostly auto names. Use it only to confirm bytes. Neither listing has retail addresses. Convert with the delta table in "ROM map", then confirm the bytes in `nhlpa93retail.bin`.
+`EA-NHL-Disassembly-Project/NHL93-Genesis/NHLPA Hockey 93 (USA, Europe) (v1.1).bin.lst`
 
-If you cannot find the listing, stop and say so. Do not work around a missing listing by disassembling the ROM yourself.
+From this repo that path is `../EA-NHL-Disassembly-Project/NHL93-Genesis/NHLPA Hockey 93 (USA, Europe) (v1.1).bin.lst`. It is also in the workspace next to this repo. It has IDA function names, labels, and comments. Transcribe from it.
+
+This is the only name source. Do not disassemble `nhlpa93retail.bin`. Do not create a disassembler, decoder, listing parser, ROM dumper, or any other tool. Do not add a `.js`, `.py`, or `.md` file. `verifySegment.js`, `buildseg.bat`, and `fixopcodes.js` already work. Do not pass this IDA `.lst` to `fixopcodes.js`.
+
+If that `.lst` does not open, stop and say the path you tried. Do not work around a missing listing by disassembling the ROM.
+
+`nhlpa93retailRevA.lst` in this repo is the same Rev A ROM with exact bytes and mostly auto names. Use it only to confirm bytes. Neither listing has retail addresses. Convert with the delta table in "ROM map", then confirm the bytes in `nhlpa93retail.bin`.
 
 ## Sources of truth, in order
 
@@ -87,7 +93,7 @@ IDA addresses drift from retail (the listing is Rev A; see "ROM map"). In the na
 ## Loop
 
 1. Read `DECOMPILATION_LEARNINGS.md` and this file.
-2. Open the v1.1 `.lst` and read only the current segment. Transcribe those named instructions. Do not disassemble the ROM. Use `nhlpa93retail.bin` only to check bytes and to fix addresses with the delta table.
+2. Open `EA-NHL-Disassembly-Project/NHL93-Genesis/NHLPA Hockey 93 (USA, Europe) (v1.1).bin.lst` and read only the current segment. Transcribe those named instructions. Do not disassemble the ROM. Use `nhlpa93retail.bin` only to check bytes and to fix addresses with the delta table. If the listing does not open, stop.
 3. Rewrite the current segment asm in NHL 92 style. Stub external calls that are outside this range. Do not follow those calls.
 4. Run `npm run seg`. It assembles, runs `fixopcodes.js` on that segment's assembler listing (`output\<segment> .lst`) and `output\<segment>.bin` at the segment org, which writes `output\modified_<segment>.bin`, then runs `verifySegment.js` on that modified file. `verifySegment.js` compares `output\modified_<segment>.bin`, not the raw assembler bin. Do not pass the IDA `.lst` to `fixopcodes.js`.
 5. Write the real `cmp` / `cmpi` / `exg`. Do not hand-encode opcodes. SNASM may emit the wrong encoding for EA `cmp #imm,Dn` (CMPI `0Cxx` instead of CMP `Bxxx`) and for `exg a2,a1` / `exg d1,d0`; `fixopcodes.js` fixes those after the assemble. Do not rewrite `exg d0,d1`. The `0C80` to `B0BC` rule only applies where the retail byte is `B0BC`. The sound-incbin early-out in `fixopcodes.js` stays.
