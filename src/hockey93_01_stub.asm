@@ -19,41 +19,42 @@ RAMStart = $FF0000
 ;
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-; Stack = $FFFFFE = $0
-setupstanleycupcelebrationscreen = $0
-backupram_read = $0
-defaultmenus = $0
-orjoy = $0
-p_initialz80 = $0
-p_turnoff = $0
-p_music_vblank = $0
-opening = $0
-readjoy1 = $0
-clearteamstats = $0
-initscores = $0
-setupice = $0
-_sp = $0
-randomd0 = $0
-assreplace = $0
-song = $0
-demoread = $0
-pausemode = $0
-updateplayers = $0
-checkwindow = $0
-updatereplay = $0
-setvideo = $0
-penaltymanager = $0
-updatesound = $0
-rtss2 = $0
-chkgoalies = $0
-updatepwrplay = $0
-loc_14d36 = $0
-cd0 = $0
-sfx = $0
-freezewindow = $0
-assinsert = $0
-clearpenaltybuffer = $0
-addpenalty2 = $0
+; External routines outside $6446-$68B3, at their v1.1 retail addresses.
+; Stack comes from stubinc/ram_addrs.inc ($FFFFFFFE).
+setupstanleycupcelebrationscreen = $132BA
+backupram_read = $163A4
+defaultmenus = $14404
+orjoy = $D958
+p_initialz80 = $16D92
+p_turnoff = $165D8
+p_music_vblank = $166D4
+opening = $12A0A
+readjoy1 = $D9B6
+clearteamstats = $128CC
+initscores = $F436
+setupice = $122A8
+_sp = $129B4
+randomd0 = $D7A6
+assreplace = $D048
+song = $D876
+demoread = $68B4
+pausemode = $6904
+updateplayers = $9094
+checkwindow = $9350
+updatereplay = $8FAA
+setvideo = $118F2
+penaltymanager = $E5C4
+updatesound = $12224
+rtss2 = $9092
+chkgoalies = $C242
+updatepwrplay = $EE42
+loc_14d36 = $14D1E	; IDA name; retail target is $14D1E
+cd0 = $1510A
+sfx = $D852
+freezewindow = $933C
+assinsert = $D03E
+clearpenaltybuffer = $EC70
+addpenalty2 = $E552
 
 ; .region code
 	org	$6446
