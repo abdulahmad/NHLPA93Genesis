@@ -17,8 +17,8 @@
     "build:dev": "set rev=1&& set checksum=0&& npm run asm && npm run fixopcodes",
     "build:logo": "set rev=0&& set checksum=1&& npm run asm:logo && npm run fixopcodes:logo",
     "build:sound": "set rev=0&& set checksum=1&& npm run asm:sound && npm run fixopcodes:sound",
-    "build:seg": "buildseg.bat hockey93_05 && node fixopcodes.js \"output\\hockey93_05 .lst\" output\\hockey93_05.bin 0x10E66",
-    "verify:seg": "node verifySegment.js hockey93_05 0x10E66 nhlpa93retail.bin",
+    "build:seg": "buildseg.bat video93_1 && node fixopcodes.js \"output\\video93_1 .lst\" output\\video93_1.bin 0x11802",
+    "verify:seg": "node verifySegment.js video93_1 0x11802 nhlpa93retail.bin",
     "seg": "npm run build:seg && npm run verify:seg",
     "seg:01": "buildseg.bat hockey93_01 && node fixopcodes.js \"output\\hockey93_01 .lst\" output\\hockey93_01.bin 0x6446 && node verifySegment.js hockey93_01 0x6446 nhlpa93retail.bin",
     "seg:menu93": "buildseg.bat menu93 && node fixopcodes.js \"output\\menu93 .lst\" output\\menu93.bin 0x6A00 && node verifySegment.js menu93 0x6A00 nhlpa93retail.bin",
@@ -35,7 +35,9 @@
         "seg:penalty93_2": "buildseg.bat penalty93_2 && node fixopcodes.js \"output\\penalty93_2 .lst\"         output\\penalty93_2.bin 0xEFA8 && node verifySegment.js penalty93_2 0xEFA8 nhlpa93retail.bin",
                 "seg:hockey93_03": "buildseg.bat hockey93_03 && node fixopcodes.js \"output\\hockey93_03 .lst\"                 output\\hockey93_03.bin 0xFAE2 && node verifySegment.js hockey93_03 0xFAE2 nhlpa93retail.bin",
                                 "seg:hockey93_04": "buildseg.bat hockey93_04 && node fixopcodes.js \"output\\hockey93_04 .lst\"                                 output\\hockey93_04.bin 0x10388 && node verifySegment.js hockey93_04 0x10388 nhlpa93retail.bin",
-                                                                "seg:hockey93_05": "buildseg.bat hockey93_05 && node fixopcodes.js \"output\\hockey93_05 .lst\" output\\hockey93_05.bin 0x10E66 && node verifySegment.js hockey93_05 0x10E66 nhlpa93retail.bin"                              },
+                                                                "seg:hockey93_05": "buildseg.bat hockey93_05 && node fixopcodes.js \"output\\hockey93_05 .lst\" output\\hockey93_05.bin 0x10E66 && node verifySegment.js hockey93_05 0x10E66 nhlpa93retail.bin",
+    "seg:video93_1": "buildseg.bat video93_1 && node fixopcodes.js \"output\\video93_1 .lst\" output\\video93_1.bin 0x11802 && node verifySegment.js video93_1 0x11802 nhlpa93retail.bin"
+  },
   "devDependencies": {
     "crc-32": "^1.2.2"
   },
