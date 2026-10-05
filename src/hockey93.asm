@@ -40,7 +40,7 @@
 
 					;92 hockey.asm part 3 (setupice ... crash), then 93 data tables
 	include hockey93_06.asm		;$0122A8-$012E25  setupice ... PeriodOver, Opening, PlayoffScreen
-	include hockey93_07.asm		;$012E26-$013951  ScoutingReport ...
+	include	hockey93_07.asm		;$012E26-$013951  ScoutingReport, StanleyCup screen, TitleScreen, CallAnimationCallback, CheckSound
 	include hockey93_08.asm		;$013952-$014403  setoptions ...
 	include hockey93_09.asm		;$014404-$01499D  DefaultMenus, NewPO, MakeTree, FigureJoy, password code
 	include hockey93_10.asm		;$01499E-$015109  ResolveGames ... exception handlers, crash
