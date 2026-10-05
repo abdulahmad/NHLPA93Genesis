@@ -14,8 +14,6 @@ This is the only name source. Do not disassemble `nhlpa93retail.bin`. Do not cre
 
 If that `.lst` does not open, stop and say the path you tried. Do not work around a missing listing by disassembling the ROM.
 
-`nhlpa93retailRevA.lst` in this repo is the same Rev A ROM with exact bytes and mostly auto names. Use it only to confirm bytes. Neither listing has retail addresses. Convert with the delta table in "ROM map", then confirm the bytes in `nhlpa93retail.bin`.
-
 ## Sources of truth, in order
 
 1. Retail ROM bytes. `nhlpa93retail.bin` wins over the listing, the current asm, and NHL 92.
