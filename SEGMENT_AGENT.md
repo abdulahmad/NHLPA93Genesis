@@ -15,9 +15,9 @@ If you cannot find the listing, stop and say so. Do not work around a missing li
 1. Retail ROM bytes. `nhlpa93retail.bin` wins over the listing, the current asm, and NHL 92.
 2. IDA names. The v1.1 `.lst` above is the name source for functions, labels, and RAM. It is not an assembler listing. Do not pass it to `fixopcodes.js`. Despite the file name, it was built from Rev A (input MD5 `B6FB2CE2...` = `nhlpa93retailRevA.bin`).
 3. Style. `NHL92Genesis/src/hockey.asm`, `ram.asm`, and `macros/` are the style source. Same mnemonics, `equ`, local labels with `.`, and comment density. Do not paste 92 code over 93.
-4. Current segment. `src/hockey93_02_stub.asm` is `org $8AC4` and includes `src/hockey93_02.asm`. The segment is `$8AC4-$946D` (`ReplayMode` through `checkwindow`; see "ROM map"). RAM names already live in `src/stubinc/ram_addrs.inc`. Include that file. Do not invent a second RAM map.
+4. Current segment. `src/hockey93_02_stub.asm` is `org $8AC4` and includes `src/hockey93_02.asm`. The segment is `$8AC4-$946D` (92 hockey.asm part 1, second half: ReplayMode ... updateplayers, updateanim, freezewindow, checkwindow; see "ROM map"). RAM names already live in `src/stubinc/ram_addrs.inc`. Include that file. Do not invent a second RAM map.
 
-Do not edit `hockey93_01.asm` (`$6446-$69FF`, 1466 bytes) or `menu93.asm` (`$6A00-$6C09`, 522 bytes). Both match retail and are done; re-check them with `npm.cmd run seg:01` and `npm.cmd run seg:menu93`. Routines they contain are stubs in later segments, under the source names from the rename table.
+Do not edit `hockey93_01.asm` (`$6446-$69FF`, 1466 bytes), `menu93.asm` (`$6A00-$6C09`, 522 bytes) or `stats93.asm` (`$6C0A-$8AC3`, 7866 bytes). They match retail and are done; re-check them with `npm.cmd run seg:01`, `npm.cmd run seg:menu93` and `npm.cmd run seg:stats93`. Routines they contain are stubs in later segments, under the source names from the rename table.
 
 ## ROM map
 
@@ -60,7 +60,7 @@ Retail (`nhlpa93retail.bin`) ranges, inclusive. Boundaries are routine starts, c
 | (none) | `$02EFA2-$07FB75` | graphics data (`extractAssets93-1.0.js`) |
 | checksum93 | `$07FB76-$07FBC7` | SecurityCheck, ValidationRoutine; `$FF` fill to `$07FFFF` |
 
-Before this map existed, `$68B4-$6C09` was matched as "hockey93_02". That code was moved without byte changes: `$68B4-$69FF` (demoread ... seta2) to the end of `hockey93_01.asm`, and `$6A00-$6C09` to `menu93.asm`. Both re-verified. `menu93` sits between hockey93_01 and hockey93_02 in the ROM, and `stats93` (`$6C0A-$8AC3`) is still not decompiled.
+Before this map existed, `$68B4-$6C09` was matched as "hockey93_02". That code was moved without byte changes: `$68B4-$69FF` (demoread ... seta2) to the end of `hockey93_01.asm`, and `$6A00-$6C09` to `menu93.asm`. Both re-verified. `menu93` sits between hockey93_01 and hockey93_02 in the ROM, and `stats93` (`$6C0A-$8AC3`) now matches too.
 
 Rev A to retail. Take the Rev A address from either IDA listing and add the delta:
 
@@ -76,7 +76,7 @@ Between the ranges, read the retail bytes directly. Always confirm a converted a
 
 ## Previous segment
 
-`hockey93_01` (`$6446-$69FF`) and `menu93` (`$6A00-$6C09`) matched. The notes below in "Loop" use hockey93_01 as the worked example.
+`hockey93_01` (`$6446-$69FF`), `menu93` (`$6A00-$6C09`) and `stats93` (`$6C0A-$8AC3`) matched. stats93 notes: RAM from about `$FFCAxx` is 4 bytes lower in retail than in `ram_addrs.inc` (Rev A); databuffer is `$CAEE` retail vs `$CAF2`, written as a number with a `;retail databuffer (Rev A: $CAF2)` comment. The notes below in "Loop" use hockey93_01 as the worked example.
 
 Original failure, kept for reference: `verifySegment.js` reported `1022 of 1138` bytes differ in `$6446-$68B7`. At `$6460` the ROM is `4E B9` (`jsr abs.l`) and the stub assembled `30 39` (`move.w abs.l`). The old `hockey93_01.asm` was a Rev A disassembly dump. It was rewritten from the retail bytes.
 
@@ -139,6 +139,35 @@ Labels:
 | hockey93_01 | `PeriodTimeTable` | `GetPeriodTime .timetab` (local) | 92 `ResetClock .timetab`, same 4 values; only reference is `GetPeriodTime` |
 | hockey93_01 | `loc_649E` | `ChkShortPeriods` | auto name, entered from `PeriodOver+D0`; named from behaviour |
 | hockey93_01 | `GetTeamFromPause` | `seta2` | 92 `Pausemode .seta2`, same instructions; stays global because `HandleMenuInput` also calls it |
+| stats93 | (none, retail `$6C0A`) | `ShowScores` | unnamed entry; prints "Scores" (93 only, no 92 counterpart) |
+| stats93 | (none, retail `$6E08`) | `LineEditor` | unnamed entry; prints "Line Editor" |
+| stats93 | `loc_6E32` | `LineEditorRedraw` | auto name, also entered from `ExitAttributeScreen` |
+| stats93 | `loc_6E52` | `LineEditorMenu` | auto name, also entered from `SelectAttributeItem` |
+| stats93 | `word_729C` | `MenuIconPosTable-6` | data auto name; label removed, referenced as an expression |
+| stats93 | `word_72A4` | `MenuIconPosTable+2` | data auto name; label removed, referenced as an expression |
+| stats93 | `unk_72CE` | `LineCursorTable` | data auto name; line editor cursor move table |
+| stats93 | (none, retail `$7418`) | `EncodePlayerAttributes` | unnamed; reverse of `DecodePlayerAttributes`, ends in `BitsToPW` |
+| stats93 | (none, retail `$749C`) | `TeamRosterScreen` | unnamed entry; prints "Team Roster" |
+| stats93 | `loc_7666` | `StopPlayerListScroll` | auto name branched to from `CheckPlayerListScroll` (separate global in IDA flow) |
+| stats93 | (none) | `GoalieRowText` | unlabeled data (`movea.l #$7788` Rev A) |
+| stats93 | (none) | `AttribStatus`, `AttribEnergy`, `AttribHanded`, `AttribWeight`, `AttribFighting`, `AttribRating` | `attribjmp` targets (IDA comments "jump for status/energy/..."); table now uses label differences |
+| stats93 | `loc_794E` | `AttribPrintPct` | shared tail of the energy/fighting/rating handlers |
+| stats93 | (none, retail `$7992`) | `ScoringSummaryScreen` | unnamed entry; prints "Scoring Summary" |
+| stats93 | `DisplayPenaltyList` | (dropped) | IDA label inside the misdecoded "Penalty Summary" string; not a real entry |
+| stats93 | (none, retail `$7C0C`) | `PenaltySummaryScreen` | unnamed entry; prints "Penalty Summary" |
+| stats93 | (none, retail `$7F04`) | `PlayerStatsScreen` | unnamed `clr.w d7` entry before `DisplayAttributeScreen`; prints "Player Stats" |
+| stats93 | `loc_8088` | `SetAttribScrollReg` | auto name, branched to from `DisplayAttributeMenu` |
+| stats93 | (none) | `AttributeTitleTxt` | unlabeled data used by `DisplayAttributeMenu` |
+| stats93 | (none, retail `$849E`) | `GameStatisticsScreen` | unnamed entry; prints "Game Statistics" |
+| stats93 | (none, retail `$866C`) | `CrowdMeterScreen` | unnamed entry; prints "Crowd Meter" |
+| stats93 | (none, retail `$8894`) | `TimeoutMenu` | undecoded code (kept as retail `dc.b`); prints "Timeout" |
+| stats93 | (none, retail `$88FC`) | `SelectGoalieMenu` | unnamed entry; goalie pick list with "no goalie" |
+| hockey93_02 | `suba4_reverseReplayFrame` | `suba4` | 92 `suba4`: same rewind-one-frame job and callers in `ReplayMode` |
+| hockey93_02 | `adda4_advanceReplayFrame` | `adda4` | 92 `adda4`, same `sf2drec` look-ahead and `adda42`/`adda43` fall-through |
+| hockey93_02 | `RewindToStart`, `ReplayMainLoop`, `HandleNoInput`, `CheckRewind`, `CheckAdvance`, `AdvanceOneFrame`, `CheckPlayMode`, `CheckExit`, `ClampCameraX`, `ClampCameraY`, `ScrollDirTbl` | `ReplayMode .rwd .top .nomans .00 .0 .f1 .1 .noplay .nox .noy .stab` (locals) | 92 `ReplayMode` locals; only referenced inside `ReplayMode` |
+| hockey93_02 | `CheckDirectionInput`, `ManualScroll`, `FindTrackingTarget`, `CheckObjectLoop`, `SkipObject`, `UpdateManualScroll` | `ReplayMode .dir .man .find .obj .skip .scrl` (locals) | 93-only tracking code inside `ReplayMode`; only referenced there |
+| hockey93_02 | `nonshift` | `updatereplay .n1` (local) | IDA put the name on a branch target inside `updatereplay`; not the 92 `nonshift` routine (that job is in `RestoreReplayFrame`) |
+| hockey93_02 | `_scload`, `_top` | `updateplayers .u0 .top` (locals) | IDA pseudo-locals; 92 local names |
 
 ## Out of scope
 
