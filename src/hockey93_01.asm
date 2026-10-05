@@ -6,8 +6,8 @@
 ;	same routine exists in 92 (IDA name kept in an ;IDA: comment).
 ;	Local labels and comments follow NHL 92 hockey.asm where the code matches.
 ;	Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx),
-;	so those sites are written as dc.w with the instruction in the comment.
+;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
+;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
 ;	92 equate names in comments are only used where the 93 value is the same.
 ;	Inline print strings after printsmallz use the String macro
 ;	(length word includes itself, odd data is padded to a word).
@@ -36,7 +36,7 @@ Begin	;cold start, entered from Reset. Clear RAM, init menus and sound, go to ti
 
 ChkShortPeriods	;IDA: loc_649E. Pad 1 = $E0 at game start forces 30 second periods
 	bsr.w	Readjoy1
-	dc.w	$B63C,$00E0		;cmp.b	#$E0,d3
+	cmp.b	#$E0,d3
 	bne.w	StartGame
 	move.w	#3,(word_FFCADE).w	;period length index 3 = 30 (92 OptPerlen)
 
@@ -230,7 +230,7 @@ updatecrowdf	;this is called every game loop with d7 = elapsed frames
 	bpl.w	.cf
 	move.w	(crowdlevel).w,d0
 	lsr.w	#1,d0
-	dc.w	$B07C,$007F		;cmp.w	#127,d0
+	cmp.w	#127,d0
 	bls.w	.1
 	moveq	#$7F,d0
 .1	andi.w	#$60,d0			;%01100000
@@ -250,9 +250,9 @@ updatecrowdf	;this is called every game loop with d7 = elapsed frames
 	bls.w	rtss2
 	move.w	(VDP_CNTR).l,d0		;HVcount
 	andi.w	#$7F,d0
-	dc.w	$B07C,$0013		;cmp.w	#19,d0
+	cmp.w	#19,d0
 	blt.w	rtss2
-	dc.w	$B07C,$0019		;cmp.w	#25,d0
+	cmp.w	#25,d0
 	bgt.w	rtss2
 	move.b	d0,(crowdframe).w	;random extra frame 19-25 when crowd is loud
 	rts

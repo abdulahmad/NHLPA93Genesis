@@ -3,8 +3,8 @@
 ;	CompShoot, chk4pass, EvadePC. Global names from the IDA export, 92
 ;	names where the routine is the same (see the SEGMENT_AGENT.md rename
 ;	table). Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx),
-;	so those sites are written as dc.w with the instruction in the comment.
+;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
+;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
 ;	93 SortCords offsets, 92 names in comments: Xpos 0, attribute 4,
 ;	Ypos $14, Xvel $28, Yvel $2A, position $34, temp1 $40, temp2 $42,
 ;	temp3 $44, temp4 $46, temp5 $48, SCnum $52, facedir $54, nopuck $5E,
@@ -46,15 +46,15 @@ asswingo	;player a3 is winger on offense
 	neg.w	d0
 	neg.w	d3
 .de1	clr.w	d2			;IDA: loc_AF1E. Set zone number
-	dc.w	$B67C,$FFA8		;cmp.w	#-blueline,d3
+	cmp.w	#-$58,d3		;-blueline,d3
 	blt.w	.de2
 	addq.w	#8,d2
-	dc.w	$B07C,$0058		;cmp.w	#blueline,d0
+	cmp.w	#$58,d0		;blueline,d0
 	blt.w	.de2
 	btst	#4,$30(a2)		;93: team flag keeps him back
 	bne.w	.de2
 	addq.w	#8,d2
-	dc.w	$B67C,$0108		;cmp.w	#blueline+goalline,d3
+	cmp.w	#$108,d3		;blueline+goalline,d3
 	blt.w	.de2
 	addq.w	#8,d2
 .de2	cmp.w	$48(a3),d2		;IDA: loc_AF48
@@ -120,7 +120,7 @@ asscenterd	;player a3 is center on defense
 	bne.w	.0
 	neg.w	d2
 .0	moveq	#-$80,d1		;IDA: loc_B04A
-	dc.w	$B47C,$FFA8		;cmp.w	#-blueline,d2
+	cmp.w	#-$58,d2		;-blueline,d2
 	blt.w	.z0
 	add.w	(pucky).w,d1
 	asr.w	#1,d1
@@ -159,15 +159,15 @@ asscentero	;player a3 is center on offense
 	bne.w	.de1
 	neg.w	d0
 .de1	clr.w	d2			;IDA: loc_B0E2. Set zone number
-	dc.w	$B07C,$FFA8		;cmp.w	#-blueline,d0
+	cmp.w	#-$58,d0		;-blueline,d0
 	blt.w	.de2
 	addq.w	#8,d2
-	dc.w	$B07C,$0058		;cmp.w	#blueline,d0
+	cmp.w	#$58,d0		;blueline,d0
 	blt.w	.de2
 	btst	#4,$30(a2)
 	bne.w	.de2
 	addq.w	#8,d2
-	dc.w	$B07C,$0108		;cmp.w	#blueline+goalline,d0
+	cmp.w	#$108,d0		;blueline+goalline,d0
 	blt.w	.de2
 	addq.w	#8,d2
 .de2	cmp.w	$48(a3),d2		;IDA: loc_B10C
@@ -288,15 +288,15 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	bne.w	.tn
 	move.w	(pucky).w,d1
 	sub.w	$14(a0),d1
-	dc.w	$B27C,$001C		;cmp.w	#28,d1
+	cmp.w	#28,d1
 	bgt.w	.tn
-	dc.w	$B27C,$FFE4		;cmp.w	#-28,d1
+	cmp.w	#-28,d1
 	blt.w	.tn
 	move.w	(puckx).w,d1
 	sub.w	(a0),d1
-	dc.w	$B27C,$0019		;cmp.w	#25,d1
+	cmp.w	#25,d1
 	bgt.w	.tn
-	dc.w	$B27C,$FFE7		;cmp.w	#-25,d1
+	cmp.w	#-25,d1
 	bgt.w	.de1
 .tn	adda.w	#$80,a0			;IDA: loc_B324
 	dbf	d0,.tl
@@ -309,19 +309,19 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	bpl.w	.de1
 	move.w	(puckx).w,d0
 	sub.w	(a3),d0
-	dc.w	$B07C,$0014		;cmp.w	#20,d0
+	cmp.w	#20,d0
 	bgt.w	.de1
-	dc.w	$B07C,$FFEC		;cmp.w	#-20,d0
+	cmp.w	#-20,d0
 	blt.w	.de1
 	move.w	(pucky).w,d1
-	dc.w	$B27C,$0108		;cmp.w	#blueline+goalline,d1
+	cmp.w	#$108,d1		;blueline+goalline,d1
 	bgt.w	.de1
-	dc.w	$B27C,$FEF8		;cmp.w	#-(blueline+goalline),d1
+	cmp.w	#-$108,d1		;-(blueline+goalline),d1
 	blt.w	.de1
 	sub.w	$14(a3),d1
-	dc.w	$B27C,$001E		;cmp.w	#30,d1
+	cmp.w	#30,d1
 	bgt.w	.de1
-	dc.w	$B27C,$FFE2		;cmp.w	#-30,d1
+	cmp.w	#-30,d1
 	blt.w	.de1
 	bsr.w	vtoa
 	move.w	d0,$54(a3)		;facedir
@@ -379,7 +379,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	muls.w	d0,d0
 	muls.w	d1,d1
 	add.l	d1,d0
-	dc.w	$B0BC,$0000,$0384	;cmp.l	#30*30,d0
+	cmp.l	#30*30,d0
 	bhi.w	.far
 	movem.w	(sp)+,d0-d1
 	bra.w	.de4
@@ -441,7 +441,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 .de7	add.w	d0,d0			;IDA: loc_B540
 	lea	GoalieSaveList(pc),a1
 	move.w	(a1,d0.w),d1
-	dc.w	$B27C,$0198		;cmp.w	#$198,d1
+	cmp.w	#$198,d1
 	bne.w	.set
 	andi.w	#3,d3
 	beq.w	.set
@@ -472,13 +472,13 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	neg.w	d1
 	add.w	(sp)+,d1
 	sub.w	$14(a3),d1
-	dc.w	$B07C,$0004		;cmp.w	#4,d0
+	cmp.w	#4,d0
 	bgt.w	.vt
-	dc.w	$B07C,$FFFC		;cmp.w	#-4,d0
+	cmp.w	#-4,d0
 	blt.w	.vt
-	dc.w	$B27C,$0004		;cmp.w	#4,d1
+	cmp.w	#4,d1
 	bgt.w	.vt
-	dc.w	$B27C,$FFFC		;cmp.w	#-4,d1
+	cmp.w	#-4,d1
 	blt.w	.vt
 	clr.w	d0
 	clr.w	d1
@@ -486,7 +486,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	move.b	d0,$43(a3)		;temp2+1
 .nodec	move.b	$43(a3),d2		;IDA: loc_B5E6
 	ext.w	d2
-	dc.w	$B47C,$0007		;cmp.w	#7,d2
+	cmp.w	#7,d2
 	ble.w	playeracc
 	bra.w	StopNA
 .rush	tst.w	(puckc).w		;IDA: loc_B5F8. 93: rush a loose puck when
@@ -528,10 +528,10 @@ ClampYPosition	;d1 = y clamped to +-$103, minus goal line d3. d0 = 0 if a3
 	cmp.w	$52(a3),d2
 	bne.w	.0
 	clr.w	d0
-.0	dc.w	$B27C,$0103		;IDA: loc_B68E	cmp.w	#$103,d1
+.0	cmp.w	#$103,d1		;IDA: loc_B68E
 	blt.w	.1
 	move.w	#$103,d1
-.1	dc.w	$B27C,$FEFD		;IDA: loc_B69A	cmp.w	#-$103,d1
+.1	cmp.w	#-$103,d1		;IDA: loc_B69A
 	bgt.w	.2
 	move.w	#$FEFD,d1
 .2	sub.w	d3,d1			;IDA: loc_B6A6
@@ -660,17 +660,17 @@ asspuckc	;player a3 is puck handler
 	ext.w	d1
 	add.w	(a0),d1
 	sub.w	d2,d1
-	dc.w	$B27C,$0014		;cmp.w	#20,d1
+	cmp.w	#20,d1
 	bgt.w	.next
-	dc.w	$B27C,$FFEC		;cmp.w	#-20,d1
+	cmp.w	#-20,d1
 	blt.w	.next
 	move.b	$2A(a0),d1
 	ext.w	d1
 	add.w	$14(a0),d1
 	sub.w	d3,d1
-	dc.w	$B27C,$0014		;cmp.w	#20,d1
+	cmp.w	#20,d1
 	bgt.w	.next
-	dc.w	$B27C,$FFEC		;cmp.w	#-20,d1
+	cmp.w	#-20,d1
 	blt.w	.next
 	addq.w	#1,(threat).w
 	move.w	(a3),d0
@@ -709,7 +709,7 @@ chk4lc	;see if computer should call line change
 	neg.w	d0
 .gu	tst.w	d0			;IDA: _gu
 	bmi.w	rtss
-	dc.w	$B07C,$0058		;cmp.w	#blueline,d0
+	cmp.w	#$58,d0		;blueline,d0
 	bgt.w	rtss
 	move.w	(VDP_CNTR).l,d0		;HVcount
 	andi.w	#3,d0
@@ -720,9 +720,9 @@ chk4lc	;see if computer should call line change
 	lea	$1A2(a2),a1
 	btst	#6,$62(a3)
 	beq.w	.0
-	dc.w	$C549			;exg	a2,a1 (SNASM swaps the operands to C34A)
+	exg	a2,a1
 .0	bsr.w	AvgCline		;IDA: _0
-	dc.w	$B07C,$0C00		;cmp.w	#$C00,d0
+	cmp.w	#$C00,d0
 	bhi.w	rtss
 	bsr.w	CompLine
 	bsr.w	setpersonel
@@ -768,7 +768,7 @@ chk4shot	;player a3 looks for shot (computer controlled)
 	muls.w	d0,d0
 	muls.w	d1,d1
 	add.l	d0,d1			;distance from goal squared
-	dc.w	$B2BC,$0000,$2710	;cmp.l	#100*100,d1
+	cmp.l	#100*100,d1
 	movem.w	(sp)+,d0-d1
 	bhi.w	.no1
 	lsr.w	#4,d4
@@ -798,7 +798,7 @@ chk4shot	;player a3 looks for shot (computer controlled)
 	dbf	d3,.co0
 .no1	move.w	d4,d0			;IDA: loc_BA30
 	bsr.w	randomd0
-	dc.w	$B07C,$0008		;cmp.w	#8,d0
+	cmp.w	#8,d0
 	bgt.w	rtss
 	move.w	(pucky).w,d0
 	btst	#7,$62(a3)
@@ -820,7 +820,7 @@ CompShoot	;player a3 shoots (computer controlled player)
 .ds0	move.w	#$108,d1		;IDA: loc_BA7A
 	sub.w	d0,d1
 	lsr.w	#3,d1
-	dc.w	$B27C,$0014		;cmp.w	#20,d1
+	cmp.w	#20,d1
 	blt.w	.lt
 	moveq	#$14,d1
 .lt	move.w	d1,$42(a3)		;IDA: loc_BA8C. temp2 = swing time
@@ -833,7 +833,7 @@ chk4pass	;player a3 looks for good pass (computer controlled)
 	moveq	#$10,d0
 	add.b	$70(a3),d0		;spodds
 	bsr.w	randomd0
-	dc.w	$B07C,$0008		;cmp.w	#8,d0
+	cmp.w	#8,d0
 	bgt.w	rtss
 .dp0	moveq	#6,d0			;IDA: _dp0. Set up pass assignment
 	bsr.w	randomd0
@@ -875,10 +875,10 @@ chk4pass	;player a3 looks for good pass (computer controlled)
 	eor.w	d0,d1
 	movem.w	(sp)+,d0-d1
 	bmi.w	rtss
-.oko	dc.w	$B07C,$0058		;IDA: _oko	cmp.w	#blueline,d0
+.oko	cmp.w	#$58,d0		;IDA: _oko. blueline,d0
 	bgt.w	.ok
 	sub.w	d1,d0
-	dc.w	$B07C,$FFF1		;cmp.w	#-15,d0
+	cmp.w	#-15,d0
 	blt.w	rtss
 .ok	move.w	(a0),d0			;IDA: _ok
 	sub.w	(puckx).w,d0
@@ -926,18 +926,18 @@ EvadePC	;player a3 should avoid the puck carrier if he's on my team
 	ext.w	d2
 	add.w	(a3),d2
 	sub.w	(puckx).w,d2
-	dc.w	$B47C,$0028		;cmp.w	#40,d2
+	cmp.w	#40,d2
 	bgt.w	rtss
-	dc.w	$B47C,$FFD8		;cmp.w	#-40,d2
+	cmp.w	#-40,d2
 	blt.w	rtss
 	move.b	$2A(a3),d1
 	sub.b	(puckvy).w,d1
 	ext.w	d1
 	add.w	$14(a3),d1
 	sub.w	(pucky).w,d1
-	dc.w	$B27C,$0028		;cmp.w	#40,d1
+	cmp.w	#40,d1
 	bgt.w	rtss
-	dc.w	$B27C,$FFD8		;cmp.w	#-40,d1
+	cmp.w	#-40,d1
 	blt.w	rtss
 	move.w	(a3),d0
 	sub.w	(puckx).w,d0
@@ -951,9 +951,9 @@ EvadePC	;player a3 should avoid the puck carrier if he's on my team
 	bne.w	.y
 	neg.w	d1
 .y	subi.w	#$58,d1			;IDA: loc_BC60
-	dc.w	$B27C,$000A		;cmp.w	#10,d1
+	cmp.w	#10,d1
 	bgt.w	.x
-	dc.w	$B27C,$FFCE		;cmp.w	#-50,d1
+	cmp.w	#-50,d1
 	blt.w	.x
 	moveq	#2,d0
 	move.w	(a3),d1

@@ -10,8 +10,8 @@
 ;	AddTeamBlock. Global names from the IDA export, 92 names where the
 ;	routine is the same (see the SEGMENT_AGENT.md rename table). Bytes
 ;	match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx),
-;	so those sites are written as dc.w with the instruction in the comment.
+;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
+;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
 ;	disflags bits: dfng 2 (same as 92).
 ;	93 loads tiles through DecompressGraphics (a2 = tile data, d4 = start
 ;	char) instead of 92's direct DoDMA.
@@ -392,11 +392,11 @@ printsmall	;93: print string macro a1 at printx/y/m with printa. Bytes > 0 are c
 	jsr	(a2)
 	bra.w	.1
 
-.nocom	dc.w	$B03C,$0040		;IDA: loc_E0D8. cmp.b	#'@',d0
+.nocom	cmp.b	#'@',d0		;IDA: loc_E0D8
 	bne.w	.noblank
 	move.w	#$7FF,d0		;blank char (92 moveq #1)
 	bra.w	.p
-.noblank	dc.w	$B03C,$005E		;IDA: loc_E0E8. cmp.b	#'^',d0
+.noblank	cmp.b	#'^',d0		;IDA: loc_E0E8
 	beq.w	.skip
 	asl.w	#1,d0
 	movea.l	#smallfontmap,a2
@@ -530,11 +530,11 @@ print	;a1 = string macro, printx/y = x/y cordinate on map for printing, printm =
 	subq.w	#2,d3
 	bra.w	.1
 
-.nocom	dc.w	$B03C,$0040		;IDA: loc_E238. cmp.b	#'@',d0
+.nocom	cmp.b	#'@',d0		;IDA: loc_E238
 	bne.w	.noblank
 	move.w	#$7FF,d0		;blank char (92 moveq #1)
 	bra.w	.p
-.noblank	dc.w	$B03C,$005E		;IDA: loc_E248. cmp.b	#'^',d0 (93)
+.noblank	cmp.b	#'^',d0		;IDA: loc_E248 (93)
 	beq.w	.skip
 	asl.w	#1,d0
 	movea.l	#smallfontmap,a2
@@ -654,7 +654,7 @@ PushNumberWidth	;IDA: pushnumber (Rev A lst DeterStrLength?). 93: convert d0 int
 .dig	ext.l	d0			;IDA: loc_E366
 	divu.w	d2,d0
 	bne.w	.digit
-	dc.w	$B47C,$0001		;cmp.w	#1,d2
+	cmp.w	#1,d2
 	beq.w	.digit			;last digit: always a number
 	move.w	d3,d0			;leading zero
 	bra.w	.put
@@ -753,9 +753,9 @@ printbig	;same as print, only use bigfont.map graphics. a1 = string macro, print
 	subq.w	#2,d3
 	bra.w	.1
 
-.nocom	dc.w	$B03C,$0061		;IDA: loc_E46E. cmp.b	#'a',d0
+.nocom	cmp.b	#'a',d0		;IDA: loc_E46E
 	blt.w	.2
-	dc.w	$B03C,$007A		;cmp.b	#'z',d0
+	cmp.b	#'z',d0
 	bgt.w	.2
 	addi.b	#'A'-'a',d0
 .2	move.w	d3,-(sp)		;IDA: loc_E482

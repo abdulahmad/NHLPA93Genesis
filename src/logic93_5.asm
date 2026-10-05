@@ -7,8 +7,8 @@
 ;	WeightedRandomSelect. Global names from the IDA export, 92 names
 ;	where the routine is the same (see the SEGMENT_AGENT.md rename
 ;	table). Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx),
-;	so those sites are written as dc.w with the instruction in the comment.
+;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
+;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
 ;	93 SortCords offsets, 92 names in comments: Xpos 0, attribute 4,
 ;	frame 6, Ypos $14, Zpos $18, OldYpos $20, Xvel $28, Yvel $2A,
 ;	position $34, assnum $36, asslist $38, temp2 $42, wallcos $4E,
@@ -35,7 +35,7 @@ ChkOffsides	;check for offsides penalty. a3 = puck. 93 flags the whole team (tmf
 	addi.w	#$A,d0
 	btst	#1,(gmode).w		;gmdir
 	beq.w	.t0
-	dc.w	$C549			;exg	a2,a1 (SNASM swaps the operands to C34A)
+	exg	a2,a1
 .t0	moveq	#5,d2			;IDA: loc_CA42
 	movea.w	$22(a2),a0		;tmsort: first player of the team
 .0	tst.w	$34(a0)			;IDA: loc_CA48. position: skip off ice
@@ -56,7 +56,7 @@ ChkOffsides	;check for offsides penalty. a3 = puck. 93 flags the whole team (tmf
 	subi.w	#$A,d0
 	btst	#1,(gmode).w		;gmdir
 	bne.w	.t1
-	dc.w	$C549			;exg	a2,a1 (SNASM swaps the operands to C34A)
+	exg	a2,a1
 .t1	moveq	#5,d2			;IDA: loc_CA8C
 	movea.w	$22(a2),a0		;tmsort
 .2	tst.w	$34(a0)			;IDA: loc_CA92. position
@@ -81,7 +81,7 @@ ClearOffsidesIfAllPlayers	;93: a2 = team struct. Clears the team offsides flag (
 	bne.w	.next
 	neg.w	d0
 .next	adda.w	#$80,a0			;IDA: loc_CADC
-	dc.w	$B07C,$0058		;cmp.w	#$58,d0 (blueline)
+	cmp.w	#$58,d0		;(blueline)
 	dbgt	d1,.top
 	bgt.w	rtss			;someone still past the line
 	bclr	#4,$30(a2)
@@ -94,7 +94,7 @@ a2offsides	;player a2 touched the puck: offsides penalty if his team is flagged 
 	btst	#7,$62(a2)		;pfgoal
 	bne.w	.0
 	neg.w	d0
-.0	dc.w	$B07C,$0058		;IDA: loc_CB0E. cmp.w #$58,d0 (92 cmp blueline,d0)
+.0	cmp.w	#$58,d0		;IDA: loc_CB0E (92 cmp blueline,d0)
 	blt.w	rtss
 	movea.w	#(hmtmstruct-M68K_RAM),a0
 	btst	#6,$62(a2)		;pfteam
@@ -301,20 +301,20 @@ skateto	;a0 = extra routine for collision avoidance, d0/d1 = x/y cord to skate t
 	neg.w	d1
 	add.w	(sp)+,d1
 	sub.w	$14(a3),d1
-	dc.w	$B07C,$000C		;cmp.w	#12,d0
+	cmp.w	#12,d0
 	bgt.w	.vt
-	dc.w	$B07C,$FFF4		;cmp.w	#-12,d0
+	cmp.w	#-12,d0
 	blt.w	.vt
-	dc.w	$B27C,$000C		;cmp.w	#12,d1
+	cmp.w	#12,d1
 	bgt.w	.vt
-	dc.w	$B27C,$FFF4		;cmp.w	#-12,d1
+	cmp.w	#-12,d1
 	blt.w	.vt
 	moveq	#9,d0			;close enough: no direction
 	bra.w	.nvt
 .vt	bsr.w	vtoa			;IDA: loc_CE1C
 .nvt	jsr	(a0)			;IDA: loc_CE20
 	move.b	d0,$43(a3)		;temp2+1
-	dc.w	$B07C,$0007		;cmp.w	#7,d0
+	cmp.w	#7,d0
 	ble.w	.ex
 	move.w	$28(a3),d0
 	or.w	$2A(a3),d0
@@ -356,12 +356,12 @@ avdgoal	;don't try to skate thru goal: if d0/d1 cords intersect thru goal then p
 	sub.w	d0,d3
 	divs.w	d3,d2
 	add.w	$14(a3),d2
-	dc.w	$B47C,$0121		;cmp.w	#.gl+.yr,d2
+	cmp.w	#$121,d2		;.gl+.yr,d2
 	bgt.w	.chbar
-	dc.w	$B47C,$00DB		;cmp.w	#.gl-.yr,d2
+	cmp.w	#$DB,d2		;.gl-.yr,d2
 	blt.w	.lower
 	move.w	#$144,d3		;.gl+.yr+.ye
-	dc.w	$B47C,$00FE		;cmp.w	#.gl,d2
+	cmp.w	#$FE,d2		;.gl,d2
 	bgt.w	.2
 	blt.w	.1
 	cmpi.w	#$FE,$14(a3)		;.gl
@@ -371,12 +371,12 @@ avdgoal	;don't try to skate thru goal: if d0/d1 cords intersect thru goal then p
 	move.w	d3,(deltay).w
 	bra.w	.chbar
 
-.lower	dc.w	$B47C,$FF25		;IDA: loc_CEE8. cmp.w #-.gl+.yr,d2
+.lower	cmp.w	#-$DB,d2		;IDA: loc_CEE8. -.gl+.yr,d2
 	bgt.w	.chbar
-	dc.w	$B47C,$FEDF		;cmp.w	#-.gl-.yr,d2
+	cmp.w	#-$121,d2		;-.gl-.yr,d2
 	blt.w	.chbar
 	move.w	#-$B8,d3		;-.gl+.yr+.ye
-	dc.w	$B47C,$FF02		;cmp.w	#-.gl,d2
+	cmp.w	#-$FE,d2		;-.gl,d2
 	bgt.w	.4
 	blt.w	.3
 	cmpi.w	#-$FE,$14(a3)
@@ -408,9 +408,9 @@ avdgoal	;don't try to skate thru goal: if d0/d1 cords intersect thru goal then p
 	sub.w	d3,d2
 	divs.w	d2,d4
 	add.w	(a3),d4
-	dc.w	$B87C,$0050		;cmp.w	#.xr,d4
+	cmp.w	#$50,d4		;.xr,d4
 	bgt.w	rtss
-	dc.w	$B87C,$FFB0		;cmp.w	#-.xr,d4
+	cmp.w	#-$50,d4		;-.xr,d4
 	blt.w	rtss
 	moveq	#$50,d3			;.xr
 	tst.w	d4
@@ -474,9 +474,9 @@ skatetopuck	;player a3 should skate to puck. d7 = elapse frames
 	muls.w	d0,d0
 	muls.w	d1,d1
 	add.l	d1,d0
-	dc.w	$B0BC,$0000,$0384	;cmp.l	#30*30,d0
+	cmp.l	#30*30,d0
 	bls.w	.ex
-	dc.w	$B0BC,$0000,$05A4	;cmp.l	#38*38,d0
+	cmp.l	#38*38,d0
 	bls.w	Sweepcheck
 .ex	move.b	$43(a3),d0		;IDA: loc_D03C. temp2+1
 	bra.w	doplayeracc
@@ -579,9 +579,9 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	beq.w	.d0
 	move.w	#$A80,d1		;SPAglideback
 .d0	andi.w	#$F,d0			;IDA: loc_D168
-	dc.w	$B07C,$0007		;cmp.w	#7,d0
+	cmp.w	#7,d0
 	ble.w	.d1
-	dc.w	$B07C,$0009		;cmp.w	#9,d0
+	cmp.w	#9,d0
 	bne.w	.cgl
 	move.w	$28(a3),d0		;Xvel
 	or.w	$2A(a3),d0		;Yvel
@@ -612,22 +612,22 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	bne.w	.inrev
 	tst.w	d3
 	bpl.w	.fwd			;skate back in own zone only
-	dc.w	$B47C,$0004		;cmp.w	#4,d2
+	cmp.w	#4,d2
 	bne.w	.fwd
 	bsr.w	vtoa
 	addq.w	#1,d0
 	andi.w	#7,d0
-	dc.w	$B07C,$0002		;cmp.w	#2,d0
+	cmp.w	#2,d0
 	bhi.w	.fwd
 	bra.w	.rev
 .inrev	subq.w	#3,d2			;IDA: loc_D1FC
 	andi.w	#7,d2
-	dc.w	$B47C,$0002		;cmp.w	#2,d2
+	cmp.w	#2,d2
 	bhi.w	.fwd
 	bsr.w	vtoa
 	addq.w	#2,d0
 	andi.w	#7,d0
-	dc.w	$B07C,$0004		;cmp.w	#4,d0
+	cmp.w	#4,d0
 	bhi.w	.fwd
 
 .rev	btst	#4,$62(a3)		;IDA: loc_D21C. pfrev
@@ -641,7 +641,7 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	sub.w	(sp),d0
 	addq.w	#1,d0
 	andi.w	#7,d0
-	dc.w	$B07C,$0002		;cmp.w	#2,d0
+	cmp.w	#2,d0
 	bhi.w	.done
 .setrev	bset	#4,$62(a3)		;IDA: loc_D24E. pfrev
 	bra.w	.done
@@ -666,7 +666,7 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	swap	d3
 	move.w	#$300,d4
 	sub.w	d3,d4
-	dc.w	$B87C,$0180		;cmp.w	#$180,d4
+	cmp.w	#$180,d4
 	bge.w	.iok
 	move.w	#$180,d4
 .iok	muls.w	(a0,d0.w),d4		;IDA: loc_D29E
@@ -677,7 +677,7 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	andi.w	#7,$54(a3)
 	move.w	$54(a3),d2
 
-	dc.w	$B67C,$0014		;cmp.w	#20,d3
+	cmp.w	#20,d3
 	bls.w	.s3
 
 	clr.w	d1
@@ -691,7 +691,7 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	bset	#1,$63(a3)		;pf2aip
 .s3	bsr.w	SetSPA			;IDA: loc_D2EA
 
-	dc.w	$B67C,$0002		;cmp.w	#2,d3
+	cmp.w	#2,d3
 	bhi.w	noturn
 	rts
 
@@ -700,9 +700,9 @@ doplayeracc	;player a3 gets acc. in d0 dir
 goalieacc	;goalie gets acc. in direction d0. 93 turns facedir one step toward d0 (92 set it directly)
 	move.w	#2,d1			;SPAgready
 	andi.w	#$F,d0
-	dc.w	$B07C,$0007		;cmp.w	#7,d0
+	cmp.w	#7,d0
 	ble.w	.d1
-	dc.w	$B07C,$0009		;cmp.w	#9,d0
+	cmp.w	#9,d0
 	bne.w	.cgl
 	move.w	$28(a3),d0		;Xvel
 	or.w	$2A(a3),d0		;Yvel
@@ -740,7 +740,7 @@ noturn0	;IDA: loc_D366. doplayeracc when the wanted direction needs no turn (.ft
 	sub.w	$54(a3),d0		;facedir
 	add.w	d4,d0
 	andi.w	#7,d0
-	dc.w	$B07C,$0004		;cmp.w	#4,d0
+	cmp.w	#4,d0
 	blt.w	dostop
 
 .nostop	addq.w	#1,$54(a3)		;IDA: loc_D3A4. facedir
@@ -842,7 +842,7 @@ playeracc	;d2 = direction of acc
 	bne.w	rtss
 	bsr.w	getpde
 	subi.w	#$21,d0			;33
-	dc.w	$B07C,$0C00		;cmp.w	#$C00,d0
+	cmp.w	#$C00,d0
 	blt.w	setpde
 	move.b	$72(a3),d2		;92 endurance
 	ext.w	d2

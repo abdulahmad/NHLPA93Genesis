@@ -4,8 +4,8 @@
 ;	Global names from the IDA export (Rev A listing). Entry points IDA left
 ;	unnamed are named from the screen title they print.
 ;	Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx),
-;	so those sites are written as dc.w with the instruction in the comment.
+;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
+;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
 ;	Inline print strings after printz/printsmallz/printbigz/appendz use the
 ;	String macro or a dc.w length (length word includes itself, padded to a word).
 
@@ -204,9 +204,9 @@ LineEditorMenu	;IDA: loc_6E52. Slot cursor loop. Also entered from
 .move	add.w	(TestList).w,d0		;IDA: loc_6E9C
 	tst.w	(OptLine).w
 	beq.w	.set
-	dc.w	$B07C,$0001		;cmp.w	#1,d0
+	cmp.w	#1,d0
 	blt.s	.loop			;OptLine set: only slots 1-5
-	dc.w	$B07C,$0005		;cmp.w	#5,d0
+	cmp.w	#5,d0
 	bgt.s	.loop
 .set	lea	LineCursorTable(pc),a0	;IDA: loc_6EB4
 	move.b	8(a0,d0.w),(TestList+1).w	;wrap/skip through the table
@@ -226,7 +226,7 @@ SelectAttributeItem	;line editor: C pressed on slot TestList. Build the list of
 	bsr.w	ProcessNibble
 	move.w	(TestList).w,d2
 	andi.w	#7,d2			;slot within the line
-	dc.w	$B47C,$0002		;cmp.w	#2,d2
+	cmp.w	#2,d2
 	bgt.w	.n			;slots 3-5 (forwards): after the goalies
 	add.w	d0,d1			;slots 1-2 (defense): after goalies+forwards
 	bsr.w	GetPlayerCount
@@ -326,7 +326,7 @@ PrintAttribHeader	;line editor player list: column header for attribute page
 	move.w	(PlayerScrollCtr).w,d2
 	move.w	(word_FFC9D4).w,d1
 	sub.w	d2,d1
-	dc.w	$B27C,$0005		;cmp.w	#5,d1
+	cmp.w	#5,d1
 	bls.w	.4
 	moveq	#5,d1
 .4	move.w	#2,(printy).w		;IDA: loc_7046
@@ -593,7 +593,7 @@ DecodePlayerAttributes	;load team a2's lines from databuffer (byte 0 = team + 1,
 .nib	andi.w	#$F,d0			;IDA: ExtractNibble
 	add.b	d1,d0
 	andi.w	#7,d2
-	dc.w	$B47C,$0002		;cmp.w	#2,d2
+	cmp.w	#2,d2
 	bgt.w	.store
 	add.b	d3,d0
 .store	addq.b	#1,d0			;IDA: StoreAttribute
@@ -625,7 +625,7 @@ EncodePlayerAttributes	;IDA: no label (Rev A $7426). Reverse of
 	subq.b	#1,d3
 	sub.b	d1,d3
 	andi.w	#7,d2
-	dc.w	$B47C,$0002		;cmp.w	#2,d2
+	cmp.w	#2,d2
 	bgt.w	.pack
 	sub.b	d0,d3
 .pack	bchg	#0,d4			;IDA: PackAttributeNibble
@@ -734,7 +734,7 @@ CheckPlayerListScroll	;TeamRosterScreen per frame: add PlayerScrollCtr to
 	beq.w	rtss2
 	add.w	(VertLineScrolling).w,d0
 	bmi.w	StopPlayerListScroll
-	dc.w	$B07C,$0380		;cmp.w	#$380,d0
+	cmp.w	#$380,d0
 	bgt.w	StopPlayerListScroll
 UpdatePlayerListScroll	;set VertLineScrolling = d0. Stop on a page boundary. When
 	;leaving a boundary, draw the page coming into view (2 pixels into a move).
@@ -749,10 +749,10 @@ UpdatePlayerListScroll	;set VertLineScrolling = d0. Stop on a page boundary. Whe
 	clr.w	(PlayerScrollCtr).w
 .0	andi.w	#$7F,d1			;IDA: loc_761E
 	bne.w	.2
-	dc.w	$B07C,$007E		;cmp.w	#$7E,d0
+	cmp.w	#$7E,d0
 	bne.w	.1
 	bsr.w	DisplayPlayerListUp
-.1	dc.w	$B07C,$0002		;IDA: loc_7632	cmp.w	#2,d0
+.1	cmp.w	#2,d0		;IDA: loc_7632
 	bne.w	.2
 	bsr.w	DisplayPlayerListDown
 .2	move.w	(disflags).w,-(sp)	;IDA: loc_763E
@@ -885,7 +885,7 @@ GetNameandAttrib	;print player d0's name, then at x $1E the column picked by
 	jsr	(getname).l
 	bsr.w	print
 	move.w	#$1E,(printx).w
-	dc.w	$B87C,$0002		;cmp.w	#2,d4
+	cmp.w	#2,d4
 	bls.w	.jump			;status/energy: no ratings
 	movea.l	$1E(a2),a0		;team data, player records
 	adda.w	(a0),a0
@@ -931,7 +931,7 @@ AttribStatus	;IDA: no label ("jump for status"). Player d0's word at $66(a2):
 	move.w	$66(a2,d0.w),d0
 	bpl.w	.pen
 	not.w	d0
-	dc.w	$B07C,$0002		;cmp.w	#2,d0
+	cmp.w	#2,d0
 	bls.w	.st
 	moveq	#1,d0
 	bra.w	.st
@@ -971,7 +971,7 @@ AttribEnergy	;IDA: no label ("jump for energy"). $32(a2) word / 40, max 100
 	move.w	$32(a2,d0.w),d0
 	ext.l	d0
 	divu.w	#$28,d0
-	dc.w	$B07C,$0064		;cmp.w	#100,d0
+	cmp.w	#100,d0
 	ble.w	AttribPrintPct
 	moveq	#$64,d0
 	bra.w	AttribPrintPct
@@ -1087,11 +1087,11 @@ UpdateGameStatScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 .0	andi.w	#$1F,d1			;IDA: loc_7ABC
 	bne.w	.2
 	move.l	d0,-(sp)
-	dc.w	$B07C,$001E		;cmp.w	#$1E,d0
+	cmp.w	#$1E,d0
 	bne.w	.1
 	bsr.w	DisplayGameStatLineUp
 .1	move.l	(sp)+,d0		;IDA: loc_7AD2
-	dc.w	$B07C,$0002		;cmp.w	#2,d0
+	cmp.w	#2,d0
 	bne.w	.2
 	bsr.w	DisplayGameStatLineDown
 .2	move.w	(disflags).w,-(sp)	;IDA: loc_7AE0
@@ -1272,11 +1272,11 @@ UpdatePenaltyScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	tst.w	d1
 	bne.w	.2
 	move.l	d0,-(sp)
-	dc.w	$B07C,$0016		;cmp.w	#$16,d0
+	cmp.w	#$16,d0
 	bne.w	.1
 	bsr.w	DisplayPenaltyLineUp
 .1	move.l	(sp)+,d0		;IDA: loc_7D52
-	dc.w	$B07C,$0002		;cmp.w	#2,d0
+	cmp.w	#2,d0
 	bne.w	.2
 	bsr.w	DisplayPenaltyLineDown
 .2	move.w	(disflags).w,-(sp)	;IDA: loc_7D60
@@ -1463,9 +1463,9 @@ DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
 .scroll	bsr.w	UpdateAttributeScroll	;IDA: loc_7FF8
 	bra.s	.loop
 .col	add.w	(DispAttribCtr).w,d0	;IDA: loc_7FFE
-	dc.w	$B07C,$FFFF		;cmp.w	#-1,d0
+	cmp.w	#-1,d0
 	blt.s	.scroll
-	dc.w	$B07C,$0004		;cmp.w	#4,d0
+	cmp.w	#4,d0
 	bgt.s	.scroll
 	move.w	d0,(DispAttribCtr).w
 	bsr.w	DisplayAttributeMenu
@@ -1496,11 +1496,11 @@ UpdateAttributeScroll	;stats screen per frame: scroll 0..SelectedPlayerIdx, stop
 .0	andi.w	#$F,d1			;IDA: loc_8064
 	bne.w	SetAttribScrollReg
 	move.w	d0,-(sp)
-	dc.w	$B07C,$000E		;cmp.w	#$E,d0
+	cmp.w	#$E,d0
 	bne.w	.1
 	bsr.w	DisplayAttributeLineUp
 .1	move.w	(sp)+,d0		;IDA: loc_807A
-	dc.w	$B07C,$0002		;cmp.w	#2,d0
+	cmp.w	#2,d0
 	bne.w	SetAttribScrollReg
 	bsr.w	DisplayAttributeLineDown
 SetAttribScrollReg	;IDA: loc_8088. VSRAM = VertLineScrolling - $68
@@ -1543,7 +1543,7 @@ DisplayAttributeMenu	;stats screen: column headers (sort column highlighted),
 	move.w	#$C000,(printa).w
 .1	bsr.w	printsmall		;IDA: loc_8102
 	addq.w	#1,d3
-	dc.w	$B67C,$0005		;cmp.w	#5,d3
+	cmp.w	#5,d3
 	blt.s	.0
 	bsr.w	printsmallz
 	String	$F8,4,3,9,7,0
@@ -1660,7 +1660,7 @@ DisplayAttributeEntry	;stats screen row d3 of Satt: rank, name, then either the
 	move.w	#$C000,(printa).w
 .1	bsr.w	print			;IDA: loc_827E
 	addq.w	#1,d5
-	dc.w	$BA7C,$0005		;cmp.w	#5,d5
+	cmp.w	#5,d5
 	bne.s	.0
 	bra.w	.x
 .goalie	clr.w	d0			;IDA: loc_828E. Shots against

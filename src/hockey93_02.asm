@@ -5,8 +5,8 @@
 ;	Bytes match nhlpa93retail.bin. Rev A has a 10-byte insertion inside
 ;	updateplayers (speed x$14 when music_global_tick_counter is set); retail
 ;	has the 92 code there.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx),
-;	so those sites are written as dc.w with the instruction in the comment.
+;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
+;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
 ;	Struct offsets are 93 SortCords offsets; 92 names in comments where the
 ;	use matches 92 (Xpos 0, attribute 4, frame 6, Ypos $14, Zpos $18,
 ;	OldXpos $1C, Xvel $28, Yvel $2A, Zvel $2C, impact $32, position $34,
@@ -93,7 +93,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	sub.w	d5,d0
 	addq.w	#1,d0
 	andi.w	#7,d0
-	dc.w	$B07C,$0002		;cmp.w	#2,d0
+	cmp.w	#2,d0
 	bhi.w	.skip			;not within 45 degrees of the d-pad
 	movem.w	(sp),d0-d1
 	sub.w	(a1),d0
@@ -101,7 +101,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	muls.w	d0,d0
 	muls.w	d1,d1
 	add.l	d1,d0
-	dc.w	$B0BC,$0000,$0004	;cmp.l	#4,d0
+	cmp.l	#4,d0
 	bls.w	.skip			;too close
 	cmp.l	d4,d0
 	bhi.w	.skip			;not nearer
@@ -128,16 +128,16 @@ ReplayMode	;this is instant replay play-back control and display code.
 	lea	.stab(pc),a0
 	move.w	(a0,d5.w),d0
 	add.w	(a5),d0
-	dc.w	$B07C,$0088		;cmp.w	#$88,d0
+	cmp.w	#$88,d0
 	bgt.w	.nox
-	dc.w	$B07C,$FF78		;cmp.w	#-$88,d0
+	cmp.w	#-$88,d0
 	blt.w	.nox
 	move.w	d0,(a5)
 .nox	move.w	2(a0,d5.w),d1		;IDA: ClampCameraX
 	add.w	$14(a5),d1
-	dc.w	$B27C,$0126		;cmp.w	#$126,d1
+	cmp.w	#$126,d1
 	bgt.w	.noy
-	dc.w	$B27C,$FEDA		;cmp.w	#-$126,d1
+	cmp.w	#-$126,d1
 	blt.w	.noy
 	move.w	d1,$14(a5)
 .noy	movea.w	a5,a3			;IDA: ClampCameraY
@@ -249,17 +249,17 @@ UpdateCameraPos	;93 only. Camera struct a5 = object a3's x/y, Hpos/Vpos =
 	move.w	d0,(a5)
 	move.w	$14(a3),d1
 	move.w	d1,$14(a5)
-	dc.w	$B07C,$003C		;cmp.w	#$3C,d0
+	cmp.w	#$3C,d0
 	blt.w	.0
 	move.w	#$3C,d0			;92 checkwindow .xslim
-.0	dc.w	$B07C,$FFC4		;IDA: loc_8E60	cmp.w	#-$3C,d0
+.0	cmp.w	#-$3C,d0		;IDA: loc_8E60
 	bgt.w	.1
 	move.w	#$FFC4,d0
 .1	move.w	d0,(Hpos).w		;IDA: loc_8E6C
-	dc.w	$B27C,$0100		;cmp.w	#$100,d1
+	cmp.w	#$100,d1
 	blt.w	.2
 	move.w	#$100,d1		;92 .yslimu
-.2	dc.w	$B27C,$FF38		;IDA: loc_8E7C	cmp.w	#-200,d1
+.2	cmp.w	#-200,d1		;IDA: loc_8E7C
 	bgt.w	.3
 	move.w	#$FF38,d1		;92 .yslimd
 .3	move.w	d1,(Vpos).w		;IDA: loc_8E88
@@ -305,7 +305,7 @@ RestoreReplayFrame	;a4 = current replay frame address to convert into normal
 .pl	move.b	(a0)+,$6F(a3)		;IDA: loc_8EF8
 	move.b	(a0),d0
 	andi.w	#$F,d0
-	dc.w	$B07C,$000F		;cmp.w	#$F,d0
+	cmp.w	#$F,d0
 	bne.w	.n0
 	moveq	#-1,d0			;$F = not on ice
 .n0	move.w	d0,$34(a3)		;IDA: loc_8F0C. position
@@ -319,7 +319,7 @@ RestoreReplayFrame	;a4 = current replay frame address to convert into normal
 	move.b	(a0)+,d0
 	lsr.b	#4,d0
 	andi.w	#$F,d0
-	dc.w	$B07C,$000F		;cmp.w	#$F,d0
+	cmp.w	#$F,d0
 	bne.w	.n1
 	moveq	#-1,d0
 .n1	move.w	d0,$34(a3)		;IDA: loc_8F36
@@ -509,7 +509,7 @@ updateplayers
 	sub.b	$2C(a3),d0
 	bpl.w	.snd
 	clr.w	d0
-.snd	dc.w	$B07C,$0003		;IDA: loc_91C4	cmp.w	#3,d0
+.snd	cmp.w	#3,d0		;IDA: loc_91C4
 	bhi.w	.done
 	addi.w	#$2C,d0			;bounce sound $2C-$2F by speed (92 SFXpuckice once)
 	move.w	d0,-(sp)
@@ -655,19 +655,19 @@ checkwindow	;set hpos and vpos according to how screen should follow puck
 	move.w	d3,(xc1).w
 .dd	move.w	d2,d0			;IDA: loc_93E0
 	sub.w	(Vpos).w,d0
-	dc.w	$B07C,$FFF6		;cmp.w	#-10,d0	;-.ylim
+	cmp.w	#-10,d0		;-.ylim
 	bge.w	.1
 	move.w	d2,d1
 	subi.w	#$FFF6,d1		;-.ylim
-	dc.w	$B27C,$FF38		;cmp.w	#-200,d1	;.yslimd
+	cmp.w	#-200,d1		;.yslimd
 	bgt.w	.2
 	move.w	#$FF38,d1
 	bra.w	.2
-.1	dc.w	$B07C,$000A		;IDA: loc_9404	cmp.w	#10,d0	;.ylim
+.1	cmp.w	#10,d0		;IDA: loc_9404. .ylim
 	ble.w	.2x
 	move.w	d2,d1
 	subi.w	#$A,d1
-	dc.w	$B27C,$0100		;cmp.w	#256,d1	;.yslimu
+	cmp.w	#256,d1		;.yslimu
 	blt.w	.2
 	move.w	#$100,d1
 .2	sub.w	(Vpos).w,d1		;IDA: loc_941E
@@ -678,19 +678,19 @@ checkwindow	;set hpos and vpos according to how screen should follow puck
 .v2	add.w	d1,(Vpos).w		;IDA: loc_942E
 .2x	move.w	d3,d0			;IDA: loc_9432
 	sub.w	(Hpos).w,d0
-	dc.w	$B07C,$FFD8		;cmp.w	#-40,d0	;-.xlim
+	cmp.w	#-40,d0		;-.xlim
 	bge.w	.3
 	move.w	d3,d1
 	subi.w	#$FFD8,d1
-	dc.w	$B27C,$FFC4		;cmp.w	#-60,d1	;-.xslim
+	cmp.w	#-60,d1		;-.xslim
 	bge.w	.4
 	move.w	#$FFC4,d1
 	bra.w	.4
-.3	dc.w	$B07C,$0028		;IDA: loc_9456	cmp.w	#40,d0	;.xlim
+.3	cmp.w	#40,d0		;IDA: loc_9456. .xlim
 	ble.w	rtss
 	move.w	d3,d1
 	subi.w	#$28,d1
-	dc.w	$B27C,$003C		;cmp.w	#60,d1	;.xslim
+	cmp.w	#60,d1		;.xslim
 	ble.w	.4
 	move.w	#$3C,d1
 .4	sub.w	(Hpos).w,d1		;IDA: loc_9470

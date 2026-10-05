@@ -5,8 +5,8 @@
 ;	pucknorm. Global names from the IDA export, 92 names where the
 ;	routine is the same (see the SEGMENT_AGENT.md rename table). Bytes
 ;	match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx),
-;	so those sites are written as dc.w with the instruction in the comment.
+;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
+;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
 ;	93 SortCords offsets, 92 names in comments: Xpos 0, attribute 4,
 ;	frame 6, Ypos $14, Zpos $18, Xvel $28, Yvel $2A, Zvel $2C,
 ;	position $34, assnum $36, asslist $38, temp1 $40, temp2 $42,
@@ -143,7 +143,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 .de1	btst	#5,$62(a3)		;IDA: _de1. pfalock (92 tst position / beq rtss)
 	bne.w	rtss
 	moveq	#2,d1
-	dc.w	$B47C,$0190		;cmp.w	#20^2,d2 (commented out in 92)
+	cmp.w	#$190,d2		;20^2,d2 (commented out in 92)
 	bhi.w	.nfar
 	subq.w	#2,d1
 	cmpi.w	#2,$34(a3)
@@ -158,7 +158,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	sub.b	$75(a3),d0		;aggress
 	asl.w	d1,d0
 	bsr.w	randomd0
-	dc.w	$B07C,$0001		;cmp.w	#1,d0 (92 #2)
+	cmp.w	#1,d0		;(92 #2)
 	bhi.w	.nodec
 	move.w	#$F0,$44(a3)		;temp3 = 240
 .nodec	btst	#5,$62(a3)		;IDA: _nodec. pfalock (92 tst position)
@@ -190,11 +190,11 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	beq.w	.go
 	btst	#7,$62(a3)		;pfgoal
 	beq.w	.neg
-	dc.w	$B27C,$0053		;cmp.w	#$53,d1
+	cmp.w	#$53,d1
 	blt.w	.go
 	move.w	#$44,d1
 	bra.w	.go
-.neg	dc.w	$B27C,$FFAD		;IDA: loc_BF0A. cmp.w	#-$53,d1
+.neg	cmp.w	#-$53,d1		;IDA: loc_BF0A
 	bgt.w	.go
 	move.w	#-$44,d1
 .go	lea	rtss(pc),a0		;IDA: loc_BF16
@@ -209,7 +209,7 @@ check4check	;look for good opportunity for checking opponent. Falls in from assn
 	beq.w	.nopen
 	asl.w	#1,d0
 .nopen	bsr.w	randomd0		;IDA: loc_BF36
-	dc.w	$B07C,$0003		;cmp.w	#3,d0 (92 tst d0)
+	cmp.w	#3,d0		;(92 tst d0)
 	bhi.w	rtss
 	moveq	#5,d2
 	movea.w	#(SortCords-M68K_RAM),a0
@@ -224,15 +224,15 @@ check4check	;look for good opportunity for checking opponent. Falls in from assn
 	bne.w	.next
 	move.w	(a0),d0
 	sub.w	(a3),d0
-	dc.w	$B07C,$001E		;cmp.w	#30,d0
+	cmp.w	#30,d0
 	bgt.w	.next
-	dc.w	$B07C,$FFE2		;cmp.w	#-30,d0
+	cmp.w	#-30,d0
 	blt.w	.next
 	move.w	$14(a0),d1
 	sub.w	$14(a3),d1
-	dc.w	$B27C,$001E		;cmp.w	#30,d1
+	cmp.w	#30,d1
 	bgt.w	.next
-	dc.w	$B27C,$FFE2		;cmp.w	#-30,d1
+	cmp.w	#-30,d1
 	blt.w	.next
 	bsr.w	vtoa
 	cmp.w	$54(a3),d0		;facedir
@@ -466,7 +466,7 @@ CPgoalie	;IDA: loc_C2F6. see if computer should pull his goalie. d1 = puck/faceo
 	move.w	$C(a1),d0		;tmscore
 	sub.w	$C(a2),d0
 	bmi.w	rtss			;exit if leading the game
-	dc.w	$B07C,$0002		;cmp.w	#2,d0
+	cmp.w	#2,d0
 	bne.w	rtss			;exit unless behind by 2
 	cmpi.w	#$3C,(gameclock).w
 	bgt.w	rtss			;exit if more than 1 min left
@@ -518,7 +518,7 @@ CompLine	;find good line for comp to switch to. a2 = team, a1 = other team. Call
 	asl.w	#1,d1
 	move.w	(a0,d1.w),d0
 	bsr.w	getlinee
-	dc.w	$B07C,$0C00		;cmp.w	#3*$1000/4,d0
+	cmp.w	#3*$1000/4,d0
 	bls.w	.away
 	move.w	(a0,d1.w),$16(a2)
 	bra.s	.ex
@@ -539,7 +539,7 @@ CompLine	;find good line for comp to switch to. a2 = team, a1 = other team. Call
 	addq.w	#6,a0
 .a0	move.w	(a0)+,d0		;IDA: _a0
 	bsr.w	getlinee
-	dc.w	$B07C,$0C00		;cmp.w	#3*$1000/4,d0 (92 19*$1000/20)
+	cmp.w	#3*$1000/4,d0		;(92 19*$1000/20)
 	dbhi	d1,.a0
 	move.w	-(a0),$16(a2)
 	bra.w	.ex
@@ -619,7 +619,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	bmi.w	.next
 	beq.w	.goalie1
 	move.l	#$16,d0			;afaceoff
-	dc.w	$B27C,$0004		;cmp.w	#4,d1
+	cmp.w	#4,d1
 	bne.w	.l1
 	movea.w	#(hmtmstruct-M68K_RAM),a2	;93: faceoff man resets team $18-$1C
 	btst	#6,$62(a3)		;pfteam
@@ -652,7 +652,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	neg.w	d1
 .f0	tst.w	$34(a3)			;IDA: loc_C5EE. position
 	beq.w	.goalie2
-	dc.w	$B87C,$0008		;cmp.w	#2*4,d4
+	cmp.w	#2*4,d4
 	bgt.w	.nodef
 	move.w	(fox).w,d3
 	eor.w	d0,d3
@@ -789,7 +789,7 @@ updatefaceoff	;a3 = puck. Drop animation frame from temp1; at 0 erases the faceo
 	beq.w	.erase
 	addq.w	#6,d0
 	lsr.w	#3,d0
-	dc.w	$B07C,$0002		;cmp.w	#2,d0
+	cmp.w	#2,d0
 	bgt.w	rtss
 	neg.w	d0
 	addi.w	#$A,d0

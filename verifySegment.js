@@ -1,7 +1,8 @@
-// Overlay one assembled segment onto a copy of the reference ROM and compare that range.
+// Overlay one assembled and fixopcodes-patched segment onto a copy of the reference ROM and compare that range.
 // Usage: node verifySegment.js <segment> <org> <reference.bin>
 // Example: node verifySegment.js hockey93_01 0x6446 nhlpa93retail.bin
-// Reads output/<segment>.bin. Writes output/<segment>_patched.bin.
+// Reads output/modified_<segment>.bin (written by fixopcodes.js), not the raw assembler output/<segment>.bin.
+// Writes output/<segment>_patched.bin.
 const fs = require('fs');
 const path = require('path');
 
@@ -17,7 +18,7 @@ if (!Number.isInteger(org) || org < 0) {
   process.exit(1);
 }
 
-const builtPath = path.join('output', `${segment}.bin`);
+const builtPath = path.join('output', `modified_${segment}.bin`);
 const patchedPath = path.join('output', `${segment}_patched.bin`);
 const built = fs.readFileSync(builtPath);
 const reference = fs.readFileSync(referencePath);

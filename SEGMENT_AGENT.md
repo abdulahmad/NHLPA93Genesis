@@ -76,7 +76,7 @@ Between the ranges, read the retail bytes directly. Always confirm a converted a
 
 ## Previous segment
 
-`hockey93_01` (`$6446-$69FF`), `menu93` (`$6A00-$6C09`), `stats93` (`$6C0A-$8AC3`), `hockey93_02` (`$8AC4-$946D`), `logic93_1` (`$946E-$A0FB`), `logic93_2` (`$A0FC-$AE87`), `logic93_3` (`$AE88-$BC6B`), `logic93_4` (`$BC6C-$C9E9`), `logic93_5` (`$C9EA-$D629`) and `middle93_1` (`$D62A-$DCE3`) matched. logic93_3 note: retail has `exg a2,a1` as `C549`; SNASM swaps address-register operands and emits `C34A`, so that one is `dc.w $C549`. stats93 notes: RAM from about `$FFCAxx` is 4 bytes lower in retail than in `ram_addrs.inc` (Rev A); databuffer is `$CAEE` retail vs `$CAF2`, written as a number with a `;retail databuffer (Rev A: $CAF2)` comment. The notes below in "Loop" use hockey93_01 as the worked example.
+`hockey93_01` (`$6446-$69FF`), `menu93` (`$6A00-$6C09`), `stats93` (`$6C0A-$8AC3`), `hockey93_02` (`$8AC4-$946D`), `logic93_1` (`$946E-$A0FB`), `logic93_2` (`$A0FC-$AE87`), `logic93_3` (`$AE88-$BC6B`), `logic93_4` (`$BC6C-$C9E9`), `logic93_5` (`$C9EA-$D629`) and `middle93_1` (`$D62A-$DCE3`) matched. logic93_3 note: retail has `exg a2,a1` as `C549`; SNASM swaps address-register operands and emits `C34A`, and `fixopcodes.js` rewrites it to `C549`. stats93 notes: RAM from about `$FFCAxx` is 4 bytes lower in retail than in `ram_addrs.inc` (Rev A); databuffer is `$CAEE` retail vs `$CAF2`, written as a number with a `;retail databuffer (Rev A: $CAF2)` comment. The notes below in "Loop" use hockey93_01 as the worked example.
 
 Original failure, kept for reference: `verifySegment.js` reported `1022 of 1138` bytes differ in `$6446-$68B7`. At `$6460` the ROM is `4E B9` (`jsr abs.l`) and the stub assembled `30 39` (`move.w abs.l`). The old `hockey93_01.asm` was a Rev A disassembly dump. It was rewritten from the retail bytes.
 
@@ -89,8 +89,8 @@ IDA addresses drift from retail (the listing is Rev A; see "ROM map"). In the na
 1. Read `DECOMPILATION_LEARNINGS.md` and this file.
 2. Open the v1.1 `.lst` and read only the current segment. Transcribe those named instructions. Do not disassemble the ROM. Use `nhlpa93retail.bin` only to check bytes and to fix addresses with the delta table.
 3. Rewrite the current segment asm in NHL 92 style. Stub external calls that are outside this range. Do not follow those calls.
-4. Run `npm run seg`.
-5. If the mismatch is only a known EA `cmp` / `exg` encoding, write that instruction as `dc.w` with the real instruction in the comment (what `hockey93_01` does), because `npm run seg` checks raw assembler output. Do not rewrite `exg d0,d1`. The `0C80` to `B0BC` rule only applies where the ROM byte is `B0BC`.
+4. Run `npm run seg`. It assembles, runs `fixopcodes.js` on that segment's assembler listing (`output\<segment> .lst`) and `output\<segment>.bin` at the segment org, which writes `output\modified_<segment>.bin`, then runs `verifySegment.js` on that modified file. `verifySegment.js` compares `output\modified_<segment>.bin`, not the raw assembler bin. Do not pass the IDA `.lst` to `fixopcodes.js`.
+5. Write the real `cmp` / `cmpi` / `exg`. Do not hand-encode opcodes. SNASM may emit the wrong encoding for EA `cmp #imm,Dn` (CMPI `0Cxx` instead of CMP `Bxxx`) and for `exg a2,a1` / `exg d1,d0`; `fixopcodes.js` fixes those after the assemble. Do not rewrite `exg d0,d1`. The `0C80` to `B0BC` rule only applies where the retail byte is `B0BC`. The sound-incbin early-out in `fixopcodes.js` stays.
 6. Stop after 5 failed verifies. Write the first remaining mismatch and what the ROM bytes are. Do not keep editing.
 
 A match prints `MATCH: middle93_2 confirmed 2114 bytes at 0x00dce4-0x00e525`. The byte count must equal the ROM map range. Commit only that.
@@ -105,7 +105,7 @@ Comments:
 - Where 92 uses a symbolic constant (`gmclock`, `sfhor`, `pfjoycon`, `SCstruct`, `PenEOG`, ...), check the 92 value in `ram.asm` / the 92 `.lst`. If the 93 byte is the same, put the 92 name in the comment (`bset #0,(gmode).w ;gmclock`). If the value differs, say so (`;horn (92 SFXhorn = 24)`). Do not add 92 equates to the 93 build.
 - 93-only code gets a short factual comment from what the bytes do. Do not guess game meaning you cannot see in the code.
 - Mark retail-vs-Rev A differences inline (`;retail clear end (Rev A: $CDF4)`).
-- Assembler workarounds (`dc.w` for EA `cmp` encodings) keep the real instruction in the comment.
+- EA `cmp` / `exg` encodings are not written as `dc.w`. Write the real instruction; `fixopcodes.js` patches the encoding.
 - Every global routine and data label gets a header comment on its label line: what it does, when it is called (for example `;called once per second`), and its inputs and outputs (`d7 = elapsed frames`, `return d0 = ...`). Use the 92 header if the routine exists in 92. Otherwise write one from the bytes.
 - Note fall-through and outside entry points in the header (`falls in for team 2`, `Also entered from puckfaceoff+2E`).
 - Inside a routine, comment every branch condition or magic value that is not obvious: what is tested, what the constant means, and which path is taken. Leave obvious lines alone.

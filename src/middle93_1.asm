@@ -7,15 +7,15 @@
 ;	DoFill, WaitDMA, setVram, setVram_0 and Vmaddr. Global names from the
 ;	IDA export, 92 names where the routine is the same (see the
 ;	SEGMENT_AGENT.md rename table). Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx),
-;	so those sites are written as dc.w with the instruction in the comment.
+;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
+;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
 ;	disflags bits: df32c 1, dfng 2 (same as 92).
 
 remap	;IDA: ConvertAndWriteToVDP. a0 = data (char set), d0 = size in words, d1 = vram dest, a1 = mapping data (93: two color nibbles per byte, high nibble for even colors). Jumped to from DecompressGraphics
 	move.w	(disflags).w,-(sp)
 	bset	#2,(disflags).w		;dfng
 	movem.l	d0-d4/a0-a2,-(sp)
-	dc.w	$C340			;exg	d1,d0 (keep EA register order)
+	exg	d1,d0		;(keep EA register order)
 	movea.l	a0,a2
 	bsr.w	Vmaddr
 	subq.w	#1,d1
@@ -79,7 +79,7 @@ cramfade	;fade from current color in color ram to color held in palfadenew. This
 
 	clr.l	d0
 	move.w	(palcount).w,d0
-	dc.w	$B07C,$0018		;cmp.w	#24,d0
+	cmp.w	#24,d0
 	bgt.w	rtss
 	divu.w	#3,d0
 	swap	d0
@@ -120,7 +120,7 @@ cramfade	;fade from current color in color ram to color held in palfadenew. This
 	move.w	d7,(a0)
 
 .next	addq.w	#2,d6			;IDA: _next
-	dc.w	$BC7C,$0080		;cmp.w	#$80,d6
+	cmp.w	#$80,d6
 	bne.s	.top
 	rts
 
@@ -171,7 +171,7 @@ randomd0	;d0 = range. Return random number in d0 (0 <= d0 < range)
 sroot	;Square Root, this returns (d0.L)^.5 in d0. 93: values above $F00000 use a binary search
 	tst.l	d0
 	beq.w	rtss			;zero^.5 = zero
-	dc.w	$B0BC,$0000,$0640	;cmp.l	#40*40,d0
+	cmp.l	#40*40,d0
 	bhi.w	.m2
 	move.l	d1,-(sp)		;find square root of d0
 	moveq	#-1,d1
@@ -186,7 +186,7 @@ sroot	;Square Root, this returns (d0.L)^.5 in d0. 93: values above $F00000 use a
 .m2	movem.l	d1-d4,-(sp)		;IDA: loc_D818. (92 d1-d3)
 	moveq	#9,d3			;max number of reps
 	move.w	#$8000,d1		;92 guess for big values, unused in 93
-	dc.w	$B0BC,$00F0,$0000	;cmp.l	#$F00000,d0
+	cmp.l	#$F00000,d0
 	bhi.w	.big			;93: binary search (92 bhi .top)
 	move.l	d0,d1
 	lsr.l	#8,d1
@@ -277,7 +277,7 @@ IntermissionLoop	;93 version of 92 waitxsr: wait d0 vblanks while the zamboni cr
 	tst.w	d1
 	beq.w	.vid
 .key	move.w	(vcount).w,d0		;IDA: loc_D91E
-	dc.w	$B07C,$FF88		;cmp.w	#-120,d0
+	cmp.w	#-120,d0
 	blt.w	.menu			;more than 120 frames left: keep them
 	moveq	#-$78,d0		;else wait 120 more
 .menu	movem.w	d0,-(sp)		;IDA: loc_D92C

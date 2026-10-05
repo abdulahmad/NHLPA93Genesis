@@ -3,8 +3,8 @@
 ;	and check4bench. Global names from the IDA export, 92 names where the
 ;	routine is the same (see the SEGMENT_AGENT.md rename table).
 ;	Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx),
-;	so those sites are written as dc.w with the instruction in the comment.
+;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
+;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
 ;	93 SortCords offsets, 92 names in comments: Xpos 0, attribute 4, Ypos $14,
 ;	Xvel $28, Yvel $2A, impact $32, position $34, assnum $36, asslist $38,
 ;	SCnum $52, facedir $54, SPA $58, SPAnum $5A, nopuck $5E, pflags $62
@@ -409,7 +409,7 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 	ext.w	d0
 	asl.w	#3,d0
 	muls.w	d0,d0
-	dc.w	$B0BC,$0001,$0000	;cmp.l	#256*256,d0
+	cmp.l	#256*256,d0
 	bhi.w	.next
 	muls.w	d1,d1
 	muls.w	d2,d2
@@ -534,11 +534,11 @@ passtoa0	;pass puck to player a0
 	dbpl	d3,.0
 	bne.w	.1
 	addq.w	#1,d2			;can't be zero
-.1	dc.w	$B47C,$0018		;IDA: ClampPassTime	cmp.w	#24,d2	;limit to 3 sec.
+.1	cmp.w	#24,d2		;IDA: ClampPassTime. limit to 3 sec.
 	bls.w	.2
 	moveq	#$18,d2
 .2	move.b	d2,(puckvz).w		;IDA: ClampPassTime2. d2 = time in 1/8 sec to intersection
-	dc.w	$B47C,$000C		;cmp.w	#12,d2
+	cmp.w	#12,d2
 	blt.w	.3
 	move.b	#$C,(puckvz).w
 .3	move.w	d2,d0			;IDA: CalcPuckVelocities
@@ -649,7 +649,7 @@ restorepl	;IDA: retorepl. Restore old joy controlled player d1, give d0
 	movea.w	#(SortCords-M68K_RAM),a0
 	tst.w	d1
 	blt.w	.spd
-	dc.w	$B27C,$000B		;cmp.w	#11,d1
+	cmp.w	#11,d1
 	bgt.w	.spd
 	asl.w	#7,d1			;scsize
 	btst	#3,$63(a0,d1.w)		;pf2lcm
@@ -661,7 +661,7 @@ restorepl	;IDA: retorepl. Restore old joy controlled player d1, give d0
 	bset	#1,$62(a0,d1.w)		;pfna
 .spd	tst.w	d0			;IDA: spd_SetNewPlayer
 	blt.w	rtss
-	dc.w	$B07C,$000B		;cmp.w	#11,d0
+	cmp.w	#11,d0
 	bgt.w	rtss
 	move.w	d0,d1
 	asl.w	#7,d1
@@ -778,12 +778,12 @@ doshot	;stick is at puck so launch puck toward goal
 .1	move.w	d0,d3			;IDA: doshot_1
 	btst	#4,(gmode).w		;gmhl
 	bne.w	.perf
-	dc.w	$B67C,$00C8		;cmp.w	#200,d3
+	cmp.w	#200,d3
 	bhi.w	.notperf		;too far away for perfect shot
 	moveq	#$10,d0
 	add.b	$6D(a3),d0		;shotacc
 	bsr.w	randomd0
-	dc.w	$B07C,$000E		;cmp.w	#14,d0	;chance of perfect shot
+	cmp.w	#14,d0		;chance of perfect shot
 	bgt.w	.perf			;is perfect
 .notperf	move.w	(passspeed).w,d0	;IDA: doshot_notperf
 	lsr.w	#4,d0
@@ -791,17 +791,17 @@ doshot	;stick is at puck so launch puck toward goal
 	addi.b	#$10,d0
 	mulu.w	d3,d0
 	lsr.w	#6,d0			;shot accuracy adjust (92 lsr #7)
-	dc.w	$B67C,$00FA		;cmp.w	#250,d3
+	cmp.w	#250,d3
 	bhi.w	.cp
 	lsr.w	#1,d0			;closer than 250: half the error
-.cp	dc.w	$B07C,$0088		;IDA: ClampPenalty	cmp.w	#$88,d0
+.cp	cmp.w	#$88,d0		;IDA: ClampPenalty
 	blt.w	.ar
 	move.w	#$88,d0
 .ar	move.w	d0,-(sp)		;IDA: AddRandomError
 	bsr.w	randomd0s
 	add.w	d0,2(sp)		;x dist
 	move.w	(sp),d0
-	dc.w	$B07C,$003C		;cmp.w	#60,d0
+	cmp.w	#60,d0
 	bls.w	.ay
 	moveq	#$3C,d0
 	move.w	d0,(sp)
@@ -832,7 +832,7 @@ doshot	;stick is at puck so launch puck toward goal
 	mulu.w	#$B33,d3		;(1024*42)/15
 	divu.w	(passspeed).w,d3
 	add.w	d1,d3
-	dc.w	$B67C,$1800		;cmp.w	#$1800,d3
+	cmp.w	#$1800,d3
 	bls.w	.noup
 	move.w	#$1800,d3
 .noup	move.w	d3,(puckvz).w		;IDA: doshot_noup
@@ -890,9 +890,9 @@ checkgoalp	;IDA: checkgoalp_CalcGoalShotDir. 93 only. If the opposing goalie
 	bsr.w	CalcAngleOffset
 	add.w	d5,d4
 	clr.w	d0
-	dc.w	$B87C,$002C		;cmp.w	#$2C,d4
+	cmp.w	#$2C,d4
 	bgt.w	.x
-	dc.w	$B87C,$FFD4		;cmp.w	#-$2C,d4
+	cmp.w	#-$2C,d4
 	blt.w	.x
 	btst	#7,$62(a3)
 	beq.w	.s

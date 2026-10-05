@@ -3,8 +3,8 @@
 ;	fight code (assfight, chkhit, banner). Global names from the IDA export,
 ;	92 names where the routine is the same (see the SEGMENT_AGENT.md rename
 ;	table). Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx),
-;	so those sites are written as dc.w with the instruction in the comment.
+;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
+;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
 ;	93 SortCords offsets, 92 names in comments: Xpos 0, frame 6, oldframe 8,
 ;	Xvel $28, Yvel $2A, impactp $2E, position $34, temp1 $40, temp2 $42,
 ;	temp3 $44, temp4 $46, wallcos $4E, wallsin $50, SCnum $52, facedir $54,
@@ -42,13 +42,13 @@ assbench	;player a3 should goto bench
 	addq.w	#8,$40(a3)
 	move.w	$14(a3),d0
 	sub.w	$46(a3),d0
-	dc.w	$B07C,$0028		;cmp.w	#40,d0
+	cmp.w	#40,d0
 	bgt.w	.nodec
-	dc.w	$B07C,$FFD8		;cmp.w	#-40,d0
+	cmp.w	#-40,d0
 	blt.w	.nodec
 	move.w	(a3),d0
 	sub.w	$44(a3),d0
-	dc.w	$B07C,$0020		;cmp.w	#32,d0
+	cmp.w	#32,d0
 	bgt.w	.nodec
 	move.w	#$52C,d1		;SPAglide
 	tst.w	$34(a3)
@@ -62,7 +62,7 @@ assbench	;player a3 should goto bench
 	andi.w	#7,$54(a3)
 .ok	clr.w	$2A(a3)			;IDA: loc_A1D6
 	move.w	#$F800,$28(a3)		;-$800
-	dc.w	$B07C,$0010		;cmp.w	#16,d0
+	cmp.w	#16,d0
 	bgt.w	rtss
 	clr.w	$28(a3)
 	cmpi.w	#4,$54(a3)
@@ -145,7 +145,7 @@ asspenalty	;player a3 should goto penalty box
 	lsr.w	#4,d1
 	neg.w	d0
 .0	andi.w	#$F,d1			;IDA: loc_A332
-	dc.w	$B27C,$0002		;cmp.w	#2,d1
+	cmp.w	#2,d1
 	bls.w	.1
 	moveq	#2,d1
 .1	addq.w	#3,d1			;IDA: loc_A340
@@ -158,13 +158,13 @@ asspenalty	;player a3 should goto penalty box
 	clr.w	$50(a3)			;wallsin
 .nna	move.w	$14(a3),d0		;IDA: loc_A360
 	sub.w	$46(a3),d0
-	dc.w	$B07C,$000C		;cmp.w	#12,d0
+	cmp.w	#12,d0
 	bgt.w	.st
-	dc.w	$B07C,$FFF4		;cmp.w	#-12,d0
+	cmp.w	#-12,d0
 	blt.w	.st
 	move.w	(a3),d0
 	sub.w	$44(a3),d0
-	dc.w	$B07C,$FFE8		;cmp.w	#-24,d0
+	cmp.w	#-24,d0
 	blt.w	.st
 	sub.w	d7,$40(a3)
 	bpl.w	rtss
@@ -182,7 +182,7 @@ asspenalty	;player a3 should goto penalty box
 	andi.w	#7,$54(a3)
 .ok	clr.w	$2A(a3)			;IDA: loc_A3BE
 	move.w	#$1000,$28(a3)
-	dc.w	$B07C,$FFF8		;cmp.w	#-8,d0
+	cmp.w	#-8,d0
 	blt.w	rtss
 	clr.w	$28(a3)
 	cmp.w	$54(a3),d2
@@ -312,7 +312,7 @@ assfight	;fighting logic
 	mulu.w	d1,d0
 	lsr.w	#8,d0
 	lsr.w	#4,d0
-	dc.w	$B07C,$0005		;cmp.w	#5,d0
+	cmp.w	#5,d0
 	bgt.w	.s
 	moveq	#5,d0			;min strength is 5
 .s	move.w	d0,$44(a3)		;IDA: loc_A5C0. temp3 = strength
@@ -346,13 +346,13 @@ assfight	;fighting logic
 	move.w	$28(a0),d1
 	asr.w	#8,d1
 	sub.w	d1,d0
-	dc.w	$B07C,$0014		;cmp.w	#20,d0
+	cmp.w	#20,d0
 	bgt.w	.j
-	dc.w	$B07C,$FFEC		;cmp.w	#-20,d0
+	cmp.w	#-20,d0
 	blt.w	.j
 	moveq	#8,d0
 	bsr.w	randomd0
-	dc.w	$B07C,$0002		;cmp.w	#2,d0
+	cmp.w	#2,d0
 	bls.w	.p
 	andi.w	#1,d0
 .p	asl.w	#1,d0			;IDA: loc_A652
@@ -377,10 +377,10 @@ assfight	;fighting logic
 .jc	move.w	(yc1).w,d1		;IDA: _jc
 	sub.w	$14(a3),d1
 	asl.w	#8,d1
-	dc.w	$B27C,$1000		;cmp.w	#$1000,d1
+	cmp.w	#$1000,d1
 	blt.w	.y1
 	move.w	#$1000,d1
-.y1	dc.w	$B27C,$F000		;IDA: _y1	cmp.w	#-$1000,d1
+.y1	cmp.w	#-$1000,d1		;IDA: _y1
 	bgt.w	.y2
 	move.w	#$F000,d1
 .y2	move.w	d1,$2A(a3)		;IDA: _y2. Yvel
@@ -395,41 +395,41 @@ chkhit	;part of fight to see if player is hit
 	move.w	6(a3),d0		;frame
 	cmp.w	8(a3),d0		;oldframe
 	beq.w	.ex
-	dc.w	$B07C,$0164		;cmp.w	#SPFfight+2,d0
+	cmp.w	#$164,d0		;SPFfight+2,d0
 	beq.w	.dropped
 	move.w	(a3),d0
 	sub.w	(a0),d0
-	dc.w	$B07C,$0016		;cmp.w	#22,d0
+	cmp.w	#22,d0
 	bgt.w	.ex
-	dc.w	$B07C,$FFEA		;cmp.w	#-22,d0
+	cmp.w	#-22,d0
 	blt.w	.ex
 	move.w	$14(a3),d0
 	sub.w	$14(a0),d0
-	dc.w	$B07C,$0008		;cmp.w	#8,d0
+	cmp.w	#8,d0
 	bgt.w	.ex
-	dc.w	$B07C,$FFF8		;cmp.w	#-8,d0
+	cmp.w	#-8,d0
 	blt.w	.ex
 	move.w	6(a3),d0
-	dc.w	$B07C,$0168		;cmp.w	#SPFfight+6,d0
+	cmp.w	#$168,d0		;SPFfight+6,d0
 	beq.w	.hithigh
-	dc.w	$B07C,$016D		;cmp.w	#SPFfight+6+5,d0
+	cmp.w	#$16D,d0		;SPFfight+6+5,d0
 	beq.w	.hithigh
-	dc.w	$B07C,$0169		;cmp.w	#SPFfight+7,d0
+	cmp.w	#$169,d0		;SPFfight+7,d0
 	beq.w	.hitlow
-	dc.w	$B07C,$016E		;cmp.w	#SPFfight+7+5,d0
+	cmp.w	#$16E,d0		;SPFfight+7+5,d0
 	beq.w	.hitlow
-	dc.w	$B07C,$0166		;cmp.w	#SPFfight+4,d0
+	cmp.w	#$166,d0		;SPFfight+4,d0
 	beq.w	.grab
-	dc.w	$B07C,$016B		;cmp.w	#SPFfight+4+5,d0
+	cmp.w	#$16B,d0		;SPFfight+4+5,d0
 	beq.w	.grab
 .ex	movem.l	(sp)+,d0/a0-a3
 	rts
 .dropped	bclr	#5,$63(a3)		;pf2npc: gloves dropped
 	move.w	(xc1).w,d0
-	dc.w	$B07C,$005A		;cmp.w	#90,d0
+	cmp.w	#90,d0
 	blt.w	.chkneg
 	moveq	#$5A,d0
-.chkneg	dc.w	$B07C,$FFA6		;IDA: _chkneg	cmp.w	#-90,d0
+.chkneg	cmp.w	#-90,d0		;IDA: _chkneg
 	bgt.w	.drcont
 	moveq	#-$5A,d0
 .drcont	asr.w	#2,d0			;IDA: _drcont
@@ -672,7 +672,7 @@ assstanley	;player a3 skates with stanley cup overhead
 	move.w	$46(a3),d1
 	sub.w	$14(a3),d1
 	bsr.w	vtoa
-	dc.w	$B07C,$0007		;cmp.w	#7,d0
+	cmp.w	#7,d0
 	bgt.w	rtss
 	move.w	d0,d2
 	move.w	d2,$54(a3)
@@ -732,7 +732,7 @@ assdefo	;player a3 is defensive player on offense
 	btst	#7,$62(a3)
 	bne.w	.de1
 	neg.w	d1
-.de1	dc.w	$B27C,$005D		;IDA: loc_ABAE	cmp.w	#blueline,d1
+.de1	cmp.w	#$5D,d1		;IDA: loc_ABAE. blueline,d1
 	blt.w	assreplace
 	move.w	(puckc).w,d1
 	bmi.w	.nodec
@@ -787,7 +787,7 @@ assdefd	;player a3 is defensive player on defense
 	bpl.w	.v
 	clr.w	d3
 .v	add.w	d1,d3			;IDA: loc_AC72
-	dc.w	$B67C,$0058		;cmp.w	#$58,d3
+	cmp.w	#$58,d3
 	blt.w	.de0
 	btst	#4,$30(a2)
 	bne.w	.de0
@@ -829,7 +829,7 @@ assdefd	;player a3 is defensive player on defense
 .gu0	adda.w	#$80,a0			;IDA: loc_AD0C
 	dbf	d2,.gup
 	subi.w	#$32,d0			;93: 50 back of him
-	dc.w	$B07C,$FF42		;cmp.w	#-190,d0
+	cmp.w	#-190,d0
 	bgt.w	.gu1
 	move.w	#$FF24,d0		;-220
 .gu1	move.w	d0,$46(a3)		;IDA: loc_AD24
@@ -854,7 +854,7 @@ assdefd	;player a3 is defensive player on defense
 .gd0	adda.w	#$80,a0			;IDA: loc_AD68
 	dbf	d2,.gdwn
 	addi.w	#$32,d0
-	dc.w	$B07C,$00BE		;cmp.w	#190,d0
+	cmp.w	#190,d0
 	blt.w	.gd1
 	move.w	#$DC,d0			;220
 .gd1	move.w	d0,$46(a3)		;IDA: loc_AD80
