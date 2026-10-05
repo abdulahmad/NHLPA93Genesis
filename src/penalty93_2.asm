@@ -50,7 +50,7 @@ printscores1	;draw scoreboard. Vertical rink: period box and the score box (team
 	bsr.w	PrintTeamNameAndScore
 	bsr.w	printz
 	String	$BF,$18,$18
-	adda.w	#$1A2,a2		;tmsize
+	adda.w	#tmsize,a2
 	bsr.w	PrintTeamNameAndScore
 .ex	movem.l	(sp)+,d0-d2/a0-a3	;IDA: loc_F042
 	rts
@@ -70,18 +70,18 @@ printscores1	;draw scoreboard. Vertical rink: period box and the score box (team
 	bsr.w	PrintTeamLogoAndScore
 	bsr.w	printz
 	String	$BE,9,1
-	adda.w	#$1A2,a2		;tmsize
+	adda.w	#tmsize,a2
 	moveq	#$30,d0			;visitor logo data offset
 	bsr.w	PrintTeamLogoAndScore
 	bra.s	.ex
 
 PrintTeamNameAndScore	;93: print the team name of team a2 at printx/printy, then its score as 2 digits at x $1C. Called twice from printscores1
-	movea.l	$1E(a2),a1		;tmdata
+	movea.l	tmdata(a2),a1
 	adda.w	4(a1),a1
 	adda.w	(a1),a1			;skip the first string to the team name
 	bsr.w	print
 	move.w	#$1C,(printx).w
-	move.w	$C(a2),d0		;tmscore
+	move.w	tmscore(a2),d0
 	moveq	#2,d1
 	bsr.w	PushNumberWidth
 	bra.w	print
@@ -92,7 +92,7 @@ PrintTeamLogoAndScore	;IDA: PrintTeamLogoAndScore?. 93: draw the team logo map (
 	jsr	(PrintTeamData).w
 	move.w	(sp)+,(printx).w
 	addq.w	#2,(printy).w
-	move.w	$C(a2),d0		;tmscore
+	move.w	tmscore(a2),d0
 	bsr.w	PushNumber
 	move.w	(a1),d0			;center on the old printx
 	subq.w	#2,d0
@@ -137,7 +137,7 @@ USBoard	;update score board, including the players in the penalty box and their 
 .l1	clr.w	d0			;IDA: loc_F154
 	move.b	(a0)+,d0
 	bmi.w	.p2			;end of list
-	btst	#6,$66(a2,d0.w)		;tmpdst high byte bit 6
+	btst	#6,tmpdst(a2,d0.w)		;tmpdst high byte bit 6
 	bne.s	.l1
 	bsr.w	pplpen
 	bra.s	.l1
@@ -145,7 +145,7 @@ USBoard	;update score board, including the players in the penalty box and their 
 .l2	clr.w	d0			;IDA: loc_F16E
 	move.b	(a0)+,d0
 	bmi.w	rtss
-	btst	#6,$66(a2,d0.w)
+	btst	#6,tmpdst(a2,d0.w)
 	beq.s	.l2
 	bsr.w	pplpen
 	bra.s	.l2
@@ -153,9 +153,9 @@ USBoard	;update score board, including the players in the penalty box and their 
 pplpen	;IDA: pplpen?. Print one penalty box line: player number and time remaining. a2 = team, d0 = roster offset (player*2). Only rows up to y $A are printed; printy += 1. Called from USBoard .dispen
 	cmpi.w	#$A,(printy).w
 	bhi.w	rtss			;no room for more rows
-	move.w	$66(a2,d0.w),d2		;tmpdst
+	move.w	tmpdst(a2,d0.w),d2
 	andi.w	#$7FF,d2		;penalty time
-	movea.l	$1E(a2),a1		;tmdata
+	movea.l	tmdata(a2),a1
 	adda.w	(a1),a1
 	lsr.w	#1,d0
 .find	adda.w	(a1),a1			;IDA: loc_F19E. skip d0+1 roster entries (name string + 8 bytes)
@@ -209,7 +209,7 @@ getlinee	;d0 = line number, a2 = team struct. Return d0 = energy level of this l
 	clr.l	d0
 	clr.w	d1
 	movea.l	#priolist,a0
-	move.w	$24(a2),d4		;tmap
+	move.w	tmap(a2),d4
 	bra.w	.next
 .loop	clr.w	d5			;IDA: loc_F244
 	move.b	(a0,d4.w),d5		;position
@@ -218,7 +218,7 @@ getlinee	;d0 = line number, a2 = team struct. Return d0 = energy level of this l
 	move.b	(a1,d5.w),d3		;player number
 	asl.w	#1,d3
 	addq.w	#1,d1
-	add.w	$30(a2,d3.w),d0		;tmpde-2
+	add.w	tmpde-2(a2,d3.w),d0
 .next	dbf	d4,.loop		;IDA: loc_F25C
 	divu.w	d1,d0
 	movem.l	(sp)+,d1-d5/a0-a3
@@ -229,13 +229,13 @@ AvgCline	;return d0 = average energy of current line on team a2
 	clr.l	d0
 	clr.w	d1
 	moveq	#5,d2
-	movea.w	$22(a2),a0		;tmsort
-.l0	tst.w	$34(a0)			;IDA: loc_F276. position
+	movea.w	tmsort(a2),a0
+.l0	tst.w	position(a0)			;IDA: loc_F276
 	ble.w	.next
 	clr.w	d3
-	move.b	$66(a0),d3		;pnum
+	move.b	pnum(a0),d3
 	add.w	d3,d3
-	add.w	$32(a2,d3.w),d0		;tmpde
+	add.w	tmpde(a2,d3.w),d0
 	addq.w	#1,d1
 .next	adda.w	#SCstruct,a0			;IDA: loc_F28C
 	dbf	d2,.l0
@@ -258,10 +258,10 @@ ChkShotStat	;add to shot stat if a shot was taken. 93 also raises the crowd and 
 	bsr.w	loadTeamStruct
 	addq.w	#1,(a2)			;tmshots
 	clr.w	d0
-	move.b	$66(a3),d0		;pnum
+	move.b	pnum(a3),d0
 	addi.w	#$E8,d0
 	addq.b	#1,(a2,d0.w)		;shooter's shot count
-	move.w	$26(a1),d0		;other team's tmgoalie
+	move.w	tmgoalie(a1),d0		;other team's tmgoalie
 	bmi.w	.ex			;empty net
 	addi.w	#$E8,d0
 	addq.b	#1,(a1,d0.w)		;goalie's shots against
@@ -270,7 +270,7 @@ ChkShotStat	;add to shot stat if a shot was taken. 93 also raises the crowd and 
 
 loadTeamStruct	;93: return a2 = team struct of player a3, a1 = the other team's struct. Called from ChkShotStat and updateplayers
 	movea.w	#(hmtmstruct-M68K_RAM),a2
-	lea	$1A2(a2),a1		;tmsize
+	lea	tmsize(a2),a1
 	btst	#6,pflags(a3)		;pfteam
 	beq.w	rtss
 	exg	a1,a2
@@ -279,28 +279,28 @@ loadTeamStruct	;93: return a2 = team struct of player a3, a1 = the other team's 
 SetupTeamForIntermission	;93: reset the bench, then for each team refill energy and pick the starting line: 92 Pw1 (3) for the team with more players on ice, PK1 (5) for the team with fewer, else 0. Called from Intermission
 	bsr.w	ResetBench
 	movea.w	#(hmtmstruct-M68K_RAM),a2
-	lea	$1A2(a2),a3		;tmsize
+	lea	tmsize(a2),a3
 	bsr.w	.r
 	exg	a2,a3			;falls in for the other team
 .r	bsr.w	reenergizeteam		;IDA: restoreteams (name taken by the hockey93_01 92 restoreteams)
-	clr.w	$16(a3)			;tmline
+	clr.w	tmline(a3)
 	tst.w	(OptLine).w
 	bne.w	rtss			;line changes off
-	move.w	$24(a3),d0		;tmap
-	sub.w	$24(a2),d0
+	move.w	tmap(a3),d0
+	sub.w	tmap(a2),d0
 	beq.w	rtss
-	move.w	#3,$16(a3)		;Pw1
+	move.w	#3,tmline(a3)		;Pw1
 	tst.w	d0
 	bpl.w	rtss
-	move.w	#5,$16(a3)		;PK1
+	move.w	#5,tmline(a3)		;PK1
 	rts
 
 reenergizeteam	;set all players to max energy on team a2. 93 also moves players marked -3 in tmpdst to the bench (-2). Called from SetupTeamForIntermission and StartHL2 .setteam
 	moveq	#$32,d0			;(MaxRos-1)*2
-.0	move.w	#$1000,$32(a2,d0.w)	;IDA: loc_F34C. tmpde
-	cmpi.w	#-3,$66(a2,d0.w)	;tmpdst
+.0	move.w	#$1000,tmpde(a2,d0.w)	;IDA: loc_F34C
+	cmpi.w	#-3,tmpdst(a2,d0.w)
 	bne.w	.nb
-	move.w	#-2,$66(a2,d0.w)	;on bench
+	move.w	#-2,tmpdst(a2,d0.w)	;on bench
 .nb	subq.w	#2,d0			;IDA: loc_F362
 	bpl.s	.0
 	rts
@@ -660,13 +660,13 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	bsr.w	ResetBench
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	bsr.w	.setteam
-	adda.w	#$1A2,a2		;tmsize
+	adda.w	#tmsize,a2
 	bsr.w	.setteam
 	bsr.w	resetplstuff
 	moveq	#$B,d0
 	movea.l	#.postab,a0
 	movea.w	#(SortCords-M68K_RAM),a1
-.ploop	move.w	$34(a1),d1		;IDA: loc_F904. position
+.ploop	move.w	position(a1),d1		;IDA: loc_F904
 	btst	#7,pflags(a1)		;pfgoal
 	bne.w	.pl0
 	addq.w	#6,d1
@@ -674,7 +674,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	move.w	(a0,d1.w),(a1)		;Xpos
 	move.w	2(a0,d1.w),Ypos(a1)
 	clr.w	Xvel(a1)
-	clr.w	$2A(a1)			;Yvel
+	clr.w	Yvel(a1)
 	adda.w	#SCstruct,a1
 	dbf	d0,.ploop
 	bsr.w	SprSort

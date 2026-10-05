@@ -161,7 +161,7 @@ ScrollArrowTable	;DrawScrollArrows strings: none, up, down. Only 3 entries (the
 LineEditor	;IDA: no label (Rev A $6E16). "Line Editor" screen for team a2.
 	;Pick a line slot, then a player to put there. Entered from outside this
 	;segment (menu item handler)
-	bset	#0,$30(a2)		;set on entry to the line editor
+	bset	#0,tmflags(a2)		;set on entry to the line editor
 	moveq	#0,d0
 	moveq	#$1C,d1
 	bsr.w	SetupScreen
@@ -656,7 +656,7 @@ TeamRosterScreen	;IDA: no label (Rev A $74AA). "Team Roster" screen for team a2:
 	moveq	#$17,d1
 	bsr.w	SetupScreen
 	moveq	#1,d0
-	add.w	$16(a2),d0		;start on the current line
+	add.w	tmline(a2),d0		;start on the current line
 	move.w	d0,(SelectedPlayerIdx).w
 	clr.w	(DispAttribCtr).w
 .redraw	bsr.w	printz			;IDA: loc_74C0
@@ -722,7 +722,7 @@ TeamRosterScreen	;IDA: no label (Rev A $74AA). "Team Roster" screen for team a2:
 	move.w	d0,(DispAttribCtr).w
 	bsr.w	DisplayPlayerList
 	bra.s	.scroll
-.team	lea	$1A2(a2),a2		;IDA: loc_75D8. tmstruct size $1A2
+.team	lea	tmsize(a2),a2		;IDA: loc_75D8
 	cmpa.w	#(awtmstruct-M68K_RAM),a2
 	beq.w	.redraw
 	movea.w	#(hmtmstruct-M68K_RAM),a2
@@ -887,7 +887,7 @@ GetNameandAttrib	;print player d0's name, then at x $1E the column picked by
 	move.w	#$1E,(printx).w
 	cmp.w	#2,d4
 	bls.w	.jump			;status/energy: no ratings
-	movea.l	$1E(a2),a0		;team data, player records
+	movea.l	tmdata(a2),a0		;team data, player records
 	adda.w	(a0),a0
 .0	adda.w	(a0),a0			;IDA: loc_784E
 	addq.w	#8,a0
@@ -928,7 +928,7 @@ AttribStatus	;IDA: no label ("jump for status"). Player d0's word at $66(a2):
 	;negative = not'ed status 0-2 (Ice/Bench/Injury P), positive = penalty
 	;time (bit $C injured G, bit $E prints C)
 	add.w	d0,d0
-	move.w	$66(a2,d0.w),d0
+	move.w	tmpdst(a2,d0.w),d0
 	bpl.w	.pen
 	not.w	d0
 	cmp.w	#2,d0
@@ -968,7 +968,7 @@ StatusTextTbl	;AttribStatus strings
 
 AttribEnergy	;IDA: no label ("jump for energy"). $32(a2) word / 40, max 100
 	add.w	d0,d0
-	move.w	$32(a2,d0.w),d0
+	move.w	tmpde(a2,d0.w),d0
 	ext.l	d0
 	divu.w	#$28,d0
 	cmp.w	#100,d0
@@ -1152,8 +1152,8 @@ DisplayGameStatEntry	;print ScoreSum entry at offset d3: time, team (bit 7 of
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	btst	#7,2(a0,d3.w)
 	beq.w	.0
-	adda.w	#$1A2,a2
-.0	movea.l	$1E(a2),a1		;IDA: loc_7B96
+	adda.w	#tmsize,a2
+.0	movea.l	tmdata(a2),a1		;IDA: loc_7B96
 	adda.w	4(a1),a1
 	adda.w	(a1),a1
 	move.w	#$C,(printx).w
@@ -1337,8 +1337,8 @@ DisplayPenaltyEntry	;print penalty entry at offset d3: time, team (bit 7 of
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	btst	#7,2(a0,d3.w)
 	beq.w	.0
-	adda.w	#$1A2,a2
-.0	movea.l	$1E(a2),a1		;IDA: loc_7E18
+	adda.w	#tmsize,a2
+.0	movea.l	tmdata(a2),a1		;IDA: loc_7E18
 	adda.w	4(a1),a1
 	adda.w	(a1),a1
 	move.w	#$C,(printx).w
@@ -1398,7 +1398,7 @@ DisplayTeamStats	;"Playoff Stats": DisplayAttributeScreen with d7 = 1 for the
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	cmp.w	$28(a2),d0
 	beq.w	.0
-	adda.w	#$1A2,a2
+	adda.w	#tmsize,a2
 .0	moveq	#1,d7			;IDA: loc_7F06
 	bsr.w	DisplayAttributeScreen
 	movem.l	(sp)+,a2
@@ -1473,7 +1473,7 @@ DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	bra.s	.scroll
 .switch	tst.w	d7			;IDA: loc_801C. No team switch in playoff stats
 	bne.s	.scroll
-	lea	$1A2(a2),a2
+	lea	tmsize(a2),a2
 	cmpa.w	#(awtmstruct-M68K_RAM),a2
 	beq.w	.redraw
 	movea.w	#(hmtmstruct-M68K_RAM),a2
@@ -1577,7 +1577,7 @@ DisplayAttributeMenu	;stats screen: column headers (sort column highlighted),
 	bsr.w	CheckAttributeValid
 .4	ext.l	d2			;IDA: loc_8176
 	asl.l	#8,d2
-	movea.l	$1E(a2),a1
+	movea.l	tmdata(a2),a1
 	adda.w	(a1),a1
 	move.w	d0,d1
 	subq.w	#8,a1
@@ -1855,7 +1855,7 @@ DisplayTeamStatsScreen	;team logos, then each TeamStatTextTbl row centred with
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	bsr.w	FormatStatValue
 	move.w	#9,(printx).w
-	lea	$1A2(a2),a2
+	lea	tmsize(a2),a2
 	bsr.w	FormatStatValue
 	lea	4(a0),a1
 	addq.w	#2,(printy).w
@@ -2092,7 +2092,7 @@ SelectGoalieMenu	;IDA: no label (Rev A $890A). Pick team a2's goalie from a
 	moveq	#3,d1
 	add.w	(dword_FFC9B4+2).w,d1
 	bsr.w	Framer
-	move.w	$26(a2),d0
+	move.w	tmgoalie(a2),d0
 	bpl.w	.0
 	moveq	#-1,d0
 .0	addq.w	#1,d0			;IDA: loc_893A
@@ -2119,9 +2119,9 @@ SelectGoalieMenu	;IDA: no label (Rev A $890A). Pick team a2's goalie from a
 .done	move.w	(dword_FFC9B4).w,d0	;IDA: loc_8982
 	subq.w	#1,d0
 	bpl.w	.set
-	cmpi.w	#-1,$26(a2)
+	cmpi.w	#-1,tmgoalie(a2)
 	blt.w	.x
-.set	move.w	d0,$26(a2)		;IDA: loc_8996
+.set	move.w	d0,tmgoalie(a2)		;IDA: loc_8996
 	jsr	(setpersonel).l
 .x	move.w	(sp)+,(dword_FFC9B4+2).w	;IDA: loc_89A0
 	move.w	(sp)+,(dword_FFC9B4).w
@@ -2147,7 +2147,7 @@ DisplayPlayerSelectMenu	;draw the goalie list, row dword_FFC9B4 highlighted,
 	dc.w	$000C
 	dc.b	'no goalie',0
 	bra.w	.next
-.player	movea.l	$1E(a2),a1		;IDA: loc_8A0A+2
+.player	movea.l	tmdata(a2),a1		;IDA: loc_8A0A+2
 	adda.w	(a1),a1
 	move.w	d0,d2
 	subq.w	#1,d2
@@ -2177,7 +2177,7 @@ DisplayPlayerSelectMenu	;draw the goalie list, row dword_FFC9B4 highlighted,
 ReadAttributeNibble	;d0 = goalies on team a2 (nibbles in the team data word
 	;at offset $A)
 	movem.l	d1/a0,-(sp)
-	movea.l	$1E(a2),a0
+	movea.l	tmdata(a2),a0
 	adda.w	$A(a0),a0
 	move.w	(a0),d1
 	clr.w	d0
@@ -2190,7 +2190,7 @@ ReadAttributeNibble	;d0 = goalies on team a2 (nibbles in the team data word
 ProcessNibble	;d0 = forwards on team a2 (high nibble of team data byte 3 at
 	;the offset in word 8)
 	movem.l	a0,-(sp)
-	movea.l	$1E(a2),a0
+	movea.l	tmdata(a2),a0
 	adda.w	8(a0),a0
 	move.b	3(a0),d0
 	lsr.w	#4,d0
@@ -2200,7 +2200,7 @@ ProcessNibble	;d0 = forwards on team a2 (high nibble of team data byte 3 at
 
 GetPlayerCount	;d0 = players on team a2 (records until a length word of 2)
 	movem.l	a0,-(sp)
-	movea.l	$1E(a2),a0
+	movea.l	tmdata(a2),a0
 	adda.w	(a0),a0
 	clr.w	d0
 loopthroughplayers

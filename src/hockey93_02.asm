@@ -82,7 +82,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	moveq	#$B,d2			;12 players
 	move.l	#$100,d4		;nearest distance squared so far
 	movem.w	d0-d1,-(sp)
-.obj	cmp.w	$52(a1),d3		;IDA: CheckObjectLoop
+.obj	cmp.w	SCnum(a1),d3		;IDA: CheckObjectLoop
 	beq.w	.skip
 	movem.w	(sp),d0-d1
 	sub.w	(a1),d0
@@ -106,7 +106,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	cmp.l	d4,d0
 	bhi.w	.skip			;not nearer
 	move.l	d0,d4
-	move.w	$52(a1),$16(a5)		;SCnum of new target
+	move.w	SCnum(a1),$16(a5)		;new target
 	bset	#5,(sflags3).w
 .skip	adda.w	#SCstruct,a1			;IDA: SkipObject
 	dbf	d2,.obj
@@ -302,27 +302,27 @@ RestoreReplayFrame	;a4 = current replay frame address to convert into normal
 	dbf	d1,.top
 	moveq	#5,d2			;6 pairs of players
 	movea.w	#(SortCords-M68K_RAM),a3
-.pl	move.b	(a0)+,$6F(a3)		;IDA: loc_8EF8
+.pl	move.b	(a0)+,rostnum(a3)		;IDA: loc_8EF8
 	move.b	(a0),d0
 	andi.w	#$F,d0
 	cmp.w	#$F,d0
 	bne.w	.n0
 	moveq	#-1,d0			;$F = not on ice
-.n0	move.w	d0,$34(a3)		;IDA: loc_8F0C. position
+.n0	move.w	d0,position(a3)		;IDA: loc_8F0C
 	adda.w	#SCstruct,a3
 	move.b	(a0)+,d0
 	lsr.b	#4,d0
-	move.b	d0,$6F(a3)
+	move.b	d0,rostnum(a3)
 	move.b	(a0),d0
 	asl.b	#4,d0
-	or.b	d0,$6F(a3)
+	or.b	d0,rostnum(a3)
 	move.b	(a0)+,d0
 	lsr.b	#4,d0
 	andi.w	#$F,d0
 	cmp.w	#$F,d0
 	bne.w	.n1
 	moveq	#-1,d0
-.n1	move.w	d0,$34(a3)		;IDA: loc_8F36
+.n1	move.w	d0,position(a3)		;IDA: loc_8F36
 	adda.w	#SCstruct,a3
 	dbf	d2,.pl
 	move.b	(a0)+,d0
@@ -395,20 +395,20 @@ updatereplay	;called every frame to save replay events, d7 = elapsed frames
 	dbf	d2,.top
 	moveq	#5,d2			;6 pairs of players
 	movea.w	#(SortCords-M68K_RAM),a3
-.pl	move.b	$6F(a3),(a0)+		;IDA: loc_9034
-	move.w	$34(a3),d0		;position
+.pl	move.b	rostnum(a3),(a0)+		;IDA: loc_9034
+	move.w	position(a3),d0
 	bpl.w	.n0
 	moveq	#$F,d0			;not on ice
 .n0	andi.w	#$F,d0			;IDA: loc_9042
 	move.b	d0,(a0)
 	adda.w	#SCstruct,a3
-	move.b	$6F(a3),d0
+	move.b	rostnum(a3),d0
 	asl.w	#4,d0
 	or.b	d0,(a0)+
-	move.b	$6F(a3),d0
+	move.b	rostnum(a3),d0
 	lsr.b	#4,d0
 	move.b	d0,(a0)
-	move.w	$34(a3),d0
+	move.w	position(a3),d0
 	bpl.w	.n1
 	moveq	#$F,d0
 .n1	asl.w	#4,d0			;IDA: nonshift (misplaced name, not 92 nonshift)
@@ -436,28 +436,28 @@ updateplayers
 	bne.w	.u0
 	ori.w	#$F,(PadControlBits).w
 .u0	movea.w	#(SortCords-M68K_RAM),a3	;IDA: _scload
-.top	move.l	(a3),$1C(a3)		;IDA: _top. Xpos -> OldXpos
-	move.l	Ypos(a3),$20(a3)		;-> OldYpos
-	move.l	Zpos(a3),$24(a3)		;-> OldZpos
-	tst.w	$34(a3)			;position
+.top	move.l	(a3),OldXpos(a3)		;IDA: _top. Xpos
+	move.l	Ypos(a3),OldYpos(a3)
+	move.l	Zpos(a3),OldZpos(a3)
+	tst.w	position(a3)
 	bmi.w	.nf1			;player is not on ice
 	bsr.w	updateanim
-	sub.b	d7,$5E(a3)		;puck control (92 nopuck)
+	sub.b	d7,nopuck(a3)		;puck control
 	bpl.w	.np
-	clr.b	$5E(a3)
+	clr.b	nopuck(a3)
 .np	sub.b	d7,$5F(a3)		;IDA: loc_90DE
 	bpl.w	.np2
 	clr.b	$5F(a3)
 .np2	btst	#6,(sflags3).w		;IDA: loc_90EA. Check line change mode
 	beq.w	.vel
 	clr.w	d0
-	move.b	$66(a3),d0
+	move.b	pnum(a3),d0
 	bmi.w	.vel
 	add.w	d0,d0
 	addi.w	#$136,d0
 	bsr.w	loadTeamStruct
 	addq.w	#1,(a2,d0.w)		;count frames on ice for this player
-.vel	cmpi.w	#$1616,$58(a3)		;IDA: loc_910C. SPA $1616: skip movement and bounce
+.vel	cmpi.w	#$1616,SPA(a3)		;IDA: loc_910C. $1616: skip movement and bounce
 	beq.w	.done
 ;----------------------------------	now update velocity
 	move.w	d7,d4			;Rev A: moveq #$10 or #$14 (music_global_tick_counter), mulu d7
@@ -474,39 +474,39 @@ updateplayers
 	bne.w	.x1
 	moveq	#1,d0
 .x1	sub.w	d0,Xvel(a3)
-.x2	move.w	$2A(a3),d0		;Yvel
+.x2	move.w	Yvel(a3),d0
 	beq.w	.y2
 	asr.w	d2,d0
 	bne.w	.y1
 	moveq	#1,d0
-.y1	sub.w	d0,$2A(a3)
+.y1	sub.w	d0,Yvel(a3)
 .y2	move.w	Xvel(a3),d0
 	beq.w	.x3
 	muls.w	d4,d0
 	add.l	d0,(a3)
-.x3	move.w	$2A(a3),d0
+.x3	move.w	Yvel(a3),d0
 	beq.w	.y3
 	muls.w	d4,d0
 	add.l	d0,Ypos(a3)
 .y3	tst.w	Zpos(a3)
 	bmi.w	.done
 	bne.w	.z1
-	tst.w	$2C(a3)			;Zvel
+	tst.w	Zvel(a3)
 	beq.w	.done
 .z1	asl.w	#1,d4			;*32	gravity
-	sub.w	d4,$2C(a3)
+	sub.w	d4,Zvel(a3)
 	asl.w	#1,d4			;*64
-	sub.w	d4,$2C(a3)
+	sub.w	d4,Zvel(a3)
 	lsr.w	#2,d4
-	move.w	$2C(a3),d0
+	move.w	Zvel(a3),d0
 	muls.w	d4,d0
 	add.l	d0,Zpos(a3)
 	bpl.w	.done
 	clr.l	Zpos(a3)			;bounce off the ice
-	neg.w	$2C(a3)
-	asr.w	$2C(a3)			;92: lsr
+	neg.w	Zvel(a3)
+	asr.w	Zvel(a3)			;92: lsr
 	moveq	#5,d0
-	sub.b	$2C(a3),d0
+	sub.b	Zvel(a3),d0
 	bpl.w	.snd
 	clr.w	d0
 .snd	cmp.w	#3,d0		;IDA: loc_91C4
@@ -514,7 +514,7 @@ updateplayers
 	addi.w	#$2C,d0			;bounce sound $2C-$2F by speed (92 SFXpuckice once)
 	move.w	d0,-(sp)
 	bsr.w	sfx
-.done	move.w	$52(a3),d6		;IDA: loc_91D6. SCnum
+.done	move.w	SCnum(a3),d6		;IDA: loc_91D6
 	cmp.w	(puckc).w,d6
 	bne.w	.tp			;not puck carrier
 	btst	#0,pflags2(a3)		;pf2fight
@@ -534,48 +534,48 @@ updateplayers
 	bsr.w	Readjoy2
 	moveq	#2,d4			;pad index for cont 2 player
 	bsr.w	doinput
-.t1	move.w	$36(a3),d0		;IDA: loc_9224. assnum (93 has no pfalock test here)
+.t1	move.w	assnum(a3),d0		;IDA: loc_9224. 93 has no pfalock test here
 	clr.w	d1
-	move.b	$38(a3,d0.w),d1		;asslist
+	move.b	asslist(a3,d0.w),d1
 	asl.w	#2,d1
 	movea.l	#asstab,a0
 	movea.l	(a0,d1.w),a0
 	bsr.w	loadTeamStruct
 	jsr	(a0)			;call assignment for this player
-	clr.w	$4E(a3)
-	clr.w	$50(a3)
+	clr.w	Wallcos(a3)
+	clr.w	Wallsin(a3)
 	move.w	(a3),d2
 	move.w	Ypos(a3),d3
-	cmp.w	$1C(a3),d2
+	cmp.w	OldXpos(a3),d2
 	bne.w	.cc
-	cmp.w	$20(a3),d3
+	cmp.w	OldYpos(a3),d3
 	beq.w	.nf
 .cc	bsr.w	checkcoll		;IDA: loc_925E. Check for coll if moved by at least 1 pix
 .nf	move.w	d7,d0			;IDA: loc_9262
 	asl.w	#1,d0
-	sub.w	d0,$32(a3)		;reduce impact at constant rate
+	sub.w	d0,impact(a3)		;reduce impact at constant rate
 	bpl.w	.nf1
-	clr.w	$32(a3)
-.nf1	move.w	$32(a3),$30(a3)		;IDA: loc_9272. limpact = impact
+	clr.w	impact(a3)
+.nf1	move.w	impact(a3),limpact(a3)		;IDA: loc_9272
 	adda.w	#SCstruct,a3
-	cmpi.w	#$F,-$2E(a3)		;SCnum of the struct just done
+	cmpi.w	#$F,SCnum-SCstruct(a3)		;the struct just done
 	blt.w	.top			;loop for all Sort objects
 	rts
 
 updateanim	;frame switch control on struct a3. Also called from
 	;UpdateTeamNameAnimation
-	tst.w	$58(a3)			;SPA
+	tst.w	SPA(a3)
 	bne.w	.ia
 	bclr	#5,pflags(a3)		;pfalock
 	bclr	#1,pflags2(a3)		;pf2aip
 	rts
 .ia	movea.l	#SPAList,a0		;IDA: loc_929E. Animation data tables (frames)
-	adda.w	$58(a3),a0
+	adda.w	SPA(a3),a0
 	move.w	$10(a0),d1		;attributes for anim
-	move.w	$54(a3),d0		;facedir
+	move.w	facedir(a3),d0
 	btst	#7,(sflags).w		;sfhor
 	beq.w	.nhor
-	cmpi.w	#$C,$52(a3)
+	cmpi.w	#$C,SCnum(a3)
 	bge.w	.nhor
 	subq.w	#2,d0			;direction adj for horizontal rink
 	andi.w	#7,d0
@@ -586,34 +586,34 @@ updateanim	;frame switch control on struct a3. Also called from
 	andi.w	#7,d0
 .nox	asl.w	#1,d0			;IDA: loc_92DC
 	adda.w	(a0,d0.w),a0
-	move.w	$5A(a3),d0		;SPAnum
+	move.w	SPAnum(a3),d0
 	move.w	(a0,d0.w),d2		;new frame
-	tst.w	$5C(a3)			;SPAcnt
+	tst.w	SPAcnt(a3)
 	bmi.w	.1
-	sub.w	d7,$5C(a3)
+	sub.w	d7,SPAcnt(a3)
 	bpl.w	.cframe
-	addq.w	#4,$5A(a3)
+	addq.w	#4,SPAnum(a3)
 	addq.w	#4,d0
 	tst.w	-2(a0,d0.w)
 	bpl.w	.1
 	clr.w	d0
-	clr.w	$5A(a3)
+	clr.w	SPAnum(a3)
 	bclr	#5,pflags(a3)
 	bclr	#1,pflags2(a3)
 	btst	#0,d1
 	bne.w	.1			;looper
-	clr.w	$58(a3)
+	clr.w	SPA(a3)
 .1	move.w	2(a0,d0.w),d0		;IDA: loc_9326
 	bpl.w	.0
 	neg.w	d0
-.0	move.w	d0,$5C(a3)		;IDA: loc_9330
-.cframe	sub.b	d7,$65(a3)		;IDA: loc_9334. Limit minimum time between frame switches
+.0	move.w	d0,SPAcnt(a3)		;IDA: loc_9330
+.cframe	sub.b	d7,glitch(a3)		;IDA: loc_9334. Limit minimum time between frame switches
 	bpl.w	rtss
-	clr.b	$65(a3)
+	clr.b	glitch(a3)
 	cmp.w	frame(a3),d2
 	beq.w	rtss
 	move.w	d2,frame(a3)
-	move.b	#4,$65(a3)		;/60 sec min frame switch time
+	move.b	#4,glitch(a3)		;/60 sec min frame switch time
 	rts
 
 freezewindow	;lock scrolling to current position
@@ -646,7 +646,7 @@ checkwindow	;set hpos and vpos according to how screen should follow puck
 	cmpi.w	#$FFCE,(yleader).w	;-.ylmax
 	bgt.w	.ok
 	move.w	#$FFCE,(yleader).w
-.ok	move.w	$2A(a3),d2		;IDA: loc_93C8. Yvel
+.ok	move.w	Yvel(a3),d2		;IDA: loc_93C8
 	asr.w	#7,d2
 	add.w	Ypos(a3),d2
 	add.w	(yleader).w,d2

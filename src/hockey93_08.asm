@@ -401,7 +401,7 @@ UpdateTeamNameisplay	;93: (IDA name, it prints nothing) pick the goalie shown fo
 	;weighted random roster index from the 4 nibbles at team data +$A offset (UnpackNibbles / WeightedRandomSelect).
 	;$26 stays 0 when a pad controls the team, gamelevel > 2 or OptLine is set. Called from UpdateTeamNameAnimation
 	movem.l	d0/a0,-(sp)
-	clr.w	$26(a2)
+	clr.w	tmgoalie(a2)
 	bsr.w	FigureJoy		;sets cont1team / cont2team
 	cmpa.w	#(hmtmstruct-M68K_RAM),a2
 	seq	d0
@@ -424,7 +424,7 @@ UpdateTeamNameisplay	;93: (IDA name, it prints nothing) pick the goalie shown fo
 	moveq	#4,d0
 	bsr.w	UnpackNibbles
 	bsr.w	WeightedRandomSelect	;d0 = index 0-3
-.set	move.w	d0,$26(a2)		;IDA: loc_13FD4
+.set	move.w	d0,tmgoalie(a2)		;IDA: loc_13FD4
 .x	movem.l	(sp)+,d0/a0		;IDA: loc_13FD8
 	rts
 
@@ -434,7 +434,7 @@ UpdateBothTeamDisplays	;93: run the roster player in both team blocks and build 
 	moveq	#1,d7
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	bsr.w	UpdateTeamNameAnimation
-	adda.w	#$1A2,a2		;tmsize: awtmstruct
+	adda.w	#tmsize,a2		;awtmstruct
 	bsr.w	UpdateTeamNameAnimation
 	bsr.w	UpdateTeamSprites
 	movem.l	(sp)+,d0-d7/a0-a6
@@ -452,8 +452,8 @@ UpdateTeamNameAnimation	;93: roster player of team a2 (sprite struct a3 = $22(a2
 	bsr.w	UpdateTeamNameisplay
 	clr.w	2(a2)			;first RosterOrderTable entry
 	bsr.w	ClearAndSetFlag
-.same	movea.w	$22(a2),a3		;IDA: loc_14016. tmsort
-	btst	#2,$30(a2)
+.same	movea.w	tmsort(a2),a3		;IDA: loc_14016
+	btst	#2,tmflags(a2)
 	beq.w	.in
 	addq.w	#3,$24(a3)		;sliding out
 	addq.w	#3,$1C(a3)		;x offset
@@ -532,13 +532,13 @@ UpdateTeamNameAnimation	;93: roster player of team a2 (sprite struct a3 = $22(a2
 ClearAndSetFlag	;93: erase the name of team a2 and set bit 2 of $30(a2) (slide the player out).
 	;Called and branched to from UpdateTeamNameAnimation
 	bsr.w	ClearOptionDisplay
-	bset	#2,$30(a2)
+	bset	#2,tmflags(a2)
 	rts
 
 SetupNextPlayer	;IDA: loc_14120. 93: player of team a2 slid out. Load the team palette (setplayercolors .sp), put the
 	;sprite at x offset -40, take the next RosterOrderTable slot (goalie slot: $26(a2)), set the sprite flag from
 	;the player data and pick his animation script from the ratings. Branched to from UpdateTeamNameAnimation
-	movea.l	$1E(a2),a0		;tmdata
+	movea.l	tmdata(a2),a0
 	adda.w	2(a0),a0		;Palettedata
 	movea.w	#(palbuffer-M68K_RAM),a1
 	moveq	#7,d0
@@ -549,8 +549,8 @@ SetupNextPlayer	;IDA: loc_14120. 93: player of team a2 slid out. Load the team p
 .pal	move.l	(a0)+,(a1)+		;IDA: loc_1413E
 	dbf	d0,.pal
 	move.w	#$18,(palcount).w	;24
-	bclr	#2,$30(a2)
-	movea.w	$22(a2),a3		;tmsort
+	bclr	#2,tmflags(a2)
+	movea.w	tmsort(a2),a3
 	move.w	#$FFD8,$1C(a3)		;x offset -40
 	clr.w	$58(a3)
 .next	move.w	2(a2),d0		;IDA: loc_1415E
@@ -567,7 +567,7 @@ SetupNextPlayer	;IDA: loc_14120. 93: player of team a2 slid out. Load the team p
 	subq.w	#1,d0			;roster index
 	tst.w	6(a2)
 	bne.w	.pn
-	move.w	$26(a2),d0		;slot 0 (goalie): UpdateTeamNameisplay's pick
+	move.w	tmgoalie(a2),d0		;slot 0 (goalie): UpdateTeamNameisplay's pick
 .pn	move.w	d0,4(a2)		;IDA: loc_14192
 	bsr.w	GetTeamNamePtr
 	adda.w	(a0),a0			;past the name
@@ -611,7 +611,7 @@ ValidateCharacterNibbles	;93: rating d1 against the next (minimum, script) pair 
 
 GetTeamNamePtr	;93: a0 = roster entry d0 of team a2 (name string, then 8 bytes: number and ratings).
 	;Called from UpdateTeamNameAnimation and SetupNextPlayer
-	movea.l	$1E(a2),a0		;tmdata
+	movea.l	tmdata(a2),a0
 	adda.w	(a0),a0			;player data
 	bra.w	.cnt
 .next	adda.w	(a0),a0			;IDA: loc_14222. skip the name

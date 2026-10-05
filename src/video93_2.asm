@@ -209,9 +209,9 @@ uppads	;update the gloves object and the 4 pad objects, and queue new pad labels
 	move.w	(a2,d0.w),(a0)		;Xpos of that player
 	move.w	Ypos(a2,d0.w),Ypos(a0)
 	clr.w	Zpos(a0)			;shown
-	move.b	$35(a2,d0.w),d1		;label code = player byte $35 << 8 | player byte $6F
+	move.b	position+1(a2,d0.w),d1	;label code = position << 8 | rostnum
 	asl.w	#8,d1
-	move.b	$6F(a2,d0.w),d1
+	move.b	rostnum(a2,d0.w),d1
 .chg	cmp.w	(a1),d1			;IDA: loc_11F9E
 	beq.w	.next			;same label as last time
 	move.w	d1,(a1)
@@ -264,7 +264,7 @@ RenderSmallFontChar	;93 only, the 92 uppads .pd job: dma one small font tile to 
 	lea	$A(a3,d2.w),a3		;tile data
 	move.l	a3,(a5)+
 	move.w	#$10,(a5)+		;words to transfer
-	add.w	$12(a0),d0		;VRchar
+	add.w	VRchar(a0),d0
 	asl.w	#5,d0
 	move.w	d0,(a5)+		;vram destination
 	rts
@@ -313,12 +313,12 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 .sloop	move.w	d0,-(sp)		;IDA: _sloop
 	move.w	frame(a3),d0
 	andi.w	#$7FF,d0
-	cmp.w	8(a3),d0		;oldframe
+	cmp.w	oldframe(a3),d0
 	beq.w	.noref			;same frame: tiles already in vram
 
 	tst.w	d5
 	bne.w	.nn
-	move.w	d0,8(a3)		;last sprite: oldframe = frame
+	move.w	d0,oldframe(a3)		;last sprite: oldframe = frame
 .nn	movem.w	d0-d4,-(sp)		;IDA: _nn
 	move.w	4(a2),d2		;tile pointer (93 keeps it whole)
 	clr.w	d4
@@ -343,7 +343,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	addq.w	#6,sp
 
 	movem.w	d0-d4,-(sp)
-	add.w	$12(a3),d3		;VRchar
+	add.w	VRchar(a3),d3
 	ext.l	d2
 	asl.l	#5,d2
 	addi.l	#Spritetiles,d2		;92 move.l Spritetiles,a0 / add.l d2,a0
@@ -353,7 +353,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	move.w	d4,(a5)+		;words to transfer
 	move.w	d3,(a5)+		;vram destination
 	movem.w	(sp)+,d0-d4
-.dup	move.b	d3,$A(a3,d5.w)		;IDA: _dup. VRoffs
+.dup	move.b	d3,VRoffs(a3,d5.w)		;IDA: _dup
 .noref	move.w	(sp)+,d0		;IDA: _noref
 	movem.w	d0-d2,-(sp)		;write sprite att
 	move.w	2(a2),d2		;y global (93 +2, 92 +0)
@@ -385,13 +385,13 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	move.w	attribute(a3),d0
 	eor.w	d0,d2
 	andi.w	#$F800,d2
-	btst	#0,5(a3)		;attribute+1
+	btst	#0,attribute+1(a3)
 	beq.w	.nospec
 	btst	#$E,d2
 	beq.w	.nospec
 	bset	#$D,d2			;team 2 color
-.nospec	or.b	$A(a3,d5.w),d2		;IDA: _nospec. VRoffs
-	add.w	$12(a3),d2		;VRchar
+.nospec	or.b	VRoffs(a3,d5.w),d2		;IDA: _nospec
+	add.w	VRchar(a3),d2
 	move.w	d2,4(a6)
 	movem.w	(sp)+,d0-d2
 

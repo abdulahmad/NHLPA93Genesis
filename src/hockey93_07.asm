@@ -290,8 +290,8 @@ UpdateScoutingDisplay	;93: called every frame by ScoutingReport. When ScoutingRe
 .awtm	movea.w	#(awtmstruct-M68K_RAM),a1	;IDA: loc_1322C
 	bra.w	.team
 .hmtm	movea.w	#(hmtmstruct-M68K_RAM),a1	;IDA: loc_13234
-.team	move.w	$26(a1),d1		;IDA: loc_13238. player number from team struct +$26
-	movea.l	$1E(a1),a1		;tmdata
+.team	move.w	tmgoalie(a1),d1		;IDA: loc_13238. goalie's roster index
+	movea.l	tmdata(a1),a1
 	adda.w	(a1),a1			;player data
 	bra.w	.pn
 .pl	adda.w	(a1),a1			;IDA: loc_13246. skip name and 8 bytes of ratings

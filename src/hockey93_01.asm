@@ -68,11 +68,11 @@ ClearShotData	;clear 49 words at $FFCB0A
 restoreteams	;IDA: InitTeamShots. Put both teams' rosters on the bench
 	movea.w	#(hmtmstruct-M68K_RAM),a2	;team 1
 	bsr.w	.r
-	adda.w	#$1A2,a2		;team 2
+	adda.w	#tmsize,a2		;team 2
 .r	;IDA: InitShotStruct. Reset one team struct (a2), falls in for team 2
-	move.w	#6,$24(a2)		;no players in pen. box
+	move.w	#6,tmap(a2)		;no players in pen. box
 	moveq	#$32,d0			;(maxros-1)*2
-.0	move.w	#$FFFE,$66(a2,d0.w)	;all players on bench
+.0	move.w	#$FFFE,tmpdst(a2,d0.w)	;all players on bench
 	subq.w	#2,d0
 	bpl.s	.0
 	rts
@@ -178,14 +178,14 @@ UpdateLineChange	;called once per second. Restore energy for players on the benc
 	bne.w	.x			;exit if line changes are off
 	movea.w	#(hmtmstruct-M68K_RAM),a2	;team 1
 	bsr.w	.team
-	lea	$1A2(a2),a2		;team 2
+	lea	tmsize(a2),a2		;team 2
 .team	moveq	#$32,d0			;(maxros-1)*2
-.b0	cmpi.w	#$FFFE,$66(a2,d0.w)	;on bench?
+.b0	cmpi.w	#$FFFE,tmpdst(a2,d0.w)	;on bench?
 	bne.w	.next
-	addi.w	#9,$32(a2,d0.w)		;tmpde: energy +9
-	cmpi.w	#$1000,$32(a2,d0.w)
+	addi.w	#9,tmpde(a2,d0.w)		;energy +9
+	cmpi.w	#$1000,tmpde(a2,d0.w)
 	blt.w	.next
-	move.w	#$1000,$32(a2,d0.w)	;max energy
+	move.w	#$1000,tmpde(a2,d0.w)	;max energy
 .next	subq.w	#2,d0
 	bpl.s	.b0
 .x	rts
@@ -307,7 +307,7 @@ clockcont_0	;end of period. Also entered from puckfaceoff+2E
 	beq.w	.chkot			;tied
 	bpl.w	.t2			;home team leads
 	adda.w	#6*SCstruct,a3		;away team leads
-.t2	tst.w	$34(a3)			;position(a3)
+.t2	tst.w	position(a3)
 	ble.w	.n2			;skip the goalie
 	bsr.w	assinsert		;first skater gets d0, the rest get score
 	move.l	#7,d0			;score assignment
@@ -364,7 +364,7 @@ Pausemode	;game is in pause mode now
 	bsr.w	seta2			;a2 = team of pausing controller
 	movea.l	#PauseText,a0		;menu item list
 	lea	SetupPauseScreen(pc),a1	;screen draw routine
-	btst	#2,$30(a2)
+	btst	#2,tmflags(a2)
 	beq.w	.0
 	movea.l	#PauseText2,a0		;alternate item list
 .0	bsr.w	InitMenuState
@@ -417,5 +417,5 @@ seta2	;IDA: GetTeamFromPause. Set a2 to tmstruct of pause joystick
 	bra.w	.seta21
 .seta20	cmpi.w	#1,(cont1team).w
 .seta21	beq.w	.x
-	adda.w	#$1A2,a2		;tmsize
+	adda.w	#tmsize,a2
 .x	rts

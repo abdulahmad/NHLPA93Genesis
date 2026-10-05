@@ -245,12 +245,12 @@ defaultsprites	;allocate vram and assign char area for graphic structures. d4 = 
 	movea.l	#.listsso,a2
 	movea.w	#(sso-M68K_RAM),a3
 	moveq	#1,d0			;2 sso objects (92 ssonum = 4: 2 arrows + 2 scoreboard logos)
-.ssotop	move.w	#$FFFF,8(a3)		;IDA: _ssotop. screen objects not locked to scroll of screen. oldframe
+.ssotop	move.w	#$FFFF,oldframe(a3)		;IDA: _ssotop. screen objects not locked to scroll of screen
 	move.w	(a2)+,(a3)		;Xcord
 	move.w	(a2)+,2(a3)		;Ycord
 	move.w	(a2)+,frame(a3)
 	move.w	(a2)+,attribute(a3)
-	move.w	d4,$12(a3)		;VRchar
+	move.w	d4,VRchar(a3)
 	add.w	(a2)+,d4		;vram char size (92 also kept it in VRsize)
 	adda.w	#$14,a3			;ssosize
 	dbf	d0,.ssotop
@@ -258,13 +258,13 @@ defaultsprites	;allocate vram and assign char area for graphic structures. d4 = 
 	movea.l	#.listffo,a2
 	movea.l	#pads,a3		;ffo (first ffo is the pads)
 	moveq	#4,d0			;ffonum-1
-.ffotop	st	8(a3)			;IDA: _ffotop. objects tied to screen scrolling (not players/net/puck). oldframe
+.ffotop	st	oldframe(a3)			;IDA: _ffotop. objects tied to screen scrolling (not players/net/puck)
 	move.w	(a2)+,(a3)		;Xpos
 	move.w	(a2)+,Ypos(a3)
 	move.w	(a2)+,Zpos(a3)
 	move.w	(a2)+,frame(a3)
 	move.w	(a2)+,attribute(a3)
-	move.w	d4,$12(a3)		;VRchar
+	move.w	d4,VRchar(a3)
 	add.w	(a2)+,d4		;vram char size
 	adda.w	#$1C,a3			;ffosize
 	dbf	d0,.ffotop
@@ -294,20 +294,20 @@ defaultsprites2	;objects which are tied to screen scrolling and have velocity re
 .1	clr.l	(a0)+			;IDA: loc_1267A
 	dbf	d0,.1
 
-	move.w	d6,$52(a3)		;SCnum
-	st	8(a3)			;oldframe
-	st	$66(a3)			;pnum
+	move.w	d6,SCnum(a3)
+	st	oldframe(a3)
+	st	pnum(a3)
 	move.w	(a2)+,(a3)		;Xpos
 	move.w	(a2)+,Ypos(a3)
 	move.w	(a2)+,Zpos(a3)
 	move.w	(a2)+,frame(a3)
 	move.w	(a2)+,attribute(a3)
-	move.w	d4,$12(a3)		;VRchar
+	move.w	d4,VRchar(a3)
 	add.w	(a2)+,d4		;vram char size
-	move.w	(a2)+,$4A(a3)		;radiusx
-	move.w	(a2)+,$4C(a3)		;radiusy
+	move.w	(a2)+,radiusx(a3)
+	move.w	(a2)+,radiusy(a3)
 	addq.w	#1,a2
-	move.b	(a2)+,$38(a3)		;asslist
+	move.b	(a2)+,asslist(a3)
 	addq.w	#1,a2
 	move.b	(a2)+,pflags(a3)
 
@@ -392,16 +392,16 @@ resetplstuff	;reset team variables/and players on both teams. Called from puckfa
 	movem.l	(sp)+,d0-d2/a0-a3
 	rts
 
-.top	bclr	#4,$30(a2)		;IDA: resetplstuff_top. 93: clear team flag bit 4
+.top	bclr	#4,tmflags(a2)		;IDA: resetplstuff_top. 93: clear team flag bit 4
 	moveq	#5,d2
-	movea.w	$22(a2),a3		;tmsort
+	movea.w	tmsort(a2),a3
 .loop	clr.b	pflags2(a3)			;IDA: resetplstuff_loop. pflags2 (92 also cleared pflags3)
-	tst.w	$34(a3)			;position
+	tst.w	position(a3)
 	bmi.w	.next
 	move.w	#$52C,d1		;SPAglide (92 $346)
 	bsr.w	SetSPA
-	clr.w	$32(a3)			;impact
-	clr.b	$5E(a3)			;nopuck (93 clears a byte)
+	clr.w	impact(a3)
+	clr.b	nopuck(a3)			;93 clears a byte
 	andi.b	#$C2,pflags(a3)		;keep pfteam, pfgoal, pfna in pflags
 .next	adda.w	#SCstruct,a3			;IDA: resetplstuff_next
 	dbf	d2,.loop
@@ -412,7 +412,7 @@ clearTeamStats	;93 only: the 92 setteams clear loop, split out. Clear both team 
 	;Called from StartGame, StartHL2 and ScoutingReport
 	move.w	(word_FFC50C).w,-(sp)	;home tmstruct+$26
 	move.w	(word_FFC6AE).w,-(sp)	;visitor tmstruct+$26
-	move.l	#$1A1,d0		;$1A2 words = 2 x tmsize bytes (both team structs)
+	move.l	#tmsize-1,d0		;tmsize words = 2 x tmsize bytes (both team structs)
 	movea.w	#(hmtmstruct-M68K_RAM),a0
 .0	clr.w	(a0)+			;IDA: loc_128F6
 	dbf	d0,.0
@@ -426,11 +426,11 @@ setteams	;use hometeam/visteam to set team structures. Falls in from clearTeamSt
 	movem.l	d0/a0-a2,-(sp)
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	move.w	(HomeTeam).w,d0
-	move.w	#(SortCords-M68K_RAM),$22(a2)	;tmsort
+	move.w	#(SortCords-M68K_RAM),tmsort(a2)
 	bsr.w	InitTeamSructure
 	movea.w	#(awtmstruct-M68K_RAM),a2	;tmstruct+tmsize
 	move.w	(VisTeam).w,d0
-	move.w	#(SortCords-M68K_RAM)+(6*SCstruct),$22(a2)	;tmsort
+	move.w	#(SortCords-M68K_RAM)+(6*SCstruct),tmsort(a2)
 	bsr.w	InitTeamSructure
 	movem.l	(sp)+,d0/a0-a2
 	rts
@@ -441,9 +441,9 @@ InitTeamSructure	;93 only. Set up team struct a2 for team d0: store the team num
 	move.w	d0,$28(a2)
 	movea.w	#$314,a0		;team address table
 	asl.w	#2,d0
-	move.l	(a0,d0.w),$1E(a2)	;tmdata
+	move.l	(a0,d0.w),tmdata(a2)
 	moveq	#$D,d0			;14 longs
-	movea.l	$1E(a2),a0
+	movea.l	tmdata(a2),a0
 	adda.w	6(a0),a0		;lines offset in the team data
 	lea	$16A(a2),a1
 .copy	move.l	(a0)+,(a1)+		;IDA: loc_12958
@@ -456,9 +456,9 @@ setplayercolors	;copy in correct color data for each team. Called from setupice,
 	movea.w	#(hmtmstruct-M68K_RAM),a0
 	bsr.w	.sp
 	moveq	#$20,d1
-	adda.w	#$1A2,a0		;tmsize
+	adda.w	#tmsize,a0
 
-.sp	movea.l	$1E(a0),a2		;IDA: setplayercolors_sp. tmdata
+.sp	movea.l	tmdata(a0),a2		;IDA: setplayercolors_sp
 	adda.w	2(a2),a2		;Palettedata
 	adda.w	d1,a2
 	movea.w	#(palbuffer-M68K_RAM),a1	;92 palfadenew+$40 (same address)

@@ -41,19 +41,19 @@ doinput	;process controller input
 	btst	#0,pflags2(a3)		;pf2fight
 	bne.w	fightinput		;fighting in progress
 	move.w	(puckc).w,d5
-	cmp.w	$52(a3),d5
+	cmp.w	SCnum(a3),d5
 	beq.w	.ispc			;player is puck carrier
 	btst	#6,d1			;abut
 	bne.w	holdplayer		;hold button
 	btst	#4,d1			;bbut, is not puck c
 	bne.w	changeplayer		;switch players
-	tst.w	$34(a3)			;position
+	tst.w	position(a3)
 	beq.w	rtss			;goalie can't check
 	btst	#5,d1			;cbut
 	bne.w	burst			;burst/check
 	bra.w	doplayeracc		;no button, just dpad input
 .ispc	bsr.w	checkob			;IDA: loc_9516. Player is puck handler
-	tst.w	$34(a3)
+	tst.w	position(a3)
 	bne.w	.pc1
 	btst	#1,pflags2(a3)		;goalie: pf2aip
 	bne.w	rtss
@@ -65,21 +65,21 @@ doinput	;process controller input
 	bne.w	setpassmode
 	btst	#6,d1			;abut
 	bne.w	SetLCmode
-	tst.w	$34(a3)
+	tst.w	position(a3)
 	beq.w	rtss			;exit if goalie
 	btst	#5,d1			;cbut
 	bne.w	SetShotMode
 	bra.w	doplayeracc
 .islocked	move.w	(puckc).w,d5		;IDA: loc_9564. Animation is locked /don't interupt it/
-	cmp.w	$52(a3),d5
+	cmp.w	SCnum(a3),d5
 	beq.w	rtss
 	btst	#4,d1			;bbut, is not puck handler
 	bne.w	changeplayer
 	rts
 
 faceoffinput	;controller processing for faceoff
-	move.w	$36(a3),d4		;assnum
-	cmpi.b	#$17,$38(a3,d4.w)	;afaceoffpl
+	move.w	assnum(a3),d4
+	cmpi.b	#$17,asslist(a3,d4.w)	;afaceoffpl
 	bne.w	rtss			;exit if this is not a faceoff player
 	movea.w	#(fodir1-M68K_RAM),a0	;faceoff direction of puck controll variable
 	btst	#7,pflags(a3)		;pfgoal
@@ -97,11 +97,11 @@ faceoffinput	;controller processing for faceoff
 	bra.w	SetSPA
 
 fightinput	;controller processing for fighting
-	tst.w	$44(a3)			;temp3
+	tst.w	temp3(a3)
 	bmi.w	rtss			;exit if fight is over
 	tst.w	(Pencntdwn).w
 	bmi.w	rtss			;exit if fight is over
-	cmpi.w	#$F8E,$58(a3)		;SPAfight
+	cmpi.w	#$F8E,SPA(a3)		;SPAfight
 	beq.w	rtss			;exit if this player is not in ready position
 	move.w	d0,d2			;dpad input
 	move.w	d1,-(sp)		;new button presses
@@ -111,7 +111,7 @@ fightinput	;controller processing for fighting
 	bsr.w	playeracc		;move player
 .noa	move.w	(xc1).w,d0		;IDA: _noa. Keep the players face to face and in range of xc1
 	addi.w	#$C,d0
-	cmpi.w	#2,$54(a3)		;facedir
+	cmpi.w	#2,facedir(a3)
 	bne.w	.0
 	subi.w	#$18,d0			;xc1 - 12
 .0	sub.w	(a3),d0			;IDA: _0
@@ -145,7 +145,7 @@ SetLCmode	;IDA: loc_9660. Initiate line change option if available (abut
 	tst.w	(OptLine).w
 	bne.w	rtss			;exit if line changes off
 	bsr.w	loadTeamStruct
-	bset	#1,$30(a2)		;team already in lc mode?
+	bset	#1,tmflags(a2)		;team already in lc mode?
 	bne.w	rtss
 	bclr	#2,(sflags).w		;terminate passing by this player
 	bclr	#3,(sflags).w		;same with shooting
@@ -167,11 +167,11 @@ SetLCmode2	;IDA: showfaceoff. a2 = team struct for lc. Draw the lc box with
 	bsr.w	getlchoice
 	tst.w	d0
 	bmi.w	.next			;no line for this button
-	btst	#1,$30(a2)
+	btst	#1,tmflags(a2)
 	bne.w	.pr
 	cmp.w	$2E(a2),d4		;box being closed: only the chosen row
 	bne.w	.up
-	move.w	$16(a2),d0		;tmline
+	move.w	tmline(a2),d0
 .pr	movea.w	#(mesarea-M68K_RAM),a1	;IDA: loc_96DA
 	move.l	#$44120,(a1)		;String 'A '
 	add.b	d4,2(a1)		;'A'-'C'
@@ -184,7 +184,7 @@ SetLCmode2	;IDA: showfaceoff. a2 = team struct for lc. Draw the lc box with
 	subq.w	#5,(printx).w
 .up	subq.w	#1,(printy).w		;IDA: loc_9702
 .next	dbf	d4,.loop		;IDA: loc_9706
-	movea.l	$1E(a2),a1		;team name
+	movea.l	tmdata(a2),a1		;team name
 	adda.w	4(a1),a1
 	adda.w	(a1),a1
 	addq.w	#2,(printx).w
@@ -215,17 +215,17 @@ setlccords	;set printx/y to cords for lc box on team a2
 getlchoice	;d0 = 0-2 (a2 = team)
 	;return d0 = possible line number or -1 for none in this position
 	movem.l	d1-d2,-(sp)
-	move.w	$1C6(a2),d2		;other team's tmap
+	move.w	tmsize+tmap(a2),d2	;other team's tmap
 	cmpa.w	#(hmtmstruct-M68K_RAM),a2
 	beq.w	.0
-	move.w	-$17E(a2),d2
-.0	sub.w	$24(a2),d2		;IDA: loc_9772. d2= number I'm short
+	move.w	tmap-tmsize(a2),d2
+.0	sub.w	tmap(a2),d2		;IDA: loc_9772. d2= number I'm short
 	beq.w	.1
 	addi.w	#$15,d0			;3*7
 	tst.w	d2
 	bmi.w	.1
 	addi.w	#$15,d0
-.1	move.w	$16(a2),d1		;IDA: loc_9788. tmline
+.1	move.w	tmline(a2),d1		;IDA: loc_9788
 	add.w	d1,d0
 	add.w	d1,d0
 	add.w	d1,d0
@@ -267,8 +267,8 @@ lineinput	;process input for line changes
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	btst	#6,pflags(a3)		;pfteam
 	beq.w	.0
-	adda.w	#$1A2,a2		;tmsize
-.0	bclr	#0,$30(a2)		;IDA: loc_97F6. Flag to start lc mode
+	adda.w	#tmsize,a2
+.0	bclr	#0,tmflags(a2)		;IDA: loc_97F6. Flag to start lc mode
 	beq.w	.1
 	bsr.w	lcfound2		;close the old box
 	bsr.w	SetLCmode2		;start lc mode
@@ -299,8 +299,8 @@ lcfound	;d2 = choice made 0-2
 	bclr	#3,pflags2(a3)		;pf2lcm
 	bset	#3,pflags(a3)		;pfjoycon
 	bsr.w	loadTeamStruct
-	bclr	#1,$30(a2)
-	move.w	d0,$16(a2)		;tmline
+	bclr	#1,tmflags(a2)
+	move.w	d0,tmline(a2)
 	jsr	(setpersonel).l
 lcfound2	;close lc box. Also called from lineinput
 	bsr.w	setlccords
@@ -320,13 +320,13 @@ burst	;cbut press check/speed. Also entered from check4check
 	bsr.w	setpde			;decrease players energy
 .0	lsr.w	#7,d0			;IDA: loc_98AE
 	move.w	d0,d1			;energy = speed increase (check violence)
-	move.w	$54(a3),d2		;facedir
+	move.w	facedir(a3),d2
 	asl.w	#2,d2
 	movea.l	#dirtab,a0
 	muls.w	(a0,d2.w),d0
 	muls.w	2(a0,d2.w),d1
 	add.w	d0,Xvel(a3)
-	add.w	d1,$2A(a3)
+	add.w	d1,Yvel(a3)
 	bset	#5,pflags(a3)		;pfalock: lock in this animation
 	move.w	#$C7E,d1		;SPAburst
 	bra.w	SetSPA
@@ -335,17 +335,17 @@ holdplayer	;abut press hold (92 Holdplayer). a0 = the player this one is
 	;assigned to, falls into Acheck
 	bset	#5,pflags(a3)
 	move.w	#$12DC,d1		;SPAHold
-	tst.w	$32(a3)
+	tst.w	impact(a3)
 	beq.w	SetSPA
 	movea.w	#(SortCords-M68K_RAM),a0
-	move.w	$2E(a3),d0
+	move.w	impactp(a3),d0
 	asl.w	#7,d0
 	adda.w	d0,a0
 Acheck	;start hold (or hook if a0 is ahead, $CB0) on player a0. Also entered
 	;from check4check
 	bset	#5,pflags(a3)		;pfalock
 	move.w	#$12DC,d1		;SPAHold
-	tst.w	$32(a3)
+	tst.w	impact(a3)
 	beq.w	.set
 	move.w	Ypos(a3),d0
 	sub.w	Ypos(a0),d0
@@ -357,7 +357,7 @@ Acheck	;start hold (or hook if a0 is ahead, $CB0) on player a0. Also entered
 .set	bra.w	SetSPA			;IDA: loc_9928
 
 setpassmode	;initialize pass mode
-	move.w	$54(a3),(passdir).w	;default pass dir.
+	move.w	facedir(a3),(passdir).w	;default pass dir.
 	andi.w	#7,(passdir).w
 	bset	#2,(sflags).w		;sfspdir
 	rts
@@ -375,24 +375,24 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 	movem.l	d0-d5/a0-a1,-(sp)
 	bclr	#2,(sflags).w		;sfspdir
 	st	(puckc).w		;player is not puck handler anymore
-	move.b	#$10,$5E(a3)		;nopuck
-	move.w	$52(a3),(lastplayer).w
+	move.b	#$10,nopuck(a3)
+	move.w	SCnum(a3),(lastplayer).w
 	moveq	#8,d0
-	tst.w	$34(a3)
+	tst.w	position(a3)
 	beq.w	.pa			;goalie
-	move.b	$6E(a3),d0		;passacc
+	move.b	passacc(a3),d0
 .pa	asl.w	#2,d0			;IDA: loc_9984
 	addi.w	#$A0,d0			;160
 	move.w	d0,(passspeed).w
 	moveq	#-1,d4			;look for closest and best player to pass to
 	moveq	#5,d3
 	movea.w	#(SortCords-M68K_RAM),a1
-	cmpi.w	#6,$52(a3)
+	cmpi.w	#6,SCnum(a3)
 	blt.w	.0
 	adda.w	#6*SCstruct,a1
 .0	cmpa.l	a1,a3			;IDA: loc_99A4
 	beq.w	.next			;don't pass to yourself
-	tst.w	$34(a1)
+	tst.w	position(a1)
 	beq.w	.next			;don't pass to goalie
 	btst	#2,pflags2(a1)		;pf2unav
 	bne.w	.next			;player is unavailable
@@ -433,7 +433,7 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 	moveq	#$A,d2
 	asl.l	d2,d1
 	divs.w	#$BB8,d1		;runspeed*15
-	add.w	$2A(a3),d1
+	add.w	Yvel(a3),d1
 	move.w	d1,(puckvy).w
 	move.w	(a0,d0.w),d1		;x inc
 	muls.w	(passspeed).w,d1
@@ -444,7 +444,7 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 	move.w	#$1000,d0
 	bsr.w	randomd0
 	move.w	d0,(puckvz).w
-.exit	tst.w	$34(a3)			;IDA: loc_9A5E. Start animation for player passing
+.exit	tst.w	position(a3)			;IDA: loc_9A5E. Start animation for player passing
 	bne.w	.notgoalie
 	tst.w	(puckvy).w
 	btst	#7,pflags(a3)		;pfgoal
@@ -457,7 +457,7 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 	move.w	(puckvy).w,d1
 	bsr.w	vtoa
 	move.w	#$386,d1		;SPAgswing
-	tst.w	$34(a3)
+	tst.w	position(a3)
 	beq.w	.e1			;goalie anim
 	move.w	#$738,d1		;SPApassf
 	bsr.w	Findhittype
@@ -477,7 +477,7 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 passtoa0	;pass puck to player a0
 	bsr.w	loadTeamStruct
 	addq.w	#1,$12(a2)		;count passes
-	move.w	$52(a0),(passReceiverPlayerNum).w
+	move.w	SCnum(a0),(passReceiverPlayerNum).w
 	move.w	(passspeed).w,d5	;in pix/sec
 	asr.w	#2,d5
 	exg	a0,a3			;tell pass rec to get puck
@@ -497,7 +497,7 @@ passtoa0	;pass puck to player a0
 	move.w	Xvel(a0),d0
 	muls.w	#$F0,d0			;x pix/(1/4)sec
 	swap	d0
-	move.w	$2A(a0),d1
+	move.w	Yvel(a0),d1
 	muls.w	#$F0,d1
 	swap	d1
 	movem.w	d0-d1,-(sp)
@@ -551,13 +551,13 @@ passtoa0	;pass puck to player a0
 	muls.w	d2,d0
 	asr.l	#1,d0
 	add.w	(sp)+,d0		;x distance
-	move.w	(puckx).w,$44(a0)	;93: receiver target x/y in temp3/temp4
-	add.w	d0,$44(a0)
+	move.w	(puckx).w,temp3(a0)	;93: receiver target x/y
+	add.w	d0,temp3(a0)
 	muls.w	d2,d1
 	asr.l	#1,d1
 	add.w	(sp)+,d1		;y distance
-	move.w	(pucky).w,$46(a0)
-	add.w	d1,$46(a0)
+	move.w	(pucky).w,temp4(a0)
+	add.w	d1,temp4(a0)
 	mulu.w	#$78,d2			;60*2
 	swap	d0
 	divs.w	d2,d0
@@ -587,7 +587,7 @@ changeplayer	;switch controller d4 (0/2) to the teammate nearest the puck,
 	beq.w	.t1
 	adda.w	#6*SCstruct,a0		;controller is on other team
 .t1	movea.w	#(c1playernum-M68K_RAM),a1	;IDA: t1_CheckPlayers
-.top	tst.w	$34(a0)			;IDA: top_CheckPlayerLoop
+.top	tst.w	position(a0)			;IDA: top_CheckPlayerLoop
 	ble.w	.next			;can't switch to goalie
 	btst	#2,pflags2(a0)		;pf2unav
 	bne.w	.next			;this player is unavailable for some reason
@@ -601,7 +601,7 @@ changeplayer	;switch controller d4 (0/2) to the teammate nearest the puck,
 	add.l	d1,d0
 	cmp.l	d5,d0
 	bhi.w	.next
-	move.w	$52(a0),d1
+	move.w	SCnum(a0),d1
 	cmp.w	(a1,d3.w),d1
 	beq.w	.next			;this is current player
 	move.l	d0,d5
@@ -673,7 +673,7 @@ Findhittype	;look for type of swing (forhand or backhand)
 	;ouput	beq	forhand
 	;	bne	backhand
 	neg.w	d0
-	add.w	$54(a3),d0		;facedir
+	add.w	facedir(a3),d0
 	andi.w	#7,d0
 	btst	#3,attribute(a3)		;x flip
 	beq.w	.1
@@ -702,44 +702,44 @@ SetShotMode	;initiate shot by player a3
 .ck1	bra.w	SetSPA			;IDA: _ck1_SetShotAnim
 
 ShotMode	;shot input
-	cmpi.w	#$1C,$5A(a3)		;7*4
+	cmpi.w	#$1C,SPAnum(a3)		;7*4
 	bge.w	doshot			;end of animation so shoot
 	btst	#3,d0
 	bne.w	.ss0
 	andi.w	#7,d0
 	move.w	d0,(passdir).w		;set shot direction
-.ss0	cmpi.w	#$10,$5A(a3)		;IDA: ShotMode_ss0. 4*4
+.ss0	cmpi.w	#$10,SPAnum(a3)		;IDA: ShotMode_ss0. 4*4
 	bge.w	rtss			;past full windup so no more passspeed
 	add.w	d7,(passspeed).w
-	cmpi.b	#$A,$6C(a3)		;93: shotspd >= 10 must release the button
+	cmpi.b	#$A,shotspd(a3)		;93: shotspd >= 10 must release the button
 	bge.w	.cb
-	cmpi.w	#8,$5A(a3)
+	cmpi.w	#8,SPAnum(a3)
 	bgt.w	.rev			;slow shooter: swing after 2 frames of windup
 .cb	btst	#5,d2			;IDA: CheckCButton. cbut
 	beq.w	rtss			;button hasn't changed so continue windup
-.rev	neg.w	$5A(a3)			;IDA: ReverseShot. End wind and swing thru
-	addi.w	#$1C,$5A(a3)
+.rev	neg.w	SPAnum(a3)			;IDA: ReverseShot. End wind and swing thru
+	addi.w	#$1C,SPAnum(a3)
 	rts
 
 doshot	;stick is at puck so launch puck toward goal
 	movem.l	d0-d7/a0-a3,-(sp)
 	bsr.w	checkgoalp_CalcGoalShotDir	;93: aim away from the goalie
 	move.w	#5,-(sp)		;sound effect (92 SFXshotwiff = 14)
-	move.w	$52(a3),(shotplayer).w
+	move.w	SCnum(a3),(shotplayer).w
 	bclr	#3,(sflags).w		;sfssdir
 	bset	#5,pflags(a3)		;pfalock
 	move.w	(puckc).w,d0
-	cmp.w	$52(a3),d0
+	cmp.w	SCnum(a3),d0
 	bne.w	.ex			;wiffed shot
 	move.w	#$18,(sp)		;92 SFXshotfh = 13
 	bset	#4,(sflags2).w		;sf2shot
-	cmpi.w	#$94E,$58(a3)		;SPAshotb
+	cmpi.w	#$94E,SPA(a3)		;SPAshotb
 	bne.w	.nbh
 	move.w	#$14,(sp)		;92 SFXshotbh = 12
 	move.w	(passspeed).w,d0
 	lsr.w	#2,d0			;sub 25% for backhand shots
 	sub.w	d0,(passspeed).w
-.nbh	move.b	$6C(a3),d0		;IDA: doshot_nbh. shotspd
+.nbh	move.b	shotspd(a3),d0		;IDA: doshot_nbh
 	movea.l	a3,a0
 	bsr.w	makepde
 	addi.w	#$14,d0
@@ -754,8 +754,8 @@ doshot	;stick is at puck so launch puck toward goal
 	clr.w	d0
 .c	add.w	d0,(sp)			;IDA: loc_9E46
 	st	(puckc).w
-	move.b	#$10,$5E(a3)		;nopuck
-	move.w	$52(a3),(lastplayer).w
+	move.b	#$10,nopuck(a3)
+	move.w	SCnum(a3),(lastplayer).w
 	move.w	#$108,d1		;blueline+goalline
 	btst	#7,pflags(a3)		;pfgoal
 	bne.w	.0
@@ -781,13 +781,13 @@ doshot	;stick is at puck so launch puck toward goal
 	cmp.w	#200,d3
 	bhi.w	.notperf		;too far away for perfect shot
 	moveq	#$10,d0
-	add.b	$6D(a3),d0		;shotacc
+	add.b	shotacc(a3),d0
 	bsr.w	randomd0
 	cmp.w	#14,d0		;chance of perfect shot
 	bgt.w	.perf			;is perfect
 .notperf	move.w	(passspeed).w,d0	;IDA: doshot_notperf
 	lsr.w	#4,d0
-	sub.b	$6D(a3),d0
+	sub.b	shotacc(a3),d0
 	addi.b	#$10,d0
 	mulu.w	d3,d0
 	lsr.w	#6,d0			;shot accuracy adjust (92 lsr #7)
@@ -856,7 +856,7 @@ checkgoalp_CalcGoalShotDir	;IDA name kept: 92 checkgoalp is the goal/net collisi
 	bne.w	.g
 	adda.w	#6*SCstruct,a0
 .g	adda.w	#SCstruct,a0			;IDA: CheckOpponentGoalie
-	tst.w	$34(a0)			;position 0 = goalie
+	tst.w	position(a0)			;position 0 = goalie
 	dbeq	d1,.g
 	bne.w	.x
 	move.b	Xvel(a0),d0		;goalie x/y + half his velocity
@@ -864,7 +864,7 @@ checkgoalp_CalcGoalShotDir	;IDA name kept: 92 checkgoalp is the goal/net collisi
 	asr.w	#1,d0
 	add.w	(a0),d0
 	sub.w	(puckx).w,d0
-	move.b	$2A(a0),d1
+	move.b	Yvel(a0),d1
 	ext.w	d1
 	asr.w	#1,d1
 	add.w	Ypos(a0),d1
@@ -924,7 +924,7 @@ setpads	;copy info into pad cont so graphics knows which player/number.
 	move.w	#$FFF0,d1
 	rol.w	d0,d1
 	and.w	d1,(PadControlBits).w
-	move.w	$52(a3),d1
+	move.w	SCnum(a3),d1
 	asl.w	d0,d1
 	or.w	d1,(PadControlBits).w
 	movem.l	(sp)+,d0-d1
@@ -936,33 +936,33 @@ check4bench	;check if player a3 should go to bench. Called from assbench
 	bne.w	rtss
 	btst	#4,pflags2(a3)
 	bne.w	rtss
-	tst.b	$60(a3)
+	tst.b	newpos(a3)
 	bpl.w	.b
-	tst.b	$61(a3)
+	tst.b	newpnum(a3)
 	bmi.w	rtss
-.b	move.b	$61(a3),d0		;IDA: loc_A0A8
-	cmp.b	$66(a3),d0
+.b	move.b	newpnum(a3),d0		;IDA: loc_A0A8
+	cmp.b	pnum(a3),d0
 	beq.w	.samepl			;player should just change positions
-	move.w	$36(a3),d0
-	cmpi.b	#$B,$38(a3,d0.w)	;already going to bench
+	move.w	assnum(a3),d0
+	cmpi.b	#$B,asslist(a3,d0.w)	;already going to bench
 	beq.w	rtss
-	move.w	$52(a3),d0
+	move.w	SCnum(a3),d0
 	cmp.w	(puckc).w,d0
 	beq.w	rtss
 	addq.w	#4,sp
 	bset	#2,pflags2(a3)		;pf2unav
-	clr.w	$40(a3)
+	clr.w	temp1(a3)
 	move.l	#$B,d0			;abench
 	bra.w	assreplace
 .samepl	addq.w	#4,sp			;IDA: loc_A0E4
 	bclr	#2,pflags2(a3)
 	bclr	#2,pflags(a3)		;pfnc
-	st	$61(a3)
-	st	$60(a3)
-	move.w	$34(a3),d0
-	tst.b	$60(a3)
+	st	newpnum(a3)
+	st	newpos(a3)
+	move.w	position(a3),d0
+	tst.b	newpos(a3)
 	bmi.w	Setplass
-	move.b	$60(a3),d0
+	move.b	newpos(a3),d0
 	ext.w	d0
-	move.w	d0,$34(a3)
+	move.w	d0,position(a3)
 	bra.w	Setplass
