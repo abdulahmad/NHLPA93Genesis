@@ -21,7 +21,7 @@ const opcodeReplacements = [
     { instruction: 'cmp', existingOpcode: '0C46', newOpcode: 'BC7C' },
     { instruction: 'cmp.b', existingOpcode: '0C07', newOpcode: 'BE3C' },
     { instruction: 'cmp', existingOpcode: '0C47', newOpcode: 'BE7C' },
-    { instruction: 'cmpi.l', existingOpcode: '0C80', newOpcode: 'B0BC' },
+    // cmpi.l #imm,d0 is a real CMPI (0C80 in retail ValidationRoutine); EA's compare is written cmp.l
     { instruction: 'cmp.l', existingOpcode: '0C80', newOpcode: 'B0BC' },
     { instruction: 'cmpi.l', existingOpcode: '0C81', newOpcode: 'B2BC' },
     { instruction: 'cmpi.l', existingOpcode: '0C83', newOpcode: 'B6BC' },
