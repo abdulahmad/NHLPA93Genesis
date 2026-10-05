@@ -35,6 +35,7 @@ play_sfx_or_music_track = $16608	; sound driver, no segment (Rev A sub_16620)
     include "stubinc/ports.inc"
     include "stubinc/equals.inc"
     include "stubinc/ram_addrs.inc"
+    include "stubinc/struct93.inc"
 
 ; Main segment code
 	include	middle93_1.asm

@@ -15,18 +15,18 @@
 ;	Every assignment starts with "btst #pfalock / bne rtss" (93 only).
 
 assbench	;player a3 should goto bench
-	btst	#5,$62(a3)		;pfalock
+	btst	#5,pflags(a3)		;pfalock
 	bne.w	rtss
 	cmpi.w	#$64,$40(a3)		;temp1 = 100 flag: at the bench door
 	beq.w	.done
 	bsr.w	check4bench
-	btst	#4,$63(a3)		;pf2pen
+	btst	#4,pflags2(a3)		;pf2pen
 	bne.w	assexit
-	bclr	#1,$62(a3)		;pfna
+	bclr	#1,pflags(a3)		;pfna
 	beq.w	.nna
 	move.w	#8,$42(a3)		;temp2
 	moveq	#$50,d0			;80
-	btst	#6,$62(a3)		;pfteam
+	btst	#6,pflags(a3)		;pfteam
 	bne.w	.0
 	neg.w	d0
 .0	move.w	d0,$46(a3)		;IDA: loc_A154. temp4 = bench y
@@ -40,7 +40,7 @@ assbench	;player a3 should goto bench
 	sub.w	d7,$40(a3)
 	bpl.w	.nodec
 	addq.w	#8,$40(a3)
-	move.w	$14(a3),d0
+	move.w	Ypos(a3),d0
 	sub.w	$46(a3),d0
 	cmp.w	#40,d0
 	bgt.w	.nodec
@@ -55,44 +55,44 @@ assbench	;player a3 should goto bench
 	bne.w	.gli
 	move.w	#2,d1			;SPAgready
 .gli	bsr.w	SetSPA			;IDA: loc_A1B8
-	bset	#2,$62(a3)		;pfnc
+	bset	#2,pflags(a3)		;pfnc
 	cmpi.w	#4,$54(a3)
 	beq.w	.ok
 	addq.w	#1,$54(a3)		;turn toward the bench
 	andi.w	#7,$54(a3)
 .ok	clr.w	$2A(a3)			;IDA: loc_A1D6
-	move.w	#$F800,$28(a3)		;-$800
+	move.w	#$F800,Xvel(a3)		;-$800
 	cmp.w	#16,d0
 	bgt.w	rtss
-	clr.w	$28(a3)
+	clr.w	Xvel(a3)
 	cmpi.w	#4,$54(a3)
 	bne.w	rtss
-	move.w	#$F800,$28(a3)
+	move.w	#$F800,Xvel(a3)
 	move.w	#2,$54(a3)
 	move.w	#$1166,d1		;SPAwallleft
 	bsr.w	SetSPA
-	bset	#5,$62(a3)		;pfalock
+	bset	#5,pflags(a3)		;pfalock
 	move.w	#$64,$40(a3)		;100
 	rts
-.done	clr.w	6(a3)			;IDA: loc_A218. frame
+.done	clr.w	frame(a3)			;IDA: loc_A218
 	clr.w	d0
 	move.b	$66(a3),d0		;pnum
 	add.w	d0,d0
 	movea.l	#hmtmstruct,a0
-	btst	#6,$62(a3)
+	btst	#6,pflags(a3)
 	beq.w	.t0
 	adda.w	#$1A2,a0		;tmsize
 .t0	move.w	#$FFFE,$66(a0,d0.w)	;IDA: loc_A238. tmpdst: put used player on bench
 	move.b	$61(a3),d3
 	bsr.w	.nobench2
 	bra.w	setplayer
-.nodec	btst	#2,$62(a3)		;IDA: loc_A24A. pfnc
+.nodec	btst	#2,pflags(a3)		;IDA: loc_A24A. pfnc
 	bne.w	rtss
 	move.w	$44(a3),d0
 	move.w	$46(a3),d1
 	movea.l	#EvadePC,a0
 	bra.w	skateto
-.nobench	bclr	#2,$63(a3)		;IDA: loc_A266. pf2unav
+.nobench	bclr	#2,pflags2(a3)		;IDA: loc_A266. pf2unav
 .nobench2	move.b	$60(a3),d0		;IDA: loc_A26C. newpos
 	ext.w	d0
 	move.w	d0,$34(a3)
@@ -102,45 +102,45 @@ assbench	;player a3 should goto bench
 	rts
 
 asseben	;player a3 should exit bench area
-	btst	#5,$62(a3)
+	btst	#5,pflags(a3)
 	bne.w	rtss
-	bclr	#1,$62(a3)
+	bclr	#1,pflags(a3)
 	beq.w	.nna
-	clr.w	$28(a3)
+	clr.w	Xvel(a3)
 	clr.w	$2A(a3)
 	move.w	$52(a3),d0
 	subq.w	#6,d0
 	bmi.w	.0
 	addq.w	#1,d0
 .0	muls.w	#$E,d0			;IDA: loc_A2AC
-	move.w	d0,$14(a3)
+	move.w	d0,Ypos(a3)
 	move.w	#$88,(a3)		;sideline
 	neg.w	(a3)
 	move.w	#2,$54(a3)
-	bset	#5,$62(a3)
+	bset	#5,pflags(a3)
 	move.w	#$1128,d1		;SPAwallright
 	bra.w	SetSPA
 .nna	move.w	#4,$54(a3)		;IDA: loc_A2CE
-	bclr	#2,$62(a3)		;pfnc
-	bclr	#5,$63(a3)		;pf2npc
-	bclr	#2,$63(a3)		;pf2unav
+	bclr	#2,pflags(a3)		;pfnc
+	bclr	#5,pflags2(a3)		;pf2npc
+	bclr	#2,pflags2(a3)		;pf2unav
 	clr.w	$58(a3)			;SPA
-	move.w	#$1000,$28(a3)
+	move.w	#$1000,Xvel(a3)
 	bra.w	assexit
 
 asspenalty	;player a3 should goto penalty box
-	btst	#5,$62(a3)
+	btst	#5,pflags(a3)
 	bne.w	rtss
-	bclr	#1,$62(a3)
+	bclr	#1,pflags(a3)
 	beq.w	.nna
-	bset	#2,$63(a3)		;pf2unav
+	bset	#2,pflags2(a3)		;pf2unav
 	bsr.w	clrplayer
 	moveq	#-2,d4
 	bsr.w	setpads			;put number on player leaving
 	move.w	#8,$42(a3)
 	moveq	#$B,d0			;92: 55 - 10*n, 93: 11*(n+3)
 	move.b	(PBnum).w,d1
-	btst	#6,$62(a3)
+	btst	#6,pflags(a3)
 	bne.w	.0
 	lsr.w	#4,d1
 	neg.w	d0
@@ -153,10 +153,10 @@ asspenalty	;player a3 should goto penalty box
 	move.w	d1,$46(a3)		;temp4
 	move.w	#$88,$44(a3)		;temp3 = sideline
 	clr.w	$40(a3)
-	bset	#5,$63(a3)		;pf2npc: no player coll.
+	bset	#5,pflags2(a3)		;pf2npc: no player coll.
 	clr.w	$4E(a3)			;wallcos
 	clr.w	$50(a3)			;wallsin
-.nna	move.w	$14(a3),d0		;IDA: loc_A360
+.nna	move.w	Ypos(a3),d0		;IDA: loc_A360
 	sub.w	$46(a3),d0
 	cmp.w	#12,d0
 	bgt.w	.st
@@ -169,7 +169,7 @@ asspenalty	;player a3 should goto penalty box
 	sub.w	d7,$40(a3)
 	bpl.w	rtss
 	addq.w	#8,$40(a3)
-	bset	#2,$62(a3)		;pfnc
+	bset	#2,pflags(a3)		;pfnc
 	move.w	#$52C,d1		;SPAglide
 	bsr.w	SetSPA
 	moveq	#6,d2
@@ -181,17 +181,17 @@ asspenalty	;player a3 should goto penalty box
 	addq.w	#1,$54(a3)
 	andi.w	#7,$54(a3)
 .ok	clr.w	$2A(a3)			;IDA: loc_A3BE
-	move.w	#$1000,$28(a3)
+	move.w	#$1000,Xvel(a3)
 	cmp.w	#-8,d0
 	blt.w	rtss
-	clr.w	$28(a3)
+	clr.w	Xvel(a3)
 	cmp.w	$54(a3),d2
 	bne.w	rtss
-	bset	#5,$62(a3)
+	bset	#5,pflags(a3)
 	move.w	#2,$54(a3)
 	move.w	#$1128,d1		;SPAwallright
 	bsr.w	SetSPA
-	bclr	#4,$63(a3)		;pf2pen
+	bclr	#4,pflags2(a3)		;pf2pen
 	move.l	#$D,d0			;adopen
 	bra.w	assreplace
 .st	move.w	$44(a3),d0		;IDA: loc_A400
@@ -200,7 +200,7 @@ asspenalty	;player a3 should goto penalty box
 	bra.w	skateto
 
 clrplayer	;take the joystick off player a3 (92 asspenalty .clrplayer)
-	btst	#3,$62(a3)
+	btst	#3,pflags(a3)
 	beq.w	rtss
 	clr.w	d4
 	move.w	$52(a3),d0
@@ -210,52 +210,52 @@ clrplayer	;take the joystick off player a3 (92 asspenalty .clrplayer)
 	bra.w	changeplayer
 
 assdopen	;add player a3 to penalty box
-	btst	#5,$62(a3)
+	btst	#5,pflags(a3)
 	bne.w	rtss
 	moveq	#$10,d0
-	btst	#6,$62(a3)
+	btst	#6,pflags(a3)
 	beq.w	.1
 	moveq	#1,d0
 .1	add.b	d0,(PBnum).w		;IDA: loc_A448. Players in penalty box
 	st	$34(a3)
-	clr.w	6(a3)
+	clr.w	frame(a3)
 	rts
 
 assepen	;player a3 should exit penalty area
-	btst	#5,$62(a3)
+	btst	#5,pflags(a3)
 	bne.w	rtss
-	bclr	#1,$62(a3)
+	bclr	#1,pflags(a3)
 	beq.w	.nna
-	bset	#2,$62(a3)		;pfnc
-	bset	#2,$63(a3)		;pf2unav
+	bset	#2,pflags(a3)		;pfnc
+	bset	#2,pflags2(a3)		;pf2unav
 	moveq	#$10,d0
 	moveq	#-$3C,d1		;-60
-	btst	#6,$62(a3)
+	btst	#6,pflags(a3)
 	beq.w	.1
 	moveq	#1,d0
 	neg.w	d1
 .1	sub.b	d0,(PBnum).w		;IDA: loc_A488. Players in penalty box
-	move.w	d1,$14(a3)
-	clr.w	$28(a3)
+	move.w	d1,Ypos(a3)
+	clr.w	Xvel(a3)
 	clr.w	$2A(a3)
 	move.w	#$86,(a3)
 	move.w	#2,$54(a3)
-	bset	#5,$62(a3)
+	bset	#5,pflags(a3)
 	move.w	#$1166,d1		;SPAwallleft
 	bsr.w	SetSPA
 	jmp	SprSort
 .nna	move.w	#4,$54(a3)		;IDA: loc_A4B6
 	st	$61(a3)
 	st	$60(a3)
-	bclr	#3,$62(a3)		;pfjoycon
-	bclr	#2,$62(a3)		;pfnc
-	bclr	#5,$63(a3)		;pf2npc
-	bclr	#2,$63(a3)		;pf2unav
-	move.w	#$F000,$28(a3)		;-$1000
+	bclr	#3,pflags(a3)		;pfjoycon
+	bclr	#2,pflags(a3)		;pfnc
+	bclr	#5,pflags2(a3)		;pf2npc
+	bclr	#2,pflags2(a3)		;pf2unav
+	move.w	#$F000,Xvel(a3)		;-$1000
 	bra.w	assexit
 
 assfaceoff	;players do nothing until faceoff is over
-	btst	#5,$62(a3)
+	btst	#5,pflags(a3)
 	bne.w	rtss
 	btst	#0,(sflags2).w		;sf2faceoff
 	beq.w	assexit			;exit once faceoff is over
@@ -263,15 +263,15 @@ assfaceoff	;players do nothing until faceoff is over
 
 assfaceoffp1	;assignment for players actually participating in faceoff
 	;a3 = player (92 assfaceoffpl)
-	btst	#5,$62(a3)
+	btst	#5,pflags(a3)
 	bne.w	rtss
 	btst	#0,(sflags2).w
 	beq.w	.exit
-	bclr	#1,$62(a3)
+	bclr	#1,pflags(a3)
 	beq.w	.nna
 	clr.w	$40(a3)
 .nna	movea.l	#fofdata2,a0		;IDA: loc_A51E
-	btst	#6,$62(a3)
+	btst	#6,pflags(a3)
 	beq.w	.0
 	addq.w	#4,a0
 .0	move.w	$5A(a3),d0		;IDA: loc_A530. SPAnum
@@ -281,9 +281,9 @@ assfaceoffp1	;assignment for players actually participating in faceoff
 	bne.w	.lefty
 	addq.w	#3,d0
 .lefty	move.w	d0,(a0)			;IDA: loc_A542
-	btst	#3,$62(a3)		;pfjoycon
+	btst	#3,pflags(a3)		;pfjoycon
 	bne.w	rtss
-	bset	#1,$63(a3)		;pf2aip
+	bset	#1,pflags2(a3)		;pf2aip
 	bne.w	rtss
 	move.w	#$11A4,d1		;SPAfaceoff
 	cmpi.w	#$10,(word_FFB78A).w	;puckx+temp1
@@ -293,18 +293,18 @@ assfaceoffp1	;assignment for players actually participating in faceoff
 	tst.w	d0
 	beq.w	.d
 	move.w	#$11CE,d1		;SPAfaceoffr
-.d	bset	#1,$63(a3)		;IDA: loc_A576
+.d	bset	#1,pflags2(a3)		;IDA: loc_A576
 	bra.w	SetSPA
 .exit	move.b	#$14,$5E(a3)		;IDA: loc_A580. nopuck = 20
 	bra.w	assexit
 
 assfight	;fighting logic
 	;a3 = player
-	btst	#5,$62(a3)		;check if animation lock
+	btst	#5,pflags(a3)		;check if animation lock
 	bne.w	rtss			;exit if so
 	tst.w	(Pencntdwn).w		;fight over?
 	bmi.w	assnothing
-	bclr	#1,$62(a3)		;clear new assignment
+	bclr	#1,pflags(a3)		;clear new assignment
 	beq.w	.nna			;not first time through
 	bsr.w	getpde			;get player's energy level
 	move.b	$74(a3),d1		;aggress (fighting)
@@ -334,16 +334,16 @@ assfight	;fighting logic
 	add.w	(a0),d0
 	asr.w	#1,d0
 	move.w	d0,(xc1).w		;scroll lock between the fighters
-	btst	#3,$62(a3)		;pfjoycon
+	btst	#3,pflags(a3)		;pfjoycon
 	bne.w	.j
-	bset	#1,$63(a3)		;pf2aip
+	bset	#1,pflags2(a3)		;pf2aip
 	bne.w	.j
 	move.w	(a3),d0			;computer punches only when in range
 	sub.w	(a0),d0
-	move.w	$28(a3),d1
+	move.w	Xvel(a3),d1
 	asr.w	#8,d1
 	add.w	d1,d0
-	move.w	$28(a0),d1
+	move.w	Xvel(a0),d1
 	asr.w	#8,d1
 	sub.w	d1,d0
 	cmp.w	#20,d0
@@ -364,7 +364,7 @@ assfight	;fighting logic
 	beq.w	.njc
 	cmpi.w	#$F8E,$58(a3)		;SPAfight
 	beq.w	.jc
-	btst	#3,$62(a3)
+	btst	#3,pflags(a3)
 	bne.w	.jc
 .njc	move.w	(xc1).w,d0		;IDA: _njc
 	addi.w	#$A,d0
@@ -373,9 +373,9 @@ assfight	;fighting logic
 	subi.w	#$14,d0
 .0	sub.w	(a3),d0			;IDA: _0
 	asl.w	#5,d0			;93 adds to Xvel (92 clamps and sets)
-	add.w	d0,$28(a3)
+	add.w	d0,Xvel(a3)
 .jc	move.w	(yc1).w,d1		;IDA: _jc
-	sub.w	$14(a3),d1
+	sub.w	Ypos(a3),d1
 	asl.w	#8,d1
 	cmp.w	#$1000,d1
 	blt.w	.y1
@@ -392,7 +392,7 @@ assfight	;fighting logic
 chkhit	;part of fight to see if player is hit
 	;a3 = player, a0 = opponent
 	movem.l	d0/a0-a3,-(sp)
-	move.w	6(a3),d0		;frame
+	move.w	frame(a3),d0
 	cmp.w	8(a3),d0		;oldframe
 	beq.w	.ex
 	cmp.w	#$164,d0		;SPFfight+2,d0
@@ -403,13 +403,13 @@ chkhit	;part of fight to see if player is hit
 	bgt.w	.ex
 	cmp.w	#-22,d0
 	blt.w	.ex
-	move.w	$14(a3),d0
-	sub.w	$14(a0),d0
+	move.w	Ypos(a3),d0
+	sub.w	Ypos(a0),d0
 	cmp.w	#8,d0
 	bgt.w	.ex
 	cmp.w	#-8,d0
 	blt.w	.ex
-	move.w	6(a3),d0
+	move.w	frame(a3),d0
 	cmp.w	#$168,d0		;SPFfight+6,d0
 	beq.w	.hithigh
 	cmp.w	#$16D,d0		;SPFfight+6+5,d0
@@ -424,7 +424,7 @@ chkhit	;part of fight to see if player is hit
 	beq.w	.grab
 .ex	movem.l	(sp)+,d0/a0-a3
 	rts
-.dropped	bclr	#5,$63(a3)		;pf2npc: gloves dropped
+.dropped	bclr	#5,pflags2(a3)		;pf2npc: gloves dropped
 	move.w	(xc1).w,d0
 	cmp.w	#90,d0
 	blt.w	.chkneg
@@ -441,13 +441,13 @@ chkhit	;part of fight to see if player is hit
 	move.b	d0,(glovecords+1).w
 	bra.s	.ex
 .grab	exg	a0,a3			;IDA: _grab
-	bset	#1,$63(a3)		;pf2aip
+	bset	#1,pflags2(a3)		;pf2aip
 	move.w	#$FE2,d1		;SPAfheld
 	bsr.w	SetSPA
 	bra.s	.ex
 .hithigh	exg	a0,a3			;IDA: _hithigh
 	bsr.w	.cwd			;crowd reacts, knock back
-	bset	#1,$63(a3)
+	bset	#1,pflags2(a3)
 	subq.w	#1,$44(a3)		;temp3
 	bmi.w	.fall
 	move.w	#$1068,d1		;SPAfhith
@@ -457,7 +457,7 @@ chkhit	;part of fight to see if player is hit
 	bra.s	.ex
 .hitlow	exg	a0,a3			;IDA: _hitlow
 	bsr.w	.cwd
-	bset	#1,$63(a3)
+	bset	#1,pflags2(a3)
 	subq.w	#1,$44(a3)
 	bmi.w	.fall
 	move.w	#$108A,d1		;SPAfhitl
@@ -475,7 +475,7 @@ chkhit	;part of fight to see if player is hit
 	cmpi.w	#2,$54(a3)
 	bne.w	.xveladj
 	neg.w	d0
-.xveladj	add.w	d0,$28(a3)		;IDA: _xveladj. Xvel
+.xveladj	add.w	d0,Xvel(a3)		;IDA: _xveladj
 	rts
 .fall	;IDA: FightFall. a3 lost the fight: change the a0 player's penalty to
 	;fighting (PenFighting), maybe injure a3
@@ -499,7 +499,7 @@ chkhit	;part of fight to see if player is hit
 	cmp.b	$75(a0),d0		;checking value
 	bgt.w	.noinj			;skip injury
 	move.w	#$B4,(Pencntdwn).w	;180: player is injured
-	bset	#6,$63(a3)
+	bset	#6,pflags2(a3)
 	move.w	#$10CE,d1		;SPAffall
 	bsr.w	SetSPA
 	bsr.w	ShowInjuryMsg
@@ -512,7 +512,7 @@ chkhit	;part of fight to see if player is hit
 	bsr.w	SetSPA
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	move.w	#$B,-(sp)		;SFXcrowdcheer
-	btst	#6,$62(a3)
+	btst	#6,pflags(a3)
 	bne.w	.snd
 	lea	$1A2(a2),a2
 	move.w	#$C,(sp)		;SFXcrowdboo
@@ -576,7 +576,7 @@ addinfo	;d0 = penalty byte (player SCnum in low nibble). Build
 	asl.w	#7,d0
 	add.b	$74(a1,d0.w),d3		;aggress
 	movea.w	#(hmtmstruct-M68K_RAM),a2
-	btst	#6,$62(a1,d0.w)
+	btst	#6,pflags(a1,d0.w)
 	beq.w	.0
 	adda.w	#$1A2,a2
 .0	move.b	$66(a1,d0.w),d0		;IDA: _0. pnum
@@ -602,11 +602,11 @@ addinfo	;d0 = penalty byte (player SCnum in low nibble). Build
 
 assfwatch	;for player who is watching fight
 	;a3 = player
-	btst	#5,$62(a3)
+	btst	#5,pflags(a3)
 	bne.w	rtss
-	btst	#3,$62(a3)
+	btst	#3,pflags(a3)
 	bne.w	rtss
-	bclr	#1,$62(a3)
+	bclr	#1,pflags(a3)
 	beq.w	.nna
 	clr.w	$40(a3)
 .nna	sub.w	d7,$40(a3)		;IDA: loc_A9DA
@@ -614,7 +614,7 @@ assfwatch	;for player who is watching fight
 	addi.w	#$3C,$40(a3)		;new spot every second
 	move.w	(a3),d0
 	sub.w	(xc1).w,d0
-	move.w	$14(a3),d1
+	move.w	Ypos(a3),d1
 	sub.w	(yc1).w,d1
 	movem.w	d0-d1,-(sp)
 	muls.w	d0,d0
@@ -648,17 +648,17 @@ assfwatch	;for player who is watching fight
 	bra.w	check4check
 
 assnothing	;player should do nothing
-	btst	#5,$62(a3)
+	btst	#5,pflags(a3)
 	bne.w	rtss
-	btst	#3,$62(a3)
+	btst	#3,pflags(a3)
 	bne.w	rtss
 	moveq	#8,d0
 	bra.w	doplayeracc
 
 assstanley	;player a3 skates with stanley cup overhead
-	btst	#5,$62(a3)
+	btst	#5,pflags(a3)
 	bne.w	rtss
-	bclr	#1,$62(a3)
+	bclr	#1,pflags(a3)
 	beq.w	.nna
 	move.w	#$5A,$44(a3)		;90
 	tst.w	(Hpos).w
@@ -670,7 +670,7 @@ assstanley	;player a3 skates with stanley cup overhead
 .nna	move.w	$44(a3),d0		;IDA: loc_AAA4
 	sub.w	(a3),d0
 	move.w	$46(a3),d1
-	sub.w	$14(a3),d1
+	sub.w	Ypos(a3),d1
 	bsr.w	vtoa
 	cmp.w	#7,d0
 	bgt.w	rtss
@@ -679,9 +679,9 @@ assstanley	;player a3 skates with stanley cup overhead
 	bra.w	playeracc
 
 assscore	;player a3 celebrates, if scoring player then do arm pump
-	btst	#5,$62(a3)
+	btst	#5,pflags(a3)
 	bne.w	rtss
-	bclr	#1,$62(a3)
+	bclr	#1,pflags(a3)
 	beq.w	.nna
 	bsr.w	.1
 	move.w	#8,$42(a3)
@@ -695,7 +695,7 @@ assscore	;player a3 celebrates, if scoring player then do arm pump
 	move.w	$46(a3),d1
 	sub.w	d7,$40(a3)
 	bpl.w	.chkcon
-	bset	#5,$62(a3)
+	bset	#5,pflags(a3)
 	move.w	#$EAA,d1		;SPAcelebrate
 	move.w	(shotplayer).w,d0
 	cmp.w	$52(a3),d0
@@ -706,19 +706,19 @@ assscore	;player a3 celebrates, if scoring player then do arm pump
 	bsr.w	randomd0
 	move.w	d0,$40(a3)
 	rts
-.chkcon	btst	#3,$62(a3)		;IDA: loc_AB3E
+.chkcon	btst	#3,pflags(a3)		;IDA: loc_AB3E
 	beq.w	skateto
 	rts
 
 assdefo	;player a3 is defensive player on offense
-	btst	#5,$62(a3)
+	btst	#5,pflags(a3)
 	bne.w	rtss
 	btst	#0,(gmode).w		;gmclock
 	bne.w	assnothing
 	bsr.w	check4bench
-	btst	#3,$62(a3)
+	btst	#3,pflags(a3)
 	bne.w	rtss
-	bclr	#1,$62(a3)
+	bclr	#1,pflags(a3)
 	beq.w	.nna
 	clr.w	$40(a3)
 	move.w	#8,$42(a3)
@@ -729,7 +729,7 @@ assdefo	;player a3 is defensive player on offense
 	btst	#4,$30(a2)		;93: team flag forces defense
 	bne.w	assreplace
 	move.w	(pucky).w,d1
-	btst	#7,$62(a3)
+	btst	#7,pflags(a3)
 	bne.w	.de1
 	neg.w	d1
 .de1	cmp.w	#$5D,d1		;IDA: loc_ABAE. blueline,d1
@@ -747,7 +747,7 @@ assdefo	;player a3 is defensive player on offense
 	beq.w	.1
 	neg.w	d0
 .1	move.w	#$62,d1			;IDA: loc_ABDE. 93: 98 (92 blueline+10)
-	btst	#7,$62(a3)
+	btst	#7,pflags(a3)
 	bne.w	.0
 	neg.w	d0
 	neg.w	d1
@@ -762,14 +762,14 @@ assdefo	;player a3 is defensive player on offense
 	bra.w	skateto
 
 assdefd	;player a3 is defensive player on defense
-	btst	#5,$62(a3)
+	btst	#5,pflags(a3)
 	bne.w	rtss
 	btst	#0,(gmode).w
 	bne.w	assnothing
 	bsr.w	check4bench
-	btst	#3,$62(a3)
+	btst	#3,pflags(a3)
 	bne.w	rtss
-	bclr	#1,$62(a3)
+	bclr	#1,pflags(a3)
 	beq.w	.nna
 	clr.w	$40(a3)
 	move.w	#8,$42(a3)
@@ -779,7 +779,7 @@ assdefd	;player a3 is defensive player on defense
 	move.w	(pucky).w,d1
 	move.w	(puckvy).w,d3
 	asr.w	#6,d3
-	btst	#7,$62(a3)
+	btst	#7,pflags(a3)
 	bne.w	.de00
 	neg.w	d1
 	neg.w	d3
@@ -808,13 +808,13 @@ assdefd	;player a3 is defensive player on defense
 .de1	movea.w	#(SortCords-M68K_RAM),a0	;IDA: loc_ACBE
 	cmpi.w	#6,$52(a3)
 	bge.w	.de2
-	adda.w	#$300,a0		;6*SCstruct
+	adda.w	#6*SCstruct,a0
 .de2	moveq	#5,d2			;IDA: loc_ACD0. Find furthest-up attacker
 	move.w	#$FC18,d0		;-1000
-	btst	#7,$62(a3)
+	btst	#7,pflags(a3)
 	beq.w	.gdwn
 	neg.w	d0
-.gup	btst	#2,$63(a0)		;IDA: loc_ACE2. pf2unav
+.gup	btst	#2,pflags2(a0)		;IDA: loc_ACE2. pf2unav
 	bne.w	.gu0
 	tst.w	$34(a0)
 	bmi.w	.gu0
@@ -822,11 +822,11 @@ assdefd	;player a3 is defensive player on defense
 	bmi.w	.gu2
 	clr.w	d1
 .gu2	asr.w	#4,d1			;IDA: loc_ACFE. 92 asr #5
-	add.w	$14(a0),d1
+	add.w	Ypos(a0),d1
 	cmp.w	d0,d1
 	bgt.w	.gu0
 	move.w	d1,d0
-.gu0	adda.w	#$80,a0			;IDA: loc_AD0C
+.gu0	adda.w	#SCstruct,a0			;IDA: loc_AD0C
 	dbf	d2,.gup
 	subi.w	#$32,d0			;93: 50 back of him
 	cmp.w	#-190,d0
@@ -839,7 +839,7 @@ assdefd	;player a3 is defensive player on defense
 	bpl.w	.de3
 	clr.w	$44(a3)
 	bra.w	.de3
-.gdwn	btst	#2,$63(a0)		;IDA: loc_AD3E
+.gdwn	btst	#2,pflags2(a0)		;IDA: loc_AD3E
 	bne.w	.gd0
 	tst.w	$34(a0)
 	bmi.w	.gd0
@@ -847,11 +847,11 @@ assdefd	;player a3 is defensive player on defense
 	bpl.w	.gd2
 	clr.w	d1
 .gd2	asr.w	#4,d1			;IDA: loc_AD5A
-	add.w	$14(a0),d1
+	add.w	Ypos(a0),d1
 	cmp.w	d0,d1
 	blt.w	.gd0
 	move.w	d1,d0
-.gd0	adda.w	#$80,a0			;IDA: loc_AD68
+.gd0	adda.w	#SCstruct,a0			;IDA: loc_AD68
 	dbf	d2,.gdwn
 	addi.w	#$32,d0
 	cmp.w	#190,d0
@@ -871,14 +871,14 @@ assdefd	;player a3 is defensive player on defense
 	bra.w	check4check
 
 asswingd	;player a3 is wing on defense
-	btst	#5,$62(a3)
+	btst	#5,pflags(a3)
 	bne.w	rtss
 	btst	#0,(gmode).w
 	bne.w	assnothing
 	bsr.w	check4bench
-	btst	#3,$62(a3)
+	btst	#3,pflags(a3)
 	bne.w	rtss
-	bclr	#1,$62(a3)
+	bclr	#1,pflags(a3)
 	beq.w	.nna
 	clr.w	$40(a3)
 	move.w	#8,$42(a3)
@@ -898,7 +898,7 @@ asswingd	;player a3 is wing on defense
 	bne.w	.0
 	neg.w	d0
 .0	move.l	#$9E,d1			;IDA: loc_AE1E
-	btst	#7,$62(a3)
+	btst	#7,pflags(a3)
 	beq.w	.up
 	neg.w	d0
 	neg.w	d1

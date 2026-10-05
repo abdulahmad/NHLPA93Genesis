@@ -139,6 +139,8 @@ Labels:
 - Stubs for routines outside the segment keep the IDA name, even an auto name. They belong to the segment that owns that code. That segment's pass will rename them to 92 names.
 - Record every rename of a global in the rename table below. Later segments must call the renamed routine by its source name, not its IDA name.
 
+Names. After the bytes match, replace a numeric offset or RAM address with an equate when the value is known. NHL 92 names win when the 92 equate has the same value: `Ypos`, `Xpos`, `Xvel`, `Zpos`, `pflags`, `pflags2`, `SCstruct`, `tmsize`, `tmdata`, `frame`, `attribute`. Put shared equates in `src/stubinc/struct93.inc` and include that file from every stub. Do not add a second RAM map. A RAM word already in `ram_addrs.inc` is used by that name. A `word_FF` / `byte_FF` name becomes an equate only when the IDA listing or `NHL92Genesis/src/ram.asm` names that exact address. If the 93 value differs from 92, keep the number and leave the 92 name in the comment. An immediate that is a penalty, sfx, or song number stays a number. Do not invent a field name from a comment. Run the segment's seg script afterward; the MATCH byte count and range must not change.
+
 ### Renamed globals
 
 | Segment | IDA name | Source name | Why |

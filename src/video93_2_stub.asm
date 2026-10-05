@@ -35,6 +35,7 @@ Spritetiles = $3A382		; graphics data (addi.l operand, Rev A $3A3B0)
     include "stubinc/ports.inc"
     include "stubinc/equals.inc"
     include "stubinc/ram_addrs.inc"
+    include "stubinc/struct93.inc"
 
 ; Main segment code
 	include	video93_2.asm

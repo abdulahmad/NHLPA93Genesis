@@ -27,11 +27,11 @@ checkcoll	;d2 = new x cord, d3 = new y cord, a3 = struct of object. Check wall c
 	btst	#7,(sflags).w		;sfhor
 	beq.w	.nhor1
 	exg	d2,d3
-.nhor1	btst	#2,$62(a3)		;IDA: loc_FB0A. pfnc
+.nhor1	btst	#2,pflags(a3)		;IDA: loc_FB0A. pfnc
 	bne.w	.ex
 	movem.l	d0-d7,-(sp)
 	move.w	(a3),d2			;Xpos
-	move.w	$14(a3),d3		;Ypos. check coll around hot spot with wall
+	move.w	Ypos(a3),d3		;check coll around hot spot with wall
 	move.w	$4A(a3),(wcradiusx).w	;wall coll radius x
 	move.w	$4C(a3),(wcradiusy).w	;wall coll radius y
 	bsr.w	checkwallcoll
@@ -44,7 +44,7 @@ checkcoll	;d2 = new x cord, d3 = new y cord, a3 = struct of object. Check wall c
 	move.l	a3,-(sp)
 	bsr.w	GetHot
 	move.w	(a3),d2
-	move.w	$14(a3),d3
+	move.w	Ypos(a3),d3
 	add.w	d0,d2
 	add.w	d1,d3			;check coll around end of stick with wall
 	move.w	#1,(wcradiusx).w
@@ -97,11 +97,11 @@ checkcoll	;d2 = new x cord, d3 = new y cord, a3 = struct of object. Check wall c
 .ex2	move.w	d3,(a2,d0.w)		;IDA: loc_FBE2. update Ylist
 	rts
 .restoreold	move.w	$1C(a3),(a3)		;IDA: loc_FBE8. OldXpos
-	move.w	$20(a3),$14(a3)		;OldYpos
+	move.w	$20(a3),Ypos(a3)		;OldYpos
 	rts
 
 checkplcoll	;d2/d3 = x/y cords, a3 = struct. Walk up and down the OOlist from a3 and call checkcx for each object within $10 in y (92 collrad*2). Called from checkcoll
-	btst	#5,$63(a3)		;93 no player coll bit (92 pf2npc = 7)
+	btst	#5,pflags2(a3)		;93 no player coll bit (92 pf2npc = 7)
 	bne.w	.ex
 	cmpi.w	#$B,$52(a3)		;SCnum
 	bgt.w	.ex			;not a player
@@ -142,9 +142,9 @@ checkcx	;d4 = obj. # * 2 for possible coll so check x range and distance for col
 	movea.l	#SortCords,a2
 	adda.w	d4,a2
 
-	btst	#2,$62(a2)		;pfnc
+	btst	#2,pflags(a2)		;pfnc
 	bne.w	.exit			;object has no coll mode on
-	btst	#5,$63(a2)		;93 no player coll bit (92 pf2npc = 7)
+	btst	#5,pflags2(a2)		;93 no player coll bit (92 pf2npc = 7)
 	bne.w	.exit
 	cmpi.w	#$B,$52(a2)		;SCnum
 	bgt.w	.exit			;not a player
@@ -152,7 +152,7 @@ checkcx	;d4 = obj. # * 2 for possible coll so check x range and distance for col
 	move.w	(a2),d0			;Xpos
 	btst	#7,(sflags).w		;sfhor
 	beq.w	.nhor
-	move.w	$14(a2),d0		;Ypos
+	move.w	Ypos(a2),d0
 .nhor	sub.w	d2,d0			;IDA: loc_FCA4. delta x
 	cmp.w	#-$10,d0		;-collrad*2
 	blt.w	.exit
@@ -165,22 +165,22 @@ checkcx	;d4 = obj. # * 2 for possible coll so check x range and distance for col
 	bgt.w	.exit			;outside of radius
 
 	move.w	#0,(evalue).w
-	move.b	$62(a3),d6		;pflags
-	move.b	$62(a2),d0
+	move.b	pflags(a3),d6
+	move.b	pflags(a2),d0
 	eor.b	d0,d6
 
 ;now do momentum transfer from object a3 to object a2
 
-	move.w	$28(a3),d0		;Xvel
-	sub.w	$28(a2),d0		;Vx
+	move.w	Xvel(a3),d0
+	sub.w	Xvel(a2),d0		;Vx
 	move.w	$2A(a3),d1		;Yvel
 	sub.w	$2A(a2),d1		;Vy
 
 	move.w	(a3),d2			;Xpos
 	sub.w	(a2),d2
 	neg.w	d2			;Dx
-	move.w	$14(a3),d3		;Ypos
-	sub.w	$14(a2),d3
+	move.w	Ypos(a3),d3
+	sub.w	Ypos(a2),d3
 	neg.w	d3			;Dy
 
 	movem.w	d0-d1,-(sp)
@@ -199,10 +199,10 @@ checkcx	;d4 = obj. # * 2 for possible coll so check x range and distance for col
 	moveq	#5,d4			;minimum impact value
 .g40	add.w	d4,$32(a3)		;IDA: loc_FD1C. impact
 	add.w	d4,$32(a2)
-	btst	#0,$63(a2)		;pf2fight
+	btst	#0,pflags2(a2)		;pf2fight
 	bne.w	.if
 	move.w	$52(a3),$2E(a2)		;SCnum -> impactp
-.if	btst	#0,$63(a3)		;IDA: loc_FD34. pf2fight
+.if	btst	#0,pflags2(a3)		;IDA: loc_FD34. pf2fight
 	bne.w	.if2
 	move.w	$52(a2),$2E(a3)
 .if2	cmp.w	#$14,d4			;IDA: loc_FD44. impact under 20: no check sound
@@ -253,8 +253,8 @@ checkcx	;d4 = obj. # * 2 for possible coll so check x range and distance for col
 	muls.w	d0,d2			;V1n'*Dx
 	add.l	d2,d3			;V1t'*Dy+V1n'*Dx
 	asr.l	#4,d3
-	add.w	$28(a2),d3		;Xvel
-	move.w	d3,$28(a3)
+	add.w	Xvel(a2),d3
+	move.w	d3,Xvel(a3)
 
 	movem.w	(sp),d2-d3		;restore Dx,Dy
 	muls.w	d5,d2			;V1t'*Dx
@@ -267,7 +267,7 @@ checkcx	;d4 = obj. # * 2 for possible coll so check x range and distance for col
 	movem.w	(sp)+,d2-d3
 	muls.w	d1,d2			;V2n'*Dx
 	asr.l	#4,d2
-	add.w	d2,$28(a2)
+	add.w	d2,Xvel(a2)
 
 	muls.w	d1,d3			;V2n'*Dy
 	asr.l	#4,d3
@@ -319,7 +319,7 @@ checkint	;check for interference penalty. player a2 interferes with a3 or vice-v
 	exg	a2,a3
 	cmpi.w	#$1E,$32(a2)		;impact 30
 	ble.w	rtss
-	btst	#4,$63(a3)		;93 penalty bit (92 pf2pen = 6)
+	btst	#4,pflags2(a3)		;93 penalty bit (92 pf2pen = 6)
 	bne.w	rtss			;no double minor
 	moveq	#$14,d0			;93: penalty 3 times in (20 - byte $73)
 	sub.b	$73(a3),d0
@@ -353,12 +353,12 @@ checkcheck	;player is in contact look for various contact events. Runs .cc for a
 	move.w	#$100,$32(a2)
 .nofight	move.w	(a2),d0			;IDA: _nofight
 	sub.w	(a3),d0
-	move.w	$14(a2),d1
-	sub.w	$14(a3),d1
+	move.w	Ypos(a2),d1
+	sub.w	Ypos(a3),d1
 	bsr.w	vtoa
 	sub.w	$54(a3),d0		;facedir
 	andi.w	#7,d0
-	btst	#3,4(a3)		;attribute: xflip?
+	btst	#3,attribute(a3)		;xflip?
 	beq.w	.0
 	neg.w	d0
 	addq.w	#8,d0
@@ -366,7 +366,7 @@ checkcheck	;player is in contact look for various contact events. Runs .cc for a
 .0	asl.w	#1,d0			;IDA: _0
 	lea	.list(pc),a0
 	move.w	(a0,d0.w),d1
-	bset	#5,$62(a3)		;pfalock
+	bset	#5,pflags(a3)		;pfalock
 	bsr.w	SetSPA
 
 	tst.w	$34(a2)			;goalie doesn't fall
@@ -374,7 +374,7 @@ checkcheck	;player is in contact look for various contact events. Runs .cc for a
 	cmp.w	#$14,d4			;impact under 20: no fall
 	blt.w	rtss
 	moveq	#$78,d0			;start with 120 dec. (92 60)
-	btst	#3,$62(a3)		;pfjoycon: check if player controlled
+	btst	#3,pflags(a3)		;pfjoycon: check if player controlled
 	beq.w	.00			;branch if not
 	asl.w	#1,d0			;mult. by 2
 .00	sub.b	$67(a3),d0		;IDA: _00. sub weight
@@ -419,7 +419,7 @@ checkagr	;93: penalty roll for player a3. Range = (20 - byte $73) * 13, doubled 
 	moveq	#$14,d0
 	sub.b	$73(a3),d0
 	mulu.w	#$D,d0
-	btst	#3,$62(a3)		;pfjoycon
+	btst	#3,pflags(a3)		;pfjoycon
 	beq.w	.nojoy
 	asl.w	#1,d0			;joystick player: twice the range, fewer penalties
 .nojoy	move.w	(a3),d1			;IDA: loc_FFF4. Xpos
@@ -428,7 +428,7 @@ checkagr	;93: penalty roll for player a3. Range = (20 - byte $73) * 13, doubled 
 	bgt.w	.far
 	cmp.w	#-$28,d1
 	blt.w	.far
-	move.w	$14(a3),d1		;Ypos
+	move.w	Ypos(a3),d1
 	sub.w	(pucky).w,d1
 	cmp.w	#$28,d1
 	bgt.w	.far
@@ -438,16 +438,16 @@ checkagr	;93: penalty roll for player a3. Range = (20 - byte $73) * 13, doubled 
 .far	bra.w	randomd0		;IDA: loc_10024
 
 holdcheck	;player a2 is in hold animation looking to hold opponent a3. Entered from checkcheck .cc for SPA $CB0 (92 SPAHold) or $12DC. 93 adds the facing test, the puck carrier sflags clear and the second hold anim, and rolls the penalty with checkagr
-	btst	#5,$62(a3)		;pfalock
+	btst	#5,pflags(a3)		;pfalock
 	bne.w	rtss
 	tst.w	$34(a3)			;position
 	beq.w	rtss			;no hold on goalies
-	btst	#0,$63(a3)		;pf2fight
+	btst	#0,pflags2(a3)		;pf2fight
 	bne.w	rtss			;no hold on fighters
 	move.w	(a3),d0
 	sub.w	(a2),d0
-	move.w	$14(a3),d1
-	sub.w	$14(a2),d1
+	move.w	Ypos(a3),d1
+	sub.w	Ypos(a2),d1
 	bsr.w	vtoa			;direction from a2 to a3
 	sub.w	$54(a2),d0		;facedir
 	addq.w	#1,d0
@@ -458,21 +458,21 @@ holdcheck	;player a2 is in hold animation looking to hold opponent a3. Entered f
 	cmp.w	$52(a3),d0
 	bne.w	.nopc
 	bclr	#3,(sflags).w		;a3 has the puck: clear sfssdir
-.nopc	move.w	$28(a3),d0		;IDA: loc_10078. Xvel
-	add.w	$28(a2),d0
+.nopc	move.w	Xvel(a3),d0		;IDA: loc_10078
+	add.w	Xvel(a2),d0
 	asr.w	#1,d0
-	move.w	d0,$28(a3)
-	move.w	d0,$28(a2)
+	move.w	d0,Xvel(a3)
+	move.w	d0,Xvel(a2)
 	move.w	$2A(a3),d0		;Yvel
 	add.w	$2A(a2),d0
 	asr.w	#1,d0
 	move.w	d0,$2A(a3)
 	move.w	d0,$2A(a2)
-	bset	#5,$62(a3)		;pfalock
+	bset	#5,pflags(a3)		;pfalock
 	move.w	#$D14,d1		;92 SPAFlail
 	bsr.w	SetSPA
 	exg	a2,a3
-	bset	#5,$62(a3)
+	bset	#5,pflags(a3)
 	move.w	#$CE2,d1		;92 SPAHold2
 	cmpi.w	#$CB0,$58(a3)		;92 SPAHold
 	beq.w	.h2
@@ -491,15 +491,15 @@ holdcheck	;player a2 is in hold animation looking to hold opponent a3. Entered f
 	rts
 
 Bcheck	;93: player a2 is in SPA $B44 and a3 is the other player. Entered from checkcheck .cc. If OptPen is 0 and a2 is joystick controlled, a2 needs randomd0($10 + a2 checking rating - a3 legstr) >= $C. If a3 is within 1 direction of where a2 faces, a3 falls and checkagr may call penalty $20 on a2. Sets collflag to -1
-	btst	#5,$62(a3)		;pfalock
+	btst	#5,pflags(a3)		;pfalock
 	bne.w	rtss
 	tst.w	$34(a3)			;position: not on a goalie
 	beq.w	rtss
-	btst	#0,$63(a3)		;pf2fight
+	btst	#0,pflags2(a3)		;pf2fight
 	bne.w	rtss
 	tst.w	(OptPen).w
 	bne.w	.dir
-	btst	#3,$62(a2)		;pfjoycon
+	btst	#3,pflags(a2)		;pfjoycon
 	beq.w	.dir
 	moveq	#$10,d0
 	add.b	$75(a2),d0		;checking rating
@@ -509,8 +509,8 @@ Bcheck	;93: player a2 is in SPA $B44 and a3 is the other player. Entered from ch
 	blt.w	rtss
 .dir	move.w	(a3),d0			;IDA: loc_10136
 	sub.w	(a2),d0
-	move.w	$14(a3),d1
-	sub.w	$14(a2),d1
+	move.w	Ypos(a3),d1
+	sub.w	Ypos(a2),d1
 	bsr.w	vtoa			;direction from a2 to a3
 	sub.w	$54(a2),d0		;facedir
 	addq.w	#1,d0
@@ -531,7 +531,7 @@ Bcheck	;93: player a2 is in SPA $B44 and a3 is the other player. Entered from ch
 FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $13A0 in place of a fall for some players, check stats for the hitter, a third fall anim ($1524), and injuries (setInjuryType) with a penalty. Called from checkint .ci, checkcheck .cc and Bcheck; also entered from setd0player (hockey93_05)
 	cmpi.w	#$B,$52(a2)		;SCnum
 	bgt.w	rtss			;not a player
-	btst	#0,$63(a2)		;pf2fight
+	btst	#0,pflags2(a2)		;pf2fight
 	bne.w	rtss
 	cmpi.w	#$1616,$58(a2)		;SPA: already in one of the fall anims
 	beq.w	rtss
@@ -559,7 +559,7 @@ FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $1
 .fall	tst.w	$34(a3)			;IDA: loc_101F6. position: no check stats for a goalie hitter
 	beq.w	.nostat
 	movea.w	#(hmtmstruct-M68K_RAM),a0
-	btst	#6,$62(a3)		;pfteam
+	btst	#6,pflags(a3)		;pfteam
 	beq.w	.tm
 	adda.w	#$1A2,a0		;tmsize
 .tm	addq.w	#1,$10(a0)		;IDA: loc_10210. team check count
@@ -574,8 +574,8 @@ FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $1
 .nostat	move.b	#$78,$5E(a2)		;IDA: loc_10230. nopuck = 120
 	move.w	(a3),d0
 	sub.w	(a2),d0
-	move.w	$14(a3),d1
-	sub.w	$14(a2),d1
+	move.w	Ypos(a3),d1
+	sub.w	Ypos(a2),d1
 	bsr.w	vtoa			;direction from a2 to the hitter
 	move.w	#$DF8,d1		;92 SPAfallback
 	sub.w	$54(a2),d0		;facedir
@@ -593,7 +593,7 @@ FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $1
 	bgt.w	.2
 	move.w	#$1524,d1		;93 third fall anim
 .2	exg	a2,a3			;IDA: loc_10284
-	bset	#5,$62(a3)		;pfalock
+	bset	#5,pflags(a3)		;pfalock
 	bsr.w	SetSPA
 	exg	a2,a3
 
@@ -612,7 +612,7 @@ FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $1
 	move.w	$54(a2),d0
 	andi.w	#3,d0			;with facedir 0 or 4
 	bne.w	.snd
-	btst	#4,$63(a2)		;93 penalty bit (92 pf2pen = 6)
+	btst	#4,pflags2(a2)		;93 penalty bit (92 pf2pen = 6)
 	bne.w	.snd
 	move.l	#$A0,d0
 	bsr.w	randomd0
@@ -635,24 +635,24 @@ FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $1
 	bsr.w	AddPenalty2
 	bra.w	Stop4Pen
 .snd	move.w	#$B,-(sp)		;IDA: loc_10332. 92 SFXcrowdcheer = 25 via SFX
-	btst	#6,$62(a2)		;pfteam
+	btst	#6,pflags(a2)		;pfteam
 	bne.w	.3
 	move.w	#$C,(sp)		;92 SFXcrowdboo = 26
 .3	bsr.w	song			;IDA: _3
 	rts
 
 setInjuryType	;93: sets period injury. a2 = player injured, a3 = player checking. Marks a2 unavailable, pumps up the crowd, plays sfx $D, locks the scroll on a2, sets TempPlOffset (pnum, bit 15 set for the away team) and puts $FFFD (injured for the period) in a2's tmpdst. Called from FallDown and from logic93_2 chkhit .fall (IDA FightFall)
-	bset	#2,$63(a2)		;set player unavailable (92 pf2unav = 4)
+	bset	#2,pflags2(a2)		;set player unavailable (92 pf2unav = 4)
 	addi.w	#$12C,(crowdlevel).w	;pump up crowd
 	addi.w	#$1E,(CwdExciteLvl).w
 	move.w	#$D,-(sp)		;SFX
 	bsr.w	sfx
 	move.w	(a2),(xc1).w		;move X and Y pos to scroll center
-	move.w	$14(a2),(yc1).w
+	move.w	Ypos(a2),(yc1).w
 	bset	#6,(sflags).w		;sfslock (scroll lock)
 	clr.w	d1
 	movea.w	#(hmtmstruct-M68K_RAM),a0	;Home team struct into a0
-	btst	#6,$62(a2)		;pfteam: check if home or away
+	btst	#6,pflags(a2)		;pfteam: check if home or away
 	beq.w	.0			;branch if home
 	move.w	#$8000,d1		;away team flag
 	adda.w	#$1A2,a0		;tmsize: away team struct

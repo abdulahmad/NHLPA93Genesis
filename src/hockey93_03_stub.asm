@@ -42,6 +42,7 @@ rtss = $110E0			; hockey93_05
     include "stubinc/ports.inc"
     include "stubinc/equals.inc"
     include "stubinc/ram_addrs.inc"
+    include "stubinc/struct93.inc"
 
 ; Main segment code
 	include	hockey93_03.asm

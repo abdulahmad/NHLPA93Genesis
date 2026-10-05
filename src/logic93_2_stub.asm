@@ -61,6 +61,7 @@ getname = $14EAE		; hockey93_10
     include "stubinc/ports.inc"
     include "stubinc/equals.inc"
     include "stubinc/ram_addrs.inc"
+    include "stubinc/struct93.inc"
 
 ; Main segment code
 	include	logic93_2.asm

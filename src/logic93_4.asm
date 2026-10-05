@@ -26,18 +26,18 @@ checkob	;bring up little warning ref if a player on your team is over blue line.
 	movea.w	#(SortCords-M68K_RAM),a0
 	cmpi.w	#6,$52(a3)
 	blt.w	.0
-	adda.w	#$300,a0		;6*SCstruct
+	adda.w	#6*SCstruct,a0
 .0	moveq	#$5C,d1			;IDA: checkob_0. blue line y (92 move blueline,d1)
-	btst	#7,$62(a3)		;pfgoal
+	btst	#7,pflags(a3)		;pfgoal
 	bne.w	.top
 	neg.w	d1
 	cmp.w	(pucky).w,d1
 	bgt.w	.nob
 .bottom	tst.w	$34(a0)			;IDA: checkob_bottom
 	bmi.w	.bn
-	cmp.w	$14(a0),d1
+	cmp.w	Ypos(a0),d1
 	bgt.w	.ob
-.bn	adda.w	#$80,a0			;IDA: checkob_bn
+.bn	adda.w	#SCstruct,a0			;IDA: checkob_bn
 	dbf	d0,.bottom
 .nob	moveq	#$40,d0			;IDA: checkob_nob
 	bclr	#7,(sflags2).w		;sf2offsig
@@ -57,14 +57,14 @@ checkob	;bring up little warning ref if a player on your team is over blue line.
 	blt.s	.nob
 .top1	tst.w	$34(a0)			;IDA: checkob_top1
 	bmi.w	.tn
-	cmp.w	$14(a0),d1
+	cmp.w	Ypos(a0),d1
 	blt.s	.ob
-.tn	adda.w	#$80,a0			;IDA: checkob_tn
+.tn	adda.w	#SCstruct,a0			;IDA: checkob_tn
 	dbf	d0,.top1
 	bra.s	.nob
 
 assnearest	;this is a special assignment used for the player who is nearest the puck but doesn't have it. Assignment anearest ($11)
-	bclr	#1,$62(a3)		;pfna
+	bclr	#1,pflags(a3)		;pfna
 	beq.w	.nna
 	clr.w	$44(a3)			;temp3
 	move.w	#8,$42(a3)		;temp2
@@ -75,7 +75,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	tst.w	$34(a3)			;position
 	beq.w	assgoalie
 	move.l	#$10,d0			;apuckc
-	btst	#3,$62(a3)		;pfjoycon
+	btst	#3,pflags(a3)		;pfjoycon
 	beq.w	assinsert
 	rts
 .nopc	sub.b	d7,$40(a3)		;IDA: _nopc
@@ -87,8 +87,8 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	asl.w	#7,d1			;scsize
 	movea.w	#(SortCords-M68K_RAM),a1
 	adda.w	d1,a1
-	move.b	$62(a1),d0
-	move.b	$62(a3),d1
+	move.b	pflags(a1),d0
+	move.b	pflags(a3),d1
 	eor.b	d0,d1
 	btst	#6,d1			;pfteam
 	beq.w	.switch			;our team has the puck
@@ -99,7 +99,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	ble.w	.next
 	tst.b	$5E(a0)			;nopuck
 	bne.w	.next
-	btst	#2,$63(a0)		;pf2unav
+	btst	#2,pflags2(a0)		;pf2unav
 	bne.w	.next
 	move.w	$36(a0),d0		;93: skip a player whose current assignment
 	cmpi.b	#$13,$38(a0,d0.w)	;is apassrec
@@ -108,7 +108,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	bsr.w	GetHot
 	add.w	(a0),d0
 	sub.w	(puckx).w,d0
-	add.w	$14(a0),d1
+	add.w	Ypos(a0),d1
 	sub.w	(pucky).w,d1
 	move.w	(puckvx).w,d3		;93: always lead the puck (92 only if carried)
 	asr.w	#6,d3
@@ -123,7 +123,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	bhi.w	.next
 	move.l	d0,d2
 	movea.w	a0,a1
-.next	adda.w	#$80,a0			;IDA: _next
+.next	adda.w	#SCstruct,a0			;IDA: _next
 	dbf	d4,.de0
 	tst.l	d2
 	bmi.w	.de1
@@ -132,15 +132,15 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	beq.w	.de1
 	btst	#0,(gmode).w		;gmclock
 	bne.w	.de1
-	btst	#2,$63(a1)		;pf2unav
+	btst	#2,pflags2(a1)		;pf2unav
 	bne.w	.de1
 	exg	a1,a3
-	bclr	#0,$62(a3)		;pfdoff
+	bclr	#0,pflags(a3)		;pfdoff
 	move.l	#$11,d0			;anearest
 	bsr.w	assinsert
 	exg	a1,a3
 	bra.w	assexit
-.de1	btst	#5,$62(a3)		;IDA: _de1. pfalock (92 tst position / beq rtss)
+.de1	btst	#5,pflags(a3)		;IDA: _de1. pfalock (92 tst position / beq rtss)
 	bne.w	rtss
 	moveq	#2,d1
 	cmp.w	#$190,d2		;20^2,d2 (commented out in 92)
@@ -161,11 +161,11 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	cmp.w	#1,d0		;(92 #2)
 	bhi.w	.nodec
 	move.w	#$F0,$44(a3)		;temp3 = 240
-.nodec	btst	#5,$62(a3)		;IDA: _nodec. pfalock (92 tst position)
+.nodec	btst	#5,pflags(a3)		;IDA: _nodec. pfalock (92 tst position)
 	bne.w	rtss
 	btst	#0,(gmode).w		;gmclock
 	bne.w	assnothing		;92 donothing
-	btst	#3,$62(a3)		;pfjoycon
+	btst	#3,pflags(a3)		;pfjoycon
 	bne.w	rtss
 	btst	#2,$30(a2)		;93: tmflags bit 2 always takes the in-between spot
 	bne.w	.mid
@@ -179,7 +179,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	neg.w	d0			;or (0,-$F4) if pfgoal
 	neg.w	d1
 	addi.w	#$F4,d1
-	btst	#7,$62(a3)		;pfgoal
+	btst	#7,pflags(a3)		;pfgoal
 	beq.w	.nd0
 	subi.w	#$1E8,d1
 .nd0	asr.w	#1,d0			;IDA: _nd0
@@ -188,7 +188,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	add.w	(sp)+,d1
 	btst	#2,$30(a2)		;tmflags bit 2: clamp y to +-$44 from $53
 	beq.w	.go
-	btst	#7,$62(a3)		;pfgoal
+	btst	#7,pflags(a3)		;pfgoal
 	beq.w	.neg
 	cmp.w	#$53,d1
 	blt.w	.go
@@ -215,12 +215,12 @@ check4check	;look for good opportunity for checking opponent. Falls in from assn
 	movea.w	#(SortCords-M68K_RAM),a0
 	cmpi.w	#6,$52(a3)		;SCnum
 	bge.w	.0
-	adda.w	#$300,a0		;6*SCstruct
+	adda.w	#6*SCstruct,a0
 .0	tst.w	$34(a0)			;IDA: loc_BF56. position
 	beq.w	.next
-	btst	#5,$62(a0)		;93: skip pfalock
+	btst	#5,pflags(a0)		;93: skip pfalock
 	bne.w	.next
-	btst	#0,$63(a0)		;93: skip pf2fight
+	btst	#0,pflags2(a0)		;93: skip pf2fight
 	bne.w	.next
 	move.w	(a0),d0
 	sub.w	(a3),d0
@@ -228,8 +228,8 @@ check4check	;look for good opportunity for checking opponent. Falls in from assn
 	bgt.w	.next
 	cmp.w	#-30,d0
 	blt.w	.next
-	move.w	$14(a0),d1
-	sub.w	$14(a3),d1
+	move.w	Ypos(a0),d1
+	sub.w	Ypos(a3),d1
 	cmp.w	#30,d1
 	bgt.w	.next
 	cmp.w	#-30,d1
@@ -241,27 +241,27 @@ check4check	;look for good opportunity for checking opponent. Falls in from assn
 	andi.w	#3,d0			;hold/hook instead of a check
 	bne.w	burst
 	bra.w	Acheck
-.next	adda.w	#$80,a0			;IDA: loc_BFBC
+.next	adda.w	#SCstruct,a0			;IDA: loc_BFBC
 	dbf	d2,.0
 	rts
 
 asspassrec	;IDA: loc_BFC6. assignment for catching pass. Assignment apassrec ($13)
-	btst	#5,$62(a3)		;93: pfalock
+	btst	#5,pflags(a3)		;93: pfalock
 	bne.w	rtss
 	btst	#0,(gmode).w		;gmclock
 	bne.w	assnothing		;92 donothing
-	btst	#3,$62(a3)		;pfjoycon
+	btst	#3,pflags(a3)		;pfjoycon
 	bne.w	assexit
-	bclr	#1,$62(a3)		;pfna
+	bclr	#1,pflags(a3)		;pfna
 	beq.w	.nna
-	bset	#0,$62(a3)		;pfdoff
+	bset	#0,pflags(a3)		;pfdoff
 	move.b	#8,$43(a3)		;temp2+1
 	clr.b	$42(a3)			;93: temp2 high byte
 .nna	tst.w	(puckc).w		;IDA: loc_BFFE
 	bpl.w	.ex
 	sub.b	d7,$40(a3)		;93: puck loose: wait temp1 (92 bmi skatetopuck)
 	bpl.w	rtss
-.ex	bclr	#0,$62(a3)		;IDA: loc_C00E. pfdoff
+.ex	bclr	#0,pflags(a3)		;IDA: loc_C00E. pfdoff
 	bra.w	assexit
 ;unreferenced (IDA dc.b): skate to temp3/temp4
 	move.w	$44(a3),d0
@@ -270,9 +270,9 @@ asspassrec	;IDA: loc_BFC6. assignment for catching pass. Assignment apassrec ($1
 	bra.w	skateto
 
 assshoot	;IDA: loc_C028. assignment for computer shooting. Assignment ashoot ($12)
-	btst	#5,$62(a3)		;93: pfalock
+	btst	#5,pflags(a3)		;93: pfalock
 	bne.w	rtss
-	bclr	#1,$62(a3)		;pfna
+	bclr	#1,pflags(a3)		;pfna
 	beq.w	.nna
 	bra.w	SetShotMode
 .nna	btst	#3,(sflags).w		;IDA: loc_C040. sfssdir
@@ -287,7 +287,7 @@ pucknothing	;puck just slides along. Rev A listing labels this puckunflip
 	bra.w	puckunflip
 
 puckfaceoff	;this is where the action starts
-	bclr	#1,$62(a3)		;pfna
+	bclr	#1,pflags(a3)		;pfna
 	beq.w	.nna
 	tst.w	(gameclock).w
 	beq.w	PeriodOver
@@ -321,8 +321,8 @@ puckfaceoff	;this is where the action starts
 	bclr	#1,(byte_FFC6B8).w	;93: away tmflags bit 1
 	movea.w	#(SortCords-M68K_RAM),a0	;93: clear pf2lcm on all 12 players
 	moveq	#$B,d0
-.lcm	bclr	#3,$63(a0)		;IDA: loc_C0F6
-	adda.w	#$80,a0
+.lcm	bclr	#3,pflags2(a0)		;IDA: loc_C0F6
+	adda.w	#SCstruct,a0
 	dbf	d0,.lcm
 	move.w	(cont1team).w,d0
 	or.w	(cont2team).w,d0
@@ -359,13 +359,13 @@ puckfaceoff	;this is where the action starts
 	asl.w	#7,d0			;scsize
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d0,a3
-	bclr	#3,$63(a3)		;pf2lcm
+	bclr	#3,pflags2(a3)		;pf2lcm
 	move.l	a2,-(sp)
 	bsr.w	SetLCmode
 	movea.l	(sp)+,a2
-	btst	#3,$63(a3)		;pf2lcm
+	btst	#3,pflags2(a3)		;pf2lcm
 	beq.w	.slcex
-	btst	#6,$62(a3)		;pfteam
+	btst	#6,pflags(a3)		;pfteam
 	beq.w	.t1
 	move.w	#$168,$42(a2)		;temp2 = 6*60 (92 3*60)
 	move.w	$52(a3),$46(a2)		;temp4 = SCnum
@@ -395,10 +395,10 @@ puckfaceoff	;this is where the action starts
 	asl.w	#7,d1
 	movea.w	#(SortCords-M68K_RAM),a0
 	movea.w	#(hmtmstruct-M68K_RAM),a2	;93: a2 = his team for SetLCmode2
-	btst	#6,$62(a0,d1.w)		;pfteam
+	btst	#6,pflags(a0,d1.w)		;pfteam
 	beq.w	.clh
 	adda.w	#$1A2,a2
-.clh	btst	#3,$63(a0,d1.w)		;IDA: loc_C222. pf2lcm
+.clh	btst	#3,pflags2(a0,d1.w)		;IDA: loc_C222. pf2lcm
 	bne.w	.clnd
 	st	(a3,d0.w)
 	bra.w	SetLCmode2		;93: redraw lc box (92 rts)
@@ -406,7 +406,7 @@ puckfaceoff	;this is where the action starts
 	bpl.w	rtss
 	move.l	a3,-(sp)
 	lea	(a0,d1.w),a3
-	btst	#3,$63(a3)		;pf2lcm
+	btst	#3,pflags2(a3)		;pf2lcm
 	beq.w	.clcex
 	clr.w	d2
 	bsr.w	lcfound
@@ -472,7 +472,7 @@ CPgoalie	;IDA: loc_C2F6. see if computer should pull his goalie. d1 = puck/faceo
 	bgt.w	rtss			;exit if more than 1 min left
 	move.l	a0,-(sp)
 	movea.w	$22(a2),a0		;tmsort
-	btst	#7,$62(a0)		;pfgoal
+	btst	#7,pflags(a0)		;pfgoal
 	movea.l	(sp)+,a0
 	bne.w	.0
 	neg.w	d1
@@ -549,7 +549,7 @@ CompLine	;find good line for comp to switch to. a2 = team, a1 = other team. Call
 	dc.w	0,1,0
 
 puckfaceoff2	;face off control logic and general setup for action
-	bclr	#1,$62(a3)		;pfna
+	bclr	#1,pflags(a3)		;pfna
 	beq.w	.nna			;not first time thru
 	movem.l	d0-d7/a0-a6,-(sp)
 	bsr.w	forceblack
@@ -582,19 +582,19 @@ puckfaceoff2	;face off control logic and general setup for action
 	clr.w	(puckvz).w
 	st	(puckc).w
 	movea.w	#(SortCordsSCStructCalc-M68K_RAM),a0	;reposition goal nets
-	clr.w	$28(a0)			;Xvel
+	clr.w	Xvel(a0)
 	clr.w	$2A(a0)			;Yvel
 	clr.w	(a0)			;Xpos
-	move.w	#$10C,$14(a0)		;Ypos = 268
-	adda.w	#$80,a0
-	clr.w	$28(a0)
+	move.w	#$10C,Ypos(a0)		;268
+	adda.w	#SCstruct,a0
+	clr.w	Xvel(a0)
 	clr.w	$2A(a0)
 	clr.w	(a0)
-	move.w	#-$10C,$14(a0)
+	move.w	#-$10C,Ypos(a0)
 	movea.w	#(SortCordsPuckSCnumCalc-M68K_RAM),a0
-	move.w	#$18A,6(a0)		;frame = SPFpuck
+	move.w	#$18A,frame(a0)		;SPFpuck
 	clr.w	$58(a0)			;SPA
-	clr.w	4(a0)			;attribute
+	clr.w	attribute(a0)
 	clr.w	(word_FFB74E).w		;SortCords+(puckSCnum*SCstruct)+attribute
 	bclr	#6,(sflags).w		;sfslock, free up scrolling
 	moveq	#$64,d4
@@ -613,8 +613,8 @@ puckfaceoff2	;face off control logic and general setup for action
 	movea.w	#(SortCords-M68K_RAM),a3
 	moveq	#$B,d2
 .l0	move.w	#-$F0,(a3)		;IDA: loc_C552. Xpos = -240
-	clr.w	$14(a3)			;Ypos
-	clr.w	6(a3)			;frame
+	clr.w	Ypos(a3)
+	clr.w	frame(a3)
 	move.w	$34(a3),d1		;position
 	bmi.w	.next
 	beq.w	.goalie1
@@ -622,7 +622,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	cmp.w	#4,d1
 	bne.w	.l1
 	movea.w	#(hmtmstruct-M68K_RAM),a2	;93: faceoff man resets team $18-$1C
-	btst	#6,$62(a3)		;pfteam
+	btst	#6,pflags(a3)		;pfteam
 	beq.w	.tm
 	adda.w	#$1A2,a2
 .tm	clr.w	$18(a2)			;IDA: loc_C58A
@@ -633,7 +633,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	move.l	#$17,d0			;afaceoffpl
 .l1	bsr.w	assinsert		;IDA: loc_C5A8
 .goalie1	move.w	(tmstructtmap).w,d4	;IDA: loc_C5AC
-	btst	#6,$62(a3)		;pfteam
+	btst	#6,pflags(a3)		;pfteam
 	beq.w	.t0
 	move.w	(tmstructtmaptmsize).w,d4
 .t0	neg.w	d4			;IDA: loc_C5BE
@@ -646,7 +646,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	movea.l	#.ptab,a1
 	move.w	(a1,d4.w),d0
 	move.w	2(a1,d4.w),d1
-	btst	#7,$62(a3)		;pfgoal
+	btst	#7,pflags(a3)		;pfgoal
 	bne.w	.f0
 	neg.w	d0
 	neg.w	d1
@@ -666,8 +666,8 @@ puckfaceoff2	;face off control logic and general setup for action
 .nodef	add.w	(fox).w,d0		;IDA: loc_C618
 	add.w	(foy).w,d1
 .goalie2	move.w	d0,(a3)			;IDA: _goalie2. Xpos
-	move.w	d1,$14(a3)		;Ypos
-	clr.w	$28(a3)			;Xvel
+	move.w	d1,Ypos(a3)
+	clr.w	Xvel(a3)
 	clr.w	$2A(a3)			;Yvel
 	sub.w	(puckx).w,d0
 	sub.w	(pucky).w,d1
@@ -675,8 +675,8 @@ puckfaceoff2	;face off control logic and general setup for action
 	neg.w	d1
 	bsr.w	vtoa
 	move.w	d0,$54(a3)		;facedir
-	bclr	#2,$63(a3)		;pf2unav
-	bclr	#5,$62(a3)		;pfalock
+	bclr	#2,pflags2(a3)		;pf2unav
+	bclr	#5,pflags(a3)		;pfalock
 	move.w	#$52C,d1		;SPAglide
 	bsr.w	SetSPA
 .next	adda.w	#$80,a3			;IDA: _next
@@ -821,7 +821,7 @@ Endfaceoff	;drop the puck: pick the faceoff winner and send the puck off. Entere
 	bsr.w	DoDMA_clearCallbackPointer	;ref cam chars (92 DoDMAPro)
 	bclr	#2,(sflags2).w		;sf2drec
 	bclr	#0,(gmode).w		;gmclock
-	bclr	#0,$63(a3)		;pf2fight
+	bclr	#0,pflags2(a3)		;pf2fight
 	bset	#4,(sflags3).w		;93
 	move.w	(fodir1).w,d3		;figure out who won face off
 	move.w	#$800,d4
@@ -859,7 +859,7 @@ Endfaceoff	;drop the puck: pick the faceoff winner and send the puck off. Entere
 	movea.l	#dirtab,a0
 	move.w	(a0,d0.w),d1
 	asl.w	#5,d1
-	move.w	d1,$28(a3)		;Xvel
+	move.w	d1,Xvel(a3)
 	move.w	2(a0,d0.w),d1
 	asl.w	#5,d1
 	add.w	d4,d1
@@ -868,14 +868,14 @@ Endfaceoff	;drop the puck: pick the faceoff winner and send the puck off. Entere
 	bsr.w	randomd0
 	move.w	d0,$2C(a3)		;Zvel
 	clr.w	(puckz).w
-	bclr	#2,$62(a3)		;pfnc
+	bclr	#2,pflags(a3)		;pfnc
 	move.l	#$18,d0			;pnorm
 	bra.w	assreplace
 
 .ftab	dc.b	0,8,16,0,8,16
 
 pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames since last call
-	bclr	#1,$62(a3)		;pfna
+	bclr	#1,pflags(a3)		;pfna
 	beq.w	.nna
 	clr.w	$40(a3)			;temp1
 	move.w	#$78,$42(a3)		;93: temp2 = still puck timer
@@ -898,11 +898,11 @@ pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames si
 	sub.w	(a3),d0
 	asr.w	#2,d0
 	add.w	d0,(a3)
-	add.w	$14(a2),d1
-	sub.w	$14(a3),d1
+	add.w	Ypos(a2),d1
+	sub.w	Ypos(a3),d1
 	asr.w	#2,d1
-	add.w	d1,$14(a3)
-	move.w	$28(a2),$28(a3)
+	add.w	d1,Ypos(a3)
+	move.w	Xvel(a2),Xvel(a3)
 	move.w	$2A(a2),$2A(a3)
 .nothandled	bsr.w	puckIChk	;IDA: loc_C99E
 	bsr.w	ChkOffsides
@@ -913,7 +913,7 @@ pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames si
 	move.w	(a3),d0
 	cmp.w	$1C(a3),d0
 	bne.w	.mv
-	move.w	$14(a3),d0
+	move.w	Ypos(a3),d0
 	cmp.w	$20(a3),d0
 	bne.w	.mv
 	move.l	#6,d0
@@ -924,7 +924,7 @@ pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames si
 .mv	move.w	#$78,$42(a3)		;IDA: loc_C9E4. reset still puck timer
 .z	tst.b	$2C(a3)			;IDA: loc_C9EA. Zvel
 	bne.w	checkpuckcoll
-	tst.w	$18(a3)			;Zpos
+	tst.w	Zpos(a3)
 	bne.w	checkpuckcoll
 	bsr.w	puckunflip
 	bra.w	checkpuckcoll

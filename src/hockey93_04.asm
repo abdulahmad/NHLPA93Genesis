@@ -34,13 +34,13 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	blt.w	rtss			;a3 impact < 10
 	cmpi.w	#$A,$32(a2)
 	blt.w	rtss			;a2 impact < 10
-	btst	#5,$62(a3)		;pfalock
+	btst	#5,pflags(a3)		;pfalock
 	bne.w	rtss
-	btst	#5,$62(a2)		;pfalock
+	btst	#5,pflags(a2)		;pfalock
 	bne.w	rtss
-	btst	#4,$63(a3)		;caused a penalty (92 pf2pen = 6)
+	btst	#4,pflags2(a3)		;caused a penalty (92 pf2pen = 6)
 	bne.w	rtss
-	btst	#4,$63(a2)
+	btst	#4,pflags2(a2)
 	bne.w	rtss
 	tst.w	$34(a3)			;position
 	beq.w	rtss			;no fights with goalies
@@ -67,7 +67,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	exg	a2,a3
 	bsr.w	SetInst
 	exg	a2,a3
-	btst	#0,$63(a3)		;pf2fight set by SetInst?
+	btst	#0,pflags2(a3)		;pf2fight set by SetInst?
 	beq.w	.ex			;no fight
 	clr.w	(ChkCnt).w
 	moveq	#$19,d0			;26 players per team
@@ -80,8 +80,8 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	bclr	#2,(sflags).w		;sfspdir
 	bclr	#3,(sflags).w		;sfssdir
 	move.w	$52(a3),(puckc).w	;SCnum
-	move.w	$14(a3),d1		;93 sets only yc1 (92 also set a clamped xc1)
-	add.w	$14(a2),d1
+	move.w	Ypos(a3),d1		;93 sets only yc1 (92 also set a clamped xc1)
+	add.w	Ypos(a2),d1
 	asr.w	#1,d1
 	move.w	d1,(yc1).w
 	bset	#6,(sflags).w		;sfslock
@@ -100,17 +100,17 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	movea.w	#(SortCords-M68K_RAM),a3
 	move.l	#$15,d0			;afwatch (92 same), other players watch fight
 	moveq	#$B,d1
-.0	btst	#0,$63(a3)		;pf2fight
+.0	btst	#0,pflags2(a3)		;pf2fight
 	bne.w	.next
 	tst.w	$34(a3)			;goalie
 	beq.w	.next
-	btst	#2,$63(a3)		;unavailable (92 pf2unav = 4)
+	btst	#2,pflags2(a3)		;unavailable (92 pf2unav = 4)
 	bne.w	.next
 	bsr.w	assinsert
-.next	adda.w	#$80,a3			;SCstruct
+.next	adda.w	#SCstruct,a3
 	dbf	d1,.0
 	movea.w	#(puckx-M68K_RAM),a3
-	bset	#0,$63(a3)		;pf2fight
+	bset	#0,pflags2(a3)		;pf2fight
 	move.l	#$1A,d0			;pnothing (92 same)
 	bsr.w	assinsert
 	st	(collflag).w
@@ -125,17 +125,17 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	bsr.w	setd0player
 	move.l	#$14,d0			;afight (92 same)
 	bsr.w	assinsert
-	bclr	#3,4(a3)		;attribute
+	bclr	#3,attribute(a3)
 	move.w	#$FC00,d1		;Xvel -$400
 	cmpi.w	#2,$54(a3)		;facedir 2?
 	beq.w	.sf2
-	bset	#3,4(a3)		;flip the other way
+	bset	#3,attribute(a3)		;flip the other way
 	neg.w	d1
-.sf2	move.w	d1,$28(a3)		;Xvel
-	bset	#2,$63(a3)		;unavailable (92 pf2unav = 4)
-	bset	#1,$63(a3)		;pf2aip
-	bset	#5,$63(a3)		;no player coll (92 pf2npc = 7)
-	bclr	#5,$62(a3)		;pfalock
+.sf2	move.w	d1,Xvel(a3)
+	bset	#2,pflags2(a3)		;unavailable (92 pf2unav = 4)
+	bset	#1,pflags2(a3)		;pf2aip
+	bset	#5,pflags2(a3)		;no player coll (92 pf2npc = 7)
+	bclr	#5,pflags(a3)		;pfalock
 	move.w	#$F8E,d1		;SPA $F8E (92 SPAfight = $DE8)
 	bra.w	SetSPA
 
@@ -153,7 +153,7 @@ SetInst	;93: d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swa
 	clr.w	d1
 	move.b	$66(a2),d1		;pnum
 	movea.w	#(hmtmstruct-M68K_RAM),a0
-	btst	#6,$62(a2)		;pfteam
+	btst	#6,pflags(a2)		;pfteam
 	beq.w	.tm
 	adda.w	#$1A2,a0		;tmsize
 .tm	adda.w	d1,a0			;IDA: loc_10594
@@ -163,8 +163,8 @@ SetInst	;93: d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swa
 	addi.b	#$10,d1			;d1 = $10 - 2 * check count
 	cmp.b	$74(a2),d1
 	bgt.w	rtss			;a2 fight rating < d1
-	bset	#0,$63(a2)		;pf2fight
-	bset	#0,$63(a3)		;pf2fight
+	bset	#0,pflags2(a2)		;pf2fight
+	bset	#0,pflags2(a3)		;pf2fight
 	bne.w	rtss			;a3 was already fighting
 	tst.w	(OptPen).w
 	beq.w	rtss
@@ -174,22 +174,22 @@ SetInst	;93: d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swa
 	movea.l	a3,a4
 	moveq	#5,d0
 	movea.w	#(SortCords-M68K_RAM),a3
-	btst	#6,$62(a4)		;pfteam
+	btst	#6,pflags(a4)		;pfteam
 	beq.w	.1
-	adda.w	#$300,a3		;6*SCstruct
+	adda.w	#6*SCstruct,a3
 .1	cmpa.w	a3,a4			;IDA: _playerloop
 	beq.w	.next
 	tst.w	$34(a3)			;position
 	ble.w	.next
-	btst	#4,$63(a3)		;caused a penalty (92 pf2pen = 6)
+	btst	#4,pflags2(a3)		;caused a penalty (92 pf2pen = 6)
 	bne.w	.next
-	btst	#2,$63(a3)		;unavailable (92 pf2unav = 4)
+	btst	#2,pflags2(a3)		;unavailable (92 pf2unav = 4)
 	bne.w	.next
 	move.w	#$2A,d0			;penalty $2A (92 PenInst = $22)
 	bsr.w	AddPenalty2
 	movea.l	a4,a3
 	rts
-.next	adda.w	#$80,a3			;IDA: _endloop. SCstruct
+.next	adda.w	#SCstruct,a3			;IDA: _endloop
 	dbf	d0,.1
 	movea.l	a4,a3
 	rts
@@ -272,7 +272,7 @@ checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x
 	;Not the puck: checkgoalp. Puck inside the goal area: over the top (bounce
 	;Zvel), through the mouth (Goal), off a post (deflect) or off the side/back
 	;(wallcoll)
-	cmpi.w	#$D,$18(a3)		;.zside = 13, height of goal. Zpos
+	cmpi.w	#$D,Zpos(a3)		;.zside = 13, height of goal. Zpos
 	bgt.w	rtss			;over goal
 	cmpi.w	#$E,$52(a3)		;puckSCnum
 	bne.w	checkgoalp		;coll with player not puck
@@ -284,7 +284,7 @@ checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x
 	neg.w	d4
 	cmp.w	d4,d2
 	blt.w	rtss
-	sub.w	$14(a2),d3		;Ypos
+	sub.w	Ypos(a2),d3
 	move.w	#2,d5			;.yside = 2, depth of goal/2
 	add.w	(wcradiusy).w,d5
 	cmp.w	d5,d3
@@ -296,9 +296,9 @@ checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x
 	st	(collflag).w
 	cmpi.w	#$D,$24(a3)		;.zside, OldZpos
 	blt.w	.nod
-	move.w	$24(a3),$18(a3)		;OldZpos to Zpos
+	move.w	$24(a3),Zpos(a3)		;OldZpos to Zpos
 	bra.w	.deflectz
-.nod	bclr	#7,$62(a3)		;IDA: loc_1074A. pfgoal
+.nod	bclr	#7,pflags(a3)		;IDA: loc_1074A. pfgoal
 	move.w	(puckc).w,d0
 	bmi.w	.nocon			;no puck carrier
 	st	(puckc).w
@@ -306,14 +306,14 @@ checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x
 	movea.w	#(SortCords-M68K_RAM),a0
 	move.b	#8,$5E(a0,d0.w)		;nopuck (92 wrote a word)
 	move.w	(pucky).w,d1
-	btst	#7,$62(a0,d0.w)		;pfgoal of the carrier
+	btst	#7,pflags(a0,d0.w)		;pfgoal of the carrier
 	bne.w	.an
 	neg.w	d1
 .an	tst.w	d1			;IDA: loc_10778
 	bpl.w	.nocon
-	bset	#7,$62(a3)		;pfgoal
+	bset	#7,pflags(a3)		;pfgoal
 .nocon	move.w	#$FF00,d0		;IDA: loc_10784. -256
-	move.l	$14(a3),d1		;Ypos
+	move.l	Ypos(a3),d1
 	sub.l	$20(a3),d1		;OldYpos
 	asr.l	#8,d1
 	beq.w	.sideentry
@@ -334,13 +334,13 @@ checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x
 	cmp.w	d4,d2
 	bgt.w	.sideentry
 	clr.w	d1
-	move.w	$14(a3),d3		;Ypos
+	move.w	Ypos(a3),d3
 	eor.w	d0,d3
 	bmi.w	wallcoll
 	neg.w	d0
-	btst	#7,$62(a3)		;pfgoal
+	btst	#7,pflags(a3)		;pfgoal
 	bne.w	wallcoll
-	cmpi.w	#$D,$18(a3)		;.zside, Zpos
+	cmpi.w	#$D,Zpos(a3)		;.zside, Zpos
 	beq.w	.deflectsf
 	subq.w	#1,d4			;mouth = half width - 1 (92 sub #5)
 	cmp.w	d4,d2
@@ -358,13 +358,13 @@ checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x
 .snd	bsr.w	sfx			;IDA: loc_10814
 	move.w	#$1000,d0
 	bsr.w	randomd0
-	tst.w	$14(a3)			;Ypos
+	tst.w	Ypos(a3)
 	bmi.w	.df0
 	neg.w	d0
 .df0	move.w	d0,$2A(a3)		;IDA: loc_1082A. Yvel
 	move.w	#$1000,d0
 	bsr.w	randomd0s
-	move.w	d0,$28(a3)		;Xvel
+	move.w	d0,Xvel(a3)
 	move.w	#$1000,d0
 	bsr.w	randomd0s
 	move.w	d0,$2C(a3)		;Zvel
@@ -396,14 +396,14 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	addi.w	#$1F4,(crowdlevel).w	;add 500 (92 800)
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	lea	$1A2(a2),a1		;tmsize
-	tst.w	$14(a3)			;Ypos
+	tst.w	Ypos(a3)
 	bpl.w	.g0
 	exg	a2,a1
 .g0	btst	#1,(gmode).w		;gmdir
 	beq.w	.g1
 	exg	a2,a1
 .g1	addq.w	#1,$C(a2)		;92 tmscore
-	cmpa.w	#$C4E6,a2		;hmtmstruct
+	cmpa.w	#(hmtmstruct-M68K_RAM),a2
 	bne.w	.nocheer
 	move.w	#$30,-(sp)		;song $30 (92 SFX with SFXcrowdcheer = 25)
 	bsr.w	song
@@ -420,7 +420,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	sub.w	$24(a1),d0
 	move.b	d0,(a0)+		;byte 2 = 2 + $24(a2) - $24(a1)
 	addi.w	#$1E,(CwdExciteLvl).w
-	cmpa.w	#$C4E6,a2		;hmtmstruct
+	cmpa.w	#(hmtmstruct-M68K_RAM),a2
 	beq.w	.home
 	subi.w	#$14,(CwdExciteLvl).w	;less for an away goal
 	bset	#7,-1(a0)		;byte 2 bit 7 = away team scored
@@ -448,7 +448,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	move.l	#7,d0			;assignment 7 (92 ascore = 8)
 	bsr.w	.setass
 	clr.w	(collflag).w
-	clr.w	$28(a3)			;Xvel
+	clr.w	Xvel(a3)
 	clr.w	$2A(a3)			;Yvel
 	moveq	#6,d0
 	tst.w	(a3)			;Xpos
@@ -456,19 +456,19 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	neg.w	d0
 .1	move.w	d0,(a3)			;IDA: loc_10978. Xpos
 	move.w	#$110,d0		;92 blueline+goalline+8
-	tst.w	$14(a3)			;Ypos
+	tst.w	Ypos(a3)
 	bpl.w	.0
 	neg.w	d0
-.0	move.w	d0,$14(a3)		;IDA: loc_10988. Ypos
+.0	move.w	d0,Ypos(a3)		;IDA: loc_10988
 	move.w	#$600,$2C(a3)		;Zvel
-	clr.w	$18(a3)			;Zpos
+	clr.w	Zpos(a3)
 	st	(puckcrossPlus2).w	;puckcross+2
 	st	(puckcrossPlus6).w	;puckcross+6
-	bset	#2,$62(a3)		;pfnc
+	bset	#2,pflags(a3)		;pfnc
 	move.w	#$1A,d0			;pnothing (92 same)
 	bsr.w	assreplace
 	move.l	a3,-(sp)
-	adda.w	#$80,a3			;SCstruct
+	adda.w	#SCstruct,a3
 	move.w	#$11E8,d1		;SPA $11E8 (92 SPAsiren = $FE8)
 	bsr.w	SetSPA
 	movea.w	$22(a1),a3		;first sort obj of the other team (92 used the puck)
@@ -483,11 +483,11 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	moveq	#5,d3
 .loop	tst.w	$34(a3)			;IDA: loc_109D4. position
 	ble.w	.nl
-	btst	#0,$63(a3)		;pf2fight
+	btst	#0,pflags2(a3)		;pf2fight
 	bne.w	.nl
-	bclr	#2,$62(a3)		;pfnc
+	bclr	#2,pflags(a3)		;pfnc
 	bsr.w	assinsert
-.nl	adda.w	#$80,a3			;IDA: loc_109F0. SCstruct
+.nl	adda.w	#SCstruct,a3			;IDA: loc_109F0
 	dbf	d3,.loop
 	movea.l	(sp)+,a3
 	rts
@@ -504,14 +504,14 @@ GetPeriodTimeRemaining	;93: return d0 = (gsp << 14 | PerTimeTotal) - gameclock. 
 checkgoalp	;check for player a3 collision with goal/net a2. Entered from checkgoal
 	;oval goal, .radiusx = 32, .radiusy = 11. Skipped for no player coll,
 	;Zpos > 10 and non players. Calls CheckBump, then wallcoll with the normal
-	btst	#5,$63(a3)		;no player coll (92 pf2npc = 7)
+	btst	#5,pflags2(a3)		;no player coll (92 pf2npc = 7)
 	bne.w	rtss
-	cmpi.w	#$A,$18(a3)		;Zpos
+	cmpi.w	#$A,Zpos(a3)
 	bgt.w	rtss
 	cmpi.w	#$B,$52(a3)		;SCnum
 	bgt.w	rtss			;not a player
 	movem.w	d2-d3,-(sp)
-	sub.w	$14(a2),d3		;Ypos
+	sub.w	Ypos(a2),d3
 	move.w	d3,d0			;cos0 =-dy/r
 	sub.w	(a2),d2			;Xpos
 	move.w	d2,d1			;sin0 = dx/r
@@ -556,12 +556,12 @@ CheckBump	;supply minimum separation velocity for coll with walls/goal/net. a2 =
 	andi.w	#$1F,d0
 	bne.w	.ex
 	move.w	(pucky).w,d0
-	sub.w	$14(a2),d0		;Ypos
+	sub.w	Ypos(a2),d0
 	cmp.w	#$28,d0			;40
 	bgt.w	.ex
 	cmp.w	#$FFD8,d0		;-40
 	blt.w	.ex
-	move.w	$28(a3),d0		;Xvel
+	move.w	Xvel(a3),d0
 	move.w	$2A(a3),d1		;Yvel
 	cmp.w	#$2000,d0		;.minv
 	bgt.w	.bb
@@ -576,9 +576,9 @@ CheckBump	;supply minimum separation velocity for coll with walls/goal/net. a2 =
 .bb	adda.w	#$C,sp			;drop d0-d1 and the return to checkgoalp
 	asr.w	#2,d0
 	asr.w	#2,d1
-	move.w	d0,$28(a2)		;Xvel
+	move.w	d0,Xvel(a2)
 	move.w	d1,$2A(a2)		;Yvel
-	clr.w	$28(a3)
+	clr.w	Xvel(a3)
 	clr.w	$2A(a3)
 	bset	#6,(sflags).w		;sfslock
 	btst	#0,(gmode).w		;gmclock
@@ -594,11 +594,11 @@ wallcollb	;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. C
 	;and crowd, then goes over
 	cmpi.w	#$E,$52(a3)		;puckSCnum
 	bne.w	wallcoll		;not puck so wall coll
-	cmpi.w	#$1D,$18(a3)		;Zpos (92 12*8/3 = 32)
+	cmpi.w	#$1D,Zpos(a3)		;Zpos (92 12*8/3 = 32)
 	bgt.w	.0
-	cmpi.w	#$12,$18(a3)		;Zpos (92 8*8/3 = 21)
+	cmpi.w	#$12,Zpos(a3)		;Zpos (92 8*8/3 = 21)
 	bls.w	wallcoll
-	cmpi.w	#$118,$14(a3)		;Ypos 280 (92 274, checked first)
+	cmpi.w	#$118,Ypos(a3)		;Ypos 280 (92 274, checked first)
 	blt.w	.0
 	cmpi.w	#$D,(a3)		;Xpos
 	blt.w	wallcoll
@@ -608,7 +608,7 @@ wallcollb	;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. C
 	blt.w	wallcoll
 	move.l	a3,-(sp)
 	asr.w	$2A(a3)			;halve Yvel
-	adda.w	#$80,a3			;SCstruct
+	adda.w	#SCstruct,a3
 	move.w	#$1232,d1		;SPA $1232 (93 only)
 	bsr.w	SetSPA
 	movea.l	(sp)+,a3
@@ -617,10 +617,10 @@ wallcollb	;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. C
 	addi.w	#$258,(crowdlevel).w	;add 600
 	addi.w	#$F,(CwdExciteLvl).w
 .0	bset	#6,(sflags).w		;sfslock
-	bset	#2,$62(a3)		;pfnc
-	tst.w	$14(a3)			;Ypos
+	bset	#2,pflags(a3)		;pfnc
+	tst.w	Ypos(a3)
 	bpl.w	.1
-	ori.w	#$8000,4(a3)		;attribute
+	ori.w	#$8000,attribute(a3)
 .1	clr.w	$86(a3)			;frame+SCstruct
 	btst	#0,(gmode).w		;gmclock
 	bne.w	rtss
@@ -642,12 +642,12 @@ wallcoll	;d0 = cosine, d1 = sine of angle of incidence with wall, a3 = object. C
 	movem.l	d2-d3,-(sp)
 	movem.w	d0-d1,-(sp)
 	muls.w	$2A(a3),d0		;Yvel
-	muls.w	$28(a3),d1		;Xvel
+	muls.w	Xvel(a3),d1
 	sub.l	d1,d0
 	asr.l	#8,d0
 	move.w	d0,d2			;v1n
 	movem.w	(sp),d0-d1
-	muls.w	$28(a3),d0
+	muls.w	Xvel(a3),d0
 	muls.w	$2A(a3),d1
 	add.l	d1,d0
 	asr.l	#8,d0
@@ -700,7 +700,7 @@ wallcoll	;d0 = cosine, d1 = sine of angle of incidence with wall, a3 = object. C
 	muls.w	d1,d2
 	sub.l	d2,d3
 	asr.l	#8,d3
-	move.w	d3,$28(a3)		;Xvel
+	move.w	d3,Xvel(a3)
 	movem.w	(sp)+,d2-d3
 	movem.w	(sp),d0-d1
 	muls.w	d1,d3
@@ -719,12 +719,12 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 	;93 first clears Yvel when Ypos > 400 or Ypos <= -400. Walks up and down
 	;the OOlist from the puck and runs .ccx on each object within 22 in y:
 	;stick (puckstick), body (puckbody) or goalie (puckgoalie)
-	cmpi.w	#$190,$14(a3)		;Ypos 400
+	cmpi.w	#$190,Ypos(a3)		;Ypos 400
 	bgt.w	.clrvy
-	cmpi.w	#$FE70,$14(a3)		;-400
+	cmpi.w	#$FE70,Ypos(a3)		;-400
 	bgt.w	.chkz
 .clrvy	clr.w	$2A(a3)			;IDA: _resetYvel. Yvel
-.chkz	cmpi.w	#$10,$18(a3)		;IDA: _setup. Zpos, 6*8/3 = 16
+.chkz	cmpi.w	#$10,Zpos(a3)		;IDA: _setup. Zpos, 6*8/3 = 16
 	bgt.w	rtss			;feet in air
 	move.w	$52(a3),d0		;SCnum
 	asl.w	#1,d0			;current object number
@@ -737,7 +737,7 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 	clr.w	d4
 	move.b	1(a1,d1.w),d4		;next higher object number
 	move.w	(a2,d4.w),d5		;y pos of next higher object
-	sub.w	$14(a3),d5
+	sub.w	Ypos(a3),d5
 	cmp.w	#$16,d5			;.cbody+.cstick
 	bgt.w	.cl			;no higher sprite coll
 	bsr.w	.ccx
@@ -747,7 +747,7 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 	beq.w	.ex
 .1	clr.w	d4
 	move.b	-1(a1,d1.w),d4		;next lower object number
-	move.w	$14(a3),d5
+	move.w	Ypos(a3),d5
 	sub.w	(a2,d4.w),d5		;y pos of next lower object
 	cmp.w	#$16,d5			;.cbody+.cstick
 	bgt.w	.ex
@@ -764,13 +764,13 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 	asl.w	#7,d4			;scsize
 	movea.w	#(SortCords-M68K_RAM),a2
 	adda.w	d4,a2
-	btst	#2,$62(a2)		;pfnc
+	btst	#2,pflags(a2)		;pfnc
 	bne.w	.exit			;object has no coll mode on
 	tst.b	$5E(a2)			;nopuck
 	bne.w	.exit
-	btst	#2,$63(a2)		;unavailable (92 pf2unav = 4)
+	btst	#2,pflags2(a2)		;unavailable (92 pf2unav = 4)
 	bne.w	.chkbody
-	cmpi.w	#5,$18(a3)		;Zpos, 2*8/3 = 5
+	cmpi.w	#5,Zpos(a3)		;Zpos, 2*8/3 = 5
 	bgt.w	.chkbody
 	cmpi.w	#$200,$2C(a3)		;Zvel (92 $100)
 	bgt.w	.chkbody
@@ -782,8 +782,8 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 	bgt.w	.chkbody
 	cmp.w	#$FFF2,d0		;-.cstick
 	blt.w	.chkbody
-	add.w	$14(a2),d1		;Ypos
-	sub.w	$14(a3),d1
+	add.w	Ypos(a2),d1
+	sub.w	Ypos(a3),d1
 	cmp.w	#$E,d1
 	bgt.w	.chkbody
 	cmp.w	#$FFF2,d1
@@ -807,8 +807,8 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 	bgt.w	.exit
 	cmp.w	#$FFF8,d0		;-.cbody
 	blt.w	.exit
-	move.w	$14(a2),d1		;Ypos
-	sub.w	$14(a3),d1
+	move.w	Ypos(a2),d1
+	sub.w	Ypos(a3),d1
 	cmp.w	#8,d1
 	bgt.w	.exit
 	cmp.w	#$FFF8,d1
@@ -827,8 +827,8 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 	bgt.s	.exit
 	cmp.w	#$FFF4,d0		;-.cbg
 	blt.s	.exit
-	move.w	$14(a2),d1		;Ypos
-	sub.w	$14(a3),d1
+	move.w	Ypos(a2),d1
+	sub.w	Ypos(a3),d1
 	cmp.w	#$C,d1
 	bgt.s	.exit
 	cmp.w	#$FFF4,d1

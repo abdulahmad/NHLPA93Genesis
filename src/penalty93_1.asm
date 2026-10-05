@@ -40,7 +40,7 @@ AddPenalty2	;forced penalties like face off and game over. d0 = penalty number, 
 	blt.w	.nosnd
 	addi.w	#$C8,(crowdlevel).w	;200
 	move.w	#$C,-(sp)		;song $C for the home team
-	btst	#6,$62(a3)		;pfteam
+	btst	#6,pflags(a3)		;pfteam
 	beq.w	.snd
 	addi.w	#$14,(CwdExciteLvl).w	;visitors: +20 excitement
 	move.w	#$B,(sp)		;song $B
@@ -56,7 +56,7 @@ AddPenalty2	;forced penalties like face off and game over. d0 = penalty number, 
 	adda.w	(a0,d0.w),a0
 	tst.b	1(a0)			;penalty minutes
 	beq.w	.noplayer
-	bset	#4,$63(a3)		;pflags2: 92 pf2pen (bit 6 in 92)
+	bset	#4,pflags2(a3)		;92 pf2pen (bit 6 in 92)
 	beq.w	.noplayer
 	clr.w	(a1)			;player already has a penalty, drop this one
 .noplayer	movem.l	(sp)+,d1/a0-a1		;IDA: loc_E5D6
@@ -160,7 +160,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	clr.w	d0
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	lea	$1A2(a2),a1		;tmsize
-	btst	#6,$62(a3)		;pfteam
+	btst	#6,pflags(a3)		;pfteam
 	beq.w	.sa1
 	bset	#7,-1(a4)		;log: visitors
 	move.w	#$8000,d0
@@ -312,7 +312,7 @@ Stop4Pen	;a0 = penaltylist penalty +2. Stop the clock, set the face off spot fro
 	asl.w	#7,d1			;scsize
 	adda.w	d1,a3
 	move.w	#$258,d1		;600
-	btst	#7,$62(a3)		;pfgoal
+	btst	#7,pflags(a3)		;pfgoal
 	movea.l	(sp)+,a3
 	beq.w	.noticing
 	neg.w	d1
@@ -364,7 +364,7 @@ limitfo	;limit face off to 5-20 feet from walls of rink. Checks every player in 
 	asl.w	#7,d0			;scsize
 	movea.w	#(SortCords-M68K_RAM),a1
 	move.w	#$58,d1			;92 blueline
-	btst	#7,$62(a1,d0.w)		;pfgoal
+	btst	#7,pflags(a1,d0.w)		;pfgoal
 	bne.w	.0
 	neg.w	d1
 	cmp.w	(foy).w,d1
@@ -650,8 +650,8 @@ chkatop	;attack time of possession stat update. Called once a second from update
 releasepl	;player's penalty time is up so let him out (if appropriate). a2 = team, d0 = player*2. Called from ProcessPenaltyList
 	movem.l	d0-d3/a0-a3,-(sp)
 	movea.w	$22(a2),a3		;tmsort
-	suba.w	#$80,a3			;SCstruct
-.0	adda.w	#$80,a3			;IDA: loc_EDBC. first sort obj not on the ice
+	suba.w	#SCstruct,a3
+.0	adda.w	#SCstruct,a3			;IDA: loc_EDBC. first sort obj not on the ice
 	tst.w	$34(a3)			;position
 	bpl.s	.0
 
@@ -669,7 +669,7 @@ releasepl	;player's penalty time is up so let him out (if appropriate). a2 = tea
 	move.b	(a0,d1.w),$35(a3)
 	bsr.w	Setplass
 	bsr.w	setplayer
-	bset	#2,$63(a3)		;pflags2: 92 pf2unav (bit 4 in 92)
+	bset	#2,pflags2(a3)		;92 pf2unav (bit 4 in 92)
 	movem.l	(sp)+,d0-d3/a0-a3
 	rts
 

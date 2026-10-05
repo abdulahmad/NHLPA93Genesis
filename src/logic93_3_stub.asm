@@ -51,6 +51,7 @@ setpersonel = $1135C		; hockey93_05
     include "stubinc/ports.inc"
     include "stubinc/equals.inc"
     include "stubinc/ram_addrs.inc"
+    include "stubinc/struct93.inc"
 
 ; Main segment code
 	include	logic93_3.asm

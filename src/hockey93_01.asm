@@ -119,7 +119,7 @@ StartPer	;start a period: reset stack, rink and clock, face off, run the game lo
 	bset	#2,(sflags2).w		;sf2drec: don't record
 	bclr	#4,(sflags).w		;sfwrap: reset replay stuff
 	move.w	#$FFFF,(lastsfx).w
-	move.l	#$FFFF0000,(ReplayBufferPtr).w
+	move.l	#M68K_RAM,(ReplayBufferPtr).w	;92 replaystart
 	move.w	(vcount).w,(oldvcount).w
 	bsr.w	DoGameFrame		;run two frames before the loop
 	bsr.w	DoGameFrame
@@ -297,8 +297,8 @@ clockcont_0	;end of period. Also entered from puckfaceoff+2E
 
 .sc	move.l	#8,d0			;stanley cup assignment (92 astanley = 9)
 	moveq	#$B,d2			;all 12 players lose joystick control
-.t0	bclr	#3,$62(a3)		;pfjoycon, pflags(a3)
-	adda.w	#$80,a3			;SCstruct
+.t0	bclr	#3,pflags(a3)		;pfjoycon
+	adda.w	#SCstruct,a3
 	dbf	d2,.t0
 	movea.w	#(SortCords-M68K_RAM),a3
 .t3	moveq	#5,d2			;winning team's skaters celebrate
@@ -306,12 +306,12 @@ clockcont_0	;end of period. Also entered from puckfaceoff+2E
 	sub.w	(tmstructtmscoretmsize).w,d1
 	beq.w	.chkot			;tied
 	bpl.w	.t2			;home team leads
-	adda.w	#$300,a3		;6*SCstruct: away team leads
+	adda.w	#6*SCstruct,a3		;away team leads
 .t2	tst.w	$34(a3)			;position(a3)
 	ble.w	.n2			;skip the goalie
 	bsr.w	assinsert		;first skater gets d0, the rest get score
 	move.l	#7,d0			;score assignment
-.n2	adda.w	#$80,a3			;SCstruct
+.n2	adda.w	#SCstruct,a3
 	dbf	d2,.t2
 .eog	jsr	(ClearPenaltyBuffer).l	;IDA: _n3. End of game
 	addi.w	#$3E8,(crowdlevel).w	;1000

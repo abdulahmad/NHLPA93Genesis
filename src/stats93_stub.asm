@@ -85,6 +85,7 @@ unk_7CF4C = $7CF1E		; IDA name; retail address $7CF1E (graphics used by ShowScor
     include "stubinc/ports.inc"
     include "stubinc/equals.inc"
     include "stubinc/ram_addrs.inc"
+    include "stubinc/struct93.inc"
 
 ; Main segment code
 	include	stats93.Asm

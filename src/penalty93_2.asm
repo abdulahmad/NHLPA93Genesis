@@ -237,7 +237,7 @@ AvgCline	;return d0 = average energy of current line on team a2
 	add.w	d3,d3
 	add.w	$32(a2,d3.w),d0		;tmpde
 	addq.w	#1,d1
-.next	adda.w	#$80,a0			;IDA: loc_F28C. SCstruct
+.next	adda.w	#SCstruct,a0			;IDA: loc_F28C
 	dbf	d2,.l0
 	tst.w	d1
 	beq.w	.ex
@@ -271,7 +271,7 @@ ChkShotStat	;add to shot stat if a shot was taken. 93 also raises the crowd and 
 loadTeamStruct	;93: return a2 = team struct of player a3, a1 = the other team's struct. Called from ChkShotStat and updateplayers
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	lea	$1A2(a2),a1		;tmsize
-	btst	#6,$62(a3)		;pfteam
+	btst	#6,pflags(a3)		;pfteam
 	beq.w	rtss
 	exg	a1,a2
 	rts
@@ -310,7 +310,7 @@ Intermission	;end of period junk (zamboni/stats). 93 opens the pause menu screen
 	moveq	#$F,d0
 	movea.w	#(SortCords-M68K_RAM),a0
 .0	clr.w	(a0)			;IDA: _0. Xpos
-	adda.w	#$80,a0			;SCstruct
+	adda.w	#SCstruct,a0
 	dbf	d0,.0
 	move.w	(ExtraChars).w,d4
 	movea.l	#ZamSpritesPlus8,a2
@@ -667,15 +667,15 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	movea.l	#.postab,a0
 	movea.w	#(SortCords-M68K_RAM),a1
 .ploop	move.w	$34(a1),d1		;IDA: loc_F904. position
-	btst	#7,$62(a1)		;pfgoal
+	btst	#7,pflags(a1)		;pfgoal
 	bne.w	.pl0
 	addq.w	#6,d1
 .pl0	asl.w	#2,d1			;IDA: loc_F914
 	move.w	(a0,d1.w),(a1)		;Xpos
-	move.w	2(a0,d1.w),$14(a1)	;Ypos
-	clr.w	$28(a1)			;Xvel
+	move.w	2(a0,d1.w),Ypos(a1)
+	clr.w	Xvel(a1)
 	clr.w	$2A(a1)			;Yvel
-	adda.w	#$80,a1			;SCstruct
+	adda.w	#SCstruct,a1
 	dbf	d0,.ploop
 	bsr.w	SprSort
 	move.w	#$18,(palcount).w	;24
@@ -711,7 +711,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	moveq	#$F,d0
 	movea.w	#(SortCords-M68K_RAM),a0
 .clr	clr.w	(a0)			;IDA: loc_F9BA. Xpos
-	adda.w	#$80,a0			;SCstruct
+	adda.w	#SCstruct,a0
 	dbf	d0,.clr
 	bsr.w	.lo
 	bsr.w	setplayercolors
@@ -770,7 +770,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 
 .sv	move.w	#$37E,d0		;IDA: StartHL2_sv. save $37F words from gmode to ReplayStart (92 ((gstruct-gmode)/2)-1)
 	movea.w	#(gmode-M68K_RAM),a1
-	movea.l	#$FFFF0000,a2		;ReplayStart
+	movea.l	#M68K_RAM,a2		;ReplayStart
 .sv1	move.w	(a1)+,(a2)+		;IDA: StartHL2_sv1
 	dbf	d0,.sv1
 	move.w	(ScoreSumbytes).w,(a2)+	;93 also saves ScoreSumbytes
@@ -778,7 +778,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 
 .lo	move.w	#$37E,d0		;IDA: StartHL2_lo. restore what .sv saved
 	movea.w	#(gmode-M68K_RAM),a2
-	movea.l	#$FFFF0000,a1		;ReplayStart
+	movea.l	#M68K_RAM,a1		;ReplayStart
 .lo1	move.w	(a1)+,(a2)+		;IDA: StartHL2_lo1
 	dbf	d0,.lo1
 	move.w	(a1)+,(ScoreSumbytes).w

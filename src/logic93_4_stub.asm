@@ -86,6 +86,7 @@ FaceOffSpritesPlus8 = $77178	; graphics data (Rev A unk_771A6)
     include "stubinc/ports.inc"
     include "stubinc/equals.inc"
     include "stubinc/ram_addrs.inc"
+    include "stubinc/struct93.inc"
 
 ; Main segment code
 	include	logic93_4.asm

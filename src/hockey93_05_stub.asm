@@ -49,6 +49,7 @@ sublist = $154CC		; hockey93_11 (Rev A $154E4, movea.l operand)
     include "stubinc/ports.inc"
     include "stubinc/equals.inc"
     include "stubinc/ram_addrs.inc"
+    include "stubinc/struct93.inc"
 
 ; Main segment code
 	include	hockey93_05.asm

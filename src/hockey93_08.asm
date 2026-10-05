@@ -466,7 +466,7 @@ UpdateTeamNameAnimation	;93: roster player of team a2 (sprite struct a3 = $22(a2
 	addq.w	#1,$24(a3)		;sliding in from -40
 	addq.w	#1,$1C(a3)
 .anim	jsr	(updateanim).l		;IDA: loc_14048
-	btst	#1,$63(a3)
+	btst	#1,pflags2(a3)
 	bne.w	rtss			;animation still running
 	move.w	8(a2),d0		;script number
 	add.w	d0,d0
@@ -477,7 +477,7 @@ UpdateTeamNameAnimation	;93: roster player of team a2 (sprite struct a3 = $22(a2
 	move.w	(a0),d1			;animation
 	beq.w	ClearAndSetFlag		;end of script: slide out
 	bsr.w	SetSPA
-	bset	#1,$63(a3)
+	bset	#1,pflags2(a3)
 	move.w	2(a0),$54(a3)		;time
 	bpl.w	rtss
 	neg.w	$54(a3)			;negative time: also show the name
@@ -571,10 +571,10 @@ SetupNextPlayer	;IDA: loc_14120. 93: player of team a2 slid out. Load the team p
 .pn	move.w	d0,4(a2)		;IDA: loc_14192
 	bsr.w	GetTeamNamePtr
 	adda.w	(a0),a0			;past the name
-	bclr	#3,4(a3)
+	bclr	#3,attribute(a3)
 	btst	#0,4(a0)
 	bne.w	.r
-	bset	#3,4(a3)		;bit 0 of player byte 4 clear
+	bset	#3,attribute(a3)		;bit 0 of player byte 4 clear
 .r	addq.w	#1,a0			;IDA: loc_141B2. rating bytes
 	moveq	#6,d0			;7 bytes, 14 nibbles
 	clr.w	d2			;best rating
@@ -646,7 +646,7 @@ UpdateTeamSprites	;93: sprite list for the two roster players (92 setvideo end).
 	moveq	#1,d6			;link counter
 	movea.w	#(SortCords-M68K_RAM),a3	;home player
 	bsr.w	AddTeamSpriteFrame
-	adda.w	#$300,a3		;6*SCstruct: visitor player
+	adda.w	#6*SCstruct,a3		;visitor player
 	bsr.w	AddTeamSpriteFrame
 	cmpa.w	#(Satt-M68K_RAM),a6
 	bne.w	.n
@@ -665,7 +665,7 @@ AddTeamSpriteFrame	;93: add player a3 (x = (a3) + $1C offset, y = $14) and a Gam
 	;y $80, x $80 + ($24/2 mod 48), +$C0 when $62(a3) bit 6 is clear. Called from UpdateTeamSprites
 	move.w	(a3),d0
 	add.w	$1C(a3),d0
-	move.w	$14(a3),d1
+	move.w	Ypos(a3),d1
 	bsr.w	addframe2
 	movea.l	#GameSetupMap,a0
 	clr.l	d0
@@ -674,7 +674,7 @@ AddTeamSpriteFrame	;93: add player a3 (x = (a3) + $1C offset, y = $14) and a Gam
 	divu.w	#$30,d0
 	swap	d0			;remainder
 	addi.w	#$80,d0
-	btst	#6,$62(a3)
+	btst	#6,pflags(a3)
 	bne.w	.x
 	addi.w	#$C0,d0
 .x	move.w	#$80,d1			;IDA: loc_143DE

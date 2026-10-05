@@ -76,6 +76,7 @@ smallfontmapPlus8 = $795BC	; graphics data
     include "stubinc/ports.inc"
     include "stubinc/equals.inc"
     include "stubinc/ram_addrs.inc"
+    include "stubinc/struct93.inc"
 
 ; Main segment code
 	include	hockey93_07.asm

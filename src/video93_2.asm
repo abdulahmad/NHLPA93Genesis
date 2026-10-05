@@ -88,11 +88,11 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 	adda.w	#$14,a3			;ssosize
 	move.w	#$183,d3		;SPFarrow+3
 
-.ca	tst.w	$18(a0)			;IDA: checksso_ca. a0 = object, a3 = sso, d3 = first arrow frame. Zpos
+.ca	tst.w	Zpos(a0)			;IDA: checksso_ca. a0 = object, a3 = sso, d3 = first arrow frame
 	bmi.w	rtss			;not on the ice
-	st	6(a3)			;frame
+	st	frame(a3)
 	move.w	(a0),d0			;Xpos
-	move.w	$14(a0),d1		;Ypos
+	move.w	Ypos(a0),d1
 	btst	#7,(sflags).w		;sfhor
 	beq.w	.nhor
 	exg	d0,d1
@@ -136,8 +136,8 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 	move.w	d1,2(a3)		;Ycord
 
 	add.w	4(a1,d2.w),d3
-	move.w	d3,6(a3)		;frame
-	move.w	6(a1,d2.w),4(a3)	;attribute (flip bits)
+	move.w	d3,frame(a3)
+	move.w	6(a1,d2.w),attribute(a3)	;flip bits
 	bra.w	addframe2
 
 .tab	dc.w	0,$64,0,$0000		;IDA: _tab. x spot, y spot, frame add, attribute per direction
@@ -181,7 +181,7 @@ setffo	;draw the 5 objects tied to icerink scrolling (pads ...). Called from set
 uppads	;update the gloves object and the 4 pad objects, and queue new pad labels.
 	;Called from setffo. a5 = dma list. 93 reads one PadControlBits nibble per pad (92 used padcont bits)
 	movea.w	#(unk_FFBE24-M68K_RAM),a0	;pads+(4*ffosize) (92 ffo+(4*ffosize)): gloves
-	st	$18(a0)			;Zpos: hidden
+	st	Zpos(a0)			;hidden
 	move.b	(glovecords).w,d0
 	beq.w	.nogloves
 	move.b	(glovecords+1).w,d1
@@ -190,8 +190,8 @@ uppads	;update the gloves object and the 4 pad objects, and queue new pad labels
 	move.w	d0,(a0)			;Xpos
 	ext.w	d1
 	asl.w	#2,d1
-	move.w	d1,$14(a0)		;Ypos
-	clr.w	$18(a0)			;Zpos: shown
+	move.w	d1,Ypos(a0)
+	clr.w	Zpos(a0)			;shown
 .nogloves	moveq	#3,d4		;IDA: loc_11F54. 4 pads (92 3)
 	movea.w	#(pads-M68K_RAM),a0
 	movea.w	#(padcont-M68K_RAM),a1	;last label code per pad
@@ -202,13 +202,13 @@ uppads	;update the gloves object and the 4 pad objects, and queue new pad labels
 	move.w	#$F,d1			;label code for $E
 	cmp.w	#$E,d0
 	beq.w	.chg			;$E: leave the pad position alone
-	st	$18(a0)			;Zpos: hidden
+	st	Zpos(a0)			;hidden
 	cmp.w	#$F,d0
 	beq.w	.next			;$F: pad hidden, label unchanged
 	asl.w	#7,d0			;scsize
 	move.w	(a2,d0.w),(a0)		;Xpos of that player
-	move.w	$14(a2,d0.w),$14(a0)	;Ypos
-	clr.w	$18(a0)			;Zpos: shown
+	move.w	Ypos(a2,d0.w),Ypos(a0)
+	clr.w	Zpos(a0)			;shown
 	move.b	$35(a2,d0.w),d1		;label code = player byte $35 << 8 | player byte $6F
 	asl.w	#8,d1
 	move.b	$6F(a2,d0.w),d1
@@ -276,8 +276,8 @@ addframe	;a3 = cords.l frame/oldframe VRsize VRchar. Project the object with fin
 	;Called from setsortcords and setffo. a5 = dma trans, a6/d6 = sprite att
 	movem.l	d0-d2,-(sp)
 	move.w	(a3),d0			;Xpos
-	move.w	$14(a3),d1		;Ypos
-	move.w	$18(a3),d2		;Zpos
+	move.w	Ypos(a3),d1
+	move.w	Zpos(a3),d2
 	bmi.w	.exit			;hidden
 	bsr.w	find3d
 	cmp.w	#$4E20,d1		;osflag
@@ -289,14 +289,14 @@ addframe	;a3 = cords.l frame/oldframe VRsize VRchar. Project the object with fin
 addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = sprite table, d6 = link counter.
 	;Also entered from checksso .ca and setupice. 93 frame word: top 5 bits are attribute bits, low 11 the frame;
 	;frames come from SpritesMap (offset table at +4) instead of 92 framelist. attribute is restored on exit
-	move.w	4(a3),-(sp)		;save attribute
+	move.w	attribute(a3),-(sp)		;save attribute
 	movem.l	d0-d5/a0-a2,-(sp)
-	move.w	6(a3),d4		;frame
+	move.w	frame(a3),d4
 	bmi.w	.exit
 	beq.w	.exit
 	andi.w	#$F800,d4		;frame's attribute bits
-	eor.w	d4,4(a3)		;flip them into attribute for this draw
-	move.w	6(a3),d4
+	eor.w	d4,attribute(a3)		;flip them into attribute for this draw
+	move.w	frame(a3),d4
 	andi.w	#$7FF,d4
 	movea.l	#SpritesMap,a2
 	adda.l	4(a2),a2		;frame offset table
@@ -311,7 +311,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	clr.w	d3
 	clr.w	d4
 .sloop	move.w	d0,-(sp)		;IDA: _sloop
-	move.w	6(a3),d0
+	move.w	frame(a3),d0
 	andi.w	#$7FF,d0
 	cmp.w	8(a3),d0		;oldframe
 	beq.w	.noref			;same frame: tiles already in vram
@@ -357,7 +357,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 .noref	move.w	(sp)+,d0		;IDA: _noref
 	movem.w	d0-d2,-(sp)		;write sprite att
 	move.w	2(a2),d2		;y global (93 +2, 92 +0)
-	btst	#4,4(a3)		;y flip
+	btst	#4,attribute(a3)		;y flip
 	beq.w	.noyflip
 	move.b	7(a2),d2
 	andi.w	#3,d2
@@ -369,7 +369,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	move.w	d1,(a6)
 
 	move.w	(a2),d2			;x global (93 +0, 92 +6)
-	btst	#3,4(a3)		;x flip
+	btst	#3,attribute(a3)		;x flip
 	beq.w	.noxflip
 	move.b	7(a2),d2
 	andi.w	#$C,d2
@@ -382,7 +382,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	move.b	7(a2),2(a6)		;size
 	move.b	d6,3(a6)		;link
 	move.w	6(a2),d2
-	move.w	4(a3),d0		;attribute
+	move.w	attribute(a3),d0
 	eor.w	d0,d2
 	andi.w	#$F800,d2
 	btst	#0,5(a3)		;attribute+1
@@ -400,7 +400,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	addq.w	#8,a2
 	dbf	d5,.sloop
 .exit	movem.l	(sp)+,d0-d5/a0-a2	;IDA: _exit
-	move.w	(sp)+,4(a3)		;restore attribute
+	move.w	(sp)+,attribute(a3)		;restore attribute
 	rts
 
 find3d	;input - d0=xfield,d1=yfield,d2=height off field

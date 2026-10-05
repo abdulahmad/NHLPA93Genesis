@@ -41,6 +41,7 @@ TeamBlocksmapPlus8 = $7A37E	; graphics data, no segment (Rev A unk_7A3AC)
     include "stubinc/ports.inc"
     include "stubinc/equals.inc"
     include "stubinc/ram_addrs.inc"
+    include "stubinc/struct93.inc"
 
 ; Main segment code
 	include	middle93_2.asm

@@ -90,8 +90,8 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 	beq.w	.gok
 	movea.w	#(SortCords-M68K_RAM),a3
 	moveq	#$B,d0			;12 players
-.l01	bchg	#7,$62(a3)		;IDA: loc_123BA. pfgoal in pflags
-	adda.w	#$80,a3			;SCstruct
+.l01	bchg	#7,pflags(a3)		;IDA: loc_123BA. pfgoal in pflags
+	adda.w	#SCstruct,a3
 	dbf	d0,.l01
 .gok	bsr.w	setplayercolors		;IDA: loc_123C8. (92 SetTeamColors, which falls into setplayercolors)
 
@@ -143,8 +143,8 @@ setupice_highlight	;93 only. Rebuild the rink sprites after a highlight replay w
 	beq.w	.gok
 	movea.w	#(SortCords-M68K_RAM),a3
 	moveq	#$B,d0			;12 players
-.l01	bchg	#7,$62(a3)		;IDA: loc_12478. pfgoal in pflags
-	adda.w	#$80,a3			;SCstruct
+.l01	bchg	#7,pflags(a3)		;IDA: loc_12478. pfgoal in pflags
+	adda.w	#SCstruct,a3
 	dbf	d0,.l01
 .gok	bsr.w	setplayercolors		;IDA: loc_12486
 	move.w	#$FFFF,(PadControlBits).w	;no pad assignments
@@ -248,8 +248,8 @@ defaultsprites	;allocate vram and assign char area for graphic structures. d4 = 
 .ssotop	move.w	#$FFFF,8(a3)		;IDA: _ssotop. screen objects not locked to scroll of screen. oldframe
 	move.w	(a2)+,(a3)		;Xcord
 	move.w	(a2)+,2(a3)		;Ycord
-	move.w	(a2)+,6(a3)		;frame
-	move.w	(a2)+,4(a3)		;attribute
+	move.w	(a2)+,frame(a3)
+	move.w	(a2)+,attribute(a3)
 	move.w	d4,$12(a3)		;VRchar
 	add.w	(a2)+,d4		;vram char size (92 also kept it in VRsize)
 	adda.w	#$14,a3			;ssosize
@@ -260,10 +260,10 @@ defaultsprites	;allocate vram and assign char area for graphic structures. d4 = 
 	moveq	#4,d0			;ffonum-1
 .ffotop	st	8(a3)			;IDA: _ffotop. objects tied to screen scrolling (not players/net/puck). oldframe
 	move.w	(a2)+,(a3)		;Xpos
-	move.w	(a2)+,$14(a3)		;Ypos
-	move.w	(a2)+,$18(a3)		;Zpos
-	move.w	(a2)+,6(a3)		;frame
-	move.w	(a2)+,4(a3)		;attribute
+	move.w	(a2)+,Ypos(a3)
+	move.w	(a2)+,Zpos(a3)
+	move.w	(a2)+,frame(a3)
+	move.w	(a2)+,attribute(a3)
 	move.w	d4,$12(a3)		;VRchar
 	add.w	(a2)+,d4		;vram char size
 	adda.w	#$1C,a3			;ffosize
@@ -298,10 +298,10 @@ defaultsprites2	;objects which are tied to screen scrolling and have velocity re
 	st	8(a3)			;oldframe
 	st	$66(a3)			;pnum
 	move.w	(a2)+,(a3)		;Xpos
-	move.w	(a2)+,$14(a3)		;Ypos
-	move.w	(a2)+,$18(a3)		;Zpos
-	move.w	(a2)+,6(a3)		;frame
-	move.w	(a2)+,4(a3)		;attribute
+	move.w	(a2)+,Ypos(a3)
+	move.w	(a2)+,Zpos(a3)
+	move.w	(a2)+,frame(a3)
+	move.w	(a2)+,attribute(a3)
 	move.w	d4,$12(a3)		;VRchar
 	add.w	(a2)+,d4		;vram char size
 	move.w	(a2)+,$4A(a3)		;radiusx
@@ -309,9 +309,9 @@ defaultsprites2	;objects which are tied to screen scrolling and have velocity re
 	addq.w	#1,a2
 	move.b	(a2)+,$38(a3)		;asslist
 	addq.w	#1,a2
-	move.b	(a2)+,$62(a3)		;pflags
+	move.b	(a2)+,pflags(a3)
 
-	adda.w	#$80,a3			;SCstruct
+	adda.w	#SCstruct,a3
 	asl.w	#1,d6
 	move.b	d6,(a1)+		;OOlist seed
 	lsr.w	#1,d6
@@ -348,12 +348,12 @@ SprSort	;sort objects in struct SortObj and set corresponding tables for keeping
 	movea.l	#Ylist,a1
 	movea.l	#SortCords,a0
 	move.w	#$F,d3			;Sortobjs-1
-.loop0	move.w	$14(a0),d4		;IDA: loc_1282A. Ypos
+.loop0	move.w	Ypos(a0),d4		;IDA: loc_1282A
 	btst	#7,(sflags).w		;sfhor
 	beq.w	.l01
 	move.w	(a0),d4			;Xpos
 .l01	move.w	d4,(a1)+		;IDA: loc_1283A. update ylist
-	adda.w	#$80,a0			;SCstruct
+	adda.w	#SCstruct,a0
 	dbf	d3,.loop0
 
 	movea.l	#Ylist,a1
@@ -395,15 +395,15 @@ resetplstuff	;reset team variables/and players on both teams. Called from puckfa
 .top	bclr	#4,$30(a2)		;IDA: resetplstuff_top. 93: clear team flag bit 4
 	moveq	#5,d2
 	movea.w	$22(a2),a3		;tmsort
-.loop	clr.b	$63(a3)			;IDA: resetplstuff_loop. pflags2 (92 also cleared pflags3)
+.loop	clr.b	pflags2(a3)			;IDA: resetplstuff_loop. pflags2 (92 also cleared pflags3)
 	tst.w	$34(a3)			;position
 	bmi.w	.next
 	move.w	#$52C,d1		;SPAglide (92 $346)
 	bsr.w	SetSPA
 	clr.w	$32(a3)			;impact
 	clr.b	$5E(a3)			;nopuck (93 clears a byte)
-	andi.b	#$C2,$62(a3)		;keep pfteam, pfgoal, pfna in pflags
-.next	adda.w	#$80,a3			;IDA: resetplstuff_next. SCstruct
+	andi.b	#$C2,pflags(a3)		;keep pfteam, pfgoal, pfna in pflags
+.next	adda.w	#SCstruct,a3			;IDA: resetplstuff_next
 	dbf	d2,.loop
 	rts
 
@@ -426,11 +426,11 @@ setteams	;use hometeam/visteam to set team structures. Falls in from clearTeamSt
 	movem.l	d0/a0-a2,-(sp)
 	movea.w	#(hmtmstruct-M68K_RAM),a2
 	move.w	(HomeTeam).w,d0
-	move.w	#$B04A,$22(a2)		;tmsort = SortCords
+	move.w	#(SortCords-M68K_RAM),$22(a2)	;tmsort
 	bsr.w	InitTeamSructure
 	movea.w	#(awtmstruct-M68K_RAM),a2	;tmstruct+tmsize
 	move.w	(VisTeam).w,d0
-	move.w	#$B34A,$22(a2)		;tmsort = SortCords+(6*SCstruct)
+	move.w	#(SortCords-M68K_RAM)+(6*SCstruct),$22(a2)	;tmsort
 	bsr.w	InitTeamSructure
 	movem.l	(sp)+,d0/a0-a2
 	rts

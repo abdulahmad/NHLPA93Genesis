@@ -63,6 +63,7 @@ RefMap2Plus8 = $3946A		; graphics data, no segment (Rev A $39498)
     include "stubinc/ports.inc"
     include "stubinc/equals.inc"
     include "stubinc/ram_addrs.inc"
+    include "stubinc/struct93.inc"
 
 ; Main segment code
 	include	penalty93_1.asm
