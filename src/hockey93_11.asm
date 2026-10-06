@@ -173,7 +173,11 @@ bfasciicon	;equates to find each char definition for bigfont.map. 92 bfasciicon,
 	dc.b	74,00,02,04,06,08,10,12,14,-16,17,19,21,23,25,27
 	;	P  Q  R  S  T  U  V  W	X  Y  Z
 	dc.b	29,31,33,35,37,39,41,43,45,47,49
+	IF REV=0
 	dc.b	$F0			;pad, retail byte (Rev A: 0)
+	ELSE
+	dc.b	0
+	ENDIF
 
 linelist	String	'Sc1'	;text list for line choices. 92 linelist (93 PP1/PP2, 92 Pw1/Pw2).
 	;Used by SetLCmode2, puckfaceoff2 and stats93 DrawMenuIcon
@@ -228,7 +232,11 @@ sublist	;substitution lists by position (goalie, LD, RD, LW, C, RW, extra attack
 
 priolist	dc.b	0,1,2,4,3,5,6	;positions in order of importance. 92 priolist. Used by SetPlList,
 	;releasepl and getlinee
+	IF REV=0
 	dc.b	$23			;pad, retail byte (Rev A: 0)
+	ELSE
+	dc.b	0
+	ENDIF
 
 PlayoffTreeSetup	;IDA: unk_15556. Playoff tree layout by gamelevel. 92 PlayoffScreen .setup, same layout
 	;with 93 columns. Used by PlayoffScreen (hockey93_06)
@@ -292,7 +300,11 @@ PlayoffTreeSetup	;IDA: unk_15556. Playoff tree layout by gamelevel. 92 PlayoffSc
 	dc.b	58,23
 	dc.b	5,15,0,29,2,43,4,83,6,97,8,111,10
 	dc.b	-1			;no scores
+	IF REV=0
 	dc.b	$47			;pad, retail byte (Rev A: 0)
+	ELSE
+	dc.b	0
+	ENDIF
 
 PAttribColumns	;93 only: skater attribute columns for stats93 PrintAttribHeader / DisplayPlayerList.
 	;String header, then a long for GetNameandAttrib: high word = mask of rating nibbles to

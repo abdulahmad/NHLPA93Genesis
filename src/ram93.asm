@@ -411,6 +411,10 @@ OptLine	rs.w	1	;line changes 0 for on
 demoflag	rs.w	1	;demo flag
 StanleyCupTimer	rs.l	1
 dword_FFCAEA	rs.l	1
+	IF REV=1
+music_global_tick_counter	rs.w	1	;Rev A only: VDP PAL bit (Begin). Set = 50 Hz: faster skating (updateplayers) and music (p_music_vblank)
+music_tick_divider	rs.w	1	;Rev A only: p_music_vblank runs the track slots again every 6th frame
+	ENDIF
 databuffer	rs.w	9	;Rev A $CAF2
 pwddatabuffer	rs.w	5	;Rev A $CB04
 outputbuffer	rs.w	49	;Rev A $CB0E

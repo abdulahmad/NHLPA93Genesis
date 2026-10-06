@@ -110,11 +110,20 @@ p_music_vblank	;92 name (vblank handler). Clear the change bits, run the 8 track
 	clr.b	(music_needs_z80_update).w		;Rev A $CB7C
 	clr.l	(Z80_command_buffer).w		;Rev A $CB7E. key off/on, volume, frequency bits
 	clr.b	(Z80_command_buffer+4).w		;Rev A $CB82. patch bits
-	movea.w	#(fm_track_slots-M68K_RAM),a5		;Rev A $CDC4
+.refresh	movea.w	#(fm_track_slots-M68K_RAM),a5	;IDA: refresh_all_tracks. Rev A $CDC4
 	moveq	#7,d7
 .slot	bsr.w	ProcessOneMusicTrack	;IDA: process_music_slot
 	addq.w	#6,a5
 	dbf	d7,.slot
+	IF REV=1
+	tst.w	(music_global_tick_counter).w	;Rev A: at 50 Hz run the slots again every 6th frame
+	beq.w	.tick			;IDA: no_tick_decement
+	subq.w	#1,(music_tick_divider).w
+	bpl.w	.tick
+	addq.w	#6,(music_tick_divider).w
+	bra.s	.refresh
+.tick
+	ENDIF
 	tst.b	(music_needs_z80_update).w		;Rev A $CB7C
 	beq.w	.age			;IDA: update_sfx_aging. nothing changed
 	bsr.w	UploadCommandBufferToZ80
@@ -505,154 +514,322 @@ ClearAllTrackAndSFXSlots	;free the 8 track slots and reset the 6 channel structs
 Z80_Program_Code	;IDA name. First byte of the Z80 program ($16E52, movea.l in p_initialZ80); the rest of the
 		;Z80 blob from $16E53 and the data after it are the incbins below
 	dc.b	$18
-	incbin	..\Extracted\Sound\z80_snd_drv93.bin	;retail $16E53-$170DD. 93 Z80 driver after its first byte ($16E52 is Z80_Program_Code dc.b $18 in sound93.asm). p_initialZ80 copies $295 bytes from $16E52
-	even
-pcm_sample_table	;IDA unk_1710C: PCM sample table (lea in handle_command_10)
-	incbin	..\Extracted\Sound\pcm_sample_table.bin	;retail $170DE-$17155. IDA unk_1710C: 15 x (long sample address, long 0) for patches $60-$6E. Entries 8 and 9 are 0, entry 10 = entry 7
-	even
+	incbin	..\Extracted\Sound\z80_snd_drv93.bin	;retail $16E53-$170C9. 93 Z80 driver after its first byte ($16E52 is Z80_Program_Code dc.b $18), up to the ld bc of the FM patch bank address. p_initialZ80 copies $295 bytes from $16E52
+	dc.b	fm_instrument_patches&$FF,((fm_instrument_patches>>8)&$7F)|$80	;Z80 ld bc,$8000+(fm_instrument_patches&$7FFF): bank window address of the FM patches
+	dc.b	$09,$3E,fm_instrument_patches>>15	;Z80 add hl,bc / ld a,bank (32K bank) of the FM patches
+	incbin	..\Extracted\Sound\z80_snd_drv93_end.bin	;retail $170CF-$170DC. rest of the 93 Z80 driver
+	IF REV=0
+	dc.b	$83			;pad: retail leftover byte (Rev A 0)
+	ELSE
+	dc.b	0
+	ENDIF
+pcm_sample_table	;IDA unk_1710C: (sample address, 0) for PCM patches $60-$6E (lea in handle_command_10)
+	dc.l	sfx_puckget_pcm,0		;patch $60
+	dc.l	sfx_pass_pcm,0		;patch $61
+	dc.l	sfx_shotbh_pcm,0		;patch $62
+	dc.l	sfx_shotfh_pcm,0		;patch $63
+	dc.l	sfx_check2_pcm,0		;patch $64
+	dc.l	sfx_check_pcm,0		;patch $65
+	dc.l	sfx_playerwall_pcm,0		;patch $66
+	dc.l	sfx_hithigh_pcm,0		;patch $67
+	dc.l	0,0		;patch $68
+	dc.l	0,0		;patch $69
+	dc.l	sfx_hithigh_pcm,0		;patch $6A
+	dc.l	sfx_crowdboo_pcm,0		;patch $6B
+	dc.l	sfx_oooh_pcm,0		;patch $6C
+	dc.l	sfx_crowdcheer_pcm,0		;patch $6D
+	dc.l	sfx_id_0E_pcm,0		;patch $6E
+sfx_shotbh_pcm
 	incbin	..\Extracted\Sound\sfx_shotbh_pcm.bin	;retail $17156-$17349. sample 2: shotbh
 	even
-	incbin	..\Extracted\Sound\sfx_pass_pcm.bin	;retail $1734A-$18077. sample 1: pass
-	even
+sfx_pass_pcm
+	incbin	..\Extracted\Sound\sfx_pass_pcm.bin	;retail $1734A-$18076. sample 1: pass
+	IF REV=0
+	dc.b	$7D			;pad: retail leftover byte (Rev A 0)
+	ELSE
+	dc.b	0
+	ENDIF
+sfx_oooh_pcm
 	incbin	..\Extracted\Sound\sfx_oooh_pcm.bin	;retail $18078-$1B2BB. sample 12: oooh, sfx_id_0D, sfx_id_0E
 	even
-	incbin	..\Extracted\Sound\sfx_crowdboo_pcm.bin	;retail $1B2BC-$1D809. sample 11: crowdboo
-	even
+sfx_crowdboo_pcm
+	incbin	..\Extracted\Sound\sfx_crowdboo_pcm.bin	;retail $1B2BC-$1D808. sample 11: crowdboo
+	IF REV=0
+	dc.b	$7B			;pad: retail leftover byte (Rev A 0)
+	ELSE
+	dc.b	0
+	ENDIF
+sfx_check_pcm
 	incbin	..\Extracted\Sound\sfx_check_pcm.bin	;retail $1D80A-$1F75B. sample 5: check1, check3
 	even
+sfx_crowdcheer_pcm
 	incbin	..\Extracted\Sound\sfx_crowdcheer_pcm.bin	;retail $1F75C-$2263B. sample 13: crowdcheer, homewin
 	even
-	incbin	..\Extracted\Sound\sfx_id_0E_pcm.bin	;retail $2263C-$260BB. sample 14: sfx_id_0E
-	even
+sfx_id_0E_pcm
+	incbin	..\Extracted\Sound\sfx_id_0E_pcm.bin	;retail $2263C-$260BA. sample 14: sfx_id_0E
+	IF REV=0
+	dc.b	$7D			;pad: retail leftover byte (Rev A 0)
+	ELSE
+	dc.b	0
+	ENDIF
+sfx_playerwall_pcm
 	incbin	..\Extracted\Sound\sfx_playerwall_pcm.bin	;retail $260BC-$2656B. sample 6: playerwall, sfx_id_21-23
 	even
-	incbin	..\Extracted\Sound\sfx_check2_pcm.bin	;retail $2656C-$26F9B. sample 4: check2, check4
-	even
+sfx_check2_pcm
+	incbin	..\Extracted\Sound\sfx_check2_pcm.bin	;retail $2656C-$26F9A. sample 4: check2, check4
+	IF REV=0
+	dc.b	$7A			;pad: retail leftover byte (Rev A 0)
+	ELSE
+	dc.b	0
+	ENDIF
+sfx_hithigh_pcm
 	incbin	..\Extracted\Sound\sfx_hithigh_pcm.bin	;retail $26F9C-$274F1. samples 7 and 10: hithigh, hitlow, check1-4, songs $32 and $35-$37
 	even
+sfx_shotfh_pcm
 	incbin	..\Extracted\Sound\sfx_shotfh_pcm.bin	;retail $274F2-$280A9. sample 3: shotfh
 	even
+sfx_puckget_pcm
 	incbin	..\Extracted\Sound\sfx_puckget_pcm.bin	;retail $280AA-$28309. sample 0: puckget
 	even
-fm_instrument_patches	;IDA unk_28338: FM patches (movea.l in UpdateChannelFrequencyAndVolume)
+fm_instrument_patches	;IDA unk_28338: 32 FM patches x 32 bytes, byte $1E = pitch bend scale (UpdateChannelFrequencyAndVolume)
 	incbin	..\Extracted\Sound\fm_instrument_patches.bin	;retail $2830A-$28709. IDA unk_28338: 32 FM patches x 32 bytes (byte $1E = pitch bend scale)
 	even
-MusicTrackPointerTable	;IDA name: sound event stream offsets (play_sfx_or_music_track, play_new_song)
-	incbin	..\Extracted\Sound\sound_pointer_table.bin	;retail $2870A-$28779. IDA MusicTrackPointerTable: word offsets (from the table) of the event streams of sounds 0-$37
-	even
+MusicTrackPointerTable	;IDA name: event stream of sounds 0-$37 as offsets from the table (play_sfx_or_music_track, play_new_song)
+	dc.w	sfx_siren_cmdstream-MusicTrackPointerTable	;sound $0
+	dc.w	sfx_beep1_cmdstream-MusicTrackPointerTable	;sound $1
+	dc.w	sfx_beep2_cmdstream-MusicTrackPointerTable	;sound $2
+	dc.w	sfx_whistle_cmdstream-MusicTrackPointerTable	;sound $3
+	dc.w	sfx_horn_cmdstream-MusicTrackPointerTable	;sound $4
+	dc.w	sfx_shotwiff_cmdstream-MusicTrackPointerTable	;sound $5
+	dc.w	sfx_stdef_cmdstream-MusicTrackPointerTable	;sound $6
+	dc.w	sfx_puckget_cmdstream-MusicTrackPointerTable	;sound $7
+	dc.w	sfx_oooh_cmdstream-MusicTrackPointerTable	;sound $8
+	dc.w	sfx_hithigh_cmdstream-MusicTrackPointerTable	;sound $9
+	dc.w	sfx_hitlow_cmdstream-MusicTrackPointerTable	;sound $A
+	dc.w	sfx_crowdcheer_cmdstream-MusicTrackPointerTable	;sound $B
+	dc.w	sfx_crowdboo_cmdstream-MusicTrackPointerTable	;sound $C
+	dc.w	sfx_id_0D_cmdstream-MusicTrackPointerTable	;sound $D
+	dc.w	sfx_id_0E_cmdstream-MusicTrackPointerTable	;sound $E
+	dc.w	sfx_homewin_cmdstream-MusicTrackPointerTable	;sound $F
+	dc.w	sfx_pass1_cmdstream-MusicTrackPointerTable	;sound $10
+	dc.w	sfx_pass2_cmdstream-MusicTrackPointerTable	;sound $11
+	dc.w	sfx_pass3_cmdstream-MusicTrackPointerTable	;sound $12
+	dc.w	sfx_pass4_cmdstream-MusicTrackPointerTable	;sound $13
+	dc.w	sfx_shotbh1_cmdstream-MusicTrackPointerTable	;sound $14
+	dc.w	sfx_shotbh2_cmdstream-MusicTrackPointerTable	;sound $15
+	dc.w	sfx_shotbh3_cmdstream-MusicTrackPointerTable	;sound $16
+	dc.w	sfx_shotbh4_cmdstream-MusicTrackPointerTable	;sound $17
+	dc.w	sfx_shotfh1_cmdstream-MusicTrackPointerTable	;sound $18
+	dc.w	sfx_shotfh2_cmdstream-MusicTrackPointerTable	;sound $19
+	dc.w	sfx_shotfh3_cmdstream-MusicTrackPointerTable	;sound $1A
+	dc.w	sfx_shotfh4_cmdstream-MusicTrackPointerTable	;sound $1B
+	dc.w	sfx_check1_cmdstream-MusicTrackPointerTable	;sound $1C
+	dc.w	sfx_check2_cmdstream-MusicTrackPointerTable	;sound $1D
+	dc.w	sfx_check3_cmdstream-MusicTrackPointerTable	;sound $1E
+	dc.w	sfx_check4_cmdstream-MusicTrackPointerTable	;sound $1F
+	dc.w	sfx_playerwall_cmdstream-MusicTrackPointerTable	;sound $20
+	dc.w	sfx_id_21_cmdstream-MusicTrackPointerTable	;sound $21
+	dc.w	sfx_id_22_cmdstream-MusicTrackPointerTable	;sound $22
+	dc.w	sfx_id_23_cmdstream-MusicTrackPointerTable	;sound $23
+	dc.w	sfx_puckbody_cmdstream-MusicTrackPointerTable	;sound $24
+	dc.w	sfx_puckpost_cmdstream-MusicTrackPointerTable	;sound $25
+	dc.w	sfx_id_26_27_cmdstream-MusicTrackPointerTable	;sound $26
+	dc.w	sfx_id_26_27_cmdstream-MusicTrackPointerTable	;sound $27
+	dc.w	sfx_puckwall1_cmdstream-MusicTrackPointerTable	;sound $28
+	dc.w	sfx_puckwall2_cmdstream-MusicTrackPointerTable	;sound $29
+	dc.w	sfx_puckwall3_cmdstream-MusicTrackPointerTable	;sound $2A
+	dc.w	sfx_puckwall4_cmdstream-MusicTrackPointerTable	;sound $2B
+	dc.w	sfx_puckice1_cmdstream-MusicTrackPointerTable	;sound $2C
+	dc.w	sfx_puckice2_cmdstream-MusicTrackPointerTable	;sound $2D
+	dc.w	sfx_puckice3_cmdstream-MusicTrackPointerTable	;sound $2E
+	dc.w	sfx_puckice4_cmdstream-MusicTrackPointerTable	;sound $2F
+	dc.w	fmtune_goal_cmdstream-MusicTrackPointerTable	;song $30
+	dc.w	fmtune_periodstart_cmdstream-MusicTrackPointerTable	;song $31
+	dc.w	fmtune_period3_cmdstream-MusicTrackPointerTable	;song $32
+	dc.w	fmtune_powerplay_cmdstream-MusicTrackPointerTable	;song $33
+	dc.w	fmtune_faceoff_cmdstream-MusicTrackPointerTable	;song $34
+	dc.w	fmtune_title_cmdstream-MusicTrackPointerTable	;song $35
+	dc.w	fmtune_eog_cmdstream-MusicTrackPointerTable	;song $36
+	dc.w	fmtune_scouting_cmdstream-MusicTrackPointerTable	;song $37
+sfx_beep1_cmdstream
 	incbin	..\Extracted\Sound\sfx_beep1_cmdstream.bin	;retail $2877A-$28785. sound 1 (SFXbeep1)
 	even
+sfx_id_26_27_cmdstream
 	incbin	..\Extracted\Sound\sfx_id_26_27_cmdstream.bin	;retail $28786-$28789. sounds $26 and $27: empty stream
 	even
+sfx_beep2_cmdstream
 	incbin	..\Extracted\Sound\sfx_beep2_cmdstream.bin	;retail $2878A-$28799. sound 2 (SFXbeep2)
 	even
+sfx_horn_cmdstream
 	incbin	..\Extracted\Sound\sfx_horn_cmdstream.bin	;retail $2879A-$28815. sound 4 (92 SFXhorn)
 	even
+sfx_stdef_cmdstream
 	incbin	..\Extracted\Sound\sfx_stdef_cmdstream.bin	;retail $28816-$28831. sound 6 (92 SFXstdef)
 	even
+sfx_puckget_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckget_cmdstream.bin	;retail $28832-$2884D. sound 7 (92 SFXpuckget), puckglue
 	even
+sfx_puckice1_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckice1_cmdstream.bin	;retail $2884E-$2885D. sound $2C: puck bounce by speed (92 SFXpuckice)
 	even
+sfx_puckice2_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckice2_cmdstream.bin	;retail $2885E-$2886D. sound $2D
 	even
+sfx_puckice3_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckice3_cmdstream.bin	;retail $2886E-$2887D. sound $2E
 	even
+sfx_puckice4_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckice4_cmdstream.bin	;retail $2887E-$2888D. sound $2F (SFXpuckice, Endfaceoff)
 	even
+sfx_puckbody_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckbody_cmdstream.bin	;retail $2888E-$288A9. sound $24 (92 SFXpuckbody)
 	even
+sfx_oooh_cmdstream
 	incbin	..\Extracted\Sound\sfx_oooh_cmdstream.bin	;retail $288AA-$288C5. sound 8 (92 SFXoooh), off the post with the clock running
 	even
+sfx_puckpost_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckpost_cmdstream.bin	;retail $288C6-$288D5. sound $25 (92 SFXpuckpost)
 	even
+sfx_playerwall_cmdstream
 	incbin	..\Extracted\Sound\sfx_playerwall_cmdstream.bin	;retail $288D6-$288F1. sound $20 (92 SFXplayerwall)
 	even
+sfx_id_21_cmdstream
 	incbin	..\Extracted\Sound\sfx_id_21_cmdstream.bin	;retail $288F2-$2890D. sound $21: no caller found, same patches as playerwall
 	even
+sfx_id_22_cmdstream
 	incbin	..\Extracted\Sound\sfx_id_22_cmdstream.bin	;retail $2890E-$28929. sound $22: no caller found, same patches as playerwall
 	even
+sfx_id_23_cmdstream
 	incbin	..\Extracted\Sound\sfx_id_23_cmdstream.bin	;retail $2892A-$28945. sound $23: no caller found, same patches as playerwall
 	even
+sfx_puckwall1_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckwall1_cmdstream.bin	;retail $28946-$28955. sound $28: puck off the wall by speed (wallcoll; 92 SFXpuckwall)
 	even
+sfx_puckwall2_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckwall2_cmdstream.bin	;retail $28956-$28965. sound $29
 	even
+sfx_puckwall3_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckwall3_cmdstream.bin	;retail $28966-$28975. sound $2A
 	even
+sfx_puckwall4_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckwall4_cmdstream.bin	;retail $28976-$28985. sound $2B
 	even
+sfx_whistle_cmdstream
 	incbin	..\Extracted\Sound\sfx_whistle_cmdstream.bin	;retail $28986-$28A23. sound 3 (92 SFXwhistle)
 	even
+sfx_shotwiff_cmdstream
 	incbin	..\Extracted\Sound\sfx_shotwiff_cmdstream.bin	;retail $28A24-$28A33. sound 5 (92 SFXshotwiff)
 	even
+sfx_check1_cmdstream
 	incbin	..\Extracted\Sound\sfx_check1_cmdstream.bin	;retail $28A34-$28A4F. sound $1C: tackle sounds in turn (92 SFXcheck)
 	even
+sfx_check2_cmdstream
 	incbin	..\Extracted\Sound\sfx_check2_cmdstream.bin	;retail $28A50-$28A6B. sound $1D
 	even
+sfx_check3_cmdstream
 	incbin	..\Extracted\Sound\sfx_check3_cmdstream.bin	;retail $28A6C-$28A87. sound $1E
 	even
+sfx_check4_cmdstream
 	incbin	..\Extracted\Sound\sfx_check4_cmdstream.bin	;retail $28A88-$28AAB. sound $1F
 	even
+sfx_pass1_cmdstream
 	incbin	..\Extracted\Sound\sfx_pass1_cmdstream.bin	;retail $28AAC-$28ABB. sound $10: pass by puck height (92 SFXpass)
 	even
+sfx_pass2_cmdstream
 	incbin	..\Extracted\Sound\sfx_pass2_cmdstream.bin	;retail $28ABC-$28ACB. sound $11
 	even
+sfx_pass3_cmdstream
 	incbin	..\Extracted\Sound\sfx_pass3_cmdstream.bin	;retail $28ACC-$28ADB. sound $12
 	even
+sfx_pass4_cmdstream
 	incbin	..\Extracted\Sound\sfx_pass4_cmdstream.bin	;retail $28ADC-$28AEB. sound $13
 	even
+sfx_shotbh1_cmdstream
 	incbin	..\Extracted\Sound\sfx_shotbh1_cmdstream.bin	;retail $28AEC-$28AFB. sound $14: backhand shot by speed (92 SFXshotbh)
 	even
+sfx_shotbh2_cmdstream
 	incbin	..\Extracted\Sound\sfx_shotbh2_cmdstream.bin	;retail $28AFC-$28B0B. sound $15
 	even
+sfx_shotbh3_cmdstream
 	incbin	..\Extracted\Sound\sfx_shotbh3_cmdstream.bin	;retail $28B0C-$28B1B. sound $16
 	even
+sfx_shotbh4_cmdstream
 	incbin	..\Extracted\Sound\sfx_shotbh4_cmdstream.bin	;retail $28B1C-$28B2B. sound $17
 	even
+sfx_shotfh1_cmdstream
 	incbin	..\Extracted\Sound\sfx_shotfh1_cmdstream.bin	;retail $28B2C-$28B3B. sound $18: forehand shot by speed (92 SFXshotfh)
 	even
+sfx_shotfh2_cmdstream
 	incbin	..\Extracted\Sound\sfx_shotfh2_cmdstream.bin	;retail $28B3C-$28B4B. sound $19
 	even
+sfx_shotfh3_cmdstream
 	incbin	..\Extracted\Sound\sfx_shotfh3_cmdstream.bin	;retail $28B4C-$28B5B. sound $1A
 	even
+sfx_shotfh4_cmdstream
 	incbin	..\Extracted\Sound\sfx_shotfh4_cmdstream.bin	;retail $28B5C-$28B6B. sound $1B
 	even
+sfx_hithigh_cmdstream
 	incbin	..\Extracted\Sound\sfx_hithigh_cmdstream.bin	;retail $28B6C-$28B7B. sound 9 (SFXhithigh)
 	even
+sfx_hitlow_cmdstream
 	incbin	..\Extracted\Sound\sfx_hitlow_cmdstream.bin	;retail $28B7C-$28B8B. sound $A (SFXhitlow)
 	even
+sfx_homewin_cmdstream
 	incbin	..\Extracted\Sound\sfx_homewin_cmdstream.bin	;retail $28B8C-$28BC3. sound $F: home team won (game end)
 	even
+sfx_crowdcheer_cmdstream
 	incbin	..\Extracted\Sound\sfx_crowdcheer_cmdstream.bin	;retail $28BC4-$28BD3. sound $B (SFXcrowdcheer)
 	even
+sfx_crowdboo_cmdstream
 	incbin	..\Extracted\Sound\sfx_crowdboo_cmdstream.bin	;retail $28BD4-$28BE3. sound $C (SFXcrowdboo)
 	even
+sfx_id_0E_cmdstream
 	incbin	..\Extracted\Sound\sfx_id_0E_cmdstream.bin	;retail $28BE4-$28BFF. sound $E: wallcollb (puck over the wall)
 	even
+sfx_id_0D_cmdstream
 	incbin	..\Extracted\Sound\sfx_id_0D_cmdstream.bin	;retail $28C00-$28C0F. sound $D: injury (setInjuryType), visiting goalie save
 	even
+sfx_siren_cmdstream
 	incbin	..\Extracted\Sound\sfx_siren_cmdstream.bin	;retail $28C10-$28E37. sound 0 (92 SFXsiren)
 	even
+fmtune_goal_cmdstream
 	incbin	..\Extracted\Sound\fmtune_goal_cmdstream.bin	;retail $28E38-$2910B. song $30: Goal
 	even
+fmtune_periodstart_cmdstream
 	incbin	..\Extracted\Sound\fmtune_periodstart_cmdstream.bin	;retail $2910C-$292DB. song $31: StartPer
 	even
+fmtune_period3_cmdstream
 	incbin	..\Extracted\Sound\fmtune_period3_cmdstream.bin	;retail $292DC-$2965F. song $32: CheckPeriodEnd, 3rd period
 	even
+fmtune_powerplay_cmdstream
 	incbin	..\Extracted\Sound\fmtune_powerplay_cmdstream.bin	;retail $29660-$29903. song $33: updatepwrplay, home power play
 	even
+fmtune_faceoff_cmdstream
 	incbin	..\Extracted\Sound\fmtune_faceoff_cmdstream.bin	;retail $29904-$29BE3. song $34: puckfaceoff
 	even
-	incbin	..\Extracted\Sound\fmtune_title_cmdstream.bin	;retail $29BE4-$2AF63. song $35: TitleScreen, ExitToOpening (92 SngTitle)
+fmtune_title_cmdstream
+	incbin	..\Extracted\Sound\fmtune_title_cmdstream.bin	;retail $29BE4-$29C41. song $35: TitleScreen, ExitToOpening (92 SngTitle)
 	even
-	incbin	..\Extracted\Sound\fmtune_eog_cmdstream.bin	;retail $2AF64-$2C8A9. song $36: IntermissionStart, PlayoffScreen, StartHL2 (92 SngEOG / SngPO)
+	dc.l	fmtune_title_loop	;end of the intro: loop pointer
+fmtune_title_loop
+	incbin	..\Extracted\Sound\fmtune_title_loop_cmdstream.bin	;retail $29C46-$2AF5F. song $35 loop body
 	even
-	incbin	..\Extracted\Sound\fmtune_scouting_cmdstream.bin	;retail $2C8AA-$2CEC7. song $37: ScoutingReport
+	dc.l	fmtune_title_loop	;loop pointer
+fmtune_eog_cmdstream
+	incbin	..\Extracted\Sound\fmtune_eog_cmdstream.bin	;retail $2AF64-$2C8A5. song $36: IntermissionStart, PlayoffScreen, StartHL2 (92 SngEOG / SngPO)
 	even
+	dc.l	fmtune_eog_cmdstream+4	;loop pointer (past the first event)
+fmtune_scouting_cmdstream
+	incbin	..\Extracted\Sound\fmtune_scouting_cmdstream.bin	;retail $2C8AA-$2CEC3. song $37: ScoutingReport
+	even
+	dc.l	fmtune_scouting_cmdstream+4	;loop pointer (past the first event)
 ScoutingReportText	;IDA name: scouting report text (hockey93_07)
-	incbin	..\Extracted\Text\ScoutingReportText.bin	;retail $2CEC8-$2E1FB. ScoutingReportText (hockey93_07 stub): scouting report paragraphs
-	even
+	incbin	..\Extracted\Text\ScoutingReportText.bin	;retail $2CEC8-$2E1FA. ScoutingReportText (hockey93_07 stub): scouting report paragraphs
+	IF REV=0
+	dc.b	$72			;pad: retail leftover byte (Rev A 0)
+	ELSE
+	dc.b	0
+	ENDIF
 GameSetUpMap	;92 name: game setup bitmap (setoptions)
 	incbin	..\Extracted\Graphics\GameSetUp.map.jim	;retail $2E1FC-$2EFA1. 92 GameSetUp.map.jim: game setup bitmap (setoptions movea.l #$2E1FC)
 	even

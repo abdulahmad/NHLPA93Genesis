@@ -570,7 +570,11 @@ Setplass	;set players (a3) initial assignment
 	dc.b	5			;acenterd
 	dc.b	3			;awingd
 	dc.b	5			;acenterd
+	IF REV=0
 	dc.b	$FA			;retail pad (Rev A: 0)
+	ELSE
+	dc.b	0
+	ENDIF
 
 setplayer	;bring player onto the ice and set his stats
 	;d3 = player number, a3 = sortcord of player. 93 reads each attribute

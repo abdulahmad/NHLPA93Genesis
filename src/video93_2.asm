@@ -270,7 +270,11 @@ RenderSmallFontChar	;93 only, the 92 uppads .pd job: dma one small font tile to 
 	rts
 
 ButtonLabelCharTable	;third label character by bits 10-8 of the label code
-	dc.b	' DDLCRX',$10		;retail pad $10 (Rev A listing: 0)
+	IF REV=0
+	dc.b	' DDLCRX',$10		;retail pad $10 (Rev A: 0)
+	ELSE
+	dc.b	' DDLCRX',0
+	ENDIF
 
 addframe	;a3 = cords.l frame/oldframe VRsize VRchar. Project the object with find3d, then addframe2.
 	;Called from setsortcords and setffo. a5 = dma trans, a6/d6 = sprite att

@@ -21,8 +21,13 @@ Begin	;cold start, entered from Reset. Clear RAM, init menus and sound, go to ti
 	movea.w	#(Stack-M68K_RAM),sp
 	movea.w	#(VSCRLPM-M68K_RAM),a0	;clear out ram
 .0	clr.l	(a0)+
-	cmpa.w	#$CDF0,a0		;retail v1.1 clear end (Rev A: $CDF4)
+	cmpa.w	#(fm_track_slots+(8*6)-M68K_RAM),a0	;clear to the end of the track slots (retail $CDF0, Rev A $CDF4)
 	blt.s	.0
+	IF REV=1
+	move.w	(VDP_CTRL).l,d0		;Rev A: VDP status bit 0 = PAL (50 Hz)
+	andi.w	#1,d0
+	move.w	d0,(music_global_tick_counter).w
+	ENDIF
 
 	jsr	(SetupStanleyCupCelebrationScreen).l
 	jsr	(BackupRAM_Read).l

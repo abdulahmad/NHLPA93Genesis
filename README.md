@@ -37,7 +37,7 @@ Asset Identification: I think this the majority of the remaining 323 kb, and I w
 
     - For the `Retail` ROM, run `npm run build:retail` -- this runs `extractassets`, assembles `src/hockey93.asm` (the top level: `ram93.asm` equates, every segment and the `$FF` fill) to `output/nhl93.bin`, fixes the opcodes (`output/modified_nhl93.bin`) and verifies every byte against `nhlpa93retail.bin`. Steps 5 and 6 are not needed for it: the sound driver data and graphics are incbins of the extracted files
 
-    - For the `Rev A` ROM, run `npm run build:reva` -- this includes the retail checksum validation check (modified_nhlpa93.bin is the opcode corrected version)
+    - For the `Rev A` ROM, run `npm run build:reva` -- same steps as `build:retail` with `REV=1`, verified byte for byte against `nhlpa93retailRevA.bin` (includes the checksum validation check)
 
     - For developing your own version, run `npm run build:dev` -- this uses `Rev A` flags and does not include the retail checksum validation check  (modified_nhlpa93.bin is the opcode corrected version)
 
@@ -47,13 +47,17 @@ Asset Identification: I think this the majority of the remaining 323 kb, and I w
 You need to build using `build:dev` to avoid the checksum validation. By default, this builds the `Rev A` version of the code. If for whatever reason, you do want to enforce checksum validation on your build, you need to use the `generateChecksum.js` script. Also, you need to do 2 passes of the script & updating the checksums to end up with the correct checksum for both CRC16 and CRC32. The game will not start if checksum validation is enabled and the checksum is incorrect.
 
 ## Retail (REV=0) vs Rev A (REV=1)
-TBD.
+Both build from the same source (`IF REV=1` blocks). Retail is `1992.JUL` version `-00`; Rev A is `1992.OCT` version `-01`.
 
 ### Overall Differences Between Retail (REV=0) vs Rev A (REV=1)
-TBD.
+- Rev A supports 50 Hz: `Begin` stores the VDP PAL bit in `music_global_tick_counter`. When it is set, `updateplayers` moves skaters 20 units per frame instead of 16, and `p_music_vblank` runs the music track slots a second time every 6th frame.
+- Rev A adds two RAM words (`music_global_tick_counter`, `music_tick_divider`) before `databuffer`, so every variable from `databuffer` up is 4 bytes higher (`ram93.asm` handles it).
+- Retail has a `SecurityCheck` `$FFFF` word before `ValidationRoutine`; Rev A does not. The checksums differ (header `$2799` / `$FA57`, ROM sum `$EB689746` / `$C62A6024`).
 
 ### Specific Differences and Comments
-TBD
+- Header: Rev A writes the title `NHLPA HOCKEY '93` in capitals.
+- Code addresses move by +`$E` after `Begin`, +`$18` after `updateplayers` and +`$2E` after `p_music_vblank`. The source uses labels, so the moves are automatic, including the sound data's absolute pointers (PCM sample table, song loop pointers, the Z80 driver's FM patch bank address).
+- Pad bytes: retail has leftover values in 11 pad bytes (`Setplass .alist`, `ButtonLabelCharTable`, `bfasciicon`, `priolist`, `PlayoffTreeSetup`, the Z80 driver end, four PCM sample ends and the scouting text end); Rev A has 0.
 
 ## Sound System Overview
 TBD

@@ -16,14 +16,14 @@ if not exist "%workspaceFolder%output" mkdir "%workspaceFolder%output"
 REM Change to the workspace src directory
 cd /d "%workspaceFolder%src"
 
-REM Determine revision flag
+REM Determine revision flag: 0 = retail (1992.JUL -00), 1 = Rev A (1992.OCT -01)
+set revFlag="/e REV=0"
+set revName=retail
 if "%REV%"=="1" (
     set revFlag="/e REV=1"
-    ECHO "its reva"
-) else (
-    set revFlag="/e REV=0"
-    ECHO "its retail"
+    set revName=reva
 )
+ECHO building %revName%
 
 REM Determine checksum flag
 if "%checksum%"=="0" (

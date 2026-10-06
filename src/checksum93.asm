@@ -1,8 +1,10 @@
 ;	92 checksum.asm (included from 92 hockey.asm under IF CHECKSUM=1). Retail $7FB76-$7FBC7; the $FF fill
 ;	to $7FFFF follows. Retail has a different sum constant and loop count from Rev A, and a word Rev A lacks.
 
+	IF REV=0
 SecurityCheck	;92 name, no IDA label. Retail only: the $FFFF word before ValidationRoutine (Rev A has no word here). Data, not code
 	dc.w	$FFFF
+	ENDIF
 
 ValidationRoutine	;IDA and 92 name. Called once at power on from Start (main93 jsr, IDA Reset+100). Adds every ROM long from 0 up to
 	;this routine, skipping the header long at $18C. Returns if the sum is right, else turns the screen red and hangs. Uses d0-d1/a0/a4
@@ -16,7 +18,11 @@ ValidationRoutine	;IDA and 92 name. Called once at power on from Start (main93 j
 .add	add.l	(a0)+,d0		;IDA: loc_7FBB8 (92 SkipIncrement)
 .next	subq.l	#1,d1			;IDA: loc_7FBBA (92 ContinueValidation)
 	bgt.s	.loop
-	cmpi.l	#$EB689746,d0		;retail sum (Rev A: $C62A6024). Real CMPI (0C80), not EA cmp
+	IF REV=1
+	cmpi.l	#$C62A6024,d0		;Rev A sum. Real CMPI (0C80), not EA cmp
+	ELSE
+	cmpi.l	#$EB689746,d0		;retail sum. Real CMPI (0C80), not EA cmp
+	ENDIF
 	bne.s	.bad			;wrong sum: red screen
 	rts
 .bad	movea.l	#VDP_CTRL,a4		;IDA: loc_7FBC8 (92 VDPErrorSetup)

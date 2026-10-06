@@ -42,7 +42,7 @@ ROM blobs in that private folder, for diffing only:
 - `nhlpa93retailRevA.bin`
 - `nhlpa93retailRevB.bin`
 
-Rev B exists as a ROM. No Rev B notes have been written.
+Rev B exists as a ROM (`1993.FEB`, version `-00`, region `UEJ`). It is not built. It is a separate later build, not a patch on Rev A: about 145 changed spots in the 68k code against Rev A (`Begin`, `ShowScores`, menus, `Readjoy1/2`, `DoDMA`, the Stanley Cup screen, the sound driver, text and tables), different team rosters, resized graphics, and the ROM ends at `$7E343`.
 
 ## Prior art
 
@@ -75,7 +75,7 @@ Builds, from `package.json`:
 | `npm run build:logo` | | `EALogo93.bin`, corrected copy `modified_EALogo93.bin`. |
 | `npm run build:sound` | | `Hockey93.snd`, corrected copy `modified_Hockey93.snd`. |
 
-Dev builds default to Rev A flags. Retail validation will refuse to boot if either checksum is wrong. There is no `rev=2` / Rev B build script yet.
+Dev builds default to Rev A flags. Retail validation will refuse to boot if either checksum is wrong. `npm run build:reva` builds Rev A (`rev=1`, `checksum=1`) and verifies it byte for byte. There is no Rev B build.
 
 ## Checksums
 
@@ -98,7 +98,7 @@ Operand order matters. A model that "fixes" an `exg` by swapping registers will 
 
 ## Retail vs Rev A vs Rev B
 
-Not documented. Public README sections for REV=0 vs REV=1 are still TBD. The private tree has all three ROMs and no diff notes.
+Retail vs Rev A is documented in the README ("Retail (REV=0) vs Rev A (REV=1)") and built from one source with `IF REV=1` blocks. Rev B has no notes beyond the summary above.
 
 Do not copy NHL 92 Rev A diffs across. On 92, known examples included `move.l #Stack,sp` vs `move #Stack,sp`, an added `bsr KillCrowd`, and bitmasking in `ResolveGames`. Treat those as 92 facts until the same bytes are confirmed in 93.
 
@@ -221,7 +221,7 @@ Recorded in `discovery.md` so the 94/95 pass does not rediscover them. Not verif
 
 - Re-export the v1.1 IDB to a fresh `.lst` or `functions.json` before any model session. The current listing may be stale.
 - Confirm which IDB is canonical if `nhlpa93retail.bin.idb` and the v1.1 IDB disagree.
-- Diff retail vs Rev A vs Rev B. No notes exist.
+- Diff Rev B against Rev A (retail vs Rev A is done).
 - Re-verify SFX, FM tune, and PCM addresses against 93 code references.
 - Fix the frame extractor: add the frame offset, do not assume a constant direction gap, cut `wallright` at `0x5EF3`.
 - Integrate a matching Z80 disassembly, or record why the blob stays.

@@ -1,19 +1,35 @@
 	org	$00000100
 ;					Data	  	No.		Address	Description
 	dc.b	'SEGA GENESIS    '	; 01	$100	Sega Genesis ID (16 bytes)
+	IF REV=1
+	dc.b	'(C)T-50 1992.OCT'	; 02	$110	Rev A
+	ELSE
 	dc.b	'(C)T-50 1992.JUL'	; 02	$110	company ID / release date (YYYY.MMM) (16 bytes)
+	ENDIF
+	IF REV=1
+	dc.b	'NHLPA HOCKEY ''93'	; 03	$120	Rev A
+	ELSE
 	dc.b	'NHLPA Hockey ''93'	; 03	$120	game title for US market (32 bytes)
+	ENDIF
 	dc.b	'                '	; 		$130
 	dc.b	'                '	; 		$140
+	IF REV=1
+	dc.b	'NHLPA HOCKEY ''93'	; 04	$150	Rev A
+	ELSE
 	dc.b	'NHLPA Hockey ''93'	; 04	$150	game title for Japanese market (32 bytes)
+	ENDIF
 	dc.b	'                '	; 		$160
 	dc.b	'                '	; 		$170
+	IF REV=1
+	dc.b	'GM T-50396 -01'	; 05	$180	Rev A
+	ELSE
 	dc.b	'GM T-50396 -00'	; 05	$180	cartridge cat., product no., version no. (14 bytes)
+	ENDIF
 	IF CHECKSUM=1 ; Security check enabled
 		IF REV=0 ; RETAIL
 			dc.w	$2799		; 06	$18E	check sum data (installed by checsum program) (2 bytes)
 		ELSE ; REV A
-			dc.w	$0000 		; 06	$18E	check sum data (installed by checsum program) (2 bytes)
+			dc.w	$FA57 		; 06	$18E	check sum data (installed by checsum program) (2 bytes)
 		ENDIF
 	ELSE ; Security check disabled
 		dc.w	$0000				; 06	$18E	check sum data (installed by checsum program) (2 bytes)

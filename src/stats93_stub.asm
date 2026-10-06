@@ -78,6 +78,9 @@ IceRinkMap = $33864
 SmallFontMap = $795B4
 ScoresMap = $7CF1E		; IDA name; retail address $7CF1E (graphics used by ShowScores)
 
+reenergizeteam = $F332		; penalty93_2
+waitx = $D896			; middle93_1
+PauseText2 = $15A56		; hockey93_11
 ; .region code
 	org	$6C0A
 

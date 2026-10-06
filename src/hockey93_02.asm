@@ -460,8 +460,16 @@ updateplayers
 .vel	cmpi.w	#$1616,SPA(a3)		;IDA: loc_910C. $1616: skip movement and bounce
 	beq.w	.done
 ;----------------------------------	now update velocity
-	move.w	d7,d4			;Rev A: moveq #$10 or #$14 (music_global_tick_counter), mulu d7
+	IF REV=1
+	moveq	#$10,d4			;Rev A: 16 per frame, 20 at 50 Hz (music_global_tick_counter set)
+	tst.w	(music_global_tick_counter).w
+	beq.w	.ntsc
+	moveq	#$14,d4
+.ntsc	mulu.w	d7,d4			;IDA: loc_9122
+	ELSE
+	move.w	d7,d4
 	asl.w	#4,d4
+	ENDIF
 	tst.w	Zpos(a3)
 	bne.w	.y2			;no deceleration
 	moveq	#6,d2

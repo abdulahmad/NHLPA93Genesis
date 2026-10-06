@@ -2069,15 +2069,32 @@ ExitAttributeScreen2	;leave a stats screen: back to 32 cell mode, reload the
 	jsr	(setupIceRinkMap).l
 	jmp	(setplayercolors).l
 
-TimeoutMenu	;IDA left this code undecoded (dc.b in both listings); retail bytes.
-	;Prints "Timeout" in a frame for team a2
-	dc.b	$53,$78,$C9,$B4,$53,$78,$C9,$B6,$23,$FC,$00,$01,$5A,$56,$FF,$FF
-	dc.b	$C9,$B8,$08,$EA,$00,$02,$00,$30,$61,$00,$59,$00,$00,$06,$BD,$05
-	dc.b	$0C,$00,$70,$16,$72,$06,$61,$00,$57,$36,$61,$00,$58,$EE,$00,$10
-	dc.b	$BD,$0C,$0E,$54,$69,$6D,$65,$6F,$75,$74,$BD,$11,$0F,$00,$22,$6A
-	dc.b	$00,$1E,$D2,$E9,$00,$04,$30,$11,$E2,$48,$91,$78,$B0,$28,$61,$00
-	dc.b	$58,$DC,$34,$7C,$C4,$E6,$61,$00,$6A,$46,$D4,$FC,$01,$A2,$61,$00
-	dc.b	$6A,$3E,$70,$78,$60,$00,$4F,$9C
+TimeoutMenu	;IDA left this code undecoded (dc.b in both listings). Pause menu "Timeout" for team a2: uses the
+	;team's timeout (tmflags bit 2, so Pausemode shows PauseText2 from now on), prints "Timeout" in a frame
+	;with the team name, re-energizes both teams and waits $78 frames
+	subq.w	#1,(dword_FFC9B4).w
+	subq.w	#1,(dword_FFC9B4+2).w
+	move.l	#PauseText2,(dword_FFC9B8).l	;pause menu without Timeout
+	bset	#2,tmflags(a2)		;timeout used
+	bsr.w	printz
+	String	$BD,5,$C
+	moveq	#$16,d0			;frame 22 wide, 6 high
+	moveq	#6,d1
+	bsr.w	Framer
+	bsr.w	printz
+	String	$BD,$C,$E,'Timeout',$BD,$11,$F
+	movea.l	tmdata(a2),a1		;team name, centred
+	adda.w	4(a1),a1
+	move.w	(a1),d0
+	lsr.w	#1,d0
+	sub.w	d0,(printx).w
+	bsr.w	print
+	movea.w	#(hmtmstruct-M68K_RAM),a2
+	bsr.w	reenergizeteam
+	adda.w	#tmsize,a2
+	bsr.w	reenergizeteam
+	moveq	#$78,d0
+	bra.w	waitx
 
 SelectGoalieMenu	;IDA: no label (Rev A $890A). Pick team a2's goalie from a
 	;list (0 = no goalie). Start/C confirms; a change is stored in $26(a2)

@@ -34,6 +34,9 @@ if not defined checksum set "checksum=1"
 set "CHECKSUM_FLAG=/e CHECKSUM=1"
 if "%checksum%"=="0" set "CHECKSUM_FLAG=/e CHECKSUM=0"
 
+REM Segments are checked against the retail ROM: REV=0 (Rev A, REV=1, is a full-ROM build only: npm run build:reva)
+set "REV_FLAG=/e REV=0"
+
 echo.
 echo Building: %ROM_NAME%
 echo ------------------------------
@@ -51,7 +54,7 @@ REM ─────────────────────────�
 "%WORKSPACE%assembler\Assembler.exe" ^
   /p /m /g ^
   /o d- /o s- /o r+ /o l+ /o l. /o ow+ /o op- /o os+ /o oz+ /o omq- /o oaq+ /o osq+ ^
-  %CHECKSUM_FLAG% ^
+  %CHECKSUM_FLAG% %REV_FLAG% ^
   "%ROM_NAME%_stub.asm,%WORKSPACE%output\%ROM_NAME%.bin,%WORKSPACE%output\%ROM_NAME%,%WORKSPACE%output\%ROM_NAME%" ^
   > "%WORKSPACE%output\Build_%ROM_NAME%.log"
 

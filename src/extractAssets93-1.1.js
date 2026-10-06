@@ -59,24 +59,25 @@ const assets = [
     // Sound and graphics data: contiguous retail slices (end is exclusive) for the incbins in src/sound93.asm
     // ($16E53-$2EFA1) and src/graphics93.asm ($2EFA2-$7FB75). Names follow the NHL 92 extractor where 93 has the
     // same asset (z80_snd_drv, sfx_*_pcm, sfx_*_cmdstream, <name>.map.jim for bitmaps, <name>.anim for sprite frames).
-    // Sound boundaries come from the tables the 68k driver reads: pcm_sample_table, fm_instrument_patches and
-    // sound_pointer_table (each event stream runs to the next one). Sound names are from the sfx / song call sites.
-    { name: 'z80_snd_drv93.bin', folder: 'Sound', start: 0x016E53, end: 0x0170DE }, // 93 Z80 driver after its first byte ($16E52 is Z80_Program_Code dc.b $18 in sound93.asm). p_initialZ80 copies $295 bytes from $16E52
-    { name: 'pcm_sample_table.bin', folder: 'Sound', start: 0x0170DE, end: 0x017156 }, // IDA unk_1710C: 15 x (long sample address, long 0) for patches $60-$6E. Entries 8 and 9 are 0, entry 10 = entry 7
+    // Sound boundaries come from the tables the 68k driver reads (pcm_sample_table, fm_instrument_patches,
+    // MusicTrackPointerTable; each event stream runs to the next one). Sound names are from the sfx / song call sites.
+    // Absolute addresses (PCM sample table, song loop pointers, the Z80 FM patch bank address) and pad bytes are
+    // source in sound93.asm, not slices, so the data relocates for Rev A.
+    { name: 'z80_snd_drv93.bin', folder: 'Sound', start: 0x016E53, end: 0x0170CA }, // 93 Z80 driver after its first byte ($16E52 is Z80_Program_Code dc.b $18), up to the ld bc of the FM patch bank address. p_initialZ80 copies $295 bytes from $16E52
+    { name: 'z80_snd_drv93_end.bin', folder: 'Sound', start: 0x0170CF, end: 0x0170DD }, // rest of the 93 Z80 driver
     { name: 'sfx_shotbh_pcm.bin', folder: 'Sound', start: 0x017156, end: 0x01734A }, // sample 2: shotbh
-    { name: 'sfx_pass_pcm.bin', folder: 'Sound', start: 0x01734A, end: 0x018078 }, // sample 1: pass
+    { name: 'sfx_pass_pcm.bin', folder: 'Sound', start: 0x01734A, end: 0x018077 }, // sample 1: pass
     { name: 'sfx_oooh_pcm.bin', folder: 'Sound', start: 0x018078, end: 0x01B2BC }, // sample 12: oooh, sfx_id_0D, sfx_id_0E
-    { name: 'sfx_crowdboo_pcm.bin', folder: 'Sound', start: 0x01B2BC, end: 0x01D80A }, // sample 11: crowdboo
+    { name: 'sfx_crowdboo_pcm.bin', folder: 'Sound', start: 0x01B2BC, end: 0x01D809 }, // sample 11: crowdboo
     { name: 'sfx_check_pcm.bin', folder: 'Sound', start: 0x01D80A, end: 0x01F75C }, // sample 5: check1, check3
     { name: 'sfx_crowdcheer_pcm.bin', folder: 'Sound', start: 0x01F75C, end: 0x02263C }, // sample 13: crowdcheer, homewin
-    { name: 'sfx_id_0E_pcm.bin', folder: 'Sound', start: 0x02263C, end: 0x0260BC }, // sample 14: sfx_id_0E
+    { name: 'sfx_id_0E_pcm.bin', folder: 'Sound', start: 0x02263C, end: 0x0260BB }, // sample 14: sfx_id_0E
     { name: 'sfx_playerwall_pcm.bin', folder: 'Sound', start: 0x0260BC, end: 0x02656C }, // sample 6: playerwall, sfx_id_21-23
-    { name: 'sfx_check2_pcm.bin', folder: 'Sound', start: 0x02656C, end: 0x026F9C }, // sample 4: check2, check4
+    { name: 'sfx_check2_pcm.bin', folder: 'Sound', start: 0x02656C, end: 0x026F9B }, // sample 4: check2, check4
     { name: 'sfx_hithigh_pcm.bin', folder: 'Sound', start: 0x026F9C, end: 0x0274F2 }, // samples 7 and 10: hithigh, hitlow, check1-4, songs $32 and $35-$37
     { name: 'sfx_shotfh_pcm.bin', folder: 'Sound', start: 0x0274F2, end: 0x0280AA }, // sample 3: shotfh
     { name: 'sfx_puckget_pcm.bin', folder: 'Sound', start: 0x0280AA, end: 0x02830A }, // sample 0: puckget
     { name: 'fm_instrument_patches.bin', folder: 'Sound', start: 0x02830A, end: 0x02870A }, // IDA unk_28338: 32 FM patches x 32 bytes (byte $1E = pitch bend scale)
-    { name: 'sound_pointer_table.bin', folder: 'Sound', start: 0x02870A, end: 0x02877A }, // IDA MusicTrackPointerTable: word offsets (from the table) of the event streams of sounds 0-$37
     { name: 'sfx_beep1_cmdstream.bin', folder: 'Sound', start: 0x02877A, end: 0x028786 }, // sound 1 (SFXbeep1)
     { name: 'sfx_id_26_27_cmdstream.bin', folder: 'Sound', start: 0x028786, end: 0x02878A }, // sounds $26 and $27: empty stream
     { name: 'sfx_beep2_cmdstream.bin', folder: 'Sound', start: 0x02878A, end: 0x02879A }, // sound 2 (SFXbeep2)
@@ -129,10 +130,11 @@ const assets = [
     { name: 'fmtune_period3_cmdstream.bin', folder: 'Sound', start: 0x0292DC, end: 0x029660 }, // song $32: CheckPeriodEnd, 3rd period
     { name: 'fmtune_powerplay_cmdstream.bin', folder: 'Sound', start: 0x029660, end: 0x029904 }, // song $33: updatepwrplay, home power play
     { name: 'fmtune_faceoff_cmdstream.bin', folder: 'Sound', start: 0x029904, end: 0x029BE4 }, // song $34: puckfaceoff
-    { name: 'fmtune_title_cmdstream.bin', folder: 'Sound', start: 0x029BE4, end: 0x02AF64 }, // song $35: TitleScreen, ExitToOpening (92 SngTitle)
-    { name: 'fmtune_eog_cmdstream.bin', folder: 'Sound', start: 0x02AF64, end: 0x02C8AA }, // song $36: IntermissionStart, PlayoffScreen, StartHL2 (92 SngEOG / SngPO)
-    { name: 'fmtune_scouting_cmdstream.bin', folder: 'Sound', start: 0x02C8AA, end: 0x02CEC8 }, // song $37: ScoutingReport
-    { name: 'ScoutingReportText.bin', folder: 'Text', start: 0x02CEC8, end: 0x02E1FC }, // ScoutingReportText (hockey93_07 stub): scouting report paragraphs
+    { name: 'fmtune_title_cmdstream.bin', folder: 'Sound', start: 0x029BE4, end: 0x029C42 }, // song $35: TitleScreen, ExitToOpening (92 SngTitle)
+    { name: 'fmtune_title_loop_cmdstream.bin', folder: 'Sound', start: 0x029C46, end: 0x02AF60 }, // song $35 loop body
+    { name: 'fmtune_eog_cmdstream.bin', folder: 'Sound', start: 0x02AF64, end: 0x02C8A6 }, // song $36: IntermissionStart, PlayoffScreen, StartHL2 (92 SngEOG / SngPO)
+    { name: 'fmtune_scouting_cmdstream.bin', folder: 'Sound', start: 0x02C8AA, end: 0x02CEC4 }, // song $37: ScoutingReport
+    { name: 'ScoutingReportText.bin', folder: 'Text', start: 0x02CEC8, end: 0x02E1FB }, // ScoutingReportText (hockey93_07 stub): scouting report paragraphs
     { name: 'GameSetUp.map.jim', folder: 'Graphics', start: 0x02E1FC, end: 0x02EFA2 }, // 92 GameSetUp.map.jim: game setup bitmap (setoptions movea.l #$2E1FC)
     { name: 'GameSetup.anim', folder: 'Graphics', start: 0x02EFA2, end: 0x02F0B0 }, // GameSetupSprites: IDA GameSetupMap: game setup roster sprites (AddTeamSpriteFrame SetSframe, tiles from +8). The 92 GameSetUpMap bitmap is $2E1FC, in sound93
     { name: 'Title1.map.jim', folder: 'Graphics', start: 0x02F0B0, end: 0x031288 }, // Title1Map: 92 Title1Map: TitleScreen backdrop
