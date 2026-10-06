@@ -65,7 +65,7 @@ Node, then `npm i` in the public `NHLPA93Genesis` repo. Copy the retail ROM in l
 node extractAssets93.js <nhlpa93RomFileName>
 ```
 
-`package.json` expects `extractAssets93.js` and a ROM named `nhl93retail.bin` for `npm run extractassets`. The README also mentions `extractAssets93-1.0.js`. Use whichever file is actually in the tree.
+`npm run extractassets` runs `src/extractAssets93-1.1.js` on `nhlpa93retail.bin`. It is the only extractor (`extractAssets93-1.0.js` was removed). It writes the slices the `sound93.asm` and `graphics93.asm` incbins need.
 
 Builds, from `package.json`:
 

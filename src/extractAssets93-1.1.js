@@ -56,40 +56,109 @@ const assets = [
     { name: 'WPGv.pal', folder: 'Graphics/Pals', start: 0x43C8, end: 0x43E8 },
     { name: 'WSHh.pal', folder: 'Graphics/Pals', start: 0x4666, end: 0x4686 },
     { name: 'WSHv.pal', folder: 'Graphics/Pals', start: 0x4686, end: 0x46A6 },
-    // Sound and graphics data: contiguous retail slices (end is exclusive) for the incbins in
-    // src/sound93.asm ($16E53-$2EFA1) and src/graphics93.asm ($2EFA2-$7FB75). Graphics slices start at an
-    // label from NHL 92 where 93 uses it the same way, else the IDA or stub name or a descriptive one, and are named after it.
-    // The ...Plus8 labels (and unk_7A2B8) are offsets into a map, not slices: graphics93.asm defines them as label+8.
-    { name: 'sound93_16E53.bin', folder: 'Sound', start: 0x016E53, end: 0x02EFA2 }, // Z80 program after Z80_Program_Code ($16E52), then sound data
-    { name: 'GameSetUpMap.bin', folder: 'Graphics', start: 0x02EFA2, end: 0x02F0B0 }, // 92 GameSetUpMap (IDA GameSetupMap); roster sprite tiles, AddTeamSpriteFrame
-    { name: 'Title1Map.bin', folder: 'Graphics', start: 0x02F0B0, end: 0x031288 }, // 92 Title1Map: TitleScreen backdrop
-    { name: 'Title2Map.bin', folder: 'Graphics', start: 0x031288, end: 0x031F10 }, // 92 Title2Map: second TitleScreen bitmap (no IDA label; hockey93_07 loads #$31288)
-    { name: 'Title3Map.bin', folder: 'Graphics', start: 0x031F10, end: 0x0322CE }, // IDA Title3map: the three TitleAnimCallback sprites (no 92 counterpart)
-    { name: 'TitleLogoMap.bin', folder: 'Graphics', start: 0x0322CE, end: 0x032860 }, // IDA Titlemap2: the four title logo sprites (FinalizeSpriteList); palette reused by PlayoffScreen
-    { name: 'ScoutMap.bin', folder: 'Graphics', start: 0x032860, end: 0x033388 }, // 92 ScoutMap (IDA unk_3288E): ScoutingReport background, also PlayoffScreen, SetupScreen, DrawTeamScreen
-    { name: 'FramerMap.bin', folder: 'Graphics', start: 0x033388, end: 0x033400 }, // 92 FramerMap (IDA Framermap)
-    { name: 'FaceOffMap.bin', folder: 'Graphics', start: 0x033400, end: 0x033864 }, // 92 FaceOffMap
-    { name: 'IceRinkMap.bin', folder: 'Graphics', start: 0x033864, end: 0x038906 }, // 92 IceRinkMap
-    { name: 'RefsMap.bin', folder: 'Graphics', start: 0x038906, end: 0x039462 }, // 92 RefsMap
-    { name: 'RefMap2.bin', folder: 'Graphics', start: 0x039462, end: 0x03A378 }, // IDA RefMap2: the horizontal ref (PushRef); no 92 counterpart
-    { name: 'Sprites.bin', folder: 'Graphics', start: 0x03A378, end: 0x03A382 }, // 92 Sprites (Sprites.anim; IDA SpritesMap): $FFFFFFFF, then the offset to FrameDataOff
-    { name: 'Spritetiles.bin', folder: 'Graphics', start: 0x03A382, end: 0x06FAC2 }, // IDA Spritetiles: sprite tiles (92 Spritetiles was a RAM pointer to them)
-    { name: 'FrameDataOff.bin', folder: 'Graphics', start: 0x06FAC2, end: 0x06FFD8 }, // IDA FrameDataOff: frame offset table (= Sprites + the long at Sprites+4)
-    { name: 'SprDataBytes.bin', folder: 'Graphics', start: 0x06FFD8, end: 0x0743CE }, // IDA SprDataBytes: sprite frame data
-    { name: 'HotList.bin', folder: 'Graphics', start: 0x0743CE, end: 0x0748E2 }, // IDA HotList: hot spot byte pairs per frame (GetHot)
-    { name: 'CrowdSprites.bin', folder: 'Graphics', start: 0x0748E2, end: 0x077170 }, // 92 CrowdSprites
-    { name: 'FaceOffSprites.bin', folder: 'Graphics', start: 0x077170, end: 0x0781E4 }, // 92 FaceOffSprites
-    { name: 'ZamSprites.bin', folder: 'Graphics', start: 0x0781E4, end: 0x078CFE }, // 92 ZamSprites
-    { name: 'BigFontMap.bin', folder: 'Graphics', start: 0x078CFE, end: 0x0795B4 }, // 92 BigFontMap (IDA bigfontmap)
-    { name: 'SmallFontMap.bin', folder: 'Graphics', start: 0x0795B4, end: 0x07A282 }, // 92 SmallFontMap (IDA smallfontmap)
-    { name: 'EnergyBarMap.bin', folder: 'Graphics', start: 0x07A282, end: 0x07A376 }, // IDA unk_7A2B0: line energy bar frames drawn by linebar (92 dobar built the bar from font chars)
-    { name: 'Teamblocksmap.bin', folder: 'Graphics', start: 0x07A376, end: 0x07C54E }, // 92 Teamblocksmap (IDA TeamBlocksmap)
-    { name: 'Arrowsmap.bin', folder: 'Graphics', start: 0x07C54E, end: 0x07C7AA }, // 92 Arrowsmap (IDA ArrowsMap)
-    { name: 'EASNmap.bin', folder: 'Graphics', start: 0x07C7AA, end: 0x07C946 }, // 92 EASNmap
-    { name: 'RonBarrMap.bin', folder: 'Graphics', start: 0x07C946, end: 0x07CF1E }, // IDA Ronbarrmap: Ron Barr picture on the ScoutingReport (93 only)
-    { name: 'ScoresMap.bin', folder: 'Graphics', start: 0x07CF1E, end: 0x07D304 }, // IDA unk_7CF4C: bitmap under the title on the ShowScores "Scores" screen (93 only)
-    { name: 'Stanleymap.bin', folder: 'Graphics', start: 0x07D304, end: 0x07F4F6 }, // 92 Stanleymap (IDA StanleyMap): Stanley Cup sprites
-    { name: 'EASNmap2.bin', folder: 'Graphics', start: 0x07F4F6, end: 0x07FB76 }, // IDA EASNmap2: the five EASN bitmaps on the Stanley Cup screen (93 only)
+    // Sound and graphics data: contiguous retail slices (end is exclusive) for the incbins in src/sound93.asm
+    // ($16E53-$2EFA1) and src/graphics93.asm ($2EFA2-$7FB75). Names follow the NHL 92 extractor where 93 has the
+    // same asset (z80_snd_drv, sfx_*_pcm, sfx_*_cmdstream, <name>.map.jim for bitmaps, <name>.anim for sprite frames).
+    // Sound boundaries come from the tables the 68k driver reads: pcm_sample_table, fm_instrument_patches and
+    // sound_pointer_table (each event stream runs to the next one). Sound names are from the sfx / song call sites.
+    { name: 'z80_snd_drv93.bin', folder: 'Sound', start: 0x016E53, end: 0x0170DE }, // 93 Z80 driver after its first byte ($16E52 is Z80_Program_Code dc.b $18 in sound93.asm). p_initialZ80 copies $295 bytes from $16E52
+    { name: 'pcm_sample_table.bin', folder: 'Sound', start: 0x0170DE, end: 0x017156 }, // IDA unk_1710C: 15 x (long sample address, long 0) for patches $60-$6E. Entries 8 and 9 are 0, entry 10 = entry 7
+    { name: 'sfx_shotbh_pcm.bin', folder: 'Sound', start: 0x017156, end: 0x01734A }, // sample 2: shotbh
+    { name: 'sfx_pass_pcm.bin', folder: 'Sound', start: 0x01734A, end: 0x018078 }, // sample 1: pass
+    { name: 'sfx_oooh_pcm.bin', folder: 'Sound', start: 0x018078, end: 0x01B2BC }, // sample 12: oooh, sfx_id_0D, sfx_id_0E
+    { name: 'sfx_crowdboo_pcm.bin', folder: 'Sound', start: 0x01B2BC, end: 0x01D80A }, // sample 11: crowdboo
+    { name: 'sfx_check_pcm.bin', folder: 'Sound', start: 0x01D80A, end: 0x01F75C }, // sample 5: check1, check3
+    { name: 'sfx_crowdcheer_pcm.bin', folder: 'Sound', start: 0x01F75C, end: 0x02263C }, // sample 13: crowdcheer, homewin
+    { name: 'sfx_id_0E_pcm.bin', folder: 'Sound', start: 0x02263C, end: 0x0260BC }, // sample 14: sfx_id_0E
+    { name: 'sfx_playerwall_pcm.bin', folder: 'Sound', start: 0x0260BC, end: 0x02656C }, // sample 6: playerwall, sfx_id_21-23
+    { name: 'sfx_check2_pcm.bin', folder: 'Sound', start: 0x02656C, end: 0x026F9C }, // sample 4: check2, check4
+    { name: 'sfx_hithigh_pcm.bin', folder: 'Sound', start: 0x026F9C, end: 0x0274F2 }, // samples 7 and 10: hithigh, hitlow, check1-4, songs $32 and $35-$37
+    { name: 'sfx_shotfh_pcm.bin', folder: 'Sound', start: 0x0274F2, end: 0x0280AA }, // sample 3: shotfh
+    { name: 'sfx_puckget_pcm.bin', folder: 'Sound', start: 0x0280AA, end: 0x02830A }, // sample 0: puckget
+    { name: 'fm_instrument_patches.bin', folder: 'Sound', start: 0x02830A, end: 0x02870A }, // IDA unk_28338: 32 FM patches x 32 bytes (byte $1E = pitch bend scale)
+    { name: 'sound_pointer_table.bin', folder: 'Sound', start: 0x02870A, end: 0x02877A }, // IDA MusicTrackPointerTable: word offsets (from the table) of the event streams of sounds 0-$37
+    { name: 'sfx_beep1_cmdstream.bin', folder: 'Sound', start: 0x02877A, end: 0x028786 }, // sound 1 (SFXbeep1)
+    { name: 'sfx_id_26_27_cmdstream.bin', folder: 'Sound', start: 0x028786, end: 0x02878A }, // sounds $26 and $27: empty stream
+    { name: 'sfx_beep2_cmdstream.bin', folder: 'Sound', start: 0x02878A, end: 0x02879A }, // sound 2 (SFXbeep2)
+    { name: 'sfx_horn_cmdstream.bin', folder: 'Sound', start: 0x02879A, end: 0x028816 }, // sound 4 (92 SFXhorn)
+    { name: 'sfx_stdef_cmdstream.bin', folder: 'Sound', start: 0x028816, end: 0x028832 }, // sound 6 (92 SFXstdef)
+    { name: 'sfx_puckget_cmdstream.bin', folder: 'Sound', start: 0x028832, end: 0x02884E }, // sound 7 (92 SFXpuckget), puckglue
+    { name: 'sfx_puckice1_cmdstream.bin', folder: 'Sound', start: 0x02884E, end: 0x02885E }, // sound $2C: puck bounce by speed (92 SFXpuckice)
+    { name: 'sfx_puckice2_cmdstream.bin', folder: 'Sound', start: 0x02885E, end: 0x02886E }, // sound $2D
+    { name: 'sfx_puckice3_cmdstream.bin', folder: 'Sound', start: 0x02886E, end: 0x02887E }, // sound $2E
+    { name: 'sfx_puckice4_cmdstream.bin', folder: 'Sound', start: 0x02887E, end: 0x02888E }, // sound $2F (SFXpuckice, Endfaceoff)
+    { name: 'sfx_puckbody_cmdstream.bin', folder: 'Sound', start: 0x02888E, end: 0x0288AA }, // sound $24 (92 SFXpuckbody)
+    { name: 'sfx_oooh_cmdstream.bin', folder: 'Sound', start: 0x0288AA, end: 0x0288C6 }, // sound 8 (92 SFXoooh), off the post with the clock running
+    { name: 'sfx_puckpost_cmdstream.bin', folder: 'Sound', start: 0x0288C6, end: 0x0288D6 }, // sound $25 (92 SFXpuckpost)
+    { name: 'sfx_playerwall_cmdstream.bin', folder: 'Sound', start: 0x0288D6, end: 0x0288F2 }, // sound $20 (92 SFXplayerwall)
+    { name: 'sfx_id_21_cmdstream.bin', folder: 'Sound', start: 0x0288F2, end: 0x02890E }, // sound $21: no caller found, same patches as playerwall
+    { name: 'sfx_id_22_cmdstream.bin', folder: 'Sound', start: 0x02890E, end: 0x02892A }, // sound $22: no caller found, same patches as playerwall
+    { name: 'sfx_id_23_cmdstream.bin', folder: 'Sound', start: 0x02892A, end: 0x028946 }, // sound $23: no caller found, same patches as playerwall
+    { name: 'sfx_puckwall1_cmdstream.bin', folder: 'Sound', start: 0x028946, end: 0x028956 }, // sound $28: puck off the wall by speed (wallcoll; 92 SFXpuckwall)
+    { name: 'sfx_puckwall2_cmdstream.bin', folder: 'Sound', start: 0x028956, end: 0x028966 }, // sound $29
+    { name: 'sfx_puckwall3_cmdstream.bin', folder: 'Sound', start: 0x028966, end: 0x028976 }, // sound $2A
+    { name: 'sfx_puckwall4_cmdstream.bin', folder: 'Sound', start: 0x028976, end: 0x028986 }, // sound $2B
+    { name: 'sfx_whistle_cmdstream.bin', folder: 'Sound', start: 0x028986, end: 0x028A24 }, // sound 3 (92 SFXwhistle)
+    { name: 'sfx_shotwiff_cmdstream.bin', folder: 'Sound', start: 0x028A24, end: 0x028A34 }, // sound 5 (92 SFXshotwiff)
+    { name: 'sfx_check1_cmdstream.bin', folder: 'Sound', start: 0x028A34, end: 0x028A50 }, // sound $1C: tackle sounds in turn (92 SFXcheck)
+    { name: 'sfx_check2_cmdstream.bin', folder: 'Sound', start: 0x028A50, end: 0x028A6C }, // sound $1D
+    { name: 'sfx_check3_cmdstream.bin', folder: 'Sound', start: 0x028A6C, end: 0x028A88 }, // sound $1E
+    { name: 'sfx_check4_cmdstream.bin', folder: 'Sound', start: 0x028A88, end: 0x028AAC }, // sound $1F
+    { name: 'sfx_pass1_cmdstream.bin', folder: 'Sound', start: 0x028AAC, end: 0x028ABC }, // sound $10: pass by puck height (92 SFXpass)
+    { name: 'sfx_pass2_cmdstream.bin', folder: 'Sound', start: 0x028ABC, end: 0x028ACC }, // sound $11
+    { name: 'sfx_pass3_cmdstream.bin', folder: 'Sound', start: 0x028ACC, end: 0x028ADC }, // sound $12
+    { name: 'sfx_pass4_cmdstream.bin', folder: 'Sound', start: 0x028ADC, end: 0x028AEC }, // sound $13
+    { name: 'sfx_shotbh1_cmdstream.bin', folder: 'Sound', start: 0x028AEC, end: 0x028AFC }, // sound $14: backhand shot by speed (92 SFXshotbh)
+    { name: 'sfx_shotbh2_cmdstream.bin', folder: 'Sound', start: 0x028AFC, end: 0x028B0C }, // sound $15
+    { name: 'sfx_shotbh3_cmdstream.bin', folder: 'Sound', start: 0x028B0C, end: 0x028B1C }, // sound $16
+    { name: 'sfx_shotbh4_cmdstream.bin', folder: 'Sound', start: 0x028B1C, end: 0x028B2C }, // sound $17
+    { name: 'sfx_shotfh1_cmdstream.bin', folder: 'Sound', start: 0x028B2C, end: 0x028B3C }, // sound $18: forehand shot by speed (92 SFXshotfh)
+    { name: 'sfx_shotfh2_cmdstream.bin', folder: 'Sound', start: 0x028B3C, end: 0x028B4C }, // sound $19
+    { name: 'sfx_shotfh3_cmdstream.bin', folder: 'Sound', start: 0x028B4C, end: 0x028B5C }, // sound $1A
+    { name: 'sfx_shotfh4_cmdstream.bin', folder: 'Sound', start: 0x028B5C, end: 0x028B6C }, // sound $1B
+    { name: 'sfx_hithigh_cmdstream.bin', folder: 'Sound', start: 0x028B6C, end: 0x028B7C }, // sound 9 (SFXhithigh)
+    { name: 'sfx_hitlow_cmdstream.bin', folder: 'Sound', start: 0x028B7C, end: 0x028B8C }, // sound $A (SFXhitlow)
+    { name: 'sfx_homewin_cmdstream.bin', folder: 'Sound', start: 0x028B8C, end: 0x028BC4 }, // sound $F: home team won (game end)
+    { name: 'sfx_crowdcheer_cmdstream.bin', folder: 'Sound', start: 0x028BC4, end: 0x028BD4 }, // sound $B (SFXcrowdcheer)
+    { name: 'sfx_crowdboo_cmdstream.bin', folder: 'Sound', start: 0x028BD4, end: 0x028BE4 }, // sound $C (SFXcrowdboo)
+    { name: 'sfx_id_0E_cmdstream.bin', folder: 'Sound', start: 0x028BE4, end: 0x028C00 }, // sound $E: wallcollb (puck over the wall)
+    { name: 'sfx_id_0D_cmdstream.bin', folder: 'Sound', start: 0x028C00, end: 0x028C10 }, // sound $D: injury (setInjuryType), visiting goalie save
+    { name: 'sfx_siren_cmdstream.bin', folder: 'Sound', start: 0x028C10, end: 0x028E38 }, // sound 0 (92 SFXsiren)
+    { name: 'fmtune_goal_cmdstream.bin', folder: 'Sound', start: 0x028E38, end: 0x02910C }, // song $30: Goal
+    { name: 'fmtune_periodstart_cmdstream.bin', folder: 'Sound', start: 0x02910C, end: 0x0292DC }, // song $31: StartPer
+    { name: 'fmtune_period3_cmdstream.bin', folder: 'Sound', start: 0x0292DC, end: 0x029660 }, // song $32: CheckPeriodEnd, 3rd period
+    { name: 'fmtune_powerplay_cmdstream.bin', folder: 'Sound', start: 0x029660, end: 0x029904 }, // song $33: updatepwrplay, home power play
+    { name: 'fmtune_faceoff_cmdstream.bin', folder: 'Sound', start: 0x029904, end: 0x029BE4 }, // song $34: puckfaceoff
+    { name: 'fmtune_title_cmdstream.bin', folder: 'Sound', start: 0x029BE4, end: 0x02AF64 }, // song $35: TitleScreen, ExitToOpening (92 SngTitle)
+    { name: 'fmtune_eog_cmdstream.bin', folder: 'Sound', start: 0x02AF64, end: 0x02C8AA }, // song $36: IntermissionStart, PlayoffScreen, StartHL2 (92 SngEOG / SngPO)
+    { name: 'fmtune_scouting_cmdstream.bin', folder: 'Sound', start: 0x02C8AA, end: 0x02CEC8 }, // song $37: ScoutingReport
+    { name: 'ScoutingReportText.bin', folder: 'Text', start: 0x02CEC8, end: 0x02E1FC }, // ScoutingReportText (hockey93_07 stub): scouting report paragraphs
+    { name: 'GameSetUp.map.jim', folder: 'Graphics', start: 0x02E1FC, end: 0x02EFA2 }, // 92 GameSetUp.map.jim: game setup bitmap (setoptions movea.l #$2E1FC)
+    { name: 'GameSetup.anim', folder: 'Graphics', start: 0x02EFA2, end: 0x02F0B0 }, // GameSetupSprites: IDA GameSetupMap: game setup roster sprites (AddTeamSpriteFrame SetSframe, tiles from +8). The 92 GameSetUpMap bitmap is $2E1FC, in sound93
+    { name: 'Title1.map.jim', folder: 'Graphics', start: 0x02F0B0, end: 0x031288 }, // Title1Map: 92 Title1Map: TitleScreen backdrop
+    { name: 'Title2.map.jim', folder: 'Graphics', start: 0x031288, end: 0x031F10 }, // Title2Map: 92 Title2Map: second TitleScreen bitmap (no IDA label; hockey93_07 loads #$31288)
+    { name: 'Title3.anim', folder: 'Graphics', start: 0x031F10, end: 0x0322CE }, // Title3Sprites: IDA Title3map: the three TitleAnimCallback sprites (SetSframe)
+    { name: 'TitleLogo.anim', folder: 'Graphics', start: 0x0322CE, end: 0x032860 }, // TitleLogoSprites: IDA Titlemap2: the four title logo sprites (FinalizeSpriteList SetSframe); palette reused by PlayoffScreen
+    { name: 'Scouting.map.jim', folder: 'Graphics', start: 0x032860, end: 0x033388 }, // ScoutMap: 92 ScoutMap (IDA unk_3288E): ScoutingReport background, also PlayoffScreen, SetupScreen, DrawTeamScreen
+    { name: 'Framer.map.jim', folder: 'Graphics', start: 0x033388, end: 0x033400 }, // FramerMap: 92 FramerMap (IDA Framermap)
+    { name: 'FaceOff.map.jim', folder: 'Graphics', start: 0x033400, end: 0x033864 }, // FaceOffMap: 92 FaceOffMap
+    { name: 'IceRink.map.jim', folder: 'Graphics', start: 0x033864, end: 0x038906 }, // IceRinkMap: 92 IceRinkMap
+    { name: 'Refs.map.jim', folder: 'Graphics', start: 0x038906, end: 0x039462 }, // RefsMap: 92 RefsMap
+    { name: 'Refs2.map.jim', folder: 'Graphics', start: 0x039462, end: 0x03A378 }, // RefMap2: IDA RefMap2: the horizontal ref (PushRef); no 92 counterpart
+    { name: 'Sprites.anim', folder: 'Graphics', start: 0x03A378, end: 0x0748E2 }, // Sprites: 92 Sprites (IDA SpritesMap): $FFFFFFFF, long offset to FrameDataOff, then tiles
+    { name: 'Crowd.anim', folder: 'Graphics', start: 0x0748E2, end: 0x077170 }, // CrowdSprites: 92 CrowdSprites
+    { name: 'FaceOff.anim', folder: 'Graphics', start: 0x077170, end: 0x0781E4 }, // FaceOffSprites: 92 FaceOffSprites
+    { name: 'Zam.anim', folder: 'Graphics', start: 0x0781E4, end: 0x078CFE }, // ZamSprites: 92 ZamSprites
+    { name: 'BigFont.map.jim', folder: 'Graphics', start: 0x078CFE, end: 0x0795B4 }, // BigFontMap: 92 BigFontMap (IDA bigfontmap)
+    { name: 'SmallFont.map.jim', folder: 'Graphics', start: 0x0795B4, end: 0x07A282 }, // SmallFontMap: 92 SmallFontMap (IDA smallfontmap)
+    { name: 'EnergyBar.map.jim', folder: 'Graphics', start: 0x07A282, end: 0x07A376 }, // EnergyBarMap: IDA unk_7A2B0: line energy bar frames drawn by linebar (92 dobar built the bar from font chars)
+    { name: 'TeamBlocks.map.jim', folder: 'Graphics', start: 0x07A376, end: 0x07C54E }, // Teamblocksmap: 92 Teamblocksmap (IDA TeamBlocksmap)
+    { name: 'Arrows.map.jim', folder: 'Graphics', start: 0x07C54E, end: 0x07C7AA }, // Arrowsmap: 92 Arrowsmap (IDA ArrowsMap)
+    { name: 'EASN.map.jim', folder: 'Graphics', start: 0x07C7AA, end: 0x07C946 }, // EASNmap: 92 EASNmap
+    { name: 'RonBarr.map.jim', folder: 'Graphics', start: 0x07C946, end: 0x07CF1E }, // RonBarrMap: IDA Ronbarrmap: Ron Barr picture on the ScoutingReport (93 only)
+    { name: 'Scores.map.jim', folder: 'Graphics', start: 0x07CF1E, end: 0x07D304 }, // ScoresMap: IDA unk_7CF4C: bitmap under the title on the ShowScores "Scores" screen (93 only)
+    { name: 'Stanley.anim', folder: 'Graphics', start: 0x07D304, end: 0x07F4F6 }, // Stanleymap: 92 Stanleymap (IDA StanleyMap). 92 Stanley.map.jim was a bitmap; 93 draws the cup as sprites (UpdateStanleyCupAnimation SetSframe)
+    { name: 'EASN2.map.jim', folder: 'Graphics', start: 0x07F4F6, end: 0x07FB76 }, // EASNmap2: IDA EASNmap2: the five EASN bitmaps on the Stanley Cup screen (93 only)
 ];
 
 // Expected CRC32 checksum (996931775 in hexadecimal)

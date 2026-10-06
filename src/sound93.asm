@@ -4,7 +4,7 @@
 ;	p_initialZ80 are shared with 92 (92 headers: audio stop, vblank handler, initialization).
 ;	Global names from the IDA export (see the SEGMENT_AGENT.md rename table). Bytes match nhlpa93retail.bin.
 ;	The Z80 program (Z80_Program_Code) starts at $16E52: p_initialZ80 loads movea.l #$16E52. Its first
-;	byte is the last byte of this segment; the rest of the Z80 blob and the sound data are not covered.
+;	byte is the dc.b before the incbins; the rest of the Z80 blob and the sound data are incbins from $16E53.
 ;	RAM from $CAEE up is 4 bytes lower in retail than in ram_addrs.inc (Rev A): retail has no
 ;	music_global_tick_counter / music_tick_divider words (see p_music_vblank). Every driver variable is
 ;	written as the retail number with the Rev A name in the comment.
@@ -503,7 +503,151 @@ ClearAllTrackAndSFXSlots	;free the 8 track slots and reset the 6 channel structs
 	rts
 
 Z80_Program_Code	;IDA name. First byte of the Z80 program ($16E52, movea.l in p_initialZ80); the rest of the
-		;Z80 blob from $16E53 and the sound data after it are the incbin below
+		;Z80 blob from $16E53 and the data after it are the incbins below
 	dc.b	$18
-	incbin	..\Extracted\Sound\sound93_16E53.bin	;retail $16E53-$2EFA1: rest of the Z80 program, sound data
+	incbin	..\Extracted\Sound\z80_snd_drv93.bin	;retail $16E53-$170DD. 93 Z80 driver after its first byte ($16E52 is Z80_Program_Code dc.b $18 in sound93.asm). p_initialZ80 copies $295 bytes from $16E52
+	even
+	incbin	..\Extracted\Sound\pcm_sample_table.bin	;retail $170DE-$17155. IDA unk_1710C: 15 x (long sample address, long 0) for patches $60-$6E. Entries 8 and 9 are 0, entry 10 = entry 7
+	even
+	incbin	..\Extracted\Sound\sfx_shotbh_pcm.bin	;retail $17156-$17349. sample 2: shotbh
+	even
+	incbin	..\Extracted\Sound\sfx_pass_pcm.bin	;retail $1734A-$18077. sample 1: pass
+	even
+	incbin	..\Extracted\Sound\sfx_oooh_pcm.bin	;retail $18078-$1B2BB. sample 12: oooh, sfx_id_0D, sfx_id_0E
+	even
+	incbin	..\Extracted\Sound\sfx_crowdboo_pcm.bin	;retail $1B2BC-$1D809. sample 11: crowdboo
+	even
+	incbin	..\Extracted\Sound\sfx_check_pcm.bin	;retail $1D80A-$1F75B. sample 5: check1, check3
+	even
+	incbin	..\Extracted\Sound\sfx_crowdcheer_pcm.bin	;retail $1F75C-$2263B. sample 13: crowdcheer, homewin
+	even
+	incbin	..\Extracted\Sound\sfx_id_0E_pcm.bin	;retail $2263C-$260BB. sample 14: sfx_id_0E
+	even
+	incbin	..\Extracted\Sound\sfx_playerwall_pcm.bin	;retail $260BC-$2656B. sample 6: playerwall, sfx_id_21-23
+	even
+	incbin	..\Extracted\Sound\sfx_check2_pcm.bin	;retail $2656C-$26F9B. sample 4: check2, check4
+	even
+	incbin	..\Extracted\Sound\sfx_hithigh_pcm.bin	;retail $26F9C-$274F1. samples 7 and 10: hithigh, hitlow, check1-4, songs $32 and $35-$37
+	even
+	incbin	..\Extracted\Sound\sfx_shotfh_pcm.bin	;retail $274F2-$280A9. sample 3: shotfh
+	even
+	incbin	..\Extracted\Sound\sfx_puckget_pcm.bin	;retail $280AA-$28309. sample 0: puckget
+	even
+	incbin	..\Extracted\Sound\fm_instrument_patches.bin	;retail $2830A-$28709. IDA unk_28338: 32 FM patches x 32 bytes (byte $1E = pitch bend scale)
+	even
+	incbin	..\Extracted\Sound\sound_pointer_table.bin	;retail $2870A-$28779. IDA MusicTrackPointerTable: word offsets (from the table) of the event streams of sounds 0-$37
+	even
+	incbin	..\Extracted\Sound\sfx_beep1_cmdstream.bin	;retail $2877A-$28785. sound 1 (SFXbeep1)
+	even
+	incbin	..\Extracted\Sound\sfx_id_26_27_cmdstream.bin	;retail $28786-$28789. sounds $26 and $27: empty stream
+	even
+	incbin	..\Extracted\Sound\sfx_beep2_cmdstream.bin	;retail $2878A-$28799. sound 2 (SFXbeep2)
+	even
+	incbin	..\Extracted\Sound\sfx_horn_cmdstream.bin	;retail $2879A-$28815. sound 4 (92 SFXhorn)
+	even
+	incbin	..\Extracted\Sound\sfx_stdef_cmdstream.bin	;retail $28816-$28831. sound 6 (92 SFXstdef)
+	even
+	incbin	..\Extracted\Sound\sfx_puckget_cmdstream.bin	;retail $28832-$2884D. sound 7 (92 SFXpuckget), puckglue
+	even
+	incbin	..\Extracted\Sound\sfx_puckice1_cmdstream.bin	;retail $2884E-$2885D. sound $2C: puck bounce by speed (92 SFXpuckice)
+	even
+	incbin	..\Extracted\Sound\sfx_puckice2_cmdstream.bin	;retail $2885E-$2886D. sound $2D
+	even
+	incbin	..\Extracted\Sound\sfx_puckice3_cmdstream.bin	;retail $2886E-$2887D. sound $2E
+	even
+	incbin	..\Extracted\Sound\sfx_puckice4_cmdstream.bin	;retail $2887E-$2888D. sound $2F (SFXpuckice, Endfaceoff)
+	even
+	incbin	..\Extracted\Sound\sfx_puckbody_cmdstream.bin	;retail $2888E-$288A9. sound $24 (92 SFXpuckbody)
+	even
+	incbin	..\Extracted\Sound\sfx_oooh_cmdstream.bin	;retail $288AA-$288C5. sound 8 (92 SFXoooh), off the post with the clock running
+	even
+	incbin	..\Extracted\Sound\sfx_puckpost_cmdstream.bin	;retail $288C6-$288D5. sound $25 (92 SFXpuckpost)
+	even
+	incbin	..\Extracted\Sound\sfx_playerwall_cmdstream.bin	;retail $288D6-$288F1. sound $20 (92 SFXplayerwall)
+	even
+	incbin	..\Extracted\Sound\sfx_id_21_cmdstream.bin	;retail $288F2-$2890D. sound $21: no caller found, same patches as playerwall
+	even
+	incbin	..\Extracted\Sound\sfx_id_22_cmdstream.bin	;retail $2890E-$28929. sound $22: no caller found, same patches as playerwall
+	even
+	incbin	..\Extracted\Sound\sfx_id_23_cmdstream.bin	;retail $2892A-$28945. sound $23: no caller found, same patches as playerwall
+	even
+	incbin	..\Extracted\Sound\sfx_puckwall1_cmdstream.bin	;retail $28946-$28955. sound $28: puck off the wall by speed (wallcoll; 92 SFXpuckwall)
+	even
+	incbin	..\Extracted\Sound\sfx_puckwall2_cmdstream.bin	;retail $28956-$28965. sound $29
+	even
+	incbin	..\Extracted\Sound\sfx_puckwall3_cmdstream.bin	;retail $28966-$28975. sound $2A
+	even
+	incbin	..\Extracted\Sound\sfx_puckwall4_cmdstream.bin	;retail $28976-$28985. sound $2B
+	even
+	incbin	..\Extracted\Sound\sfx_whistle_cmdstream.bin	;retail $28986-$28A23. sound 3 (92 SFXwhistle)
+	even
+	incbin	..\Extracted\Sound\sfx_shotwiff_cmdstream.bin	;retail $28A24-$28A33. sound 5 (92 SFXshotwiff)
+	even
+	incbin	..\Extracted\Sound\sfx_check1_cmdstream.bin	;retail $28A34-$28A4F. sound $1C: tackle sounds in turn (92 SFXcheck)
+	even
+	incbin	..\Extracted\Sound\sfx_check2_cmdstream.bin	;retail $28A50-$28A6B. sound $1D
+	even
+	incbin	..\Extracted\Sound\sfx_check3_cmdstream.bin	;retail $28A6C-$28A87. sound $1E
+	even
+	incbin	..\Extracted\Sound\sfx_check4_cmdstream.bin	;retail $28A88-$28AAB. sound $1F
+	even
+	incbin	..\Extracted\Sound\sfx_pass1_cmdstream.bin	;retail $28AAC-$28ABB. sound $10: pass by puck height (92 SFXpass)
+	even
+	incbin	..\Extracted\Sound\sfx_pass2_cmdstream.bin	;retail $28ABC-$28ACB. sound $11
+	even
+	incbin	..\Extracted\Sound\sfx_pass3_cmdstream.bin	;retail $28ACC-$28ADB. sound $12
+	even
+	incbin	..\Extracted\Sound\sfx_pass4_cmdstream.bin	;retail $28ADC-$28AEB. sound $13
+	even
+	incbin	..\Extracted\Sound\sfx_shotbh1_cmdstream.bin	;retail $28AEC-$28AFB. sound $14: backhand shot by speed (92 SFXshotbh)
+	even
+	incbin	..\Extracted\Sound\sfx_shotbh2_cmdstream.bin	;retail $28AFC-$28B0B. sound $15
+	even
+	incbin	..\Extracted\Sound\sfx_shotbh3_cmdstream.bin	;retail $28B0C-$28B1B. sound $16
+	even
+	incbin	..\Extracted\Sound\sfx_shotbh4_cmdstream.bin	;retail $28B1C-$28B2B. sound $17
+	even
+	incbin	..\Extracted\Sound\sfx_shotfh1_cmdstream.bin	;retail $28B2C-$28B3B. sound $18: forehand shot by speed (92 SFXshotfh)
+	even
+	incbin	..\Extracted\Sound\sfx_shotfh2_cmdstream.bin	;retail $28B3C-$28B4B. sound $19
+	even
+	incbin	..\Extracted\Sound\sfx_shotfh3_cmdstream.bin	;retail $28B4C-$28B5B. sound $1A
+	even
+	incbin	..\Extracted\Sound\sfx_shotfh4_cmdstream.bin	;retail $28B5C-$28B6B. sound $1B
+	even
+	incbin	..\Extracted\Sound\sfx_hithigh_cmdstream.bin	;retail $28B6C-$28B7B. sound 9 (SFXhithigh)
+	even
+	incbin	..\Extracted\Sound\sfx_hitlow_cmdstream.bin	;retail $28B7C-$28B8B. sound $A (SFXhitlow)
+	even
+	incbin	..\Extracted\Sound\sfx_homewin_cmdstream.bin	;retail $28B8C-$28BC3. sound $F: home team won (game end)
+	even
+	incbin	..\Extracted\Sound\sfx_crowdcheer_cmdstream.bin	;retail $28BC4-$28BD3. sound $B (SFXcrowdcheer)
+	even
+	incbin	..\Extracted\Sound\sfx_crowdboo_cmdstream.bin	;retail $28BD4-$28BE3. sound $C (SFXcrowdboo)
+	even
+	incbin	..\Extracted\Sound\sfx_id_0E_cmdstream.bin	;retail $28BE4-$28BFF. sound $E: wallcollb (puck over the wall)
+	even
+	incbin	..\Extracted\Sound\sfx_id_0D_cmdstream.bin	;retail $28C00-$28C0F. sound $D: injury (setInjuryType), visiting goalie save
+	even
+	incbin	..\Extracted\Sound\sfx_siren_cmdstream.bin	;retail $28C10-$28E37. sound 0 (92 SFXsiren)
+	even
+	incbin	..\Extracted\Sound\fmtune_goal_cmdstream.bin	;retail $28E38-$2910B. song $30: Goal
+	even
+	incbin	..\Extracted\Sound\fmtune_periodstart_cmdstream.bin	;retail $2910C-$292DB. song $31: StartPer
+	even
+	incbin	..\Extracted\Sound\fmtune_period3_cmdstream.bin	;retail $292DC-$2965F. song $32: CheckPeriodEnd, 3rd period
+	even
+	incbin	..\Extracted\Sound\fmtune_powerplay_cmdstream.bin	;retail $29660-$29903. song $33: updatepwrplay, home power play
+	even
+	incbin	..\Extracted\Sound\fmtune_faceoff_cmdstream.bin	;retail $29904-$29BE3. song $34: puckfaceoff
+	even
+	incbin	..\Extracted\Sound\fmtune_title_cmdstream.bin	;retail $29BE4-$2AF63. song $35: TitleScreen, ExitToOpening (92 SngTitle)
+	even
+	incbin	..\Extracted\Sound\fmtune_eog_cmdstream.bin	;retail $2AF64-$2C8A9. song $36: IntermissionStart, PlayoffScreen, StartHL2 (92 SngEOG / SngPO)
+	even
+	incbin	..\Extracted\Sound\fmtune_scouting_cmdstream.bin	;retail $2C8AA-$2CEC7. song $37: ScoutingReport
+	even
+	incbin	..\Extracted\Text\ScoutingReportText.bin	;retail $2CEC8-$2E1FB. ScoutingReportText (hockey93_07 stub): scouting report paragraphs
+	even
+	incbin	..\Extracted\Graphics\GameSetUp.map.jim	;retail $2E1FC-$2EFA1. 92 GameSetUp.map.jim: game setup bitmap (setoptions movea.l #$2E1FC)
 	even

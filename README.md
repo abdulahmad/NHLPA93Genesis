@@ -27,7 +27,7 @@ Asset Identification: I think this the majority of the remaining 323 kb, and I w
 
 3. Copy the NHLPA Hockey 93 Sega Genesis ROM file into the `NHLPA93Genesis` folder
 
-4. Run `node .\extractAssets93.js <nhlpa93RomFileName>` to extract assets from the NHLPA Hockey 93 ROM file into the `Extracted` folder
+4. Run `npm run extractassets` (`node src/extractAssets93-1.1.js nhlpa93retail.bin`) to extract assets from the NHLPA Hockey 93 retail ROM into the `Extracted` folder (`Sound`, `Text`, `Graphics`)
 
 5. Run `npm run build:logo` to build `EALogo93.bin` (`modified_EALogo93.bin` is the opcode corrected version)
 
