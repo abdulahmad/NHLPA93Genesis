@@ -2,7 +2,9 @@ const fs = require('fs').promises;
 const path = require('path');
 const crc32 = require('crc-32'); // Requires 'crc-32' package: npm install crc-32
 
-// Asset definitions from the .lst file
+// NHLPA 93 asset extractor: writes the retail ROM slices that the source incbins (team palettes in
+// teamdata93.asm, sound and Z80 data in sound93.asm, graphics in graphics93.asm) into Extracted/.
+// Run by npm run extractassets (and by every build:* / seg:* script). Slices are [start, end) retail addresses.
 const assets = [
     { name: 'ASEh.pal', folder: 'Graphics/Pals', start: 0x388, end: 0x3A8 }, // ASE
     { name: 'ASEv.pal', folder: 'Graphics/Pals', start: 0x3A8, end: 0x3C8 },
@@ -163,14 +165,14 @@ const assets = [
     { name: 'EASN2.map.jim', folder: 'Graphics', start: 0x07F4F6, end: 0x07FB76 }, // EASNmap2: IDA EASNmap2: the five EASN bitmaps on the Stanley Cup screen (93 only)
 ];
 
-// Expected CRC32 checksum (996931775 in hexadecimal)
+// CRC32 of nhlpa93retail.bin. Rev A builds use the same slices: the source relocates the data.
 const EXPECTED_CRC32 = 0xCBBF4262;
 
 async function verifyCRC32(filePath) {
     try {
         const data = await fs.readFile(filePath);
         const calculatedCRC = crc32.buf(data) >>> 0; // Convert to unsigned 32-bit integer
-        console.log('Caclulated CRC32:', calculatedCRC, EXPECTED_CRC32);
+        console.log(`ROM CRC32: ${calculatedCRC.toString(16).toUpperCase()} (expected ${EXPECTED_CRC32.toString(16).toUpperCase()})`);
         return calculatedCRC === EXPECTED_CRC32;
     } catch (error) {
         console.error(`Error reading ROM file for CRC32 check: ${error.message}`);
@@ -189,7 +191,8 @@ async function extractAssets(romPath, options = {}) {
         // Verify CRC32
         const isValid = await verifyCRC32(romPath);
         if (!isValid) {
-            console.error('CRC32 checksum mismatch. Expected 3B6BF8BF. Aborting extraction.');
+            console.error(`CRC32 checksum mismatch. Expected ${EXPECTED_CRC32.toString(16).toUpperCase()} (nhlpa93retail.bin). Aborting extraction.`);
+            process.exitCode = 1;
             return;
         }
 
@@ -225,6 +228,7 @@ async function extractAssets(romPath, options = {}) {
         console.log(`Extracted ${assets.length} assets from NHLPA 93 ROM.`);
     } catch (error) {
         console.error(`Error during extraction: ${error.message}`);
+        process.exitCode = 1;
     }
 }
 

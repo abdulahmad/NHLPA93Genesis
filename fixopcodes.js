@@ -55,12 +55,6 @@ async function parseListingFile(lines, opcodeReplacements) {
 
 
         for (const line of lines) {
-            // Use a platform-independent path comparison in regex
-            if (/\s*incbin\s+..[\\\/](?:Extracted[\\\/]Sound|output)[\\\/](?:modified_)?Hockey\.snd/i.test(line)) {
-                console.log(`Hit incbin directive, stopping scan for ${instruction}`);
-                break;
-            }
-
             const match = line.match(regex);
             if (match) {
                 // Extract fields from the regex match

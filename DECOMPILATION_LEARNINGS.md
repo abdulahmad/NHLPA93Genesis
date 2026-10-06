@@ -15,10 +15,10 @@ The retail ROM is the answer key. The NHL 92 matching source is the cousin, not 
 
 Requires the original ROM to extract assets and to validate the build. Do not commit ROMs to the public tree.
 
-Progress last recorded in the public README:
+Status:
 
-- Code disassembly: 925 / 188,924 bytes (0.48%).
-- Asset identification: about 90%. Boundaries still need to be confirmed from code references. Identified starts may be where useful data begins, not the true file start.
+- All 68k code is source. `npm run build:retail` and `npm run build:reva` rebuild the retail and Rev A ROMs byte for byte, and every code segment also verifies on its own (`npm run seg:<name>`).
+- The Z80 driver, sound data, team palettes and graphics are incbins of retail ROM slices. Slices start at the labels the code uses; a slice may still hold more than one asset.
 
 ## Where the real notes live
 
@@ -31,7 +31,7 @@ Private tree: `EA-NHL-Disassembly-Project/NHL93-Genesis/`
 | `NHLPA Hockey 93 (USA, Europe) (v1.1).bin.lst` | 12MB listing. May be older than the IDB. Re-export before trusting a name from it. |
 | `discovery.md` | Team data, frame map, SPAList format, 92-to-93 frame shifts, cross-game anim starts. |
 | `src/ram93.asm` | Ports, VDP status bits, structure fields and the named 68k RAM (retail addresses), laid out like NHL92 `ram.asm`. The only RAM map; `hockey93.asm` and every `*_stub.asm` include it. |
-| `src/*.bin.asm` | Stub that only includes the three inc files. Not a disassembly. |
+| `src/<segment>_stub.asm` | Single-segment build: `org` at the segment's retail address, outside labels as retail-address equates, then `include ram93.asm` and the segment. |
 | `rommap.md` | Empty. |
 
 `NHLPA Hockey 93 (USA, Europe) (Rev A) (EASN).md` is not a markdown doc. It is 524,288 bytes and has the same blob SHA as `nhlpa93retailRevA.bin`. Do not read it as notes.
@@ -60,28 +60,25 @@ Do not relabel a function the v1.1 IDB or Chaos already named unless the bytes d
 Node, then `npm i` in the public `NHLPA93Genesis` repo. Copy the retail ROM in locally. Extract with:
 
 ```
-node extractAssets93.js <nhlpa93RomFileName>
+npm run extractassets
 ```
 
-`npm run extractassets` runs `src/extractAssets93-1.1.js` on `nhlpa93retail.bin`. It is the only extractor (`extractAssets93-1.0.js` was removed). It writes the slices the `sound93.asm` and `graphics93.asm` incbins need.
+`npm run extractassets` runs `src/extractAssets93-1.1.js` on `nhlpa93retail.bin` (CRC32 `CBBF4262`; any other file aborts with exit code 1). It is the only extractor. It writes the slices the `teamdata93.asm`, `sound93.asm` and `graphics93.asm` incbins need. Every build script runs it first.
 
 Builds, from `package.json`:
 
 | Script | Flags | Result |
 | --- | --- | --- |
-| `npm run build:retail` | `rev=0`, `checksum=1` | Retail, validation included. Opcode-corrected output is `modified_nhlpa93.bin`. |
-| `npm run build:reva` | `rev=1`, `checksum=1` | Rev A with validation. |
-| `npm run build:dev` | `rev=1`, `checksum=0` | Rev A flags, no validation. Use this while editing. |
-| `npm run build:logo` | | `EALogo93.bin`, corrected copy `modified_EALogo93.bin`. |
-| `npm run build:sound` | | `Hockey93.snd`, corrected copy `modified_Hockey93.snd`. |
+| `npm run build:retail` | `rev=0`, `checksum=1` | Retail, validation included, verified against `nhlpa93retail.bin`. Opcode-corrected output is `output/modified_nhl93.bin`. |
+| `npm run build:reva` | `rev=1`, `checksum=1` | Rev A with validation, verified against `nhlpa93retailRevA.bin`. |
+| `npm run build:dev` | `rev=1`, `checksum=0` | Rev A flags, no validation. Use this while editing. Not identical to `nhlpa93devRevA.bin` (that ROM has its own header and tail). |
+| `npm run seg:<name>` | `rev=0` | One segment through `buildseg.bat`, `fixopcodes.js` and `verifySegment.js` against the retail ROM. |
 
 Dev builds default to Rev A flags. Retail validation will refuse to boot if either checksum is wrong. `npm run build:reva` builds Rev A (`rev=1`, `checksum=1`) and verifies it byte for byte. There is no Rev B build.
 
 ## Checksums
 
-`generateChecksum.js` writes the CRC16 used in the ROM header and the CRC32 used by the validation code.
-
-If validation is on, run it in two passes. Update the checksums, run again, update again. One pass does not settle both CRC16 and CRC32.
+There is no checksum generator in this repo (the old notes mention `generateChecksum.js`; it is not here). The retail and Rev A values are constants in the source: header word `$18E` (`sega/SegaIDTable93.asm`: retail `$2799`, Rev A `$FA57`) and the `ValidationRoutine` sum (`checksum93.asm`: retail `$EB689746`, Rev A `$C62A6024`). `ValidationRoutine` adds every ROM long from 0 up to itself, skipping the header long at `$18C`. A modified build with `checksum=1` shows a red screen at boot unless both values are recomputed.
 
 ## EA compiler opcode fixer
 
@@ -89,7 +86,7 @@ If validation is on, run it in two passes. Update the checksums, run again, upda
 
 Known rewrites:
 
-- `cmp` / `cmpi` family. EA encodings in `0Cxx` are rewritten to the `Bxxx` forms the ROM actually contains. Examples: `0C00` to `B03C`, `0C40` to `B07C`, `0C80` / `cmpi.l` to `B0BC`, `0C07` to `BE3C`. The script is table-driven; add a row only when a new mismatch is a known EA encoding, not a logic bug.
+- `cmp` / `cmpi` family. EA encodings in `0Cxx` are rewritten to the `Bxxx` forms the ROM actually contains. Examples: `0C00` to `B03C`, `0C40` to `B07C`, `0C80` to `B0BC` (written `cmp.l` only: `cmpi.l #imm,d0` in `ValidationRoutine` is a real CMPI and keeps `0C80`), `0C07` to `BE3C`. The script is table-driven; add a row only when a new mismatch is a known EA encoding, not a logic bug.
 - `exg a2, a1`: `C34A` to `C549`.
 - `exg d1, d0`: `C141` to `C340`.
 - Do not rewrite `exg d0, d1`. The script comment says this direction stays.
@@ -115,31 +112,24 @@ Useful named regions, all in 68k RAM at `$FFFF....` unless noted:
 - Teams / score: `HomeTeam` `$C20C`, `VisTeam` `$C20E`, `hmtmstruct` `$C4E6`, `awtmstruct` `$C688`, `HomeTeamRosterPtr` `$C504`, `AwayTeamRosterPtr` `$C6A6`, `gameclock` `$C334`.
 - Penalties: `PenBuf` `$C270`, `Penaltytimer` `$C2B4`, `InjCntDown` `$C2B8`, `icingPlayer` `$BE95`.
 - Menu / season: `OptPlayMode` `$CAD6`, `playofflevel` `$CAD8`, `menuhometeam` `$CADA`, `menuawayteam` `$CADC`, `potree` `$C988`, `gamenum` `$C97A`.
-- Sound bridge: `music_needs_z80_update` `$CB7C`, `Z80_command_buffer` `$CB7E`, `fm_channel_structs` `$CDA0`, `lastsfx` `$BF28`.
-- Stack: `Stack` `$FFFFFE`.
+- Sound bridge (retail; Rev A is 4 higher): `music_needs_z80_update` `$CB78`, `Z80_command_buffer` `$CB7A`, `fm_channel_structs` `$CD9C`, `fm_track_slots` `$CDC0`. `lastsfx` `$BF28`.
+- Stack: `Stack` `$FFFFFFFE` (the reset vector uses `InitialSP` `$FFFFF6`).
 
 The ports at the top of `ram93.asm` are standard Genesis: `VDP_DATA` `$C00000`, `VDP_CTRL` `$C00004`, `VDP_PSG` `$C00011`, `IO_Z80BUS` `$A11100`, `IO_Z80RES` `$A11200`, `IO_TMSS` `$A14000`. The VDP status bits follow them (`PAL_MODE`, `VBLANKING`, `FIFO_FULL`, and so on).
 
-Many symbols are still `word_FF....` / `unk_FF....`. Rename those only from the IDB, then update this inc file.
+Many symbols are still `word_FF....` / `unk_FF....`. Rename those only from the IDB, then update `ram93.asm`.
 
 ## Sound
 
-68000 sound driver is disassembled and buildable in the public tree. Z80 driver is extracted from the retail ROM and linked as a binary. A listing may exist; it is not integrated into the build. Do not replace the Z80 blob with a hand rebuild unless that rebuild matches the extracted bytes.
+The 68000 side of the driver is source (`src/sound93.asm`); it is 93-only, not the NHL 92 driver. The Z80 driver is the extracted `z80_snd_drv93.bin`, with its FM patch bank address written as label expressions so it relocates. Do not replace the Z80 blob with a hand rebuild unless that rebuild matches the extracted bytes.
 
-Hybrid driver: 68000 owns the high-level logic, Z80 drives YM2612 and PSG, PCM is streamed via the DAC. The RAM names above (`Z80_command_buffer`, `fm_channel_structs`) are the 68k side of that bridge.
+Hybrid driver: the 68000 runs 8 track slots of 4-byte events (`MusicTrackPointerTable`, sounds 0-`$2F` effects, `$30`-`$37` songs) and collects key/volume/frequency/patch changes in `Z80_command_buffer`. The Z80 drives the YM2612 and PSG, and streams PCM patches (`$60` up, `pcm_sample_table`) through the DAC. The README "Sound System Overview" has the event format and the tables.
 
-The public README sound-system and SFX sections were copied forward and are explicitly not yet updated for NHLPA 93. Do not treat these addresses as verified for 93 until a code reference confirms them:
-
-- SFX pointer table around `$1035C`, 35 longword entries relative to `p_music_vblank`, IDs 0–34.
-- Note frequency table around `$1017A` (96 bytes), octave table around `$101DA`, envelope table around `$1023A`.
-- FM tune pointer table around `$10294`.
-- PCM/FM overlap is real in the 92-era notes: `sfx_puckbody_pcm` overlaps FM patches, and `fm_instrument_patch_sfx_id_3` overlaps PCM. Re-check bounds on 93 before moving an asset.
-
-SFX command stream bytes, if the 93 driver still matches 92: `$80` instrument, `$81` / `$82` delay, `$83` freq sweep, `$84` stop, `$85` loop. YM2612 frequency is 11-bit, `$000`–`$7FF`.
+The 92 tables in the old notes (SFX pointer table at `$1035C`, note/octave/envelope tables, FM tune table at `$10294`, `$80`-`$85` command bytes) do not exist in 93.
 
 ## Assets and file formats
 
-Graphics, PCM, FM, and the Z80 driver come from the extract script. Identification is ahead of disassembly. When a code reference and the extract bounds disagree, the code reference wins, then re-extract.
+Graphics, PCM, FM, event streams, team palettes and the Z80 driver come from the extract script. Slice starts are the labels the code uses. When a code reference and the extract bounds disagree, the code reference wins, then re-extract.
 
 - `.JIM` / `.JZIP`: see EA-NHL-Tools `JIM-Tools`. 93 uses compressed `.JZIP` more aggressively than 92 because the game is packed under 512KB.
 - `.ANIM`: see EA-NHL-Tools `ANIM94-To-BMP`. Default `.ANIM` palette does not color every 93 sprite (blood is the known miss).
@@ -214,7 +204,7 @@ Recorded in `discovery.md` so the 94/95 pass does not rediscover them. Not verif
 4. Five failed matching builds, then stop and write what differed. Do not let a session grind.
 5. Commit only a change that still matches the target ROM.
 6. Include `ram93.asm`. Do not rename `puckx` / `gameclock` / `PenBuf` out from under the IDB.
-7. Leave gameplay AI and physics until the data tables and the already-built logo and sound path are clean.
+7. Change data through labels: an address written as a number does not move when code or data in front of it grows.
 8. NHL 94 Genesis is next, using this tree as the base. NHL 95 PC is a different compiler and does not belong in this loop.
 
 ## Open items
@@ -222,9 +212,7 @@ Recorded in `discovery.md` so the 94/95 pass does not rediscover them. Not verif
 - Re-export the v1.1 IDB to a fresh `.lst` or `functions.json` before any model session. The current listing may be stale.
 - Confirm which IDB is canonical if `nhlpa93retail.bin.idb` and the v1.1 IDB disagree.
 - Diff Rev B against Rev A (retail vs Rev A is done).
-- Re-verify SFX, FM tune, and PCM addresses against 93 code references.
 - Fix the frame extractor: add the frame offset, do not assume a constant direction gap, cut `wallright` at `0x5EF3`.
 - Integrate a matching Z80 disassembly, or record why the blob stays.
 - Tighten asset bounds from disassembly references.
 - Fill `rommap.md`. It is empty.
-- Replace the 0.48% code figure once the 92-to-93 function diff has been run.
