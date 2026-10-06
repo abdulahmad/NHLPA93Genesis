@@ -59,56 +59,39 @@ const assets = [
     // Sound and graphics data: contiguous retail slices (end is exclusive) for the incbins in
     // src/sound93.asm ($16E53-$2EFA1) and src/graphics93.asm ($2EFA2-$7FB75). Graphics slices start at an
     // IDA or stub label (retail address = Rev A - $2E) and are named after it; an unlabeled slice is named by its address.
+    // The ...Plus8 labels (and unk_7A2B8) are offsets into a map, not slices: graphics93.asm defines them as label+8.
     { name: 'sound93_16E53.bin', folder: 'Sound', start: 0x016E53, end: 0x02EFA2 }, // Z80 program after Z80_Program_Code ($16E52), then sound data
-    { name: 'GameSetupMap.bin', folder: 'Graphics', start: 0x02EFA2, end: 0x02EFAA },
-    { name: 'GameSetupMapPlus8.bin', folder: 'Graphics', start: 0x02EFAA, end: 0x02F0B0 },
+    { name: 'GameSetupMap.bin', folder: 'Graphics', start: 0x02EFA2, end: 0x02F0B0 }, // GameSetupMapPlus8 = GameSetupMap+8
     { name: 'Titlemap.bin', folder: 'Graphics', start: 0x02F0B0, end: 0x031288 },
     { name: 'Gfx_31288.bin', folder: 'Graphics', start: 0x031288, end: 0x031F10 }, // no IDA or stub label (Rev A $312B6); 92 Title2Map
-    { name: 'Title3map.bin', folder: 'Graphics', start: 0x031F10, end: 0x031F18 },
-    { name: 'Title3mapPlus8.bin', folder: 'Graphics', start: 0x031F18, end: 0x0322CE },
-    { name: 'Titlemap2.bin', folder: 'Graphics', start: 0x0322CE, end: 0x0322D6 },
-    { name: 'Titlemap2Plus8.bin', folder: 'Graphics', start: 0x0322D6, end: 0x032860 },
+    { name: 'Title3map.bin', folder: 'Graphics', start: 0x031F10, end: 0x0322CE }, // Title3mapPlus8 = Title3map+8
+    { name: 'Titlemap2.bin', folder: 'Graphics', start: 0x0322CE, end: 0x032860 }, // Titlemap2Plus8 = Titlemap2+8
     { name: 'unk_3288E.bin', folder: 'Graphics', start: 0x032860, end: 0x033388 }, // stats93 stub name (IDA Rev A address)
-    { name: 'Framermap.bin', folder: 'Graphics', start: 0x033388, end: 0x033390 },
-    { name: 'FramermapPlus8.bin', folder: 'Graphics', start: 0x033390, end: 0x033400 },
+    { name: 'Framermap.bin', folder: 'Graphics', start: 0x033388, end: 0x033400 }, // FramermapPlus8 = Framermap+8
     { name: 'FaceOffMap.bin', folder: 'Graphics', start: 0x033400, end: 0x033864 },
-    { name: 'IceRinkMap.bin', folder: 'Graphics', start: 0x033864, end: 0x03386C },
-    { name: 'IceRinkMapPlus8.bin', folder: 'Graphics', start: 0x03386C, end: 0x03571C },
+    { name: 'IceRinkMap.bin', folder: 'Graphics', start: 0x033864, end: 0x03571C }, // IceRinkMapPlus8 = IceRinkMap+8
     { name: 'unk_3574A.bin', folder: 'Graphics', start: 0x03571C, end: 0x038906 }, // IDA name (Rev A address)
-    { name: 'RefsMap.bin', folder: 'Graphics', start: 0x038906, end: 0x03890E },
-    { name: 'RefsMapPlus8.bin', folder: 'Graphics', start: 0x03890E, end: 0x039462 },
-    { name: 'RefMap2.bin', folder: 'Graphics', start: 0x039462, end: 0x03946A },
-    { name: 'RefMap2Plus8.bin', folder: 'Graphics', start: 0x03946A, end: 0x03A378 },
+    { name: 'RefsMap.bin', folder: 'Graphics', start: 0x038906, end: 0x039462 }, // RefsMapPlus8 = RefsMap+8
+    { name: 'RefMap2.bin', folder: 'Graphics', start: 0x039462, end: 0x03A378 }, // RefMap2Plus8 = RefMap2+8
     { name: 'SpritesMap.bin', folder: 'Graphics', start: 0x03A378, end: 0x03A382 },
     { name: 'Spritetiles.bin', folder: 'Graphics', start: 0x03A382, end: 0x0440F2 },
     { name: 'unk_44120.bin', folder: 'Graphics', start: 0x0440F2, end: 0x06FAC2 }, // IDA name (Rev A address)
     { name: 'FrameDataOff.bin', folder: 'Graphics', start: 0x06FAC2, end: 0x06FFD8 },
     { name: 'SprDataBytes.bin', folder: 'Graphics', start: 0x06FFD8, end: 0x0743CE },
     { name: 'HotList.bin', folder: 'Graphics', start: 0x0743CE, end: 0x0748E2 },
-    { name: 'CrowdSprites.bin', folder: 'Graphics', start: 0x0748E2, end: 0x0748EA },
-    { name: 'CrowdSpritesPlus8.bin', folder: 'Graphics', start: 0x0748EA, end: 0x077170 },
-    { name: 'FaceOffSprites.bin', folder: 'Graphics', start: 0x077170, end: 0x077178 },
-    { name: 'FaceOffSpritesPlus8.bin', folder: 'Graphics', start: 0x077178, end: 0x0781E4 },
-    { name: 'ZamSprites.bin', folder: 'Graphics', start: 0x0781E4, end: 0x0781EC },
-    { name: 'ZamSpritesPlus8.bin', folder: 'Graphics', start: 0x0781EC, end: 0x078CFE },
-    { name: 'bigfontmap.bin', folder: 'Graphics', start: 0x078CFE, end: 0x078D06 },
-    { name: 'bigfontmapPlus8.bin', folder: 'Graphics', start: 0x078D06, end: 0x0795B4 },
-    { name: 'smallfontmap.bin', folder: 'Graphics', start: 0x0795B4, end: 0x0795BC },
-    { name: 'smallfontmapPlus8.bin', folder: 'Graphics', start: 0x0795BC, end: 0x07A282 },
-    { name: 'unk_7A2B0.bin', folder: 'Graphics', start: 0x07A282, end: 0x07A28A }, // IDA name (Rev A address)
-    { name: 'unk_7A2B8.bin', folder: 'Graphics', start: 0x07A28A, end: 0x07A376 }, // IDA name (Rev A address)
-    { name: 'TeamBlocksmap.bin', folder: 'Graphics', start: 0x07A376, end: 0x07A37E },
-    { name: 'TeamBlocksmapPlus8.bin', folder: 'Graphics', start: 0x07A37E, end: 0x07C54E },
-    { name: 'ArrowsMap.bin', folder: 'Graphics', start: 0x07C54E, end: 0x07C556 },
-    { name: 'ArrowsMapPlus8.bin', folder: 'Graphics', start: 0x07C556, end: 0x07C7AA },
-    { name: 'EASNmap.bin', folder: 'Graphics', start: 0x07C7AA, end: 0x07C7B2 },
-    { name: 'EASNmapPlus8.bin', folder: 'Graphics', start: 0x07C7B2, end: 0x07C946 },
+    { name: 'CrowdSprites.bin', folder: 'Graphics', start: 0x0748E2, end: 0x077170 }, // CrowdSpritesPlus8 = CrowdSprites+8
+    { name: 'FaceOffSprites.bin', folder: 'Graphics', start: 0x077170, end: 0x0781E4 }, // FaceOffSpritesPlus8 = FaceOffSprites+8
+    { name: 'ZamSprites.bin', folder: 'Graphics', start: 0x0781E4, end: 0x078CFE }, // ZamSpritesPlus8 = ZamSprites+8
+    { name: 'bigfontmap.bin', folder: 'Graphics', start: 0x078CFE, end: 0x0795B4 }, // bigfontmapPlus8 = bigfontmap+8
+    { name: 'smallfontmap.bin', folder: 'Graphics', start: 0x0795B4, end: 0x07A282 }, // smallfontmapPlus8 = smallfontmap+8
+    { name: 'unk_7A2B0.bin', folder: 'Graphics', start: 0x07A282, end: 0x07A376 }, // IDA name (Rev A address); unk_7A2B8 = unk_7A2B0+8
+    { name: 'TeamBlocksmap.bin', folder: 'Graphics', start: 0x07A376, end: 0x07C54E }, // TeamBlocksmapPlus8 = TeamBlocksmap+8
+    { name: 'ArrowsMap.bin', folder: 'Graphics', start: 0x07C54E, end: 0x07C7AA }, // ArrowsMapPlus8 = ArrowsMap+8
+    { name: 'EASNmap.bin', folder: 'Graphics', start: 0x07C7AA, end: 0x07C946 }, // EASNmapPlus8 = EASNmap+8
     { name: 'Ronbarrmap.bin', folder: 'Graphics', start: 0x07C946, end: 0x07CF1E },
     { name: 'unk_7CF4C.bin', folder: 'Graphics', start: 0x07CF1E, end: 0x07D304 }, // IDA name (Rev A address)
-    { name: 'StanleyMap.bin', folder: 'Graphics', start: 0x07D304, end: 0x07D30C },
-    { name: 'StanleyMapPlus8.bin', folder: 'Graphics', start: 0x07D30C, end: 0x07F4F6 },
-    { name: 'EASNmap2.bin', folder: 'Graphics', start: 0x07F4F6, end: 0x07F4FE },
-    { name: 'EASNmap2Plus8.bin', folder: 'Graphics', start: 0x07F4FE, end: 0x07FB76 },
+    { name: 'StanleyMap.bin', folder: 'Graphics', start: 0x07D304, end: 0x07F4F6 }, // StanleyMapPlus8 = StanleyMap+8
+    { name: 'EASNmap2.bin', folder: 'Graphics', start: 0x07F4F6, end: 0x07FB76 }, // EASNmap2Plus8 = EASNmap2+8
 ];
 
 // Expected CRC32 checksum (996931775 in hexadecimal)
