@@ -58,40 +58,38 @@ const assets = [
     { name: 'WSHv.pal', folder: 'Graphics/Pals', start: 0x4686, end: 0x46A6 },
     // Sound and graphics data: contiguous retail slices (end is exclusive) for the incbins in
     // src/sound93.asm ($16E53-$2EFA1) and src/graphics93.asm ($2EFA2-$7FB75). Graphics slices start at an
-    // IDA or stub label (retail address = Rev A - $2E) and are named after it; an unlabeled slice is named by its address.
+    // label from NHL 92 where 93 uses it the same way, else the IDA or stub name or a descriptive one, and are named after it.
     // The ...Plus8 labels (and unk_7A2B8) are offsets into a map, not slices: graphics93.asm defines them as label+8.
     { name: 'sound93_16E53.bin', folder: 'Sound', start: 0x016E53, end: 0x02EFA2 }, // Z80 program after Z80_Program_Code ($16E52), then sound data
-    { name: 'GameSetupMap.bin', folder: 'Graphics', start: 0x02EFA2, end: 0x02F0B0 }, // GameSetupMapPlus8 = GameSetupMap+8
-    { name: 'Titlemap.bin', folder: 'Graphics', start: 0x02F0B0, end: 0x031288 },
-    { name: 'Gfx_31288.bin', folder: 'Graphics', start: 0x031288, end: 0x031F10 }, // no IDA or stub label (Rev A $312B6); 92 Title2Map
-    { name: 'Title3map.bin', folder: 'Graphics', start: 0x031F10, end: 0x0322CE }, // Title3mapPlus8 = Title3map+8
-    { name: 'Titlemap2.bin', folder: 'Graphics', start: 0x0322CE, end: 0x032860 }, // Titlemap2Plus8 = Titlemap2+8
-    { name: 'unk_3288E.bin', folder: 'Graphics', start: 0x032860, end: 0x033388 }, // stats93 stub name (IDA Rev A address)
-    { name: 'Framermap.bin', folder: 'Graphics', start: 0x033388, end: 0x033400 }, // FramermapPlus8 = Framermap+8
-    { name: 'FaceOffMap.bin', folder: 'Graphics', start: 0x033400, end: 0x033864 },
-    { name: 'IceRinkMap.bin', folder: 'Graphics', start: 0x033864, end: 0x03571C }, // IceRinkMapPlus8 = IceRinkMap+8
-    { name: 'unk_3574A.bin', folder: 'Graphics', start: 0x03571C, end: 0x038906 }, // IDA name (Rev A address)
-    { name: 'RefsMap.bin', folder: 'Graphics', start: 0x038906, end: 0x039462 }, // RefsMapPlus8 = RefsMap+8
-    { name: 'RefMap2.bin', folder: 'Graphics', start: 0x039462, end: 0x03A378 }, // RefMap2Plus8 = RefMap2+8
-    { name: 'SpritesMap.bin', folder: 'Graphics', start: 0x03A378, end: 0x03A382 },
-    { name: 'Spritetiles.bin', folder: 'Graphics', start: 0x03A382, end: 0x0440F2 },
-    { name: 'unk_44120.bin', folder: 'Graphics', start: 0x0440F2, end: 0x06FAC2 }, // IDA name (Rev A address)
-    { name: 'FrameDataOff.bin', folder: 'Graphics', start: 0x06FAC2, end: 0x06FFD8 },
-    { name: 'SprDataBytes.bin', folder: 'Graphics', start: 0x06FFD8, end: 0x0743CE },
-    { name: 'HotList.bin', folder: 'Graphics', start: 0x0743CE, end: 0x0748E2 },
-    { name: 'CrowdSprites.bin', folder: 'Graphics', start: 0x0748E2, end: 0x077170 }, // CrowdSpritesPlus8 = CrowdSprites+8
-    { name: 'FaceOffSprites.bin', folder: 'Graphics', start: 0x077170, end: 0x0781E4 }, // FaceOffSpritesPlus8 = FaceOffSprites+8
-    { name: 'ZamSprites.bin', folder: 'Graphics', start: 0x0781E4, end: 0x078CFE }, // ZamSpritesPlus8 = ZamSprites+8
-    { name: 'bigfontmap.bin', folder: 'Graphics', start: 0x078CFE, end: 0x0795B4 }, // bigfontmapPlus8 = bigfontmap+8
-    { name: 'smallfontmap.bin', folder: 'Graphics', start: 0x0795B4, end: 0x07A282 }, // smallfontmapPlus8 = smallfontmap+8
-    { name: 'unk_7A2B0.bin', folder: 'Graphics', start: 0x07A282, end: 0x07A376 }, // IDA name (Rev A address); unk_7A2B8 = unk_7A2B0+8
-    { name: 'TeamBlocksmap.bin', folder: 'Graphics', start: 0x07A376, end: 0x07C54E }, // TeamBlocksmapPlus8 = TeamBlocksmap+8
-    { name: 'ArrowsMap.bin', folder: 'Graphics', start: 0x07C54E, end: 0x07C7AA }, // ArrowsMapPlus8 = ArrowsMap+8
-    { name: 'EASNmap.bin', folder: 'Graphics', start: 0x07C7AA, end: 0x07C946 }, // EASNmapPlus8 = EASNmap+8
-    { name: 'Ronbarrmap.bin', folder: 'Graphics', start: 0x07C946, end: 0x07CF1E },
-    { name: 'unk_7CF4C.bin', folder: 'Graphics', start: 0x07CF1E, end: 0x07D304 }, // IDA name (Rev A address)
-    { name: 'StanleyMap.bin', folder: 'Graphics', start: 0x07D304, end: 0x07F4F6 }, // StanleyMapPlus8 = StanleyMap+8
-    { name: 'EASNmap2.bin', folder: 'Graphics', start: 0x07F4F6, end: 0x07FB76 }, // EASNmap2Plus8 = EASNmap2+8
+    { name: 'GameSetUpMap.bin', folder: 'Graphics', start: 0x02EFA2, end: 0x02F0B0 }, // 92 GameSetUpMap (IDA GameSetupMap); roster sprite tiles, AddTeamSpriteFrame
+    { name: 'Title1Map.bin', folder: 'Graphics', start: 0x02F0B0, end: 0x031288 }, // 92 Title1Map: TitleScreen backdrop
+    { name: 'Title2Map.bin', folder: 'Graphics', start: 0x031288, end: 0x031F10 }, // 92 Title2Map: second TitleScreen bitmap (no IDA label; hockey93_07 loads #$31288)
+    { name: 'Title3Map.bin', folder: 'Graphics', start: 0x031F10, end: 0x0322CE }, // IDA Title3map: the three TitleAnimCallback sprites (no 92 counterpart)
+    { name: 'TitleLogoMap.bin', folder: 'Graphics', start: 0x0322CE, end: 0x032860 }, // IDA Titlemap2: the four title logo sprites (FinalizeSpriteList); palette reused by PlayoffScreen
+    { name: 'ScoutMap.bin', folder: 'Graphics', start: 0x032860, end: 0x033388 }, // 92 ScoutMap (IDA unk_3288E): ScoutingReport background, also PlayoffScreen, SetupScreen, DrawTeamScreen
+    { name: 'FramerMap.bin', folder: 'Graphics', start: 0x033388, end: 0x033400 }, // 92 FramerMap (IDA Framermap)
+    { name: 'FaceOffMap.bin', folder: 'Graphics', start: 0x033400, end: 0x033864 }, // 92 FaceOffMap
+    { name: 'IceRinkMap.bin', folder: 'Graphics', start: 0x033864, end: 0x038906 }, // 92 IceRinkMap
+    { name: 'RefsMap.bin', folder: 'Graphics', start: 0x038906, end: 0x039462 }, // 92 RefsMap
+    { name: 'RefMap2.bin', folder: 'Graphics', start: 0x039462, end: 0x03A378 }, // IDA RefMap2: the horizontal ref (PushRef); no 92 counterpart
+    { name: 'Sprites.bin', folder: 'Graphics', start: 0x03A378, end: 0x03A382 }, // 92 Sprites (Sprites.anim; IDA SpritesMap): $FFFFFFFF, then the offset to FrameDataOff
+    { name: 'Spritetiles.bin', folder: 'Graphics', start: 0x03A382, end: 0x06FAC2 }, // IDA Spritetiles: sprite tiles (92 Spritetiles was a RAM pointer to them)
+    { name: 'FrameDataOff.bin', folder: 'Graphics', start: 0x06FAC2, end: 0x06FFD8 }, // IDA FrameDataOff: frame offset table (= Sprites + the long at Sprites+4)
+    { name: 'SprDataBytes.bin', folder: 'Graphics', start: 0x06FFD8, end: 0x0743CE }, // IDA SprDataBytes: sprite frame data
+    { name: 'HotList.bin', folder: 'Graphics', start: 0x0743CE, end: 0x0748E2 }, // IDA HotList: hot spot byte pairs per frame (GetHot)
+    { name: 'CrowdSprites.bin', folder: 'Graphics', start: 0x0748E2, end: 0x077170 }, // 92 CrowdSprites
+    { name: 'FaceOffSprites.bin', folder: 'Graphics', start: 0x077170, end: 0x0781E4 }, // 92 FaceOffSprites
+    { name: 'ZamSprites.bin', folder: 'Graphics', start: 0x0781E4, end: 0x078CFE }, // 92 ZamSprites
+    { name: 'BigFontMap.bin', folder: 'Graphics', start: 0x078CFE, end: 0x0795B4 }, // 92 BigFontMap (IDA bigfontmap)
+    { name: 'SmallFontMap.bin', folder: 'Graphics', start: 0x0795B4, end: 0x07A282 }, // 92 SmallFontMap (IDA smallfontmap)
+    { name: 'EnergyBarMap.bin', folder: 'Graphics', start: 0x07A282, end: 0x07A376 }, // IDA unk_7A2B0: line energy bar frames drawn by linebar (92 dobar built the bar from font chars)
+    { name: 'Teamblocksmap.bin', folder: 'Graphics', start: 0x07A376, end: 0x07C54E }, // 92 Teamblocksmap (IDA TeamBlocksmap)
+    { name: 'Arrowsmap.bin', folder: 'Graphics', start: 0x07C54E, end: 0x07C7AA }, // 92 Arrowsmap (IDA ArrowsMap)
+    { name: 'EASNmap.bin', folder: 'Graphics', start: 0x07C7AA, end: 0x07C946 }, // 92 EASNmap
+    { name: 'RonBarrMap.bin', folder: 'Graphics', start: 0x07C946, end: 0x07CF1E }, // IDA Ronbarrmap: Ron Barr picture on the ScoutingReport (93 only)
+    { name: 'ScoresMap.bin', folder: 'Graphics', start: 0x07CF1E, end: 0x07D304 }, // IDA unk_7CF4C: bitmap under the title on the ShowScores "Scores" screen (93 only)
+    { name: 'Stanleymap.bin', folder: 'Graphics', start: 0x07D304, end: 0x07F4F6 }, // 92 Stanleymap (IDA StanleyMap): Stanley Cup sprites
+    { name: 'EASNmap2.bin', folder: 'Graphics', start: 0x07F4F6, end: 0x07FB76 }, // IDA EASNmap2: the five EASN bitmaps on the Stanley Cup screen (93 only)
 ];
 
 // Expected CRC32 checksum (996931775 in hexadecimal)
