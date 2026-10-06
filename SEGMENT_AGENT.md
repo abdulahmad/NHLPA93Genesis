@@ -23,7 +23,7 @@ If that `.lst` does not open, stop and say the path you tried. Do not work aroun
 3. Style. `NHL92Genesis/src/hockey.asm`, `ram.asm`, and `macros/` are the style source. Same mnemonics, `equ`, local labels with `.`, and comment density. Do not paste 92 code over 93.
 4. Current segment. `src/checksum93_stub.asm` is `org $7FB76` and includes `src/checksum93.asm`. The segment is `$7FB76-$7FBC7` (82 bytes), the whole ROM map range: `SecurityCheck` (start) and `ValidationRoutine`, the 92 `checksum.asm` routine with the same names (92 includes it from `hockey.asm` under `IF CHECKSUM=1`; 93 `main93.asm` calls `jsr ValidationRoutine` from `Start`, IDA `Reset+100`). The IDA listing has `ValidationRoutine` at Rev A `$7FBA4` and no `SecurityCheck` label: `SecurityCheck` is a retail-only `dc.w $FFFF` at `$7FB76` (Rev A has no word there; its bytes before the routine are `0`), so `ValidationRoutine` is retail `$7FB78` (Rev A `$7FBA4`, delta -`$2C`). Retail values, Rev A in the comment: loop count `#ValidationRoutine/4` (`$1FEDE`; Rev A `$1FEE9` = Rev A `$7FBA4`/4, IDA `unk_1FEE9`), sum `cmpi.l #$EB689746,d0` (Rev A `$C62A6024`). That `cmpi.l` is a real CMPI (`0C80` in retail), not EA `cmp`; `fixopcodes.js` no longer has the `cmpi.l` `0C80` rule (no other source uses `cmpi.l #imm,d0`; EA's compare is written `cmp.l`). The failure path writes `$00E` (red) to all 64 CRAM colours and hangs. The IDA `loc_` labels are locals (`.loop`, `.add`, `.next`, `.bad`, `.fill`, `.halt`) with the IDA and 92 global names in the comment. No outside calls, so the stub has no outside addresses. Run it with `npm.cmd run seg:checksum93` (or `npm.cmd run seg`). A match must report 82 bytes at `0x07fb76-0x07fbc7`. The `$FF` fill `$7FBC8-$7FFFF` is not in this segment.
 
-The previous current segment was `sound93`, and its 68k sound driver is done. The Z80 blob from `$16E53` and the data after it (to `$2EFA1`) are 73 incbins after `Z80_Program_Code dc.b $18` at the end of `src/sound93.asm`, each followed by `even`. They have no labels, because `sound93_stub.asm` still equates `unk_1710C`, `unk_28338` and `MusicTrackPointerTable`. The slices follow the NHL 92 extractor names, and their boundaries come from the tables the 68k driver reads:
+The previous current segment was `sound93`, and its 68k sound driver is done. The Z80 blob from `$16E53` and the data after it (to `$2EFA1`) are 73 incbins after `Z80_Program_Code dc.b $18` at the end of `src/sound93.asm`, each followed by `even`. The four tables other code reads are labelled with their IDA names (`unk_1710C`, `unk_28338`, `MusicTrackPointerTable`, `ScoutingReportText`); `sound93_stub.asm` no longer equates the first three. The slices follow the NHL 92 extractor names, and their boundaries come from the tables the 68k driver reads:
 - **Z80 driver.** `Extracted\Sound\z80_snd_drv93.bin` is `$16E53-$170DD`. Its first byte is the `dc.b $18`.
 - **PCM samples.** `pcm_sample_table.bin` (IDA `unk_1710C`) is 15 entries of (sample address, 0) for patches `$60` and up. The 12 distinct samples are the `sfx_<name>_pcm.bin` files, named after the sounds whose `$4x` patch events use them.
 - **FM patches.** `fm_instrument_patches.bin` (IDA `unk_28338`) holds 32 patches of 32 bytes.
@@ -49,6 +49,16 @@ Do not edit `hockey93_01.asm` (`$6446-$69FF`, 1466 bytes), `menu93.asm` (`$6A00-
 - **Not labels.** IDA `unk_3574A` (`$3571C`, inside `IceRinkMap`) and `unk_44120` (`$440F2`, inside `Spritetiles`) are not real labels. Their only references are the offset long at `Sprites+4` and the string long `#$44120` in `showfaceoff`.
 
 Each span is `label` / `incbin ..\Extracted\Graphics\<file>` / `even`. Every span starts at an even address, so each `even` adds no byte. `sound93.asm` holds the 68k driver (`$165D8-$16E52`, stub `src/sound93_stub.asm`, `npm.cmd run seg:sound93`). It ends with `Z80_Program_Code dc.b $18`. The Z80 blob and data after that byte (`$16E53-$2EFA1`) are incbins (`npm.cmd run seg:sound93-data`). Both seg scripts run `npm run extractassets` first, because `Extracted/` is not in git.
+
+Full ROM build: `npm.cmd run build:retail` runs `extractassets`, then `build93.bat`, `fixopcodes.js` on `output\nhl93 .lst`, and `verifyRom.js`. It must report `MATCH ... (524288 bytes)`.
+- **`build93.bat`** assembles `src/nhlpa93.asm` to `output\nhl93.bin`. SNASM always exits 0 and writes no `.bin` on errors, so the batch file treats a missing or empty `.bin` as a failure.
+- **`src/nhlpa93.asm`** is the full-build top level. It includes the four `stubinc` files, which each segment stub includes on its own, then `hockey93.asm`, then the `$FF` fill `$7FBC8-$7FFFF`.
+- **Aliases.** It also equates the names one segment or the `Main93` vectors use for labels another segment renamed, each at the address its stub uses:
+  - `BusError` = `AddError`; `Spurious` and `HBlank` = `IRQ7`.
+  - `_sp` = `IntermissionStart`, `loc_14D36` = `ShowInjuryBox`, `loc_12A16` = `ExitToOpening`, `loc_F0F6` = `DrawEASNMap`, `DrawEASNLogo` = `EASNLogo`, `unk_15556` = `PlayoffTreeSetup`, `DisplayTeamBlock` = `dotb`.
+
+  A new cross-segment name goes there, not in a finished segment.
+- **Name clashes.** `Main93`'s reset-vector SP equate is `InitialSP` (`$FFFFF6`), because the game's `Stack` is `$FFFFFFFE` in `ram_addrs.inc`. The bogus `Ram93` `VBint rs.l 1` is commented out (`vbint` is in `ram_addrs.inc`).
 
 Retail (`nhlpa93retail.bin`) ranges, inclusive. Boundaries are routine starts, checked against the ROM bytes.
 
@@ -404,7 +414,7 @@ Expressions. Where a number is a combination of proven names, write the expressi
 
 ## Out of scope
 
-- `hockey93.asm` and the full-ROM `build:retail` path.
+- Rev A and the `build:reva` / `build:dev` paths. `build:retail` (the full retail ROM, `src/nhlpa93.asm`) is done: run `npm.cmd run build:retail`, and it must print `MATCH: output/modified_nhl93.bin == nhlpa93retail.bin (524288 bytes)`.
 - Rev A, Rev B, Z80, frame extractor, NHL 94.
 - Transcribing or disassembling the `sound93.asm` Z80 blob and sound data (`$016E53-$02EFA1`) or the `graphics93.asm` graphics (`$02EFA2-$07FB75`). Both are incbin from `src/extractAssets93-1.1.js` slices and match. Do not turn those bytes into instructions.
 - Another code segment. The code segments are done.

@@ -507,6 +507,7 @@ Z80_Program_Code	;IDA name. First byte of the Z80 program ($16E52, movea.l in p_
 	dc.b	$18
 	incbin	..\Extracted\Sound\z80_snd_drv93.bin	;retail $16E53-$170DD. 93 Z80 driver after its first byte ($16E52 is Z80_Program_Code dc.b $18 in sound93.asm). p_initialZ80 copies $295 bytes from $16E52
 	even
+unk_1710C	;IDA name: PCM sample table (lea in handle_command_10)
 	incbin	..\Extracted\Sound\pcm_sample_table.bin	;retail $170DE-$17155. IDA unk_1710C: 15 x (long sample address, long 0) for patches $60-$6E. Entries 8 and 9 are 0, entry 10 = entry 7
 	even
 	incbin	..\Extracted\Sound\sfx_shotbh_pcm.bin	;retail $17156-$17349. sample 2: shotbh
@@ -533,8 +534,10 @@ Z80_Program_Code	;IDA name. First byte of the Z80 program ($16E52, movea.l in p_
 	even
 	incbin	..\Extracted\Sound\sfx_puckget_pcm.bin	;retail $280AA-$28309. sample 0: puckget
 	even
+unk_28338	;IDA name: FM patches (movea.l in UpdateChannelFrequencyAndVolume)
 	incbin	..\Extracted\Sound\fm_instrument_patches.bin	;retail $2830A-$28709. IDA unk_28338: 32 FM patches x 32 bytes (byte $1E = pitch bend scale)
 	even
+MusicTrackPointerTable	;IDA name: sound event stream offsets (play_sfx_or_music_track, play_new_song)
 	incbin	..\Extracted\Sound\sound_pointer_table.bin	;retail $2870A-$28779. IDA MusicTrackPointerTable: word offsets (from the table) of the event streams of sounds 0-$37
 	even
 	incbin	..\Extracted\Sound\sfx_beep1_cmdstream.bin	;retail $2877A-$28785. sound 1 (SFXbeep1)
@@ -647,6 +650,7 @@ Z80_Program_Code	;IDA name. First byte of the Z80 program ($16E52, movea.l in p_
 	even
 	incbin	..\Extracted\Sound\fmtune_scouting_cmdstream.bin	;retail $2C8AA-$2CEC7. song $37: ScoutingReport
 	even
+ScoutingReportText	;IDA name: scouting report text (hockey93_07)
 	incbin	..\Extracted\Text\ScoutingReportText.bin	;retail $2CEC8-$2E1FB. ScoutingReportText (hockey93_07 stub): scouting report paragraphs
 	even
 	incbin	..\Extracted\Graphics\GameSetUp.map.jim	;retail $2E1FC-$2EFA1. 92 GameSetUp.map.jim: game setup bitmap (setoptions movea.l #$2E1FC)

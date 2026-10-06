@@ -32,12 +32,25 @@ if "%checksum%"=="0" (
     set checksumFlag="/e CHECKSUM=1"
 )
 
-REM Run the assembler with all flags
+REM Run the assembler with all flags. nhlpa93.asm = shared stubinc equates + hockey93.asm + $FF fill.
+REM Relative paths keep SNASM's summary line readable (it garbles it with long paths). SNASM always
+REM exits 0 and writes no .bin when there are errors, so a missing or empty .bin means the build failed.
+if exist "..\output\nhl93.bin" del "..\output\nhl93.bin"
 "%workspaceFolder%assembler\Assembler.exe" ^
   /p /m /g ^
   /o d- /o s- /o r+ /o l+ /o l. /o ow+ /o op- /o os+ /o oz+ /o omq- /o oaq+ /o osq+ ^
   %revFlag% %checksumFlag% ^
-  "%workspaceFolder%src\hockey93.asm,%workspaceFolder%output\nhlpa93.bin,%workspaceFolder%output\nhl93,%workspaceFolder%output\nhl93" ^
-  > "%workspaceFolder%output\Build93.log"
+  "nhlpa93.asm,..\output\nhl93.bin,..\output\nhl93,..\output\nhl93" ^
+  > "..\output\Build93.log"
+
+set "built=0"
+for %%A in ("..\output\nhl93.bin") do if %%~zA GTR 0 set "built=1"
+if not "%built%"=="1" (
+    echo *** ASSEMBLY FAILED *** see output\Build93.log
+    type "..\output\Build93.log"
+    exit /b 1
+)
+type "..\output\Build93.log"
+echo Assembled output\nhl93.bin
 
 endlocal

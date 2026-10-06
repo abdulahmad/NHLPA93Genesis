@@ -107,7 +107,7 @@ Asound	=	$c00011 	;analog sound
 
 ; recbpr	rs.l	1	;record buffer pointer
 
-VBint	rs.l	1	;address of vblank interupt code
+; VBint	rs.l	1	;address of vblank interupt code (vbint is in stubinc/ram_addrs.inc, $FFFFB03A)
 
 ; Vcount 	rs.w	1	;counter for vblank
 ; OldVcount	rs.w	1

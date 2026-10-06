@@ -19,7 +19,7 @@ RAMStart = $FF0000
 ;
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-Stack = $FFFFF6	
+InitialSP = $FFFFF6	;retail reset vector 0. The game's Stack ($FFFFFFFE) is in stubinc/ram_addrs.inc
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;
@@ -29,7 +29,7 @@ Stack = $FFFFF6
 
 ;;	.region code
 	org	0
-	dc.l	Stack		; 0 initial stack pointer
+	dc.l	InitialSP	; 0 initial stack pointer
 	dc.l	Start		; 4 initial program counter
 	dc.l	BusError
 	dc.l	AddError

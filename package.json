@@ -12,7 +12,7 @@
     "fixopcodes:sound": "node fixopcodes.js \"output\\Hockey .lst\" output\\Hockey.snd",
     "verify:retail": "node verifyRom.js output/modified_nhl93.bin nhlpa93retail.bin",
     "verify:reva": "node verifyRom.js output/modified_nhl93.bin nhlpa93retailRevA.bin",
-    "build:retail": "set rev=0&& set checksum=1&& npm run asm && npm run fixopcodes && npm run verify:retail",
+    "build:retail": "set rev=0&& set checksum=1&& npm run extractassets && npm run asm && npm run fixopcodes && npm run verify:retail",
     "build:reva": "set rev=1&& set checksum=1&& npm run asm && npm run fixopcodes && npm run verify:reva",
     "build:dev": "set rev=1&& set checksum=0&& npm run asm && npm run fixopcodes",
     "build:logo": "set rev=0&& set checksum=1&& npm run asm:logo && npm run fixopcodes:logo",

@@ -19,13 +19,10 @@ RAMStart = $FF0000
 ;
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-; External addresses outside $165D8-$16E52, at their retail addresses.
+; External addresses outside $165D8-$2EFA1, at their retail addresses (the sound data tables are labels in sound93.asm).
 ; Names are IDA names, or source names from the SEGMENT_AGENT.md rename table.
 ; Every address was read from the retail bsr/bra/Bcc displacement, lea (pc) displacement or movea.l operand.
 rtss = $110E0			; hockey93_05 (bgt.w at $1660C)
-unk_1710C = $170DE		; Z80 blob / sound data, not covered (lea (pc) at $1692A, Rev A $1710C)
-unk_28338 = $2830A		; sound data, not covered (movea.l at $169B8, Rev A $28338)
-MusicTrackPointerTable = $2870A	; sound data, not covered (movea.l at $1663E, Rev A $28738)
 ; .region code
 	org	$165D8
 
