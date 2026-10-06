@@ -56,11 +56,11 @@ StartGame	;reset game state for a new game, then start the first period
 	bsr.w	restoreteams
 	jsr	(InitScores).l
 	jsr	setupice
-	jmp	(_sp).l			;on to period start
+	jmp	(IntermissionStart).l			;on to period start
 
 ClearShotData	;clear 49 words at $FFCB0A
 	moveq	#$30,d0
-	movea.w	#$CB0A,a0		;retail v1.1 shot buffer (Rev A outputbuffer: $CB0E)
+	movea.w	#(outputbuffer-M68K_RAM),a0		;retail v1.1 shot buffer (Rev A outputbuffer: $CB0E)
 .0	clr.w	(a0)+
 	dbf	d0,.0
 	rts
@@ -171,7 +171,7 @@ periodicevents	;called every time thru game loop with d7 = elapsed frames
 CheckInjury	;called once per second. Count down InjCntDown, act on it at zero
 	subq.w	#1,(InjCntDown).w
 	bne.w	rtss2
-	jmp	(loc_14D36).l		;countdown expired
+	jmp	(ShowInjuryBox).l		;countdown expired
 
 UpdateLineChange	;called once per second. Restore energy for players on the bench
 	tst.w	(OptLine).w
@@ -288,8 +288,8 @@ clockcont_0	;end of period. Also entered from puckfaceoff+2E
 	btst	#0,$E(a0)		;gsftf, gsflags(a0)
 	beq.w	.nf
 	eori.w	#2,d3			;gspobwins-gspotwins
-.nf	move.w	(tmstructtmscore).w,d1
-	sub.w	(tmstructtmscoretmsize).w,d1
+.nf	move.w	(hmtmstruct+tmscore).w,d1
+	sub.w	(awtmstruct+tmscore).w,d1
 	bpl.w	.ns1
 	eori.w	#2,d3			;gspobwins-gspotwins
 .ns1	cmpi.w	#3,4(a0,d3.w)		;gspotwins(a0,d3)
@@ -302,8 +302,8 @@ clockcont_0	;end of period. Also entered from puckfaceoff+2E
 	dbf	d2,.t0
 	movea.w	#(SortCords-M68K_RAM),a3
 .t3	moveq	#5,d2			;winning team's skaters celebrate
-	move.w	(tmstructtmscore).w,d1
-	sub.w	(tmstructtmscoretmsize).w,d1
+	move.w	(hmtmstruct+tmscore).w,d1
+	sub.w	(awtmstruct+tmscore).w,d1
 	beq.w	.chkot			;tied
 	bpl.w	.t2			;home team leads
 	adda.w	#6*SCstruct,a3		;away team leads
@@ -346,7 +346,7 @@ HandleJoy1	;any button on the pad just read (d1) ends the demo
 	;falls in from demoread for pad 2
 	tst.w	d1
 	beq.w	rtss2			;nothing pressed
-	jmp	(loc_12A16).l		;exit demo
+	jmp	(ExitToOpening).l		;exit demo
 
 startpause1	;pause intiated by cont 1
 	bclr	#sfpj,(sflags).w

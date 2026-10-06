@@ -54,29 +54,25 @@ rtss = $110E0			; hockey93_05
 vb2 = $1187E			; video93_1
 SetSframe = $11B8E		; video93_1
 clearTeamStats = $128CC		; hockey93_06
-DisplayTeamBlock = $13F1C	; hockey93_08
+dotb = $13F1C	; hockey93_08
 ScoutingReportText = $2CEC8	; data
 p_turnoff = $165D8		; sound driver (jsr abs.l, Rev A $165F0)
 p_music_vblank = $166D4		; sound driver (jsr abs.l)
-Titlemap = $2F0B0		; graphics data (movea.l operand, Rev A $2F0DE)
-Titlemap2 = $322CE		; graphics data (movea.l operand, Rev A $322FC)
-Titlemap2Plus8 = $322D6	; graphics data
-Title3map = $31F10		; graphics data
-Title3mapPlus8 = $31F18	; graphics data
+Title1Map = $2F0B0		; graphics data (movea.l operand, Rev A $2F0DE)
+TitleLogoSprites = $322CE		; graphics data (movea.l operand, Rev A $322FC)
+Title3Sprites = $31F10		; graphics data
 Ronbarrmap = $7C946		; graphics data
 StanleyMap = $7D304		; graphics data
-StanleyMapPlus8 = $7D30C	; graphics data
 EASNmap2 = $7F4F6		; graphics data
-EASNmap2Plus8 = $7F4FE	; graphics data
-smallfontmapPlus8 = $795BC	; graphics data
+SmallFontMap = $795B4	; graphics data
+ScoutMap = $32860		; graphics93
+Montreal = $23CA		; TeamData93
+Title2Map = $31288		; graphics93
 ; .region code
 	org	$12E26
 
 ; includes for stubs to replace removed code
-    include "stubinc/ports.inc"
-    include "stubinc/equals.inc"
-    include "stubinc/ram_addrs.inc"
-    include "stubinc/struct93.inc"
+    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
 
 ; Main segment code
 	include	hockey93_07.asm

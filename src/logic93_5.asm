@@ -162,8 +162,8 @@ a2touchpuck	;player a2 touches puck. Look for penalties/offsides/other junk. Cal
 	bset	#1,(iflags).w		;ifdir
 	neg.w	d0
 .0	bmi.w	rtss			;IDA: loc_CC20
-	move.w	(tmstructtmap).w,d0
-	sub.w	(tmstructtmaptmsize).w,d0
+	move.w	(hmtmstruct+tmap).w,d0
+	sub.w	(awtmstruct+tmap).w,d0
 	btst	#pfteam,pflags(a2)
 	beq.w	.1
 	neg.w	d0

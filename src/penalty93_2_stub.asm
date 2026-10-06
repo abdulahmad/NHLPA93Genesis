@@ -63,19 +63,21 @@ ConverByteToDigits = $14FEA	; hockey93_10
 PerLabels = $154A4		; hockey93_11
 priolist = $15536		; hockey93_11 (Rev A $1554E)
 p_turnoff = $165D8		; sound driver, no segment
-ZamSpritesPlus8 = $781EC	; graphics data, no segment
-RefsMapPlus8 = $3890E		; graphics data, no segment (Rev A unk_3893C)
-unk_7A2B0 = $7A282		; graphics data, no segment (Rev A $7A2B0)
+ZamSprites = $781E4	; graphics data, no segment
+RefsMap = $38906		; graphics data, no segment (Rev A unk_3893C)
+EnergyBarMap = $7A282		; graphics data, no segment (Rev A $7A2B0)
 EASNmap = $7C7AA		; graphics data, no segment
 
+StartGameText = $15B6A		; hockey93_11
+StartGameTextPO = $15BEE		; hockey93_11
+IntermissionText = $15C8A		; hockey93_11
+ExitGameText = $15D86		; hockey93_11
+ExitGameTextPO = $15E52		; hockey93_11
 ; .region code
 	org	$EFA8
 
 ; includes for stubs to replace removed code
-    include "stubinc/ports.inc"
-    include "stubinc/equals.inc"
-    include "stubinc/ram_addrs.inc"
-    include "stubinc/struct93.inc"
+    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
 
 ; Main segment code
 	include	penalty93_2.asm

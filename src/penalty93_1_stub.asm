@@ -37,7 +37,7 @@ PushTime = $E29C		; middle93_2 (Rev A sub_E2B4)
 appendz = $E390			; middle93_2
 appstring = $E398		; middle93_2
 printscores1 = $EFA8		; penalty93_2
-DrawEASNLogo = $F0CA		; penalty93_2 (Rev A $F0E2)
+EASNLogo = $F0CA		; penalty93_2 (Rev A $F0E2)
 USBoard = $F100			; penalty93_2 (Rev A $F118)
 NewTicker = $F5BA		; penalty93_2 (Rev A $F5D2)
 NewTicker3 = $F5F4		; penalty93_2 (Rev A $F60C)
@@ -54,16 +54,12 @@ priolist = $15536		; hockey93_11 (Rev A $1554E)
 IceRinkMap = $33864		; graphics data, no segment
 RefsMap = $38906		; graphics data, no segment (Rev A $38934)
 RefMap2 = $39462		; graphics data, no segment (Rev A $39490)
-RefMap2Plus8 = $3946A		; graphics data, no segment (Rev A $39498)
 
 ; .region code
 	org	$E526
 
 ; includes for stubs to replace removed code
-    include "stubinc/ports.inc"
-    include "stubinc/equals.inc"
-    include "stubinc/ram_addrs.inc"
-    include "stubinc/struct93.inc"
+    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
 
 ; Main segment code
 	include	penalty93_1.asm

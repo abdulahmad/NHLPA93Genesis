@@ -27,10 +27,7 @@ Readjoy1 = $D9B6		; middle93_1 (jsr abs.l at $165CA; IDA readjoy1)
 	org	$15FE6
 
 ; includes for stubs to replace removed code
-    include "stubinc/ports.inc"
-    include "stubinc/equals.inc"
-    include "stubinc/ram_addrs.inc"
-    include "stubinc/struct93.inc"
+    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
 
 ; Main segment code
 	include	sram93.asm

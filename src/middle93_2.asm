@@ -811,15 +811,15 @@ printbig	;same as print, only use bigfont.map graphics. a1 = string macro, print
 
 AddSmallFont	;transfer smallfont.map tiles to vram. d4 = char to start tiles at, return d4 = end of tiles + 1. 93 goes through DecompressGraphics
 	move.w	d4,(smallfontchars).w
-	movea.l	#smallfontmapPlus8,a2
+	movea.l	#SmallFontMap+8,a2
 	bra.w	DoDMA_clearCallbackPointer
 
 AddFramer	;transfer framer.map tiles to vram. d4 = char to start tiles at, return d4 = end of tiles + 1. 93 goes through DecompressGraphics
-	movea.l	#FramermapPlus8,a2
+	movea.l	#FramerMap+8,a2
 	move.w	d4,(Framercset).w
 	bra.w	DoDMA_clearCallbackPointer
 
 AddTeamBlock	;transfer TeamBlocks.map tiles to vram at char 2. Return d4 = end of tiles + 1. 93 goes through DecompressGraphics
 	moveq	#2,d4
-	movea.l	#TeamBlocksmapPlus8,a2
+	movea.l	#Teamblocksmap+8,a2
 	bra.w	DoDMA_clearCallbackPointer

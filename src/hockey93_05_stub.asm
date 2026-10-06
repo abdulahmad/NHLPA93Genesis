@@ -46,10 +46,7 @@ sublist = $154CC		; hockey93_11 (Rev A $154E4, movea.l operand)
 	org	$10E66
 
 ; includes for stubs to replace removed code
-    include "stubinc/ports.inc"
-    include "stubinc/equals.inc"
-    include "stubinc/ram_addrs.inc"
-    include "stubinc/struct93.inc"
+    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
 
 ; Main segment code
 	include	hockey93_05.asm

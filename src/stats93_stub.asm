@@ -50,7 +50,7 @@ appstring = $E398
 printbigz = $E3DC
 AddSmallFont = $E4FE
 AddFramer = $E50C
-loc_F0F6 = $F0DE		; IDA name; retail target is $F0DE
+DrawEASNMap = $F0DE		; IDA name; retail target is $F0DE
 PrintStringFromList = $F744
 AdvanceStringPtr = $F74C
 rtss = $110E0
@@ -72,20 +72,17 @@ GAttribColumns = $15820
 AttributeScreenText = $15F1E
 ExitAttribText = $15F8E
 BitsToPW = $164AC
-unk_3288E = $32860		; IDA Rev A address, graphics (bitmap header) used by SetupScreen/DrawTeamScreen
-FramermapPlus8 = $33390
-IceRinkMapPlus8 = $3386C
-smallfontmapPlus8 = $795BC
-unk_7CF4C = $7CF1E		; IDA name; retail address $7CF1E (graphics used by ShowScores)
+ScoutMap = $32860		; IDA Rev A address, graphics (bitmap header) used by SetupScreen/DrawTeamScreen
+FramerMap = $33388
+IceRinkMap = $33864
+SmallFontMap = $795B4
+ScoresMap = $7CF1E		; IDA name; retail address $7CF1E (graphics used by ShowScores)
 
 ; .region code
 	org	$6C0A
 
 ; includes for stubs to replace removed code
-    include "stubinc/ports.inc"
-    include "stubinc/equals.inc"
-    include "stubinc/ram_addrs.inc"
-    include "stubinc/struct93.inc"
+    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
 
 ; Main segment code
 	include	stats93.Asm

@@ -7,9 +7,8 @@
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The source has the real
 ;	cmp; fixopcodes.js patches the encoding after assembly.
 ;	93 keeps the password bits in a 5 word buffer at a3 (92 passbits, 8 words) and drops the 92
-;	checksum. RAM from $CB00 up is 4 bytes lower in retail than in ram_addrs.inc (Rev A), so the
-;	buffer addresses are written as retail numbers: $CB00 (Rev A pwddatabuffer $CB04),
-;	$CB6E (Rev A unk_FFCB72), $CB0A (Rev A outputbuffer $CB0E).
+;	checksum. The buffers are pwddatabuffer, tpassbits (92 name; IDA unk_FFCB72) and outputbuffer at their
+;	retail addresses in ram93.asm, 4 bytes lower than in the Rev A listing (Rev A address in the comment).
 ;	gsflags bits (92 names, same values): 0 gsftf teams flipped, 1 gsfhl hilite, 2 gsfso series over.
 ;	playoffroundoffset is the 92 pojoy word (playoff joystick set-up), playofflevel the 92 OptNOP slot.
 
@@ -28,7 +27,7 @@ NewPO	;93 continue playoffs: read the playoff state back from the password bits,
 	;Called from setoptions when play mode becomes "continue playoffs" (hockey93_08).
 	;92 does the same in GameOver (DecodePW + MakeTree). Not 92 NewPO (that is SelectRandomPlayoffTree).
 	movem.l	d0-d7/a0-a3,-(sp)
-	movea.w	#$CB00,a3		;password bits (retail; Rev A pwddatabuffer $CB04)
+	movea.w	#(pwddatabuffer-M68K_RAM),a3		;password bits (Rev A pwddatabuffer $CB04)
 	bsr.w	ReadPassBits
 	move.w	(gamelevel).w,d0
 	or.w	(bosgames).w,d0
@@ -47,7 +46,7 @@ SelectRandomPlayoffTree	;IDA name; body is 92 NewPO: new playoff generates tree 
 .top	addq.w	#1,d0			;IDA: loc_14478
 	andi.w	#$1F,d0
 	asl.w	#4,d0			;16 teams per tree
-	movea.l	#$491A,a0		;92 playoffseats (TeamData93)
+	movea.l	#playoffseats,a0	;TeamData93
 	adda.w	d0,a0
 	lsr.w	#4,d0
 	moveq	#$F,d1
@@ -80,7 +79,7 @@ maketree	;make playoff tree (potree) from playoffseats/winbits. 92 MakeTree.
 	move.w	(postarts).w,d1
 	asl.w	#4,d1
 	movea.w	#(potree-M68K_RAM),a0
-	movea.l	#$491A,a1		;92 playoffseats
+	movea.l	#playoffseats,a1
 	adda.w	d1,a1
 	move.l	(a1),(a0)		;first round: 16 teams from the tree
 	move.l	4(a1),4(a0)
@@ -232,7 +231,7 @@ ReadPassBits	;translate the password bits at a3 (5 words) to the playoff variabl
 .save	move.w	-(a0),-(sp)		;IDA: loc_146CE. SuperDiv destroys the bits
 	dbf	d0,.save
 	moveq	#7,d2			;set gspobwins/gspotwins
-	movea.w	#(gstructPlus7Timesgssize-M68K_RAM),a1
+	movea.w	#(gstruct+(7*gssize)-M68K_RAM),a1
 .0	bclr	#2,gsflags(a1)		;IDA: _0. series over (92 gsfso)
 	moveq	#5,d0
 	bsr.w	SuperDiv
@@ -289,16 +288,16 @@ EncodePW	;after playoff game compute winners and password if needed. Called from
 	beq.w	.userwon		;finished playoffs
 	tst.w	(gamenum).w
 	bmi.w	.userwon		;93: po team out, same as a win (92 .userfailed / pojoy switch)
-	movea.w	#$CB00,a3		;password bits (retail; Rev A pwddatabuffer $CB04)
+	movea.w	#(pwddatabuffer-M68K_RAM),a3		;password bits (Rev A pwddatabuffer $CB04)
 	bsr.w	WritePassBits
 	bsr.w	BitsToPW
 	btst	#sf3alttree,(sflags3).w
 	beq.w	rtss			;(92 retail; Rev A beq MakeTree)
-	movea.w	#$CB6E,a3		;bits before all games resolved (retail; Rev A unk_FFCB72, 92 tpassbits)
+	movea.w	#(tpassbits-M68K_RAM),a3		;bits before all games resolved (retail; Rev A unk_FFCB72, 92 tpassbits)
 	bsr.w	ReadPassBits
 	bra.w	maketree
 
-.userwon	movea.w	#$CB00,a3	;IDA: _userwon. password bits (retail; Rev A $CB04)
+.userwon	movea.w	#(pwddatabuffer-M68K_RAM),a3	;IDA: _userwon. password bits (Rev A $CB04)
 	bsr.w	ClrPassBits		;(92 ResetPassWord)
 	bsr.w	BitsToPW
 	move.w	#2,(OptPlayMode).w	;new playoffs
@@ -450,7 +449,7 @@ DisplayTeamStatsForPlayoffs	;93 only, IDA name. Adds the po team's game stats to
 	dbf	d0,.acc
 	movea.w	#(statsbuffer-M68K_RAM),a0
 	movea.l	#BitWidthTable,a1
-	movea.w	#$CB0A,a2		;bit stream base (retail; Rev A outputbuffer $CB0E)
+	movea.w	#(outputbuffer-M68K_RAM),a2		;bit stream base (Rev A outputbuffer $CB0E)
 	moveq	#$67,d0
 	clr.w	d4			;d4 = bit position
 .loop	clr.l	d1			;IDA: loop
@@ -487,7 +486,7 @@ ReadTeamStats	;93 only, IDA name. Unpack the $68 playoff stat totals from the bi
 	;into statsbuffer words. Called from DisplayTeamStatsForPlayoffs and DisplayTeamStats (stats93).
 	movea.w	#(statsbuffer-M68K_RAM),a0
 	movea.l	#BitWidthTable,a1
-	movea.w	#$CB0A,a2		;bit stream base (retail; Rev A outputbuffer $CB0E)
+	movea.w	#(outputbuffer-M68K_RAM),a2		;bit stream base (Rev A outputbuffer $CB0E)
 	moveq	#$67,d0			;$68 stats
 	clr.w	d4			;d4 = bit position
 .loop	move.w	d4,d5			;IDA: unpack_stats_from_bitstream

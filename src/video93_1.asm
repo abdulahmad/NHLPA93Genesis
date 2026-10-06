@@ -33,7 +33,7 @@ VBlank	;IDA: VBlank_org. main vblank code for game play (vbint target, set by se
 	bne.w	.c
 	tst.w	(gameclock).w
 	beq.w	.c
-	subi.w	#$AAA,(gameclockPlus2).w	;jiffy ($10000/24)
+	subi.w	#$AAA,(gameclock+2).w	;jiffy ($10000/24)
 	bcc.w	.c
 	bset	#dfclock,(disflags).w
 	subq.w	#1,(gameclock).w
@@ -290,8 +290,8 @@ showzam	;zamboni. Called from setvideo.
 	addq.w	#2,d2			;frame 2 + (x/2 mod 3)
 	bsr.w	SetSframe
 	moveq	#5,d2
-	move.w	(tmstructtmscore).w,d4	;home score
-	cmp.w	(tmstructtmscoretmsize).w,d4	;away score
+	move.w	(hmtmstruct+tmscore).w,d4	;home score
+	cmp.w	(awtmstruct+tmscore).w,d4	;away score
 	bls.w	SetSframe		;home not ahead: frame 5
 	move.w	d0,d2
 	subi.w	#$DA,d2

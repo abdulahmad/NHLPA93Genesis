@@ -630,8 +630,8 @@ setplayer	;bring player onto the ice and set his stats
 	lsr.w	#1,d0
 	cmp.w	(gameclock).w,d0
 	bgt.w	.nomod			;under half of the 3rd period left (clock counts down)
-.score	move.w	(tmstructtmscore).w,d0	;IDA: loc_116A4. home score
-	sub.w	(tmstructtmscoretmsize).w,d0	;- visitor score
+.score	move.w	(hmtmstruct+tmscore).w,d0	;IDA: loc_116A4. home score
+	sub.w	(awtmstruct+tmscore).w,d0	;- visitor score
 	beq.w	.close			;tied
 	btst	#pfteam,pflags(a3)
 	beq.w	.side

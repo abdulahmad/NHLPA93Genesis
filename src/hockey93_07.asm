@@ -32,14 +32,14 @@ ScoutingReport	;93 pregame scouting report (92 drew ScoutMap and position check 
 	bsr.w	AddTeamBlock
 	bsr.w	AddSmallFont
 	move.w	d4,(word_FFB014).w	;1st vram char of the 2nd small font set
-	movea.l	#smallfontmapPlus8,a2
+	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$0A234567,$89ABCDEF	;remap table (retail; IDA eori.b / or.l)
 	bsr.w	AddFramer
 
 	bsr.w	printz
 	String	$FE,0,0			;(92 -$02,0,0)
-	movea.l	#$32860,a0		;bitmap map data (retail; Rev A $3288E, same as PlayoffScreen)
+	movea.l	#ScoutMap,a0		;bitmap map data (Rev A $3288E, same as PlayoffScreen)
 	movea.l	a0,a1
 	movea.l	a0,a2
 	adda.l	(a2)+,a0
@@ -74,12 +74,12 @@ ScoutingReport	;93 pregame scouting report (92 drew ScoutMap and position check 
 	bsr.w	printz
 	String	$FF,3,$D		;(92 -$01,3,6)
 	move.w	(VisTeam).w,d1
-	bsr.w	DisplayTeamBlock	;92 DoTb
+	bsr.w	dotb	;92 DoTb
 
 	bsr.w	printz
 	String	$FF,$18,$D		;(92 -$01,24,6)
 	move.w	(HomeTeam).w,d1
-	bsr.w	DisplayTeamBlock
+	bsr.w	dotb
 
 	bsr.w	printsmallz
 	String	$F8,0,1,$15,$F,$F9,1	;attribute 0, map 1, x $15, y $F, char set 1
@@ -300,7 +300,7 @@ UpdateScoutingDisplay	;93: called every frame by ScoutingReport. When ScoutingRe
 	bra.w	.name
 .away	movea.l	(AwayTeamRosterPtr).w,a1	;IDA: loc_13252
 	bra.w	.tname
-.under	movea.l	#$23CA,a1		;IDA: loc_1325A. TeamData93 team block
+.under	movea.l	#Montreal,a1		;IDA: loc_1325A. TeamData93 team block
 	cmpi.w	#$18,(word_FFC50E).w
 	bge.w	.tname			;used when word_FFC50E >= $18
 .home	movea.l	(HomeTeamRosterPtr).w,a1	;IDA: loc_1326A
@@ -373,10 +373,10 @@ SetupStanleyCupCelebrationScreen	;93: Stanley Cup screen. Five EASN bitmaps at S
 	bsr.w	dobitmap
 	tst.w	(a4)
 	bpl.s	.top
-	movea.l	#EASNmap2Plus8,a2
+	movea.l	#EASNmap2+8,a2
 	clr.w	d4			;tiles at vram char 0
 	bsr.w	DoDMA_clearCallbackPointer
-	movea.l	#StanleyMapPlus8,a2
+	movea.l	#Stanleymap+8,a2
 	move.w	d4,(word_FFB016).w	;1st vram char of the cup sprites
 	bsr.w	DoDMA_clearCallbackPointer
 	bsr.w	UpdateStanleyCupAnimation
@@ -479,7 +479,7 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 	clr.w	d4
 	bsr.w	printz
 	String	$FE,0,$16
-	movea.l	#Titlemap,a1		;rows $16 down of Titlemap, map only
+	movea.l	#Title1Map,a1		;rows $16 down of Titlemap, map only
 	adda.l	4(a1),a1
 	movea.w	#$310,a2		;a zero word (92 passed #null): no tiles
 	clr.w	d0
@@ -492,7 +492,7 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 
 	bsr.w	printz
 	String	$FD,0,0			;(92 -$02,0,0 Title1Map)
-	movea.l	#Titlemap,a0		;whole Titlemap with palettes (retail; IDA $2F0DE Rev A)
+	movea.l	#Title1Map,a0		;whole Titlemap with palettes (retail; IDA $2F0DE Rev A)
 	movea.l	a0,a1
 	movea.l	a0,a2
 	adda.l	(a2)+,a0
@@ -517,7 +517,7 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 
 	bsr.w	printz
 	String	$FE,0,$A
-	movea.l	#$31288,a1		;bitmap (retail; Rev A $312B6)
+	movea.l	#Title2Map,a1		;bitmap (Rev A $312B6)
 	lea	8(a1),a2
 	adda.l	4(a1),a1
 	clr.w	d0
@@ -527,16 +527,16 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 	moveq	#0,d5			;no palettes
 	bsr.w	dobitmap
 
-	movea.l	#Titlemap2Plus8,a2
+	movea.l	#TitleLogoSprites+8,a2
 	move.w	d4,(word_FFB016).w	;1st vram char of the logo sprites
 	bsr.w	DoDMA_clearCallbackPointer
-	movea.l	#Title3mapPlus8,a2
+	movea.l	#Title3Sprites+8,a2
 	move.w	d4,(gamesetuptilesetindex).w	;1st vram char of the Title3map sprites
 	bsr.w	DoDMA_clearCallbackPointer
 	clr.l	(fofdata2).w		;TitleAnimCallback timers
 	clr.w	(word_FFBDAC).w
 	move.w	d4,(smallfontchars).w
-	movea.l	#smallfontmapPlus8,a2
+	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$08F04567,$89ABCDEF	;remap table (retail; IDA #$67 / or.l)
 
@@ -606,7 +606,7 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 TitleAnimCallback	;IDA: loc_1369C. 93: CallAnimationCallback routine for the title screen (from TitleScreen_wait).
 	;Three Title3map sprites: a running fofdata2 timer shows the sprite and counts down; a stopped one
 	;restarts at 20 when Hscroll + $1EC - TitleData1 entry is within 0-20 (mod $400)
-	movea.l	#Title3map,a0
+	movea.l	#Title3Sprites,a0
 	movea.w	#(fofdata2-M68K_RAM),a1
 	lea	TitleData1(pc),a2
 	moveq	#2,d7
@@ -735,7 +735,7 @@ FinalizeSpriteList	;93: four Titlemap2 logo sprites at word_FFB8AE, word_FFB8B0.
 	subq.w	#2,(clampcounter).w
 	bpl.w	.0
 	clr.w	(clampcounter).w
-.0	movea.l	#Titlemap2,a0		;IDA: loc_138A2
+.0	movea.l	#TitleLogoSprites,a0		;IDA: loc_138A2
 	moveq	#3,d7
 	move.w	(word_FFB016).w,d3
 	ori.w	#$8000,d3		;priority

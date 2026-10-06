@@ -54,18 +54,18 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 
 	clr.w	d4			;vram char 0 (92 started at 2)
 	move.w	d4,(rinkvrcset).w	;1st vram char for rink map tiles
-	movea.l	#IceRinkMapPlus8,a2
+	movea.l	#IceRinkMap+8,a2
 	bsr.w	DoDMA_clearCallbackPointer	;tiles to vram at d4, d4 advanced past them
 
 	move.w	d4,(EASNcset).w		;1st vram char for easn logo tiles
 	bsr.w	setupEASNmap
 
 	move.w	d4,(word_FFB016).w	;93: 1st vram char for the unk_7A2B8 tiles
-	movea.l	#unk_7A2B8,a2
+	movea.l	#EnergyBarMap+8,a2
 	bsr.w	DoDMA_clearCallbackPointer
 
 	move.w	d4,(gamesetuptilesetindex).w	;1st vram char for crowd animation tiles (92 Crowdvrcset)
-	movea.l	#CrowdSpritesPlus8,a2
+	movea.l	#CrowdSprites+8,a2
 	bsr.w	DoDMA_clearCallbackPointer
 
 	move.w	d4,(word_FFB024).w	;sprite char start, reused by setupice_highlight
@@ -74,11 +74,11 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 
 	bsr.w	AddFramer		;93: Framer tiles (92 inline ReMap)
 	move.w	d4,(smallfontchars).w	;1st vram char for smallfont tiles
-	movea.l	#smallfontmapPlus8,a2
+	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$43434567,$89ABCDEF	;remap table (92 .sfmap)
 	move.w	d4,(BigFontChars).w	;1st vram char for Bigfont tiles
-	movea.l	#bigfontmapPlus8,a2
+	movea.l	#BigFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$71234567,$89ABCDEF	;remap table (92 .bfmap)
 
@@ -97,7 +97,7 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 
 	move.w	#$FFFF,(PadControlBits).w	;93: no pad assignments
 	clr.l	(padcont).w
-	clr.l	(padcontPlus4).w
+	clr.l	(padcont+4).w
 	st	(c1playernum).w
 	st	(c2playernum).w
 
@@ -149,7 +149,7 @@ setupice_highlight	;93 only. Rebuild the rink sprites after a highlight replay w
 .gok	bsr.w	setplayercolors		;IDA: loc_12486
 	move.w	#$FFFF,(PadControlBits).w	;no pad assignments
 	clr.l	(padcont).w
-	clr.l	(padcontPlus4).w
+	clr.l	(padcont+4).w
 	st	(c1playernum).w
 	st	(c2playernum).w
 	bsr.w	setupEASNmap		;easn tiles at EASNcset again
@@ -188,7 +188,7 @@ setupIceRinkMap	;copy the ice rink palettes (pal 0&1, 16 longs) to palfadenew. 9
 setupEASNmap	;93 only. Decompress the easn logo tiles to vram at EASNcset. Called from setupice and setupice_highlight.
 	;Return d4 = next free vram char
 	move.w	(EASNcset).w,d4
-	movea.l	#EASNmapPlus8,a2
+	movea.l	#EASNmap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$71234567,$89ABCDEF	;remap table (92 .EASNmap)
 	rts
@@ -479,8 +479,8 @@ PeriodOver	;what to do if period over. Branched to from puckfaceoff (logic93_4) 
 	tst.w	(OptPlayMode).w
 	bne.w	.nop			;playoffs: decided by the score check
 	move.w	#4,(gsp).w		;regular season: game over after overtime
-.nop	move.w	(tmstructtmscore).w,d0	;IDA: _nop. home score
-	sub.w	(tmstructtmscoretmsize).w,d0	;visitor score
+.nop	move.w	(hmtmstruct+tmscore).w,d0	;IDA: _nop. home score
+	sub.w	(awtmstruct+tmscore).w,d0	;visitor score
 	beq.w	.0			;tied: play overtime
 	move.w	#4,(gsp).w		;game over
 .0	bsr.w	forceblack		;IDA: _0
@@ -571,13 +571,13 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	bsr.w	AddTeamBlock		;93: TeamBlocks tiles (92 did not load them here)
 	bsr.w	AddSmallFont		;93: smallfont tiles (92 inline ReMap)
 
-	movea.l	#ArrowsMapPlus8,a2
+	movea.l	#Arrowsmap+8,a2
 	move.w	d4,(ExtraChars).w
 	bsr.w	DoDMA_clearCallbackPointer	;arrow tiles at ExtraChars
 
 	bsr.w	printz
 	String	$CE,0,0			;(92 -$01,60,4 before the StanleyMap bitmap)
-	movea.l	#$32860,a0		;bitmap map data (retail; Rev A $3288E)
+	movea.l	#ScoutMap,a0		;bitmap map data (Rev A $3288E)
 	movea.l	a0,a1
 	movea.l	a0,a2
 	adda.l	(a2)+,a0
@@ -589,7 +589,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	moveq	#3,d5
 	bsr.w	dobitmap
 
-	movea.l	#Titlemap2,a1		;93: Titlemap2 palette to pal 0, tiles at word_FFB016
+	movea.l	#TitleLogoSprites,a1		;93: Titlemap2 palette to pal 0, tiles at word_FFB016
 	lea	8(a1),a2
 	adda.l	(a1),a1
 	moveq	#7,d0
@@ -608,7 +608,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	move.w	#$9202,(a0)		;window V position 2
 
 	movea.w	#(potree-M68K_RAM),a1
-	movea.l	#unk_15556,a0		;tree layout tables by gamelevel (92 .setup, data in hockey93_11)
+	movea.l	#PlayoffTreeSetup,a0		;tree layout tables by gamelevel (92 .setup, data in hockey93_11)
 	move.w	(gamelevel).w,d0
 	asl.w	#1,d0
 	adda.w	(a0,d0.w),a0
@@ -796,14 +796,28 @@ DrawTeamBlocks	;draw team block d1 (team*2) from TeamBlocks.map at printx/printy
 	movem.l	(sp)+,d0-d7/a0-a3
 	rts
 
-PlayoffScreenDataTable	;not data: the PlayoffScreen vblank handler (vbint). IDA left it undecoded, kept as retail words.
+PlayoffScreenDataTable	;IDA name (IDA left it undecoded): the PlayoffScreen vblank handler (vbint).
 	;If dfng is clear and Sattsize is set: clear Sattsize, DoDMA the sprite table (Satt) to VSPRITES, then
-	;Vmaddr(VSCRLPM) and write $FEA0+DispAttribCtr to the hscroll. Then cramfade, vcount+1, p_music_vblank, rte
-	dc.w	$48E7,$FFFE,$0838,$0002,$BE8C,$6600,$0030,$307C
-	dc.w	$BF2A,$3038,$C1FA,$6700,$0020,$4278,$C1FA,$3238
-	dc.w	$B002,$6100,$ACD0,$3038,$B000,$6100,$AEFE,$303C
-	dc.w	$FEA0,$D078,$C9CA,$3080,$6100,$A8FC,$5278,$B03E
-	dc.w	$4EB9,$0001,$66D4,$4CDF,$7FFF,$4E73	;jsr ($166D4).l p_music_vblank (Rev A $166EC)
+	;Vmaddr(VSCRLPM) and write $FEA0+DispAttribCtr to the hscroll, then cramfade. Always vcount+1, p_music_vblank, rte
+	movem.l	d0-d7/a0-a6,-(sp)
+	btst	#dfng,(disflags).w
+	bne.w	.nograph
+	movea.w	#(Satt-M68K_RAM),a0
+	move.w	(Sattsize).w,d0
+	beq.w	.nosat
+	clr.w	(Sattsize).w
+	move.w	(VSPRITES).w,d1
+	bsr.w	DoDMA
+	move.w	(VSCRLPM).w,d0
+	bsr.w	Vmaddr
+	move.w	#$FEA0,d0
+	add.w	(DispAttribCtr).w,d0
+	move.w	d0,(a0)
+.nosat	bsr.w	cramfade
+.nograph	addq.w	#1,(vcount).w
+	jsr	(p_music_vblank).l	;Rev A $166EC
+	movem.l	(sp)+,d0-d7/a0-a6
+	rte
 
 PlayoffScreenText	;round titles by gamelevel, printed with printsmall. Used by PlayoffScreen .noscr
 	String	'Playoffs'

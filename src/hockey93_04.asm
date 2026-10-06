@@ -224,7 +224,7 @@ checkwallcoll	;d2/d3 = x/y to test, a3 = object, wcradiusx/wcradiusy = radius. C
 	neg.w	d4
 	cmp.w	d4,d2
 	bgt.w	.circle
-	movea.w	#(SortCordsSCStructCalc-M68K_RAM),a2	;SortCords+(12*SCstruct), goal at the +y end
+	movea.w	#(SortCords+(12*SCstruct)-M68K_RAM),a2	;SortCords+(12*SCstruct), goal at the +y end
 	bsr.w	checkgoal
 	bra.w	.exit
 .circle	sub.w	d4,d2
@@ -462,8 +462,8 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 .0	move.w	d0,Ypos(a3)		;IDA: loc_10988
 	move.w	#$600,Zvel(a3)
 	clr.w	Zpos(a3)
-	st	(puckcrossPlus2).w	;puckcross+2
-	st	(puckcrossPlus6).w	;puckcross+6
+	st	(puckcross+2).w	;puckcross+2
+	st	(puckcross+6).w	;puckcross+6
 	bset	#pfnc,pflags(a3)
 	move.w	#$1A,d0			;pnothing (92 same)
 	bsr.w	assreplace

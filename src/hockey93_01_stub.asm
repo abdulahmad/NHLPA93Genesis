@@ -20,7 +20,7 @@ RAMStart = $FF0000
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ; External routines outside $6446-$69FF, at their retail addresses.
-; Stack comes from stubinc/ram_addrs.inc ($FFFFFFFE).
+; Stack comes from ram93.asm ($FFFFFFFE).
 setupstanleycupcelebrationscreen = $132BA
 backupram_read = $163A4
 defaultmenus = $14404
@@ -33,7 +33,7 @@ readjoy1 = $D9B6
 clearteamstats = $128CC
 initscores = $F436
 setupice = $122A8
-_sp = $129B4
+IntermissionStart = $129B4
 randomd0 = $D7A6
 assreplace = $D048
 song = $D876
@@ -46,7 +46,7 @@ updatesound = $12224
 rtss2 = $9092
 chkgoalies = $C242
 updatepwrplay = $EE42
-loc_14d36 = $14D1E	; IDA name; retail target is $14D1E
+ShowInjuryBox = $14D1E	; IDA name; retail target is $14D1E
 cd0 = $1510A
 sfx = $D852
 freezewindow = $933C
@@ -54,7 +54,7 @@ assinsert = $D03E
 clearpenaltybuffer = $EC70
 addpenalty2 = $E552
 readjoy2 = $D9D4
-loc_12a16 = $129FE	; IDA name; retail target is $129FE
+ExitToOpening = $129FE	; IDA name; retail target is $129FE
 forceblack = $D67C
 pausetext = $1592A
 pausetext2 = $15A56
@@ -74,10 +74,7 @@ menuwaitvblank = $6BF4	; menu93
 	org	$6446
 
 ; includes for stubs to replace removed code
-    include "stubinc/ports.inc"
-    include "stubinc/equals.inc"
-    include "stubinc/ram_addrs.inc"
-    include "stubinc/struct93.inc"
+    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
 
 ; Main segment code
 	include	hockey93_01.Asm		;EA provided code for startup and EA logo

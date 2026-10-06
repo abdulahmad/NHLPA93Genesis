@@ -76,17 +76,14 @@ resetplstuff = $1287A		; hockey93_06
 PeriodOver = $12972		; hockey93_06 (Rev A loc_1298A)
 linelist = $15466		; hockey93_11 (Rev A FaceOffsprites)
 FaceOffMap = $33400		; graphics data (Rev A unk_3342E)
-RefsMapPlus8 = $3890E		; graphics data (Rev A unk_3893C)
-FaceOffSpritesPlus8 = $77178	; graphics data (Rev A unk_771A6)
+RefsMap = $38906		; graphics data (Rev A unk_3893C)
+FaceOffSprites = $77170	; graphics data (Rev A unk_771A6)
 
 ; .region code
 	org	$BC6C
 
 ; includes for stubs to replace removed code
-    include "stubinc/ports.inc"
-    include "stubinc/equals.inc"
-    include "stubinc/ram_addrs.inc"
-    include "stubinc/struct93.inc"
+    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
 
 ; Main segment code
 	include	logic93_4.asm

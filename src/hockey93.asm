@@ -1,6 +1,8 @@
 ;	ROM map: retail nhlpa93retail.bin addresses (inclusive) for every include.
 ;	Boundaries are routine starts checked against the ROM bytes. 92 = the NHL 92
 ;	file/part the code comes from. See SEGMENT_AGENT.md "ROM map".
+;	Top level of the full ROM build (build93.bat, npm run build:retail), like 92 hockey.asm. Ram93.Asm holds
+;	the ports, RAM map and structure equates; each *_stub.asm includes it for a single segment build.
 
 	include	Main93.Asm		;EA provided code for startup and EA logo
 					;$000000-$00030F  vectors, header, SegaInit, Start
@@ -51,4 +53,4 @@
 	include sound93.asm		;$0165D8-$02EFA1  sound driver (68k code, Z80 blob at $016E53, sound data)
 	include graphics93.asm	;$02EFA2-$07FB75  graphics data (92 incbins after hockey.asm part 3)
 	include checksum93.asm		;$07FB76-$07FBC7  SecurityCheck, ValidationRoutine
-					;$07FBC8-$07FFFF  $FF fill
+	dcb.b	$80000-*,$FF		;$07FBC8-$07FFFF  $FF fill (92 dcb.b after include checksum.asm)

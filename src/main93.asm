@@ -19,7 +19,6 @@ RAMStart = $FF0000
 ;
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-InitialSP = $FFFFF6	;retail reset vector 0. The game's Stack ($FFFFFFFE) is in stubinc/ram_addrs.inc
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;
@@ -31,7 +30,7 @@ InitialSP = $FFFFF6	;retail reset vector 0. The game's Stack ($FFFFFFFE) is in s
 	org	0
 	dc.l	InitialSP	; 0 initial stack pointer
 	dc.l	Start		; 4 initial program counter
-	dc.l	BusError
+	dc.l	AddError	; 2 bus error: 93 has no BusError, bus and address error share AddError
 	dc.l	AddError
 	dc.l	Illinst
 	dc.l	Zerodiv
@@ -40,14 +39,14 @@ InitialSP = $FFFFF6	;retail reset vector 0. The game's Stack ($FFFFFFFE) is in s
 	dcb.b   72,$00      ; $5E - $18 = 70 bytes
 	
 	org	$60
-	dc.l	Spurious	; level 0-3 interrupts are not implemented.
-	dc.l	Spurious	; level 0-3 interrupts are not implemented.
-	dc.l	Spurious	; level 0-3 interrupts are not implemented.
-	dc.l	Spurious	; level 0-3 interrupts are not implemented.
-	dc.l	HBlank		; level 4: horizontal retrace.
+	dc.l	IRQ7		; level 0-3 interrupts are not implemented.
+	dc.l	IRQ7		; level 0-3 interrupts are not implemented.
+	dc.l	IRQ7		; level 0-3 interrupts are not implemented.
+	dc.l	IRQ7		; level 0-3 interrupts are not implemented.
+	dc.l	IRQ7		; level 4: horizontal retrace (not used: IRQ7 is an rte).
 	dc.l	0			; level 5: not used.
 	dc.l	VBjsr		; level 6: vertical retrace.
-	dc.l	Spurious	;
+	dc.l	IRQ7		; level 7 (video93_1 IRQ7, an rte)
 
 	org     $90
 	dcb.b   112,$00      ; $5E - $18 = 70 bytes

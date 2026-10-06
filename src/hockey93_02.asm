@@ -210,7 +210,7 @@ suba4	;IDA: suba4_reverseReplayFrame. a4 = address in replay buffer of current
 	bne.w	.1
 	btst	#sfwrap,(sflags).w
 	beq.w	.end
-	movea.l	#$FFFFAF54,a4		;replayend
+	movea.l	#replayend,a4
 .1	suba.w	#$62,a4			;replaysize
 	cmpa.l	(ReplayBufferPtr).w,a4
 	bne.w	RestoreReplayFrame
@@ -237,7 +237,7 @@ adda42	;adda4 without the sf2drec look-ahead. Stop at the record point,
 	bsr.w	RestoreReplayFrame
 adda43	;a4 += replaysize, wrapping from replayend to replaystart
 	adda.w	#$62,a4			;replaysize
-	cmpa.l	#$FFFFAF54,a4		;replayend
+	cmpa.l	#replayend,a4
 	bne.w	rtss2
 	movea.l	#M68K_RAM,a4		;replaystart
 	rts
@@ -330,7 +330,7 @@ RestoreReplayFrame	;a4 = current replay frame address to convert into normal
 	move.w	d0,(puckz).w		;puck z cord
 	move.b	(a0)+,d0
 	ext.w	d0
-	move.w	d0,(puckzSCstructShadow).w	;puck shadow zcord
+	move.w	d0,(SortCords+(15*SCstruct)+Zpos).w	;puck shadow zcord
 	move.b	(a0)+,d0
 	ext.w	d0
 	move.w	d0,(lastsfx).w		;sound effect cue
@@ -367,7 +367,7 @@ updatereplay	;called every frame to save replay events, d7 = elapsed frames
 	btst	#sf2drec,(sflags2).w
 	bne.w	.rec			;record off: keep overwriting this frame
 	addi.l	#$62,(ReplayBufferPtr).w	;replaysize
-	cmpi.l	#$FFFFAF54,(ReplayBufferPtr).w	;replayend
+	cmpi.l	#replayend,(ReplayBufferPtr).w	;replayend
 	bne.w	.rec
 	bset	#sfwrap,(sflags).w
 	move.l	#M68K_RAM,(ReplayBufferPtr).w	;replaystart
@@ -416,7 +416,7 @@ updatereplay	;called every frame to save replay events, d7 = elapsed frames
 	adda.w	#SCstruct,a3
 	dbf	d2,.pl
 	move.b	(puckz+1).w,(a0)+
-	move.b	(puckZSCStruct).w,(a0)+	;puckz+SCstruct+1
+	move.b	(SortCords+(15*SCstruct)+Zpos+1).w,(a0)+	;puckz+SCstruct+1
 	move.b	(lastsfx+1).w,(a0)+	;sound effect cue
 	bset	#7,(lastsfx+1).w
 	move.b	d7,(a0)+		;save elapsed frames

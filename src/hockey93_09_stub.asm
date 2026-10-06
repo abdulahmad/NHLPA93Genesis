@@ -26,14 +26,12 @@ randomd0 = $D7A6		; middle93_1
 rtss = $110E0			; hockey93_05
 ResolveGames = $1499E		; hockey93_10 (Rev A $149B6)
 BitsToPW = $164AC		; sram93 (Rev A $164C4)
+playoffseats = $491A		; TeamData93
 ; .region code
 	org	$14404
 
 ; includes for stubs to replace removed code
-    include "stubinc/ports.inc"
-    include "stubinc/equals.inc"
-    include "stubinc/ram_addrs.inc"
-    include "stubinc/struct93.inc"
+    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
 
 ; Main segment code
 	include	hockey93_09.asm

@@ -80,7 +80,7 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 	;93 returns in sfhor mode (92 drew the scoreboard sso objects there); falls into .ca for player 2
 	btst	#sfhor,(sflags).w
 	bne.w	rtss
-	movea.w	#(padsPlusFfosize-M68K_RAM),a0	;92 pads+ffosize
+	movea.w	#(pads+ffosize-M68K_RAM),a0	;92 pads+ffosize
 	movea.w	#(sso-M68K_RAM),a3
 	move.w	#$180,d3		;SPFarrow (92 $17A; 93 frames are 6 higher)
 	bsr.w	.ca
@@ -298,7 +298,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	eor.w	d4,attribute(a3)		;flip them into attribute for this draw
 	move.w	frame(a3),d4
 	andi.w	#$7FF,d4
-	movea.l	#SpritesMap,a2
+	movea.l	#Sprites,a2
 	adda.l	4(a2),a2		;frame offset table
 	asl.w	#1,d4
 	cmp.w	2(a2),d4		;first offset = table size

@@ -91,7 +91,7 @@ chkprogress	;control progress of ref and game control thru penalty events. When 
 	move.w	(sp)+,(vcount).w
 	bsr.w	SetHor
 	move.w	(ExtraChars).w,d4	;93: load horizontal ref tiles
-	movea.l	#RefMap2Plus8,a2
+	movea.l	#RefMap2+8,a2
 	bsr.w	DoDMA_clearCallbackPointer
 	bsr.w	NewTicker
 	bsr.w	NewTicker3
@@ -746,7 +746,7 @@ updatepwrplay	;show graphic and time remaining for power plays. 93: plays song $
 
 .clrpwrplay	bclr	#sf2pwrplay,(sflags2).w		;IDA: updatepwrplay_clr
 	beq.w	rtss
-	bra.w	DrawEASNLogo
+	bra.w	EASNLogo
 
 ClrHor	;revert the graphics back to vertical ice rink mode. 93 does not remap the fonts
 	movem.l	d0-d7/a0-a6,-(sp)

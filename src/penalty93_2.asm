@@ -189,7 +189,7 @@ linebar	;draw the energy bar of line d0 for team a2 at printx/printy (bitmap fro
 .ok	moveq	#$F,d1			;IDA: dobar. 92 dobar is a separate routine; here it is a branch target
 	sub.w	d0,d1			;d1 = bar frame (15 = empty)
 	clr.w	d0
-	movea.l	#unk_7A2B0,a1
+	movea.l	#EnergyBarMap,a1
 	adda.l	4(a1),a1
 	movea.w	#$310,a2
 	move.w	(a1),d2
@@ -313,7 +313,7 @@ Intermission	;end of period junk (zamboni/stats). 93 opens the pause menu screen
 	adda.w	#SCstruct,a0
 	dbf	d0,.0
 	move.w	(ExtraChars).w,d4
-	movea.l	#ZamSpritesPlus8,a2
+	movea.l	#ZamSprites+8,a2
 	bsr.w	DoDMA_clearCallbackPointer
 	move.w	#$140,(zamx).w		;320
 	move.w	(gsp).w,d0
@@ -357,8 +357,8 @@ Intermission	;end of period junk (zamboni/stats). 93 opens the pause menu screen
 	rts
 
 .sslist	;IDA: _sslist. Menu item lists in hockey93_11 (Rev A + $18), by period then playoff period
-	dc.l	$15B6A,$15C8A,$15C8A,$15C8A,$15D86
-	dc.l	$15BEE,$15C8A,$15C8A,$15C8A,$15E52
+	dc.l	StartGameText,IntermissionText,IntermissionText,IntermissionText,ExitGameText
+	dc.l	StartGameTextPO,IntermissionText,IntermissionText,IntermissionText,ExitGameTextPO
 
 InitScores	;initialize other games scores/period in playoffs (93 has no OptPlayMode check). Called from StartGame
 	cmpi.w	#1,(gamelevel).w
@@ -630,8 +630,8 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	movea.l	(sp),a0
 	move.w	8(a0),(gsp).w		;gsper
 	subq.w	#1,(gsp).w
-	move.w	$A(a0),(tmstructtmscore).w	;gss1
-	move.w	$C(a0),(tmstructtmscoretmsize).w	;gss2
+	move.w	$A(a0),(hmtmstruct+tmscore).w	;gss1
+	move.w	$C(a0),(awtmstruct+tmscore).w	;gss2
 	move.b	#$10,(gmode).w		;1<<gmhl
 	btst	#0,(gsp+1).w
 	beq.w	.ndi
@@ -644,8 +644,8 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	clr.w	(glovecords).w
 	clr.b	(iflags).w
 	st	(RefCnt).w
-	st	(puckcrossPlus2).w
-	st	(puckcrossPlus6).w
+	st	(puckcross+2).w
+	st	(puckcross+6).w
 	jsr	p_turnoff
 	bsr.w	setupice_highlight
 	bsr.w	ClrHor
@@ -653,7 +653,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	move.w	#$9100,4(a0)		;window H position 0
 	move.w	#$9200,4(a0)		;window V position 0
 	move.w	(ExtraChars).w,d4	;ref cam chars
-	movea.l	#RefsMapPlus8,a2
+	movea.l	#RefsMap+8,a2
 	bsr.w	DoDMA_clearCallbackPointer
 	clr.w	(Vpos).w
 	clr.w	(Hpos).w
@@ -691,22 +691,22 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	bne.w	.eh
 	btst	#7,d1			;sbut
 	beq.s	.0
-.eh	move.w	(tmstructtmscore).w,d0	;IDA: loc_F96A. tied: random winner
-	cmp.w	(tmstructtmscoretmsize).w,d0
+.eh	move.w	(hmtmstruct+tmscore).w,d0	;IDA: loc_F96A. tied: random winner
+	cmp.w	(awtmstruct+tmscore).w,d0
 	bne.w	.endhl
 	move.w	(VDP_CNTR).l,d0		;hvcount
 	andi.w	#1,d0
-	add.w	d0,(tmstructtmscore).w
+	add.w	d0,(hmtmstruct+tmscore).w
 	eori.w	#1,d0
-	add.w	d0,(tmstructtmscoretmsize).w
+	add.w	d0,(awtmstruct+tmscore).w
 .endhl	addq.w	#2,sp			;IDA: loc_F98C
 	movea.l	(sp)+,a0
 	movem.l	d1/a0,-(sp)
 	jsr	KillCrowd
 	jsr	p_turnoff
 	movem.l	(sp)+,d1/a0
-	move.w	(tmstructtmscore).w,$A(a0)	;gss1
-	move.w	(tmstructtmscoretmsize).w,$C(a0)	;gss2
+	move.w	(hmtmstruct+tmscore).w,$A(a0)	;gss1
+	move.w	(awtmstruct+tmscore).w,$C(a0)	;gss2
 	bsr.w	forceblack
 	moveq	#$F,d0
 	movea.w	#(SortCords-M68K_RAM),a0

@@ -342,7 +342,7 @@ ProcessInputWithRepeat	;93: nodiag, then key repeat on d1-d3 from Readjoy1/2. A 
 
 Readjoy1	;read controller 1. Return d0 = direction (bit 0-3) and new button (bit 4-7) presses, d1 = new presses (all 8 bits), d2 = changed buttons (all 8), d3 = current held buttons (all 8)
 	move.l	a0,-(sp)
-	movea.l	#$A10003,a0		;Joy1
+	movea.l	#Joy1,a0
 	bsr.w	ReadJoy
 	movea.l	(sp)+,a0
 	move.w	(lj1).w,d2
@@ -354,7 +354,7 @@ Readjoy1	;read controller 1. Return d0 = direction (bit 0-3) and new button (bit
 
 Readjoy2	;read controller 2. Return d0 = direction (bit 0-3) and new button (bit 4-7) presses, d1 = new presses (all 8 bits), d2 = changed buttons (all 8), d3 = current held buttons (all 8)
 	move.l	a0,-(sp)
-	movea.l	#$A10005,a0		;Joy2
+	movea.l	#Joy2,a0
 	bsr.w	ReadJoy
 	movea.l	(sp)+,a0
 	move.w	(lj2).w,d2

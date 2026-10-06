@@ -7,8 +7,7 @@
 ;	SEGMENT_AGENT.md rename table). Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The source has the real
 ;	cmp; fixopcodes.js patches the encoding after assembly.
-;	RAM from $CB00 up is 4 bytes lower in retail than in ram_addrs.inc (Rev A): the saved password bits
-;	are written as the retail number $CB6E (Rev A unk_FFCB72).
+;	The saved password bits are tpassbits (92 name; IDA unk_FFCB72, Rev A $CB72, retail $CB6E in ram93.asm).
 ;	gsflags bit 0 is 92 gsftf (teams flipped). Team struct bytes per roster slot (26): $B4 goals (goals
 ;	against for a goalie), $CE assists, $E8 shots (shots against for a goalie); word $136 frames on ice.
 ;	A goal entry (ScoreSum, 6 bytes): word period/time, byte 2 bit 7 away team scored, byte 3 scorer,
@@ -18,8 +17,8 @@ ResolveGames	;compute winners and losers for playoff matchups. 92 ResolveGames. 
 	move.w	(gamenum).w,d0
 	mulu.w	#gssize,d0
 	movea.w	#(gstruct-M68K_RAM),a0
-	move.w	(tmstructtmscore).w,gss1(a0,d0.w)	;copy score from played game into game structures
-	move.w	(tmstructtmscoretmsize).w,gss2(a0,d0.w)
+	move.w	(hmtmstruct+tmscore).w,gss1(a0,d0.w)	;copy score from played game into game structures
+	move.w	(awtmstruct+tmscore).w,gss2(a0,d0.w)
 
 	bsr.w	GetShifter
 	movea.w	#(gstruct-M68K_RAM),a0
@@ -77,7 +76,7 @@ ResolveGames	;compute winners and losers for playoff matchups. 92 ResolveGames. 
 	bra.s	.cr0
 .crn	suba.w	#gssize,a0		;IDA: loc_14AA8
 	dbf	d1,.cr0
-	movea.w	#$CB6E,a3		;bits before advancing to next round (retail; Rev A unk_FFCB72, 92 tpassbits)
+	movea.w	#(tpassbits-M68K_RAM),a3		;bits before advancing to next round (retail; Rev A unk_FFCB72, 92 tpassbits)
 	bsr.w	WritePassBits		;(92 wrote passbits and copied them to tpassbits)
 	bset	#sf3alttree,(sflags3).w
 
@@ -163,8 +162,8 @@ DisplayPeriodOver	;93 only: end of game "Stars of the Game" box. Called from Upd
 	move.w	#3,(printx).w
 	bsr.w	print
 	dbf	d2,.loop
-	move.w	(tmstructtmscore).w,d0	;home score
-	sub.w	(tmstructtmscoretmsize).w,d0	;- visitor score
+	move.w	(hmtmstruct+tmscore).w,d0	;home score
+	sub.w	(awtmstruct+tmscore).w,d0	;- visitor score
 	ble.w	.nosong
 	move.w	#$F,-(sp)		;song $F: home team won
 	bsr.w	song

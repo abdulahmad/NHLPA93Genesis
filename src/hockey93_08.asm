@@ -36,11 +36,11 @@ setoptions	;options screen display and input. Called from PeriodOver (hockey93_0
 
 	bsr.w	AddTeamBlock
 	move.w	d4,(Framercset).w	;93: framer tiles loaded here (92 bsr AddFramer)
-	movea.l	#FramermapPlus8,a2
+	movea.l	#FramerMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$01234562,$89ABCDEF	;remap table (retail; IDA btst / or.l, Rev A $01234567)
 	move.w	d4,(smallfontchars).w	;93: small font loaded here (92 bsr AddSmallFont)
-	movea.l	#smallfontmapPlus8,a2
+	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$0FC04567,$89ABCDEF	;remap table (retail; IDA bset / or.l)
 
@@ -53,7 +53,7 @@ setoptions	;options screen display and input. Called from PeriodOver (hockey93_0
 
 	bsr.w	printz
 	String	$FE,0,0			;map 2 (92 -$01,0,0)
-	movea.l	#$2E1FC,a0		;game setup bitmap (92 GameSetUpMap; retail, Rev A $2E22A, IDA ori.b)
+	movea.l	#GameSetUpMap,a0	;game setup bitmap (Rev A $2E22A, IDA ori.b)
 	movea.l	a0,a1
 	movea.l	a0,a2
 	adda.l	(a2)+,a0
@@ -65,7 +65,7 @@ setoptions	;options screen display and input. Called from PeriodOver (hockey93_0
 	moveq	#$F,d5			;color fam 1-4 (92 %1101)
 	bsr.w	dobitmap
 
-	movea.l	#GameSetupMapPlus8,a2	;93: roster player sprite tiles after the bitmap
+	movea.l	#GameSetupSprites+8,a2	;93: roster player sprite tiles after the bitmap
 	move.w	d4,(gamesetuptilesetindex).w	;(92 faceoffvrcset / Buildframelist)
 	bsr.w	DoDMA_clearCallbackPointer
 	bsr.w	defaultsprites2
@@ -667,7 +667,7 @@ AddTeamSpriteFrame	;93: add player a3 (x = (a3) + $1C offset, y = $14) and a Gam
 	add.w	$1C(a3),d0
 	move.w	Ypos(a3),d1
 	bsr.w	addframe2
-	movea.l	#GameSetupMap,a0
+	movea.l	#GameSetupSprites,a0
 	clr.l	d0
 	move.w	$24(a3),d0
 	lsr.w	#1,d0

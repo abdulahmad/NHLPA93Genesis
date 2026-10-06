@@ -22,7 +22,7 @@ ShowScores	;IDA: no label (Rev A $6C18). "Scores" screen: lists the other games 
 	bsr.w	Framer
 	bsr.w	printbigz
 	String	$BD,$E,3,'Scores',$BD,$F,1
-	movea.l	#unk_7CF4C,a1
+	movea.l	#ScoresMap,a1
 	lea	8(a1),a2
 	adda.l	4(a1),a1
 	clr.w	d0
@@ -32,7 +32,7 @@ ShowScores	;IDA: no label (Rev A $6C18). "Scores" screen: lists the other games 
 	clr.w	d5
 	bsr.w	dobitmap
 	subq.w	#8,(printx).w
-	jsr	(loc_F0F6).l
+	jsr	(DrawEASNMap).l
 	bsr.w	printsmallz
 	String	$F8,4,2,4,0,0
 	clr.w	(VertLineScrolling).w
@@ -454,7 +454,7 @@ DrawTeamScreen	;line editor background: bitmap, frame, "Line Editor" title and
 	movem.l	d0-d5/a0-a2,-(sp)
 	bsr.w	printz
 	String	$FD,0,0
-	movea.l	#unk_3288E,a1
+	movea.l	#ScoutMap,a1
 	adda.l	4(a1),a1
 	movea.w	#$310,a2
 	clr.w	d0
@@ -525,7 +525,7 @@ ExitAttributeScreen	;line editor: start pressed. Run the exit menu (AttributeScr
 	move.l	(dword_FFC9BC).w,-(sp)
 	movea.l	#rtss,a1
 	movea.l	#AttributeScreenText,a0
-	movea.w	#$CAEE,a3		;retail databuffer (Rev A: $CAF2)
+	movea.w	#(databuffer-M68K_RAM),a3		;Rev A $CAF2
 	move.w	$28(a2),d0		;team number + 1 = first databuffer byte?
 	addq.w	#1,d0
 	cmp.b	(a3),d0
@@ -573,7 +573,7 @@ DecodePlayerAttributes	;load team a2's lines from databuffer (byte 0 = team + 1,
 	;then one nibble per slot in AttributeOffsetTbl order, relative to the
 	;first forward, or first defenseman for slots 1-2)
 	movem.l	d0-d4/a0/a3,-(sp)
-	movea.w	#$CAEE,a0		;retail databuffer (Rev A: $CAF2)
+	movea.w	#(databuffer-M68K_RAM),a0		;Rev A $CAF2
 	addq.w	#1,a0
 	bsr.w	ReadAttributeNibble
 	move.w	d0,d1
@@ -608,7 +608,7 @@ EncodePlayerAttributes	;IDA: no label (Rev A $7426). Reverse of
 	;DecodePlayerAttributes: pack team a2's lines into databuffer and convert
 	;it with BitsToPW
 	movem.l	d0-d4/a0-a3,-(sp)
-	movea.w	#$CAEE,a0		;retail databuffer (Rev A: $CAF2)
+	movea.w	#(databuffer-M68K_RAM),a0		;Rev A $CAF2
 	move.w	$28(a2),d0
 	addq.w	#1,d0
 	move.b	d0,(a0)+
@@ -1999,14 +1999,14 @@ SetupScreen	;common start for the stats screens: blank, 40 cell mode, load
 	move.w	(sp)+,(disflags).w
 	bclr	#1,(disflags).w
 	move.w	(Framercset).w,d4
-	movea.l	#FramermapPlus8,a2
+	movea.l	#FramerMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$91234567,$89ABCDEF
 	move.w	(smallfontchars).w,d4
 	bsr.w	AddSmallFont
 	bsr.w	printz
 	String	$BD,0,0
-	movea.l	#unk_3288E,a1
+	movea.l	#ScoutMap,a1
 	adda.l	4(a1),a1
 	movea.w	#$310,a2
 	clr.w	d0
@@ -2020,7 +2020,7 @@ SetupScreen	;common start for the stats screens: blank, 40 cell mode, load
 	String	$FD,0,0
 	movem.l	(sp),d0-d1/a2
 	add.w	d0,(printy).w
-	movea.l	#unk_3288E,a0
+	movea.l	#ScoutMap,a0
 	movea.l	a0,a1
 	movea.l	a0,a2
 	adda.l	(a2)+,a0
@@ -2034,7 +2034,7 @@ SetupScreen	;common start for the stats screens: blank, 40 cell mode, load
 	moveq	#$D,d5
 	bsr.w	dobitmap
 	move.w	d4,(word_FFB014).w
-	movea.l	#smallfontmapPlus8,a2
+	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$D1234567,$89ABCDEF
 	bsr.w	printz
@@ -2058,10 +2058,10 @@ ExitAttributeScreen2	;leave a stats screen: back to 32 cell mode, reload the
 	move.w	(sp)+,(disflags).w
 	bset	#1,(disflags).w
 	move.w	(rinkvrcset).w,d4
-	movea.l	#IceRinkMapPlus8,a2
+	movea.l	#IceRinkMap+8,a2
 	bsr.w	DoDMA_clearCallbackPointer
 	move.w	(smallfontchars).w,d4
-	movea.l	#smallfontmapPlus8,a2
+	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$43434567,$89ABCDEF
 	move.w	(Framercset).w,d4

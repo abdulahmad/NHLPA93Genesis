@@ -35,7 +35,7 @@ Asset Identification: I think this the majority of the remaining 323 kb, and I w
 
 7. You have the choice of building 3 versions:
 
-    - For the `Retail` ROM, run `npm run build:retail` -- this runs `extractassets`, assembles `src/nhlpa93.asm` (the shared equates, `src/hockey93.asm` and the `$FF` fill) to `output/nhl93.bin`, fixes the opcodes (`output/modified_nhl93.bin`) and verifies every byte against `nhlpa93retail.bin`. Steps 5 and 6 are not needed for it: the sound driver data and graphics are incbins of the extracted files
+    - For the `Retail` ROM, run `npm run build:retail` -- this runs `extractassets`, assembles `src/hockey93.asm` (the top level: `ram93.asm` equates, every segment and the `$FF` fill) to `output/nhl93.bin`, fixes the opcodes (`output/modified_nhl93.bin`) and verifies every byte against `nhlpa93retail.bin`. Steps 5 and 6 are not needed for it: the sound driver data and graphics are incbins of the extracted files
 
     - For the `Rev A` ROM, run `npm run build:reva` -- this includes the retail checksum validation check (modified_nhlpa93.bin is the opcode corrected version)
 

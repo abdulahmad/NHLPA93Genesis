@@ -54,19 +54,16 @@ maketree = $144C4		; hockey93_09
 FigureJoy = $14586		; hockey93_09
 ConverByteToDigits = $14FEA	; hockey93_10
 p_music_vblank = $166D4		; sound driver (jsr abs.l)
-GameSetupMap = $2EFA2		; graphics data (movea.l operand)
-GameSetupMapPlus8 = $2EFAA	; graphics data (movea.l operand)
-FramermapPlus8 = $33390		; graphics data (movea.l operand)
-smallfontmapPlus8 = $795BC	; graphics data (movea.l operand)
+GameSetupSprites = $2EFA2		; graphics data (movea.l operand)
+FramerMap = $33388		; graphics data (movea.l operand)
+SmallFontMap = $795B4	; graphics data (movea.l operand)
 TeamBlocksmap = $7A376		; graphics data (movea.l operand)
+GameSetUpMap = $2E1FC		; sound93 (game setup bitmap)
 ; .region code
 	org	$13952
 
 ; includes for stubs to replace removed code
-    include "stubinc/ports.inc"
-    include "stubinc/equals.inc"
-    include "stubinc/ram_addrs.inc"
-    include "stubinc/struct93.inc"
+    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
 
 ; Main segment code
 	include	hockey93_08.asm

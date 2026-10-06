@@ -32,7 +32,7 @@ if "%checksum%"=="0" (
     set checksumFlag="/e CHECKSUM=1"
 )
 
-REM Run the assembler with all flags. nhlpa93.asm = shared stubinc equates + hockey93.asm + $FF fill.
+REM Run the assembler with all flags. hockey93.asm is the top level (92 hockey.asm): ROM map includes + $FF fill.
 REM Relative paths keep SNASM's summary line readable (it garbles it with long paths). SNASM always
 REM exits 0 and writes no .bin when there are errors, so a missing or empty .bin means the build failed.
 if exist "..\output\nhl93.bin" del "..\output\nhl93.bin"
@@ -40,7 +40,7 @@ if exist "..\output\nhl93.bin" del "..\output\nhl93.bin"
   /p /m /g ^
   /o d- /o s- /o r+ /o l+ /o l. /o ow+ /o op- /o os+ /o oz+ /o omq- /o oaq+ /o osq+ ^
   %revFlag% %checksumFlag% ^
-  "nhlpa93.asm,..\output\nhl93.bin,..\output\nhl93,..\output\nhl93" ^
+  "hockey93.asm,..\output\nhl93.bin,..\output\nhl93,..\output\nhl93" ^
   > "..\output\Build93.log"
 
 set "built=0"

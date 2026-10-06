@@ -60,26 +60,26 @@ CallAnimationCallback = $13852	; hockey93_07 (Rev A $1386A)
 DisplayTeamStatsForPlayoffs = $148C8	; hockey93_09 (Rev A $148E0)
 setoptions = $13952		; hockey93_08
 EncodePW = $1474A		; hockey93_09
-unk_15556 = $1553E		; hockey93_11 (movea.l operand, Rev A $15556)
-Titlemap2 = $322CE		; graphics data (movea.l operand, Rev A $322FC)
+PlayoffTreeSetup = $1553E		; hockey93_11 (movea.l operand, Rev A $15556)
+TitleLogoSprites = $322CE		; graphics data (movea.l operand, Rev A $322FC)
 IceRinkMap = $33864		; graphics data
-IceRinkMapPlus8 = $3386C	; graphics data
-CrowdSpritesPlus8 = $748EA	; graphics data
-bigfontmapPlus8 = $78D06	; graphics data
-smallfontmapPlus8 = $795BC	; graphics data
-unk_7A2B8 = $7A28A		; graphics data (movea.l operand, Rev A $7A2B8)
+CrowdSprites = $748E2	; graphics data
+BigFontMap = $78CFE	; graphics data
+SmallFontMap = $795B4	; graphics data
+EnergyBarMap = $7A282		; graphics data (movea.l operand, Rev A $7A2B8)
 TeamBlocksmap = $7A376		; graphics data
 ArrowsMap = $7C54E		; graphics data (movea.l operand, Rev A $7C57C)
-ArrowsMapPlus8 = $7C556		; graphics data
-EASNmapPlus8 = $7C7B2		; graphics data
+EASNmap = $7C7AA		; graphics data
+ScoutMap = $32860		; graphics93
+DoDMA = $DA94		; middle93_1
+Vmaddr = $DCCA		; middle93_1
+cramfade = $D6D6		; middle93_1
+p_music_vblank = $166D4		; sound93
 ; .region code
 	org	$122A8
 
 ; includes for stubs to replace removed code
-    include "stubinc/ports.inc"
-    include "stubinc/equals.inc"
-    include "stubinc/ram_addrs.inc"
-    include "stubinc/struct93.inc"
+    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
 
 ; Main segment code
 	include	hockey93_06.asm

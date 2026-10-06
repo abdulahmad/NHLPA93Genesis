@@ -30,9 +30,7 @@ Private tree: `EA-NHL-Disassembly-Project/NHL93-Genesis/`
 | `nhlpa93retail.bin.idb` | Second IDB (3.0MB). Do not assume it matches the v1.1 database. |
 | `NHLPA Hockey 93 (USA, Europe) (v1.1).bin.lst` | 12MB listing. May be older than the IDB. Re-export before trusting a name from it. |
 | `discovery.md` | Team data, frame map, SPAList format, 92-to-93 frame shifts, cross-game anim starts. |
-| `src/ram_addrs.inc` | Named 68k RAM. This is the current symbol list for gameplay state. |
-| `src/ports.inc` | Genesis IO / VDP / Z80 port equates. |
-| `src/equals.inc` | VDP status bit names. |
+| `src/ram93.asm` | Ports, VDP status bits, structure fields and the named 68k RAM (retail addresses), laid out like NHL92 `ram.asm`. The only RAM map; `hockey93.asm` and every `*_stub.asm` include it. |
 | `src/*.bin.asm` | Stub that only includes the three inc files. Not a disassembly. |
 | `rommap.md` | Empty. |
 
@@ -106,7 +104,7 @@ Do not copy NHL 92 Rev A diffs across. On 92, known examples included `move.l #S
 
 ## RAM and ports already named
 
-`src/ram_addrs.inc` is the symbol file to include. Do not invent a second RAM map.
+`src/ram93.asm` is the symbol file (it replaced `stubinc/ram_addrs.inc`, `ports.inc`, `equals.inc` and `struct93.inc`). Do not invent a second RAM map.
 
 Useful named regions, all in 68k RAM at `$FFFF....` unless noted:
 
@@ -120,7 +118,7 @@ Useful named regions, all in 68k RAM at `$FFFF....` unless noted:
 - Sound bridge: `music_needs_z80_update` `$CB7C`, `Z80_command_buffer` `$CB7E`, `fm_channel_structs` `$CDA0`, `lastsfx` `$BF28`.
 - Stack: `Stack` `$FFFFFE`.
 
-`ports.inc` is standard Genesis: `VDP_DATA` `$C00000`, `VDP_CTRL` `$C00004`, `VDP_PSG` `$C00011`, `IO_Z80BUS` `$A11100`, `IO_Z80RES` `$A11200`, `IO_TMSS` `$A14000`. `equals.inc` names the VDP status bits (`PAL_MODE`, `VBLANKING`, `FIFO_FULL`, and so on).
+The ports at the top of `ram93.asm` are standard Genesis: `VDP_DATA` `$C00000`, `VDP_CTRL` `$C00004`, `VDP_PSG` `$C00011`, `IO_Z80BUS` `$A11100`, `IO_Z80RES` `$A11200`, `IO_TMSS` `$A14000`. The VDP status bits follow them (`PAL_MODE`, `VBLANKING`, `FIFO_FULL`, and so on).
 
 Many symbols are still `word_FF....` / `unk_FF....`. Rename those only from the IDB, then update this inc file.
 
@@ -215,7 +213,7 @@ Recorded in `discovery.md` so the 94/95 pass does not rediscover them. Not verif
 3. Feed a model one function: disassembly, IDA name, callers, callees, strings, and the 92 cousin if one exists. Do not paste the ROM.
 4. Five failed matching builds, then stop and write what differed. Do not let a session grind.
 5. Commit only a change that still matches the target ROM.
-6. Include `ram_addrs.inc`. Do not rename `puckx` / `gameclock` / `PenBuf` out from under the IDB.
+6. Include `ram93.asm`. Do not rename `puckx` / `gameclock` / `PenBuf` out from under the IDB.
 7. Leave gameplay AI and physics until the data tables and the already-built logo and sound path are clean.
 8. NHL 94 Genesis is next, using this tree as the base. NHL 95 PC is a different compiler and does not belong in this loop.
 

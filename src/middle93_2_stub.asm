@@ -28,20 +28,15 @@ PrintStringFromList = $F744	; penalty93_2 (Rev A sub_F75C)
 rtss = $110E0			; hockey93_05
 bfasciicon = $1542A		; hockey93_11 (Rev A unk_15442)
 Framermap = $33388		; graphics data, no segment (Rev A unk_333B6)
-FramermapPlus8 = $33390		; graphics data, no segment (Rev A unk_333BE)
 bigfontmap = $78CFE		; graphics data, no segment (Rev A unk_78D2C)
 smallfontmap = $795B4		; graphics data, no segment (Rev A unk_795E2)
-smallfontmapPlus8 = $795BC	; graphics data, no segment (Rev A unk_795EA)
-TeamBlocksmapPlus8 = $7A37E	; graphics data, no segment (Rev A unk_7A3AC)
+Teamblocksmap = $7A376	; graphics data, no segment (Rev A unk_7A3AC)
 
 ; .region code
 	org	$DCE4
 
 ; includes for stubs to replace removed code
-    include "stubinc/ports.inc"
-    include "stubinc/equals.inc"
-    include "stubinc/ram_addrs.inc"
-    include "stubinc/struct93.inc"
+    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
 
 ; Main segment code
 	include	middle93_2.asm

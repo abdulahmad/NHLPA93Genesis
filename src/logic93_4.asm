@@ -295,8 +295,8 @@ puckfaceoff	;this is where the action starts
 	bne.w	PeriodOver
 	cmpi.w	#3,(gsp).w
 	bne.w	.npo
-	move.w	(tmstructtmscore).w,d0
-	cmp.w	(tmstructtmscoretmsize).w,d0
+	move.w	(hmtmstruct+tmscore).w,d0
+	cmp.w	(awtmstruct+tmscore).w,d0
 	bne.w	clockcont_0		;92 PeriodOver
 .npo	btst	#gmpendel,(gmode).w		;IDA: _npo
 	bne.w	Stop4Pen
@@ -564,8 +564,8 @@ puckfaceoff2	;face off control logic and general setup for action
 	clr.w	(glovecords).w		;no fighting gloves
 	clr.b	(iflags).w		;no icing
 	st	(RefCnt).w		;no refs
-	st	(puckcrossPlus2).w	;no goalie moes
-	st	(puckcrossPlus6).w
+	st	(puckcross+2).w	;no goalie moes
+	st	(puckcross+6).w
 	bclr	#sf2refref,(sflags2).w
 	bset	#sf2faceoff,(sflags2).w
 	bset	#sf2drec,(sflags2).w		;don't record yet
@@ -581,7 +581,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	clr.w	(puckvy).w
 	clr.w	(puckvz).w
 	st	(puckc).w
-	movea.w	#(SortCordsSCStructCalc-M68K_RAM),a0	;reposition goal nets
+	movea.w	#(SortCords+(12*SCstruct)-M68K_RAM),a0	;reposition goal nets
 	clr.w	Xvel(a0)
 	clr.w	Yvel(a0)
 	clr.w	(a0)			;Xpos
@@ -591,7 +591,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	clr.w	Yvel(a0)
 	clr.w	(a0)
 	move.w	#-$10C,Ypos(a0)
-	movea.w	#(SortCordsPuckSCnumCalc-M68K_RAM),a0
+	movea.w	#(SortCords+(15*SCstruct)-M68K_RAM),a0
 	move.w	#$18A,frame(a0)		;SPFpuck
 	clr.w	SPA(a0)
 	clr.w	attribute(a0)
@@ -632,10 +632,10 @@ puckfaceoff2	;face off control logic and general setup for action
 	bclr	#3,tmflags(a2)		;tmflags bit 3
 	move.l	#$17,d0			;afaceoffpl
 .l1	bsr.w	assinsert		;IDA: loc_C5A8
-.goalie1	move.w	(tmstructtmap).w,d4	;IDA: loc_C5AC
+.goalie1	move.w	(hmtmstruct+tmap).w,d4	;IDA: loc_C5AC
 	btst	#pfteam,pflags(a3)
 	beq.w	.t0
-	move.w	(tmstructtmaptmsize).w,d4
+	move.w	(awtmstruct+tmap).w,d4
 .t0	neg.w	d4			;IDA: loc_C5BE
 	addq.w	#6,d4
 	asl.w	#3,d4
@@ -712,7 +712,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	moveq	#0,d5
 	bsr.w	dobitmap
 	move.w	d4,(faceoffvrcset).w	;space for faceoff sprites
-	movea.l	#FaceOffSpritesPlus8,a2	;93: replaces 92 Buildframelist/DoDMA
+	movea.l	#FaceOffSprites+8,a2	;93: replaces 92 Buildframelist/DoDMA
 	bsr.w	DoDMA_clearCallbackPointer
 	tst.w	(OptLine).w		;93: line names box when lines are on
 	bne.w	.nol
@@ -817,7 +817,7 @@ Endfaceoff	;drop the puck: pick the faceoff winner and send the puck off. Entere
 	bsr.w	sfx
 	bclr	#sf2faceoff,(sflags2).w
 	move.w	(ExtraChars).w,d4
-	movea.l	#RefsMapPlus8,a2
+	movea.l	#RefsMap+8,a2
 	bsr.w	DoDMA_clearCallbackPointer	;ref cam chars (92 DoDMAPro)
 	bclr	#sf2drec,(sflags2).w
 	bclr	#gmclock,(gmode).w
