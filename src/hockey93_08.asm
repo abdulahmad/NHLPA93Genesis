@@ -69,8 +69,8 @@ setoptions	;options screen display and input. Called from PeriodOver (hockey93_0
 	move.w	d4,(gamesetuptilesetindex).w	;(92 faceoffvrcset / Buildframelist)
 	bsr.w	DoDMA_clearCallbackPointer
 	bsr.w	defaultsprites2
-	move.w	#$28,(word_FFB066).w	;SortCords+$1C: home player x offset 40 (off the block)
-	move.w	#$28,(word_FFB366).w	;SortCords+$31C: visitor player x offset 40
+	move.w	#$28,(SortCords+$1C).w	;home player x offset 40 (off the block)
+	move.w	#$28,(SortCords+$31C).w	;visitor player x offset 40
 	st	(hmtmstruct).w		;team shown = $FFxx, so UpdateTeamNameAnimation starts a new team
 	st	(awtmstruct).w
 

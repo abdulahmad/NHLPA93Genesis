@@ -579,8 +579,8 @@ Setplass	;set players (a3) initial assignment
 setplayer	;bring player onto the ice and set his stats
 	;d3 = player number, a3 = sortcord of player. 93 reads each attribute
 	;nibble from a variable-length roster record and, for skaters, adds the
-	;modifier bytes at dword_FFC9C2 (+0/+1 from sflags2 bit 5 and chkpk2,
-	;+3 home bonus / visitor penalty, +2 = 2 when tied or trailing with at
+	;modifier bytes PPBonus / PKBonus (from sflags2 bit 5 and chkpk2),
+	;HmAwBonus (home bonus / visitor penalty) and ThirdPBonus (2 when tied or trailing with at
 	;least half of the 3rd period left, or after the 3rd period), clamped to
 	;0-15 by ClampNibble
 	bclr	#6,pflags2(a3)		;pflags2 bit 6 (93)
@@ -605,20 +605,20 @@ setplayer	;bring player onto the ice and set his stats
 	movea.l	tmdata(a0),a0
 	move.l	a0,-(sp)
 	adda.w	8(a0),a0		;team data + word at team data+8 (92 LineSets offset)
-	clr.l	(dword_FFC9C2).w	;modifiers
+	clr.l	(PPBonus).w	;all four bonus bytes
 	tst.w	position(a3)
 	beq.w	.nomod			;goalie: no modifiers
 	btst	#5,(sflags2).w
 	beq.w	.nda3
 	bsr.w	chkpk2
 	beq.w	.nda2
-	move.b	1(a0),(dword_FFC9C2).w	;+0 = low nibble of byte 1
-	andi.b	#$F,(dword_FFC9C2).w
+	move.b	1(a0),(PPBonus).w	;low nibble of byte 1
+	andi.b	#$F,(PPBonus).w
 	bra.w	.nda3
 .nda2	move.b	1(a0),d0
 	lsr.b	#4,d0
 	neg.b	d0
-	move.b	d0,(dword_FFC9C2+1).w	;+1 = -high nibble of byte 1
+	move.b	d0,(PKBonus).w	;-high nibble of byte 1
 .nda3	move.b	2(a0),d0
 	andi.b	#$F,d0
 	neg.b	d0			;visitors: -low nibble of byte 2
@@ -626,7 +626,7 @@ setplayer	;bring player onto the ice and set his stats
 	bne.w	.tm
 	move.b	2(a0),d0
 	lsr.b	#4,d0			;home: high nibble of byte 2
-.tm	move.b	d0,(dword_FFC9C2+3).w	;IDA: loc_11684
+.tm	move.b	d0,(HmAwBonus).w	;IDA: loc_11684
 	cmpi.w	#2,(gsp).w		;period
 	blt.w	.nomod			;1st or 2nd period
 	bgt.w	.score			;after the 3rd period
@@ -641,7 +641,7 @@ setplayer	;bring player onto the ice and set his stats
 	beq.w	.side
 	eori	#8,ccr			;visitors: flip N
 .side	bpl.w	.nomod			;IDA: loc_116BE. leading
-.close	move.b	#2,(dword_FFC9C2+2).w	;IDA: loc_116C2
+.close	move.b	#2,(ThirdPBonus).w	;IDA: loc_116C2
 .nomod	movea.l	(sp)+,a0		;IDA: loc_116C8. tmdata
 	adda.w	(a0),a0			;roster records (92 Playerdata)
 .find	adda.w	(a0),a0			;IDA: loc_116CC. skip name
@@ -661,10 +661,10 @@ setplayer	;bring player onto the ice and set his stats
 	move.b	d3,legspd(a3)
 	move.b	2(a0),d3
 	andi.b	#$F,d3
-	add.b	(dword_FFC9C2).w,d3
-	add.b	(dword_FFC9C2+1).w,d3
-	add.b	(dword_FFC9C2+3).w,d3
-	add.b	(dword_FFC9C2+2).w,d3
+	add.b	(PPBonus).w,d3
+	add.b	(PKBonus).w,d3
+	add.b	(HmAwBonus).w,d3
+	add.b	(ThirdPBonus).w,d3
 	bsr.w	ClampNibble
 	eori.b	#$F,d3
 	addi.b	#$F,d3			;frames to skip
@@ -672,7 +672,7 @@ setplayer	;bring player onto the ice and set his stats
 	move.b	d3,aioff(a3)
 	move.b	3(a0),d3
 	lsr.b	#4,d3
-	add.b	(dword_FFC9C2+3).w,d3
+	add.b	(HmAwBonus).w,d3
 	bsr.w	ClampNibble
 	eori.b	#$F,d3
 	addi.b	#$F,d3			;frames to skip
@@ -682,7 +682,7 @@ setplayer	;bring player onto the ice and set his stats
 	andi.b	#$F,shotspd(a3)
 	move.b	4(a0),d3
 	lsr.b	#4,d3
-	add.b	(dword_FFC9C2+2).w,d3
+	add.b	(ThirdPBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,$75(a3)		;93 only attribute
 	bclr	#3,attribute(a3)
@@ -694,16 +694,16 @@ setplayer	;bring player onto the ice and set his stats
 	andi.b	#$E,$74(a3)
 	move.b	5(a0),d3
 	lsr.b	#4,d3
-	add.b	(dword_FFC9C2).w,d3
-	add.b	(dword_FFC9C2+1).w,d3
-	add.b	(dword_FFC9C2+3).w,d3
+	add.b	(PPBonus).w,d3
+	add.b	(PKBonus).w,d3
+	add.b	(HmAwBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,stickhand(a3)
 	move.b	5(a0),d3
 	andi.b	#$F,d3
-	add.b	(dword_FFC9C2).w,d3
-	add.b	(dword_FFC9C2+1).w,d3
-	add.b	(dword_FFC9C2+3).w,d3
+	add.b	(PPBonus).w,d3
+	add.b	(PKBonus).w,d3
+	add.b	(HmAwBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,shotacc(a3)
 	move.b	6(a0),d3
@@ -711,14 +711,14 @@ setplayer	;bring player onto the ice and set his stats
 	move.b	d3,endurance(a3)
 	move.b	6(a0),d3
 	andi.b	#$F,d3
-	add.b	(dword_FFC9C2+2).w,d3
-	add.b	(dword_FFC9C2+2).w,d3
+	add.b	(ThirdPBonus).w,d3
+	add.b	(ThirdPBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,spodds(a3)
 	move.b	7(a0),d3
 	lsr.b	#4,d3
-	add.b	(dword_FFC9C2).w,d3
-	add.b	(dword_FFC9C2+3).w,d3
+	add.b	(PPBonus).w,d3
+	add.b	(HmAwBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,passacc(a3)
 	move.b	7(a0),$73(a3)		;aggress

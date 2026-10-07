@@ -60,7 +60,7 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 	move.w	d4,(EASNcset).w		;1st vram char for easn logo tiles
 	bsr.w	setupEASNmap
 
-	move.w	d4,(word_FFB016).w	;93: 1st vram char for the unk_7A2B8 tiles
+	move.w	d4,(energybarchars).w	;93: 1st vram char for the unk_7A2B8 tiles
 	movea.l	#EnergyBarMap+8,a2
 	bsr.w	DoDMA_clearCallbackPointer
 
@@ -68,7 +68,7 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 	movea.l	#CrowdSprites+8,a2
 	bsr.w	DoDMA_clearCallbackPointer
 
-	move.w	d4,(word_FFB024).w	;sprite char start, reused by setupice_highlight
+	move.w	d4,(spritechars).w	;sprite char start, reused by setupice_highlight
 	bsr.w	defaultsprites
 	bsr.w	setupIceRinkMap		;transfer pal 0&1
 
@@ -126,7 +126,7 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 	rts
 
 setupice_highlight	;93 only. Rebuild the rink sprites after a highlight replay without reloading tiles, then fade in.
-	;Called from StartHL2 (penalty93_2). Uses the sprite char start saved by setupice in word_FFB024
+	;Called from StartHL2 (penalty93_2). Uses the sprite char start saved by setupice in spritechars
 	movem.l	d0-d7/a0-a6,-(sp)
 	bsr.w	forceblack
 	bclr	#sfpz,(sflags).w
@@ -136,7 +136,7 @@ setupice_highlight	;93 only. Rebuild the rink sprites after a highlight replay w
 	clr.w	(Vpos).w
 	move.w	#$7D0,(Oldrow).w	;2000
 	st	(zamx).w
-	move.w	(word_FFB024).w,d4	;sprite char start from setupice
+	move.w	(spritechars).w,d4	;sprite char start from setupice
 	bsr.w	defaultsprites
 	bsr.w	setupIceRinkMap		;transfer pal 0&1
 	btst	#gmdir,(gmode).w
@@ -197,7 +197,7 @@ setupTeamBlocksMap	;93 only. Load TeamBlocks.map tiles at d4+$30 and copy the ho
 	;to vram at basetileoffset and basetileoffset+$18. Called from setupice. d4 = 1st vram char; return d4 = basetileoffset+$30
 	move.w	d4,(basetileoffset).w
 	addi.w	#$30,d4			;skip the 48 chars for the two team blocks
-	movea.w	#(unk_FFC210-M68K_RAM),a1	;map word buffer for CopyTeamBlockMapData
+	movea.w	#(TeamBlockMap-M68K_RAM),a1	;map word buffer for CopyTeamBlockMapData
 	movea.l	#TeamBlocksmap,a0
 	lea	8(a0),a2
 	bsr.w	DoDMA_clearCallbackPointer	;all team block tiles to vram at d4
@@ -410,16 +410,16 @@ resetplstuff	;reset team variables/and players on both teams. Called from puckfa
 clearTeamStats	;93 only: the 92 setteams clear loop, split out. Clear both team structs (2 x tmsize) but keep the
 	;word at tmstruct+$26 of each team, and set the byte at tmstruct+$9A of each. Falls into setteams.
 	;Called from StartGame, StartHL2 and ScoutingReport
-	move.w	(word_FFC50C).w,-(sp)	;home tmstruct+$26
-	move.w	(word_FFC6AE).w,-(sp)	;visitor tmstruct+$26
+	move.w	(hmtmstruct+tmgoalie).w,-(sp)
+	move.w	(awtmstruct+tmgoalie).w,-(sp)
 	move.l	#tmsize-1,d0		;tmsize words = 2 x tmsize bytes (both team structs)
 	movea.w	#(hmtmstruct-M68K_RAM),a0
 .0	clr.w	(a0)+			;IDA: loc_128F6
 	dbf	d0,.0
-	move.w	(sp)+,(word_FFC6AE).w
-	move.w	(sp)+,(word_FFC50C).w
-	st	(byte_FFC580).w		;home tmstruct+$9A
-	st	(byte_FFC722).w		;visitor tmstruct+$9A
+	move.w	(sp)+,(awtmstruct+tmgoalie).w
+	move.w	(sp)+,(hmtmstruct+tmgoalie).w
+	st	(hmtmstruct+$9A).w
+	st	(awtmstruct+$9A).w
 
 setteams	;use hometeam/visteam to set team structures. Falls in from clearTeamStats, also called from hockey93_08.
 	;93 sets tmsort as a word and leaves the team data setup to InitTeamSructure
@@ -589,7 +589,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	moveq	#3,d5
 	bsr.w	dobitmap
 
-	movea.l	#TitleLogoSprites,a1		;93: Titlemap2 palette to pal 0, tiles at word_FFB016
+	movea.l	#TitleLogoSprites,a1		;93: Titlemap2 palette to pal 0, tiles at energybarchars
 	lea	8(a1),a2
 	adda.l	(a1),a1
 	moveq	#7,d0
@@ -598,11 +598,11 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	move.l	(a1)+,-$40(a0)		;Titlemap2 palette -> pal 0
 	move.l	-$20(a0),(a0)+		;pal 1 -> pal 2
 	dbf	d0,.pal
-	move.w	d4,(word_FFB016).w
+	move.w	d4,(energybarchars).w
 	bsr.w	DoDMA_clearCallbackPointer
 
 	move.w	#$104,(clampcounter).w	;93: RAM reused by this screen
-	move.w	#$110,(word_FFB8B0).w
+	move.w	#$110,(playoffspritey).w
 
 	movea.l	#VDP_CTRL,a0
 	move.w	#$9202,(a0)		;window V position 2
@@ -709,14 +709,14 @@ UpdatePlayoffScroll	;move the tree one step (PlayerScrollCtr) and stop on a page
 	cmp.w	d1,d0
 	blt.w	rtss
 	move.w	d0,(DispAttribCtr).w
-	clr.w	(word_FFB8AE).w
+	clr.w	(playoffspritex).w
 	move.w	d0,d1
 	addi.w	#$124,d1
 	cmp.w	#$40,d1
-	blt.w	.nox			;word_FFB8AE = position+$124 only inside $40-$200, else 0
+	blt.w	.nox			;playoffspritex = position+$124 only inside $40-$200, else 0
 	cmp.w	#$200,d1
 	bgt.w	.nox
-	move.w	d1,(word_FFB8AE).w
+	move.w	d1,(playoffspritex).w
 .nox	ext.l	d0			;IDA: loc_12CE6
 	divs.w	#$70,d0
 	swap	d0			;remainder
@@ -730,11 +730,11 @@ PlayoffScreenExit	;IDA: loc_12CFA. 92 PlayoffScreen .exit: drop HandlePlayoffInp
 	addq.w	#4,sp
 	rts
 
-PlayoffScreen_waitvsync	;each time palcount runs out, eor the color word at palbuffer+2 (word_FFBD6A) with $EE and
+PlayoffScreen_waitvsync	;each time palcount runs out, eor the color word at palbuffer+2 (palfadenew+$42) with $EE and
 	;restart palcount at $18 (a color flash), then wait for the next vblank. Called from PlayoffScreen .input (92 used Waitxc1)
 	tst.w	(palcount).w
 	bpl.w	.wait			;palcount still counting
-	eori.w	#$EE,(word_FFBD6A).w
+	eori.w	#$EE,(palfadenew+$42).w
 	move.w	#$18,(palcount).w
 .wait	move.w	(vcount).w,d0		;IDA: loc_12D12
 	cmp.w	(oldvcount).w,d0

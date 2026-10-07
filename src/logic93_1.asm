@@ -546,7 +546,7 @@ passtoa0	;pass puck to player a0
 	subi.w	#$A,d0			;92: 6
 	move.b	d0,$40(a0)		;temp2
 	subq.w	#6,d0			;92: 10
-	move.b	d0,(byte_FFB7A8).w	;puckx+nopuck
+	move.b	d0,(puckx+nopuck).w
 	movem.w	(sp)+,d0-d1
 	muls.w	d2,d0
 	asr.l	#1,d0

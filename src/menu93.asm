@@ -9,13 +9,13 @@
 
 InitMenuState	;start a menu. a0 = item list, a1 = screen draw routine
 	;falls into DrawMenuScreen
-	move.l	a0,(dword_FFC9B8).w	;item list
-	move.l	a1,(dword_FFC9BC).w	;draw routine
-	clr.w	(dword_FFC9B4).w	;selected item
-	clr.w	(dword_FFC9B4+2).w	;first visible item
+	move.l	a0,(menulist).w	;item list
+	move.l	a1,(menudraw).w	;draw routine
+	clr.w	(menuitem).w	;selected item
+	clr.w	(menuitem+2).w	;first visible item
 
 DrawMenuScreen	;call the draw routine, frame the menu box, print the items, fade in
-	movea.l	(dword_FFC9BC).w,a0
+	movea.l	(menudraw).w,a0
 	jsr	(a0)
 	bsr.w	printsmallz
 	String	$FE,4,$FC,$C
@@ -40,17 +40,17 @@ HandleMenuInput	;process one controller read (d1) for the current menu
 	bne.w	.flip			;start: Z clear, flipped to eq
 	btst	#1,d1			;dbut
 	beq.w	.1
-	addq.w	#1,(dword_FFC9B4).w	;next lower menu item
+	addq.w	#1,(menuitem).w	;next lower menu item
 	bra.w	UpdateMenuSelection
 .1	btst	#0,d1			;ubut
 	beq.w	.2
-	subq.w	#1,(dword_FFC9B4).w	;next higher menu item
+	subq.w	#1,(menuitem).w	;next higher menu item
 	bra.w	UpdateMenuSelection
 .2	btst	#5,d1			;cbut
 	beq.w	.flip			;nothing: Z set, flipped to ne
 	bsr.w	seta2
-	move.w	(dword_FFC9B4).w,d0	;find handler for selected item
-	movea.l	(dword_FFC9B8).w,a0
+	move.w	(menuitem).w,d0	;find handler for selected item
+	movea.l	(menulist).w,a0
 	adda.w	(a0),a0
 	adda.w	(a0),a0
 	bra.w	.3
@@ -60,17 +60,17 @@ HandleMenuInput	;process one controller read (d1) for the current menu
 	movea.l	(a0),a0
 	jsr	(a0)			;goto routine for current menu item
 	bsr.w	DrawMenuScreen
-	tst.w	(dword_FFC9B4).w	;item 0 (resume) leaves the menu
+	tst.w	(menuitem).w	;item 0 (resume) leaves the menu
 	rts
 .flip	eori	#4,ccr			;invert Z
 	rts
 
 UpdateMenuSelection	;clamp the selection, scroll the 4 visible rows, print the menu
-	move.w	(dword_FFC9B4).w,d0
+	move.w	(menuitem).w,d0
 	bpl.w	.0
-	clr.w	(dword_FFC9B4).w	;no item above the first
+	clr.w	(menuitem).w	;no item above the first
 	clr.w	d0
-.0	movea.l	(dword_FFC9B8).w,a0
+.0	movea.l	(menulist).w,a0
 	adda.w	(a0),a0
 	adda.w	(a0),a0
 	bra.w	.2
@@ -79,18 +79,18 @@ UpdateMenuSelection	;clamp the selection, scroll the 4 visible rows, print the m
 	tst.w	2(a0)			;negative = last item
 .2	dbmi	d0,.1
 	addq.w	#1,d0
-	sub.w	d0,(dword_FFC9B4).w	;no item below the last
-	move.w	(dword_FFC9B4).w,d0
-	cmp.w	(dword_FFC9B4+2).w,d0
+	sub.w	d0,(menuitem).w	;no item below the last
+	move.w	(menuitem).w,d0
+	cmp.w	(menuitem+2).w,d0
 	bge.w	.3
-	move.w	d0,(dword_FFC9B4+2).w	;scroll up
+	move.w	d0,(menuitem+2).w	;scroll up
 .3	subq.w	#3,d0
-	cmp.w	(dword_FFC9B4+2).w,d0
+	cmp.w	(menuitem+2).w,d0
 	ble.w	.4
-	move.w	d0,(dword_FFC9B4+2).w	;scroll down
+	move.w	d0,(menuitem+2).w	;scroll down
 .4	bsr.w	SetMenuPrintX
 	move.w	#$D,(printy).w
-	movea.l	(dword_FFC9B8).w,a1
+	movea.l	(menulist).w,a1
 	bsr.w	printsmall		;menu title
 	bsr.w	printsmallz		;clear the 4 item rows
 	dc.w	$0026			;String length, 36 bytes too long for the macro
@@ -98,7 +98,7 @@ UpdateMenuSelection	;clamp the selection, scroll the 4 visible rows, print the m
 	dc.b	$20,$FB,$FF,$FA,$01,$20,$FB,$12,$20,$FB,$FF,$FA
 	dc.b	$FF,$20,$FB,$FF,$FA,$FF,$20,$FB,$FF,$FA,$FF,$20
 	adda.w	(a1),a1
-	move.w	(dword_FFC9B4+2).w,d0	;skip to first visible item
+	move.w	(menuitem+2).w,d0	;skip to first visible item
 	bra.w	.6
 .5	adda.w	(a1),a1
 	addq.w	#4,a1
@@ -106,7 +106,7 @@ UpdateMenuSelection	;clamp the selection, scroll the 4 visible rows, print the m
 	moveq	#3,d1			;4 rows
 	move.w	#$C,(printy).w
 	bsr.w	SetMenuPrintX
-	move.w	(dword_FFC9B4+2).w,d0
+	move.w	(menuitem+2).w,d0
 	beq.w	.7
 	bsr.w	printsmallz		;more items above
 	String	$FE,5,$FB,1,$FA,1,$7B,$FA,$FF
@@ -114,9 +114,9 @@ UpdateMenuSelection	;clamp the selection, scroll the 4 visible rows, print the m
 	bsr.w	printsmallz
 	String	$FB,2,$FA,1
 	move.l	a1,-(sp)
-	movea.l	(dword_FFC9B8).w,a1
+	movea.l	(menulist).w,a1
 	bsr.w	printsmall
-	cmp.w	(dword_FFC9B4).w,d0
+	cmp.w	(menuitem).w,d0
 	bne.w	.8
 	bsr.w	printsmall		;selected item marker
 .8	movea.l	(sp)+,a1
@@ -136,7 +136,7 @@ PrintTeamData	;copy 2 rows of 12 map words from $FFC210+d0 to printx/printy,
 	movem.l	d0-d2/a0-a1,-(sp)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w		;don't int graphics
-	movea.w	#(unk_FFC210-M68K_RAM),a1
+	movea.w	#(TeamBlockMap-M68K_RAM),a1
 	adda.w	d0,a1
 	moveq	#1,d2			;2 rows
 .0	bsr.w	xyVmMap

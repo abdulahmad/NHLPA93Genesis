@@ -278,7 +278,7 @@ CalculateTeamAttributeValues	;93 only: star scores of team a2 (a3 = other team) 
 	rts
 
 ShowInjuryBox	;IDA: loc_14D36. 93 only: injury box "Injury to:" player TempPlOffset (set by setInjuryType),
-	;"Out for period", or "the game" when byte_FFB7AD bit pf2fight is set. Jumped to (jmp abs.l) from
+	;"Out for period", or "the game" when puckx+pflags2 bit pf2fight is set. Jumped to (jmp abs.l) from
 	;CheckInjury (hockey93_01) when InjCntDown runs out, so global
 	movem.l	d0-d2/a0-a4,-(sp)
 	bsr.w	printz
@@ -290,7 +290,7 @@ ShowInjuryBox	;IDA: loc_14D36. 93 only: injury box "Injury to:" player TempPlOff
 	String	$BF,$C,4,'Injury to:',$BF,$C,6,'Out for period',$BF,$C,5
 	bsr.w	GetPlayerNameWithAttrib	;IDA hid this in the string
 	bsr.w	print
-	btst	#pf2fight,(byte_FFB7AD).w	;puckx+pflags2
+	btst	#pf2fight,(puckx+pflags2).w
 	beq.w	.ex
 	bsr.w	printz
 	String	$BF,$14,6,'the game'	;over "period"

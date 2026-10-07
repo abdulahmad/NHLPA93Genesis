@@ -180,7 +180,7 @@ setffo	;draw the 5 objects tied to icerink scrolling (pads ...). Called from set
 
 uppads	;update the gloves object and the 4 pad objects, and queue new pad labels.
 	;Called from setffo. a5 = dma list. 93 reads one PadControlBits nibble per pad (92 used padcont bits)
-	movea.w	#(unk_FFBE24-M68K_RAM),a0	;pads+(4*ffosize) (92 ffo+(4*ffosize)): gloves
+	movea.w	#(glovestruct-M68K_RAM),a0	;pads+(4*ffosize) (92 ffo+(4*ffosize)): gloves
 	st	Zpos(a0)			;hidden
 	move.b	(glovecords).w,d0
 	beq.w	.nogloves

@@ -286,7 +286,7 @@ assfaceoffp1	;assignment for players actually participating in faceoff
 	bset	#pf2aip,pflags2(a3)
 	bne.w	rtss
 	move.w	#$11A4,d1		;SPAfaceoff
-	cmpi.w	#$10,(word_FFB78A).w	;puckx+temp1
+	cmpi.w	#$10,(puckx+temp1).w
 	bls.w	.d
 	moveq	#8,d0
 	bsr.w	randomd0

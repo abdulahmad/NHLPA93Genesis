@@ -456,9 +456,9 @@ DoDMA	;initiate dma transfer (dma transfer bug is compensated for). d0 = words t
 	lsr.w	#2,d0
 	ori.l	#$804000,d0
 
-	move.l	d0,(dword_FFCAEA).w	;dmaram
-	move.w	(dword_FFCAEA+2).w,(a1)
-	move.w	(dword_FFCAEA).w,(a1)
+	move.l	d0,(dmaram).w
+	move.w	(dmaram+2).w,(a1)
+	move.w	(dmaram).w,(a1)
 
 	bsr.w	WaitDMA
 	move.w	#$8164,(a1)		;$8100+%01100100

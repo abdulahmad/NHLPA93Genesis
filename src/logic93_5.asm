@@ -321,7 +321,7 @@ skateto	;a0 = extra routine for collision avoidance, d0/d1 = x/y cord to skate t
 	bne.w	.ex
 	move.w	(puckx).w,d0
 	move.w	(pucky).w,d1
-	btst	#pf2fight,(byte_FFB7AD).w	;92 puckx+pflags2
+	btst	#pf2fight,(puckx+pflags2).w
 	beq.w	.nf
 	move.w	(xc1).w,d0
 	move.w	(yc1).w,d1
@@ -912,9 +912,9 @@ dirtab	;x,y speed for each direction 0-7 (92 runspeed 200, diagonal 200*1000/141
 	dc.w	-200,0
 	dc.w	-141,141
 
-UnpackNibbles	;93: a0 = packed data, d0 = count. Unpacks d0 4-bit values (high nibble first) into words at dword_FFCACA. Called from UpdateTeamNameisplay
+UnpackNibbles	;93: a0 = packed data, d0 = count. Unpacks d0 4-bit values (high nibble first) into words at nibblebuffer. Called from UpdateTeamNameisplay
 	movem.l	d0-d2/a0-a1,-(sp)
-	movea.w	#(dword_FFCACA-M68K_RAM),a1
+	movea.w	#(nibblebuffer-M68K_RAM),a1
 	clr.w	d2
 	bra.w	.next
 .loop	move.b	(a0)+,d1		;IDA: process_one_nibble
@@ -928,9 +928,9 @@ UnpackNibbles	;93: a0 = packed data, d0 = count. Unpacks d0 4-bit values (high n
 	movem.l	(sp)+,d0-d2/a0-a1
 	rts
 
-WeightedRandomSelect	;93: d0 = number of word weights at dword_FFCACA. Return d0 = random index, picked with those weights. Called from SetScore_getscore and UpdateTeamNameisplay
+WeightedRandomSelect	;93: d0 = number of word weights at nibblebuffer. Return d0 = random index, picked with those weights. Called from SetScore_getscore and UpdateTeamNameisplay
 	movem.l	d1/a1,-(sp)
-	movea.w	#(dword_FFCACA-M68K_RAM),a1
+	movea.w	#(nibblebuffer-M68K_RAM),a1
 	clr.w	d1
 	bra.w	.next
 .sum	add.w	(a1)+,d1		;IDA: sum_all_weights
@@ -939,7 +939,7 @@ WeightedRandomSelect	;93: d0 = number of word weights at dword_FFCACA. Return d0
 	bsr.w	randomd0
 .find	sub.w	-(a1),d0		;IDA: find_entry_random. walk back from the last weight
 	bpl.s	.find
-	suba.w	#(dword_FFCACA-M68K_RAM),a1
+	suba.w	#(nibblebuffer-M68K_RAM),a1
 	move.w	a1,d0
 	lsr.w	#1,d0			;word offset -> index
 	movem.l	(sp)+,d1/a1

@@ -145,11 +145,11 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	beq.w	.sa2			;no player involved
 	movem.l	d0-d1/a1-a4,-(sp)
 	bsr.w	GetPeriodTimeRemaining	;93: log time, penalty and player
-	movea.w	#(unk_FFC3F6-M68K_RAM),a4
-	adda.w	(word_FFC3F4).w,a4
-	cmpi.w	#$EC,(word_FFC3F4).w	;log full: keep overwriting the last entry
+	movea.w	#(PenSum-M68K_RAM),a4
+	adda.w	(PenSumLength).w,a4
+	cmpi.w	#$EC,(PenSumLength).w	;log full: keep overwriting the last entry
 	beq.w	.full
-	addq.w	#4,(word_FFC3F4).w
+	addq.w	#4,(PenSumLength).w
 .full	move.w	d0,(a4)+		;IDA: loc_E714. time
 	move.b	(a0),(a4)+		;penalty
 	clr.w	d1
@@ -381,7 +381,7 @@ limitfo	;limit face off to 5-20 feet from walls of rink. Checks every player in 
 .1	move.w	d0,(fox).w		;IDA: _1
 	rts
 
-UpdatePA	;animate ref in ref window. 93: also runs DisplayPeriodOver for game over and reprints the horizontal penalty message line when word_FFC2BA runs out
+UpdatePA	;animate ref in ref window. 93: also runs DisplayPeriodOver for game over and reprints the horizontal penalty message line when penmsgtimer runs out
 	tst.w	(RefCnt).w
 	bmi.w	rtss
 	sub.w	d7,(RefCnt).w
@@ -390,9 +390,9 @@ UpdatePA	;animate ref in ref window. 93: also runs DisplayPeriodOver for game ov
 .0	cmpi.w	#4,(RefPen).l		;IDA: loc_EA36. game over (92 PenEOG = 4)
 	bne.w	.1
 	bsr.w	DisplayPeriodOver
-.1	sub.w	d7,(word_FFC2BA).w	;IDA: loc_EA46
+.1	sub.w	d7,(penmsgtimer).w	;IDA: loc_EA46
 	bpl.w	rtss
-	move.w	#$7FFF,(word_FFC2BA).w
+	move.w	#$7FFF,(penmsgtimer).w
 	bsr.w	PrintPenaltyMessagesString
 	bsr.w	printz
 	String	$BF,$11,$B
@@ -402,17 +402,17 @@ UpdatePA	;animate ref in ref window. 93: also runs DisplayPeriodOver for game ov
 	sub.w	d0,(printx).w		;center it
 	bra.w	print
 
-SetPA	;start ref animation. d0 = animation (penalty number). 93: goal also calls DisplayPlayerAttributeMenu, and word_FFC2BA is set to 60 in horizontal mode. Falls into SetPA2
+SetPA	;start ref animation. d0 = animation (penalty number). 93: goal also calls DisplayPlayerAttributeMenu, and penmsgtimer is set to 60 in horizontal mode. Falls into SetPA2
 	move.w	d0,(RefPen).w
 	clr.w	(RefStep).w
 	bsr.w	prefmes
 	cmp.w	#$E,d0			;goal (92 PenGoal = 6)
 	bne.w	.0
 	bsr.w	DisplayPlayerAttributeMenu
-.0	move.w	#$7FFF,(word_FFC2BA).w	;IDA: loc_EA8A
+.0	move.w	#$7FFF,(penmsgtimer).w	;IDA: loc_EA8A
 	btst	#sfhor,(sflags).w
 	beq.w	SetPA2
-	move.w	#$3C,(word_FFC2BA).w	;60
+	move.w	#$3C,(penmsgtimer).w	;60
 
 SetPA2	;update animation for ref. Next frame/delay pair from the PenaltyList animation of RefPen. Also called from UpdatePA
 	movem.l	d0-d2/a0-a1,-(sp)
@@ -550,8 +550,8 @@ PenGoalStuff	;do this stuff after a goal. a1 = scored on team, a2 = scoring team
 	bsr.w	RemovePlayerFromList
 	addq.w	#1,tmap(a1)
 	addq.w	#1,tmPwrGoals(a2)
-	bset	#0,(byte_FFC516).w	;tmstruct+tmflags: tmflcc
-	bset	#0,(byte_FFC6B8).w	;tmstruct+tmsize+tmflags: tmflcc
+	bset	#0,(hmtmstruct+tmflags).w	;tmflcc
+	bset	#0,(awtmstruct+tmflags).w	;tmflcc
 .ex	movem.l	(sp)+,d0-d2/a0		;IDA: _ex
 	rts
 
@@ -659,8 +659,8 @@ releasepl	;player's penalty time is up so let him out (if appropriate). a2 = tea
 	lsr.w	#1,d3
 	move.w	tmap(a2),d1
 	addq.w	#1,tmap(a2)
-	bset	#0,(byte_FFC516).w	;tmstruct+tmflags: tmflcc
-	bset	#0,(byte_FFC6B8).w	;tmstruct+tmsize+tmflags: tmflcc
+	bset	#0,(hmtmstruct+tmflags).w	;tmflcc
+	bset	#0,(awtmstruct+tmflags).w	;tmflcc
 	movea.l	#priolist,a0
 	tst.w	tmgoalie(a2)			;92 cmp #2
 	bpl.w	.gin

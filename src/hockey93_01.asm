@@ -43,7 +43,7 @@ ChkShortPeriods	;IDA: loc_649E. Pad 1 = $E0 at game start forces 30 second perio
 	bsr.w	Readjoy1
 	cmp.b	#$E0,d3
 	bne.w	StartGame
-	move.w	#3,(word_FFCADE).w	;period length index 3 = 30 (92 OptPerlen)
+	move.w	#3,(OptPerlen).w	;period length index 3 = 30
 
 StartGame	;reset game state for a new game, then start the first period
 	clr.b	(gmode).w
@@ -55,7 +55,7 @@ StartGame	;reset game state for a new game, then start the first period
 	bsr.w	ClearShotData
 .1	jsr	(clearTeamStats).l
 	clr.w	(ScoreSumbytes).w
-	clr.w	(word_FFC3F4).w
+	clr.w	(PenSumLength).w
 	clr.w	(gsp).w			;first period
 	clr.w	(ChkCnt).w
 	bsr.w	restoreteams
@@ -91,16 +91,16 @@ ResetClock	;set period length and stop clock
 	move.w	#$258,d0		;OptPlayMode 0 overtime is always 10:00
 .set	move.w	d0,(gameclock).w
 	move.w	d0,(PerTimeTotal).w
-	move.w	d0,(word_FFB048).w	;CheckPeriodEnd trigger time =
+	move.w	d0,(periodendtime).w	;CheckPeriodEnd trigger time =
 	asr.w	#1,d0
 	bsr.w	randomd0
-	sub.w	d0,(word_FFB048).w	;length - random(length/2)
+	sub.w	d0,(periodendtime).w	;length - random(length/2)
 	bset	#gmclock,(gmode).w		;stop clock
 	rts
 
 GetPeriodTime	;return d0 = period length in seconds for the period length option
 		;(split out of 92 ResetClock; 92 has no separate name)
-	move.w	(word_FFCADE).w,d0	;92 OptPerlen
+	move.w	(OptPerlen).w,d0
 	asl.w	#1,d0
 	lea	.timetab(pc),a0
 	move.w	0(a0,d0.w),d0
@@ -202,9 +202,9 @@ CheckPeriodEnd	;called once per second. 3rd period: play tune $32 once at the ra
 	btst	#4,(gmode).w
 	bne.w	.x
 	move.w	(gameclock).w,d0
-	cmp.w	(word_FFB048).w,d0
+	cmp.w	(periodendtime).w,d0
 	bgt.w	.x			;not there yet
-	st	(word_FFB048).w		;high byte $FF: trigger goes negative, fires once
+	st	(periodendtime).w		;high byte $FF: trigger goes negative, fires once
 	move.w	#$32,-(sp)
 	bsr.w	song
 .x	rts
@@ -212,12 +212,12 @@ CheckPeriodEnd	;called once per second. 3rd period: play tune $32 once at the ra
 UpdateCwdExcite	;called once per second. Track peak and running total of crowd
 		;excitement, then decay the level by 1 (floor 0)
 	move.w	(CwdExciteLvl).w,d0
-	cmp.w	(word_FFB8A4).w,d0
+	cmp.w	(MaxCwdExciteLvl).w,d0
 	bls.w	.nomax
-	move.w	d0,(word_FFB8A4).w	;new peak
+	move.w	d0,(MaxCwdExciteLvl).w	;new peak
 .nomax	ext.l	d0
-	add.l	d0,(dword_FFB8A8).w	;running total
-	addq.w	#1,(word_FFB8A6).w	;sample count
+	add.l	d0,(SumCwdExciteLvl).w	;running total
+	addq.w	#1,(NumCwdExciteLvl).w	;sample count
 	subq.w	#1,(CwdExciteLvl).w	;decay
 	bpl.w	.x
 	clr.w	(CwdExciteLvl).w
@@ -231,7 +231,7 @@ updatecrowdf	;this is called every game loop with d7 = elapsed frames
 .dec	sub.w	d7,(crowdlevel).w
 	bpl.w	.0
 	clr.w	(crowdlevel).w
-.0	sub.w	d7,(word_FFB8A0).w	;92 crowdcnt
+.0	sub.w	d7,(crowdcnt).w
 	bpl.w	.cf
 	move.w	(crowdlevel).w,d0
 	lsr.w	#1,d0
@@ -249,7 +249,7 @@ updatecrowdf	;this is called every game loop with d7 = elapsed frames
 	move.w	(VDP_CNTR).l,d2		;HVcount
 	and.w	d1,d2			;random 0..time
 	add.w	d2,d1
-	move.w	d1,(word_FFB8A0).w	;crowdcnt = time + random
+	move.w	d1,(crowdcnt).w	;time + random
 .cf	clr.b	(crowdframe).w
 	cmpi.w	#$118,(crowdlevel).w	;280
 	bls.w	rtss2

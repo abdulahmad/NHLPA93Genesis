@@ -176,7 +176,7 @@ LineEditorRedraw	;IDA: loc_6E32. Clear the screen and redraw everything.
 	moveq	#$1C,d1
 	move.w	#$7FF,d2
 	bsr.w	eraser
-	st	(byte_FFBF24).w		;force DrawAttributeMenu to redraw the icons
+	st	(redrawicons).w		;force DrawAttributeMenu to redraw the icons
 	bsr.w	ClearMenuFlags
 LineEditorMenu	;IDA: loc_6E52. Slot cursor loop. Also entered from
 	;SelectAttributeItem when it is done
@@ -232,7 +232,7 @@ SelectAttributeItem	;line editor: C pressed on slot TestList. Build the list of
 	bsr.w	GetPlayerCount
 	sub.w	d1,d0
 .n	subq.w	#1,d0			;IDA: loc_6EEA
-	move.w	d0,(word_FFC9D4).w
+	move.w	d0,(screentimer).w
 	clr.w	(PlayerScrollCtr).w
 	clr.w	(VertLineScrolling).w
 	movea.w	#(Satt-M68K_RAM),a0
@@ -283,9 +283,9 @@ SelectAttributeItem	;line editor: C pressed on slot TestList. Build the list of
 	move.w	d0,(DispAttribCtr).w
 	bsr.w	PrintAttribHeader
 	bra.s	.loop
-.vert	add.w	(VertLineScrolling).w,d0	;IDA: loc_6FB2. Cursor row 0..word_FFC9D4
+.vert	add.w	(VertLineScrolling).w,d0	;IDA: loc_6FB2. Cursor row 0..screentimer
 	bmi.s	.loop
-	cmp.w	(word_FFC9D4).w,d0
+	cmp.w	(screentimer).w,d0
 	bgt.s	.loop
 	move.w	d0,(VertLineScrolling).w
 	cmp.w	(PlayerScrollCtr).w,d0	;IDA: loc_6FC2. PlayerScrollCtr = first shown row
@@ -324,7 +324,7 @@ PrintAttribHeader	;line editor player list: column header for attribute page
 	move.l	(a1),d4			;column flags for GetNameandAttrib
 	movea.w	#(Satt-M68K_RAM),a3
 	move.w	(PlayerScrollCtr).w,d2
-	move.w	(word_FFC9D4).w,d1
+	move.w	(screentimer).w,d1
 	sub.w	d2,d1
 	cmp.w	#5,d1
 	bls.w	.4
@@ -357,11 +357,11 @@ DrawAttributeMenu	;line editor: draw the line icons for the cursor's line
 	beq.w	.0
 	subq.w	#1,a0			;OptLine set: table starts one byte earlier
 .0	move.b	(a0),d0			;IDA: loc_70A6
-	cmp.b	(byte_FFBF24).w,d0
+	cmp.b	(redrawicons).w,d0
 	beq.w	.1			;same group as last time: no clear
-	move.b	d0,(byte_FFBF24).w
+	move.b	d0,(redrawicons).w
 	bsr.w	ClearAttributeArea
-.1	btst	d5,(byte_FFBF24).w	;IDA: loc_70B8. Line d5 in this group?
+.1	btst	d5,(redrawicons).w	;IDA: loc_70B8. Line d5 in this group?
 	beq.w	.2
 	bsr.w	DrawMenuIcon
 .2	dbf	d5,.1			;IDA: loc_70C4
@@ -379,7 +379,7 @@ DrawAttributeMenu	;line editor: draw the line icons for the cursor's line
 	sub.w	d0,(printx).w
 	move.w	d7,(printa).w
 	bsr.w	printsmall
-	clr.w	(word_FFB030).w
+	clr.w	(printfontset).w
 	rts
 	dc.b	1			;AttributeMenuTable-1, used when OptLine is set
 AttributeMenuTable	;per line: bit mask of the lines drawn together
@@ -422,9 +422,9 @@ DrawMenuIcon	;line editor: draw line d5 (name from linelist, then its player
 	bne.w	.2
 	move.w	d0,d6			;player in the cursor slot
 	move.w	(printa).w,d7
-	move.w	#2,(word_FFB030).w	;highlight while printing
+	move.w	#2,(printfontset).w	;highlight while printing
 .2	bsr.w	printsmall		;IDA: loc_7196
-	clr.w	(word_FFB030).w
+	clr.w	(printfontset).w
 	addq.w	#1,d4
 	dbf	d3,.1
 	rts
@@ -487,9 +487,9 @@ ClearAttributeArea2	;erase 40 x 10 at the top of map 2
 	move.w	#$7FF,d2
 	bra.w	eraser
 
-ClearMenuFlags	;clear word_FFBD82 and word_FFBDA2
-	clr.w	(word_FFBD82).w
-	clr.w	(word_FFBDA2).w
+ClearMenuFlags	;clear palfadenew+$5A and palfadenew+$7A
+	clr.w	(palfadenew+$5A).w
+	clr.w	(palfadenew+$7A).w
 	rts
 
 	dc.w	$10,$C,4		;IDA: word_729C. Entry used when OptLine is set
@@ -520,9 +520,9 @@ ExitAttributeScreen	;line editor: start pressed. Run the exit menu (AttributeScr
 	;choice goes back to LineEditorRedraw, zero leaves via ExitAttributeScreen2
 	bsr.w	ClearMenuFlags
 	move.w	#$18,(palcount).w
-	move.l	(dword_FFC9B4).w,-(sp)
-	move.l	(dword_FFC9B8).w,-(sp)
-	move.l	(dword_FFC9BC).w,-(sp)
+	move.l	(menuitem).w,-(sp)
+	move.l	(menulist).w,-(sp)
+	move.l	(menudraw).w,-(sp)
 	movea.l	#rtss,a1
 	movea.l	#AttributeScreenText,a0
 	movea.w	#(databuffer-M68K_RAM),a3		;Rev A $CAF2
@@ -544,10 +544,10 @@ ExitAttributeScreen	;line editor: start pressed. Run the exit menu (AttributeScr
 	beq.s	.1
 	bsr.w	printsmallz
 	String	$F9,0
-	move.w	(dword_FFC9B4).w,d0
-	move.l	(sp)+,(dword_FFC9BC).w
-	move.l	(sp)+,(dword_FFC9B8).w
-	move.l	(sp)+,(dword_FFC9B4).w
+	move.w	(menuitem).w,d0
+	move.l	(sp)+,(menudraw).w
+	move.l	(sp)+,(menulist).w
+	move.l	(sp)+,(menuitem).w
 	tst.w	d0
 	bne.w	LineEditorRedraw
 	bra.w	ExitAttributeScreen2
@@ -1194,7 +1194,7 @@ GoalTypeTbl	;ScoreSum byte 2 & $7F: SH2, SH, even, PP, PP2
 	dc.b	'PP2',0
 
 PenaltySummaryScreen	;IDA: no label (Rev A $7C1A). "Penalty Summary": one 3 row
-	;entry per penalty (4 bytes each from unk_FFC3F6). Same scroll handling as
+	;entry per penalty (4 bytes each from PenSum). Same scroll handling as
 	;ScoringSummaryScreen. IDA's DisplayPenaltyList label inside the misdecoded
 	;title string is not a real entry
 	moveq	#$A,d0
@@ -1217,7 +1217,7 @@ PenaltySummaryScreen	;IDA: no label (Rev A $7C1A). "Penalty Summary": one 3 row
 	dc.w	$0034
 	dc.b	$F8,6,3,0,8,$F9,1,'^Per^^Time^^Tm^^Player/Penalty^^^^min^^^',$F9,0,0
 	clr.l	d0
-	move.w	(word_FFC3F4).w,d0	;penalty bytes
+	move.w	(PenSumLength).w,d0	;penalty bytes
 	lsr.w	#2,d0
 	mulu.w	#$18,d0			;24 pixels per entry
 	move.w	d0,(VertLineScrolling).w
@@ -1330,7 +1330,7 @@ DisplayPenaltyEntry	;print penalty entry at offset d3: time, team (bit 7 of
 	move.w	#$7FF,d2
 	bsr.w	eraser
 	move.w	(sp)+,(printy).w
-	movea.w	#(unk_FFC3F6-M68K_RAM),a0
+	movea.w	#(PenSum-M68K_RAM),a0
 	move.w	(a0,d3.w),d0
 	move.w	#1,(printx).w
 	bsr.w	FormatAndPrintTime
@@ -1556,7 +1556,7 @@ DisplayAttributeMenu	;stats screen: column headers (sort column highlighted),
 	moveq	#1,d0
 	add.w	(DispAttribCtr).w,d0
 	bsr.w	PrintStringFromList
-	clr.w	(word_FFB030).w
+	clr.w	(printfontset).w
 	movea.w	#(Satt-M68K_RAM),a3
 	clr.l	d6
 	tst.w	(DispAttribCtr).w
@@ -1953,8 +1953,8 @@ CrowdMeterScreen	;IDA: no label (Rev A $867A). "Crowd Meter": current, average
 	bne.w	ExitAttributeScreen2
 	bra.s	.loop
 
-DisplayGameStats	;crowd meter rows: CwdExciteLvl, average (dword_FFB8A8 /
-	;word_FFB8A6 samples) and peak (word_FFB8A4)
+DisplayGameStats	;crowd meter rows: CwdExciteLvl, average (SumCwdExciteLvl /
+	;NumCwdExciteLvl samples) and peak (MaxCwdExciteLvl)
 	bsr.w	printsmallz
 	dc.w	$0016
 	dc.b	$F8,4,2,4,$C,'Current Level',$FD,$1C
@@ -1963,13 +1963,13 @@ DisplayGameStats	;crowd meter rows: CwdExciteLvl, average (dword_FFB8A8 /
 	bsr.w	printsmallz
 	dc.w	$0016
 	dc.b	$FD,4,$FA,2,'Average Level',$FD,$1C,0
-	move.l	(dword_FFB8A8).w,d0
-	divu.w	(word_FFB8A6).w,d0
+	move.l	(SumCwdExciteLvl).w,d0
+	divu.w	(NumCwdExciteLvl).w,d0
 	bsr.w	FormatPercentage
 	bsr.w	printsmallz
 	dc.w	$0012
 	dc.b	$FD,4,$FA,2,'Peak Level',$FD,$1C
-	move.w	(word_FFB8A4).w,d0
+	move.w	(MaxCwdExciteLvl).w,d0
 FormatPercentage	;print crowd level d0 as sqrt(d0*4) + 65 " dB"
 	ext.l	d0
 	asl.w	#2,d0
@@ -2033,7 +2033,7 @@ SetupScreen	;common start for the stats screens: blank, 40 cell mode, load
 	clr.w	d4
 	moveq	#$D,d5
 	bsr.w	dobitmap
-	move.w	d4,(word_FFB014).w
+	move.w	d4,(smallfont2chars).w
 	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$D1234567,$89ABCDEF
@@ -2072,9 +2072,9 @@ ExitAttributeScreen2	;leave a stats screen: back to 32 cell mode, reload the
 TimeoutMenu	;IDA left this code undecoded (dc.b in both listings). Pause menu "Timeout" for team a2: uses the
 	;team's timeout (tmflags bit 2, so Pausemode shows PauseText2 from now on), prints "Timeout" in a frame
 	;with the team name, re-energizes both teams and waits $78 frames
-	subq.w	#1,(dword_FFC9B4).w
-	subq.w	#1,(dword_FFC9B4+2).w
-	move.l	#PauseText2,(dword_FFC9B8).l	;pause menu without Timeout
+	subq.w	#1,(menuitem).w
+	subq.w	#1,(menuitem+2).w
+	move.l	#PauseText2,(menulist).l	;pause menu without Timeout
 	bset	#2,tmflags(a2)		;timeout used
 	bsr.w	printz
 	String	$BD,5,$C
@@ -2099,21 +2099,21 @@ TimeoutMenu	;IDA left this code undecoded (dc.b in both listings). Pause menu "T
 SelectGoalieMenu	;IDA: no label (Rev A $890A). Pick team a2's goalie from a
 	;list (0 = no goalie). Start/C confirms; a change is stored in $26(a2)
 	;and setpersonel is called
-	move.w	(dword_FFC9B4).w,-(sp)
-	move.w	(dword_FFC9B4+2).w,-(sp)
+	move.w	(menuitem).w,-(sp)
+	move.w	(menuitem+2).w,-(sp)
 	bsr.w	ReadAttributeNibble
-	move.w	d0,(dword_FFC9B4+2).w
+	move.w	d0,(menuitem+2).w
 	bsr.w	printz
 	String	$BD,4,$C,0
 	moveq	#$18,d0
 	moveq	#3,d1
-	add.w	(dword_FFC9B4+2).w,d1
+	add.w	(menuitem+2).w,d1
 	bsr.w	Framer
 	move.w	tmgoalie(a2),d0
 	bpl.w	.0
 	moveq	#-1,d0
 .0	addq.w	#1,d0			;IDA: loc_893A
-	move.w	d0,(dword_FFC9B4).w
+	move.w	d0,(menuitem).w
 .loop	bsr.w	DisplayPlayerSelectMenu	;IDA: loc_8940
 	bsr.w	WaitVSyncAndReadInput
 	btst	#7,d1
@@ -2122,36 +2122,36 @@ SelectGoalieMenu	;IDA: no label (Rev A $890A). Pick team a2's goalie from a
 	bne.w	.done
 	btst	#1,d1
 	beq.w	.up
-	move.w	(dword_FFC9B4).w,d0
+	move.w	(menuitem).w,d0
 	addq.w	#1,d0
-	cmp.w	(dword_FFC9B4+2).w,d0
+	cmp.w	(menuitem+2).w,d0
 	bgt.s	.loop
-	move.w	d0,(dword_FFC9B4).w
+	move.w	d0,(menuitem).w
 .up	btst	#0,d1			;IDA: loc_8970
 	beq.s	.loop
-	subq.w	#1,(dword_FFC9B4).w
+	subq.w	#1,(menuitem).w
 	bpl.s	.loop
-	clr.w	(dword_FFC9B4).w
+	clr.w	(menuitem).w
 	bra.s	.loop
-.done	move.w	(dword_FFC9B4).w,d0	;IDA: loc_8982
+.done	move.w	(menuitem).w,d0	;IDA: loc_8982
 	subq.w	#1,d0
 	bpl.w	.set
 	cmpi.w	#-1,tmgoalie(a2)
 	blt.w	.x
 .set	move.w	d0,tmgoalie(a2)		;IDA: loc_8996
 	jsr	setpersonel
-.x	move.w	(sp)+,(dword_FFC9B4+2).w	;IDA: loc_89A0
-	move.w	(sp)+,(dword_FFC9B4).w
+.x	move.w	(sp)+,(menuitem+2).w	;IDA: loc_89A0
+	move.w	(sp)+,(menuitem).w
 	rts
 
-DisplayPlayerSelectMenu	;draw the goalie list, row dword_FFC9B4 highlighted,
+DisplayPlayerSelectMenu	;draw the goalie list, row menuitem highlighted,
 	;each goalie with his two digit number
 	move.w	#$D,(printy).w
-	move.w	(dword_FFC9B4+2).w,d1
+	move.w	(menuitem+2).w,d1
 	moveq	#0,d0
 .0	move.w	#5,(printx).w		;IDA: loc_89B6
 	move.w	#$A000,(printa).w
-	cmp.w	(dword_FFC9B4).w,d0
+	cmp.w	(menuitem).w,d0
 	bne.w	.1
 	move.w	#$8000,(printa).w
 .1	bsr.w	printz			;IDA: loc_89D0

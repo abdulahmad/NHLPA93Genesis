@@ -40,7 +40,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	bsr.w	dobitmap		;display replay icon
 	bclr	#sfscrl,(sflags).w		;manual scroll is off
 	bclr	#5,(sflags3).w		;no tracked object
-	st	(byte_FFBE1E).w
+	st	(replayactive).w
 	movea.l	(ReplayBufferPtr).w,a4	;92 recbpr, record buffer pointer (current frame)
 .rwd	bsr.w	suba4			;IDA: RewindToStart. Rewind to first frame
 	tst.w	d7

@@ -18,7 +18,7 @@
 
 ScoutingReport	;93 pregame scouting report (92 drew ScoutMap and position check marks). Called from PeriodOver.
 	;Draws both team blocks, the Ron Barr picture and the scouting report ratings, then types out
-	;the commentary paragraphs listed in TestList. Returns on start, or when word_FFC9D4 runs out ($1E0 after the text ends)
+	;the commentary paragraphs listed in TestList. Returns on start, or when screentimer runs out ($1E0 after the text ends)
 	move.w	#$37,-(sp)		;song $37
 	bsr.w	song
 	move.l	#vb2,(vbint).w
@@ -31,7 +31,7 @@ ScoutingReport	;93 pregame scouting report (92 drew ScoutMap and position check 
 
 	bsr.w	AddTeamBlock
 	bsr.w	AddSmallFont
-	move.w	d4,(word_FFB014).w	;1st vram char of the 2nd small font set
+	move.w	d4,(smallfont2chars).w	;1st vram char of the 2nd small font set
 	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$0A234567,$89ABCDEF	;remap table (retail; IDA eori.b / or.l)
@@ -91,7 +91,7 @@ ScoutingReport	;93 pregame scouting report (92 drew ScoutMap and position check 
 	move.w	d0,(printx).w
 	bsr.w	printsmall
 	addq.w	#1,(printy).w
-	eori.w	#2,(word_FFB030).w	;alternate char set each line
+	eori.w	#2,(printfontset).w	;alternate char set each line
 	tst.w	(a1)
 	bpl.s	.pl			;-1 ends the list
 
@@ -125,7 +125,7 @@ ScoutingReport	;93 pregame scouting report (92 drew ScoutMap and position check 
 	move.w	#$1C,(a0)+
 	move.w	#$FFFF,(a0)		;end of list
 	clr.w	(asv).w			;fast text flag
-	move.w	#$7FFF,(word_FFC9D4).w	;frames left on the screen
+	move.w	#$7FFF,(screentimer).w	;frames left on the screen
 
 .top	moveq	#0,d0			;IDA: loc_12FC4
 	bsr.w	waitx			;d1 = new presses
@@ -135,7 +135,7 @@ ScoutingReport	;93 pregame scouting report (92 drew ScoutMap and position check 
 	beq.w	.upd
 	st	(asv).w			;down: type the rest without delays
 .upd	bsr.w	UpdateScoutingDisplay	;IDA: loc_12FDE
-	subq.w	#1,(word_FFC9D4).w
+	subq.w	#1,(screentimer).w
 	bpl.s	.top
 	rts
 
@@ -143,7 +143,7 @@ DisplayPlayerStats	;93: print the 8 rating nibbles of the scouting report long a
 	;a0 = this team's scouting report, a2 = the other team's (for the combined line). Called from ScoutingReport
 	move.l	4(a0),d5		;bytes 4-7: shooting/skating, passing/defense, checking/fighting, goalkeeping/overall
 	moveq	#7,d6
-.loop	eori.w	#2,(word_FFB030).w	;IDA: loc_12FF0. alternate char set each line
+.loop	eori.w	#2,(printfontset).w	;IDA: loc_12FF0. alternate char set each line
 	rol.l	#4,d5			;next nibble
 	move.w	d5,d0
 	andi.w	#$F,d0
@@ -156,7 +156,7 @@ DisplayPlayerStats	;93: print the 8 rating nibbles of the scouting report long a
 
 DisplayCombinedStats	;93: print the power play line (byte 1 low nibble of a0 + byte 1 high nibble of a2), and on the right
 	;column (printx >= $14) the home team line (byte 2 high nibble of a0 + low nibble of a2). Falls into PrintStatNumber
-	eori.w	#2,(word_FFB030).w
+	eori.w	#2,(printfontset).w
 	move.w	(a0),d0
 	andi.w	#$F,d0
 	move.w	(a2),d1
@@ -164,7 +164,7 @@ DisplayCombinedStats	;93: print the power play line (byte 1 low nibble of a0 + b
 	andi.w	#$F,d1
 	add.w	d1,d0
 	bsr.w	PrintStatNumber
-	eori.w	#2,(word_FFB030).w
+	eori.w	#2,(printfontset).w
 	cmpi.w	#$14,(printx).w
 	blt.w	StatNextLine		;left column: skip the home team line
 	move.b	2(a0),d0
@@ -225,7 +225,7 @@ UpdateScoutingDisplay	;93: called every frame by ScoutingReport. When ScoutingRe
 	move.w	(a0,d0.w),d0		;next paragraph number
 	bpl.w	.para
 	move.w	#$7FFF,(ScoutingReportTimer).w	;end of list: stop typing
-	move.w	#$1E0,(word_FFC9D4).w	;and leave the screen in 480 frames
+	move.w	#$1E0,(screentimer).w	;and leave the screen in 480 frames
 	rts
 .para	bsr.w	ScrollDisplayUp		;IDA: loc_13152. blank line between paragraphs
 	movea.l	a1,a2
@@ -301,8 +301,8 @@ UpdateScoutingDisplay	;93: called every frame by ScoutingReport. When ScoutingRe
 .away	movea.l	(AwayTeamRosterPtr).w,a1	;IDA: loc_13252
 	bra.w	.tname
 .under	movea.l	#Montreal,a1		;IDA: loc_1325A. TeamData93 team block
-	cmpi.w	#$18,(word_FFC50E).w
-	bge.w	.tname			;used when word_FFC50E >= $18
+	cmpi.w	#$18,(hmtmstruct+tmgoalie+2).w
+	bge.w	.tname			;used when >= $18
 .home	movea.l	(HomeTeamRosterPtr).w,a1	;IDA: loc_1326A
 .tname	adda.w	4(a1),a1		;IDA: loc_1326E. team name
 .name	addq.w	#1,(PlayerScrollCtr).w	;IDA: loc_13272. step past the escape char
@@ -377,7 +377,7 @@ SetupStanleyCupCelebrationScreen	;93: Stanley Cup screen. Five EASN bitmaps at S
 	clr.w	d4			;tiles at vram char 0
 	bsr.w	DoDMA_clearCallbackPointer
 	movea.l	#Stanleymap+8,a2
-	move.w	d4,(word_FFB016).w	;1st vram char of the cup sprites
+	move.w	d4,(energybarchars).w	;1st vram char of the cup sprites
 	bsr.w	DoDMA_clearCallbackPointer
 	bsr.w	UpdateStanleyCupAnimation
 	move.w	#$18,(palcount).w	;24
@@ -401,7 +401,7 @@ UpdateStanleyCupAnimation	;93: one StanleyMap sprite at each StanleyCupPosTable 
 	andi.w	#7,(asv).w
 	movea.l	#StanleyMap,a0
 	lea	StanleyCupPosTable(pc),a4
-	move.w	(word_FFB016).w,d3
+	move.w	(energybarchars).w,d3
 .top	move.w	(a4)+,d0		;IDA: loc_133CC
 	asl.w	#3,d0
 	addi.w	#$58,d0			;x = column * 8 + $58
@@ -528,13 +528,13 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 	bsr.w	dobitmap
 
 	movea.l	#TitleLogoSprites+8,a2
-	move.w	d4,(word_FFB016).w	;1st vram char of the logo sprites
+	move.w	d4,(energybarchars).w	;1st vram char of the logo sprites
 	bsr.w	DoDMA_clearCallbackPointer
 	movea.l	#Title3Sprites+8,a2
 	move.w	d4,(gamesetuptilesetindex).w	;1st vram char of the Title3map sprites
 	bsr.w	DoDMA_clearCallbackPointer
 	clr.l	(fofdata2).w		;TitleAnimCallback timers
-	clr.w	(word_FFBDAC).w
+	clr.w	(fofdata2+4).w
 	move.w	d4,(smallfontchars).w
 	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
@@ -546,8 +546,8 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 	bsr.w	.top4
 	addi.w	#$20,(Vscroll).w
 	move.w	#$104,(clampcounter).w	;FinalizeSpriteList logo slide in
-	move.w	#$120,(word_FFB8AE).w	;logo x
-	move.w	#$D0,(word_FFB8B0).w	;logo y
+	move.w	#$120,(playoffspritex).w	;logo x
+	move.w	#$D0,(playoffspritey).w	;logo y
 	clr.w	(asv).w
 	move.w	#$FFCE,(DispAttribCtr).w	;Hscroll speed (UpdateHorizontalScroll)
 	move.w	#$20,(palcount).w
@@ -730,22 +730,22 @@ EndSpriteList	;IDA: loc_13876. 92 setvideo end: close the sprite list at a6 and 
 	move.w	d0,(Sattsize).w
 	rts
 
-FinalizeSpriteList	;93: four Titlemap2 logo sprites at word_FFB8AE, word_FFB8B0. clampcounter counts down by 2
+FinalizeSpriteList	;93: four Titlemap2 logo sprites at playoffspritex, playoffspritey. clampcounter counts down by 2
 	;and the pieces drop into place from above, each 64 later than the next. Called from CallAnimationCallback
 	subq.w	#2,(clampcounter).w
 	bpl.w	.0
 	clr.w	(clampcounter).w
 .0	movea.l	#TitleLogoSprites,a0		;IDA: loc_138A2
 	moveq	#3,d7
-	move.w	(word_FFB016).w,d3
+	move.w	(energybarchars).w,d3
 	ori.w	#$8000,d3		;priority
-.top	move.w	(word_FFB8AE).w,d0	;IDA: loc_138B2
+.top	move.w	(playoffspritex).w,d0	;IDA: loc_138B2
 	move.w	d7,d1
 	asl.w	#6,d1
 	sub.w	(clampcounter).w,d1
 	bmi.w	.1
 	clr.w	d1			;in place
-.1	add.w	(word_FFB8B0).w,d1	;IDA: loc_138C4
+.1	add.w	(playoffspritey).w,d1	;IDA: loc_138C4
 	moveq	#4,d2
 	sub.w	d7,d2			;frame 1-4
 	bsr.w	SetSframe

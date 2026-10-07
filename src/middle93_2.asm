@@ -371,11 +371,11 @@ printsmallz	;IDA: printz2 (Rev A lst). 93: see printsmall. String macro should f
 	movea.l	(sp)+,a1
 	rts
 
-printsmall	;93: print string macro a1 at printx/y/m with printa. Bytes > 0 are chars ('@' = blank char $7FF, '^' = skip a column), tile = smallfontmap entry + smallfontchars[word_FFB030]. Bytes <= 0 run ControlCodeJumpTable entry -byte (0 = nothing)
+printsmall	;93: print string macro a1 at printx/y/m with printa. Bytes > 0 are chars ('@' = blank char $7FF, '^' = skip a column), tile = smallfontmap entry + smallfontchars[printfontset]. Bytes <= 0 run ControlCodeJumpTable entry -byte (0 = nothing)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	movem.l	d0-d3/a0/a2-a3,-(sp)
-	movea.w	#(smallfontchars-M68K_RAM),a3	;char set bases, picked by word_FFB030
+	movea.w	#(smallfontchars-M68K_RAM),a3	;char set bases, picked by printfontset
 	bsr.w	xyVmMap
 	move.w	(printa).w,d2
 	move.w	(a1)+,d3		;string length
@@ -402,7 +402,7 @@ printsmall	;93: print string macro a1 at printx/y/m with printa. Bytes > 0 are c
 	movea.l	#smallfontmap,a2
 	adda.l	4(a2),a2
 	move.w	4(a2,d0.w),d0
-	move.w	(word_FFB030).w,d1	;char set * 2
+	move.w	(printfontset).w,d1	;char set * 2
 	add.w	(a3,d1.w),d0
 .p	add.w	d2,d0			;IDA: loc_E108. for alternate paletes
 	move.w	d0,(a0)
@@ -478,12 +478,12 @@ ControlCode_AddY	;93: printsmall code -6, add the next (signed) byte to printy
 	add.w	d0,(printy).w
 	bra.w	xyVmMap
 
-ControlCode_SetFont	;93: printsmall code -7, next byte = char set index (word_FFB030 = index*2 into smallfontchars)
+ControlCode_SetFont	;93: printsmall code -7, next byte = char set index (printfontset = index*2 into smallfontchars)
 	clr.w	d0
 	move.b	(a1)+,d0
 	subq.w	#1,d3
 	asl.w	#1,d0
-	move.w	d0,(word_FFB030).w
+	move.w	d0,(printfontset).w
 	rts
 
 printz	;see print. String macro should follow the bsr/jsr to this routine. 93 keeps a1 (92 popped the return into a1)
@@ -576,7 +576,7 @@ PeriodLabelTable	;93: String list for FormatAndPrintTime: " 1", " 2", " 3", "OT"
 	dc.b	'OT'
 
 PushTime	;convert d0 into string format of minutes:seconds. Return a1 = string. 93 pads the minutes to 2 places with a space
-	movea.w	#(unk_FFBED4-M68K_RAM),a1	;92 mesarea+30
+	movea.w	#(mesarea+30-M68K_RAM),a1
 	move.l	d0,-(sp)
 	move.l	a1,-(sp)
 
@@ -620,7 +620,7 @@ PushTime	;convert d0 into string format of minutes:seconds. Return a1 = string. 
 	rts
 
 PushNumber	;convert d0 into string format of base 10 number, no leading zeros. Return a1 = string
-	movea.w	#(unk_FFBF22-M68K_RAM),a1
+	movea.w	#(PushNumberBuf-M68K_RAM),a1
 	move.l	d0,-(sp)
 	move.l	a1,-(sp)
 .0	ext.l	d0			;IDA: loc_E320
@@ -642,9 +642,9 @@ PushNumber	;convert d0 into string format of base 10 number, no leading zeros. R
 	move.l	(sp)+,d0
 	rts
 
-PushNumberWidth	;IDA: pushnumber (Rev A lst DeterStrLength?). 93: convert d0 into a d1 digit base 10 string, leading zeros as spaces (the last digit always shown). Return a1 = string at unk_FFBF1A
+PushNumberWidth	;IDA: pushnumber (Rev A lst DeterStrLength?). 93: convert d0 into a d1 digit base 10 string, leading zeros as spaces (the last digit always shown). Return a1 = string at PushWidthBuf
 	movem.l	d0-d3,-(sp)
-	movea.w	#(unk_FFBF1C-M68K_RAM),a1
+	movea.w	#(PushWidthBuf+2-M68K_RAM),a1
 	moveq	#1,d2
 	sub.w	d2,d1
 	bra.w	.pw
@@ -665,12 +665,12 @@ PushNumberWidth	;IDA: pushnumber (Rev A lst DeterStrLength?). 93: convert d0 int
 	divu.w	#10,d2
 	bne.s	.dig
 	move.l	a1,d0
-	subi.w	#(unk_FFBF1A-M68K_RAM),d0	;length incl. the length word
+	subi.w	#(PushWidthBuf-M68K_RAM),d0	;length incl. the length word
 	btst	#0,d0
 	beq.w	.even
 	clr.b	(a1)+
 	addq.w	#1,d0
-.even	movea.w	#(unk_FFBF1A-M68K_RAM),a1	;IDA: loc_E39C
+.even	movea.w	#(PushWidthBuf-M68K_RAM),a1	;IDA: loc_E39C
 	move.w	d0,(a1)
 	movem.l	(sp)+,d0-d3
 	rts

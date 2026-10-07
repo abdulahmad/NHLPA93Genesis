@@ -50,7 +50,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	bne.w	rtss
 	btst	#gmhl,(gmode).w
 	bne.w	rtss
-	btst	#pf2fight,(byte_FFB7AD).w	;puckx+pflags2
+	btst	#pf2fight,(puckx+pflags2).w
 	bne.w	rtss
 	movem.l	d0-d4/a0-a3,-(sp)
 	movea.w	#(puckx-M68K_RAM),a0
@@ -71,7 +71,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	beq.w	.ex			;no fight
 	clr.w	(ChkCnt).w
 	moveq	#$19,d0			;26 players per team
-	movea.w	#(unk_FFC602-M68K_RAM),a0	;hmtmstruct+$11C, check count per player
+	movea.w	#(hmtmstruct+$11C-M68K_RAM),a0	;check count per player
 .clr	clr.b	tmsize(a0)		;IDA: _loop. away team
 	clr.b	(a0)+			;home team
 	dbf	d0,.clr
@@ -213,7 +213,7 @@ checkwallcoll	;d2/d3 = x/y to test, a3 = object, wcradiusx/wcradiusy = radius. C
 	neg.w	d4
 	cmp.w	d4,d2
 	bgt.w	.circle
-	movea.w	#(unk_FFB6CA-M68K_RAM),a2	;SortCords+(13*SCstruct), goal at the -y end
+	movea.w	#(SortCords+(13*SCstruct)-M68K_RAM),a2	;goal at the -y end
 	bsr.w	checkgoal
 	bra.w	.exit
 .ctc	neg.w	d5

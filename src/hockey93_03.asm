@@ -286,9 +286,9 @@ newcheck	;start a new check sound. 93: one of 4 sounds $1C-$1F (92: one of 5 fro
 	moveq	#3,d0
 	bsr.w	randomd0
 	addq.w	#1,d0			;1-3 sounds on from the last one
-	add.w	(word_FFBF26).w,d0	;last tackle sound (92 ltack)
+	add.w	(ltack).w,d0	;last tackle sound
 	andi.w	#3,d0
-	move.w	d0,(word_FFBF26).w
+	move.w	d0,(ltack).w
 	addi.w	#$1C,d0			;first check sound (92 SFXcheck = 18)
 	move.w	d0,-(sp)
 	bsr.w	sfx			;tackle sound

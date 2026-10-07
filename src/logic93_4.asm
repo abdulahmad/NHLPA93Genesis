@@ -317,8 +317,8 @@ puckfaceoff	;this is where the action starts
 	st	temp2(a3)
 	tst.w	(OptLine).w
 	bne.w	.nna
-	bclr	#1,(byte_FFC516).w	;93: home tmflags bit 1
-	bclr	#1,(byte_FFC6B8).w	;93: away tmflags bit 1
+	bclr	#1,(hmtmstruct+tmflags).w	;93: bit 1
+	bclr	#1,(awtmstruct+tmflags).w	;93: bit 1
 	movea.w	#(SortCords-M68K_RAM),a0	;93: clear pf2lcm on all 12 players
 	moveq	#$B,d0
 .lcm	bclr	#3,pflags2(a0)		;IDA: loc_C0F6
@@ -595,7 +595,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	move.w	#$18A,frame(a0)		;SPFpuck
 	clr.w	SPA(a0)
 	clr.w	attribute(a0)
-	clr.w	(word_FFB74E).w		;SortCords+(puckSCnum*SCstruct)+attribute
+	clr.w	(SortCords+(puckscnum*SCstruct)+attribute).w
 	bclr	#sfslock,(sflags).w		;free up scrolling
 	moveq	#$64,d4
 .cw	bsr.w	checkwindow		;IDA: _cw. scroll to faceoff spot
@@ -721,8 +721,8 @@ puckfaceoff2	;face off control logic and general setup for action
 	moveq	#$C,d0
 	moveq	#3,d1
 	bsr.w	Framer
-	move.w	(word_FFC4FC).w,d0	;home tmline
-	move.w	(word_FFC69E).w,d1	;away tmline
+	move.w	(hmtmstruct+tmline).w,d0
+	move.w	(awtmstruct+tmline).w,d1
 	btst	#gmdir,(gmode).w
 	bne.w	.nx
 	exg	d0,d1

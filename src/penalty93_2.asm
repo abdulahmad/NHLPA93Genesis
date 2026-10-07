@@ -194,7 +194,7 @@ linebar	;draw the energy bar of line d0 for team a2 at printx/printy (bitmap fro
 	movea.w	#$310,a2
 	move.w	(a1),d2
 	moveq	#1,d3
-	move.w	(word_FFB016).w,d4
+	move.w	(energybarchars).w,d4
 	moveq	#0,d5
 	bsr.w	dobitmap
 	move.w	(sp)+,(printa).w
@@ -435,8 +435,8 @@ SetScore	;add to score for game in a0. After period 3 a game within one goal goe
 	andi.w	#$70,d0
 	lsr.w	#1,d0			;row * 8
 	lea	.sctab(pc),a1
-	move.l	(a1,d0.w),(dword_FFCACA).w
-	move.l	4(a1,d0.w),(dword_FFCACE).w
+	move.l	(a1,d0.w),(nibblebuffer).w
+	move.l	4(a1,d0.w),(nibblebuffer+4).w
 	asl.w	#2,d1
 	movea.w	#$314,a1
 	movea.l	(a1,d1.w),a1
@@ -446,9 +446,9 @@ SetScore	;add to score for game in a0. After period 3 a game within one goal goe
 	asl.w	#3,d0
 	lea	.sctab(pc),a1
 	move.l	(a1,d0.w),d1
-	add.l	d1,(dword_FFCACA).w
+	add.l	d1,(nibblebuffer).w
 	move.l	4(a1,d0.w),d1
-	add.l	d1,(dword_FFCACE).w
+	add.l	d1,(nibblebuffer+4).w
 	moveq	#4,d0			;4 weights
 	bra.w	WeightedRandomSelect
 
@@ -615,8 +615,8 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	move.w	(a0),(HomeTeam).w	;set up teams for game in a0
 	move.w	2(a0),(VisTeam).w
 	move.l	a0,-(sp)
-	clr.w	(word_FFC50C).w
-	clr.w	(word_FFC6AE).w
+	clr.w	(hmtmstruct+tmgoalie).w
+	clr.w	(awtmstruct+tmgoalie).w
 	jsr	(clearTeamStats).l
 	jsr	(restoreteams).w	;IDA: InitTeamShots
 	st	(c1playernum).w
