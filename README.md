@@ -5,6 +5,18 @@ Built on the work that McMarkis (https://github.com/Mhopkinsinc/NHLHockey) did t
 
 Status: all 68k code is source and both the retail and the Rev A ROM build bitwise perfect from it. The Z80 sound driver, the sound data (PCM samples, FM patches, event streams), the team palettes and the graphics are incbins of slices extracted from the retail ROM; anything in them that holds a ROM address is source, so the data follows the code.
 
+## Segment consolidation (Oct 2026)
+
+Merged files (older notes below may still use the old part names):
+- logic93.asm = logic93_1..5 ($946E-$D629)
+- middle93.asm = middle93_1..2 ($D62A-$E525)
+- penalty93.asm = penalty93_1..2 ($E526-$FAE1)
+- video93.asm = video93_1..2 ($11802-$122A7)
+- hockey93_03_05.asm = hockey93_03..05 ($FAE2-$11801, contiguous; penalty93 before, video93 after)
+- hockey93_06_11.asm = hockey93_06..11 ($122A8-$15FE5, contiguous)
+- hockey93_01 and hockey93_02 stay separate (menu93/stats93 and logic93 sit between them in ROM).
+Each merged file has a `(was X.asm)` banner per part. One stub per merged file; seg scripts: seg:logic93, seg:middle93, seg:penalty93, seg:video93, seg:hockey93_03_05, seg:hockey93_06_11.
+
 ## Features of this version:
 - Retail (`1992.JUL -00`) and Rev A (`1992.OCT -01`) ROMs build bitwise perfect from the same source (`IF REV=1` blocks)
 - Label-based source: RAM, ports and structure equates live in `src/ram93.asm` (laid out like NHL 92 `ram.asm`), and the code and data use labels instead of addresses

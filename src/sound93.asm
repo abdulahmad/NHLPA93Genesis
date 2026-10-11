@@ -823,8 +823,8 @@ fmtune_scouting_cmdstream
 	incbin	..\Extracted\Sound\fmtune_scouting_cmdstream.bin	;retail $2C8AA-$2CEC3. song $37: ScoutingReport
 	even
 	dc.l	fmtune_scouting_cmdstream+4	;loop pointer (past the first event)
-ScoutingReportText	;IDA name: scouting report text (hockey93_07)
-	incbin	..\Extracted\Text\ScoutingReportText.bin	;retail $2CEC8-$2E1FA. ScoutingReportText (hockey93_07 stub): scouting report paragraphs
+ScoutingReportText	;IDA name: scouting report text (hockey93_06_11)
+	incbin	..\Extracted\Text\ScoutingReportText.bin	;retail $2CEC8-$2E1FA. ScoutingReportText (hockey93_06_11 stub): scouting report paragraphs
 	IF REV=0
 	dc.b	$72			;pad: retail leftover byte (Rev A 0)
 	ELSE

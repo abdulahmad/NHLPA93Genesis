@@ -15,7 +15,7 @@ GameSetupSprites		;retail $2EFA2-$2F0AF (270 bytes). IDA GameSetupMap: game setu
 Title1Map		;retail $2F0B0-$31287 (8664 bytes). 92 Title1Map: TitleScreen backdrop
 	incbin	..\Extracted\Graphics\Title1.map.jim
 	even
-Title2Map		;retail $31288-$31F0F (3208 bytes). 92 Title2Map: second TitleScreen bitmap (no IDA label; hockey93_07 loads #$31288)
+Title2Map		;retail $31288-$31F0F (3208 bytes). 92 Title2Map: second TitleScreen bitmap (no IDA label; hockey93_06_11 loads #$31288)
 	incbin	..\Extracted\Graphics\Title2.map.jim
 	even
 Title3Sprites		;retail $31F10-$322CD (958 bytes). IDA Title3map: the three TitleAnimCallback sprites (SetSframe)

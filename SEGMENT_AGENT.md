@@ -4,6 +4,18 @@ Finish one NHLPA 93 segment so it assembles with SNASM68K and matches the retail
 
 Status: the code segments are done. Every code range in "ROM map" from `hockey93_01` through `checksum93` matches retail. The `sound93` 68k driver is the last code segment (`$165D8-$16E52`). The Z80 program and sound data are incbins from `$16E53`: the rest of the Z80 program after `Z80_Program_Code dc.b $18` (`$16E52`), the PCM samples, FM patches, sound event streams, the scouting report text and the game setup bitmap, to `$2EFA1`. `graphics93.asm` (`$2EFA2-$7FB75`) is incbin only. `npm run extractassets` (`src/extractAssets93-1.1.js`) writes both from `nhlpa93retail.bin` to `Extracted\Sound`, `Extracted\Text` and `Extracted\Graphics`. Do not start another code segment. Do not transcribe or disassemble the Z80 blob, the sound data, or the graphics.
 
+## Segment consolidation (Oct 2026)
+
+Merged files (older notes below may still use the old part names):
+- logic93.asm = logic93_1..5 ($946E-$D629)
+- middle93.asm = middle93_1..2 ($D62A-$E525)
+- penalty93.asm = penalty93_1..2 ($E526-$FAE1)
+- video93.asm = video93_1..2 ($11802-$122A7)
+- hockey93_03_05.asm = hockey93_03..05 ($FAE2-$11801, contiguous; penalty93 before, video93 after)
+- hockey93_06_11.asm = hockey93_06..11 ($122A8-$15FE5, contiguous)
+- hockey93_01 and hockey93_02 stay separate (menu93/stats93 and logic93 sit between them in ROM).
+Each merged file has a `(was X.asm)` banner per part. One stub per merged file; seg scripts: seg:logic93, seg:middle93, seg:penalty93, seg:video93, seg:hockey93_03_05, seg:hockey93_06_11.
+
 ## Listing path — read this first
 
 The annotated disassembly already exists in the workspace. Before writing any asm, open this file and search it for the routine:

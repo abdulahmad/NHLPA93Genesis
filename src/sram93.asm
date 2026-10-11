@@ -404,7 +404,7 @@ BackupRAM_Read	;load the saved block into databuffer at power on. Called once fr
 
 BitsToPW	;IDA name. 92 BitstoPW made the password text from passbits; 93 saves databuffer to backup RAM instead.
 	;Sets byte 127 = sum of bytes 0-125 and byte 126 = not sum, then writes the 128 bytes one at a time.
-	;Called from EncodePW (hockey93_09) and EncodePlayerAttributes (stats93). d0-d1/a0 kept, errorflag2 = -1 when it failed
+	;Called from EncodePW (hockey93_06_11) and EncodePlayerAttributes (stats93). d0-d1/a0 kept, errorflag2 = -1 when it failed
 	movem.l	d0-d1/a0,-(sp)
 	clr.w	(errorflag2).w		;Rev A $CE12
 	move.w	#$7D,d1			;sum bytes 0-125

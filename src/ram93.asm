@@ -435,7 +435,7 @@ menuitem	rs.l	1	;menu state: selected item, then (+2) first item shown. IDA: dwo
 menulist	rs.l	1	;menu item list. IDA: dword_FFC9B8
 menudraw	rs.l	1	;menu screen draw routine. IDA: dword_FFC9BC
 TickerNum	rs.w	1
-PPBonus	rs.b	1	;check bonuses (hockey93_05), cleared together by clr.l. IDA: dword_FFC9C2
+PPBonus	rs.b	1	;check bonuses (hockey93_03_05), cleared together by clr.l. IDA: dword_FFC9C2
 PKBonus	rs.b	1	;IDA: dword_FFC9C2+1
 ThirdPBonus	rs.b	1	;IDA: dword_FFC9C2+2
 HmAwBonus	rs.b	1	;IDA: dword_FFC9C2+3
