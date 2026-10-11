@@ -1159,7 +1159,7 @@ print	;a1 = string macro, printx/y = x/y cordinate on map for printing, printm =
 	bsr.w	xyVmMap
 	bra.s	.1
 
-FormatAndPrintTime	;print a period label and time. d0 bits 14-15 = period (PeriodLabelTable entry), bits 0-13 = seconds. Called from DisplayGameStatEntry and DisplayPenaltyEntry
+FormatAndPrintTime	;print a period label and time. d0 bits 14-15 = period (PeriodLabelTable entry), bits 0-13 = seconds. Called from DrawScoringRow and DisplayPenaltyEntry
 	swap	d0
 	clr.w	d0
 	rol.l	#2,d0			;d0.w = period

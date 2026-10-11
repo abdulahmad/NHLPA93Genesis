@@ -885,10 +885,10 @@ PrintTeamNameAndScore	;print the team name of team a2 at printx/printy, then its
 	bsr.w	PushNumberWidth
 	bra.w	print
 
-PrintTeamLogoAndScore	;draw the team logo map (PrintTeamData, d0 = offset) 6 columns left of printx, then the score of team a2 in big font, centered 2 rows lower. Called twice from printscores1.sbscreen
+PrintTeamLogoAndScore	;draw the team logo map (PutTeamBlock, d0 = offset) 6 columns left of printx, then the score of team a2 in big font, centered 2 rows lower. Called twice from printscores1.sbscreen
 	move.w	(printx).w,-(sp)
 	subq.w	#6,(printx).w
-	jsr	(PrintTeamData).w
+	jsr	(PutTeamBlock).w
 	move.w	(sp)+,(printx).w
 	addq.w	#2,(printy).w
 	move.w	tmscore(a2),d0

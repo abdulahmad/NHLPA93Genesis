@@ -23,7 +23,7 @@ RAMStart = $FF0000
 
 InitMenuState = $6A00
 HandleMenuInput = $6A4E
-PrintTeamData = $6BB6
+PutTeamBlock = $6BB6
 MenuWaitVblank = $6BF4
 getpzjoy = $8DB8
 rtss2 = $9092

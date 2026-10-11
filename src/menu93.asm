@@ -130,7 +130,7 @@ UpdateMenuSelection	;clamp the selection, scroll the 4 visible rows, print the m
 	String	CC_SetAttribute,5,CC_AddX,1,$7D
 .x	rts
 
-PrintTeamData	;copy 2 rows of 12 map words from $FFC210+d0 to printx/printy,
+PutTeamBlock	;copy 2 rows of 12 map words from $FFC210+d0 to printx/printy,
 	;then printx += 12. Saves d0-d2/a0-a1
 	movem.l	d0-d2/a0-a1,-(sp)
 	move.w	(disflags).w,-(sp)

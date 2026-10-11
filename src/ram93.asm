@@ -360,7 +360,7 @@ cont1team	rs.w	1	;cont1 team 0=none 1=team1 2=team2
 cont2team	rs.w	1
 HomeTeam	rs.w	1	;number 0-24
 VisTeam	rs.w	1
-TeamBlockMap	rs.w	47	;map word buffer for CopyTeamBlockMapData and PrintTeamData.
+TeamBlockMap	rs.w	47	;map word buffer for CopyTeamBlockMapData and PutTeamBlock.
 PenaltyBufferEnd	rs.w	1
 PenBuf	rs.w	MaxPen+1	;upto x penalties saved
 Pencntdwn	rs.w	1

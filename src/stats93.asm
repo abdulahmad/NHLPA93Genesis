@@ -58,10 +58,10 @@ ShowScores	;"Scores" screen: lists the other games in
 	btst	#1,d3
 	beq.w	.scroll
 .set	move.w	d0,(PlayerScrollCtr).w
-.scroll	bsr.w	UpdatePlayerScroll
+.scroll	bsr.w	UpdateScoresScroll
 	bra.s	.loop
 
-UpdatePlayerScroll	;called every frame by ShowScores. Add PlayerScrollCtr to
+UpdateScoresScroll	;called every frame by ShowScores. Add PlayerScrollCtr to
 	;VertLineScrolling (0..SelectedPlayerIdx). On a 24 pixel boundary redraw the
 	;arrows and stop. Falls into UpdateVertScrollReg
 	move.w	(PlayerScrollCtr).w,d0
@@ -177,7 +177,7 @@ LineEditorRedraw	;Clear the screen and redraw everything.
 	st	(redrawicons).w		;force DrawLineIcons to redraw the icons
 	bsr.w	ClearMenuFlags
 LineEditorMenu	;Slot cursor loop. Also entered from
-	;SelectAttributeItem when it is done
+	;SelectLinePlayer when it is done
 	bsr.w	DrawTeamScreen
 	bsr.w	DrawLineIcons
 .loop	bsr.w	MenuWaitVblankWrapper
@@ -186,7 +186,7 @@ LineEditorMenu	;Slot cursor loop. Also entered from
 	btst	#7,d1			;start: exit menu
 	bne.w	LineEditorExit
 	btst	#5,d1			;C: pick a player for this slot
-	bne.w	SelectAttributeItem
+	bne.w	SelectLinePlayer
 	moveq	#1,d0			;down: next slot
 	btst	#1,d1
 	bne.w	.move
@@ -214,7 +214,7 @@ LineEditorMenu	;Slot cursor loop. Also entered from
 MenuWaitVblankWrapper	;thunk to MenuWaitVblank
 	bra.w	MenuWaitVblank
 
-SelectAttributeItem	;line editor: C pressed on slot TestList. Build the list of
+SelectLinePlayer	;line editor: C pressed on slot TestList. Build the list of
 	;players that can go in the slot in Satt (roster order is goalies, forwards,
 	;defense) and let the user pick one
 	;(left/right pages the attribute columns). C stores the pick with
@@ -361,7 +361,7 @@ DrawLineIcons	;line editor: draw the line icons for the cursor's line
 	bsr.w	ClearLineArea
 .1	btst	d5,(redrawicons).w	;Line d5 in this group?
 	beq.w	.2
-	bsr.w	DrawMenuIcon
+	bsr.w	DrawLineIcon
 .2	dbf	d5,.1
 	bsr.w	printsmallz
 	String	CC_SetMapAndPosition,4,2,8,7,CC_SetFont,1,0
@@ -383,12 +383,12 @@ DrawLineIcons	;line editor: draw the line icons for the cursor's line
 LineIconGroups	;per line: bit mask of the lines drawn together
 	dc.b	7,7,7,$18,$18,$60,$60
 
-DrawMenuIcon	;line editor: draw line d5 (name from linelist, then its player
-	;slots) at the x/y/count entry d5 of MenuIconPosTable. The slot matching
+DrawLineIcon	;line editor: draw line d5 (name from linelist, then its player
+	;slots) at the x/y/count entry d5 of LineIconPosTable. The slot matching
 	;TestList is highlighted and its player number is returned in d6
 	moveq	#6,d0			;6 bytes per entry
 	mulu.w	d5,d0
-	lea	MenuIconPosTable(pc),a0
+	lea	LineIconPosTable(pc),a0
 	adda.w	d0,a0
 	tst.w	(OptLine).w
 	beq.w	.0
@@ -435,11 +435,11 @@ ClearLineArea	;line editor: erase the line area and print the
 	moveq	#$12,d1
 	move.w	#$7FF,d2
 	bsr.w	eraser
-	move.w	(MenuIconPosTable+2).l,(printy).l
-	move.w	(MenuIconPosTable).l,(printx).l
+	move.w	(LineIconPosTable+2).l,(printy).l
+	move.w	(LineIconPosTable).l,(printx).l
 	tst.w	(OptLine).w
 	beq.w	.0
-	move.w	(MenuIconPosTable-6).l,(printx).l
+	move.w	(LineIconPosTable-6).l,(printx).l
 .0	bsr.w	printsmallz
 	dc.w	$0022
 	dc.b	$FE,4,$FB,$FD,$FA,2,'LD',$FB,$FE,$FA,2,'RD',$FB,$FE,$FA,2,'LW'
@@ -473,9 +473,9 @@ DrawTeamScreen	;line editor background: bitmap, frame, "Line Editor" title and
 	dc.b	$BE,$A,4,'Line  Editor',$BE,$E,1
 	clr.w	d0
 	cmpa.w	#(tmstruct-M68K_RAM),a2	;home team?
-	beq.w	PrintTeamData
+	beq.w	PutTeamBlock
 	moveq	#$30,d0
-	bra.w	PrintTeamData
+	bra.w	PutTeamBlock
 
 ClearLineEditorTop	;erase 40 x 10 at the top of map 2
 	bsr.w	printz
@@ -491,7 +491,7 @@ ClearMenuFlags	;clear palfadenew+$5A and palfadenew+$7A
 	rts
 
 	dc.w	$10,$C,4		;Entry used when OptLine is set
-MenuIconPosTable	;line icons: x, y, slot count - 1 per line
+LineIconPosTable	;line icons: x, y, slot count - 1 per line
 	dc.w	4,$C,4			;at +2
 	dc.w	$10,$C,4
 	dc.w	$1C,$C,4
@@ -669,7 +669,7 @@ TeamRosterScreen	;"Team Roster" screen for team a2
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.home
 	moveq	#$30,d0
-.home	bsr.w	PrintTeamData
+.home	bsr.w	PutTeamBlock
 	bsr.w	printsmallz
 	dc.w	$0034
 	dc.b	$F8,6,3,2,$C,$F9,1,'Pos.^Player',$FD,$1E,$FC,$C,'Rating'
@@ -1025,10 +1025,10 @@ ScoringSummaryScreen	;"Scoring Summary": one 4 row
 	dc.w	$0018
 	dc.b	$BD,6,4,'Scoring Summary',$BD,6,1,0
 	moveq	#$30,d0
-	bsr.w	PrintTeamData
+	bsr.w	PutTeamBlock
 	addq.w	#4,(printx).w
 	clr.w	d0
-	bsr.w	PrintTeamData
+	bsr.w	PutTeamBlock
 	bsr.w	printsmallz
 	dc.w	$0034
 	dc.b	$F8,6,3,0,8,$F9,1,'^Per^^Time^^Tm^^Goal/Assist^^^^^^^^P/S^^',$F9,0,0
@@ -1043,7 +1043,7 @@ ScoringSummaryScreen	;"Scoring Summary": one 4 row
 .0	move.w	d0,(SelectedPlayerIdx).w
 	move.w	(VertLineScrolling).w,d0
 .1	bsr.w	MenuWaitVblank
-	bsr.w	UpdateGameStatScroll
+	bsr.w	UpdateScoringScroll
 	move.w	(VertLineScrolling).w,d0
 	subq.w	#2,d0
 	cmp.w	(SelectedPlayerIdx).w,d0
@@ -1060,10 +1060,10 @@ ScoringSummaryScreen	;"Scoring Summary": one 4 row
 	btst	#1,d3
 	beq.w	.scroll
 .set	move.w	d0,(PlayerScrollCtr).w
-.scroll	bsr.w	CheckGameStatScroll
+.scroll	bsr.w	CheckScoringScroll
 	bra.s	.loop
 
-CheckGameStatScroll	;ScoringSummaryScreen per frame: add PlayerScrollCtr to
+CheckScoringScroll	;ScoringSummaryScreen per frame: add PlayerScrollCtr to
 	;VertLineScrolling (0..SelectedPlayerIdx)
 	move.w	(PlayerScrollCtr).w,d0
 	beq.w	rtss2
@@ -1071,7 +1071,7 @@ CheckGameStatScroll	;ScoringSummaryScreen per frame: add PlayerScrollCtr to
 	bmi.w	rtss2
 	cmp.w	(SelectedPlayerIdx).w,d0
 	bgt.w	rtss2
-UpdateGameStatScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
+UpdateScoringScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	;draw the entry coming into view, VSRAM = VertLineScrolling - $50
 	move.w	(VertLineScrolling).w,d1
 	move.w	d0,(VertLineScrolling).w
@@ -1087,11 +1087,11 @@ UpdateGameStatScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	move.l	d0,-(sp)
 	cmp.w	#$1E,d0
 	bne.w	.1
-	bsr.w	DisplayGameStatLineUp
+	bsr.w	DrawScoringRowUp
 .1	move.l	(sp)+,d0
 	cmp.w	#2,d0
 	bne.w	.2
-	bsr.w	DisplayGameStatLineDown
+	bsr.w	DrawScoringRowDown
 .2	move.w	(disflags).w,-(sp)
 	bset	#2,(disflags).w
 	movea.l	#VDP_DATA,a0
@@ -1102,7 +1102,7 @@ UpdateGameStatScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	move.w	(sp)+,(disflags).w
 	rts
 
-DisplayGameStatLineUp	;draw goal entry (d0 high word) at the top of the window
+DrawScoringRowUp	;draw goal entry (d0 high word) at the top of the window
 	move.l	d0,-(sp)
 	swap	d0
 	moveq	#6,d3
@@ -1114,11 +1114,11 @@ DisplayGameStatLineUp	;draw goal entry (d0 high word) at the top of the window
 	subq.w	#3,d0
 	andi.w	#$1F,d0
 	move.w	d0,(printy).w
-	bsr.w	DisplayGameStatEntry
+	bsr.w	DrawScoringRow
 	move.l	(sp)+,d0
 	rts
 
-DisplayGameStatLineDown	;draw goal entry (d0 high word) + 4 at the bottom
+DrawScoringRowDown	;draw goal entry (d0 high word) + 4 at the bottom
 	move.l	d0,-(sp)
 	swap	d0
 	addq.w	#4,d0
@@ -1131,11 +1131,11 @@ DisplayGameStatLineDown	;draw goal entry (d0 high word) + 4 at the bottom
 	addi.w	#$10,d0
 	andi.w	#$1F,d0
 	move.w	d0,(printy).w
-	bsr.w	DisplayGameStatEntry
+	bsr.w	DrawScoringRow
 	move.l	(sp)+,d0
 	rts
 
-DisplayGameStatEntry	;print ScoreSum entry at offset d3: time, team (bit 7 of
+DrawScoringRow	;print ScoreSum entry at offset d3: time, team (bit 7 of
 	;byte 2 = away), goal type (GoalTypeTbl), scorer and two assists
 	move.w	(printy).w,-(sp)
 	moveq	#$28,d0
@@ -1163,14 +1163,14 @@ DisplayGameStatEntry	;print ScoreSum entry at offset d3: time, team (bit 7 of
 	bsr.w	PrintStringFromList
 	move.w	#$10,(printx).w
 	move.b	3(a0,d3.w),d0
-	bsr.w	PrintPeriodTime
+	bsr.w	PrintScorerName
 	move.w	#$E000,(printa).w
 	move.w	#$12,(printx).w
 	move.b	4(a0,d3.w),d0
-	bsr.w	PrintPeriodTime
+	bsr.w	PrintScorerName
 	move.w	#$12,(printx).w
 	move.b	5(a0,d3.w),d0
-PrintPeriodTime	;print player d0 (byte, negative = none) and go down a row.
+PrintScorerName	;print player d0 (byte, negative = none) and go down a row.
 	;it prints a player not a time
 	ext.w	d0
 	bmi.w	.0
@@ -1206,10 +1206,10 @@ PenaltySummaryScreen	;"Penalty Summary": one 3 row
 	dc.w	$0018
 	dc.b	$BD,5,4,'Penalty  Summary',$BD,6,1
 	moveq	#$30,d0
-	bsr.w	PrintTeamData
+	bsr.w	PutTeamBlock
 	addq.w	#4,(printx).w
 	clr.w	d0
-	bsr.w	PrintTeamData
+	bsr.w	PutTeamBlock
 	bsr.w	printsmallz
 	dc.w	$0034
 	dc.b	$F8,6,3,0,8,$F9,1,'^Per^^Time^^Tm^^Player/Penalty^^^^min^^^',$F9,0,0
@@ -1434,7 +1434,7 @@ PlayerStatsList	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.home
 	moveq	#$30,d0
-.home	bsr.w	PrintTeamData
+.home	bsr.w	PutTeamBlock
 	bsr.w	DrawStatsList
 	bsr.w	DrawStatsListArrows
 .loop	bsr.w	MenuWaitVblank
@@ -1817,10 +1817,10 @@ GameStatisticsScreen	;"Game Statistics": both
 	dc.w	$0018
 	dc.b	$BD,6,4,'Game  Statistics',$BD,6,1
 	moveq	#$30,d0
-	bsr.w	PrintTeamData
+	bsr.w	PutTeamBlock
 	addq.w	#4,(printx).w
 	clr.w	d0
-	bsr.w	PrintTeamData
+	bsr.w	PutTeamBlock
 	bsr.w	DisplayTeamStatsScreen
 .loop	bsr.w	WaitVSyncAndReadInput
 	btst	#7,d1
@@ -1832,11 +1832,11 @@ DisplayTeamStatsScreen	;team logos, then each TeamStatTextTbl row centred with
 	bsr.w	printz
 	String	$BE,2,9,0
 	moveq	#$30,d0
-	bsr.w	PrintTeamData
+	bsr.w	PutTeamBlock
 	bsr.w	printz
 	String	$BE,$1A,9,0
 	moveq	#0,d0
-	bsr.w	PrintTeamData
+	bsr.w	PutTeamBlock
 	bsr.w	printz
 	String	$BE,0,$C,0
 	moveq	#7,d6
@@ -1850,16 +1850,16 @@ DisplayTeamStatsScreen	;team logos, then each TeamStatTextTbl row centred with
 	movea.l	a1,a0
 	move.w	#$22,(printx).w
 	movea.w	#(tmstruct-M68K_RAM),a2
-	bsr.w	FormatStatValue
+	bsr.w	PrintStatValue
 	move.w	#9,(printx).w
 	lea	tmsize(a2),a2
-	bsr.w	FormatStatValue
+	bsr.w	PrintStatValue
 	lea	4(a0),a1
 	addq.w	#2,(printy).w
 	dbf	d6,.0
 	rts
 
-FormatStatValue	;print TeamStatTextTbl entry a0 for team a2 centred at printx:
+PrintStatValue	;print TeamStatTextTbl entry a0 for team a2 centred at printx:
 	;value (offset $A is a time), "/second" if any, " (pct%)" for passing
 	movea.w	#(mesarea-M68K_RAM),a3
 	move.w	#2,(a3)
@@ -1940,10 +1940,10 @@ CrowdMeterScreen	;"Crowd Meter": current, average
 	dc.w	$0014
 	dc.b	$BD,9,4,'Crowd  Meter',$BD,6,1
 	moveq	#$30,d0
-	bsr.w	PrintTeamData
+	bsr.w	PutTeamBlock
 	addq.w	#4,(printx).w
 	clr.w	d0
-	bsr.w	PrintTeamData
+	bsr.w	PutTeamBlock
 	bsr.w	PrintCrowdMeter
 .loop	bsr.w	WaitVSyncAndReadInput
 	btst	#7,d1
@@ -2111,7 +2111,7 @@ SelectGoalieMenu	;pick team a2's goalie from a
 	moveq	#-1,d0
 .0	addq.w	#1,d0
 	move.w	d0,(menuitem).w
-.loop	bsr.w	DisplayPlayerSelectMenu
+.loop	bsr.w	DrawGoalieSelectList
 	bsr.w	WaitVSyncAndReadInput
 	btst	#7,d1
 	bne.w	.done
@@ -2141,7 +2141,7 @@ SelectGoalieMenu	;pick team a2's goalie from a
 	move.w	(sp)+,(menuitem).w
 	rts
 
-DisplayPlayerSelectMenu	;draw the goalie list, row menuitem highlighted,
+DrawGoalieSelectList	;draw the goalie list, row menuitem highlighted,
 	;each goalie with his two digit number
 	move.w	#$D,(printy).w
 	move.w	(menuitem+2).w,d1

@@ -3227,7 +3227,7 @@ GetPlayerNumInitial	;a1 = mesarea "NN F. Last" (FormatPlayerNumInitial) for play
 	rts
 
 FormatPlayerNumInitial	;a1 = mesarea string "NN F. Last" for player d0 of team a2, built in
-	;TextBuffer. Called from ShowGoalBox, GetPlayerNumInitial, PrintPeriodTime and others
+	;TextBuffer. Called from ShowGoalBox, GetPlayerNumInitial, PrintScorerName and others
 	movem.l	d0-d3/a0/a2,-(sp)
 	bsr.w	GetPlayerNamePointer
 	move.l	a0,-(sp)
@@ -3273,7 +3273,7 @@ FormatPlayerName	;a1 = mesarea string "NN Last" for player d0 of team a2, built 
 	rts
 
 FormatPlayerNameShort	;a1 = mesarea string " Last" for player d0 of team a2, space padded to 12
-	;characters; a 0 byte also ends the name. Called from DrawMenuIcon
+	;characters; a 0 byte also ends the name. Called from DrawLineIcon
 	movem.l	d0-d3/a0/a2,-(sp)
 	bsr.w	GetPlayerNamePointer
 	movea.w	#(TextBuffer-M68K_RAM),a1
@@ -3579,7 +3579,7 @@ bfasciicon	;equates to find each char definition in bigfont.map.
 	ENDIF
 
 linelist	String	'Sc1'	;text list for line choices (PP1/PP2 are the power play lines).
-	;Used by SetLCmode2, puckfaceoff2 and DrawMenuIcon
+	;Used by SetLCmode2, puckfaceoff2 and DrawLineIcon
 	String	'Sc2'
 	String	'Chk'
 	String	'PP1'
