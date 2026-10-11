@@ -474,7 +474,7 @@ DrawTeamScreen	;line editor background: bitmap, frame, "Line Editor" title and
 	dc.w	$0014
 	dc.b	$BE,$A,4,'Line  Editor',$BE,$E,1
 	clr.w	d0
-	cmpa.w	#(hmtmstruct-M68K_RAM),a2	;home team?
+	cmpa.w	#(tmstruct-M68K_RAM),a2	;home team?
 	beq.w	PrintTeamData
 	moveq	#$30,d0
 	bra.w	PrintTeamData
@@ -668,7 +668,7 @@ TeamRosterScreen	;IDA: no label (Rev A $74AA). "Team Roster" screen for team a2:
 	dc.w	$0014
 	dc.b	$BD,9,4,'Team  Roster',$BD,$E,1
 	clr.w	d0
-	cmpa.w	#(hmtmstruct-M68K_RAM),a2
+	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.home
 	moveq	#$30,d0
 .home	bsr.w	PrintTeamData		;IDA: loc_74F6
@@ -725,7 +725,7 @@ TeamRosterScreen	;IDA: no label (Rev A $74AA). "Team Roster" screen for team a2:
 .team	lea	tmsize(a2),a2		;IDA: loc_75D8
 	cmpa.w	#(awtmstruct-M68K_RAM),a2
 	beq.w	.redraw
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	bra.w	.redraw
 
 CheckPlayerListScroll	;TeamRosterScreen per frame: add PlayerScrollCtr to
@@ -1149,7 +1149,7 @@ DisplayGameStatEntry	;print ScoreSum entry at offset d3: time, team (bit 7 of
 	move.w	(a0,d3.w),d0
 	move.w	#1,(printx).w
 	bsr.w	FormatAndPrintTime
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	btst	#7,2(a0,d3.w)
 	beq.w	.0
 	adda.w	#tmsize,a2
@@ -1334,7 +1334,7 @@ DisplayPenaltyEntry	;print penalty entry at offset d3: time, team (bit 7 of
 	move.w	(a0,d3.w),d0
 	move.w	#1,(printx).w
 	bsr.w	FormatAndPrintTime
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	btst	#7,2(a0,d3.w)
 	beq.w	.0
 	adda.w	#tmsize,a2
@@ -1345,7 +1345,7 @@ DisplayPenaltyEntry	;print penalty entry at offset d3: time, team (bit 7 of
 	bsr.w	print
 	move.b	2(a0,d3.w),d0
 	andi.w	#$7F,d0
-	movea.l	#PenaltyList,a3
+	movea.l	#Penaltylist,a3
 	adda.w	(a3,d0.w),a3
 	clr.w	d0
 	move.b	1(a3),d0
@@ -1395,7 +1395,7 @@ DisplayTeamStats	;"Playoff Stats": DisplayAttributeScreen with d7 = 1 for the
 	movea.w	#(potree-M68K_RAM),a0
 	move.w	(potreeteam).w,d0
 	move.b	(a0,d0.w),d0
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	cmp.w	$28(a2),d0
 	beq.w	.0
 	adda.w	#tmsize,a2
@@ -1434,7 +1434,7 @@ DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	dc.w	$0016
 	dc.b	$BD,8,4,'Player  Stats',$BD,$E,1,0
 .team	clr.w	d0			;IDA: loc_7F98
-	cmpa.w	#(hmtmstruct-M68K_RAM),a2
+	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.home
 	moveq	#$30,d0
 .home	bsr.w	PrintTeamData		;IDA: loc_7FA4
@@ -1476,7 +1476,7 @@ DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	lea	tmsize(a2),a2
 	cmpa.w	#(awtmstruct-M68K_RAM),a2
 	beq.w	.redraw
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	bra.w	.redraw
 
 UpdateAttributeScroll	;stats screen per frame: scroll 0..SelectedPlayerIdx, stop
@@ -1852,7 +1852,7 @@ DisplayTeamStatsScreen	;team logos, then each TeamStatTextTbl row centred with
 	bsr.w	print
 	movea.l	a1,a0
 	move.w	#$22,(printx).w
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	FormatStatValue
 	move.w	#9,(printx).w
 	lea	tmsize(a2),a2
@@ -2089,7 +2089,7 @@ TimeoutMenu	;IDA left this code undecoded (dc.b in both listings). Pause menu "T
 	lsr.w	#1,d0
 	sub.w	d0,(printx).w
 	bsr.w	print
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	reenergizeteam
 	adda.w	#tmsize,a2
 	bsr.w	reenergizeteam

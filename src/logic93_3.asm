@@ -17,7 +17,7 @@ asswingo	;player a3 is winger on offense
 	btst	#pfalock,pflags(a3)
 	bne.w	rtss
 	btst	#gmclock,(gmode).w
-	bne.w	assnothing
+	bne.w	donothing
 	bsr.w	check4bench
 	btst	#pfjoycon,pflags(a3)
 	bne.w	rtss
@@ -94,7 +94,7 @@ asscenterd	;player a3 is center on defense
 	btst	#5,pflags(a3)
 	bne.w	rtss
 	btst	#0,(gmode).w
-	bne.w	assnothing
+	bne.w	donothing
 	bsr.w	check4bench
 	btst	#3,pflags(a3)
 	bne.w	rtss
@@ -134,7 +134,7 @@ asscentero	;player a3 is center on offense
 	btst	#5,pflags(a3)
 	bne.w	rtss
 	btst	#0,(gmode).w
-	bne.w	assnothing
+	bne.w	donothing
 	bsr.w	check4bench
 	btst	#3,pflags(a3)
 	bne.w	rtss
@@ -284,7 +284,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	btst	#6,pflags(a3)
 	bne.w	.tl
 	adda.w	#6*SCstruct,a0
-.tl	btst	#2,pflags2(a0)		;IDA: loc_B2EC. pf2unav
+.tl	btst	#pf2unav,pflags2(a0)		;IDA: loc_B2EC. pf2unav
 	bne.w	.tn
 	move.w	(pucky).w,d1
 	sub.w	Ypos(a0),d1
@@ -328,7 +328,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	move.b	#8,nopuck(a3)
 	move.w	#$314,d1
 	bsr.w	SetSPA
-	bset	#1,pflags2(a3)
+	bset	#pf2aip,pflags2(a3)
 	addi.w	#$96,(crowdlevel).w	;150
 	addi.w	#$A,(CwdExciteLvl).w
 	rts
@@ -493,7 +493,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	bpl.s	.de5			;the score/time stats say so
 	btst	#2,(iflags).w
 	bne.s	.de5
-	movea.w	#(hmtmstruct-M68K_RAM),a1
+	movea.w	#(tmstruct-M68K_RAM),a1
 	lea	tmsize(a1),a2
 	btst	#6,pflags(a3)
 	beq.w	.t0
@@ -593,7 +593,7 @@ assgoalietopuck	;93 only: goalie skates out to a loose puck (inserted by
 	beq.w	.dir
 	eori	#8,ccr
 .dir	bmi.w	assexit			;IDA: loc_B750
-	movea.w	#(hmtmstruct-M68K_RAM),a1
+	movea.w	#(tmstruct-M68K_RAM),a1
 	lea	tmsize(a1),a2
 	btst	#6,pflags(a3)
 	beq.w	.t0
@@ -611,7 +611,7 @@ asspuckc	;player a3 is puck handler
 	btst	#5,pflags(a3)
 	bne.w	rtss
 	btst	#0,(gmode).w
-	bne.w	assnothing
+	bne.w	donothing
 	btst	#3,pflags(a3)
 	bne.w	assexit
 	bclr	#1,pflags(a3)
@@ -714,9 +714,9 @@ chk4lc	;see if computer should call line change
 	move.w	(VDP_CNTR).l,d0		;HVcount
 	andi.w	#3,d0
 	bne.w	rtss
-	btst	#3,pflags2(a3)		;pf2lcm
+	btst	#pf2lcm,pflags2(a3)		;pf2lcm
 	bne.w	rtss
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
 	btst	#6,pflags(a3)
 	beq.w	.0
@@ -790,7 +790,7 @@ chk4shot	;player a3 looks for shot (computer controlled)
 	bne.w	.co1
 	asl.w	#1,d4			;defender in the shot line
 	bra.w	.co1
-.gl	btst	#1,pflags2(a1)		;IDA: loc_BA1A. 93: goalie busy, shoot now
+.gl	btst	#pf2aip,pflags2(a1)		;IDA: loc_BA1A. 93: goalie busy, shoot now
 	beq.w	.co1
 	clr.w	d3
 	moveq	#1,d4
@@ -857,7 +857,7 @@ chk4pass	;player a3 looks for good pass (computer controlled)
 	adda.w	d0,a0
 	tst.w	position(a0)
 	ble.w	rtss			;don't pass to goalie or illegal player
-	btst	#2,pflags2(a0)		;pf2unav
+	btst	#pf2unav,pflags2(a0)		;pf2unav
 	bne.w	rtss
 	btst	#pfalock,pflags(a0)
 	bne.w	rtss			;don't pass to locked player

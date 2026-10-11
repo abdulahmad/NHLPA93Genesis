@@ -71,7 +71,7 @@ ClearShotData	;clear 49 words at $FFCB0A
 	rts
 
 restoreteams	;IDA: InitTeamShots. Put both teams' rosters on the bench
-	movea.w	#(hmtmstruct-M68K_RAM),a2	;team 1
+	movea.w	#(tmstruct-M68K_RAM),a2	;team 1
 	bsr.w	.r
 	adda.w	#tmsize,a2		;team 2
 .r	;IDA: InitShotStruct. Reset one team struct (a2), falls in for team 2
@@ -124,7 +124,7 @@ StartPer	;start a period: reset stack, rink and clock, face off, run the game lo
 	bset	#sf2drec,(sflags2).w		;don't record
 	bclr	#sfwrap,(sflags).w		;reset replay stuff
 	move.w	#$FFFF,(lastsfx).w
-	move.l	#M68K_RAM,(ReplayBufferPtr).w	;92 replaystart
+	move.l	#M68K_RAM,(recbpr).w	;92 replaystart
 	move.w	(vcount).w,(oldvcount).w
 	bsr.w	DoGameFrame		;run two frames before the loop
 	bsr.w	DoGameFrame
@@ -181,7 +181,7 @@ CheckInjury	;called once per second. Count down InjCntDown, act on it at zero
 UpdateLineChange	;called once per second. Restore energy for players on the bench
 	tst.w	(OptLine).w
 	bne.w	.x			;exit if line changes are off
-	movea.w	#(hmtmstruct-M68K_RAM),a2	;team 1
+	movea.w	#(tmstruct-M68K_RAM),a2	;team 1
 	bsr.w	.team
 	lea	tmsize(a2),a2		;team 2
 .team	moveq	#$32,d0			;(maxros-1)*2
@@ -293,7 +293,7 @@ clockcont_0	;end of period. Also entered from puckfaceoff+2E
 	btst	#0,$E(a0)		;gsftf, gsflags(a0)
 	beq.w	.nf
 	eori.w	#2,d3			;gspobwins-gspotwins
-.nf	move.w	(hmtmstruct+tmscore).w,d1
+.nf	move.w	(tmstruct+tmscore).w,d1
 	sub.w	(awtmstruct+tmscore).w,d1
 	bpl.w	.ns1
 	eori.w	#2,d3			;gspobwins-gspotwins
@@ -307,7 +307,7 @@ clockcont_0	;end of period. Also entered from puckfaceoff+2E
 	dbf	d2,.t0
 	movea.w	#(SortCords-M68K_RAM),a3
 .t3	moveq	#5,d2			;winning team's skaters celebrate
-	move.w	(hmtmstruct+tmscore).w,d1
+	move.w	(tmstruct+tmscore).w,d1
 	sub.w	(awtmstruct+tmscore).w,d1
 	beq.w	.chkot			;tied
 	bpl.w	.t2			;home team leads
@@ -415,7 +415,7 @@ SetupPauseScreen	;draw routine for the pause menu (92 Pausemode .pall / .top)
 
 seta2	;IDA: GetTeamFromPause. Set a2 to tmstruct of pause joystick
 	;also called from HandleMenuInput (menu93)
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	btst	#sfpj,(sflags).w
 	beq.w	.seta20
 	cmpi.w	#1,(cont2team).w

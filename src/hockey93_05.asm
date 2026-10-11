@@ -111,7 +111,7 @@ puckglue	;IDA: loc_10F8A. Player a2 takes the puck (92 puckstick .glue)
 	move.w	#7,-(sp)		;song 7 (92 sfx SFXpuckget = 8)
 	move.w	SCnum(a2),d0
 	move.w	d0,(puckc).w
-	movea.w	#(hmtmstruct-M68K_RAM),a0
+	movea.w	#(tmstruct-M68K_RAM),a0
 	lea	tmsize(a0),a1
 	btst	#pfteam,pflags(a2)
 	bne.w	.tm
@@ -124,7 +124,7 @@ puckglue	;IDA: loc_10F8A. Player a2 takes the puck (92 puckstick .glue)
 	addq.w	#1,$E(a1)		;team word $E + 1
 	addi.w	#$C8,(crowdlevel).w	;+200
 	move.w	#$C,(sp)		;song $C
-	cmpa.w	#(hmtmstruct-M68K_RAM),a1
+	cmpa.w	#(tmstruct-M68K_RAM),a1
 	bne.w	.snd			;away team
 	addi.w	#$A,(CwdExciteLvl).w
 	move.w	#$B,(sp)		;song $B for the home team
@@ -307,7 +307,7 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	bgt.s	.bounce
 	cmp.w	(puckvy).w,d0
 	bgt.s	.bounce
-	btst	#2,pflags2(a2)		;unavailable (92 pf2unav = 4)
+	btst	#pf2unav,pflags2(a2)		;unavailable (92 pf2unav = 4)
 	bne.s	.bounce
 	clr.w	Zvel(a3)
 	bra.w	puckglue		;goalie holds the puck
@@ -355,7 +355,7 @@ makepde	;pass d0 as value to be scaled by player a0's energy level
 	rts
 
 getpde	;get player a3's energy level into d0. Return a2 = his team struct, d1 = pnum*2
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	btst	#pfteam,pflags(a3)
 	beq.w	.0
 	adda.w	#tmsize,a2
@@ -532,7 +532,7 @@ ResetBench	;remove all players from penalty box/ put all players on their own be
 	;and drops box players with tmpdst bit 12 set and no time left from the count
 	clr.b	(PBnum).w
 	moveq	#$10,d1
-	movea.w	#(hmtmstruct-M68K_RAM),a0
+	movea.w	#(tmstruct-M68K_RAM),a0
 	bsr.w	.rb
 	moveq	#1,d1
 	adda.w	#tmsize,a0		;tmsize, falls in for the visitors
@@ -584,7 +584,7 @@ setplayer	;bring player onto the ice and set his stats
 	;least half of the 3rd period left, or after the 3rd period), clamped to
 	;0-15 by ClampNibble
 	bclr	#6,pflags2(a3)		;pflags2 bit 6 (93)
-	movea.w	#(hmtmstruct-M68K_RAM),a0
+	movea.w	#(tmstruct-M68K_RAM),a0
 	btst	#pfteam,pflags(a3)
 	beq.w	.0
 	adda.w	#tmsize,a0
@@ -634,7 +634,7 @@ setplayer	;bring player onto the ice and set his stats
 	lsr.w	#1,d0
 	cmp.w	(gameclock).w,d0
 	bgt.w	.nomod			;under half of the 3rd period left (clock counts down)
-.score	move.w	(hmtmstruct+tmscore).w,d0	;IDA: loc_116A4. home score
+.score	move.w	(tmstruct+tmscore).w,d0	;IDA: loc_116A4. home score
 	sub.w	(awtmstruct+tmscore).w,d0	;- visitor score
 	beq.w	.close			;tied
 	btst	#pfteam,pflags(a3)

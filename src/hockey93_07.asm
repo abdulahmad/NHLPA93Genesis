@@ -289,7 +289,7 @@ UpdateScoutingDisplay	;93: called every frame by ScoutingReport. When ScoutingRe
 	rts
 .awtm	movea.w	#(awtmstruct-M68K_RAM),a1	;IDA: loc_1322C
 	bra.w	.team
-.hmtm	movea.w	#(hmtmstruct-M68K_RAM),a1	;IDA: loc_13234
+.hmtm	movea.w	#(tmstruct-M68K_RAM),a1	;IDA: loc_13234
 .team	move.w	tmgoalie(a1),d1		;IDA: loc_13238. goalie's roster index
 	movea.l	tmdata(a1),a1
 	adda.w	(a1),a1			;player data
@@ -301,7 +301,7 @@ UpdateScoutingDisplay	;93: called every frame by ScoutingReport. When ScoutingRe
 .away	movea.l	(AwayTeamRosterPtr).w,a1	;IDA: loc_13252
 	bra.w	.tname
 .under	movea.l	#Montreal,a1		;IDA: loc_1325A. TeamData93 team block
-	cmpi.w	#$18,(hmtmstruct+tmgoalie+2).w
+	cmpi.w	#$18,(tmstruct+tmgoalie+2).w
 	bge.w	.tname			;used when >= $18
 .home	movea.l	(HomeTeamRosterPtr).w,a1	;IDA: loc_1326A
 .tname	adda.w	4(a1),a1		;IDA: loc_1326E. team name
@@ -382,13 +382,13 @@ SetupStanleyCupCelebrationScreen	;93: Stanley Cup screen. Five EASN bitmaps at S
 	bsr.w	UpdateStanleyCupAnimation
 	move.w	#$18,(palcount).w	;24
 	move	#$2500,sr
-	move.w	#$50,(StanleyCupTimer).w
+	move.w	#$50,(seed).w
 .wait	moveq	#4,d0			;IDA: loc_13392
 	bsr.w	waitx
 	tst.w	d1
 	bne.w	.ex			;any button
 	bsr.w	UpdateStanleyCupAnimation
-	subq.w	#1,(StanleyCupTimer).w
+	subq.w	#1,(seed).w
 	bpl.s	.wait
 .ex	move	#$2700,sr		;IDA: loc_133A8
 	rts
@@ -442,8 +442,8 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 	;93: Titlemap backdrop, three Title3map sprites, Titlemap2 logo sprites, scrolling credits. Start leaves
 	move.w	#SngTitle,-(sp)		;song $35 (92 SngTitle = 1)
 	bsr.w	song
-	move.w	(VDP_CNTR).l,(StanleyCupTimer).w	;seed randomd0 from the H/V counter
-	move.w	(VDP_CNTR).l,(StanleyCupTimer+2).w
+	move.w	(VDP_CNTR).l,(seed).w	;seed randomd0 from the H/V counter
+	move.w	(VDP_CNTR).l,(seed+2).w
 	move.l	#VBlank_TitleScreen,(vbint).l
 	bset	#df32c,(disflags).w
 	move.w	#5,(Map3col).w

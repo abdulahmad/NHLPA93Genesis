@@ -1,0 +1,13 @@
+old,new,source
+assfaceoffp1,assfaceoffpl,92G
+assnothing,donothing,92G
+show_rink,updatescroll,92G
+IntermissionLoop,waitxsr,92G
+StanleyCupTimer,seed,92G
+ReplayBufferPtr,recbpr,92G
+hmtmstruct,tmstruct,92G
+menuhometeam,Opt1team,92G
+menuawayteam,Opt2team,92G
+playofflevel,OptNOP,92G
+playoffroundoffset,pojoy,92G
+PenaltyList,Penaltylist,92G

@@ -41,7 +41,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	bclr	#sfscrl,(sflags).w		;manual scroll is off
 	bclr	#5,(sflags3).w		;no tracked object
 	st	(replayactive).w
-	movea.l	(ReplayBufferPtr).w,a4	;92 recbpr, record buffer pointer (current frame)
+	movea.l	(recbpr).w,a4	;92 recbpr, record buffer pointer (current frame)
 .rwd	bsr.w	suba4			;IDA: RewindToStart. Rewind to first frame
 	tst.w	d7
 	bne.s	.rwd
@@ -188,7 +188,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	bsr.w	forceblack
 	ori.w	#$F000,(PadControlBits).w
 	bclr	#5,(sflags).w
-	movea.l	(ReplayBufferPtr).w,a4	;back to the current frame
+	movea.l	(recbpr).w,a4	;back to the current frame
 	bsr.w	RestoreReplayFrame
 	jsr	SprSort
 	bclr	#sf2replay,(sflags2).w
@@ -212,7 +212,7 @@ suba4	;IDA: suba4_reverseReplayFrame. a4 = address in replay buffer of current
 	beq.w	.end
 	movea.l	#replayend,a4
 .1	suba.w	#$62,a4			;replaysize
-	cmpa.l	(ReplayBufferPtr).w,a4
+	cmpa.l	(recbpr).w,a4
 	bne.w	RestoreReplayFrame
 	adda.w	#$62,a4			;reached the record point
 .end	bsr.w	RestoreReplayFrame	;IDA: loc_8DFE
@@ -227,12 +227,12 @@ adda4	;IDA: adda4_advanceReplayFrame. a4 = address in replay buffer of current
 	beq.w	adda42
 	move.l	a4,-(sp)
 	bsr.w	adda43
-	cmpa.l	(ReplayBufferPtr).w,a4
+	cmpa.l	(recbpr).w,a4
 	movea.l	(sp)+,a4
 	beq.w	rtss2
 adda42	;adda4 without the sf2drec look-ahead. Stop at the record point,
 	;else show the frame and fall into adda43
-	cmpa.l	(ReplayBufferPtr).w,a4
+	cmpa.l	(recbpr).w,a4
 	beq.w	rtss2
 	bsr.w	RestoreReplayFrame
 adda43	;a4 += replaysize, wrapping from replayend to replaystart
@@ -366,12 +366,12 @@ updatereplay	;called every frame to save replay events, d7 = elapsed frames
 	bne.w	rtss2
 	btst	#sf2drec,(sflags2).w
 	bne.w	.rec			;record off: keep overwriting this frame
-	addi.l	#$62,(ReplayBufferPtr).w	;replaysize
-	cmpi.l	#replayend,(ReplayBufferPtr).w	;replayend
+	addi.l	#$62,(recbpr).w	;replaysize
+	cmpi.l	#replayend,(recbpr).w	;replayend
 	bne.w	.rec
 	bset	#sfwrap,(sflags).w
-	move.l	#M68K_RAM,(ReplayBufferPtr).w	;replaystart
-.rec	movea.l	(ReplayBufferPtr).w,a0	;IDA: loc_8FEE
+	move.l	#M68K_RAM,(recbpr).w	;replaystart
+.rec	movea.l	(recbpr).w,a0	;IDA: loc_8FEE
 	moveq	#$F,d2			;16 objects (92 record)
 	movea.w	#(SortCords-M68K_RAM),a3
 .top	clr.l	(a0)			;IDA: loc_8FF8
@@ -607,7 +607,7 @@ updateanim	;frame switch control on struct a3. Also called from
 	clr.w	d0
 	clr.w	SPAnum(a3)
 	bclr	#5,pflags(a3)
-	bclr	#1,pflags2(a3)
+	bclr	#pf2aip,pflags2(a3)
 	btst	#0,d1
 	bne.w	.1			;looper
 	clr.w	SPA(a3)

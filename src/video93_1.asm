@@ -103,7 +103,7 @@ setvideo	;this is not vblank code but sets up ram for vblank transfers.
 .p	btst	#dfok,(disflags).w		;IDA: _p. wait for vblank to take the last frame
 	bne.s	.p
 	movea.w	#(DMAList-M68K_RAM),a5	;dma transfer list
-	bsr.w	show_rink		;93: after a5 is set (92 updatescroll came first)
+	bsr.w	updatescroll		;93: after a5 is set (92 updatescroll came first)
 	movea.w	#(Satt-M68K_RAM),a6	;sprite attribute table area
 	moveq	#1,d6			;link counter
 	bsr.w	checkfo
@@ -128,7 +128,7 @@ setvideo	;this is not vblank code but sets up ram for vblank transfers.
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts
 
-show_rink	;using hpos and vpos set scroll cords; queue rink map rows on the dma list (a5)
+updatescroll	;using hpos and vpos set scroll cords; queue rink map rows on the dma list (a5) (was: show_rink)
 	;when vertical scrolling needs new rows. Called from setvideo. 93 version of 92
 	;updatescroll: rows go straight from IceRinkMap to the dma list, no tempmap
 	btst	#sfhor,(sflags).w
@@ -290,7 +290,7 @@ showzam	;zamboni. Called from setvideo.
 	addq.w	#2,d2			;frame 2 + (x/2 mod 3)
 	bsr.w	SetSframe
 	moveq	#5,d2
-	move.w	(hmtmstruct+tmscore).w,d4	;home score
+	move.w	(tmstruct+tmscore).w,d4	;home score
 	cmp.w	(awtmstruct+tmscore).w,d4	;away score
 	bls.w	SetSframe		;home not ahead: frame 5
 	move.w	d0,d2

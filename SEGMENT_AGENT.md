@@ -430,3 +430,6 @@ Expressions. Where a number is a combination of proven names, write the expressi
 
 Naming lineage: 92G (abdulahmad/NHL92Genesis, EA original source) is the root. 93G (abdulahmad/NHLPA93Genesis) follows 92G. 94G follows 93G then 92G. 95G follows 94G, then 93G, then 92G. Use the earlier game's name for the same field, constant, bit, sound id, hardware name, macro, routine or RAM variable; keep the IDA / other name in the comment.
 - 92G names added (src/ram93.asm, 93 values): pflags3, pf3oside, aggress, SFX* (sfx / song call sites), SngTitle / SngEOG / SngScout ($35-$37), Vdata / Vctrl. Team labels stay city names (unlicensed).
+
+Clash rule: if a routine, data label or RAM variable (RAM matched by usage, not address) is clearly the same as one in the parent game, it must take the parent's name. An existing label in the child that already uses that name was misnamed and is renamed to something accurate (its own parent-game name if it has one, else a descriptive name). Old names stay in a `(was: X)` comment on the definition and in `docs/name_map.csv`.
+- 92G renames: see docs/name_map.csv (assfaceoffpl, donothing, updatescroll, waitxsr, seed, recbpr, tmstruct, Opt1team/Opt2team/OptNOP, pojoy, Penaltylist); pflags2 bits pf2unav/pf2lcm/pf2pen/pf2npc (93 values) and gsflags bits gsftf/gsfhl/gsfso.

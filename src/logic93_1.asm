@@ -32,7 +32,7 @@ doinput	;process controller input
 	andi.w	#7,d0
 .nhor	btst	#sf2faceoff,(sflags2).w		;IDA: _nhor
 	bne.w	faceoffinput
-	btst	#3,pflags2(a3)		;pf2lcm
+	btst	#pf2lcm,pflags2(a3)		;pf2lcm
 	bne.w	lineinput		;line change interface on
 	btst	#pfjoycon,pflags(a3)
 	beq.w	rtss			;no joystick cont so exit
@@ -91,7 +91,7 @@ faceoffinput	;controller processing for faceoff
 	btst	#4,d1			;bbut
 	beq.w	.1
 	move.w	#$11A4,d1		;SPAfaceoff
-	bset	#1,pflags2(a3)
+	bset	#pf2aip,pflags2(a3)
 	bra.w	SetSPA
 .1	move.w	#$11CE,d1		;IDA: loc_95BC. SPAfaceoffr
 	bra.w	SetSPA
@@ -137,7 +137,7 @@ fightinput	;controller processing for fighting
 	move.w	#$FC0,d1		;SPAfgrab
 	btst	#6,d2			;abut
 	bne.w	SetSPA			;start grab anim
-	bclr	#1,pflags2(a3)		;clear anim in prog if none
+	bclr	#pf2aip,pflags2(a3)		;clear anim in prog if none
 	rts
 
 SetLCmode	;IDA: loc_9660. Initiate line change option if available (abut
@@ -149,7 +149,7 @@ SetLCmode	;IDA: loc_9660. Initiate line change option if available (abut
 	bne.w	rtss
 	bclr	#2,(sflags).w		;terminate passing by this player
 	bclr	#3,(sflags).w		;same with shooting
-	bset	#3,pflags2(a3)		;pf2lcm: this player in lc mode
+	bset	#pf2lcm,pflags2(a3)		;pf2lcm: this player in lc mode
 SetLCmode2	;IDA: showfaceoff. a2 = team struct for lc. Draw the lc box with
 	;one row per eligible line (A/B/C + line name). Also called from lineinput
 	bsr.w	setlccords		;set screen cords for this teams lc box
@@ -193,7 +193,7 @@ SetLCmode2	;IDA: showfaceoff. a2 = team struct for lc. Draw the lc box with
 setlccords	;set printx/y to cords for lc box on team a2
 	;set d0/d1 for framer box size
 	clr.w	d0
-	cmpa.w	#(hmtmstruct-M68K_RAM),a2
+	cmpa.w	#(tmstruct-M68K_RAM),a2
 	bne.w	.0
 	eori.w	#$16,d0
 .0	btst	#gmdir,(gmode).w		;IDA: loc_972A
@@ -216,7 +216,7 @@ getlchoice	;d0 = 0-2 (a2 = team)
 	;return d0 = possible line number or -1 for none in this position
 	movem.l	d1-d2,-(sp)
 	move.w	tmsize+tmap(a2),d2	;other team's tmap
-	cmpa.w	#(hmtmstruct-M68K_RAM),a2
+	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.0
 	move.w	tmap-tmsize(a2),d2
 .0	sub.w	tmap(a2),d2		;IDA: loc_9772. d2= number I'm short
@@ -264,7 +264,7 @@ getlchoice	;d0 = 0-2 (a2 = team)
 lineinput	;process input for line changes
 	;d1 = new button presses
 	move.w	d1,-(sp)
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	btst	#pfteam,pflags(a3)
 	beq.w	.0
 	adda.w	#tmsize,a2
@@ -296,7 +296,7 @@ lcfound	;d2 = choice made 0-2
 	bsr.w	getlchoice		;translate choice 0-2 into line number 0-6
 	tst.w	d0
 	bmi.w	rtss			;not an eligible choice
-	bclr	#3,pflags2(a3)		;pf2lcm
+	bclr	#pf2lcm,pflags2(a3)		;pf2lcm
 	bset	#pfjoycon,pflags(a3)
 	bsr.w	loadTeamStruct
 	bclr	#1,tmflags(a2)
@@ -394,7 +394,7 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 	beq.w	.next			;don't pass to yourself
 	tst.w	position(a1)
 	beq.w	.next			;don't pass to goalie
-	btst	#2,pflags2(a1)		;pf2unav
+	btst	#pf2unav,pflags2(a1)		;pf2unav
 	bne.w	.next			;player is unavailable
 	move.w	(a1),d0
 	sub.w	(puckx).w,d0
@@ -589,7 +589,7 @@ changeplayer	;switch controller d4 (0/2) to the teammate nearest the puck,
 .t1	movea.w	#(c1playernum-M68K_RAM),a1	;IDA: t1_CheckPlayers
 .top	tst.w	position(a0)			;IDA: top_CheckPlayerLoop
 	ble.w	.next			;can't switch to goalie
-	btst	#2,pflags2(a0)		;pf2unav
+	btst	#pf2unav,pflags2(a0)		;pf2unav
 	bne.w	.next			;this player is unavailable for some reason
 	btst	#pfalock,pflags(a0)
 	bne.w	.next			;this player is locked
@@ -652,7 +652,7 @@ restorepl	;IDA: retorepl. Restore old joy controlled player d1, give d0
 	cmp.w	#11,d1
 	bgt.w	.spd
 	asl.w	#7,d1			;scsize
-	btst	#3,pflags2(a0,d1.w)		;pf2lcm
+	btst	#pf2lcm,pflags2(a0,d1.w)		;pf2lcm
 	beq.w	.rel
 	lsr.w	#7,d1
 	move.w	d1,d0
@@ -934,7 +934,7 @@ check4bench	;check if player a3 should go to bench. Called from assbench
 	;(pops its return address when it takes over)
 	btst	#pfjoycon,pflags(a3)
 	bne.w	rtss
-	btst	#4,pflags2(a3)
+	btst	#pf2pen,pflags2(a3)
 	bne.w	rtss
 	tst.b	newpos(a3)
 	bpl.w	.b
@@ -950,12 +950,12 @@ check4bench	;check if player a3 should go to bench. Called from assbench
 	cmp.w	(puckc).w,d0
 	beq.w	rtss
 	addq.w	#4,sp
-	bset	#2,pflags2(a3)		;pf2unav
+	bset	#pf2unav,pflags2(a3)		;pf2unav
 	clr.w	temp1(a3)
 	move.l	#$B,d0			;abench
 	bra.w	assreplace
 .samepl	addq.w	#4,sp			;IDA: loc_A0E4
-	bclr	#2,pflags2(a3)
+	bclr	#pf2unav,pflags2(a3)
 	bclr	#pfnc,pflags(a3)
 	st	newpnum(a3)
 	st	newpos(a3)

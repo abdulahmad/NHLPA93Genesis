@@ -46,7 +46,7 @@ printscores1	;draw scoreboard. Vertical rink: period box and the score box (team
 	bsr.w	Framer
 	bsr.w	printz
 	String	$BF,$18,$1A		;home team on the lower row
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	PrintTeamNameAndScore
 	bsr.w	printz
 	String	$BF,$18,$18
@@ -65,7 +65,7 @@ printscores1	;draw scoreboard. Vertical rink: period box and the score box (team
 	bsr.w	print
 	bsr.w	printz
 	String	$BE,$17,1
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	clr.w	d0			;home logo data offset
 	bsr.w	PrintTeamLogoAndScore
 	bsr.w	printz
@@ -124,7 +124,7 @@ USBoard	;update score board, including the players in the penalty box and their 
 	bsr.w	printscores1
 	bsr.w	printz
 	String	$BE,$14,8
-	movea.w	#(hmtmstruct-M68K_RAM),a2	;IDA hid this in the string
+	movea.w	#(tmstruct-M68K_RAM),a2	;IDA hid this in the string
 	bsr.w	.dispen
 	bsr.w	printz
 	String	$BE,5,8
@@ -269,7 +269,7 @@ ChkShotStat	;add to shot stat if a shot was taken. 93 also raises the crowd and 
 	rts
 
 loadTeamStruct	;93: return a2 = team struct of player a3, a1 = the other team's struct. Called from ChkShotStat and updateplayers
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
 	btst	#pfteam,pflags(a3)
 	beq.w	rtss
@@ -278,7 +278,7 @@ loadTeamStruct	;93: return a2 = team struct of player a3, a1 = the other team's 
 
 SetupTeamForIntermission	;93: reset the bench, then for each team refill energy and pick the starting line: 92 Pw1 (3) for the team with more players on ice, PK1 (5) for the team with fewer, else 0. Called from Intermission
 	bsr.w	ResetBench
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a3
 	bsr.w	.r
 	exg	a2,a3			;falls in for the other team
@@ -333,12 +333,12 @@ Intermission	;end of period junk (zamboni/stats). 93 opens the pause menu screen
 	bsr.w	NewTicker2
 	bsr.w	NewTicker3
 	move.w	#$96,d0			;150 frames
-	bsr.w	IntermissionLoop
+	bsr.w	waitxsr
 	btst	#7,d1			;sbut
 	bne.w	.clrh
 	bsr.w	ClearTickerArea
 	move.w	#$3C,d0			;60 frames
-	bsr.w	IntermissionLoop
+	bsr.w	waitxsr
 	btst	#7,d1			;sbut
 	beq.s	.top
 .clrh	bset	#sf3sbut,(sflags3).w		;IDA: loc_F3F0
@@ -346,7 +346,7 @@ Intermission	;end of period junk (zamboni/stats). 93 opens the pause menu screen
 	bclr	#sf3sbut,(sflags3).w
 	bne.w	.clrz
 .wait	move.w	#$1E0,d0		;IDA: loc_F404. 480 frames
-	bsr.w	IntermissionLoop
+	bsr.w	waitxsr
 	btst	#7,d1			;sbut
 	bne.w	.clrz
 	tst.w	(cont1team).w
@@ -607,7 +607,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	bsr.w	printz
 	String	'Highlight from game:'
 	move.w	#$B4,d0			;180 frames
-	bsr.w	IntermissionLoop
+	bsr.w	waitxsr
 	btst	#7,d1			;sbut
 	bne.w	.nhl1
 	st	(zamx).w
@@ -615,7 +615,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	move.w	(a0),(HomeTeam).w	;set up teams for game in a0
 	move.w	2(a0),(VisTeam).w
 	move.l	a0,-(sp)
-	clr.w	(hmtmstruct+tmgoalie).w
+	clr.w	(tmstruct+tmgoalie).w
 	clr.w	(awtmstruct+tmgoalie).w
 	jsr	(clearTeamStats).l
 	jsr	(restoreteams).w	;IDA: InitTeamShots
@@ -630,7 +630,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	movea.l	(sp),a0
 	move.w	8(a0),(gsp).w		;gsper
 	subq.w	#1,(gsp).w
-	move.w	$A(a0),(hmtmstruct+tmscore).w	;gss1
+	move.w	$A(a0),(tmstruct+tmscore).w	;gss1
 	move.w	$C(a0),(awtmstruct+tmscore).w	;gss2
 	move.b	#$10,(gmode).w		;1<<gmhl
 	btst	#0,(gsp+1).w
@@ -658,7 +658,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	clr.w	(Vpos).w
 	clr.w	(Hpos).w
 	bsr.w	ResetBench
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	.setteam
 	adda.w	#tmsize,a2
 	bsr.w	.setteam
@@ -691,12 +691,12 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	bne.w	.eh
 	btst	#7,d1			;sbut
 	beq.s	.0
-.eh	move.w	(hmtmstruct+tmscore).w,d0	;IDA: loc_F96A. tied: random winner
+.eh	move.w	(tmstruct+tmscore).w,d0	;IDA: loc_F96A. tied: random winner
 	cmp.w	(awtmstruct+tmscore).w,d0
 	bne.w	.endhl
 	move.w	(VDP_CNTR).l,d0		;hvcount
 	andi.w	#1,d0
-	add.w	d0,(hmtmstruct+tmscore).w
+	add.w	d0,(tmstruct+tmscore).w
 	eori.w	#1,d0
 	add.w	d0,(awtmstruct+tmscore).w
 .endhl	addq.w	#2,sp			;IDA: loc_F98C
@@ -705,7 +705,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	jsr	KillCrowd
 	jsr	p_turnoff
 	movem.l	(sp)+,d1/a0
-	move.w	(hmtmstruct+tmscore).w,$A(a0)	;gss1
+	move.w	(tmstruct+tmscore).w,$A(a0)	;gss1
 	move.w	(awtmstruct+tmscore).w,$C(a0)	;gss2
 	bsr.w	forceblack
 	moveq	#$F,d0
@@ -732,12 +732,12 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	bsr.w	CheckGameTickerStatus
 	bsr.w	NewTicker3
 	move.w	#$B4,d0			;180 frames
-	bsr.w	IntermissionLoop
+	bsr.w	waitxsr
 	btst	#7,d1			;sbut
 	bne.w	.exit2
 	bsr.w	ClearTickerArea
 	move.w	#$3C,d0			;60 frames
-	bsr.w	IntermissionLoop
+	bsr.w	waitxsr
 	btst	#7,d1			;sbut
 	beq.w	.exit
 .exit2	bset	#sf3sbut,(sflags3).w		;IDA: exit2

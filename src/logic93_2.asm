@@ -20,7 +20,7 @@ assbench	;player a3 should goto bench
 	cmpi.w	#$64,temp1(a3)		;temp1 = 100 flag: at the bench door
 	beq.w	.done
 	bsr.w	check4bench
-	btst	#4,pflags2(a3)		;pf2pen
+	btst	#pf2pen,pflags2(a3)		;pf2pen
 	bne.w	assexit
 	bclr	#pfna,pflags(a3)
 	beq.w	.nna
@@ -78,7 +78,7 @@ assbench	;player a3 should goto bench
 	clr.w	d0
 	move.b	pnum(a3),d0
 	add.w	d0,d0
-	movea.l	#hmtmstruct,a0
+	movea.l	#tmstruct,a0
 	btst	#6,pflags(a3)
 	beq.w	.t0
 	adda.w	#tmsize,a0
@@ -92,7 +92,7 @@ assbench	;player a3 should goto bench
 	move.w	temp4(a3),d1
 	movea.l	#EvadePC,a0
 	bra.w	skateto
-.nobench	bclr	#2,pflags2(a3)		;IDA: loc_A266. pf2unav
+.nobench	bclr	#pf2unav,pflags2(a3)		;IDA: loc_A266. pf2unav
 .nobench2	move.b	newpos(a3),d0		;IDA: loc_A26C
 	ext.w	d0
 	move.w	d0,position(a3)
@@ -122,8 +122,8 @@ asseben	;player a3 should exit bench area
 	bra.w	SetSPA
 .nna	move.w	#4,facedir(a3)		;IDA: loc_A2CE
 	bclr	#pfnc,pflags(a3)
-	bclr	#5,pflags2(a3)		;pf2npc
-	bclr	#2,pflags2(a3)		;pf2unav
+	bclr	#pf2npc,pflags2(a3)		;pf2npc
+	bclr	#pf2unav,pflags2(a3)		;pf2unav
 	clr.w	SPA(a3)
 	move.w	#$1000,Xvel(a3)
 	bra.w	assexit
@@ -133,7 +133,7 @@ asspenalty	;player a3 should goto penalty box
 	bne.w	rtss
 	bclr	#1,pflags(a3)
 	beq.w	.nna
-	bset	#2,pflags2(a3)		;pf2unav
+	bset	#pf2unav,pflags2(a3)		;pf2unav
 	bsr.w	clrplayer
 	moveq	#-2,d4
 	bsr.w	setpads			;put number on player leaving
@@ -153,7 +153,7 @@ asspenalty	;player a3 should goto penalty box
 	move.w	d1,temp4(a3)
 	move.w	#$88,temp3(a3)		;temp3 = sideline
 	clr.w	temp1(a3)
-	bset	#5,pflags2(a3)		;pf2npc: no player coll.
+	bset	#pf2npc,pflags2(a3)		;pf2npc: no player coll.
 	clr.w	Wallcos(a3)
 	clr.w	Wallsin(a3)
 .nna	move.w	Ypos(a3),d0		;IDA: loc_A360
@@ -191,7 +191,7 @@ asspenalty	;player a3 should goto penalty box
 	move.w	#2,facedir(a3)
 	move.w	#$1128,d1		;SPAwallright
 	bsr.w	SetSPA
-	bclr	#4,pflags2(a3)		;pf2pen
+	bclr	#pf2pen,pflags2(a3)		;pf2pen
 	move.l	#$D,d0			;adopen
 	bra.w	assreplace
 .st	move.w	temp3(a3),d0		;IDA: loc_A400
@@ -227,7 +227,7 @@ assepen	;player a3 should exit penalty area
 	bclr	#1,pflags(a3)
 	beq.w	.nna
 	bset	#pfnc,pflags(a3)
-	bset	#2,pflags2(a3)		;pf2unav
+	bset	#pf2unav,pflags2(a3)		;pf2unav
 	moveq	#$10,d0
 	moveq	#-$3C,d1		;-60
 	btst	#6,pflags(a3)
@@ -249,8 +249,8 @@ assepen	;player a3 should exit penalty area
 	st	newpos(a3)
 	bclr	#pfjoycon,pflags(a3)
 	bclr	#pfnc,pflags(a3)
-	bclr	#5,pflags2(a3)		;pf2npc
-	bclr	#2,pflags2(a3)		;pf2unav
+	bclr	#pf2npc,pflags2(a3)		;pf2npc
+	bclr	#pf2unav,pflags2(a3)		;pf2unav
 	move.w	#$F000,Xvel(a3)		;-$1000
 	bra.w	assexit
 
@@ -261,7 +261,7 @@ assfaceoff	;players do nothing until faceoff is over
 	beq.w	assexit			;exit once faceoff is over
 	rts
 
-assfaceoffp1	;assignment for players actually participating in faceoff
+assfaceoffpl	;assignment for players actually participating in faceoff (was: assfaceoffp1)
 	;a3 = player (92 assfaceoffpl)
 	btst	#5,pflags(a3)
 	bne.w	rtss
@@ -293,7 +293,7 @@ assfaceoffp1	;assignment for players actually participating in faceoff
 	tst.w	d0
 	beq.w	.d
 	move.w	#$11CE,d1		;SPAfaceoffr
-.d	bset	#1,pflags2(a3)		;IDA: loc_A576
+.d	bset	#pf2aip,pflags2(a3)		;IDA: loc_A576
 	bra.w	SetSPA
 .exit	move.b	#$14,nopuck(a3)		;IDA: loc_A580. nopuck = 20
 	bra.w	assexit
@@ -303,7 +303,7 @@ assfight	;fighting logic
 	btst	#5,pflags(a3)		;check if animation lock
 	bne.w	rtss			;exit if so
 	tst.w	(Pencntdwn).w		;fight over?
-	bmi.w	assnothing
+	bmi.w	donothing
 	bclr	#1,pflags(a3)		;clear new assignment
 	beq.w	.nna			;not first time through
 	bsr.w	getpde			;get player's energy level
@@ -424,7 +424,7 @@ chkhit	;part of fight to see if player is hit
 	beq.w	.grab
 .ex	movem.l	(sp)+,d0/a0-a3
 	rts
-.dropped	bclr	#5,pflags2(a3)		;pf2npc: gloves dropped
+.dropped	bclr	#pf2npc,pflags2(a3)		;pf2npc: gloves dropped
 	move.w	(xc1).w,d0
 	cmp.w	#90,d0
 	blt.w	.chkneg
@@ -447,7 +447,7 @@ chkhit	;part of fight to see if player is hit
 	bra.s	.ex
 .hithigh	exg	a0,a3			;IDA: _hithigh
 	bsr.w	.cwd			;crowd reacts, knock back
-	bset	#1,pflags2(a3)
+	bset	#pf2aip,pflags2(a3)
 	subq.w	#1,temp3(a3)
 	bmi.w	.fall
 	move.w	#$1068,d1		;SPAfhith
@@ -457,7 +457,7 @@ chkhit	;part of fight to see if player is hit
 	bra.s	.ex
 .hitlow	exg	a0,a3			;IDA: _hitlow
 	bsr.w	.cwd
-	bset	#1,pflags2(a3)
+	bset	#pf2aip,pflags2(a3)
 	subq.w	#1,temp3(a3)
 	bmi.w	.fall
 	move.w	#$108A,d1		;SPAfhitl
@@ -510,7 +510,7 @@ chkhit	;part of fight to see if player is hit
 	bra.w	.ex
 .noinj	move.w	#$10AC,d1		;IDA: NoInjury. SPAbfall
 	bsr.w	SetSPA
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	move.w	#$B,-(sp)		;SFXcrowdcheer
 	btst	#6,pflags(a3)
 	bne.w	.snd
@@ -530,7 +530,7 @@ ShowInjuryMsg	;IDA: sub_A8AE (Rev A). Clear the message line
 banner	;fight banner: close both line change boxes, frame a box with
 	;"<player> <team>" for both fighters and "vs"
 	movem.l	d0-d3/a0-a4,-(sp)
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	jsr	(lcfound2).l
 	adda.w	#tmsize,a2
 	jsr	(lcfound2).l
@@ -575,7 +575,7 @@ addinfo	;d0 = penalty byte (player SCnum in low nibble). Build
 	andi.w	#$F,d0
 	asl.w	#7,d0
 	add.b	$74(a1,d0.w),d3		;aggress
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	btst	#6,pflags(a1,d0.w)
 	beq.w	.0
 	adda.w	#tmsize,a2
@@ -647,7 +647,7 @@ assfwatch	;for player who is watching fight
 	bsr.w	skateto
 	bra.w	check4check
 
-assnothing	;player should do nothing
+donothing	;player should do nothing (was: assnothing)
 	btst	#5,pflags(a3)
 	bne.w	rtss
 	btst	#3,pflags(a3)
@@ -714,7 +714,7 @@ assdefo	;player a3 is defensive player on offense
 	btst	#5,pflags(a3)
 	bne.w	rtss
 	btst	#gmclock,(gmode).w
-	bne.w	assnothing
+	bne.w	donothing
 	bsr.w	check4bench
 	btst	#3,pflags(a3)
 	bne.w	rtss
@@ -765,7 +765,7 @@ assdefd	;player a3 is defensive player on defense
 	btst	#5,pflags(a3)
 	bne.w	rtss
 	btst	#0,(gmode).w
-	bne.w	assnothing
+	bne.w	donothing
 	bsr.w	check4bench
 	btst	#3,pflags(a3)
 	bne.w	rtss
@@ -814,7 +814,7 @@ assdefd	;player a3 is defensive player on defense
 	btst	#7,pflags(a3)
 	beq.w	.gdwn
 	neg.w	d0
-.gup	btst	#2,pflags2(a0)		;IDA: loc_ACE2. pf2unav
+.gup	btst	#pf2unav,pflags2(a0)		;IDA: loc_ACE2. pf2unav
 	bne.w	.gu0
 	tst.w	position(a0)
 	bmi.w	.gu0
@@ -839,7 +839,7 @@ assdefd	;player a3 is defensive player on defense
 	bpl.w	.de3
 	clr.w	temp3(a3)
 	bra.w	.de3
-.gdwn	btst	#2,pflags2(a0)		;IDA: loc_AD3E
+.gdwn	btst	#pf2unav,pflags2(a0)		;IDA: loc_AD3E
 	bne.w	.gd0
 	tst.w	position(a0)
 	bmi.w	.gd0
@@ -874,7 +874,7 @@ asswingd	;player a3 is wing on defense
 	btst	#5,pflags(a3)
 	bne.w	rtss
 	btst	#0,(gmode).w
-	bne.w	assnothing
+	bne.w	donothing
 	bsr.w	check4bench
 	btst	#3,pflags(a3)
 	bne.w	rtss

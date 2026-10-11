@@ -38,9 +38,9 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	bne.w	rtss
 	btst	#pfalock,pflags(a2)
 	bne.w	rtss
-	btst	#4,pflags2(a3)		;caused a penalty (92 pf2pen = 6)
+	btst	#pf2pen,pflags2(a3)		;caused a penalty (92 pf2pen = 6)
 	bne.w	rtss
-	btst	#4,pflags2(a2)
+	btst	#pf2pen,pflags2(a2)
 	bne.w	rtss
 	tst.w	position(a3)
 	beq.w	rtss			;no fights with goalies
@@ -71,7 +71,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	beq.w	.ex			;no fight
 	clr.w	(ChkCnt).w
 	moveq	#$19,d0			;26 players per team
-	movea.w	#(hmtmstruct+$11C-M68K_RAM),a0	;check count per player
+	movea.w	#(tmstruct+$11C-M68K_RAM),a0	;check count per player
 .clr	clr.b	tmsize(a0)		;IDA: _loop. away team
 	clr.b	(a0)+			;home team
 	dbf	d0,.clr
@@ -104,7 +104,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	bne.w	.next
 	tst.w	position(a3)			;goalie
 	beq.w	.next
-	btst	#2,pflags2(a3)		;unavailable (92 pf2unav = 4)
+	btst	#pf2unav,pflags2(a3)		;unavailable (92 pf2unav = 4)
 	bne.w	.next
 	bsr.w	assinsert
 .next	adda.w	#SCstruct,a3
@@ -132,9 +132,9 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	bset	#3,attribute(a3)		;flip the other way
 	neg.w	d1
 .sf2	move.w	d1,Xvel(a3)
-	bset	#2,pflags2(a3)		;unavailable (92 pf2unav = 4)
+	bset	#pf2unav,pflags2(a3)		;unavailable (92 pf2unav = 4)
 	bset	#pf2aip,pflags2(a3)
-	bset	#5,pflags2(a3)		;no player coll (92 pf2npc = 7)
+	bset	#pf2npc,pflags2(a3)		;no player coll (92 pf2npc = 7)
 	bclr	#pfalock,pflags(a3)
 	move.w	#$F8E,d1		;SPA $F8E (92 SPAfight = $DE8)
 	bra.w	SetSPA
@@ -152,7 +152,7 @@ SetInst	;93: d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swa
 	blt.w	rtss			;a2 fight rating < 2
 	clr.w	d1
 	move.b	pnum(a2),d1
-	movea.w	#(hmtmstruct-M68K_RAM),a0
+	movea.w	#(tmstruct-M68K_RAM),a0
 	btst	#pfteam,pflags(a2)
 	beq.w	.tm
 	adda.w	#tmsize,a0
@@ -181,9 +181,9 @@ SetInst	;93: d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swa
 	beq.w	.next
 	tst.w	position(a3)
 	ble.w	.next
-	btst	#4,pflags2(a3)		;caused a penalty (92 pf2pen = 6)
+	btst	#pf2pen,pflags2(a3)		;caused a penalty (92 pf2pen = 6)
 	bne.w	.next
-	btst	#2,pflags2(a3)		;unavailable (92 pf2unav = 4)
+	btst	#pf2unav,pflags2(a3)		;unavailable (92 pf2unav = 4)
 	bne.w	.next
 	move.w	#$2A,d0			;penalty $2A (92 PenInst = $22)
 	bsr.w	AddPenalty2
@@ -394,7 +394,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	bsr.w	sfx
 	bsr.w	freezewindow
 	addi.w	#$1F4,(crowdlevel).w	;add 500 (92 800)
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
 	tst.w	Ypos(a3)
 	bpl.w	.g0
@@ -403,7 +403,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	beq.w	.g1
 	exg	a2,a1
 .g1	addq.w	#1,tmscore(a2)
-	cmpa.w	#(hmtmstruct-M68K_RAM),a2
+	cmpa.w	#(tmstruct-M68K_RAM),a2
 	bne.w	.nocheer
 	move.w	#$30,-(sp)		;song $30 (92 SFX with SFXcrowdcheer = 25)
 	bsr.w	song
@@ -420,7 +420,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	sub.w	tmap(a1),d0
 	move.b	d0,(a0)+		;byte 2 = 2 + tmap(a2) - tmap(a1)
 	addi.w	#$1E,(CwdExciteLvl).w
-	cmpa.w	#(hmtmstruct-M68K_RAM),a2
+	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.home
 	subi.w	#$14,(CwdExciteLvl).w	;less for an away goal
 	bset	#7,-1(a0)		;byte 2 bit 7 = away team scored
@@ -504,7 +504,7 @@ GetPeriodTimeRemaining	;93: return d0 = (gsp << 14 | PerTimeTotal) - gameclock. 
 checkgoalp	;check for player a3 collision with goal/net a2. Entered from checkgoal
 	;oval goal, .radiusx = 32, .radiusy = 11. Skipped for no player coll,
 	;Zpos > 10 and non players. Calls CheckBump, then wallcoll with the normal
-	btst	#5,pflags2(a3)		;no player coll (92 pf2npc = 7)
+	btst	#pf2npc,pflags2(a3)		;no player coll (92 pf2npc = 7)
 	bne.w	rtss
 	cmpi.w	#$A,Zpos(a3)
 	bgt.w	rtss
@@ -768,7 +768,7 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 	bne.w	.exit			;object has no coll mode on
 	tst.b	nopuck(a2)
 	bne.w	.exit
-	btst	#2,pflags2(a2)		;unavailable (92 pf2unav = 4)
+	btst	#pf2unav,pflags2(a2)		;unavailable (92 pf2unav = 4)
 	bne.w	.chkbody
 	cmpi.w	#5,Zpos(a3)		;Zpos, 2*8/3 = 5
 	bgt.w	.chkbody

@@ -101,7 +101,7 @@ checkcoll	;d2 = new x cord, d3 = new y cord, a3 = struct of object. Check wall c
 	rts
 
 checkplcoll	;d2/d3 = x/y cords, a3 = struct. Walk up and down the OOlist from a3 and call checkcx for each object within $10 in y (92 collrad*2). Called from checkcoll
-	btst	#5,pflags2(a3)		;93 no player coll bit (92 pf2npc = 7)
+	btst	#pf2npc,pflags2(a3)		;93 no player coll bit (92 pf2npc = 7)
 	bne.w	.ex
 	cmpi.w	#$B,SCnum(a3)
 	bgt.w	.ex			;not a player
@@ -144,7 +144,7 @@ checkcx	;d4 = obj. # * 2 for possible coll so check x range and distance for col
 
 	btst	#pfnc,pflags(a2)
 	bne.w	.exit			;object has no coll mode on
-	btst	#5,pflags2(a2)		;93 no player coll bit (92 pf2npc = 7)
+	btst	#pf2npc,pflags2(a2)		;93 no player coll bit (92 pf2npc = 7)
 	bne.w	.exit
 	cmpi.w	#$B,SCnum(a2)
 	bgt.w	.exit			;not a player
@@ -319,7 +319,7 @@ checkint	;check for interference penalty. player a2 interferes with a3 or vice-v
 	exg	a2,a3
 	cmpi.w	#$1E,impact(a2)		;impact 30
 	ble.w	rtss
-	btst	#4,pflags2(a3)		;93 penalty bit (92 pf2pen = 6)
+	btst	#pf2pen,pflags2(a3)		;93 penalty bit (92 pf2pen = 6)
 	bne.w	rtss			;no double minor
 	moveq	#$14,d0			;93: penalty 3 times in (20 - byte $73)
 	sub.b	aggress(a3),d0
@@ -558,7 +558,7 @@ FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $1
 
 .fall	tst.w	position(a3)			;IDA: loc_101F6. position: no check stats for a goalie hitter
 	beq.w	.nostat
-	movea.w	#(hmtmstruct-M68K_RAM),a0
+	movea.w	#(tmstruct-M68K_RAM),a0
 	btst	#pfteam,pflags(a3)
 	beq.w	.tm
 	adda.w	#tmsize,a0
@@ -612,7 +612,7 @@ FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $1
 	move.w	facedir(a2),d0
 	andi.w	#3,d0			;with facedir 0 or 4
 	bne.w	.snd
-	btst	#4,pflags2(a2)		;93 penalty bit (92 pf2pen = 6)
+	btst	#pf2pen,pflags2(a2)		;93 penalty bit (92 pf2pen = 6)
 	bne.w	.snd
 	move.l	#$A0,d0
 	bsr.w	randomd0
@@ -642,7 +642,7 @@ FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $1
 	rts
 
 setInjuryType	;93: sets period injury. a2 = player injured, a3 = player checking. Marks a2 unavailable, pumps up the crowd, plays sfx $D, locks the scroll on a2, sets TempPlOffset (pnum, bit 15 set for the away team) and puts $FFFD (injured for the period) in a2's tmpdst. Called from FallDown and from logic93_2 chkhit .fall (IDA FightFall)
-	bset	#2,pflags2(a2)		;set player unavailable (92 pf2unav = 4)
+	bset	#pf2unav,pflags2(a2)		;set player unavailable (92 pf2unav = 4)
 	addi.w	#$12C,(crowdlevel).w	;pump up crowd
 	addi.w	#$1E,(CwdExciteLvl).w
 	move.w	#SFX0D,-(sp)		;SFX
@@ -651,7 +651,7 @@ setInjuryType	;93: sets period injury. a2 = player injured, a3 = player checking
 	move.w	Ypos(a2),(yc1).w
 	bset	#sfslock,(sflags).w		;scroll lock
 	clr.w	d1
-	movea.w	#(hmtmstruct-M68K_RAM),a0	;Home team struct into a0
+	movea.w	#(tmstruct-M68K_RAM),a0	;Home team struct into a0
 	btst	#pfteam,pflags(a2)		;check if home or away
 	beq.w	.0			;branch if home
 	move.w	#$8000,d1		;away team flag

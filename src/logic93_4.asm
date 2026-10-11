@@ -99,7 +99,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	ble.w	.next
 	tst.b	nopuck(a0)
 	bne.w	.next
-	btst	#2,pflags2(a0)		;pf2unav
+	btst	#pf2unav,pflags2(a0)		;pf2unav
 	bne.w	.next
 	move.w	assnum(a0),d0		;93: skip a player whose current assignment
 	cmpi.b	#$13,asslist(a0,d0.w)	;is apassrec
@@ -132,7 +132,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	beq.w	.de1
 	btst	#gmclock,(gmode).w
 	bne.w	.de1
-	btst	#2,pflags2(a1)		;pf2unav
+	btst	#pf2unav,pflags2(a1)		;pf2unav
 	bne.w	.de1
 	exg	a1,a3
 	bclr	#pfdoff,pflags(a3)
@@ -164,7 +164,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 .nodec	btst	#pfalock,pflags(a3)		;IDA: _nodec. 92 tst position
 	bne.w	rtss
 	btst	#gmclock,(gmode).w
-	bne.w	assnothing		;92 donothing
+	bne.w	donothing		;92 donothing
 	btst	#pfjoycon,pflags(a3)
 	bne.w	rtss
 	btst	#2,tmflags(a2)		;93: tmflags bit 2 always takes the in-between spot
@@ -249,7 +249,7 @@ asspassrec	;IDA: loc_BFC6. assignment for catching pass. Assignment apassrec ($1
 	btst	#pfalock,pflags(a3)		;93 only
 	bne.w	rtss
 	btst	#gmclock,(gmode).w
-	bne.w	assnothing		;92 donothing
+	bne.w	donothing		;92 donothing
 	btst	#pfjoycon,pflags(a3)
 	bne.w	assexit
 	bclr	#pfna,pflags(a3)
@@ -295,7 +295,7 @@ puckfaceoff	;this is where the action starts
 	bne.w	PeriodOver
 	cmpi.w	#3,(gsp).w
 	bne.w	.npo
-	move.w	(hmtmstruct+tmscore).w,d0
+	move.w	(tmstruct+tmscore).w,d0
 	cmp.w	(awtmstruct+tmscore).w,d0
 	bne.w	clockcont_0		;92 PeriodOver
 .npo	btst	#gmpendel,(gmode).w		;IDA: _npo
@@ -317,11 +317,11 @@ puckfaceoff	;this is where the action starts
 	st	temp2(a3)
 	tst.w	(OptLine).w
 	bne.w	.nna
-	bclr	#1,(hmtmstruct+tmflags).w	;93: bit 1
+	bclr	#1,(tmstruct+tmflags).w	;93: bit 1
 	bclr	#1,(awtmstruct+tmflags).w	;93: bit 1
 	movea.w	#(SortCords-M68K_RAM),a0	;93: clear pf2lcm on all 12 players
 	moveq	#$B,d0
-.lcm	bclr	#3,pflags2(a0)		;IDA: loc_C0F6
+.lcm	bclr	#pf2lcm,pflags2(a0)		;IDA: loc_C0F6
 	adda.w	#SCstruct,a0
 	dbf	d0,.lcm
 	move.w	(cont1team).w,d0
@@ -339,7 +339,7 @@ puckfaceoff	;this is where the action starts
 .nlp	move.w	(c2playernum).w,d0	;IDA: nlp
 	bmi.w	.nlp2
 	bsr.w	.slc
-.nlp2	movea.w	#(hmtmstruct-M68K_RAM),a1	;IDA: nlp2
+.nlp2	movea.w	#(tmstruct-M68K_RAM),a1	;IDA: nlp2
 	lea	tmsize(a1),a2
 	moveq	#2,d0
 	bsr.w	.sclc
@@ -359,11 +359,11 @@ puckfaceoff	;this is where the action starts
 	asl.w	#7,d0			;scsize
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d0,a3
-	bclr	#3,pflags2(a3)		;pf2lcm
+	bclr	#pf2lcm,pflags2(a3)		;pf2lcm
 	move.l	a2,-(sp)
 	bsr.w	SetLCmode
 	movea.l	(sp)+,a2
-	btst	#3,pflags2(a3)		;pf2lcm
+	btst	#pf2lcm,pflags2(a3)		;pf2lcm
 	beq.w	.slcex
 	btst	#pfteam,pflags(a3)
 	beq.w	.t1
@@ -382,7 +382,7 @@ puckfaceoff	;this is where the action starts
 	bpl.w	rtss
 	tst.w	temp2(a3)
 	bpl.w	rtss
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
 	moveq	#1,d0
 	bsr.w	.sclc
@@ -394,11 +394,11 @@ puckfaceoff	;this is where the action starts
 	move.w	4(a3,d0.w),d1		;temp3/temp4 = SCnum
 	asl.w	#7,d1
 	movea.w	#(SortCords-M68K_RAM),a0
-	movea.w	#(hmtmstruct-M68K_RAM),a2	;93: a2 = his team for SetLCmode2
+	movea.w	#(tmstruct-M68K_RAM),a2	;93: a2 = his team for SetLCmode2
 	btst	#pfteam,pflags(a0,d1.w)
 	beq.w	.clh
 	adda.w	#tmsize,a2
-.clh	btst	#3,pflags2(a0,d1.w)		;IDA: loc_C222. pf2lcm
+.clh	btst	#pf2lcm,pflags2(a0,d1.w)		;IDA: loc_C222. pf2lcm
 	bne.w	.clnd
 	st	(a3,d0.w)
 	bra.w	SetLCmode2		;93: redraw lc box (92 rts)
@@ -406,7 +406,7 @@ puckfaceoff	;this is where the action starts
 	bpl.w	rtss
 	move.l	a3,-(sp)
 	lea	(a0,d1.w),a3
-	btst	#3,pflags2(a3)		;pf2lcm
+	btst	#pf2lcm,pflags2(a3)		;pf2lcm
 	beq.w	.clcex
 	clr.w	d2
 	bsr.w	lcfound
@@ -417,7 +417,7 @@ puckfaceoff	;this is where the action starts
 ChkGoalies	;computer pulls goalie on delayed penalty. Called from periodicevents
 	btst	#gmclock,(gmode).w		;93 only
 	bne.w	rtss
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
 	moveq	#1,d0
 	bsr.w	.CPG
@@ -428,7 +428,7 @@ ChkGoalies	;computer pulls goalie on delayed penalty. Called from periodicevents
 	move.w	(puckc).w,d1
 	bmi.w	rtss
 	subq.w	#6,d1
-	cmpa.w	#(hmtmstruct-M68K_RAM),a2
+	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.0
 	not.w	d1			;(92 neg)
 .0	tst.w	d1			;IDA: loc_C292
@@ -445,7 +445,7 @@ ChkGoalies	;computer pulls goalie on delayed penalty. Called from periodicevents
 	bra.w	CPgoalie
 
 ReturnGoalies	;IDA: loc_C2C2. if computer pulled goalie, look to see if computer should return him. Called from puckfaceoff
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
 	moveq	#1,d0
 	bsr.w	.r
@@ -502,7 +502,7 @@ CompLine	;find good line for comp to switch to. a2 = team, a1 = other team. Call
 .ex	movem.l	(sp)+,d0-d2/a0		;IDA: _ex
 	rts
 
-.nopwr	cmpa.w	#(hmtmstruct-M68K_RAM),a2	;IDA: _nopwr. find normal line
+.nopwr	cmpa.w	#(tmstruct-M68K_RAM),a2	;IDA: _nopwr. find normal line
 	bne.w	.away
 	moveq	#2,d1
 	lea	.hl1(pc),a0
@@ -602,7 +602,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	dbf	d4,.cw
 	move.w	#$3C,(yleader).w
 	bsr.w	ResetBench
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	setpersonel
 	bsr.w	forcepldata
 	adda.w	#tmsize,a2
@@ -621,7 +621,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	move.l	#$16,d0			;afaceoff
 	cmp.w	#4,d1
 	bne.w	.l1
-	movea.w	#(hmtmstruct-M68K_RAM),a2	;93: faceoff man resets team $18-$1C
+	movea.w	#(tmstruct-M68K_RAM),a2	;93: faceoff man resets team $18-$1C
 	btst	#pfteam,pflags(a3)
 	beq.w	.tm
 	adda.w	#tmsize,a2
@@ -632,7 +632,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	bclr	#3,tmflags(a2)		;tmflags bit 3
 	move.l	#$17,d0			;afaceoffpl
 .l1	bsr.w	assinsert		;IDA: loc_C5A8
-.goalie1	move.w	(hmtmstruct+tmap).w,d4	;IDA: loc_C5AC
+.goalie1	move.w	(tmstruct+tmap).w,d4	;IDA: loc_C5AC
 	btst	#pfteam,pflags(a3)
 	beq.w	.t0
 	move.w	(awtmstruct+tmap).w,d4
@@ -675,7 +675,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	neg.w	d1
 	bsr.w	vtoa
 	move.w	d0,facedir(a3)
-	bclr	#2,pflags2(a3)		;pf2unav
+	bclr	#pf2unav,pflags2(a3)		;pf2unav
 	bclr	#pfalock,pflags(a3)
 	move.w	#$52C,d1		;SPAglide
 	bsr.w	SetSPA
@@ -721,7 +721,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	moveq	#$C,d0
 	moveq	#3,d1
 	bsr.w	Framer
-	move.w	(hmtmstruct+tmline).w,d0
+	move.w	(tmstruct+tmline).w,d0
 	move.w	(awtmstruct+tmline).w,d1
 	btst	#gmdir,(gmode).w
 	bne.w	.nx

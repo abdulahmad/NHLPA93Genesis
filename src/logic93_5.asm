@@ -22,7 +22,7 @@
 ChkOffsides	;check for offsides penalty. a3 = puck. 93 flags the whole team (tmflags bit 4), 92 flagged each player (pf3oside). Called from pucknorm
 	btst	#gmoffs,(gmode).w
 	beq.w	rtss
-	movea.w	#(hmtmstruct-M68K_RAM),a1
+	movea.w	#(tmstruct-M68K_RAM),a1
 	lea	tmsize(a1),a2		;team 2 (tmsize)
 	bsr.w	ClearOffsidesIfAllPlayers
 	exg	a1,a2
@@ -96,7 +96,7 @@ a2offsides	;player a2 touched the puck: offsides penalty if his team is flagged 
 	neg.w	d0
 .0	cmp.w	#$58,d0		;IDA: loc_CB0E (92 cmp blueline,d0)
 	blt.w	rtss
-	movea.w	#(hmtmstruct-M68K_RAM),a0
+	movea.w	#(tmstruct-M68K_RAM),a0
 	btst	#pfteam,pflags(a2)
 	beq.w	.1
 	adda.w	#tmsize,a0
@@ -114,7 +114,7 @@ a2touchpuck	;player a2 touches puck. Look for penalties/offsides/other junk. Cal
 	move.w	(a2),(ltx).w		;Xpos
 	move.w	Ypos(a2),(lty).w
 	move.w	SCnum(a2),(ltplayer).w
-	movea.w	#(hmtmstruct-M68K_RAM),a0	;93: keep the last three touches per team
+	movea.w	#(tmstruct-M68K_RAM),a0	;93: keep the last three touches per team
 	btst	#pfteam,pflags(a2)
 	beq.w	.t
 	lea	tmsize(a0),a0
@@ -162,7 +162,7 @@ a2touchpuck	;player a2 touches puck. Look for penalties/offsides/other junk. Cal
 	bset	#1,(iflags).w		;ifdir
 	neg.w	d0
 .0	bmi.w	rtss			;IDA: loc_CC20
-	move.w	(hmtmstruct+tmap).w,d0
+	move.w	(tmstruct+tmap).w,d0
 	sub.w	(awtmstruct+tmap).w,d0
 	btst	#pfteam,pflags(a2)
 	beq.w	.1

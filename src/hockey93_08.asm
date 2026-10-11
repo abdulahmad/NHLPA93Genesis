@@ -71,7 +71,7 @@ setoptions	;options screen display and input. Called from PeriodOver (hockey93_0
 	bsr.w	defaultsprites2
 	move.w	#$28,(SortCords+$1C).w	;home player x offset 40 (off the block)
 	move.w	#$28,(SortCords+$31C).w	;visitor player x offset 40
-	st	(hmtmstruct).w		;team shown = $FFxx, so UpdateTeamNameAnimation starts a new team
+	st	(tmstruct).w		;team shown = $FFxx, so UpdateTeamNameAnimation starts a new team
 	st	(awtmstruct).w
 
 	movea.l	#.text,a1		;options static text
@@ -83,10 +83,10 @@ setoptions	;options screen display and input. Called from PeriodOver (hockey93_0
 	bne.w	.keep			;93: demoflag clear (a demo ran): random teams
 	moveq	#$1A,d0			;26 teams
 	bsr.w	randomd0
-	move.w	d0,(menuhometeam).w
+	move.w	d0,(Opt1team).w
 	moveq	#$1A,d0
 	bsr.w	randomd0
-	move.w	d0,(menuawayteam).w
+	move.w	d0,(Opt2team).w
 .keep	st	(demoflag).w		;IDA: loc_13A84
 	cmpi.w	#2,(OptPlayMode).w
 	blt.w	.notree			;regular season or continue playoffs
@@ -118,15 +118,15 @@ setoptions	;options screen display and input. Called from PeriodOver (hockey93_0
 	dbf	d6,.wait
 
 	clr.w	(demoflag).w		;92 .demo
-	move.w	(VDP_CNTR).l,(StanleyCupTimer).w	;92 seed = HVcount
-	move.w	(VDP_CNTR).l,(StanleyCupTimer+2).w
+	move.w	(VDP_CNTR).l,(seed).w	;92 seed = HVcount
+	move.w	(VDP_CNTR).l,(seed+2).w
 	clr.w	(OptPlayMode).w		;92 .newdemo: regular season
-	clr.w	(playofflevel).w
+	clr.w	(OptNOP).w
 	clr.w	(OptLine).w		;line changes on
 	move.w	#1,(OptPen).w		;penalties "On"
 .ex	bsr.w	UpdatePlayoffLevel	;IDA: loc_13B1C
-	move.w	(VDP_CNTR).l,(StanleyCupTimer).w	;random seed hopefully
-	move.w	(VDP_CNTR).l,(StanleyCupTimer+2).w
+	move.w	(VDP_CNTR).l,(seed).w	;random seed hopefully
+	move.w	(VDP_CNTR).l,(seed+2).w
 	bra.w	maketree		;(92 GetPassWord / PassWord before MakeTree)
 
 .nd	btst	#7,d1			;IDA: loc_13B34. sbut
@@ -342,8 +342,8 @@ UpdatePlayoffLevel	;93: in new playoffs set playoffroundoffset = 7 - playoffleve
 	cmpi.w	#2,(OptPlayMode).w
 	blt.w	rtss
 	moveq	#7,d0
-	sub.w	(playofflevel).w,d0
-	move.w	d0,(playoffroundoffset).w
+	sub.w	(OptNOP).w,d0
+	move.w	d0,(pojoy).w
 	rts
 
 TeamIcons	;IDA: loc_13EE8. draw team name bars and set colors. Branched to from setoptions .ps.
@@ -351,8 +351,8 @@ TeamIcons	;IDA: loc_13EE8. draw team name bars and set colors. Branched to from 
 	movem.l	d0-d7/a0-a2,-(sp)
 	tst.w	(OptPlayMode).w
 	bne.w	.0
-	move.w	(menuhometeam).w,(HomeTeam).w	;92 Opt1Team
-	move.w	(menuawayteam).w,(VisTeam).w	;92 Opt2Team
+	move.w	(Opt1team).w,(HomeTeam).w	;92 Opt1Team
+	move.w	(Opt2team).w,(VisTeam).w	;92 Opt2Team
 .0	bsr.w	printz			;IDA: loc_13F00
 	String	$BE,2,1			;map 2 + priority (92 -$02,3,8; IDA ori.b / btst)
 	move.w	(VisTeam).w,d1
@@ -392,7 +392,7 @@ setoptions_printpos2	;93: set the print position of team a2's player name: x 2 (
 	;map 1 + priority. Called from ClearOptionDisplay and UpdateTeamNameAnimation
 	bsr.w	printz
 	String	$BF,2,$A		;(IDA ori.b)
-	cmpa.w	#(hmtmstruct-M68K_RAM),a2	;(IDA eori.b / mulu.w)
+	cmpa.w	#(tmstruct-M68K_RAM),a2	;(IDA eori.b / mulu.w)
 	bne.w	rtss
 	move.w	#$1A,(printx).w		;home team on the right
 	rts
@@ -403,7 +403,7 @@ UpdateTeamNameisplay	;93: (IDA name, it prints nothing) pick the goalie shown fo
 	movem.l	d0/a0,-(sp)
 	clr.w	tmgoalie(a2)
 	bsr.w	FigureJoy		;sets cont1team / cont2team
-	cmpa.w	#(hmtmstruct-M68K_RAM),a2
+	cmpa.w	#(tmstruct-M68K_RAM),a2
 	seq	d0
 	ext.w	d0
 	addq.w	#2,d0			;home 1, visitor 2
@@ -432,7 +432,7 @@ UpdateBothTeamDisplays	;93: run the roster player in both team blocks and build 
 	;Called once per frame from setoptions .wait
 	movem.l	d0-d7/a0-a6,-(sp)
 	moveq	#1,d7
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	UpdateTeamNameAnimation
 	adda.w	#tmsize,a2		;awtmstruct
 	bsr.w	UpdateTeamNameAnimation
@@ -466,7 +466,7 @@ UpdateTeamNameAnimation	;93: roster player of team a2 (sprite struct a3 = $22(a2
 	addq.w	#1,$24(a3)		;sliding in from -40
 	addq.w	#1,$1C(a3)
 .anim	jsr	(updateanim).l		;IDA: loc_14048
-	btst	#1,pflags2(a3)
+	btst	#pf2aip,pflags2(a3)
 	bne.w	rtss			;animation still running
 	move.w	8(a2),d0		;script number
 	add.w	d0,d0
@@ -477,7 +477,7 @@ UpdateTeamNameAnimation	;93: roster player of team a2 (sprite struct a3 = $22(a2
 	move.w	(a0),d1			;animation
 	beq.w	ClearAndSetFlag		;end of script: slide out
 	bsr.w	SetSPA
-	bset	#1,pflags2(a3)
+	bset	#pf2aip,pflags2(a3)
 	move.w	2(a0),$54(a3)		;time
 	bpl.w	rtss
 	neg.w	$54(a3)			;negative time: also show the name
@@ -542,7 +542,7 @@ SetupNextPlayer	;IDA: loc_14120. 93: player of team a2 slid out. Load the team p
 	adda.w	2(a0),a0		;Palettedata
 	movea.w	#(palbuffer-M68K_RAM),a1
 	moveq	#7,d0
-	cmpa.w	#(hmtmstruct-M68K_RAM),a2
+	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.pal
 	adda.w	#$20,a0			;visitor: second palette
 	adda.w	#$20,a1

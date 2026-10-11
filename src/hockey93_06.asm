@@ -385,7 +385,7 @@ SprSort	;sort objects in struct SortObj and set corresponding tables for keeping
 
 resetplstuff	;reset team variables/and players on both teams. Called from puckfaceoff2 (logic93_4) and StartHL2 (penalty93_2)
 	movem.l	d0-d2/a0-a3,-(sp)
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	.top
 	movea.w	#(awtmstruct-M68K_RAM),a2	;tmstruct+tmsize
 	bsr.w	.top
@@ -410,21 +410,21 @@ resetplstuff	;reset team variables/and players on both teams. Called from puckfa
 clearTeamStats	;93 only: the 92 setteams clear loop, split out. Clear both team structs (2 x tmsize) but keep the
 	;word at tmstruct+$26 of each team, and set the byte at tmstruct+$9A of each. Falls into setteams.
 	;Called from StartGame, StartHL2 and ScoutingReport
-	move.w	(hmtmstruct+tmgoalie).w,-(sp)
+	move.w	(tmstruct+tmgoalie).w,-(sp)
 	move.w	(awtmstruct+tmgoalie).w,-(sp)
 	move.l	#tmsize-1,d0		;tmsize words = 2 x tmsize bytes (both team structs)
-	movea.w	#(hmtmstruct-M68K_RAM),a0
+	movea.w	#(tmstruct-M68K_RAM),a0
 .0	clr.w	(a0)+			;IDA: loc_128F6
 	dbf	d0,.0
 	move.w	(sp)+,(awtmstruct+tmgoalie).w
-	move.w	(sp)+,(hmtmstruct+tmgoalie).w
-	st	(hmtmstruct+$9A).w
+	move.w	(sp)+,(tmstruct+tmgoalie).w
+	st	(tmstruct+$9A).w
 	st	(awtmstruct+$9A).w
 
 setteams	;use hometeam/visteam to set team structures. Falls in from clearTeamStats, also called from hockey93_08.
 	;93 sets tmsort as a word and leaves the team data setup to InitTeamSructure
 	movem.l	d0/a0-a2,-(sp)
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	move.w	(HomeTeam).w,d0
 	move.w	#(SortCords-M68K_RAM),tmsort(a2)
 	bsr.w	InitTeamSructure
@@ -453,7 +453,7 @@ InitTeamSructure	;93 only. Set up team struct a2 for team d0: store the team num
 setplayercolors	;copy in correct color data for each team. Called from setupice, setupice_highlight, stats93 and
 	;StartHL2 (penalty93_2)
 	clr.w	d1
-	movea.w	#(hmtmstruct-M68K_RAM),a0
+	movea.w	#(tmstruct-M68K_RAM),a0
 	bsr.w	.sp
 	moveq	#$20,d1
 	adda.w	#tmsize,a0
@@ -479,7 +479,7 @@ PeriodOver	;what to do if period over. Branched to from puckfaceoff (logic93_4) 
 	tst.w	(OptPlayMode).w
 	bne.w	.nop			;playoffs: decided by the score check
 	move.w	#4,(gsp).w		;regular season: game over after overtime
-.nop	move.w	(hmtmstruct+tmscore).w,d0	;IDA: _nop. home score
+.nop	move.w	(tmstruct+tmscore).w,d0	;IDA: _nop. home score
 	sub.w	(awtmstruct+tmscore).w,d0	;visitor score
 	beq.w	.0			;tied: play overtime
 	move.w	#4,(gsp).w		;game over

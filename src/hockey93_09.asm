@@ -34,8 +34,8 @@ NewPO	;93 continue playoffs: read the playoff state back from the password bits,
 	beq.w	.ex			;level 0, game 0: nothing played yet
 	bsr.w	maketree
 	moveq	#7,d0
-	sub.w	(playoffroundoffset).w,d0	;92 pojoy
-	move.w	d0,(playofflevel).w	;menu value from pojoy (92 OptNOP slot)
+	sub.w	(pojoy).w,d0	;92 pojoy
+	move.w	d0,(OptNOP).w	;menu value from pojoy (92 OptNOP slot)
 .ex	movem.l	(sp)+,d0-d7/a0-a3	;IDA: loc_1446C
 	rts
 
@@ -50,7 +50,7 @@ SelectRandomPlayoffTree	;IDA name; body is 92 NewPO: new playoff generates tree 
 	adda.w	d0,a0
 	lsr.w	#4,d0
 	moveq	#$F,d1
-	move.w	(menuhometeam).w,d2	;92 Opt1team
+	move.w	(Opt1team).w,d2	;92 Opt1team
 	cmp.w	#$17,d2			;92 NumOfTeams-3: all-star teams use team 23
 	bls.w	.loop
 	moveq	#$17,d2
@@ -105,7 +105,7 @@ maketree	;make playoff tree (potree) from playoffseats/winbits. 92 MakeTree.
 .2	clr.w	gss1(a1)		;IDA: loc_14538
 	clr.w	gss2(a1)
 	clr.w	gsper(a1)
-	bclr	#1,gsflags(a1)		;hilite requested (92 gsfhl)
+	bclr	#gsfhl,gsflags(a1)		;hilite requested (92 gsfhl)
 	bsr.w	.sett
 	adda.w	#gssize,a1
 	dbf	d1,.2
@@ -119,11 +119,11 @@ maketree	;make playoff tree (potree) from playoffseats/winbits. 92 MakeTree.
 	beq.w	.flip
 	cmpi.w	#5,(bosgames).w
 	beq.w	.flip
-	bset	#0,gsflags(a1)		;teams are flipped (92 gsftf)
+	bset	#gsftf,gsflags(a1)		;teams are flipped (92 gsftf)
 	move.b	(a0)+,gst2+1(a1)
 	move.b	(a0)+,gst1+1(a1)
 	rts
-.flip	bclr	#0,gsflags(a1)		;IDA: _flip. gsftf
+.flip	bclr	#gsftf,gsflags(a1)		;IDA: _flip. gsftf
 	move.b	(a0)+,gst1+1(a1)
 	move.b	(a0)+,gst2+1(a1)
 	rts
@@ -156,13 +156,13 @@ FigureJoy	;set cont1team/cont2team appropriately. Called from maketree and Updat
 	bra.w	.ex			;po team not in playoffs
 
 .it2	moveq	#4,d0			;IDA: loc_145F4
-	move.w	(a1),(menuawayteam).w	;gst1 (92 Opt2team)
-	move.w	gst2(a1),(menuhometeam).w	;93 also sets team 1
+	move.w	(a1),(Opt2team).w	;gst1 (92 Opt2team)
+	move.w	gst2(a1),(Opt1team).w	;93 also sets team 1
 	bra.w	.itx
 .it1	clr.w	d0			;IDA: loc_14604
-	move.w	gst2(a1),(menuawayteam).w	;92 Opt2team
-	move.w	(a1),(menuhometeam).w
-.itx	add.w	(playoffroundoffset).w,d0	;IDA: loc_14610. 92 pojoy
+	move.w	gst2(a1),(Opt2team).w	;92 Opt2team
+	move.w	(a1),(Opt1team).w
+.itx	add.w	(pojoy).w,d0	;IDA: loc_14610. 92 pojoy
 	move.w	d1,(gamenum).w
 	move.w	(a1),(HomeTeam).w	;gst1
 	move.w	gst2(a1),(VisTeam).w
@@ -182,7 +182,7 @@ FigureJoy	;set cont1team/cont2team appropriately. Called from maketree and Updat
 	dc.w	2,1
 	dc.w	1,2
 
-.fjnpo	move.w	(playofflevel).w,d0	;IDA: loc_14658. 92 OptNOP
+.fjnpo	move.w	(OptNOP).w,d0	;IDA: loc_14658. 92 OptNOP
 	asl.w	#2,d0
 	lea	.noplist(pc),a0
 	move.w	0(a0,d0.w),(cont1team).w
@@ -232,19 +232,19 @@ ReadPassBits	;translate the password bits at a3 (5 words) to the playoff variabl
 	dbf	d0,.save
 	moveq	#7,d2			;set gspobwins/gspotwins
 	movea.w	#(gstruct+(7*gssize)-M68K_RAM),a1
-.0	bclr	#2,gsflags(a1)		;IDA: _0. series over (92 gsfso)
+.0	bclr	#gsfso,gsflags(a1)		;IDA: _0. series over (92 gsfso)
 	moveq	#5,d0
 	bsr.w	SuperDiv
 	move.w	d0,gspobwins(a1)
 	cmp.w	#4,d0
 	bne.w	.nsf0
-	bset	#2,gsflags(a1)		;4 wins: gsfso
+	bset	#gsfso,gsflags(a1)		;4 wins: gsfso
 .nsf0	moveq	#5,d0			;IDA: _nsf0
 	bsr.w	SuperDiv
 	move.w	d0,gspotwins(a1)
 	cmp.w	#4,d0
 	bne.w	.nsf1
-	bset	#2,gsflags(a1)		;gsfso
+	bset	#gsfso,gsflags(a1)		;gsfso
 .nsf1	suba.w	#gssize,a1		;IDA: _nsf1
 	dbf	d2,.0
 
@@ -254,7 +254,7 @@ ReadPassBits	;translate the password bits at a3 (5 words) to the playoff variabl
 
 	moveq	#4,d0			;set POJoy
 	bsr.w	SuperDiv
-	move.w	d0,(playoffroundoffset).w	;92 pojoy
+	move.w	d0,(pojoy).w	;92 pojoy
 
 	moveq	#$10,d0			;set POTreeTeam
 	bsr.w	SuperDiv
@@ -325,7 +325,7 @@ WritePassBits	;transfer game variables to the password bits at a3. 92 WritePassB
 	moveq	#$10,d1
 	bsr.w	PushBits
 
-	move.w	(playoffroundoffset).w,d0	;92 pojoy
+	move.w	(pojoy).w,d0	;92 pojoy
 	moveq	#4,d1
 	bsr.w	PushBits
 
@@ -436,7 +436,7 @@ DisplayTeamStatsForPlayoffs	;93 only, IDA name. Adds the po team's game stats to
 	movea.w	#(potree-M68K_RAM),a0
 	move.w	(potreeteam).w,d2
 	move.b	0(a0,d2.w),d2		;po team
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	cmp.w	$28(a2),d2		;team number of the home team struct
 	beq.w	.area
 	adda.w	#tmsize,a2		;po team is the visitor

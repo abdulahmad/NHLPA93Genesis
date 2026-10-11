@@ -98,7 +98,7 @@ printm	rs.w	1	;map to use (0 = map 1, 4 = map 2, 8 = map 3)
 printfontset	rs.w	1	;printsmall char set (index*2 into smallfontchars). IDA: word_FFB030
 fodropx	rs.w	1	;face off drop spot x/y
 fodropy	rs.w	1
-ReplayBufferPtr	rs.l	1
+recbpr	rs.l	1	;(was: ReplayBufferPtr)
 vbint	rs.l	1	;address of vblank interupt code
 vcount	rs.w	1	;counter for vblank
 oldvcount	rs.w	1
@@ -157,6 +157,10 @@ pfgoal	=	7	;0=bottom, 1=top (to shoot at)
 pflags2	=	$63
 pf2fight	=	0	;player is fighting
 pf2aip	=	1	;animation in progress wait
+pf2unav	=	2	;92 name: player is unavailable (going to/from bench/penalty). 92 bit 4
+pf2lcm	=	3	;92 name: line change mode. 92 bit 5
+pf2pen	=	4	;92 name: player has caused a penalty. 92 bit 6
+pf2npc	=	5	;92 name: no player collision. 92 bit 7
 glitch	=	$65	;counter to eliminate quick frame changes (de-glitch graphics)
 pnum	=	$66	;player's team location number 0-22
 weight	=	$67
@@ -388,9 +392,9 @@ tmflags	=	$30	;flags. 92 $1E
 tmpde	=	$32	;energy level of each roster player. 92 $20
 tmpdst	=	$66	;-2=bench/-1=ice/0+=penalty box. 92 $54
 tmsize	=	$1A2	;92 $88
-hmtmstruct	rs.b	tmsize
+tmstruct	rs.b	tmsize	;(was: hmtmstruct)
 ;$FFFFC4FC is hmtmstruct+tmline (IDA word_FFC4FC)
-HomeTeamRosterPtr	=	hmtmstruct+tmdata
+HomeTeamRosterPtr	=	tmstruct+tmdata
 ;$FFFFC50C is hmtmstruct+tmgoalie (IDA word_FFC50C)
 ;$FFFFC50E is hmtmstruct+tmgoalie+2 (IDA word_FFC50E)
 ;$FFFFC516 is hmtmstruct+tmflags (IDA byte_FFC516)
@@ -413,6 +417,9 @@ gsper	=	$8	;period
 gss1	=	$A	;team 1 score
 gss2	=	$C	;team 2 score
 gsflags	=	$E	;flags
+gsftf	=	0	;92 name: teams are flipped
+gsfhl	=	1	;92 name: hilite requested
+gsfso	=	2	;92 name: series over
 gssize	=	$10
 gstruct	rs.b	gssize*8
 gamenum	rs.w	1	;index for current game in game struct
@@ -420,7 +427,7 @@ postarts	rs.w	1	;0-31 for which playoff tree to use as frame
 bosgames	rs.w	1	;0-6 game of series or 7 if not in best of seven
 gamelevel	rs.w	1	;0-3 for the depth into the play off tree
 potreeteam	rs.w	1	;which team you are on the intial playoff tree
-playoffroundoffset	rs.w	1
+pojoy	rs.w	1	;(was: playoffroundoffset)
 WinBits	rs.w	1	;bits which indicat the continuing teams on the playoff tree
 potree	rs.b	16+8+4+2+1+1	;team in the tree
 PlList	rs.b	12	;list of players used differently
@@ -443,14 +450,14 @@ TestList	rs.w	122
 nibblebuffer	rs.w	6	;UnpackNibbles words, WeightedRandomSelect weights. IDA: dword_FFCACA
 ;$FFFFCACE is nibblebuffer+4 (IDA dword_FFCACE)
 OptPlayMode	rs.w	1	;play mode
-playofflevel	rs.w	1
-menuhometeam	rs.w	1
-menuawayteam	rs.w	1
+OptNOP	rs.w	1	;(was: playofflevel)
+Opt1team	rs.w	1	;(was: menuhometeam)
+Opt2team	rs.w	1	;(was: menuawayteam)
 OptPerlen	rs.w	1	;period length index. IDA: word_FFCADE
 OptPen	rs.w	1	;penalties 1 for off
 OptLine	rs.w	1	;line changes 0 for on
 demoflag	rs.w	1	;demo flag
-StanleyCupTimer	rs.l	1
+seed	rs.l	1	;(was: StanleyCupTimer)
 dmaram	rs.l	1	;dma ram area. IDA: dword_FFCAEA
 	IF REV=1
 music_global_tick_counter	rs.w	1	;Rev A only: VDP PAL bit (Begin). Set = 50 Hz: faster skating (updateplayers) and music (p_music_vblank)

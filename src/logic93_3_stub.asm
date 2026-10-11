@@ -23,7 +23,7 @@ RAMStart = $FF0000
 ; Names are IDA names, or source names from the SEGMENT_AGENT.md rename table.
 dopass = $9944			; logic93_1
 check4bench = $A06C		; logic93_1
-assnothing = $AA3E		; logic93_2
+donothing = $AA3E		; logic93_2
 checkob = $BC6C			; logic93_4 (Rev A sub_BC84)
 CompLine = $C328		; logic93_4 (Rev A sub_C340)
 skateto = $CDAE			; logic93_5

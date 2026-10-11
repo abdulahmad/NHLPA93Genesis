@@ -52,11 +52,11 @@ AddPenalty2	;forced penalties like face off and game over. d0 = penalty number, 
 	bne.w	.noplayer		;buffer full
 	move.b	SCnum+1(a3),-(a1)
 	move.b	d0,-(a1)
-	movea.l	#PenaltyList,a0
+	movea.l	#Penaltylist,a0
 	adda.w	(a0,d0.w),a0
 	tst.b	1(a0)			;penalty minutes
 	beq.w	.noplayer
-	bset	#4,pflags2(a3)		;92 pf2pen (bit 6 in 92)
+	bset	#pf2pen,pflags2(a3)		;92 pf2pen (bit 6 in 92)
 	beq.w	.noplayer
 	clr.w	(a1)			;player already has a penalty, drop this one
 .noplayer	movem.l	(sp)+,d1/a0-a1		;IDA: loc_E5D6
@@ -81,7 +81,7 @@ chkprogress	;control progress of ref and game control thru penalty events. When 
 	beq.w	rtss
 	clr.w	d0
 	move.b	-2(a0),d0
-	movea.l	#PenaltyList,a1
+	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
 	tst.b	1(a1)			;penalty minutes
 	beq.s	.find
@@ -138,7 +138,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 
 .Sa	clr.w	d0			;IDA: _Sa
 	move.b	(a0),d0
-	movea.l	#PenaltyList,a1
+	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
 	clr.w	d2
 	move.b	1(a1),d2		;penalty minutes
@@ -158,7 +158,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d1,a3
 	clr.w	d0
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
 	btst	#pfteam,pflags(a3)
 	beq.w	.sa1
@@ -215,7 +215,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	bsr.w	SetPA
 	bra.w	.ex
 
-.exit	movea.w	#(hmtmstruct-M68K_RAM),a2	;IDA: _exit
+.exit	movea.w	#(tmstruct-M68K_RAM),a2	;IDA: _exit
 	bsr.w	coinsearch
 	adda.w	#tmsize,a2
 	bsr.w	coinsearch
@@ -255,7 +255,7 @@ checkfornewpen	;look for new penalty (entered thru addpenalty(2)). Stops play at
 	bne.w	.iscalled
 	clr.w	d0
 	move.b	-2(a0),d0
-	movea.l	#PenaltyList,a1
+	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
 	tst.b	1(a1)			;time for penalty
 	beq.w	.callit
@@ -274,7 +274,7 @@ checkfornewpen	;look for new penalty (entered thru addpenalty(2)). Stops play at
 	bne.s	.next
 	clr.w	d0
 	move.b	-2(a0),d0		;penalty called
-	movea.l	#PenaltyList,a1
+	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
 	clr.w	d1
 	move.b	(a1),d1			;delay for stopping action
@@ -422,7 +422,7 @@ SetPA2	;update animation for ref. Next frame/delay pair from the PenaltyList ani
 	move.w	(RefStep).w,d0
 	addq.w	#2,(RefStep).w
 	move.w	(RefPen).w,d1
-	movea.l	#PenaltyList,a0
+	movea.l	#Penaltylist,a0
 	adda.w	(a0,d1.w),a0
 	addq.w	#2,a0
 	adda.w	(a0),a0
@@ -492,7 +492,7 @@ prefmes	;print message for penalty d0 (negative clears it). Vertical mode: frame
 
 .noblank	bsr.w	printz			;IDA: loc_EB9C
 	String	$BF,5,$A		;x 5 (92 6)
-	movea.l	#PenaltyList,a1
+	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
 	addq.w	#2,a1
 	move.w	(a1),d0
@@ -518,7 +518,7 @@ prefmes	;print message for penalty d0 (negative clears it). Vertical mode: frame
 	bmi.w	.ex
 	bsr.w	printz
 	String	$BF,$11,$B
-	movea.l	#PenaltyList,a1
+	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
 	addq.w	#2,a1
 	move.w	(a1),d0
@@ -550,7 +550,7 @@ PenGoalStuff	;do this stuff after a goal. a1 = scored on team, a2 = scoring team
 	bsr.w	RemovePlayerFromList
 	addq.w	#1,tmap(a1)
 	addq.w	#1,tmPwrGoals(a2)
-	bset	#0,(hmtmstruct+tmflags).w	;tmflcc
+	bset	#0,(tmstruct+tmflags).w	;tmflcc
 	bset	#0,(awtmstruct+tmflags).w	;tmflcc
 .ex	movem.l	(sp)+,d0-d2/a0		;IDA: _ex
 	rts
@@ -571,7 +571,7 @@ updatepentime	;update the time remaining on all penalized players, once a second
 	addi.w	#$18,(Penaltytimer).w	;jps
 	bset	#6,(sflags3).w
 	bsr.w	chkatop
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	ProcessPenaltyList
 	adda.w	#tmsize,a2
 
@@ -643,7 +643,7 @@ chkatop	;attack time of possession stat update. Called once a second from update
 .1	btst	#gmdir,(gmode).w		;IDA: loc_ED98
 	beq.w	.0
 	eori.w	#tmsize,d1
-.0	movea.w	#(hmtmstruct-M68K_RAM),a2	;IDA: loc_EDA6
+.0	movea.w	#(tmstruct-M68K_RAM),a2	;IDA: loc_EDA6
 	addq.w	#1,tmATOP(a2,d1.w)		;attack time
 	rts
 
@@ -659,7 +659,7 @@ releasepl	;player's penalty time is up so let him out (if appropriate). a2 = tea
 	lsr.w	#1,d3
 	move.w	tmap(a2),d1
 	addq.w	#1,tmap(a2)
-	bset	#0,(hmtmstruct+tmflags).w	;tmflcc
+	bset	#0,(tmstruct+tmflags).w	;tmflcc
 	bset	#0,(awtmstruct+tmflags).w	;tmflcc
 	movea.l	#priolist,a0
 	tst.w	tmgoalie(a2)			;92 cmp #2
@@ -669,7 +669,7 @@ releasepl	;player's penalty time is up so let him out (if appropriate). a2 = tea
 	move.b	(a0,d1.w),position+1(a3)
 	bsr.w	Setplass
 	bsr.w	setplayer
-	bset	#2,pflags2(a3)		;92 pf2unav (bit 4 in 92)
+	bset	#pf2unav,pflags2(a3)		;92 pf2unav (bit 4 in 92)
 	movem.l	(sp)+,d0-d3/a0-a3
 	rts
 
@@ -702,7 +702,7 @@ GetLowestPen	;92 name; 93 body differs (92 built a release-order PlList). a2 = t
 	rts
 
 updatepwrplay	;show graphic and time remaining for power plays. 93: plays song $33 at the start of a home power play, then prints the time and the team on the power play
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a3
 	move.w	tmap(a2),d0
 	sub.w	tmap(a3),d0
@@ -723,7 +723,7 @@ updatepwrplay	;show graphic and time remaining for power plays. 93: plays song $
 .upp	bset	#sf2pwrplay,(sflags2).w		;IDA: loc_EEA0
 	bne.w	.uppt
 	addq.w	#1,tmPwrPlays(a3)
-	cmpa.w	#(hmtmstruct-M68K_RAM),a3
+	cmpa.w	#(tmstruct-M68K_RAM),a3
 	bne.w	.uppt
 	move.w	#$33,-(sp)
 	bsr.w	song

@@ -149,9 +149,9 @@ randomd0s	;IDA: sub_D7B2 (Rev A lst). d0 = range. Return d0 = random number (-ra
 
 randomd0	;d0 = range. Return random number in d0 (0 <= d0 < range)
 	movem.l	d0-d2,-(sp)
-	move.w	(StanleyCupTimer+2).w,d0	;seed+2 (92)
+	move.w	(seed+2).w,d0	;seed+2 (92)
 	move.w	d0,d1
-	move.w	(StanleyCupTimer).w,d2		;seed
+	move.w	(seed).w,d2		;seed
 	mulu.w	#$E62D,d0
 	mulu.w	#$BB40,d1
 	mulu.w	#$E62D,d2
@@ -160,7 +160,7 @@ randomd0	;d0 = range. Return random number in d0 (0 <= d0 < range)
 	add.w	d1,d0
 	swap	d0
 	addq.l	#1,d0
-	move.l	d0,(StanleyCupTimer).w		;seed
+	move.l	d0,(seed).w		;seed
 	asr.l	#8,d0
 	mulu.w	2(sp),d0
 	swap	d0
@@ -257,7 +257,7 @@ waitx	;wait d0 vblanks or until input from either joystick. Return joystick vari
 	bmi.s	.wait
 	rts
 
-IntermissionLoop	;93 version of 92 waitxsr: wait d0 vblanks while the zamboni crosses (zamx counts up to $708) and the crowd updates. A key on either pad (sflags bit 1 = pad 2) leaves at least 120 frames and goes to HandleMenuInput; eq from it exits with d1 bit 7 set. Called from Intermission
+waitxsr	;93 version of 92 waitxsr: wait d0 vblanks while the zamboni crosses (zamx counts up to $708) and the crowd updates. A key on either pad (sflags bit 1 = pad 2) leaves at least 120 frames and goes to HandleMenuInput; eq from it exits with d1 bit 7 set. Called from Intermission (was: IntermissionLoop)
 	movem.l	d4-d7/a0-a3,-(sp)
 	neg.w	d0
 	move.w	d0,(vcount).w

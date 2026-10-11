@@ -50,38 +50,38 @@ asstab	;jump table of all the player logic assignments. 92 asstab without assnot
 	dc.l	assfight		;$14 afight
 	dc.l	assfwatch		;$15
 	dc.l	assfaceoff		;$16
-	dc.l	assfaceoffp1		;$17
+	dc.l	assfaceoffpl		;$17
 	dc.l	pucknorm		;$18 puck logic
 	dc.l	puckshadow		;$19
 	dc.l	pucknothing		;$1A (IDA puckunflip in the Rev A listing)
 	dc.l	puckfaceoff		;$1B
 	dc.l	puckfaceoff2		;$1C
 
-PenaltyList	;92 Penaltylist. Penalty number = word offset into this table; 93 reorders the numbers
+Penaltylist	;92 Penaltylist. Penalty number = word offset into this table; 93 reorders the numbers (was: PenaltyList)
 	;and has 3 more entries. Used by AddPenalty, SetPA2, stats93 DisplayPenaltyEntry, ...
 	dc.w	$0000
-	dc.w	.eop-PenaltyList	;2 period over (92 PenEOP 2)
-	dc.w	.eog-PenaltyList	;4 game over (92 PenEOG 4)
-	dc.w	.ghold-PenaltyList	;6 (92 PenOOP $C)
-	dc.w	.ghold-PenaltyList	;8 (92 PenGhold $E)
-	dc.w	.whistle-PenaltyList	;$A whistle (92 PenWhistle $26)
-	dc.w	.ice-PenaltyList	;$C icing (92 PenIcing 8)
-	dc.w	.goal-PenaltyList	;$E goal (92 PenGoal 6)
-	dc.w	.offsides-PenaltyList	;$10 offsides (92 PenOffsides $A)
-	dc.w	.rough2-PenaltyList	;$12 roughing, slow down time $A
-	dc.w	.p14-PenaltyList	;$14 93 only, no text
-	dc.w	.charge-PenaltyList	;$16
-	dc.w	.slash-PenaltyList	;$18
-	dc.w	.rough-PenaltyList	;$1A
-	dc.w	.cross-PenaltyList	;$1C
-	dc.w	.hook-PenaltyList	;$1E
-	dc.w	.trip-PenaltyList	;$20
-	dc.w	.int-PenaltyList	;$22
-	dc.w	.hold-PenaltyList	;$24
-	dc.w	.fight-PenaltyList	;$26
-	dc.w	.fight2-PenaltyList	;$28 93 only
-	dc.w	.inst-PenaltyList	;$2A
-	dc.w	.delay-PenaltyList	;$2C delay (92 PenDelay $24)
+	dc.w	.eop-Penaltylist	;2 period over (92 PenEOP 2)
+	dc.w	.eog-Penaltylist	;4 game over (92 PenEOG 4)
+	dc.w	.ghold-Penaltylist	;6 (92 PenOOP $C)
+	dc.w	.ghold-Penaltylist	;8 (92 PenGhold $E)
+	dc.w	.whistle-Penaltylist	;$A whistle (92 PenWhistle $26)
+	dc.w	.ice-Penaltylist	;$C icing (92 PenIcing 8)
+	dc.w	.goal-Penaltylist	;$E goal (92 PenGoal 6)
+	dc.w	.offsides-Penaltylist	;$10 offsides (92 PenOffsides $A)
+	dc.w	.rough2-Penaltylist	;$12 roughing, slow down time $A
+	dc.w	.p14-Penaltylist	;$14 93 only, no text
+	dc.w	.charge-Penaltylist	;$16
+	dc.w	.slash-Penaltylist	;$18
+	dc.w	.rough-Penaltylist	;$1A
+	dc.w	.cross-Penaltylist	;$1C
+	dc.w	.hook-Penaltylist	;$1E
+	dc.w	.trip-Penaltylist	;$20
+	dc.w	.int-Penaltylist	;$22
+	dc.w	.hold-Penaltylist	;$24
+	dc.w	.fight-Penaltylist	;$26
+	dc.w	.fight2-Penaltylist	;$28 93 only
+	dc.w	.inst-Penaltylist	;$2A
+	dc.w	.delay-Penaltylist	;$2C delay (92 PenDelay $24)
 
 ;format
 ;	dc.w	$ttmm	;tt=slow dnw time in half secs,mm=penalty min.

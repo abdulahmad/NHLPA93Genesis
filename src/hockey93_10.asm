@@ -17,7 +17,7 @@ ResolveGames	;compute winners and losers for playoff matchups. 92 ResolveGames. 
 	move.w	(gamenum).w,d0
 	mulu.w	#gssize,d0
 	movea.w	#(gstruct-M68K_RAM),a0
-	move.w	(hmtmstruct+tmscore).w,gss1(a0,d0.w)	;copy score from played game into game structures
+	move.w	(tmstruct+tmscore).w,gss1(a0,d0.w)	;copy score from played game into game structures
 	move.w	(awtmstruct+tmscore).w,gss2(a0,d0.w)
 
 	bsr.w	GetShifter
@@ -32,7 +32,7 @@ ResolveGames	;compute winners and losers for playoff matchups. 92 ResolveGames. 
 	cmpi.w	#4,gspobwins(a0)
 	beq.w	.b1
 	clr.w	d3
-	btst	#0,gsflags(a0)		;teams flipped (92 gsftf)
+	btst	#gsftf,gsflags(a0)		;teams flipped (92 gsftf)
 	beq.w	.nf
 	eori.w	#gspobwins-gspotwins,d3
 .nf	move.w	gss1(a0),d0		;IDA: determine_winner
@@ -108,7 +108,7 @@ ResolveGames	;compute winners and losers for playoff matchups. 92 ResolveGames. 
 	cmp.w	gss2(a0),d0
 	bhi.w	.nb1
 	bset	d1,d3
-.nb1	btst	#0,gsflags(a0)		;IDA: loc_14B14. teams flipped (92 gsftf)
+.nb1	btst	#gsftf,gsflags(a0)		;IDA: loc_14B14. teams flipped (92 gsftf)
 	beq.w	.nb2
 	bchg	d1,d3
 .nb2	suba.w	#gssize,a0		;IDA: loc_14B20
@@ -162,7 +162,7 @@ DisplayPeriodOver	;93 only: end of game "Stars of the Game" box. Called from Upd
 	move.w	#3,(printx).w
 	bsr.w	print
 	dbf	d2,.loop
-	move.w	(hmtmstruct+tmscore).w,d0	;home score
+	move.w	(tmstruct+tmscore).w,d0	;home score
 	sub.w	(awtmstruct+tmscore).w,d0	;- visitor score
 	ble.w	.nosong
 	move.w	#SFXhomewin,-(sp)		;song $F: home team won
@@ -185,7 +185,7 @@ FindMaxAttributeTEam	;93 only: take the highest of the 52 star scores at DispAtt
 	move.w	a1,d0
 	subi.w	#(DispAttribCtr-M68K_RAM),d0
 	lsr.w	#2,d0			;entry number
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	cmp.w	#$1A,d0
 	blt.w	.home			;0-25: home team
 	subi.w	#$1A,d0
@@ -200,7 +200,7 @@ CalculateTeamAttributes	;93 only: star score for every roster slot of both teams
 	jsr	(GetPeriodTime).w
 	move.w	d0,d5
 	add.w	d2,d5
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a3		;a3 = other team
 	bsr.w	CalculateTeamAttributeValues	;home
 	movea.w	a3,a2
@@ -301,7 +301,7 @@ DisplayPlayerAttributeMenu	;93 only: goal box. Closes both line change boxes, th
 	;TRICK!" on the scorer's third goal), the scorer and up to two assists of the last goal entry.
 	;Called from SetPA (penalty93_1) for the goal penalty number
 	movem.l	d0-d2/a0-a4,-(sp)
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	jsr	(lcfound2).l		;close lc box
 	adda.w	#tmsize,a2
 	jsr	(lcfound2).l
@@ -318,7 +318,7 @@ DisplayPlayerAttributeMenu	;93 only: goal box. Closes both line change boxes, th
 	bmi.w	.frame
 	addq.w	#1,d1			;8: two assists
 .frame	bsr.w	Framer			;IDA: loc_14DE0
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	btst	#7,2(a4)
 	beq.w	.home			;home team scored
 	adda.w	#tmsize,a2
@@ -367,7 +367,7 @@ box	;93 only: fill a $13 x 8 rectangle at printz position $FF,$B,2 with char $7F
 GetPlayerName	;93 only: a1 = mesarea "NN First Last" (getname) for player TempPlOffset (bit 15 set: away
 	;team). Called from UpdatePA (penalty93_1)
 	movem.l	d0/a2,-(sp)
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	move.w	(TempPlOffset).w,d0
 	bpl.w	.get
 	andi.w	#$FF,d0
@@ -398,7 +398,7 @@ getname	;93 only: a1 = mesarea string "NN First Last" for player d0 of team a2. 
 GetPlayerNameWithAttrib	;93 only: a1 = mesarea "NN F. Last" (FormatPlayerNameWithAttrib) for player
 	;TempPlOffset (bit 15 set: away team). Called from ShowInjuryBox
 	movem.l	d0/a2,-(sp)
-	movea.w	#(hmtmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2
 	move.w	(TempPlOffset).w,d0
 	bpl.w	.get
 	andi.w	#$FF,d0
