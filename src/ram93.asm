@@ -1,8 +1,5 @@
-;Variables
-;	NHLPA 93 RAM map, ports and structure equates, in NHL92Genesis/src/order. Every address is the
-;	retail (nhlpa93retail.bin) address. Names are the 92 names where 93 uses the variable the same way, else the
-;Rev A has two more words (music_global_tick_counter, music_tick_divider) at $CAEE, so every variable
-;from databuffer up is 4 bytes lower here than in the Rev A (the Rev A address is in the comment).
+;Variables NHLPA 93 RAM map, ports and structure equates, in NHL92Genesis/src/order. Every address is the
+;	retail (nhlpa93retail.bin) address.
 ;	Included.asm and by every *_stub.asm (segment builds). No ROM bytes.
 
 ;hardware
@@ -89,7 +86,7 @@ faceoffvrcset	rs.w	1	;vram tiles for FaceOff graphics
 Framercset	rs.w	1	;vram tiles for framer.map
 EASNcset	rs.w	1	;vram tiles for EASN.map
 basetileoffset	rs.w	1
-spritechars	rs.w	1	;vram tiles for the sprites (setupice).
+spritechars	rs.w	1	;vram tiles for the sprites.
 ExtraChars	rs.w	1	;vram tiles for extra graphics
 printx	rs.w	1	;x cordinate for printing
 printy	rs.w	1	;y cordinate for printing
@@ -177,7 +174,7 @@ stickhand	=	$71
 endurance	=	$72
 handed	=	$76	;bit0 set is left handed. 92 $74
 pflags3	=	$64
-pf3oside	=	0	;92: player is offsides (93 flags the team: tmflags bit 4)
+pf3oside	=	0	;player is offsides (93 flags the team: tmflags bit 4)
 aggress	=	$73	;and offset
 ;93 values: sfx / song numbers
 SFXsiren	=	$0
@@ -212,8 +209,8 @@ SFXpuckwall1	=	$28
 SFXpuckice	=	$2C
 SngTitle	=	$35
 SngEOG	=	$36
-SngScout	=	$37	;scouting report (no 92 name)
-;printsmall control codes (bytes run ControlCodeJumpTable entry -byte; names match the ControlCode_* routines)
+SngScout	=	$37	;scouting report (no) printsmall control codes (bytes run ControlCodeJumpTable entry -byte; names match the
+;ControlCode_* routines)
 CC_SetMap	=	$FF	;-1: next byte = map number -> printm
 CC_SetAttribute	=	$FE	;-2: next byte = palette/priority -> printa
 CC_SetX	=	$FD	;-3: next byte = printx
@@ -276,7 +273,7 @@ fofdata2	rs.l	2
 ;$FFFFBDAC is fofdata2+4
 fofdata	rs.l	1	;data for frame/att of big face off sprites
 pads	rs.w	42
-ffosize	=	OldXpos	;92: field objects tied to icerink scrolling, OldXpos bytes each
+ffosize	=	OldXpos	;field objects tied to icerink scrolling, OldXpos bytes each
 CameraPosStruct	rs.w	11
 replayactive	rs.w	3	;set by ReplayMode.
 glovestruct	rs.w	14	;gloves object, pads+(4*ffosize).

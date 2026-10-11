@@ -1,14 +1,7 @@
 ;****************************************************************
-;																*
-;	GENESIS / MEGA DRIVE HARD INITIAL PROGRAM					*
-;																*
-;		1989 11/30												*
-;																*
-;	HOT_START is GAME_PROGRAM start_address						*
-;		 = START + $100											*
-;		because this program size is 256 bytes.					*
-;																*
-;       June 21'90                                              *
+;																* GENESIS / MEGA DRIVE HARD INITIAL PROGRAM * * 1989 11/30 * *
+;																HOT_START is GAME_PROGRAM start_address * = START + $100 *
+;																because this program size is 256 bytes. * * June 21'90 *
 ;****************************************************************
 ; No programs are permited to run before this program.
 

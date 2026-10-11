@@ -1,5 +1,5 @@
 	org	$00000100
-;					Data	  	No.		Address	Description
+;					Data No. Address	Description
 	dc.b	'SEGA GENESIS    '	; 01	$100	Sega Genesis ID (16 bytes)
 	IF REV=1
 	dc.b	'(C)T-50 1992.OCT'	; 02	$110	Rev A

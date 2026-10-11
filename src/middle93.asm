@@ -25,7 +25,7 @@ remap	;a0 = data (char set), d0 = size in words, d1 = vram dest, a1 = mapping da
 	clr.w	d3
 .2	move.w	d2,d4
 	andi.w	#$F,d4
-	lsr.w	#1,d4			;93: map byte = color/2
+	lsr.w	#1,d4			;map byte = color/2
 	move.b	(a1,d4.w),d4
 	btst	#0,d2
 	bne.w	.lo			;odd color: low nibble
@@ -73,7 +73,7 @@ forcefade	;regardless of interupts/disflags fade in new palettes, don't upset an
 cramfade	;fade from current color in color ram to color held in palfadenew. This should be called during vblank because palette changes punch holes in video. palcount 100 copies the palette with no fade (CopyPaletteToCRAM)
 	tst.w	(palcount).w
 	bmi.w	rtss
-	cmpi.w	#$64,(palcount).w	;93: 100 = copy now
+	cmpi.w	#$64,(palcount).w	;100 = copy now
 	beq.w	CopyPaletteToCRAM
 	subq.w	#1,(palcount).w
 	bmi.w	rtss
@@ -125,7 +125,7 @@ cramfade	;fade from current color in color ram to color held in palfadenew. This
 	bne.s	.top
 	rts
 
-CopyPaletteToCRAM	;93: copy all 64 palfadenew colors straight to color ram and set palcount = -1. Protected from vblank (dfng). Entered from cramfade (palcount 100), called from SetupStanleyCupCelebrationScreen
+CopyPaletteToCRAM	;copy all 64 palfadenew colors straight to color ram and set palcount = -1. Protected from vblank. Entered from cramfade (palcount 100), called from SetupStanleyCupCelebrationScreen
 	movem.l	d0/a0-a1,-(sp)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
@@ -188,7 +188,7 @@ sroot	;Square Root, this returns (d0.L)^.5 in d0. 93: values above use a binary 
 	moveq	#9,d3			;max number of reps
 	move.w	#$8000,d1		;92 guess for big values, unused in 93
 	cmp.l	#$F00000,d0
-	bhi.w	.big			;93: binary search (92 bhi .top)
+	bhi.w	.big			;binary search (92 bhi .top)
 	move.l	d0,d1
 	lsr.l	#8,d1
 	addq.w	#2,d1
@@ -203,7 +203,7 @@ sroot	;Square Root, this returns (d0.L)^.5 in d0. 93: values above use a binary 
 	movem.l	(sp)+,d1-d4
 	rts
 
-.big	moveq	#0,d1			;93: d1 = low, d2 = high ($FFFF)
+.big	moveq	#0,d1			;d1 = low, d2 = high ($FFFF)
 	moveq	#-1,d2
 .bs	move.w	d1,d3			;d3 = (low+high)/2, carry shifted back in
 	add.w	d2,d3
@@ -258,7 +258,7 @@ waitx	;wait d0 vblanks or until input from either joystick. Return joystick vari
 	bmi.s	.wait
 	rts
 
-waitxsr	;93 version of wait d0 vblanks while the zamboni crosses (zamx counts up to $708) and the crowd updates. A key on either pad (sflags bit 1 = pad 2) leaves at least 120 frames and goes to HandleMenuInput; eq from it exits with d1 bit 7 set. Called from Intermission
+waitxsr	;d0 vblanks while the zamboni crosses (zamx counts up to $708) and the crowd updates. A key on either pad (sflags bit 1 = pad 2) leaves at least 120 frames and goes to HandleMenuInput; eq from it exits with d1 bit 7 set. Called from Intermission
 	movem.l	d4-d7/a0-a3,-(sp)
 	neg.w	d0
 	move.w	d0,(vcount).w
@@ -466,7 +466,7 @@ DoDMA	;initiate dma transfer (dma transfer bug is compensated for). d0 = words t
 	movem.l	(sp)+,d2/a1
 	rts
 
-DoDMA_nd2	;93: vram to vram copy by dma (reg 23 = $C0), protected from vblank. d0 = length, d2 = source vram address, d1 = destination vram address. Auto inc 1 during the copy, then 2 again. Called from CopyTeamBlockMapData and ScrollDisplayUp
+DoDMA_nd2	;vram to vram copy by dma (reg 23 = $C0), protected from vblank. d0 = length, d2 = source vram address, d1 = destination vram address. Auto inc 1 during the copy, then 2 again. Called from CopyTeamBlockMapData and ScrollDisplayUp
 	movem.l	d0-d3/a1,-(sp)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
@@ -536,7 +536,7 @@ setVram	;initialize all necesary video parameters based on my variables. d0 = co
 	move.w	#$18,(palcount).w	;24
 	bsr.w	forcefade
 
-setVram_0	;second half of the 92 version (no fade): clear vram and set the VDP registers from disflags, Map1col, VmMap1-3, VSPRITES and VSCRLPM. Falls in from setVram, called from SetupStanleyCupCelebrationScreen
+setVram_0	;second half of setVram without the fade: clear vram and set the VDP registers from disflags, Map1col, VmMap1-3, VSPRITES and VSCRLPM. Falls in from setVram, called from SetupStanleyCupCelebrationScreen
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	move.w	#$8F02,(VDP_CTRL).l	;VmInc 2
@@ -611,17 +611,14 @@ Vmaddr	;set video port to address d0. d0 = vram address, returns a0 = Vdata!!!
 
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment
-;	dobitmap, the tile decompressor
+;	NHLPA Hockey 93 (retail) segment dobitmap, the tile decompressor
 ;	(DecompressGraphicsWithCallback, DoDMA_clearCallbackPointer,
 ;	DecompressGraphics, DecompressBytecode, jump_table, the Opcode_*
 ;	handlers, FlushOutputBuffer), xyVmMap, eraser, Framer, the 93-only
 ;	printsmallz/printsmall with ControlCodeJumpTable and the ControlCode_*
-;	handlers, printz, print, the FormatAndPrintTime and
-;	PeriodLabelTable, PushTime, PushNumber, the PushNumberWidth,
-;	appendz, appstring, printbigz, printbig, AddSmallFont, AddFramer and
-;AddTeamBlock. Global names from the 92 names where the
-;	routine is the same (see the SEGMENT_AGENT.md rename table). Bytes
+;	handlers, printz, print, the FormatAndPrintTime and PeriodLabelTable,
+;	PushTime, PushNumber, the PushNumberWidth, appendz, appstring,
+;	printbigz, printbig, AddSmallFont, AddFramer and AddTeamBlock. Bytes
 ;	match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
@@ -630,11 +627,11 @@ Vmaddr	;set video port to address d0. d0 = vram address, returns a0 = Vdata!!!
 ;	char) instead of 92's direct DoDMA.
 
 dobitmap	;transfer palette data/map data/tiles data to vram. a0 = palette, a1 = map, a2 = tiles (DecompressGraphics data), d0 = start x, d1 = start y, d2 = width x, d3 = width y, d4 = start char, d5 = pal used bits (0-3) for color fam 1-4. printy is restored and the tiles go last through DecompressGraphics (returns d4 = end char)
-	move.w	(printy).w,-(sp)	;93: keep printy
+	move.w	(printy).w,-(sp)	;keep printy
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	movem.l	d0-d3/d5-d6/a0-a3,-(sp)
-	move.w	d1,d6			;93: y start in d6 (92 used 6(a7))
+	move.w	d1,d6			;y start in d6 (92 used 6(a7))
 	movea.w	#(palfadenew-M68K_RAM),a3
 	bra.w	.00
 .01	move.b	(a0,d0.w),(a3,d0.w)
@@ -667,7 +664,7 @@ dobitmap	;transfer palette data/map data/tiles data to vram. a0 = palette, a1 = 
 	addq.w	#1,(printy).w
 	addq.w	#1,d6
 	dbf	d2,.loop2
-	bsr.w	DoDMA_clearCallbackPointer	;93: tiles a2 to char d4
+	bsr.w	DoDMA_clearCallbackPointer	;tiles a2 to char d4
 	movem.l	(sp)+,d0-d3/d5-d6/a0-a3
 	move.w	(sp)+,(disflags).w
 	move.w	(sp)+,(printy).w
@@ -679,10 +676,10 @@ DecompressGraphicsWithCallback	;DecompressGraphics through remap. The 8 bytes af
 	addq.l	#8,(sp)			;skip the inline remap table
 	rts
 
-DoDMA_clearCallbackPointer	;93: clear callbackPtr (plain DMA, no remap) and fall into DecompressGraphics. a2 = tile data, d4 = start char
+DoDMA_clearCallbackPointer	;clear callbackPtr (plain DMA, no remap) and fall into DecompressGraphics. a2 = tile data, d4 = start char
 	clr.l	(callbackPtr).w
 
-DecompressGraphics	;93: send tiles to vram. a2 = data: word count of tiles (0 = none, bit 15 set = compressed by DecompressBytecode), then the tiles. d4 = start char, returns d4 = end char + 1. Uses remap with callbackPtr when it is set, else DoDMApro
+DecompressGraphics	;send tiles to vram. a2 = data: word count of tiles (0 = none, bit 15 set = compressed by DecompressBytecode), then the tiles. d4 = start char, returns d4 = end char + 1. Uses remap with callbackPtr when it is set, else DoDMApro
 	movem.l	d0-d1/a0-a6,-(sp)
 	movea.l	a2,a0			;a0 = compressed data
 	move.w	d4,d1
@@ -704,7 +701,7 @@ DecompressGraphics	;93: send tiles to vram. a2 = data: word count of tiles (0 = 
 .done	movem.l	(sp)+,d0-d1/a0-a6
 	rts
 
-DecompressBytecode	;93: unpack a0 into the 256 byte ring buffer at DispAttribCtr and flush each full buffer to vram d3 (FlushOutputBuffer). The high nibble of each opcode byte picks a handler from jump_table. Ends on a CopyBackwardReverseMedium code with distance 0. d1 = vram address
+DecompressBytecode	;unpack a0 into the 256 byte ring buffer at DispAttribCtr and flush each full buffer to vram d3 (FlushOutputBuffer). The high nibble of each opcode byte picks a handler from jump_table. Ends on a CopyBackwardReverseMedium code with distance 0. d1 = vram address
 	movea.w	#(DispAttribCtr-M68K_RAM),a1	;output buffer
 	movea.w	#(DispAttribCtr-M68K_RAM),a3
 	movea.w	#(callbackPtr-M68K_RAM),a4
@@ -740,7 +737,7 @@ jump_table	;DecompressBytecode handler offsets, one per opcode high nibble
 	dc.w	Opcode_CopyBackwardReverseMedium-jump_table	;E
 	dc.w	Opcode_CopyBackwardReverseLong-jump_table	;F
 
-Opcode_CopyLiteral	;93: opcodes 0-1, copy (low 5 bits)+1 bytes from the data
+Opcode_CopyLiteral	;opcodes 0-1, copy (low 5 bits)+1 bytes from the data
 	move.b	-1(a0),d0
 	andi.w	#$1F,d0
 .loop	move.b	(a0)+,(a1,d1.w)
@@ -750,7 +747,7 @@ Opcode_CopyLiteral	;93: opcodes 0-1, copy (low 5 bits)+1 bytes from the data
 .next	dbf	d0,.loop
 	rts
 
-Opcode_ClearBytes	;93: opcode 2, write (low 4 bits)+1 zero bytes
+Opcode_ClearBytes	;opcode 2, write (low 4 bits)+1 zero bytes
 	move.b	-1(a0),d0
 	andi.w	#$F,d0
 .loop	clr.b	(a1,d1.w)
@@ -760,7 +757,7 @@ Opcode_ClearBytes	;93: opcode 2, write (low 4 bits)+1 zero bytes
 .next	dbf	d0,.loop
 	rts
 
-Opcode_Fillbytes	;93: opcode 3, write the next data byte (low 4 bits)+3 times
+Opcode_Fillbytes	;opcode 3, write the next data byte (low 4 bits)+3 times
 	move.b	-1(a0),d0
 	andi.w	#$F,d0
 	addq.w	#2,d0
@@ -772,7 +769,7 @@ Opcode_Fillbytes	;93: opcode 3, write the next data byte (low 4 bits)+3 times
 .next	dbf	d0,.loop
 	rts
 
-Opcode_CopyBackwardShort	;93: opcodes 4-7, copy (bits 0-2)+2 bytes from (bits 3-5)+1 back in the buffer
+Opcode_CopyBackwardShort	;opcodes 4-7, copy (bits 0-2)+2 bytes from (bits 3-5)+1 back in the buffer
 	move.b	-1(a0),d0
 	andi.w	#7,d0
 	addq.w	#1,d0			;count-1
@@ -781,7 +778,7 @@ Opcode_CopyBackwardShort	;93: opcodes 4-7, copy (bits 0-2)+2 bytes from (bits 3-
 	andi.w	#7,d2
 	addq.w	#1,d2			;distance
 
-CopyBackwardRun	;93: shared copy loop, d0 = count-1, d2 = distance back. Entered from the CopyBackward Medium/Long/Extended handlers
+CopyBackwardRun	;shared copy loop, d0 = count-1, d2 = distance back. Entered from the CopyBackward Medium/Long/Extended handlers
 	neg.b	d2
 	add.b	d1,d2			;source offset in the ring buffer
 .loop	move.b	(a1,d2.w),(a1,d1.w)
@@ -792,14 +789,14 @@ CopyBackwardRun	;93: shared copy loop, d0 = count-1, d2 = distance back. Entered
 .next	dbf	d0,.loop
 	rts
 
-Opcode_CopyBackwardMedium	;93: opcode 8, copy (low 4 bits)+3 bytes, distance = next data byte
+Opcode_CopyBackwardMedium	;opcode 8, copy (low 4 bits)+3 bytes, distance = next data byte
 	move.b	-1(a0),d0
 	andi.w	#$F,d0
 	addq.w	#2,d0
 	move.b	(a0)+,d2
 	bra.s	CopyBackwardRun
 
-Opcode_CopyBackwardLong	;93: opcode 9, count = 5 bits (low nibble and bit 7 of the next byte)+3, distance = (next byte bits 0-6)+1
+Opcode_CopyBackwardLong	;opcode 9, count = 5 bits (low nibble and bit 7 of the next byte)+3, distance = (next byte bits 0-6)+1
 	move.b	(a0),d0
 	asl.b	#1,d0			;x = bit 7 of the next byte
 	move.b	-1(a0),d0
@@ -811,7 +808,7 @@ Opcode_CopyBackwardLong	;93: opcode 9, count = 5 bits (low nibble and bit 7 of t
 	addq.w	#1,d2
 	bra.s	CopyBackwardRun
 
-Opcode_CopyBackwardExtended1	;93: opcode A, count = 6 bits (low nibble and top 2 bits of the next byte)+3, distance = (next byte bits 0-5)+1
+Opcode_CopyBackwardExtended1	;opcode A, count = 6 bits (low nibble and top 2 bits of the next byte)+3, distance = (next byte bits 0-5)+1
 	move.b	-1(a0),d0
 	asl.w	#8,d0
 	move.b	(a0),d0
@@ -823,7 +820,7 @@ Opcode_CopyBackwardExtended1	;93: opcode A, count = 6 bits (low nibble and top 2
 	addq.w	#1,d2
 	bra.s	CopyBackwardRun
 
-Opcode_CopyBackwardExtended2	;93: opcode B, count = 7 bits (low nibble and top 3 bits of the next byte)+3, distance = (next byte bits 0-4)+1
+Opcode_CopyBackwardExtended2	;opcode B, count = 7 bits (low nibble and top 3 bits of the next byte)+3, distance = (next byte bits 0-4)+1
 	move.b	-1(a0),d0
 	asl.w	#8,d0
 	move.b	(a0),d0
@@ -835,7 +832,7 @@ Opcode_CopyBackwardExtended2	;93: opcode B, count = 7 bits (low nibble and top 3
 	addq.w	#1,d2
 	bra.s	CopyBackwardRun
 
-Opcode_CopyBackwardReverseShort	;93: opcodes C-D, copy (bits 0-1)+2 bytes backwards through the source, distance (bits 2-4)+1
+Opcode_CopyBackwardReverseShort	;opcodes C-D, copy (bits 0-1)+2 bytes backwards through the source, distance (bits 2-4)+1
 	move.b	-1(a0),d0
 	andi.w	#3,d0
 	addq.w	#1,d0
@@ -844,7 +841,7 @@ Opcode_CopyBackwardReverseShort	;93: opcodes C-D, copy (bits 0-1)+2 bytes backwa
 	andi.w	#7,d2
 	addq.w	#1,d2
 
-CopyBackwardReverseRun	;93: shared reverse copy loop (source moves down), d0 = count-1, d2 = distance back. Entered from the CopyBackwardReverse Medium/Long handlers
+CopyBackwardReverseRun	;shared reverse copy loop (source moves down), d0 = count-1, d2 = distance back. Entered from the CopyBackwardReverse Medium/Long handlers
 	neg.b	d2
 	add.b	d1,d2
 .loop	move.b	(a1,d2.w),(a1,d1.w)
@@ -855,7 +852,7 @@ CopyBackwardReverseRun	;93: shared reverse copy loop (source moves down), d0 = c
 .next	dbf	d0,.loop
 	rts
 
-Opcode_CopyBackwardReverseMedium	;93: opcode E, reverse copy (low 4 bits)+3 bytes, distance = next data byte. Distance 0 is the end code: flush what is left and return from DecompressBytecode
+Opcode_CopyBackwardReverseMedium	;opcode E, reverse copy (low 4 bits)+3 bytes, distance = next data byte. Distance 0 is the end code: flush what is left and return from DecompressBytecode
 	move.b	-1(a0),d0
 	andi.w	#$F,d0
 	addq.w	#2,d0
@@ -868,7 +865,7 @@ Opcode_CopyBackwardReverseMedium	;93: opcode E, reverse copy (low 4 bits)+3 byte
 	movem.l	(sp)+,d0-d3/a0-a2
 	rts
 
-Opcode_CopyBackwardReverseLong	;93: opcode F, reverse copy, count and distance as Opcode_CopyBackwardLong
+Opcode_CopyBackwardReverseLong	;opcode F, reverse copy, count and distance as Opcode_CopyBackwardLong
 	move.b	(a0),d0
 	asl.b	#1,d0
 	move.b	-1(a0),d0
@@ -880,7 +877,7 @@ Opcode_CopyBackwardReverseLong	;93: opcode F, reverse copy, count and distance a
 	addq.w	#1,d2
 	bra.s	CopyBackwardReverseRun
 
-FlushOutputBuffer	;93: send d1 bytes (0 = 256) of the ring buffer a1 to vram d3 and advance d3. (a4) = callbackPtr: set = remap with that table (jsr (a5)), clear = DoDMApro (jsr (a6))
+FlushOutputBuffer	;send d1 bytes (0 = 256) of the ring buffer a1 to vram d3 and advance d3. (a4) = callbackPtr: set = remap with that table (jsr (a5)), clear = DoDMApro (jsr (a6))
 	movem.l	d0-d1/a0-a1,-(sp)
 	move.w	d1,d0
 	bne.w	.size
@@ -976,7 +973,7 @@ Framer	;frame and fill (uses framer.map graphics and assums tiles are already lo
 	move.w	d3,(a0)
 	rts
 
-printsmallz	;93: see printsmall. String macro should follow the bsr/jsr to this routine; a1 is kept
+printsmallz	;see printsmall. String macro should follow the bsr/jsr to this routine; a1 is kept
 	move.l	a1,-(sp)
 	movea.l	4(sp),a1		;string after the call
 	bsr.w	printsmall
@@ -1178,7 +1175,7 @@ FormatAndPrintTime	;print a period label and time. d0 bits 14-15 = period (Perio
 	bsr.w	PushTime
 	bra.w	print
 
-PeriodLabelTable	;93: String list for FormatAndPrintTime: " 1", " 2", " 3", "OT"
+PeriodLabelTable	;String list for FormatAndPrintTime: " 1", " 2", " 3", "OT"
 	dc.w	4
 	dc.b	' 1'
 	dc.w	4
@@ -1216,11 +1213,11 @@ PushTime	;convert d0 into string format of minutes:seconds. Return a1 = string. 
 	move.b	d0,-(a1)
 	swap	d0
 
-	move.b	#' ',-(a1)		;93: leading space
+	move.b	#' ',-(a1)		;leading space
 	tst.w	d0
 	beq.w	.noz
 	addi.w	#'0',d0
-	move.b	d0,(a1)			;93: over the space (92 -(a1))
+	move.b	d0,(a1)			;over the space (92 -(a1))
 .noz	move.l	(sp)+,d0
 	sub.l	a1,d0
 	addq.w	#2,d0
@@ -1255,7 +1252,7 @@ PushNumber	;convert d0 into string format of base 10 number, no leading zeros. R
 	move.l	(sp)+,d0
 	rts
 
-PushNumberWidth	;93: convert d0 into a d1 digit base 10 string, leading zeros as spaces (the last digit always shown). Return a1 = string at PushWidthBuf
+PushNumberWidth	;convert d0 into a d1 digit base 10 string, leading zeros as spaces (the last digit always shown). Return a1 = string at PushWidthBuf
 	movem.l	d0-d3,-(sp)
 	movea.w	#(PushWidthBuf+2-M68K_RAM),a1
 	moveq	#1,d2

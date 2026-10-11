@@ -20,7 +20,7 @@ RAMStart = $FF0000
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ; External routines and data outside $8AC4-$946D, at their retail addresses.
-; Names are or source names from the SEGMENT_AGENT.md rename table.
+
 ; Add stubs here as the segment is decompiled.
 SPAList = $4D8E
 doinput = $946E

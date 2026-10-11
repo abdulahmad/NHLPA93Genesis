@@ -1,17 +1,16 @@
-;	NHLPA Hockey 93 (retail) segment
-;	92 part 1, second half: ReplayMode, getpzjoy, suba4/adda4
-;	RestoreReplayFrame, updatereplay, rtss2 ($9092)
-;	updateplayers ($9094), updateanim, freezewindow ($933C), checkwindow ($9350).
+;	NHLPA Hockey 93 (retail) segment ReplayMode, getpzjoy, suba4/adda4
+;	RestoreReplayFrame, updatereplay, rtss2, updateplayers,
+;	updateanim, freezewindow, checkwindow.
 ;	Bytes match nhlpa93retail.bin. Rev A has a 10-byte insertion inside
 ;	updateplayers (speed x$14 when music_global_tick_counter is set); retail
 ;	has the 92 code there.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	Struct offsets offsets; 92 names in comments where the
-;	use matches 92 (Xpos 0, attribute 4, frame 6, Ypos $14, Zpos $18,
-;	OldXpos $1C, Xvel $28, Yvel $2A, Zvel $2C, impact $32, position $34,
-;	assnum $36, asslist $38, SCnum $52, facedir $54, SPA $58, SPAnum $5A,
-;	SPAcnt $5C, pflags $62, pflags2 $63, glitch $65).
+;	Struct offsets offsets; in comments where the use matches 92 (Xpos 0,
+;	attribute 4, frame 6, Ypos $14, Zpos $18, OldXpos $1C, Xvel $28, Yvel
+;	$2A, Zvel $2C, impact $32, position $34, assnum $36, asslist $38,
+;	SCnum $52, facedir $54, SPA $58, SPAnum $5A, SPAcnt $5C, pflags $62,
+;	pflags2 $63, glitch $65).
 ;	Replay frames are $62 bytes (92 used 84) from $FFFF0000
 ;	(replaystart) to $FFFFAF54 (replayend).
 
@@ -512,7 +511,7 @@ updateplayers
 	bpl.w	.done
 	clr.l	Zpos(a3)			;bounce off the ice
 	neg.w	Zvel(a3)
-	asr.w	Zvel(a3)			;92: lsr
+	asr.w	Zvel(a3)			;lsr
 	moveq	#5,d0
 	sub.b	Zvel(a3),d0
 	bpl.w	.snd

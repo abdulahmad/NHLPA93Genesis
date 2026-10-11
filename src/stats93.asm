@@ -1,8 +1,8 @@
 ;	NHLPA Hockey 93 (retail) segment
 ;	stats, line editor, roster, scoring/penalty summary, team stats,
 ;	crowd meter and goalie select screens. Not in NHL 92.
-;Global names from the. Entry points
-;	unnamed are named from the screen title they print.
+;Entry points unnamed are named from the screen title they
+;	print.
 ;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.

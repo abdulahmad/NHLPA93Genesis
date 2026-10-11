@@ -1,9 +1,6 @@
-;	NHLPA Hockey 93 (retail) segment
-;	VBjsr / Begin through seta2: 92 part 1 up to the end of Pausemode
-;	plus the 93 pause screen draw routine. The menu engine Pausemode calls
-;	follows.asm ($6A00).
-;Global names from the, renamed to the NHL 92 name where the
-;same routine exists in 92 (in an).
+;	NHLPA Hockey 93 (retail) segment VBjsr / Begin through seta2: up to
+;	the end of Pausemode plus the 93 pause screen draw routine. The menu
+;	engine Pausemode calls follows.asm ($6A00).
 ;	Local labels and comments follow NHL 92 where the code matches.
 ;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
@@ -398,7 +395,6 @@ Pausemode	;game is in pause mode now
 	rts
 
 SetupPauseScreen	;draw routine for the pause menu
-	;also called from $F9D4
 	movea.l	#VDP_DATA,a0
 	move.w	#$9100,4(a0)		;playfield 3 width
 	move.w	#$921C,4(a0)		;playfield 3 height

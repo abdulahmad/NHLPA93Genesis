@@ -2,7 +2,7 @@
 ;	68k side of the 93 sound driver, p_turnoff ... ClearAllTrackAndSFXSlots. No NHL 92 source: 92 used a
 ;	different driver (NHL92Genesis/src/sound/sound.asm). Only the entry names p_turnoff, p_music_vblank and
 ;	p_initialZ80 are shared with 92 (92 headers: audio stop, vblank handler, initialization).
-;Global names from the (see the SEGMENT_AGENT.md rename table). Bytes match nhlpa93retail.bin.
+;Bytes match nhlpa93retail.bin.
 ;	Its first
 ;	byte is the dc.b before the incbins; the rest of the Z80 blob and the sound data are incbins from.
 ;	Driver RAM is named.asm at its retail address. RAM from $CAEE up is 4 bytes lower in retail
@@ -105,7 +105,7 @@ play_new_song	;stop the song in progress: free the first slot whose pointer is a
 
 p_music_vblank	;(vblank handler). Clear the change bits, run the 8 track slots (d7 = track 7-0)
 		;send the buffer if anything changed and age the channels. Called every frame from the vblank
-		;handlers. Rev A runs the slots again every 6th frame while music_global_tick_counter ($CAEE)
+		;handlers. Rev A runs the slots again every 6th frame while music_global_tick_counter
 		;is set (music_tick_divider $CAF0); retail has no such block (22 bytes shorter)
 	clr.b	(music_needs_z80_update).w
 	clr.l	(Z80_command_buffer).w		;key off/on, volume, frequency bits

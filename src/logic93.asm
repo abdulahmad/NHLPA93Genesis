@@ -1,13 +1,11 @@
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment
-;	controller input for skaters (doinput ... setpads)
-;and check4bench. Global names from the 92 names where the
-;	routine is the same (see the SEGMENT_AGENT.md rename table).
+;	NHLPA Hockey 93 (retail) segment controller input for skaters (doinput
+;	... setpads) and check4bench.
 ;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	SortCords offsets, 92 names in comments: Xpos 0, attribute 4, Ypos $14
+;	SortCords offsets in comments: Xpos 0, attribute 4, Ypos $14
 ;	Xvel $28, Yvel $2A, impact $32, position $34, assnum $36, asslist $38,
 ;	SCnum $52, facedir $54, SPA $58, SPAnum $5A, nopuck $5E, pflags $62
 ;	(pfdoff 0, pfna 1, pfjoycon 3, pfalock 5, pfteam 6, pfgoal 7), pflags2 $63
@@ -545,15 +543,15 @@ passtoa0	;pass puck to player a0
 	move.b	#$C,(puckvz).w
 .3	move.w	d2,d0
 	asl.w	#3,d0
-	subi.w	#$A,d0			;92: 6
+	subi.w	#$A,d0			;6
 	move.b	d0,$40(a0)		;temp2
-	subq.w	#6,d0			;92: 10
+	subq.w	#6,d0			;10
 	move.b	d0,(puckx+nopuck).w
 	movem.w	(sp)+,d0-d1
 	muls.w	d2,d0
 	asr.l	#1,d0
 	add.w	(sp)+,d0		;x distance
-	move.w	(puckx).w,temp3(a0)	;93: receiver target x/y
+	move.w	(puckx).w,temp3(a0)	;receiver target x/y
 	add.w	d0,temp3(a0)
 	muls.w	d2,d1
 	asr.l	#1,d1
@@ -725,7 +723,7 @@ ShotMode	;shot input
 
 doshot	;stick is at puck so launch puck toward goal
 	movem.l	d0-d7/a0-a3,-(sp)
-	bsr.w	shotdiradj	;93: aim away from the goalie
+	bsr.w	shotdiradj	;aim away from the goalie
 	move.w	#5,-(sp)		;sound effect (92 used 14)
 	move.w	SCnum(a3),(shotplayer).w
 	bclr	#sfssdir,(sflags).w
@@ -749,7 +747,7 @@ doshot	;stick is at puck so launch puck toward goal
 	mulu.w	#$5249,d0		;$4000*45/35
 	swap	d0
 	move.w	d0,(passspeed).w
-	lsr.w	#4,d0			;93: crowd bonus 3 - speed/16
+	lsr.w	#4,d0			;crowd bonus 3 - speed/16
 	neg.w	d0
 	addq.w	#3,d0
 	bpl.w	.c
@@ -971,14 +969,12 @@ check4bench	;check if player a3 should go to bench. Called from assbench
 
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment
-;	player assignments assbench ... asswingd, with the
-;fight code (assfight, chkhit, banner).
-;where the routine is the same (see the SEGMENT_AGENT.md rename
-;	table). Bytes match nhlpa93retail.bin.
+;	NHLPA Hockey 93 (retail) segment player assignments assbench ...
+;	asswingd, with the fight code (assfight, chkhit, banner). Bytes match
+;	nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	SortCords offsets, 92 names in comments: Xpos 0, frame 6, oldframe 8
+;	SortCords offsets in comments: Xpos 0, frame 6, oldframe 8
 ;	Xvel $28, Yvel $2A, impactp $2E, position $34, temp1 $40, temp2 $42,
 ;	temp3 $44, temp4 $46, wallcos $4E, wallsin $50, SCnum $52, facedir $54,
 ;	SPA $58, SPAnum $5A, nopuck $5E, newpos $60, newpnum $61, pflags $62
@@ -1111,7 +1107,7 @@ asspenalty	;player a3 should goto penalty box
 	moveq	#-2,d4
 	bsr.w	setpads			;put number on player leaving
 	move.w	#8,temp2(a3)
-	moveq	#$B,d0			;92: 55 - 10*n, 93: 11*(n+3)
+	moveq	#$B,d0			;55 - 10*n, 93: 11*(n+3)
 	move.b	(PBnum).w,d1
 	btst	#6,pflags(a3)
 	bne.w	.0
@@ -1280,7 +1276,7 @@ assfight	;fighting logic
 	bclr	#1,pflags(a3)		;clear new assignment
 	beq.w	.nna			;not first time through
 	bsr.w	getpde			;get player's energy level
-	move.b	$74(a3),d1		;aggress (fighting)
+	move.b	$74(a3),d1		;aggress
 	ext.w	d1
 	mulu.w	d1,d0
 	lsr.w	#8,d0
@@ -1451,7 +1447,7 @@ chkhit	;part of fight to see if player is hit
 .xveladj	add.w	d0,Xvel(a3)
 	rts
 .fall	;a3 lost the fight: change the a0 player's penalty to
-	;fighting (PenFighting), maybe injure a3
+	;fighting, maybe injure a3
 	movem.l	a1,-(sp)
 	movea.w	#(PenaltyBufferEnd-M68K_RAM),a1	;end of the scoring summary
 .loop	addq.w	#2,a1
@@ -1699,7 +1695,7 @@ assdefo	;player a3 is defensive player on offense
 	bpl.w	.nodec
 	move.b	aioff(a3),temp1(a3)
 	move.l	#2,d0			;adefd
-	btst	#4,tmflags(a2)		;93: team flag forces defense
+	btst	#4,tmflags(a2)		;team flag forces defense
 	bne.w	assreplace
 	move.w	(pucky).w,d1
 	btst	#7,pflags(a3)
@@ -1719,7 +1715,7 @@ assdefo	;player a3 is defensive player on offense
 	cmpi.w	#2,position(a3)
 	beq.w	.1
 	neg.w	d0
-.1	move.w	#$62,d1			;93: 98
+.1	move.w	#$62,d1			;98
 	btst	#7,pflags(a3)
 	bne.w	.0
 	neg.w	d0
@@ -1756,7 +1752,7 @@ assdefd	;player a3 is defensive player on defense
 	bne.w	.de00
 	neg.w	d1
 	neg.w	d3
-.de00	tst.w	d3			;93: only lead when moving up ice
+.de00	tst.w	d3			;only lead when moving up ice
 	bpl.w	.v
 	clr.w	d3
 .v	add.w	d1,d3
@@ -1801,7 +1797,7 @@ assdefd	;player a3 is defensive player on defense
 	move.w	d1,d0
 .gu0	adda.w	#SCstruct,a0
 	dbf	d2,.gup
-	subi.w	#$32,d0			;93: 50 back of him
+	subi.w	#$32,d0			;50 back of him
 	cmp.w	#-190,d0
 	bgt.w	.gu1
 	move.w	#$FF24,d0		;-220
@@ -1907,14 +1903,11 @@ asswingd	;player a3 is wing on defense
 
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment
-;	asswingo ... asspuckc, chk4lc, chkpk, chk4shot,
-;CompShoot, chk4pass, EvadePC. Global names from the 92
-;	names where the routine is the same (see the SEGMENT_AGENT.md rename
-;	table). Bytes match nhlpa93retail.bin.
+;	NHLPA Hockey 93 (retail) segment asswingo ... asspuckc, chk4lc, chkpk,
+;	chk4shot, CompShoot, chk4pass, EvadePC. Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	SortCords offsets, 92 names in comments: Xpos 0, attribute 4
+;	SortCords offsets in comments: Xpos 0, attribute 4
 ;	Ypos $14, Xvel $28, Yvel $2A, position $34, temp1 $40, temp2 $42,
 ;	temp3 $44, temp4 $46, temp5 $48, SCnum $52, facedir $54, nopuck $5E,
 ;	pflags $62 (pfalock 5, pfjoycon 3, pfteam 6, pfgoal 7), pflags2 $63
@@ -1960,7 +1953,7 @@ asswingo	;player a3 is winger on offense
 	addq.w	#8,d2
 	cmp.w	#$58,d0		;blueline,d0
 	blt.w	.de2
-	btst	#4,tmflags(a2)		;93: team flag keeps him back
+	btst	#4,tmflags(a2)		;team flag keeps him back
 	bne.w	.de2
 	addq.w	#8,d2
 	cmp.w	#$108,d3		;blueline+goalline,d3
@@ -1968,7 +1961,7 @@ asswingo	;player a3 is winger on offense
 	addq.w	#8,d2
 .de2	cmp.w	temp5(a3),d2
 	bne.w	.de3
-	move.w	(VDP_CNTR).l,d0		;93: HV counter as random
+	move.w	(VDP_CNTR).l,d0		;HV counter as random
 	andi.w	#$7F,d0
 	bne.w	.nodec
 .de3	move.w	d2,temp5(a3)
@@ -2212,7 +2205,7 @@ assgoalie	;Player a3 is goalie. Also entered from assnearest
 	move.w	#1,(threat).w
 	bsr.w	chk4pass
 	bra.w	.de1
-.cover	tst.w	temp4(a3)			;93: cover a loose puck at the crease
+.cover	tst.w	temp4(a3)			;cover a loose puck at the crease
 	bne.w	.de1
 	tst.w	(puckc).w
 	bpl.w	.de1
@@ -2398,7 +2391,7 @@ assgoalie	;Player a3 is goalie. Also entered from assnearest
 	cmp.w	#7,d2
 	ble.w	playeracc
 	bra.w	StopNA
-.rush	tst.w	(puckc).w		;93: rush a loose puck when
+.rush	tst.w	(puckc).w		;rush a loose puck when
 	bpl.s	.de5			;the score/time stats say so
 	btst	#2,(iflags).w
 	bne.s	.de5
@@ -2591,7 +2584,7 @@ asspuckc	;player a3 is puck handler
 	eori.w	#4,d1
 	cmp.w	d0,d1
 	bne.w	.next
-	move.w	(VDP_CNTR).l,d1		;93: turn either way
+	move.w	(VDP_CNTR).l,d1		;turn either way
 	andi.w	#1,d1
 	add.w	d1,d0
 	andi.w	#7,d0
@@ -2642,7 +2635,7 @@ chkpk	;return z flag set if killing penalty
 	;return z flag clr if not
 	btst	#sf2pwrplay,(sflags2).w
 	bne.w	chkpk2
-	eori	#4,ccr			;93: no power play returns ne
+	eori	#4,ccr			;no power play returns ne
 	rts
 
 chkpk2	movem.l	d0-d1,-(sp)
@@ -2699,7 +2692,7 @@ chk4shot	;player a3 looks for shot (computer controlled)
 	bne.w	.co1
 	asl.w	#1,d4			;defender in the shot line
 	bra.w	.co1
-.gl	btst	#pf2aip,pflags2(a1)		;93: goalie busy, shoot now
+.gl	btst	#pf2aip,pflags2(a1)		;goalie busy, shoot now
 	beq.w	.co1
 	clr.w	d3
 	moveq	#1,d4
@@ -2749,7 +2742,7 @@ chk4pass	;player a3 looks for good pass (computer controlled)
 	cmpi.w	#6,SCnum(a3)
 	blt.w	.dp1
 	addq.w	#6,d0
-.dp1	tst.w	position(a3)			;93: from the goalie, or skaters
+.dp1	tst.w	position(a3)			;from the goalie, or skaters
 	beq.w	.bl			;outside the slot only
 	cmpi.w	#$28,(puckx).w
 	bgt.w	.bl
@@ -2853,7 +2846,7 @@ EvadePC	;player a3 should avoid the puck carrier if he's on my team
 	move.w	Ypos(a3),d1
 	sub.w	(pucky).w,d1
 	bsr.w	vtoa
-	btst	#5,(gmode).w		;93: with offsides on, don't skate
+	btst	#5,(gmode).w		;with offsides on, don't skate
 	beq.w	.x			;offside: go sideways near the blue line
 	move.w	Ypos(a3),d1
 	btst	#7,pflags(a3)
@@ -2873,16 +2866,13 @@ EvadePC	;player a3 should avoid the puck carrier if he's on my team
 
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment
-;	checkob, assnearest, check4check, asspassrec,
-;	assshoot, pucknothing, puckfaceoff, ChkGoalies, ReturnGoalies,
-;	CPgoalie, CompLine, puckfaceoff2, updatefaceoff, Endfaceoff,
-;pucknorm. Global names from the 92 names where the
-;	routine is the same (see the SEGMENT_AGENT.md rename table). Bytes
-;	match nhlpa93retail.bin.
+;	NHLPA Hockey 93 (retail) segment checkob, assnearest, check4check,
+;	asspassrec, assshoot, pucknothing, puckfaceoff, ChkGoalies,
+;	ReturnGoalies, CPgoalie, CompLine, puckfaceoff2, updatefaceoff,
+;	Endfaceoff, pucknorm. Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	SortCords offsets, 92 names in comments: Xpos 0, attribute 4
+;	SortCords offsets in comments: Xpos 0, attribute 4
 ;	frame 6, Ypos $14, Zpos $18, Xvel $28, Yvel $2A, Zvel $2C,
 ;	position $34, assnum $36, asslist $38, temp1 $40, temp2 $42,
 ;	temp3 $44, temp4 $46, SCnum $52, facedir $54, SPA $58, nopuck $5E,
@@ -2956,7 +2946,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 .nopc	sub.b	d7,temp1(a3)
 	bpl.w	.nodec
 	move.b	aioff(a3),temp1(a3)
-	clr.l	$2A(a2)			;93: team long, set to best distance below
+	clr.l	$2A(a2)			;team long, set to best distance below
 	move.w	(puckc).w,d1
 	bmi.w	.np
 	asl.w	#7,d1			;scsize
@@ -2976,7 +2966,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	bne.w	.next
 	btst	#pf2unav,pflags2(a0)		;pf2unav
 	bne.w	.next
-	move.w	assnum(a0),d0		;93: skip a player whose current assignment
+	move.w	assnum(a0),d0		;skip a player whose current assignment
 	cmpi.b	#$13,asslist(a0,d0.w)	;is apassrec
 	beq.w	.next
 	move.l	a0,-(sp)
@@ -2985,7 +2975,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	sub.w	(puckx).w,d0
 	add.w	Ypos(a0),d1
 	sub.w	(pucky).w,d1
-	move.w	(puckvx).w,d3		;93: always lead the puck (if carried)
+	move.w	(puckvx).w,d3		;always lead the puck (if carried)
 	asr.w	#6,d3
 	sub.w	d3,d0
 	move.w	(puckvy).w,d3
@@ -3002,7 +2992,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	dbf	d4,.de0
 	tst.l	d2
 	bmi.w	.de1
-	move.l	d2,$2A(a2)		;93: nearest distance^2
+	move.l	d2,$2A(a2)		;nearest distance^2
 .switch	cmpa.w	a1,a3
 	beq.w	.de1
 	btst	#gmclock,(gmode).w
@@ -3049,7 +3039,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	sub.w	d7,temp3(a3)
 	bpl.w	.topuck
 	clr.w	temp3(a3)
-.mid	bsr.w	skatetopuckinit		;93: d0/d1 = halfway between
+.mid	bsr.w	skatetopuckinit		;d0/d1 = halfway between
 	movem.w	d0-d1,-(sp)		;skatetopuckinit's spot and (0,$F4),
 	neg.w	d0			;or (0,-$F4) if pfgoal
 	neg.w	d1
@@ -3093,9 +3083,9 @@ check4check	;look for good opportunity for checking opponent. Falls in from assn
 	adda.w	#6*SCstruct,a0
 .0	tst.w	position(a0)
 	beq.w	.next
-	btst	#pfalock,pflags(a0)		;93: skip
+	btst	#pfalock,pflags(a0)		;skip
 	bne.w	.next
-	btst	#pf2fight,pflags2(a0)		;93: skip
+	btst	#pf2fight,pflags2(a0)		;skip
 	bne.w	.next
 	move.w	(a0),d0
 	sub.w	(a3),d0
@@ -3112,7 +3102,7 @@ check4check	;look for good opportunity for checking opponent. Falls in from assn
 	bsr.w	vtoa
 	cmp.w	facedir(a3),d0
 	bne.w	.next
-	move.w	(VDP_CNTR).l,d0		;93: HV counter as random, 1 in 4 is a
+	move.w	(VDP_CNTR).l,d0		;HV counter as random, 1 in 4 is a
 	andi.w	#3,d0			;hold/hook instead of a check
 	bne.w	burst
 	bra.w	Acheck
@@ -3134,7 +3124,7 @@ asspassrec	;assignment for catching pass. Assignment apassrec ($13)
 	clr.b	temp2(a3)			;temp2 high byte
 .nna	tst.w	(puckc).w
 	bpl.w	.ex
-	sub.b	d7,temp1(a3)		;93: puck loose: wait temp1 (92 bmi skatetopuck)
+	sub.b	d7,temp1(a3)		;puck loose: wait temp1 (92 bmi skatetopuck)
 	bpl.w	rtss
 .ex	bclr	#pfdoff,pflags(a3)
 	bra.w	assexit
@@ -3192,9 +3182,9 @@ puckfaceoff	;this is where the action starts
 	st	temp2(a3)
 	tst.w	(OptLine).w
 	bne.w	.nna
-	bclr	#1,(tmstruct+tmflags).w	;93: bit 1
-	bclr	#1,(awtmstruct+tmflags).w	;93: bit 1
-	movea.w	#(SortCords-M68K_RAM),a0	;93: clear pf2lcm on all 12 players
+	bclr	#1,(tmstruct+tmflags).w	;bit 1
+	bclr	#1,(awtmstruct+tmflags).w	;bit 1
+	movea.w	#(SortCords-M68K_RAM),a0	;clear pf2lcm on all 12 players
 	moveq	#$B,d0
 .lcm	bclr	#pf2lcm,pflags2(a0)
 	adda.w	#SCstruct,a0
@@ -3269,14 +3259,14 @@ puckfaceoff	;this is where the action starts
 	move.w	4(a3,d0.w),d1		;temp3/temp4 = SCnum
 	asl.w	#7,d1
 	movea.w	#(SortCords-M68K_RAM),a0
-	movea.w	#(tmstruct-M68K_RAM),a2	;93: a2 = his team for SetLCmode2
+	movea.w	#(tmstruct-M68K_RAM),a2	;a2 = his team for SetLCmode2
 	btst	#pfteam,pflags(a0,d1.w)
 	beq.w	.clh
 	adda.w	#tmsize,a2
 .clh	btst	#pf2lcm,pflags2(a0,d1.w)		;pf2lcm
 	bne.w	.clnd
 	st	(a3,d0.w)
-	bra.w	SetLCmode2		;93: redraw lc box (92 rts)
+	bra.w	SetLCmode2		;redraw lc box (92 rts)
 .clnd	sub.w	d7,(a3,d0.w)
 	bpl.w	rtss
 	move.l	a3,-(sp)
@@ -3312,7 +3302,7 @@ ChkGoalies	;computer pulls goalie on delayed penalty. Called from periodicevents
 	beq.w	.cp
 	st	tmgoalie(a2)			;pull goalie (92 move #2,tmgoalie), any team
 	bra.w	setpersonel
-.cp	cmp.w	(cont1team).w,d0	;93: rest is CPG for computer teams
+.cp	cmp.w	(cont1team).w,d0	;rest is CPG for computer teams
 	beq.w	rtss
 	cmp.w	(cont2team).w,d0
 	beq.w	rtss
@@ -3445,7 +3435,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	bset	#sf2faceoff,(sflags2).w
 	bset	#sf2drec,(sflags2).w		;don't record yet
 	st	(passReceiverPlayerNum).w	;93
-	bset	#4,(disflags).w		;93: cleared again in updatefaceoff
+	bset	#4,(disflags).w		;cleared again in updatefaceoff
 	bsr.w	ClrHor			;vertical icerink
 	clr.w	(Vpos).w		;center h/v pos
 	clr.w	(Hpos).w
@@ -3496,7 +3486,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	move.l	#$16,d0			;afaceoff
 	cmp.w	#4,d1
 	bne.w	.l1
-	movea.w	#(tmstruct-M68K_RAM),a2	;93: faceoff man resets team $18-$1C
+	movea.w	#(tmstruct-M68K_RAM),a2	;faceoff man resets team $18-$1C
 	btst	#pfteam,pflags(a3)
 	beq.w	.tm
 	adda.w	#tmsize,a2
@@ -3587,9 +3577,9 @@ puckfaceoff2	;face off control logic and general setup for action
 	moveq	#0,d5
 	bsr.w	dobitmap
 	move.w	d4,(faceoffvrcset).w	;space for faceoff sprites
-	movea.l	#FaceOffSprites+8,a2	;93: replaces /DoDMA
+	movea.l	#FaceOffSprites+8,a2	;replaces /DoDMA
 	bsr.w	DoDMA_clearCallbackPointer
-	tst.w	(OptLine).w		;93: line names box when lines are on
+	tst.w	(OptLine).w		;line names box when lines are on
 	bne.w	.nol
 	bsr.w	printsmallz
 	String	CC_AddY,$A,CC_SetAttribute,4
@@ -3781,7 +3771,7 @@ pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames si
 	move.w	Yvel(a2),Yvel(a3)
 .nothandled	bsr.w	puckIChk
 	bsr.w	ChkOffsides
-	btst	#0,(gmode).w		;93: loose puck that has not moved
+	btst	#0,(gmode).w		;loose puck that has not moved
 	bne.w	.z			;(Xpos = $1C, Ypos = $20) for 120 calls
 	tst.w	(puckc).w		;calls AddPenalty2 with d0 = 6
 	bpl.w	.mv
@@ -3806,18 +3796,15 @@ pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames si
 
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment
-;	ChkOffsides, a2offsides, a2touchpuck, PuckIChk,
-;	puckunflip, puckflip, puckshadow, findpc, skateto, avdgoal,
+;	NHLPA Hockey 93 (retail) segment ChkOffsides, a2offsides, a2touchpuck,
+;	PuckIChk, puckunflip, puckflip, puckshadow, findpc, skateto, avdgoal,
 ;	skatetopuck, assexit, assinsert, assreplace, vtoa, GetHot, SetSPA,
 ;	doplayeracc, goalieacc, noturn0, noturn, playeracc, MaxSpeed, dostop,
-;	stopna, dirtab, then the UnpackNibbles and
-;WeightedRandomSelect.
-;	where the routine is the same (see the SEGMENT_AGENT.md rename
-;	table). Bytes match nhlpa93retail.bin.
+;	stopna, dirtab, then the UnpackNibbles and WeightedRandomSelect. Bytes
+;	match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	SortCords offsets, 92 names in comments: Xpos 0, attribute 4
+;	SortCords offsets in comments: Xpos 0, attribute 4
 ;	frame 6, Ypos $14, Zpos $18, OldYpos $20, Xvel $28, Yvel $2A,
 ;	position $34, assnum $36, asslist $38, temp2 $42, wallcos $4E,
 ;	wallsin $50, SCnum $52, facedir $54, SPA $58, SPAnum $5A, SPAcnt $5C,
@@ -3877,7 +3864,7 @@ ChkOffsides	;check for offsides penalty. a3 = puck. 93 flags the whole team (tmf
 	dbf	d2,.2
 	rts
 
-ClearOffsidesIfAllPlayers	;93: a2 = team struct. Clears the team offsides flag (tmflags bit 4) once no skater on ice is past the blue line ($58, sign by pfgoal). Called twice from ChkOffsides
+ClearOffsidesIfAllPlayers	;a2 = team struct. Clears the team offsides flag (tmflags bit 4) once no skater on ice is past the blue line ($58, sign by pfgoal). Called twice from ChkOffsides
 	btst	#4,tmflags(a2)
 	beq.w	rtss
 	movea.w	tmsort(a2),a0
@@ -3922,7 +3909,7 @@ a2touchpuck	;player a2 touches puck. Look for penalties/offsides/other junk. Cal
 	move.w	(a2),(ltx).w		;Xpos
 	move.w	Ypos(a2),(lty).w
 	move.w	SCnum(a2),(ltplayer).w
-	movea.w	#(tmstruct-M68K_RAM),a0	;93: keep the last three touches per team
+	movea.w	#(tmstruct-M68K_RAM),a0	;keep the last three touches per team
 	btst	#pfteam,pflags(a2)
 	beq.w	.t
 	lea	tmsize(a0),a0
@@ -3995,7 +3982,7 @@ puckIChk	;check for icing of puck penalty. Called from pucknorm
 	rts
 .0	cmp.w	(pucky).w,d0
 	bgt.w	rtss
-.chkx	cmpi.w	#$2C,(puckx).w		;93: |puckx| <= $2C at the goal line
+.chkx	cmpi.w	#$2C,(puckx).w		;|puckx| <= $2C at the goal line
 	bgt.w	.set
 	cmpi.w	#-$2C,(puckx).w
 	blt.w	.set
@@ -4098,7 +4085,7 @@ skateto	;a0 = extra routine for collision avoidance, d0/d1 = x/y cord to skate t
 	bpl.w	.ex
 	addi.b	#$C,temp2(a3)		;only execute every 12/60 sec.
 	bsr.w	avdgoal
-	movem.w	d0-d1,-(sp)		;93: no deltax/deltay test (92 .norm)
+	movem.w	d0-d1,-(sp)		;no deltax/deltay test (92 .norm)
 	move.w	Xvel(a3),d0
 	asr.w	#8,d0
 	neg.w	d0
@@ -4262,7 +4249,7 @@ skatetopuck	;player a3 should skate to puck. d7 = elapse frames
 	sub.w	Ypos(a3),d1
 	bsr.w	vtoa
 	move.b	d0,temp2+1(a3)
-	tst.w	position(a3)			;93: goalie skips the sweep check
+	tst.w	position(a3)			;goalie skips the sweep check
 	beq.w	.ex
 	move.w	(puckvx).w,d0
 	move.w	(puckvy).w,d1
@@ -4605,7 +4592,7 @@ playeracc	;d2 = direction of acc
 	add.b	legstr(a3),d2
 	tst.w	position(a3)
 	bne.w	.ng
-	add.b	legstr(a3),d2		;93: goalie adds legstr twice plus 8
+	add.b	legstr(a3),d2		;goalie adds legstr twice plus 8
 	addq.w	#8,d2
 
 .ng	muls.w	d2,d0
@@ -4720,7 +4707,7 @@ dirtab	;x,y speed for each direction 0-7
 	dc.w	-200,0
 	dc.w	-141,141
 
-UnpackNibbles	;93: a0 = packed data, d0 = count. Unpacks d0 4-bit values (high nibble first) into words at nibblebuffer. Called from UpdateTeamNameisplay
+UnpackNibbles	;a0 = packed data, d0 = count. Unpacks d0 4-bit values (high nibble first) into words at nibblebuffer. Called from UpdateTeamNameisplay
 	movem.l	d0-d2/a0-a1,-(sp)
 	movea.w	#(nibblebuffer-M68K_RAM),a1
 	clr.w	d2
@@ -4736,7 +4723,7 @@ UnpackNibbles	;93: a0 = packed data, d0 = count. Unpacks d0 4-bit values (high n
 	movem.l	(sp)+,d0-d2/a0-a1
 	rts
 
-WeightedRandomSelect	;93: d0 = number of word weights at nibblebuffer. Return d0 = random index, picked with those weights. Called from SetScore_getscore and UpdateTeamNameisplay
+WeightedRandomSelect	;d0 = number of word weights at nibblebuffer. Return d0 = random index, picked with those weights. Called from SetScore_getscore and UpdateTeamNameisplay
 	movem.l	d1/a1,-(sp)
 	movea.w	#(nibblebuffer-M68K_RAM),a1
 	clr.w	d1

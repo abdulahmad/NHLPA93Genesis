@@ -20,7 +20,7 @@ RAMStart = $FF0000
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ; External routines and data outside $6C0A-$8AC3, at their retail addresses.
-; Names are or source names from the SEGMENT_AGENT.md rename table.
+
 InitMenuState = $6A00
 HandleMenuInput = $6A4E
 PrintTeamData = $6BB6

@@ -1,11 +1,9 @@
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment
-;	first half: VBlank, vb2, DumpSprites, setvideo and the
-;	sprite builders it calls (show_rink, showref, checkfo, showzam,
-;	SetSframe, showcrowd). showclock ... KillCrowd.
-;	same (see the SEGMENT_AGENT.md rename table). Bytes match
-;	nhlpa93retail.bin.
+;	NHLPA Hockey 93 (retail) segment first half: VBlank, vb2, DumpSprites,
+;	setvideo and the sprite builders it calls (show_rink, showref,
+;	checkfo, showzam, SetSframe, showcrowd). showclock ... KillCrowd.
+;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp; fixopcodes.js patches the encoding after
 ;	assembly.
@@ -61,7 +59,7 @@ vb2	;vblank used for palfades only no dmas (vbint target).
 	movem.l	(sp)+,d0-d7/a0-a6
 
 IRQ7	;rte only. vb2 falls in; the vector table ($60, $64, ...) points here.
-	;Not the 92 version (that also counts Vcount)
+	;92 also counted Vcount here
 	rte
 
 ;------------------------------------
@@ -104,7 +102,7 @@ setvideo	;this is not vblank code but sets up ram for vblank transfers.
 .p	btst	#dfok,(disflags).w		;wait for vblank to take the last frame
 	bne.s	.p
 	movea.w	#(DMAList-M68K_RAM),a5	;dma transfer list
-	bsr.w	updatescroll		;93: after a5 is set
+	bsr.w	updatescroll		;after a5 is set
 	movea.w	#(Satt-M68K_RAM),a6	;sprite attribute table area
 	moveq	#1,d6			;link counter
 	bsr.w	checkfo
@@ -122,7 +120,7 @@ setvideo	;this is not vblank code but sets up ram for vblank transfers.
 .n	clr.b	-5(a6)			;end sprite list (92 3-8(a6))
 	move.l	a6,d0
 	subi.l	#Satt,d0
-	lsr.w	#1,d0			;93: halved (92 stored the byte count)
+	lsr.w	#1,d0			;halved (92 stored the byte count)
 	move.w	d0,(Sattsize).w
 	move.l	a5,(DMAListend).w
 	bset	#dfok,(disflags).w
@@ -130,8 +128,8 @@ setvideo	;this is not vblank code but sets up ram for vblank transfers.
 	rts
 
 updatescroll	;using hpos and vpos set scroll cords; queue rink map rows on the dma list (a5)
-	;when vertical scrolling needs new rows. Called from setvideo. 93 version of 92
-	;updatescroll: rows go straight from IceRinkMap to the dma list, no tempmap
+	;when vertical scrolling needs new rows. Called from setvideo. updatescroll:
+	;rows go straight from IceRinkMap to the dma list, no tempmap
 	btst	#sfhor,(sflags).w
 	bne.w	rtss
 	moveq	#-$40,d0		;-192+128
@@ -440,8 +438,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 ;	second half: showclock, checksso, setsortcords, setffo,
 ;	uppads, addframe, addframe2, find3d, updatesound and KillCrowd, plus the
 ;	pad label code (FormatControllerDisplay, RenderSmallFontChar).
-;	VBlank ... showcrowd. the 92 version is in here.
-;	same (see the SEGMENT_AGENT.md rename table). Bytes match
+;	VBlank ... showcrowd. in 92 this is in here. Bytes match
 ;	nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp; fixopcodes.js patches the encoding after
@@ -457,7 +454,7 @@ showclock	;put the game clock in the dma list. Called from setvideo; returns unl
 	;a5 = dma list, a6 = sprite table, d6 = link counter
 	bclr	#dfclock,(disflags).w
 	beq.w	rtss
-	cmpi.w	#4,(gsp).w		;93: no clock update when gsp = 4
+	cmpi.w	#4,(gsp).w		;no clock update when gsp = 4
 	beq.w	rtss
 	movea.w	#(xc1-M68K_RAM),a0	;end of the 5 word clock buffer; written backward
 	movea.l	#smallfontmap,a1
@@ -600,7 +597,7 @@ setsortcords	;setup sort cord graphics: addframe for the 16 objects in OOlist or
 	rts
 
 setffo	;draw the 5 objects tied to icerink scrolling (pads ...). Called from setvideo.
-	;93: when an object made sprites, 2(a3) is added to the x of its first two sprites
+	;when an object made sprites, 2(a3) is added to the x of its first two sprites
 	bsr.w	uppads
 	move.w	#4,d0			;ffonum-1
 	movea.w	#(pads-M68K_RAM),a3
@@ -689,7 +686,7 @@ FormatControllerDisplay	;queue the 3 character label of a pad object (92 uppads.
 .btn	move.b	(a4,d2.w),d2
 	moveq	#2,d0			;char slot 2
 
-RenderSmallFontChar	;the 92 uppads.pd job: dma one small font tile to the object's chars.
+RenderSmallFontChar	;dma one small font tile to the object's chars.
 	;d2 = ascii char, d0 = char slot, a0 = object (VRchar), a5 = dma list
 	movea.l	#smallfontmap,a3
 	adda.l	4(a3),a3

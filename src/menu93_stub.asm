@@ -20,7 +20,7 @@ RAMStart = $FF0000
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ; External routines outside $6A00-$6C09, at their retail addresses.
-; Names are or source names from the SEGMENT_AGENT.md rename table.
+
 rtss2 = $9092
 seta2 = $69D8
 printsmallz = $E070

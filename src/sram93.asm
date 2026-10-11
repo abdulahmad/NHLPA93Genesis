@@ -2,8 +2,8 @@
 ;	New in 93, no NHL 92 source: the serial backup RAM (cartridge EEPROM) driver, the save/load of the
 ;	128-byte databuffer (BackupRAM_Read, BitsToPW, BackupRAM_Load), the ClearRAMBuffer status screen
 ;	and BackupRAM_DetectDevice. p_turnoff (sound driver) starts.
-;Global names from the (see the SEGMENT_AGENT.md rename table). Bytes match
-;nhlpa93retail.bin. 's Read/Write names are kept as they are; the headers say what each one does.
+;Bytes match nhlpa93retail.bin. 's Read/Write names are kept as they are; the headers say what
+;each one does.
 ;	The device is a word port (BackupRAM_Port). Low byte bit 7 is the data line (SDA, read back in bit 7)
 ;	and bit 6 the clock (SCL): $C0 = both high, $80 = data high clock low, $40 = data low clock high.
 ;	The control byte sent after a start is address<<1 + 1 to read (sequential read from that address)

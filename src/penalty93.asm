@@ -1,14 +1,12 @@
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment
-;	AddPenalty, AddPenalty2, PenaltyManager,
-;	chkprogress, InProgress, the coinsearch
+;	NHLPA Hockey 93 (retail) segment AddPenalty, AddPenalty2,
+;	PenaltyManager, chkprogress, InProgress, the coinsearch
 ;	checkfornewpen, Stop4Pen, limitfo, UpdatePA, SetPA, SetPA2, PushRef,
-;	prefmes, the PrintPenaltyMessagesString, PenGoalStuff, the
-;	93-only ClearPenaltyBuffer, updatepentime, the ProcessPenaltyList
-;	and RemovePlayerFromList, chkatop, releasepl, GetLowestPen,
-;	updatepwrplay, ClrHor and SetHor. The Penaltylist data is.
-;	same (see the SEGMENT_AGENT.md rename table). Bytes match
+;	prefmes, the PrintPenaltyMessagesString, PenGoalStuff, the 93-only
+;	ClearPenaltyBuffer, updatepentime, the ProcessPenaltyList and
+;	RemovePlayerFromList, chkatop, releasepl, GetLowestPen, updatepwrplay,
+;	ClrHor and SetHor. The Penaltylist data is. Bytes match
 ;	nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp; fixopcodes.js patches the encoding after assembly.
@@ -57,7 +55,7 @@ AddPenalty2	;forced penalties like face off and game over. d0 = penalty number, 
 	adda.w	(a0,d0.w),a0
 	tst.b	1(a0)			;penalty minutes
 	beq.w	.noplayer
-	bset	#pf2pen,pflags2(a3)		;the 92 version (bit 6 in 92)
+	bset	#pf2pen,pflags2(a3)		;92 used bit 6
 	beq.w	.noplayer
 	clr.w	(a1)			;player already has a penalty, drop this one
 .noplayer	movem.l	(sp)+,d1/a0-a1
@@ -91,7 +89,7 @@ chkprogress	;control progress of ref and game control thru penalty events. When 
 	bsr.w	forceblack
 	move.w	(sp)+,(vcount).w
 	bsr.w	SetHor
-	move.w	(ExtraChars).w,d4	;93: load horizontal ref tiles
+	move.w	(ExtraChars).w,d4	;load horizontal ref tiles
 	movea.l	#RefMap2+8,a2
 	bsr.w	DoDMA_clearCallbackPointer
 	bsr.w	NewTicker
@@ -107,7 +105,7 @@ chkprogress	;control progress of ref and game control thru penalty events. When 
 	bsr.w	UpdatePA
 	move.w	#$32,(RefCnt).w		;50
 	clr.w	d0
-	bsr.w	PushRef			;93: ref frame 0
+	bsr.w	PushRef			;ref frame 0
 	move.w	#$18,(palcount).w	;24
 	rts
 
@@ -145,7 +143,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	move.b	1(a1),d2		;penalty minutes
 	beq.w	.sa2			;no player involved
 	movem.l	d0-d1/a1-a4,-(sp)
-	bsr.w	GetPeriodTimeRemaining	;93: log time, penalty and player
+	bsr.w	GetPeriodTimeRemaining	;log time, penalty and player
 	movea.w	#(PenSum-M68K_RAM),a4
 	adda.w	(PenSumLength).w,a4
 	cmpi.w	#$EC,(PenSumLength).w	;log full: keep overwriting the last entry
@@ -172,7 +170,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	move.b	d0,(a4)			;log: player
 	move.w	d0,(TempPlOffset).w
 	ext.w	d0
-	addi.w	#$102,d0		;93: per-player penalty minutes byte at $102+pnum
+	addi.w	#$102,d0		;per-player penalty minutes byte at $102+pnum
 	add.b	d2,(a2,d0.w)
 	subi.w	#$102,d0
 	asl.w	#1,d0
@@ -195,7 +193,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	bne.s	.ctop
 	bset	#6,tmpdst(a1,d1.w)		;coincidental
 	bset	#6,tmpdst(a2,d0.w)
-.nocoin	movem.l	a0,-(sp)		;93: add player to penalty box list
+.nocoin	movem.l	a0,-(sp)		;add player to penalty box list
 	lea	$9A(a2),a0
 	moveq	#$18,d1
 .pl	tst.b	(a0)+			;find end of list
@@ -228,7 +226,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 .ex	movem.l	(sp)+,d0/a0-a3
 	rts
 
-coinsearch	;does the job of the 92 version a2 = team. Clears tmpdst bit 5, counts players kept off the ice by penalties (coincidental and bit 4 times do not count, at most 2) and sets tmap. Called twice from InProgress
+coinsearch	;does the job of the 92 a2 = team. Clears tmpdst bit 5, counts players kept off the ice by penalties (coincidental and bit 4 times do not count, at most 2) and sets tmap. Called twice from InProgress
 	moveq	#6,d1
 	moveq	#$32,d0			;(MaxRos-1)*2
 .top	tst.w	tmpdst(a2,d0.w)
@@ -464,7 +462,7 @@ PushRef	;tell vblank what to display. d0 = ref frame, $40 clears the window. 93:
 	bset	#sf2refref,(sflags2).w
 	bra.w	.ex
 
-.clearit	btst	#7,(sflags).w		;93: horizontal mode only clears the line
+.clearit	btst	#7,(sflags).w		;horizontal mode only clears the line
 	bne.w	.cl
 	movea.w	#(RefRamMap-M68K_RAM),a1
 	moveq	#$37,d0			;(refheight*refwidth)-1
@@ -529,7 +527,7 @@ prefmes	;print message for penalty d0 (negative clears it). Vertical mode: frame
 .ex	movem.l	(sp)+,d0-d2/a1
 	rts
 
-PrintPenaltyMessagesString	;93: blank the horizontal mode penalty message line (22 spaces at x 5, y $B). Called from UpdatePA and prefmes
+PrintPenaltyMessagesString	;blank the horizontal mode penalty message line (22 spaces at x 5, y $B). Called from UpdatePA and prefmes
 	bsr.w	printz
 	String	$BF,5,$B,'                      ',0
 	rts
@@ -556,7 +554,7 @@ PenGoalStuff	;do this stuff after a goal. a1 = scored on team, a2 = scoring team
 .ex	movem.l	(sp)+,d0-d2/a0
 	rts
 
-ClearPenaltyBuffer	;93: clear PenBuf (92 inlined this in PenGoalStuff). Also called from clockcont
+ClearPenaltyBuffer	;clear PenBuf (92 inlined this in PenGoalStuff). Also called from clockcont
 	moveq	#$1F,d0			;MaxPen-1
 	movea.w	#(PenBuf-M68K_RAM),a0
 .0	clr.w	(a0)+
@@ -576,7 +574,7 @@ updatepentime	;update the time remaining on all penalized players, once a second
 	bsr.w	ProcessPenaltyList
 	adda.w	#tmsize,a2
 
-ProcessPenaltyList	;93 version of .ut. a2 = team. Walks the penalty box list ($9A): the first two players without a coincidental penalty count down one second and the rest wait. Beeps when the first served time gets to 5 or less and releases the player at 0. Coincidental penalties count down on their own
+ProcessPenaltyList	;a2 = team. Walks the penalty box list ($9A): the first two players without a coincidental penalty count down one second and the rest wait. Beeps when the first served time gets to 5 or less and releases the player at 0. Coincidental penalties count down on their own
 	lea	$9A(a2),a0
 	movea.w	#(mesarea-M68K_RAM),a1	;serving players
 	moveq	#2,d1			;two can serve at once
@@ -624,7 +622,7 @@ ProcessPenaltyList	;93 version of .ut. a2 = team. Walks the penalty box list ($9
 	bra.w	RemovePlayerFromList
 .clr	clr.w	tmpdst(a2,d0.w)		;falls into RemovePlayerFromList
 
-RemovePlayerFromList	;93: remove the entry before a0 from a penalty box list by shifting the rest down (list ends with a negative byte). Return a0 = removed slot. Called from PenGoalStuff, ProcessPenaltyList
+RemovePlayerFromList	;remove the entry before a0 from a penalty box list by shifting the rest down (list ends with a negative byte). Return a0 = removed slot. Called from PenGoalStuff, ProcessPenaltyList
 	moveq	#-1,d2
 .shift	addq.w	#1,d2
 	move.b	(a0,d2.w),-1(a0,d2.w)
@@ -670,11 +668,11 @@ releasepl	;player's penalty time is up so let him out (if appropriate). a2 = tea
 	move.b	(a0,d1.w),position+1(a3)
 	bsr.w	Setplass
 	bsr.w	setplayer
-	bset	#pf2unav,pflags2(a3)		;the 92 version (bit 4 in 92)
+	bset	#pf2unav,pflags2(a3)		;92 used bit 4
 	movem.l	(sp)+,d0-d3/a0-a3
 	rts
 
-GetLowestPen	;92 name; 93 body differs (92 built a release-order PlList). a2 = team on the power play, a3 = shorthanded team. Return d0 = power play time left from the penalty box times. Called from updatepwrplay
+GetLowestPen	;93 body differs (92 built a release-order PlList). a2 = team on the power play, a3 = shorthanded team. Return d0 = power play time left from the penalty box times. Called from updatepwrplay
 	clr.w	d0
 	clr.w	d3
 	lea	$9A(a2),a0
@@ -805,16 +803,14 @@ SetHor	;switch graphics to horizontal ice rink graphics mode. 93 does not remap 
 
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment
-;	printscores1, the PrintTeamNameAndScore
+;	NHLPA Hockey 93 (retail) segment printscores1, the PrintTeamNameAndScore
 ;	and PrintTeamLogoAndScore, EASNLogo (with the DrawEASNMap entry),
 ;	USBoard, pplpen, linebar, getlinee, AvgCline, ChkShotStat, the 93-only
 ;	loadTeamStruct and SetupTeamForIntermission, reenergizeteam (92
 ;	hockey.asm), Intermission, InitScores, UpdateScores, SetScore, NewTicker,
-;	NewTicker2, the CheckGameTickerStatus, NewTicker3, GameLabels,
-;	the ClearTickerArea, SetTickerAreaPosition, PrintStringFromList
-;	and AdvanceStringPtr, DoHiLights, StartHL and StartHL2.
-;	same (see the SEGMENT_AGENT.md rename table). Bytes match
+;	NewTicker2, the CheckGameTickerStatus, NewTicker3, GameLabels, the
+;	ClearTickerArea, SetTickerAreaPosition, PrintStringFromList and
+;	AdvanceStringPtr, DoHiLights, StartHL and StartHL2. Bytes match
 ;	nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp; fixopcodes.js patches the encoding after assembly.
@@ -992,7 +988,7 @@ linebar	;draw the energy bar of line d0 for team a2 at printx/printy (bitmap fro
 	cmp.w	#$F,d0
 	bls.w	.ok
 	moveq	#$F,d0
-.ok	moveq	#$F,d1			;the 92 version is a separate routine; here it is a branch target
+.ok	moveq	#$F,d1			;in 92 this is a separate routine; here it is a branch target
 	sub.w	d0,d1			;d1 = bar frame (15 = empty)
 	clr.w	d0
 	movea.l	#EnergyBarMap,a1
@@ -1074,7 +1070,7 @@ ChkShotStat	;add to shot stat if a shot was taken. 93 also raises the crowd and 
 .ex	movem.l	(sp)+,d0-d1/a1-a3
 	rts
 
-loadTeamStruct	;93: return a2 = team struct of player a3, a1 = the other team's struct. Called from ChkShotStat and updateplayers
+loadTeamStruct	;return a2 = team struct of player a3, a1 = the other team's struct. Called from ChkShotStat and updateplayers
 	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
 	btst	#pfteam,pflags(a3)
@@ -1082,7 +1078,7 @@ loadTeamStruct	;93: return a2 = team struct of player a3, a1 = the other team's 
 	exg	a1,a2
 	rts
 
-SetupTeamForIntermission	;93: reset the bench, then for each team refill energy and pick the starting line: 92 Pw1 (3) for the team with more players on ice, PK1 (5) for the team with fewer, else 0. Called from Intermission
+SetupTeamForIntermission	;reset the bench, then for each team refill energy and pick the starting line: 92 Pw1 (3) for the team with more players on ice, PK1 (5) for the team with fewer, else 0. Called from Intermission
 	bsr.w	ResetBench
 	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a3
@@ -1352,12 +1348,12 @@ GameLabels	;ticker titles, by OptPlayMode and gamelevel
 	String	'EA Quarterfinal'
 	String	'EA Cup Semifinal'
 
-ClearTickerArea	;93: erase the ticker box. Called from Intermission and StartHL2
+ClearTickerArea	;erase the ticker box. Called from Intermission and StartHL2
 	bsr.w	SetTickerAreaPosition
 	move.w	#$7FF,d2		;blank char
 	bra.w	eraser
 
-SetTickerAreaPosition	;93: set printx/printy/printm for the ticker box (x 3, y $17; the $BD map in pause mode). Return d0 = $1A wide, d1 = 5 high. Called from NewTicker3 and ClearTickerArea
+SetTickerAreaPosition	;set printx/printy/printm for the ticker box (x 3, y $17; the $BD map in pause mode). Return d0 = $1A wide, d1 = 5 high. Called from NewTicker3 and ClearTickerArea
 	bsr.w	printz
 	String	$BD,3,$17
 	btst	#sfpz,(sflags).w
@@ -1372,7 +1368,7 @@ PrintStringFromList	;print string d0 of the String list a1 with printsmall
 	bsr.w	AdvanceStringPtr
 	bra.w	printsmall
 
-AdvanceStringPtr	;93: the 92 version without the print. Return a1 = string d0 of the String list a1
+AdvanceStringPtr	;like 92's string-list print, without the print. Return a1 = string d0 of the String list a1
 	bra.w	.1
 .0	adda.w	(a1),a1
 .1	dbf	d0,.0
@@ -1523,7 +1519,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	bsr.w	setplayercolors
 	bsr.w	SetHor
 	bsr.w	setvideo
-	jsr	(SetupPauseScreen).w	;93: pause menu screen
+	jsr	(SetupPauseScreen).w	;pause menu screen
 	jsr	(DrawMenuScreen).w
 	move.w	#$18,(palcount).w	;24
 	move.w	#SngEOG,-(sp)		;song $36
