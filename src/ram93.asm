@@ -1,9 +1,9 @@
 ;Variables
-;	NHLPA 93 RAM map, ports and structure equates, in NHL92Genesis/src/ram.asm order. Every address is the
+;	NHLPA 93 RAM map, ports and structure equates, in NHL92Genesis/src/order. Every address is the
 ;	retail (nhlpa93retail.bin) address. Names are the 92 names where 93 uses the variable the same way, else the
 ;Rev A has two more words (music_global_tick_counter, music_tick_divider) at $CAEE, so every variable
 ;from databuffer up is 4 bytes lower here than in the Rev A (the Rev A address is in the comment).
-;	Included by hockey93.asm and by every *_stub.asm (segment builds). No ROM bytes.
+;	Included.asm and by every *_stub.asm (segment builds). No ROM bytes.
 
 ;hardware
 Asound	=	$c00011	;analog sound (VDP_PSG)
@@ -39,7 +39,7 @@ VDP__DATA	=	$C00002
 VDP___CNTR	=	$C0000C
 VDP____CNTR	=	$C0000E
 Z80_RAM	=	$A00000	;Z80 RAM as seen from the 68000 ( Z80_RAM+$8E is the PCM rate byte)
-BackupRAM_Port	=	$200000	;serial backup RAM port: low byte bit 7 data, bit 6 clock (sram93)
+BackupRAM_Port	=	$200000	;serial backup RAM port: low byte bit 7 data, bit 6 clock
 Joy1	=	$a10003	;controller ports
 Joy2	=	$a10005
 
@@ -63,7 +63,7 @@ replayend	=	$FFFFAF54	;end of replay ram (92 computed replaystart+(replaynum*rep
 GoalieStruct	=	$FFFFAFCA	;below varstart
 varstart	=	$FFFFB000	;start of variable space (end of replay)
 Stack	=	$FFFFFFFE	;game stack (Begin, StartPer, Opening2). 92 $fffffdf0
-InitialSP	=	$FFFFF6	;reset vector 0 (main93). ($FFFFFFF6, the 32-bit form)
+InitialSP	=	$FFFFF6	;reset vector 0. ($FFFFFFF6, the 32-bit form)
 ;$FFFFFFFF: not used (the move.l #$FFFFFFFF in sound93 is a slot marker, not RAM)
 
 Sortobjs	=	16	;number of sorted graphics objects- these are arranged so sprites lower on the screen are of higher priority
@@ -179,7 +179,7 @@ handed	=	$76	;bit0 set is left handed. 92 $74
 pflags3	=	$64	;(92 pflags2+1)
 pf3oside	=	0	;92: player is offsides (93 flags the team: tmflags bit 4)
 aggress	=	$73	;and offset
-;(ram.asm), 93 values: sfx / song numbers
+;93 values: sfx / song numbers
 SFXsiren	=	$0
 SFXbeep1	=	$1
 SFXbeep2	=	$2
@@ -210,8 +210,8 @@ SFX26	=	$26
 SFX27	=	$27
 SFXpuckwall1	=	$28
 SFXpuckice	=	$2C
-SngTitle	=	$35	;92 SngTitle
-SngEOG	=	$36	;92 SngEOG
+SngTitle	=	$35
+SngEOG	=	$36
 SngScout	=	$37	;scouting report (no 92 name)
 ;printsmall control codes (bytes run ControlCodeJumpTable entry -byte; names match the ControlCode_* routines)
 CC_SetMap	=	$FF	;-1: next byte = map number -> printm
@@ -444,7 +444,7 @@ menuitem	rs.l	1	;menu state: selected item, then (+2) first item shown.
 menulist	rs.l	1	;menu item list.
 menudraw	rs.l	1	;menu screen draw routine.
 TickerNum	rs.w	1
-PPBonus	rs.b	1	;check bonuses (hockey93_03_05), cleared together by clr.l.
+PPBonus	rs.b	1	;check bonuses, cleared together by clr.l.
 PKBonus	rs.b	1
 ThirdPBonus	rs.b	1
 HmAwBonus	rs.b	1
@@ -454,7 +454,7 @@ VertLineScrolling	rs.w	1
 PlayerScrollCtr	rs.w	1
 SelectedPlayerIdx	rs.w	1
 ScoutingReportTimer	rs.w	1
-screentimer	rs.w	1	;frames left on a screen (ScoutingReport); last cursor row (stats93).
+screentimer	rs.w	1	;frames left on a screen (ScoutingReport); last cursor row.
 TestList	rs.w	122
 nibblebuffer	rs.w	6	;UnpackNibbles words, WeightedRandomSelect weights.
 ;$FFFFCACE is nibblebuffer+4
@@ -472,28 +472,28 @@ dmaram	rs.l	1	;dma ram area.
 music_global_tick_counter	rs.w	1	;Rev A only: VDP PAL bit (Begin). Set = 50 Hz: faster skating (updateplayers) and music (p_music_vblank)
 music_tick_divider	rs.w	1	;Rev A only: p_music_vblank runs the track slots again every 6th frame
 	ENDIF
-databuffer	rs.w	9	;Rev A $CAF2
-pwddatabuffer	rs.w	5	;Rev A $CB04
-outputbuffer	rs.w	49	;Rev A $CB0E
-marker	rs.w	1	;Rev A $CB70
-tpassbits	rs.w	5	;temporary storage of passbits. Rev A $CB72
-music_needs_z80_update	rs.w	1	;Rev A $CB7C
-Z80_command_buffer	rs.b	5	;Rev A $CB7E
-per_channel_attenuation_table	rs.b	7	;Rev A $CB83
-per_channel_frequency_table	rs.w	7	;Rev A $CB8A
-per_channel_patch_table	rs.w	4	;Rev A $CB98
-fm_voice_usage_table	rs.w	256	;Rev A $CBA0
-fm_channel_structs	rs.w	15	;Rev A $CDA0
-pcm_channel_struct	rs.w	3	;Rev A $CDBE
-fm_track_slots	rs.w	25	;Rev A $CDC4
-retrycount	rs.w	1	;Rev A $CDF6
-errorflag	rs.w	1	;Rev A $CDF8
-sramdataptr	rs.l	1	;Rev A $CDFA
-address	rs.l	1	;Rev A $CDFE
-byecount	rs.l	1	;Rev A $CE02
-bytecount	rs.w	1	;Rev A $CE06
-command	rs.w	1	;Rev A $CE08
-bufferptr	rs.l	1	;Rev A $CE0A
-address2	rs.l	1	;Rev A $CE0E
-errorflag2	rs.w	1	;Rev A $CE12
+databuffer	rs.w	9
+pwddatabuffer	rs.w	5
+outputbuffer	rs.w	49
+marker	rs.w	1
+tpassbits	rs.w	5	;temporary storage of passbits.
+music_needs_z80_update	rs.w	1
+Z80_command_buffer	rs.b	5
+per_channel_attenuation_table	rs.b	7
+per_channel_frequency_table	rs.w	7
+per_channel_patch_table	rs.w	4
+fm_voice_usage_table	rs.w	256
+fm_channel_structs	rs.w	15
+pcm_channel_struct	rs.w	3
+fm_track_slots	rs.w	25
+retrycount	rs.w	1
+errorflag	rs.w	1
+sramdataptr	rs.l	1
+address	rs.l	1
+byecount	rs.l	1
+bytecount	rs.w	1
+command	rs.w	1
+bufferptr	rs.l	1
+address2	rs.l	1
+errorflag2	rs.w	1
 

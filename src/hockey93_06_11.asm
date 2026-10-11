@@ -1,12 +1,12 @@
 ;======================================================================
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $122A8-$12E25
-;	92 hockey.asm part 3, first half: setupice, defaultsprites, SprSort,
+;	92 part 3, first half: setupice, defaultsprites, SprSort
 ;	resetplstuff, setteams, setplayercolors, PeriodOver, Opening, Opening2 and
 ;	PlayoffScreen, plus the 93 splits (setupice_highlight, setupIceRinkMap,
 ;	setupEASNmap, setupTeamBlocksMap, defaultsprites2, clearTeamStats,
 ;	InitTeamSructure) and the 93 playoff screen helpers. 92 SetSLogos and
-;	SetTeamColors have no 93 counterpart here. ScoutingReport is hockey93_06_11.
+;	SetTeamColors have no 93 counterpart here. ScoutingReport.
 ;Global names from the 92 names where the routine is the
 ;	same (see the SEGMENT_AGENT.md rename table). Bytes match
 ;	nhlpa93retail.bin.
@@ -127,8 +127,8 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts
 
-setupice_highlight	;93 only. Rebuild the rink sprites after a highlight replay without reloading tiles, then fade in.
-	;Called from StartHL2 (penalty93). Uses the sprite char start saved by setupice in spritechars
+setupice_highlight	;Rebuild the rink sprites after a highlight replay without reloading tiles, then fade in.
+	;Called from StartHL2. Uses the sprite char start saved by setupice in spritechars
 	movem.l	d0-d7/a0-a6,-(sp)
 	bsr.w	forceblack
 	bclr	#sfpz,(sflags).w
@@ -178,7 +178,7 @@ setupice_highlight	;93 only. Rebuild the rink sprites after a highlight replay w
 	rts				;(its only xref is a constant, so no label)
 
 setupIceRinkMap	;copy the ice rink palettes (pal 0&1, 16 longs) to palfadenew. 92 setupice .ipal, split out in 93.
-	;Called from setupice, setupice_highlight and stats93
+	;Called from setupice, setupice_highlight
 	movea.l	#IceRinkMap,a0
 	adda.l	(a0),a0			;palette offset in the map header
 	moveq	#$F,d0
@@ -187,7 +187,7 @@ setupIceRinkMap	;copy the ice rink palettes (pal 0&1, 16 longs) to palfadenew. 9
 	dbf	d0,.ipal
 	rts
 
-setupEASNmap	;93 only. Decompress the easn logo tiles to vram at EASNcset. Called from setupice and setupice_highlight.
+setupEASNmap	;Decompress the easn logo tiles to vram at EASNcset. Called from setupice and setupice_highlight.
 	;Return d4 = next free vram char
 	move.w	(EASNcset).w,d4
 	movea.l	#EASNmap+8,a2
@@ -195,7 +195,7 @@ setupEASNmap	;93 only. Decompress the easn logo tiles to vram at EASNcset. Calle
 	dc.l	$71234567,$89ABCDEF	;remap table (92 .EASNmap)
 	rts
 
-setupTeamBlocksMap	;93 only. Load TeamBlocks.map tiles at d4+$30 and copy the home and visitor team blocks (24 rows each)
+setupTeamBlocksMap	;Load TeamBlocks.map tiles at d4+$30 and copy the home and visitor team blocks (24 rows each)
 	;to vram at basetileoffset and basetileoffset+$18. Called from setupice. d4 = 1st vram char; return d4 = basetileoffset+$30
 	move.w	d4,(basetileoffset).w
 	addi.w	#$30,d4			;skip the 48 chars for the two team blocks
@@ -219,7 +219,7 @@ setupTeamBlocksMap	;93 only. Load TeamBlocks.map tiles at d4+$30 and copy the ho
 	addi.w	#$30,d4
 	rts
 
-CopyTeamBlockMapData	;93 only. Copy one team's 24 block chars from the loaded tile set to vram at d1 by vram dma,
+CopyTeamBlockMapData	;Copy one team's 24 block chars from the loaded tile set to vram at d1 by vram dma
 	;and store their map words at (a1)+. a0 = map data, d0 = team, d1 = vram address. Called from setupTeamBlocksMap
 	mulu.w	#$30,d0			;24 map words per team
 	lea	4(a0,d0.w),a0
@@ -385,7 +385,7 @@ SprSort	;sort objects in struct SortObj and set corresponding tables for keeping
 	movem.l	(sp)+,d0-d4/a0-a2
 	rts
 
-resetplstuff	;reset team variables/and players on both teams. Called from puckfaceoff2 (logic93) and StartHL2 (penalty93)
+resetplstuff	;reset team variables/and players on both teams. Called from puckfaceoff2 and StartHL2
 	movem.l	d0-d2/a0-a3,-(sp)
 	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	.top
@@ -409,7 +409,7 @@ resetplstuff	;reset team variables/and players on both teams. Called from puckfa
 	dbf	d2,.loop
 	rts
 
-clearTeamStats	;93 only: the 92 setteams clear loop, split out. Clear both team structs (2 x tmsize) but keep the
+clearTeamStats	;the 92 setteams clear loop, split out. Clear both team structs (2 x tmsize) but keep the
 	;word at tmstruct+$26 of each team, and set the byte at tmstruct+$9A of each. Falls into setteams.
 	;Called from StartGame, StartHL2 and ScoutingReport
 	move.w	(tmstruct+tmgoalie).w,-(sp)
@@ -423,7 +423,7 @@ clearTeamStats	;93 only: the 92 setteams clear loop, split out. Clear both team 
 	st	(tmstruct+$9A).w
 	st	(awtmstruct+$9A).w
 
-setteams	;use hometeam/visteam to set team structures. Falls in from clearTeamStats, also called from hockey93_06_11.
+setteams	;use hometeam/visteam to set team structures. Falls in from clearTeamStats, also called.
 	;93 sets tmsort as a word and leaves the team data setup to InitTeamSructure
 	movem.l	d0/a0-a2,-(sp)
 	movea.w	#(tmstruct-M68K_RAM),a2
@@ -437,7 +437,7 @@ setteams	;use hometeam/visteam to set team structures. Falls in from clearTeamSt
 	movem.l	(sp)+,d0/a0-a2
 	rts
 
-InitTeamSructure	;93 only. Set up team struct a2 for team d0: store the team number at $28, the team data address
+InitTeamSructure	;Set up team struct a2 for team d0: store the team number at $28, the team data address
 	;at tmdata ($1E, from the team address table at $314; 92 teamlist), and copy 14 longs of line data (team data +6
 	;offset) to tmstruct+$16A. Called from setteams
 	move.w	d0,$28(a2)
@@ -453,7 +453,7 @@ InitTeamSructure	;93 only. Set up team struct a2 for team d0: store the team num
 	rts
 
 setplayercolors	;copy in correct color data for each team. Called from setupice, setupice_highlight, stats93 and
-	;StartHL2 (penalty93)
+	;StartHL2
 	clr.w	d1
 	movea.w	#(tmstruct-M68K_RAM),a0
 	bsr.w	.sp
@@ -470,7 +470,7 @@ setplayercolors	;copy in correct color data for each team. Called from setupice,
 	dbf	d0,.5
 	rts
 
-PeriodOver	;what to do if period over. Branched to from puckfaceoff (logic93) when the clock runs out.
+PeriodOver	;what to do if period over. Branched to from puckfaceoff when the clock runs out.
 	;93 moves forceblack after the period count and drops the 92 SetHor / SetVideo / palcount
 	addq.w	#1,(gsp).w		;period number
 	bchg	#gmdir,(gmode).w
@@ -489,7 +489,7 @@ PeriodOver	;what to do if period over. Branched to from puckfaceoff (logic93) wh
 
 IntermissionStart	;PeriodOver tail (92 PeriodOver.sp): reset the clock, song $36, ticker scores
 	;playoff team stats at game over, then Intermission. Next period, or GameOver when gsp = 4.
-	;Also jumped to from StartGame (hockey93_01, as _sp) for the pregame intermission
+	;Also jumped to from StartGame (as _sp) for the pregame intermission
 	jsr	ResetClock
 	move.w	#SngEOG,-(sp)		;song $36 (92 SngEOG = 3 here)
 	bsr.w	song
@@ -512,12 +512,12 @@ GameOver	;Save the password, show the playoff stats and playoff screen in playof
 .po	bsr.w	PlayoffScreen		;returns at once outside playoff mode
 
 ExitToOpening	;Song $35, then restart at Opening2. Falls in from GameOver
-	;also jumped to from HandleJoy1 (hockey93_01, as loc_12A16) to end the demo
-	move.w	#SngTitle,-(sp)		;93 only (92 GameOver played no song)
+	;also jumped to from HandleJoy1 (as loc_12A16) to end the demo
+	move.w	#SngTitle,-(sp)		;(92 GameOver played no song)
 	bsr.w	song
 	bra.w	Opening2
 
-Opening	;title screen, then into Opening2. Jumped to from Begin (hockey93_01). Same as 92 REV A
+Opening	;title screen, then into Opening2. Jumped to from Begin. Same as 92 REV A
 	bsr.w	KillCrowd
 	bsr.w	TitleScreen
 
@@ -533,8 +533,8 @@ Opening2	;reset the stack and clear the variables (92 REV A path), then options,
 	move.l	#vb2,(vbint).w
 	move.w	#$2500,sr
 	bsr.w	setoptions
-Opening3	bsr.w	PlayoffScreen		;(92 Opening3)
-Opening4	bsr.w	ScoutingReport		;(92 Opening4)
+Opening3	bsr.w	PlayoffScreen
+Opening4	bsr.w	ScoutingReport
 	jmp	(ChkShortPeriods).w	;92 jmp startgame; 93 first checks pad 1 for short periods
 
 PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver and Opening2.
@@ -579,7 +579,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 
 	bsr.w	printz
 	String	$CE,0,0			;(92 -$01,60,4 before the StanleyMap bitmap)
-	movea.l	#ScoutMap,a0		;bitmap map data (Rev A $3288E)
+	movea.l	#ScoutMap,a0		;bitmap map data
 	movea.l	a0,a1
 	movea.l	a0,a2
 	adda.l	(a2)+,a0
@@ -610,7 +610,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	move.w	#$9202,(a0)		;window V position 2
 
 	movea.w	#(potree-M68K_RAM),a1
-	movea.l	#PlayoffTreeSetup,a0		;tree layout tables by gamelevel (92 .setup, data in hockey93_06_11)
+	movea.l	#PlayoffTreeSetup,a0		;tree layout tables by gamelevel (92.setup, data)
 	move.w	(gamelevel).w,d0
 	asl.w	#1,d0
 	adda.w	(a0,d0.w),a0
@@ -817,7 +817,7 @@ PlayoffScreenDataTable	;(it undecoded): the PlayoffScreen vblank handler (vbint)
 	move.w	d0,(a0)
 .nosat	bsr.w	cramfade
 .nograph	addq.w	#1,(vcount).w
-	jsr	(p_music_vblank).l	;Rev A $166EC
+	jsr	(p_music_vblank).l
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
 
@@ -831,11 +831,11 @@ PlayoffScreenText	;round titles by gamelevel, printed with printsmall. Used by P
 ;======================================================================
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $12E26-$13951
-;	93 screens that follow 92 hockey.asm part 3: ScoutingReport (rewritten for 93:
+;	93 screens that follow 92 part 3: ScoutingReport (rewritten for 93
 ;	team ratings and a typed commentary), the Stanley Cup celebration screen,
 ;	TitleScreen with its credits scroller and vblank, the sprite list helpers
 ;	CallAnimationCallback / EndSpriteList / FinalizeSpriteList, and an
-;	unreferenced sound test (CheckSound). setoptions is hockey93_06_11.
+;	unreferenced sound test (CheckSound). setoptions.
 ;Global names from the 92 names where the routine is the
 ;	same (see the SEGMENT_AGENT.md rename table). Bytes match
 ;	nhlpa93retail.bin.
@@ -871,7 +871,7 @@ ScoutingReport	;93 pregame scouting report (92 drew ScoutMap and position check 
 
 	bsr.w	printz
 	String	$FE,0,0			;(92 -$02,0,0)
-	movea.l	#ScoutMap,a0		;bitmap map data (Rev A $3288E, same as PlayoffScreen)
+	movea.l	#ScoutMap,a0		;bitmap map data (same as PlayoffScreen)
 	movea.l	a0,a1
 	movea.l	a0,a2
 	adda.l	(a2)+,a0
@@ -1132,7 +1132,7 @@ UpdateScoutingDisplay	;93: called every frame by ScoutingReport. When ScoutingRe
 	bra.w	.name
 .away	movea.l	(AwayTeamRosterPtr).w,a1
 	bra.w	.tname
-.under	movea.l	#Montreal,a1		;TeamData93 team block
+.under	movea.l	#Montreal,a1		;team block
 	cmpi.w	#$18,(tmstruct+tmgoalie+2).w
 	bge.w	.tname			;used when >= $18
 .home	movea.l	(HomeTeamRosterPtr).w,a1
@@ -1349,7 +1349,7 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 
 	bsr.w	printz
 	String	$FE,0,$A
-	movea.l	#Title2Map,a1		;bitmap (Rev A $312B6)
+	movea.l	#Title2Map,a1		;bitmap
 	lea	8(a1),a2
 	adda.l	4(a1),a1
 	clr.w	d0
@@ -1584,14 +1584,14 @@ FinalizeSpriteList	;93: four Titlemap2 logo sprites at playoffspritex, playoffsp
 	dbf	d7,.top
 	rts
 
-CheckSound	;93: sound test, no caller found ( Rev A $138D6). Runs only with start+a+c held on pad 1.
+CheckSound	;93: sound test, no caller found. Runs only with start+a+c held on pad 1.
 	;Prints "Check Sound"; right/left change the number, c plays it with sfx, start leaves
 	bsr.w	Readjoy1
 	cmp.b	#$E0,d3			;held: sbut, abut, cbut
 	bne.w	rtss
 	move	#$2500,sr
-	move.l	#vb2,(vbint).w		;(Rev A $11896)
-	jsr	p_turnoff		;(Rev A $165F0)
+	move.l	#vb2,(vbint).w
+	jsr	p_turnoff
 	bsr.w	forceblack
 	move.w	#$18,(palcount).w
 	bsr.w	printsmallz
@@ -1626,9 +1626,9 @@ CheckSound	;93: sound test, no caller found ( Rev A $138D6). Runs only with star
 ;======================================================================
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $13952-$14403
-;	92 hockey.asm setoptions (game setup screen) with its 93 additions: the two team blocks with the
+;	92 setoptions (game setup screen) with its 93 additions: the two team blocks with the
 ;	animated roster players (UpdateBothTeamDisplays ... AddTeamSpriteFrame) and its own vblank
-;	handler (VBlank_SetOptions). DefaultMenus onward is hockey93_06_11.
+;	handler (VBlank_SetOptions). DefaultMenus onward.
 ;Global names from the 92 names where the routine is the same (see the
 ;	SEGMENT_AGENT.md rename table). Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The source has the real
@@ -1640,9 +1640,9 @@ CheckSound	;93: sound test, no caller found ( Rev A $138D6). Runs only with star
 ;	Maps here: map 1 = VmMap1 ($E000), map 2 = VmMap2 ($C000).
 ;	DecompressGraphicsWithCallback is followed by its 8 byte remap table.
 
-setoptions	;options screen display and input. Called from PeriodOver (hockey93_06_11).
+setoptions	;options screen display and input. Called from PeriodOver.
 	;93: 6 minute demo timeout polling both pads, animated roster players in the team blocks,
-	;random teams after a demo, ends with bra maketree (hockey93_06_11)
+	;random teams after a demo, ends with bra maketree
 	move	#$2500,sr		;(92 Rev A order)
 	move.l	#VBlank_SetOptions,(vbint).l	;(92 vb2)
 	bclr	#dfok,(disflags).w
@@ -1665,7 +1665,7 @@ setoptions	;options screen display and input. Called from PeriodOver (hockey93_0
 	move.w	d4,(Framercset).w	;93: framer tiles loaded here (92 bsr AddFramer)
 	movea.l	#FramerMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
-	dc.l	$01234562,$89ABCDEF	;remap table (retail; / or.l, Rev A $01234567)
+	dc.l	$01234562,$89ABCDEF	;remap table (retail; / or.l)
 	move.w	d4,(smallfontchars).w	;93: small font loaded here (92 bsr AddSmallFont)
 	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
@@ -1680,7 +1680,7 @@ setoptions	;options screen display and input. Called from PeriodOver (hockey93_0
 
 	bsr.w	printz
 	String	$FE,0,0			;map 2 (92 -$01,0,0)
-	movea.l	#GameSetUpMap,a0	;game setup bitmap (Rev A $2E22A)
+	movea.l	#GameSetUpMap,a0	;game setup bitmap
 	movea.l	a0,a1
 	movea.l	a0,a2
 	adda.l	(a2)+,a0
@@ -1994,7 +1994,7 @@ TeamIcons	;draw team name bars and set colors. Branched to from setoptions.ps.
 	rts
 
 dotb	;draw team name bar d1 = team number at printx/printy. Called from TeamIcons and
-	;ScoutingReport (hockey93_06_11)
+	;ScoutingReport
 	clr.w	d0
 	asl.w	#1,d1
 	movea.l	#TeamBlocksmap,a0
@@ -2326,16 +2326,16 @@ VBlank_SetOptions	;93: vbint handler stored by setoptions. 92 vb2 (cramfade unle
 ;======================================================================
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $14404-$1499D
-;92 hockey.asm DefaultMenus, NewPO, MakeTree, FigureJoy and the playoff
+;92 DefaultMenus, NewPO, MakeTree, FigureJoy and the playoff
 ;	password code (ReadPassBits ... SuperDiv, GetShifter), then the 93-only playoff stat packing
-;	(DisplayTeamStatsForPlayoffs, ReadTeamStats). ResolveGames onward is hockey93_06_11.
+;	(DisplayTeamStatsForPlayoffs, ReadTeamStats). ResolveGames onward.
 ;Global names from the 92 names where the routine is the same (see the
 ;	SEGMENT_AGENT.md rename table). Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The source has the real
 ;	cmp; fixopcodes.js patches the encoding after assembly.
 ;	93 keeps the password bits in a 5 word buffer at a3 (92 passbits, 8 words) and drops the 92
 ;checksum. The buffers are pwddatabuffer, tpassbits and outputbuffer at their
-;	retail addresses in ram93.asm, 4 bytes lower than in the Rev A listing (Rev A address in the comment).
+;	retail addresses, 4 bytes lower than in the Rev A listing (Rev A address in the comment).
 ;	gsflags bits (92 names, same values): 0 gsftf teams flipped, 1 gsfhl hilite, 2 gsfso series over.
 ;	playoffroundoffset is the 92 pojoy word (playoff joystick set-up), playofflevel the 92 OptNOP slot.
 
@@ -2351,10 +2351,10 @@ DefaultMenus	;set default menu choices for beginning of game. Called once from B
 					;penalties, line changes (92 0,1,14,8,1,0,1)
 
 ContinuePlayoffs	;93 continue playoffs: read the playoff state back from the password bits, rebuild the tree.
-	;Called from setoptions when play mode becomes "continue playoffs" (hockey93_06_11).
+	;Called from setoptions when play mode becomes "continue playoffs".
 	;92 does the same in GameOver (DecodePW + MakeTree). Not 92 NewPO (that is SelectRandomPlayoffTree).
 	movem.l	d0-d7/a0-a3,-(sp)
-	movea.w	#(pwddatabuffer-M68K_RAM),a3		;password bits (Rev A pwddatabuffer $CB04)
+	movea.w	#(pwddatabuffer-M68K_RAM),a3		;password bits
 	bsr.w	ReadPassBits
 	move.w	(gamelevel).w,d0
 	or.w	(bosgames).w,d0
@@ -2367,13 +2367,13 @@ ContinuePlayoffs	;93 continue playoffs: read the playoff state back from the pas
 	rts
 
 NewPO	;body is 92 NewPO: new playoff generates tree with same team 1.
-	;Called from setoptions (hockey93_06_11) for "new playoffs". Falls into maketree.
+	;Called from setoptions for "new playoffs". Falls into maketree.
 	moveq	#$20,d0			;32 trees
 	bsr.w	randomd0
 .top	addq.w	#1,d0
 	andi.w	#$1F,d0
 	asl.w	#4,d0			;16 teams per tree
-	movea.l	#playoffseats,a0	;TeamData93
+	movea.l	#playoffseats,a0
 	adda.w	d0,a0
 	lsr.w	#4,d0
 	moveq	#$F,d1
@@ -2455,7 +2455,7 @@ maketree	;make playoff tree (potree) from playoffseats/winbits. 92 MakeTree.
 	move.b	(a0)+,gst2+1(a1)
 	rts
 
-FigureJoy	;set cont1team/cont2team appropriately. Called from maketree and UpdateTeamNameisplay (hockey93_06_11).
+FigureJoy	;set cont1team/cont2team appropriately. Called from maketree and UpdateTeamNameisplay.
 	;93: after a demo (demoflag clear) fills gstruct with random matchups (InitializeGameStructures)
 	movem.l	d0-d3/a0-a1,-(sp)
 	clr.w	(cont1team).w
@@ -2525,7 +2525,7 @@ FigureJoy	;set cont1team/cont2team appropriately. Called from maketree and Updat
 	dc.w	1,1
 	dc.w	1,2
 
-InitializeGameStructures	;93 only: random team pairs for all 8 gstruct games, none of them
+InitializeGameStructures	;random team pairs for all 8 gstruct games, none of them
 	;HomeTeam or VisTeam. Called from FigureJoy (also after the regular season pad set-up).
 	st	(gamenum).w
 	clr.l	d3			;d3 = used team bits
@@ -2543,7 +2543,7 @@ InitializeGameStructures	;93 only: random team pairs for all 8 gstruct games, no
 	dbf	d2,.loop
 	rts
 
-GetRandomUnusedTeam	;93 only: return d0 = random team 0-23 not yet set in d3, and set its bit.
+GetRandomUnusedTeam	;return d0 = random team 0-23 not yet set in d3, and set its bit.
 	moveq	#$18,d0			;24 teams
 	bsr.w	randomd0
 	bset	d0,d3
@@ -2604,7 +2604,7 @@ ReadPassBits	;translate the password bits at a3 (5 words) to the playoff variabl
 	dbf	d0,.restore
 	rts
 
-EncodePW	;after playoff game compute winners and password if needed. Called from GameOver (hockey93_06_11).
+EncodePW	;after playoff game compute winners and password if needed. Called from GameOver.
 	tst.w	(OptPlayMode).w
 	beq.w	rtss			;regular season
 	move.w	#1,(OptPlayMode).w	;continue season
@@ -2615,7 +2615,7 @@ EncodePW	;after playoff game compute winners and password if needed. Called from
 	beq.w	.userwon		;finished playoffs
 	tst.w	(gamenum).w
 	bmi.w	.userwon		;93: po team out, same as a win (92 .userfailed / pojoy switch)
-	movea.w	#(pwddatabuffer-M68K_RAM),a3		;password bits (Rev A pwddatabuffer $CB04)
+	movea.w	#(pwddatabuffer-M68K_RAM),a3		;password bits
 	bsr.w	WritePassBits
 	bsr.w	BitsToPW
 	btst	#sf3alttree,(sflags3).w
@@ -2624,7 +2624,7 @@ EncodePW	;after playoff game compute winners and password if needed. Called from
 	bsr.w	ReadPassBits
 	bra.w	maketree
 
-.userwon	movea.w	#(pwddatabuffer-M68K_RAM),a3	;password bits (Rev A $CB04)
+.userwon	movea.w	#(pwddatabuffer-M68K_RAM),a3	;password bits
 	bsr.w	ClrPassBits		;(92 ResetPassWord)
 	bsr.w	BitsToPW
 	move.w	#2,(OptPlayMode).w	;new playoffs
@@ -2634,7 +2634,7 @@ EncodePW	;after playoff game compute winners and password if needed. Called from
 	rts
 
 WritePassBits	;transfer game variables to the password bits at a3. 92 WritePassBits, without the checksum.
-	;Called from EncodePW and ResolveGames (hockey93_06_11).
+	;Called from EncodePW and ResolveGames.
 	bsr.w	ClrPassBits
 	move.w	(postarts).w,d0
 	moveq	#$20,d1
@@ -2671,7 +2671,7 @@ WritePassBits	;transfer game variables to the password bits at a3. 92 WritePassB
 	dbf	d2,.0
 	rts
 
-PushBits	;92 PushBits: bits = bits * d1 + d0.
+PushBits	;bits = bits * d1 + d0.
 	;d1=range	2^1-2^15
 	;d0=data
 	movem.l	d0-d1,-(sp)
@@ -2683,7 +2683,7 @@ PushBits	;92 PushBits: bits = bits * d1 + d0.
 	movem.l	(sp)+,d0-d1
 	rts
 
-ClrPassBits	;92 ClrPassBits: clr the 5 words of bits at a3
+ClrPassBits	;clr the 5 words of bits at a3
 	movea.w	a3,a0
 	moveq	#4,d0
 .0	clr.w	(a0)+
@@ -2753,8 +2753,8 @@ GetShifter	;returns:
 	move.l	(sp)+,d0
 	rts
 
-DisplayTeamStatsForPlayoffs	;93 only, Adds the po team's game stats to its packed playoff
-	;totals. Called from PeriodOver (hockey93_06_11) at the end of a playoff game. Unpacks the totals
+DisplayTeamStatsForPlayoffs	;Adds the po team's game stats to its packed playoff
+	;totals. Called from PeriodOver at the end of a playoff game. Unpacks the totals
 	;(ReadTeamStats), adds the $68 stat bytes at team struct+$B4, then packs each total back into the
 	;bit stream below $CB68, clamped to its BitWidthTable width (8, 10, 6, 6 bits, by d0 & 3).
 	cmpi.w	#1,(OptPlayMode).w
@@ -2776,7 +2776,7 @@ DisplayTeamStatsForPlayoffs	;93 only, Adds the po team's game stats to its packe
 	dbf	d0,.acc
 	movea.w	#(statsbuffer-M68K_RAM),a0
 	movea.l	#BitWidthTable,a1
-	movea.w	#(outputbuffer-M68K_RAM),a2		;bit stream base (Rev A outputbuffer $CB0E)
+	movea.w	#(outputbuffer-M68K_RAM),a2		;bit stream base
 	moveq	#$67,d0
 	clr.w	d4			;d4 = bit position
 .loop	clr.l	d1
@@ -2805,15 +2805,15 @@ DisplayTeamStatsForPlayoffs	;93 only, Adds the po team's game stats to its packe
 	dbf	d0,.loop
 	rts
 
-BitWidthTable	;93 only: playoff stat bit widths, indexed by stat number & 3.
+BitWidthTable	;playoff stat bit widths, indexed by stat number & 3.
 	;Used by DisplayTeamStatsForPlayoffs and ReadTeamStats.
 	dc.b	8,$A,6,6
 
-ReadTeamStats	;93 only, Unpack the $68 playoff stat totals from the bit stream below $CB68
-	;into statsbuffer words. Called from DisplayTeamStatsForPlayoffs and DisplayTeamStats (stats93).
+ReadTeamStats	;Unpack the $68 playoff stat totals from the bit stream below $CB68
+	;into statsbuffer words. Called from DisplayTeamStatsForPlayoffs and DisplayTeamStats.
 	movea.w	#(statsbuffer-M68K_RAM),a0
 	movea.l	#BitWidthTable,a1
-	movea.w	#(outputbuffer-M68K_RAM),a2		;bit stream base (Rev A outputbuffer $CB0E)
+	movea.w	#(outputbuffer-M68K_RAM),a2		;bit stream base
 	moveq	#$67,d0			;$68 stats
 	clr.w	d4			;d4 = bit position
 .loop	move.w	d4,d5
@@ -2839,21 +2839,21 @@ ReadTeamStats	;93 only, Unpack the $68 playoff stat totals from the bit stream b
 ;======================================================================
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $1499E-$15109
-;	92 hockey.asm ResolveGames, then the 93-only end of game "Stars of the Game" box (DisplayPeriodOver,
+;	92 ResolveGames, then the 93-only end of game "Stars of the Game" box (DisplayPeriodOver
 ;	FindMaxAttributeTEam, CalculateTeamAttributes/Values), the injury and goal boxes, box, the player name
 ;	formatters (getname ... ConverByteToDigits), and the 92 exception handlers AddError, Illinst, ZeroDiv
-;	and crash. cd0 onward is hockey93_06_11.
+;	and crash. cd0 onward.
 ;Global names from the 92 names where the routine is the same (see the
 ;	SEGMENT_AGENT.md rename table). Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The source has the real
 ;	cmp; fixopcodes.js patches the encoding after assembly.
-;The saved password bits are tpassbits (92 name; Rev A $CB72, retail $CB6E in ram93.asm).
+;The saved password bits are tpassbits (92 name; ).
 ;	gsflags bit 0 is 92 gsftf (teams flipped). Team struct bytes per roster slot (26): $B4 goals (goals
 ;	against for a goalie), $CE assists, $E8 shots (shots against for a goalie); word $136 frames on ice.
 ;	A goal entry (ScoreSum, 6 bytes): word period/time, byte 2 bit 7 away team scored, byte 3 scorer,
 ;	bytes 4 and 5 assists (negative: none). ChkCnt + ScoreSumbytes is the last entry.
 
-ResolveGames	;compute winners and losers for playoff matchups. 92 ResolveGames. Called from EncodePW (hockey93_06_11)
+ResolveGames	;compute winners and losers for playoff matchups. 92 ResolveGames. Called from EncodePW
 	move.w	(gamenum).w,d0
 	mulu.w	#gssize,d0
 	movea.w	#(gstruct-M68K_RAM),a0
@@ -2962,7 +2962,7 @@ ResolveGames	;compute winners and losers for playoff matchups. 92 ResolveGames. 
 	addq.w	#1,(gamelevel).w
 	rts
 
-DisplayPeriodOver	;93 only: end of game "Stars of the Game" box. Called from UpdatePA (penalty93) while RefPen is
+DisplayPeriodOver	;end of game "Stars of the Game" box. Called from UpdatePA while RefPen is
 	;the game over penalty. Waits for RefCnt <= $40 and runs once (gmode bit 7). Frames the box, draws a bitmap
 	;from IceRinkMap, then the three best star scores (FindMaxAttributeTEam): team data string and getname.
 	;Song $F when the home team won.
@@ -3010,7 +3010,7 @@ DisplayPeriodOver	;93 only: end of game "Stars of the Game" box. Called from Upd
 .nosong	movem.l	(sp)+,d0-d5/a0-a4
 	rts
 
-FindMaxAttributeTEam	;93 only: take the highest of the 52 star scores at DispAttribCtr (26 per team, home first)
+FindMaxAttributeTEam	;take the highest of the 52 star scores at DispAttribCtr (26 per team, home first)
 	;and clear it. Returns d0 = player slot, a2 = its team struct. Called from DisplayPeriodOver
 	movem.l	d1-d2/a1/a4,-(sp)
 	movea.w	#(DispAttribCtr-M68K_RAM),a4
@@ -3033,7 +3033,7 @@ FindMaxAttributeTEam	;93 only: take the highest of the 52 star scores at DispAtt
 .home	movem.l	(sp)+,d1-d2/a1/a4
 	rts
 
-CalculateTeamAttributes	;93 only: star score for every roster slot of both teams to DispAttribCtr (26 longs per
+CalculateTeamAttributes	;star score for every roster slot of both teams to DispAttribCtr (26 longs per
 	;team, home first). d5 = GetPeriodTime + d2, the goalie ice time needed. If gsp is 3 and the score is
 	;not tied, the scorer of the last goal gets $7FFFFFFF. Called from DisplayPeriodOver
 	movea.w	#(DispAttribCtr-M68K_RAM),a4
@@ -3062,7 +3062,7 @@ CalculateTeamAttributes	;93 only: star score for every roster slot of both teams
 	move.l	#$7FFFFFFF,0(a0,d0.w)	;game winner is the first star
 .x	rts
 
-CalculateTeamAttributeValues	;93 only: star scores of team a2 (a3 = other team) to (a4)+, one long per roster
+CalculateTeamAttributeValues	;star scores of team a2 (a3 = other team) to (a4)+, one long per roster
 	;slot (26). Each starts at the goal difference. Skaters: goals*11000 + assists*10100 + shots*10, or in a
 	;tied game shots*1000 + frames on ice. Goalies (the first slots) on ice at least d5 with shots against:
 	;+32000 if goals against*100/shots <= 4, +75000 more for a shutout. Called from CalculateTeamAttributes
@@ -3117,9 +3117,9 @@ CalculateTeamAttributeValues	;93 only: star scores of team a2 (a3 = other team) 
 	dbf	d4,.loop
 	rts
 
-ShowInjuryBox	;93 only: injury box "Injury to:" player TempPlOffset (set by setInjuryType)
+ShowInjuryBox	;injury box "Injury to:" player TempPlOffset (set by setInjuryType)
 	;"Out for period", or "the game" when puckx+pflags2 bit pf2fight is set. Jumped to (jmp abs.l) from
-	;CheckInjury (hockey93_01) when InjCntDown runs out, so global
+	;CheckInjury when InjCntDown runs out, so global
 	movem.l	d0-d2/a0-a4,-(sp)
 	bsr.w	printz
 	String	$BF,$B,3
@@ -3137,9 +3137,9 @@ ShowInjuryBox	;93 only: injury box "Injury to:" player TempPlOffset (set by setI
 .ex	movem.l	(sp)+,d0-d2/a0-a4	;( in the string)
 	rts
 
-DisplayPlayerAttributeMenu	;93 only: goal box. Closes both line change boxes, then printbig "GOAL!" (or "HAT
+DisplayPlayerAttributeMenu	;goal box. Closes both line change boxes, then printbig "GOAL!" (or "HAT
 	;TRICK!" on the scorer's third goal), the scorer and up to two assists of the last goal entry.
-	;Called from SetPA (penalty93) for the goal penalty number
+	;Called from SetPA for the goal penalty number
 	movem.l	d0-d2/a0-a4,-(sp)
 	movea.w	#(tmstruct-M68K_RAM),a2
 	jsr	(lcfound2).l		;close lc box
@@ -3195,8 +3195,8 @@ attrText	;printbig strings for DisplayPlayerAttributeMenu: GOAL!, then HAT TRICK
 	String	$BF,$F,3,'GOAL!',$BF,$C,5
 	String	$BF,$C,3,'HAT TRICK!',$BF,$C,5
 
-box	;93 only: fill a $13 x 8 rectangle at printz position $FF,$B,2 with char $7FF (eraser).
-	;Called from SetLCmode2 (logic93) and banner (logic93)
+box	;fill a $13 x 8 rectangle at printz position $FF,$B,2 with char $7FF (eraser).
+	;Called from SetLCmode2 and banner
 	bsr.w	printz
 	String	$FF,$B,2
 	moveq	#$13,d0			;in the string
@@ -3204,8 +3204,8 @@ box	;93 only: fill a $13 x 8 rectangle at printz position $FF,$B,2 with char $7F
 	move.l	#$7FF,d2
 	bra.w	eraser
 
-GetPlayerName	;93 only: a1 = mesarea "NN First Last" (getname) for player TempPlOffset (bit 15 set: away
-	;team). Called from UpdatePA (penalty93)
+GetPlayerName	;a1 = mesarea "NN First Last" (getname) for player TempPlOffset (bit 15 set: away
+	;team). Called from UpdatePA
 	movem.l	d0/a2,-(sp)
 	movea.w	#(tmstruct-M68K_RAM),a2
 	move.w	(TempPlOffset).w,d0
@@ -3216,8 +3216,8 @@ GetPlayerName	;93 only: a1 = mesarea "NN First Last" (getname) for player TempPl
 	movem.l	(sp)+,d0/a2
 	rts
 
-getname	;93 only: a1 = mesarea string "NN First Last" for player d0 of team a2. The number is the bcd byte
-	;after the name. Called from DisplayPeriodOver, GetPlayerName, banner (logic93) and others
+getname	;a1 = mesarea string "NN First Last" for player d0 of team a2. The number is the bcd byte
+	;after the name. Called from DisplayPeriodOver, GetPlayerName, banner and others
 	movem.l	d0-d3/a0/a2-a3,-(sp)
 	bsr.w	GetPlayerNamePointer
 	move.l	a0,-(sp)
@@ -3235,7 +3235,7 @@ getname	;93 only: a1 = mesarea string "NN First Last" for player d0 of team a2. 
 	movem.l	(sp)+,d0-d3/a0/a2-a3
 	rts
 
-GetPlayerNameWithAttrib	;93 only: a1 = mesarea "NN F. Last" (FormatPlayerNameWithAttrib) for player
+GetPlayerNameWithAttrib	;a1 = mesarea "NN F. Last" (FormatPlayerNameWithAttrib) for player
 	;TempPlOffset (bit 15 set: away team). Called from ShowInjuryBox
 	movem.l	d0/a2,-(sp)
 	movea.w	#(tmstruct-M68K_RAM),a2
@@ -3247,7 +3247,7 @@ GetPlayerNameWithAttrib	;93 only: a1 = mesarea "NN F. Last" (FormatPlayerNameWit
 	movem.l	(sp)+,d0/a2
 	rts
 
-FormatPlayerNameWithAttrib	;93 only: a1 = mesarea string "NN F. Last" for player d0 of team a2, built in
+FormatPlayerNameWithAttrib	;a1 = mesarea string "NN F. Last" for player d0 of team a2, built in
 	;TextBuffer. Called from DisplayPlayerAttributeMenu, GetPlayerNameWithAttrib, PrintPeriodTime and others
 	movem.l	d0-d3/a0/a2,-(sp)
 	bsr.w	GetPlayerNamePointer
@@ -3271,8 +3271,8 @@ FormatPlayerNameWithAttrib	;93 only: a1 = mesarea string "NN F. Last" for player
 	movem.l	(sp)+,d0-d3/a0/a2
 	rts
 
-FormatPlayerName	;93 only: a1 = mesarea string "NN Last" for player d0 of team a2, built in TextBuffer.
-	;Called from DisplayAttributeEntry (stats93)
+FormatPlayerName	;a1 = mesarea string "NN Last" for player d0 of team a2, built in TextBuffer.
+	;Called from DisplayAttributeEntry
 	movem.l	d0-d3/a0/a2,-(sp)
 	bsr.w	GetPlayerNamePointer
 	move.l	a0,-(sp)
@@ -3293,8 +3293,8 @@ FormatPlayerName	;93 only: a1 = mesarea string "NN Last" for player d0 of team a
 	movem.l	(sp)+,d0-d3/a0/a2
 	rts
 
-FormatPlayerNameShort	;93 only: a1 = mesarea string " Last" for player d0 of team a2, space padded to 12
-	;characters; a 0 byte also ends the name. Called from DrawMenuIcon (stats93)
+FormatPlayerNameShort	;a1 = mesarea string " Last" for player d0 of team a2, space padded to 12
+	;characters; a 0 byte also ends the name. Called from DrawMenuIcon
 	movem.l	d0-d3/a0/a2,-(sp)
 	bsr.w	GetPlayerNamePointer
 	movea.w	#(TextBuffer-M68K_RAM),a1
@@ -3316,7 +3316,7 @@ FormatPlayerNameShort	;93 only: a1 = mesarea string " Last" for player d0 of tea
 	movem.l	(sp)+,d0-d3/a0/a2
 	rts
 
-FinalizeTextBuffer	;93 only: mesarea length word = a1 - mesarea, with a 0 pad byte when odd. Returns
+FinalizeTextBuffer	;mesarea length word = a1 - mesarea, with a 0 pad byte when odd. Returns
 	;a1 = mesarea. Called from the FormatPlayerName routines
 	move.w	a1,d0
 	subi.w	#(mesarea-M68K_RAM),d0
@@ -3328,7 +3328,7 @@ FinalizeTextBuffer	;93 only: mesarea length word = a1 - mesarea, with a 0 pad by
 	move.w	d0,(a1)
 	rts
 
-GetPlayerNamePointer	;93 only: a0 = name string of player d0 on team a2. From tmdata and its first offset,
+GetPlayerNamePointer	;a0 = name string of player d0 on team a2. From tmdata and its first offset
 	;each record is a length word string and 8 more bytes
 	movea.l	tmdata(a2),a0
 	adda.w	(a0),a0
@@ -3338,8 +3338,8 @@ GetPlayerNamePointer	;93 only: a0 = name string of player d0 on team a2. From tm
 .cnt	dbf	d0,.next
 	rts
 
-ConverByteToDigits	;93 only: two ascii digits of bcd byte d0 to (a1)+, a leading 0 becomes a space.
-	;Called from getname, the FormatPlayerName routines, pplpen (penalty93) and others
+ConverByteToDigits	;two ascii digits of bcd byte d0 to (a1)+, a leading 0 becomes a space.
+	;Called from getname, the FormatPlayerName routines, pplpen and others
 	move.w	d0,-(sp)
 	lsr.b	#4,d0
 	bne.w	.digit
@@ -3426,16 +3426,16 @@ crash	;printbig d1 then d0 as hex, set the vdp up, load a palette and hang. 92 c
 ;	the 93 PenaltyList, bfasciicon, linelist, PlayerPositionText, PerLabels, sizetab, sublist,
 ;	priolist, the playoff tree layout (92 PlayoffScreen .setup), the line editor / roster attribute
 ;	column lists, and the menu item lists for the pause, intermission and line editor exit menus.
-;	sram93 (BackupRAM_*) starts at $15FE6.
+;	(BackupRAM_*) starts at $15FE6.
 ;Global names from the 92 names where the table is the same (see the
 ;	SEGMENT_AGENT.md rename table). Bytes match nhlpa93retail.bin.
 ;	Code addresses in the tables are retail addresses of the routines in earlier segments; the
 ;	Rev A listing has them $E or $18 higher.
-;	Menu item lists (InitMenuState in menu93): two printsmall control Strings, then per item a
+;	Menu item lists (InitMenuState): two printsmall control Strings, then per item a
 ;	String and the handler address (dc.l). Item 0 leaves the menu, its handler is rtss. String $FF ends.
 
 cd0	;$fftt = frame/time for various levels of crowd excitement. 92 updatecrowdf .cd0, same bytes.
-	;Global in 93: used by updatecrowdf (hockey93_01), indexed by crowd level and crowdstep
+	;Global in 93: used by updatecrowdf, indexed by crowd level and crowdstep
 	dc.w	$010c,$020c,$030c,$040c,$050c,$0a0c,$090c,$080c
 	dc.w	$060c,$070c,$080c,$090c,$0a0c,$050c,$040c,$030c
 
@@ -3465,7 +3465,7 @@ asstab	;jump table of all the player logic assignments. 92 asstab without assnot
 	dc.l	asspenalty		;$C apenalty
 	dc.l	assdopen		;$D adopen
 	dc.l	assgoalie		;$E agoalie
-	dc.l	assgoalietopuck		;$F 93 only
+	dc.l	assgoalietopuck		;$F
 	dc.l	asspuckc		;$10 apuckc
 	dc.l	assnearest		;$11 anearest
 	dc.l	assshoot		;$12 ashoot
@@ -3480,8 +3480,8 @@ asstab	;jump table of all the player logic assignments. 92 asstab without assnot
 	dc.l	puckfaceoff		;$1B
 	dc.l	puckfaceoff2		;$1C
 
-Penaltylist	;92 Penaltylist. Penalty number = word offset into this table; 93 reorders the numbers
-	;and has 3 more entries. Used by AddPenalty, SetPA2, stats93 DisplayPenaltyEntry, ...
+Penaltylist	;Penalty number = word offset into this table; 93 reorders the numbers
+	;and has 3 more entries. Used by AddPenalty, SetPA2, DisplayPenaltyEntry, ...
 	dc.w	$0000
 	dc.w	.eop-Penaltylist	;2 period over (92 PenEOP 2)
 	dc.w	.eog-Penaltylist	;4 game over (92 PenEOG 4)
@@ -3492,7 +3492,7 @@ Penaltylist	;92 Penaltylist. Penalty number = word offset into this table; 93 re
 	dc.w	.goal-Penaltylist	;$E goal (92 PenGoal 6)
 	dc.w	.offsides-Penaltylist	;$10 offsides (92 PenOffsides $A)
 	dc.w	.rough2-Penaltylist	;$12 roughing, slow down time $A
-	dc.w	.p14-Penaltylist	;$14 93 only, no text
+	dc.w	.p14-Penaltylist	;$14 no text
 	dc.w	.charge-Penaltylist	;$16
 	dc.w	.slash-Penaltylist	;$18
 	dc.w	.rough-Penaltylist	;$1A
@@ -3502,7 +3502,7 @@ Penaltylist	;92 Penaltylist. Penalty number = word offset into this table; 93 re
 	dc.w	.int-Penaltylist	;$22
 	dc.w	.hold-Penaltylist	;$24
 	dc.w	.fight-Penaltylist	;$26
-	dc.w	.fight2-Penaltylist	;$28 93 only
+	dc.w	.fight2-Penaltylist	;$28
 	dc.w	.inst-Penaltylist	;$2A
 	dc.w	.delay-Penaltylist	;$2C delay (92 PenDelay $24)
 
@@ -3587,8 +3587,8 @@ Penaltylist	;92 Penaltylist. Penalty number = word offset into this table; 93 re
 	dc.w	$0004,$0d01,$0e01,$0d01,$0e01,$0d01,$0e01,$0d01,$0e01,-$0101
 
 bfasciicon	;equates to find each char definition for bigfont.map. 92 bfasciicon, 93 values.
-	;Indexed by ascii - $20 in printbig .dochar (middle93)
-	;	 -  -!  "  #  $  %  &  -'  (  )  *  +  ,  -  -.  /
+	;Indexed by ascii - $20 in printbig.dochar
+	;	 - -! " # $ % & -' * +, - -. /
 	dc.b	-76,-73,00,00,00,00,00,-71,00,00,00,00,00,00,-72,00
 	;	 0   1  2  3  4  5  6  7  8  9   :  ;  <  =  >  ?
 	dc.b	51,-53,54,56,58,60,62,64,66,68,-71,00,00,00,00,74
@@ -3603,7 +3603,7 @@ bfasciicon	;equates to find each char definition for bigfont.map. 92 bfasciicon,
 	ENDIF
 
 linelist	String	'Sc1'	;text list for line choices. 92 linelist (93 PP1/PP2, 92 Pw1/Pw2).
-	;Used by SetLCmode2, puckfaceoff2 and stats93 DrawMenuIcon
+	;Used by SetLCmode2, puckfaceoff2 and DrawMenuIcon
 	String	'Sc2'
 	String	'Chk'
 	String	'PP1'
@@ -3611,7 +3611,7 @@ linelist	String	'Sc1'	;text list for line choices. 92 linelist (93 PP1/PP2, 92 P
 	String	'PK1'
 	String	'PK2'
 
-PlayerPositionText	;93 only: position names for the line slots. Used by stats93 DisplayPlayerList
+PlayerPositionText	;position names for the line slots. Used by DisplayPlayerList
 	String	'LD'
 	String	'RD'
 	String	'LW'
@@ -3619,13 +3619,13 @@ PlayerPositionText	;93 only: position names for the line slots. Used by stats93 
 	String	'RW'
 
 PerLabels	String	'1',18	;text list for periods. 92 PerLabels. Used by printscores1, NewTicker3 and
-	;stats93 DisplayGameInfo
+	;DisplayGameInfo
 	String	'2',19
 	String	'3',20
 	String	'OT'
 	String	'Final'
 
-sizetab	;sprite size code to tile count. 92 video.asm sizetab, used by addframe2
+sizetab	;sprite size code to tile count. 92 sizetab, used by addframe2
 	dc.b	1,2,3,4,2,4,6,8,3,6,9,12,4,8,12,16
 
 sublist	;substitution lists by position (goalie, LD, RD, LW, C, RW, extra attacker). 92 sublist;
@@ -3662,7 +3662,7 @@ priolist	dc.b	0,1,2,4,3,5,6	;positions in order of importance. 92 priolist. Used
 	ENDIF
 
 PlayoffTreeSetup	;Playoff tree layout by gamelevel. 92 PlayoffScreen.setup, same layout
-	;with 93 columns. Used by PlayoffScreen (hockey93_06_11)
+	;with 93 columns. Used by PlayoffScreen
 	dc.w	.l0-PlayoffTreeSetup
 	dc.w	.l1-PlayoffTreeSetup
 	dc.w	.l2-PlayoffTreeSetup
@@ -3729,7 +3729,7 @@ PlayoffTreeSetup	;Playoff tree layout by gamelevel. 92 PlayoffScreen.setup, same
 	dc.b	0
 	ENDIF
 
-PAttribColumns	;93 only: skater attribute columns for stats93 PrintAttribHeader / DisplayPlayerList.
+PAttribColumns	;skater attribute columns for PrintAttribHeader / DisplayPlayerList.
 	;String header, then a long for GetNameandAttrib: high word = mask of rating nibbles to
 	;average, low word = attribjmp offset (0 status, 2 energy, 4 handed, 6 weight, 8 fighting,
 	;$A rating). A negative word ends the list
@@ -3769,8 +3769,8 @@ PAttribColumns	;93 only: skater attribute columns for stats93 PrintAttribHeader 
 	dc.w	$0040,8			;fighting
 	dc.w	-1
 
-GAttribColumns	;93 only: goalie attribute columns, same format as PAttribColumns. Used by
-	;stats93 DisplayPlayerList
+GAttribColumns	;goalie attribute columns, same format as PAttribColumns. Used by
+	;DisplayPlayerList
 	String	'     Status    ]'
 	dc.w	$0000,0			;status
 	String	'[   Overall    ]'
@@ -3797,7 +3797,7 @@ GAttribColumns	;93 only: goalie attribute columns, same format as PAttribColumns
 	dc.w	$2000,6			;weight
 	dc.w	-1
 
-PauseText	;93 only: pause menu item list (Pausemode, hockey93_01)
+PauseText	;pause menu item list (Pausemode)
 	String	$FE,5
 	String	$FE,4
 	String	'   Resume Game    '
@@ -3826,7 +3826,7 @@ PauseText	;93 only: pause menu item list (Pausemode, hockey93_01)
 	dc.l	TimeoutMenu
 	String	$FF
 
-PauseText2	;93 only: pause menu item list without Timeout, used when tmflags bit 2 of the pausing
+PauseText2	;pause menu item list without Timeout, used when tmflags bit 2 of the pausing
 	;team is set (Pausemode)
 	String	$FE,5
 	String	$FE,4
@@ -3854,7 +3854,7 @@ PauseText2	;93 only: pause menu item list without Timeout, used when tmflags bit
 	dc.l	CrowdMeterScreen
 	String	$FF
 
-StartGameText	;label (Rev A $15B82). 93 only: Intermission menu for gsp 0 (penalty93.sslist)
+StartGameText	;label. Intermission menu for gsp 0 (penalty93.sslist)
 	String	$FE,5
 	String	$FE,4
 	String	'    Start Game    '
@@ -3869,7 +3869,7 @@ StartGameText	;label (Rev A $15B82). 93 only: Intermission menu for gsp 0 (penal
 	dc.l	ShowScores
 	String	$FF
 
-StartGameTextPO	;label (Rev A $15C06). 93 only: Intermission menu for gsp 0 in the playoffs
+StartGameTextPO	;label. Intermission menu for gsp 0 in the playoffs
 	;(penalty93 .sslist), adds Playoff Stats
 	String	$FE,5
 	String	$FE,4
@@ -3887,7 +3887,7 @@ StartGameTextPO	;label (Rev A $15C06). 93 only: Intermission menu for gsp 0 in t
 	dc.l	ShowScores
 	String	$FF
 
-IntermissionText	;label (Rev A $15CA2). 93 only: Intermission menu for gsp 1-3, season and
+IntermissionText	;label. Intermission menu for gsp 1-3, season and
 	;playoffs (penalty93 .sslist)
 	String	$FE,5
 	String	$FE,4
@@ -3913,7 +3913,7 @@ IntermissionText	;label (Rev A $15CA2). 93 only: Intermission menu for gsp 1-3, 
 	dc.l	LineEditor
 	String	$FF
 
-ExitGameText	;label (Rev A $15D9E). 93 only: Intermission menu for gsp 4 (penalty93.sslist).
+ExitGameText	;label. Intermission menu for gsp 4 (penalty93.sslist).
 	;'s PlayoffScreenText2 label inside the Team Roster string is not created
 	String	$FE,5
 	String	$FE,4
@@ -3935,7 +3935,7 @@ ExitGameText	;label (Rev A $15D9E). 93 only: Intermission menu for gsp 4 (penalt
 	dc.l	CrowdMeterScreen
 	String	$FF
 
-ExitGameTextPO	;label (Rev A $15E6A). 93 only: Intermission menu for gsp 4 in the playoffs
+ExitGameTextPO	;label. Intermission menu for gsp 4 in the playoffs
 	;(penalty93 .sslist), same items as ExitGameText
 	String	$FE,5
 	String	$FE,4
@@ -3957,26 +3957,26 @@ ExitGameTextPO	;label (Rev A $15E6A). 93 only: Intermission menu for gsp 4 in th
 	dc.l	CrowdMeterScreen
 	String	$FF
 
-AttributeScreenText	;93 only: line editor exit menu (stats93 ExitAttributeScreen)
+AttributeScreenText	;line editor exit menu (ExitAttributeScreen)
 	String	$FE,6,$F9,1
 	String	$FE,4,$F9,1
 	String	'       Exit       '
 	dc.l	rtss
 	String	'Set Original lines'
-	dc.l	InitTeamSructure+$10	;Rev A $1294A: the line copy loop of InitTeamSructure (hockey93_06_11)
+	dc.l	InitTeamSructure+$10	;the line copy loop of InitTeamSructure
 	String	'  Save Team Line  '
 	dc.l	EncodePlayerAttributes
 	String	'  Load Team Line  '
 	dc.l	DecodePlayerAttributes
 	String	$FF
 
-ExitAttribText	;93 only: line editor exit menu without Load Team Line (stats93 ExitAttributeScreen)
+ExitAttribText	;line editor exit menu without Load Team Line (ExitAttributeScreen)
 	String	$FE,6,$F9,1
 	String	$FE,4,$F9,1
 	String	'       Exit       '
 	dc.l	rtss
 	String	'Set Original lines'
-	dc.l	InitTeamSructure+$10	;Rev A $1294A
+	dc.l	InitTeamSructure+$10
 	String	'  Save Team Line  '
 	dc.l	EncodePlayerAttributes
 	String	$FF

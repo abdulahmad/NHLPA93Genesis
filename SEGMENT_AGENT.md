@@ -453,3 +453,6 @@ Clash rule: if a routine, data label or RAM variable (RAM matched by usage, not 
 - No rename history in source comments (no `(was: X)`); every rename goes in `docs/name_map.csv` (old,new,source).
 - Cross-game notes that explain behaviour differences (e.g. "92 used bit 6") stay.
 - printsmall control codes use the CC_* equates (CC_SetMap $FF, CC_SetAttribute $FE, CC_SetX $FD, CC_SetY $FC, CC_AddX $FB, CC_AddY $FA, CC_SetFont $F9, CC_SetMapAndPosition $F8), named after 93's ControlCode_* routines.
+- No provenance tags in comments: no source-file/segment names like `(input94)` or `(hockey93_08)`, no same-name echoes like `(93 restorepl)`, no "93 hockey93_08 name:".
+- No hardcoded ROM addresses in comments (`ROM $FB024`, `Rev A $E128`, `$xxxx in 93`, `retail $a-$b`), except the ROM map in the top-level include list. Retail vs Rev A behaviour notes stay.
+- No "9x only" tags on small routines/lines; for major features (new modes, screens, systems) say "New in 9x:".

@@ -28,26 +28,26 @@ SPFduck	=	SPFfallfwd+32; 337
 SPFhold	=	SPFduck+8; 345
 SPFgloves	=	SPFhold+8; 353
 SPFfight	=	SPFgloves+1; 354
-SPFfinjury	=	SPFfight+17; 371 - New in NHLPA93
+SPFfinjury	=	SPFfight+17; 371 - New
 SPFPen	=	SPFfinjury+6; 377
 
 SPFarrow	=	SPFPen+7; 384
 SPFpad	=	SPFarrow+6; 390
-SPFreplay	=	SPFpad+3; 393 - New in NHLPA93
+SPFreplay	=	SPFpad+3; 393 - New
 SPFpuck	=	SPFreplay+1; 394
 SPFgoal	=	SPFpuck+11; 405
 SPFGoalie	=	SPFgoal+2; 407
-SPFgdive	=	SPFGoalie+112; 519 - New in NHLPA93
-SPFglovel2	=	SPFgdive+16; 535 - New in NHLPA93
-SPFgready	=	SPFglovel2+4; 539 - New in NHLPA93
+SPFgdive	=	SPFGoalie+112; 519 - New
+SPFglovel2	=	SPFgdive+16; 535 - New
+SPFgready	=	SPFglovel2+4; 539 - New
 SPFSiren	=	SPFgready+16; 555
 
-SPFcatch	=	SPFSiren+14; 569 - New in NHLPA93
-SPFhook	=	SPFcatch+16; 585 - New in NHLPA93
-SPFstumble	=	SPFhook+16; 601 - New in NHLPA93
-SPFflip	=	SPFstumble+24; 625 - New in NHLPA93
-SPFinjury1	=	SPFflip+8; 633 - New in NHLPA93
-SPFbglass	=	SPFinjury1+12; 645 - New in NHLPA93
+SPFcatch	=	SPFSiren+14; 569 - New
+SPFhook	=	SPFcatch+16; 585 - New
+SPFstumble	=	SPFhook+16; 601 - New
+SPFflip	=	SPFstumble+24; 625 - New
+SPFinjury1	=	SPFflip+8; 633 - New
+SPFbglass	=	SPFinjury1+12; 645 - New
 
 SPAlist
 	dc.w	0

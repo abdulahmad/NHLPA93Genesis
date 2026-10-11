@@ -1,10 +1,10 @@
 ;	NHLPA Hockey 93 (retail) segment $6446-$69FF
-;	VBjsr / Begin through seta2: 92 hockey.asm part 1 up to the end of Pausemode,
+;	VBjsr / Begin through seta2: 92 part 1 up to the end of Pausemode
 ;	plus the 93 pause screen draw routine. The menu engine Pausemode calls
-;	follows in menu93.asm ($6A00).
-;Global names from the (Rev A listing), renamed to the NHL 92 name where the
+;	follows.asm ($6A00).
+;Global names from the, renamed to the NHL 92 name where the
 ;same routine exists in 92 (in an).
-;	Local labels and comments follow NHL 92 hockey.asm where the code matches.
+;	Local labels and comments follow NHL 92 where the code matches.
 ;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
@@ -21,7 +21,7 @@ Begin	;cold start, entered from Reset. Clear RAM, init menus and sound, go to ti
 	movea.w	#(Stack-M68K_RAM),sp
 	movea.w	#(VSCRLPM-M68K_RAM),a0	;clear out ram
 .0	clr.l	(a0)+
-	cmpa.w	#(fm_track_slots+(8*6)-M68K_RAM),a0	;clear to the end of the track slots (retail $CDF0, Rev A $CDF4)
+	cmpa.w	#(fm_track_slots+(8*6)-M68K_RAM),a0	;clear to the end of the track slots
 	blt.s	.0
 	IF REV=1
 	move.w	(VDP_CTRL).l,d0		;Rev A: VDP status bit 0 = PAL (50 Hz)
@@ -414,7 +414,7 @@ SetupPauseScreen	;draw routine for the pause menu (92 Pausemode .pall / .top)
 	bra.w	eraser
 
 seta2	;Set a2 to tmstruct of pause joystick
-	;also called from HandleMenuInput (menu93)
+	;also called from HandleMenuInput
 	movea.w	#(tmstruct-M68K_RAM),a2
 	btst	#sfpj,(sflags).w
 	beq.w	.seta20

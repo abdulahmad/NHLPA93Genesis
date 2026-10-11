@@ -1,5 +1,5 @@
 ;	NHLPA Hockey 93 (retail) segment $15FE6-$165D7
-;	93 only, no NHL 92 source: the serial backup RAM (cartridge EEPROM) driver, the save/load of the
+;	New in 93, no NHL 92 source: the serial backup RAM (cartridge EEPROM) driver, the save/load of the
 ;	128-byte databuffer (BackupRAM_Read, BitsToPW, BackupRAM_Load), the ClearRAMBuffer status screen
 ;	and BackupRAM_DetectDevice. p_turnoff (sound driver) starts at $165D8.
 ;Global names from the (see the SEGMENT_AGENT.md rename table). Bytes match
@@ -8,7 +8,7 @@
 ;	and bit 6 the clock (SCL): $C0 = both high, $80 = data high clock low, $40 = data low clock high.
 ;	The control byte sent after a start is address<<1 + 1 to read (sequential read from that address)
 ;	or address<<1 to write one byte. Addresses are 0-127.
-;	The backup RAM variables (and databuffer) are named in ram93.asm at their retail addresses, 4 bytes
+;	The backup RAM variables (and databuffer) are named.asm at their retail addresses, 4 bytes
 ;	lower than in the Rev A listing (the Rev A address is in the comment).
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The source has the real
 ;	cmp; fixopcodes.js patches the encoding after assembly.
@@ -162,8 +162,8 @@ BackupRAM_ReadAck	;clock in the device acknowledge after a sent byte. Return d1 
 	rts
 
 InitBackupRAM	;retry limit 10, clear the error count, then falls into BackupRAM_WaitReady. Called from BackupRAM_Read
-	move.w	#$A,(retrycount).w	;Rev A $CDF6
-	move.w	#0,(errorflag).w	;Rev A $CDF8
+	move.w	#$A,(retrycount).w
+	move.w	#0,(errorflag).w
 
 BackupRAM_WaitReady	;wait $1965 nops, then 9 x (clock high/low with data released + start), then a stop. Bus reset before a retry
 	move.w	#$1964,d0
@@ -185,15 +185,15 @@ BackupRAM_WaitReady	;wait $1965 nops, then 9 x (clock high/low with data release
 BackupRAM_WriteBlock	;reads: d1 bytes from backup RAM address d0 into a0 (sequential read).
 	;Retries from a bus reset while the device does not acknowledge, up to retrycount. Return a0, d0, d1 as passed,
 	;errorflag = retries used, or -1 when it failed. Called from BackupRAM_Read, BackupRAM_ReadBlock and BackupRAM_Load
-	move.w	#0,(errorflag).w	;Rev A $CDF8
-	move.w	d1,(bytecount).w	;Rev A $CE06
-	move.l	a0,(sramdataptr).w	;Rev A $CDFA
-	move.l	d0,(address).w	;Rev A $CDFE
-	move.l	d1,(byecount).w	;Rev A $CE02
+	move.w	#0,(errorflag).w
+	move.w	d1,(bytecount).w
+	move.l	a0,(sramdataptr).w
+	move.l	d0,(address).w
+	move.l	d1,(byecount).w
 	bra.w	.start
 .retry	bsr.s	BackupRAM_WaitReady
-.start	movea.l	(sramdataptr).w,a0	;Rev A $CDFA
-	move.l	(address).w,d0	;Rev A $CDFE
+.start	movea.l	(sramdataptr).w,a0
+	move.l	(address).w,d0
 	bsr.w	BackupRAM_WriteControl	;start
 	andi.w	#$7F,d0
 	lsl.w	#1,d0
@@ -210,10 +210,10 @@ BackupRAM_WriteBlock	;reads: d1 bytes from backup RAM address d0 into a0 (sequen
 	bsr.w	BackupRAM_ReadAck
 	tst.b	d1
 	bpl.w	.byte			;acknowledged
-	addq.w	#1,(errorflag).w	;Rev A $CDF8. count the retry
+	addq.w	#1,(errorflag).w	;count the retry
 	bmi.w	.fail
-	move.w	(errorflag).w,d1	;Rev A $CDF8
-	cmp.w	(retrycount).w,d1	;Rev A $CDF6
+	move.w	(errorflag).w,d1
+	cmp.w	(retrycount).w,d1
 	bpl.w	.fail			;retries used up
 	bsr.w	BackupRAM_WaitReady
 	bra.s	.retry
@@ -226,35 +226,35 @@ BackupRAM_WriteBlock	;reads: d1 bytes from backup RAM address d0 into a0 (sequen
 	bsr.w	BackupRAM_ReadBit
 	bsr.w	BackupRAM_ReadBit
 	move.b	d0,(a0)+
-	subq.w	#1,(bytecount).w	;Rev A $CE06
+	subq.w	#1,(bytecount).w
 	beq.w	.last
 	bsr.w	BackupRAM_EndRead	;acknowledge, read the next byte
 	bra.s	.byte
 .last	bsr.w	BackupRAM_EndWrite	;no acknowledge after the last byte
 	bsr.w	BackupRAM_ControlSequenceData	;stop
-.ex	movea.l	(sramdataptr).w,a0	;Rev A $CDFA
-	move.l	(address).w,d0	;Rev A $CDFE
-	move.l	(byecount).w,d1	;Rev A $CE02
+.ex	movea.l	(sramdataptr).w,a0
+	move.l	(address).w,d0
+	move.l	(byecount).w,d1
 	rts
-.fail	move.w	#$FFFF,(errorflag).w	;Rev A $CDF8 = -1, failed
+.fail	move.w	#$FFFF,(errorflag).w	;= -1, failed
 	bra.s	.ex
 
 BackupRAM_ReadBlock	;writes: byte (a0) to backup RAM address d0, waits, reads it back with BackupRAM_WriteBlock.
 	;Retries as BackupRAM_WriteBlock does. Return a0, d0, d1 as passed, errorflag -1 when it failed.
 	;Called from BackupRAM_Read and BitsToPW, once per byte
-	move.w	#0,(errorflag).w	;Rev A $CDF8
-	move.l	a0,(bufferptr).w	;Rev A $CE0A
-	move.l	d0,(address2).w	;Rev A $CE0E
+	move.w	#0,(errorflag).w
+	move.l	a0,(bufferptr).w
+	move.l	d0,(address2).w
 	move.l	d1,-(sp)
 	bra.w	.start
 .retry	bsr.w	BackupRAM_WaitReady
-.start	movea.l	(bufferptr).w,a0	;Rev A $CE0A
-	move.l	(address2).w,d0	;Rev A $CE0E
+.start	movea.l	(bufferptr).w,a0
+	move.l	(address2).w,d0
 	bsr.w	BackupRAM_WriteControl	;start
 	andi.w	#$7F,d0
 	lsl.w	#1,d0			;address<<1 + 0 = write
 	lsl.w	#8,d0			;control byte to bits 15-8
-	move.w	d0,(command).w	;Rev A $CE08
+	move.w	d0,(command).w
 	bsr.w	BackupRAM_WriteBit
 	bsr.w	BackupRAM_WriteBit
 	bsr.w	BackupRAM_WriteBit
@@ -266,10 +266,10 @@ BackupRAM_ReadBlock	;writes: byte (a0) to backup RAM address d0, waits, reads it
 	bsr.w	BackupRAM_ReadAck
 	tst.b	d1
 	bpl.w	.data			;acknowledged
-	addq.w	#1,(errorflag).w	;Rev A $CDF8. count the retry
+	addq.w	#1,(errorflag).w	;count the retry
 	bmi.w	.fail
-	move.w	(errorflag).w,d1	;Rev A $CDF8
-	cmp.w	(retrycount).w,d1	;Rev A $CDF6
+	move.w	(errorflag).w,d1
+	cmp.w	(retrycount).w,d1
 	bpl.w	.fail			;retries used up
 	bsr.w	BackupRAM_WaitReady
 	bra.s	.retry
@@ -286,10 +286,10 @@ BackupRAM_ReadBlock	;writes: byte (a0) to backup RAM address d0, waits, reads it
 	bsr.w	BackupRAM_ReadAck
 	tst.b	d1
 	bpl.w	.stop			;acknowledged
-	addq.w	#1,(errorflag).w	;Rev A $CDF8. count the retry
+	addq.w	#1,(errorflag).w	;count the retry
 	bmi.w	.fail
-	move.w	(errorflag).w,d1	;Rev A $CDF8
-	cmp.w	(retrycount).w,d1	;Rev A $CDF6
+	move.w	(errorflag).w,d1
+	cmp.w	(retrycount).w,d1
 	bpl.w	.fail			;retries used up
 	bsr.w	BackupRAM_WaitReady
 	bra.w	.retry
@@ -298,51 +298,51 @@ BackupRAM_ReadBlock	;writes: byte (a0) to backup RAM address d0, waits, reads it
 .delay	nop
 	dbf	d0,.delay
 	clr.l	d0
-	move.b	(command).w,d0	;Rev A $CE08. control byte
+	move.b	(command).w,d0	;control byte
 	lsr.l	#1,d0			;address (overwritten below)
 	moveq	#1,d1			;read 1 byte back
-	move.l	(address2).w,d0	;Rev A $CE0E
-	lea	(command+1).w,a0	;Rev A $CE09
+	move.l	(address2).w,d0
+	lea	(command+1).w,a0
 	bsr.w	BackupRAM_WriteBlock
-	tst.w	(errorflag).w		;Rev A $CDF8
+	tst.w	(errorflag).w
 	bmi.w	.fail			;read back failed
-	movea.l	(bufferptr).w,a0	;Rev A $CE0A
-	move.b	(command+1).w,d0	;Rev A $CE09. byte read back
+	movea.l	(bufferptr).w,a0
+	move.b	(command+1).w,d0	;byte read back
 	cmp.b	(a0),d0
 	bpl.w	.ex			;read back minus written byte not negative: accept
-	addq.w	#1,(errorflag).w	;Rev A $CDF8. count the retry
+	addq.w	#1,(errorflag).w	;count the retry
 	bmi.w	.fail
-	move.w	(errorflag).w,d1	;Rev A $CDF8
-	cmp.w	(retrycount).w,d1	;Rev A $CDF6
+	move.w	(errorflag).w,d1
+	cmp.w	(retrycount).w,d1
 	bpl.w	.fail			;retries used up
 	bsr.w	BackupRAM_WaitReady
 	bra.w	.retry
-.ex	movea.l	(bufferptr).w,a0	;Rev A $CE0A
-	move.l	(address2).w,d0	;Rev A $CE0E
+.ex	movea.l	(bufferptr).w,a0
+	move.l	(address2).w,d0
 	move.l	(sp)+,d1
 	rts
-.fail	move.w	#$FFFF,(errorflag).w	;Rev A $CDF8 = -1, failed
+.fail	move.w	#$FFFF,(errorflag).w	;= -1, failed
 	bra.s	.ex
 
-BackupRAM_Read	;load the saved block into databuffer at power on. Called once from Begin (hockey93_01).
+BackupRAM_Read	;load the saved block into databuffer at power on. Called once from Begin.
 	;Bad checksum: the block is cleared and rewritten. Pad 1 held: Start+A+C ($E0) clears it first; Start+C+B ($B0) or
 	;Start+A+C show the ClearRAMBuffer screen at the end (green = good, red = failed). Return a0 = databuffer, d0-d1 kept,
 	;errorflag2 = 0 loaded, 1 cleared, -1 failed
 	movem.l	d0-d1,-(sp)
-	clr.w	(errorflag2).w		;Rev A $CE12
+	clr.w	(errorflag2).w
 	bsr.w	InitBackupRAM
 	bsr.w	BackupRAM_DetectDevice
 	cmp.b	#$E0,d0
 	beq.w	.erase			;Start+A+C held: clear the saved block
 	moveq	#0,d0			;from address 0
 	move.l	#$80,d1			;128 bytes
-	lea	(databuffer).w,a0	;Rev A $CAF2
+	lea	(databuffer).w,a0
 	bsr.w	BackupRAM_WriteBlock
-	tst.w	(errorflag).w		;Rev A $CDF8
+	tst.w	(errorflag).w
 	bmi.w	.error
 	move.w	#$7D,d1			;sum bytes 0-125
 	clr.w	d0
-	lea	(databuffer).w,a0	;Rev A $CAF2
+	lea	(databuffer).w,a0
 .sum	add.b	(a0)+,d0
 	dbf	d1,.sum
 	clr.w	d1			;d1 = failed checks
@@ -365,24 +365,24 @@ BackupRAM_Read	;load the saved block into databuffer at power on. Called once fr
 	bsr.w	BackupRAM_DetectDevice
 	cmp.b	#$B0,d0
 	beq.w	.error			;Start+C+B held: report the bad block, do not clear it
-.erase	move.w	#1,(errorflag2).w	;Rev A $CE12 = 1, cleared
-	lea	(databuffer).w,a0	;Rev A $CAF2
+.erase	move.w	#1,(errorflag2).w	;= 1, cleared
+	lea	(databuffer).w,a0
 	move.w	#$7F,d0
 	clr.l	d1
 .clr	move.b	d1,(a0)+
 	dbf	d0,.clr
-	move.b	#$FF,(marker).w	;Rev A $CB70 = databuffer+126: not(sum) of the cleared block
-	lea	(databuffer).w,a0	;Rev A $CAF2
+	move.b	#$FF,(marker).w	;= databuffer+126: not(sum) of the cleared block
+	lea	(databuffer).w,a0
 	move.w	#0,d0
 .wr	bsr.w	BackupRAM_ReadBlock	;write byte d0
-	tst.w	(errorflag).w		;Rev A $CDF8
+	tst.w	(errorflag).w
 	bmi.w	.error
 	addq.l	#1,a0
 	addq.w	#1,d0
 	andi.w	#$7F,d0
 	bne.s	.wr			;until all 128 written
 	bra.w	.ok
-.error	move.w	#$FFFF,(errorflag2).w	;Rev A $CE12 = -1, failed
+.error	move.w	#$FFFF,(errorflag2).w	;= -1, failed
 	bsr.w	BackupRAM_DetectDevice
 	cmp.b	#$B0,d0
 	beq.w	.red
@@ -398,18 +398,18 @@ BackupRAM_Read	;load the saved block into databuffer at power on. Called once fr
 	bne.w	.ex			;no test buttons held: return
 .green	move.w	#$F0,d0			;green backdrop
 	jmp	(ClearRAMBuffer).l
-.ex	lea	(databuffer).w,a0	;Rev A $CAF2
+.ex	lea	(databuffer).w,a0
 	movem.l	(sp)+,d0-d1
 	rts
 
-BitsToPW	;92 BitstoPW made the password text from passbits; 93 saves databuffer to backup RAM instead.
+BitsToPW	;made the password text from passbits; 93 saves databuffer to backup RAM instead.
 	;Sets byte 127 = sum of bytes 0-125 and byte 126 = not sum, then writes the 128 bytes one at a time.
-	;Called from EncodePW (hockey93_06_11) and EncodePlayerAttributes (stats93). d0-d1/a0 kept, errorflag2 = -1 when it failed
+	;Called from EncodePW and EncodePlayerAttributes. d0-d1/a0 kept, errorflag2 = -1 when it failed
 	movem.l	d0-d1/a0,-(sp)
-	clr.w	(errorflag2).w		;Rev A $CE12
+	clr.w	(errorflag2).w
 	move.w	#$7D,d1			;sum bytes 0-125
 	clr.w	d0
-	lea	(databuffer).w,a0	;Rev A $CAF2
+	lea	(databuffer).w,a0
 .sum	add.b	(a0)+,d0
 	dbf	d1,.sum
 	move.b	d0,1(a0)		;byte 127 = sum
@@ -417,9 +417,9 @@ BitsToPW	;92 BitstoPW made the password text from passbits; 93 saves databuffer 
 	move.b	d0,(a0)			;byte 126 = not sum
 	move.w	#$7F,d1			;128 bytes
 	moveq	#0,d0			;from address 0
-	lea	(databuffer).w,a0	;Rev A $CAF2
+	lea	(databuffer).w,a0
 .wr	bsr.w	BackupRAM_ReadBlock	;write byte d0
-	move.w	(errorflag).w,(errorflag2).w	;Rev A $CDF8, $CE12
+	move.w	(errorflag).w,(errorflag2).w
 	bmi.w	.ex			;failed
 	addq.l	#1,d0
 	addq.l	#1,a0
@@ -430,16 +430,16 @@ BitsToPW	;92 BitstoPW made the password text from passbits; 93 saves databuffer 
 BackupRAM_Load	;read the 128-byte block into databuffer and check bytes 126-127 (not sum, sum of bytes 0-125).
 	;Unlabeled in, no caller found. d0-d1/a0 kept, errorflag2 = -1 on a read error or a bad checksum
 	movem.l	d0-d1/a0,-(sp)
-	clr.w	(errorflag2).w		;Rev A $CE12
+	clr.w	(errorflag2).w
 	moveq	#0,d0			;from address 0
 	move.l	#$80,d1			;128 bytes
-	lea	(databuffer).w,a0	;Rev A $CAF2
+	lea	(databuffer).w,a0
 	bsr.w	BackupRAM_WriteBlock
-	move.w	(errorflag).w,(errorflag2).w	;Rev A $CDF8, $CE12
+	move.w	(errorflag).w,(errorflag2).w
 	bmi.w	.ex			;read failed
 	move.w	#$7D,d1			;sum bytes 0-125
 	clr.w	d0
-	lea	(databuffer).w,a0	;Rev A $CAF2
+	lea	(databuffer).w,a0
 .sum	add.b	(a0)+,d0
 	dbf	d1,.sum
 	cmp.b	1(a0),d0
@@ -447,7 +447,7 @@ BackupRAM_Load	;read the 128-byte block into databuffer and check bytes 126-127 
 	not.w	d0
 	cmp.b	(a0),d0
 	beq.w	.ex			;byte 126 = not sum: good
-.bad	move.w	#$FFFF,(errorflag2).w	;Rev A $CE12 = -1
+.bad	move.w	#$FFFF,(errorflag2).w	;= -1
 .ex	movem.l	(sp)+,d0-d1/a0
 	rts
 

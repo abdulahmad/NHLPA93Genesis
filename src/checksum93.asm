@@ -1,4 +1,4 @@
-;	92 checksum.asm (included from 92 hockey.asm under IF CHECKSUM=1). Retail $7FB76-$7FBC7; the $FF fill
+;	92 checksum.asm (included from 92 under IF CHECKSUM=1). Retail $7FB76-$7FBC7; the $FF fill
 ;	to $7FFFF follows. Retail has a different sum constant and loop count from Rev A, and a word Rev A lacks.
 
 	IF REV=0
@@ -6,11 +6,11 @@ SecurityCheck	;Retail only: the $FFFF word before ValidationRoutine (Rev A has n
 	dc.w	$FFFF
 	ENDIF
 
-ValidationRoutine	;Called once at power on from Start (main93 jsr). Adds every ROM long from 0 up to
+ValidationRoutine	;Called once at power on from Start (jsr). Adds every ROM long from 0 up to
 	;this routine, skipping the header long at $18C. Returns if the sum is right, else turns the screen red and hangs. Uses d0-d1/a0/a4
 	moveq	#0,d0			;sum
 	suba.l	a0,a0			;a0 = ROM address 0
-	move.l	#ValidationRoutine/4,d1	;number of longs below this routine (Rev A $1FEE9)
+	move.l	#ValidationRoutine/4,d1	;number of longs below this routine
 ValidationLoop	cmpa.w	#$18C,a0		;header long $18C-$18F holds the checksum word $18E
 	bne.s	SkipIncrement
 	addq.w	#4,a0			;skip it, not summed

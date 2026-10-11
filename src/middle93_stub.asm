@@ -11,13 +11,13 @@
 ;	Imports and exports
 ;
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-updatecrowdf = $6710		; hockey93_01
-HandleMenuInput = $6A4E		; menu93
-PrintStringFromList = $F744	; penalty93
-rtss = $110E0			; hockey93_03_05
-vb2 = $1187E			; video93
-setvideo = $118F2		; video93
-bfasciicon = $1542A		; hockey93_06_11
+updatecrowdf = $6710
+HandleMenuInput = $6A4E
+PrintStringFromList = $F744
+rtss = $110E0
+vb2 = $1187E
+setvideo = $118F2
+bfasciicon = $1542A
 play_sfx_or_music_track = $16608	; sound driver, no segment
 Framermap = $33388		; graphics data, no segment
 bigfontmap = $78CFE		; graphics data, no segment
@@ -29,7 +29,7 @@ RAMStart = $FF0000
 	org	$D62A
 
 ; includes for stubs to replace removed code
-    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
+    include "ram93.asm"		;ports, RAM map and structure equates
 
 ; Main segment code
 	include	middle93.asm

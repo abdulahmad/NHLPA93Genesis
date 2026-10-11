@@ -46,7 +46,7 @@ RAMStart = $FF0000
 	dc.l	IRQ7		; level 4: horizontal retrace (not used: IRQ7 is an rte).
 	dc.l	0			; level 5: not used.
 	dc.l	VBjsr		; level 6: vertical retrace.
-	dc.l	IRQ7		; level 7 (video93 IRQ7, an rte)
+	dc.l	IRQ7		; level 7 (IRQ7, an rte)
 
 	org     $90
 	dcb.b   112,$00      ; $5E - $18 = 70 bytes

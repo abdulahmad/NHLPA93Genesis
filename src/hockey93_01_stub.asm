@@ -20,7 +20,7 @@ RAMStart = $FF0000
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ; External routines outside $6446-$69FF, at their retail addresses.
-; Stack comes from ram93.asm ($FFFFFFFE).
+; Stack comes.asm ($FFFFFFFE).
 setupstanleycupcelebrationscreen = $132BA
 backupram_read = $163A4
 defaultmenus = $14404
@@ -66,15 +66,15 @@ sethor = $EF3C
 killcrowd = $1227E
 printsmallz = $E070
 eraser = $DFB8
-initmenustate = $6A00	; menu93
-handlemenuinput = $6A4E	; menu93
-menuwaitvblank = $6BF4	; menu93
+initmenustate = $6A00
+handlemenuinput = $6A4E
+menuwaitvblank = $6BF4
 
 ; .region code
 	org	$6446
 
 ; includes for stubs to replace removed code
-    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
+    include "ram93.asm"		;ports, RAM map and structure equates
 
 ; Main segment code
 	include	hockey93_01.Asm		;EA provided code for startup and EA logo

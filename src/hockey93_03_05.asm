@@ -1,7 +1,7 @@
 ;======================================================================
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $FAE2-$10387
-;	92 hockey.asm part 2, first half: checkcoll, checkplcoll, checkcx,
+;	92 part 2, first half: checkcoll, checkplcoll, checkcx
 ;	newcheck, checkint, checkcheck, the 93-only checkagr, holdcheck, the
 ;	93-only Bcheck, FallDown and the 93-only setInjuryType.
 ;Global names from the 92 names where the routine is the
@@ -530,7 +530,7 @@ Bcheck	;93: player a2 is in SPA $B44 and a3 is the other player. Entered from ch
 	st	(collflag).w
 	rts
 
-FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $13A0 in place of a fall for some players, check stats for the hitter, a third fall anim ($1524), and injuries (setInjuryType) with a penalty. Called from checkint .ci, checkcheck .cc and Bcheck; also entered from setd0player (hockey93_03_05)
+FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $13A0 in place of a fall for some players, check stats for the hitter, a third fall anim ($1524), and injuries (setInjuryType) with a penalty. Called from checkint.ci, checkcheck.cc and Bcheck; also entered from setd0player
 	cmpi.w	#$B,SCnum(a2)
 	bgt.w	rtss			;not a player
 	btst	#pf2fight,pflags2(a2)
@@ -643,7 +643,7 @@ FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $1
 .3	bsr.w	song
 	rts
 
-setInjuryType	;93: sets period injury. a2 = player injured, a3 = player checking. Marks a2 unavailable, pumps up the crowd, plays sfx $D, locks the scroll on a2, sets TempPlOffset (pnum, bit 15 set for the away team) and puts $FFFD (injured for the period) in a2's tmpdst. Called from FallDown and from logic93 chkhit.fall
+setInjuryType	;93: sets period injury. a2 = player injured, a3 = player checking. Marks a2 unavailable, pumps up the crowd, plays sfx $D, locks the scroll on a2, sets TempPlOffset (pnum, bit 15 set for the away team) and puts $FFFD (injured for the period) in a2's tmpdst. Called from FallDown and from chkhit.fall
 	bset	#pf2unav,pflags2(a2)		;set player unavailable (92 pf2unav = 4)
 	addi.w	#$12C,(crowdlevel).w	;pump up crowd
 	addi.w	#$1E,(CwdExciteLvl).w
@@ -668,7 +668,7 @@ setInjuryType	;93: sets period injury. a2 = player injured, a3 = player checking
 ;======================================================================
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $10388-$10E65
-;	92 hockey.asm part 2, second half: checkfight, SetInst, checkwallcoll,
+;	92 part 2, second half: checkfight, SetInst, checkwallcoll
 ;	checkgoal, Goal, the 93-only GetPeriodTimeRemaining, checkgoalp,
 ;	CheckBump, wallcollb, wallcoll and checkpuckcoll.
 ;Global names from the 92 names where the routine is the
@@ -694,7 +694,7 @@ setInjuryType	;93: sets period injury. a2 = player injured, a3 = player checking
 ;	93 team struct (tmsize $1A2): $C (Goal adds 1, as 92 tmscore), $22 first
 ;	sort obj (92 tmsort, a word here), $11C check count per player (byte).
 
-checkfight	;look for start of fight between players a2 & a3. Called from checkcx (hockey93_03_05)
+checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	;93 needs impact >= 10 on both, no anim lock, no penalty, no goalie, clock
 	;running, no highlight and the puck not fighting or on a faceoff. SetInst
 	;(both ways) decides, with d0 = 10 + max(0, 40 - ChkCnt)/4. If a3 then has
@@ -863,7 +863,7 @@ SetInst	;93: d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swa
 	movea.l	a4,a3
 	rts
 
-checkwallcoll	;d2/d3 = x/y to test, a3 = object, wcradiusx/wcradiusy = radius. Called from checkcoll (hockey93_03_05)
+checkwallcoll	;d2/d3 = x/y to test, a3 = object, wcradiusx/wcradiusy = radius. Called from checkcoll
 	;Check the corner circles, the goals and then the side and end boards.
 	;Calls wallcollb (or checkgoal) on a hit, with d0/d1 = cos/sin of the wall
 	move.w	#$88,d4			;92 Sideline (a RAM word); 93 uses 136
@@ -1058,7 +1058,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	btst	#gmclock,(gmode).w
 	bne.w	rtss
 	bsr.w	ChkShotStat
-	bsr.w	play_new_song		;93 only
+	bsr.w	play_new_song
 	move.w	#SFXsiren,-(sp)		;SFXsiren (92 same, 0)
 	bsr.w	sfx
 	bsr.w	freezewindow
@@ -1161,7 +1161,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	movea.l	(sp)+,a3
 	rts
 
-GetPeriodTimeRemaining	;93: return d0 = (gsp << 14 | PerTimeTotal) - gameclock. Called from Goal (ScoreSum entry) and InProgress (penalty93)
+GetPeriodTimeRemaining	;93: return d0 = (gsp << 14 | PerTimeTotal) - gameclock. Called from Goal (ScoreSum entry) and InProgress
 	move.w	(gsp).w,d0
 	swap	d0
 	clr.w	d0
@@ -1278,7 +1278,7 @@ wallcollb	;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. C
 	move.l	a3,-(sp)
 	asr.w	Yvel(a3)			;halve Yvel
 	adda.w	#SCstruct,a3
-	move.w	#$1232,d1		;SPA $1232 (93 only)
+	move.w	#$1232,d1		;SPA $1232
 	bsr.w	SetSPA
 	movea.l	(sp)+,a3
 	move.w	#SFX0E,-(sp)		;sfx $E
@@ -1384,7 +1384,7 @@ wallcoll	;d0 = cosine, d1 = sine of angle of incidence with wall, a3 = object. C
 	movem.l	(sp)+,d2-d3
 	rts
 
-checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm (logic93)
+checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 	;93 first clears Yvel when Ypos > 400 or Ypos <= -400. Walks up and down
 	;the OOlist from the puck and runs .ccx on each object within 22 in y:
 	;stick (puckstick), body (puckbody) or goalie (puckgoalie)
@@ -1515,7 +1515,7 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 ;======================================================================
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $10E66-$11801
-;	92 hockey.asm part 2 tail (puckstick, setd0player, puckbody, puckgoalie,
+;	92 part 2 tail (puckstick, setd0player, puckbody, puckgoalie
 ;	deflect), then the 92 part 3 player-roster code that 93 moved here
 ;	(makepde ... setplayer) and the 93-only TryAddPlayerToList / ClampNibble.
 ;Global names from the 92 names where the routine is the
@@ -1532,7 +1532,7 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 ;	Player attributes written by setplayer: weight $67, legstr $68, legspd
 ;	$69, aioff $6A, aidef $6B, shotspd $6C, shotacc $6D, passacc $6E,
 ;	rostnum $6F, spodds $70, stickhand $71, endurance $72, aggress $73,
-;	$74 (4(a0) & $E; hockey93_03_05 reads it as the fight rating), $75 (93
+;	$74 (4(a0) & $E; reads it as the fight rating), $75 (93
 ;	only), handed $76 (bit 0 set is left handed).
 ;	pflags bits match 92 (0 pfdoff, 5 pfalock, 6 pfteam). pflags2 bit 2 is
 ;	unavailable (92 pf2unav = 4).
@@ -1601,7 +1601,7 @@ puckstick	;puck collides with stick
 
 .nosteal	tst.w	position(a2)
 	bne.w	.spd			;skater: any range
-	cmp.l	#$40,d0			;8*8 (93 only)
+	cmp.l	#$40,d0			;8*8
 	bhi.w	rtss			;goalie too far from a loose puck
 .spd	move.w	(puckvx).w,d0
 	move.w	(puckvy).w,d1
@@ -1661,7 +1661,7 @@ puckglue	;Player a2 takes the puck (92 puckstick.glue)
 	move.w	#5,temp5(a2)		;temp5 = 5 for SPA $314
 
 setd0player	;give control of player d0 to a controller if his team is controlled
-	;d0 = SCnum. Also called by checkfight .sf (hockey93_03_05)
+	;d0 = SCnum. Also called by checkfight.sf
 	cmp.w	(c1playernum).w,d0
 	beq.w	rtss			;already on controller 1
 	cmp.w	(c2playernum).w,d0
@@ -1837,7 +1837,7 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	dc.b	$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0	;goalie stack right
 	dc.b	$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0	;goalie stack left
 	dc.b	$D5,$75,$D5,$75,$D5,$75,$D5,$75,$D5,$75,$D5,$75,$D5,$75,$D5,$75	;goalie stick right/left
-	dc.b	$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55	;93 only from here
+	dc.b	$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55	;from here
 	dc.b	$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55
 	dc.b	$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
 	dc.b	$57,$57,$57,$57
@@ -2200,7 +2200,7 @@ setplayer	;bring player onto the ice and set his stats
 	lsr.b	#4,d3
 	add.b	(ThirdPBonus).w,d3
 	bsr.w	ClampNibble
-	move.b	d3,$75(a3)		;93 only attribute
+	move.b	d3,$75(a3)		;attribute
 	bclr	#3,attribute(a3)
 	move.b	4(a0),handed(a3)
 	andi.b	#1,handed(a3)		;bit 0 set is left handed
@@ -2241,7 +2241,7 @@ setplayer	;bring player onto the ice and set his stats
 	andi.b	#$F,aggress(a3)
 	rts
 
-ClampNibble	;93 only: clamp byte d3 to 0-15. Called by setplayer
+ClampNibble	;clamp byte d3 to 0-15. Called by setplayer
 	tst.b	d3
 	bpl.w	.hi
 	clr.w	d3			;negative: 0

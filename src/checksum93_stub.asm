@@ -21,12 +21,12 @@ RAMStart = $FF0000
 
 ; External addresses outside $7FB76-$7FBC7: none. Every branch in the segment is a bra.s / Bcc.s / dbf
 ; to a label inside it (checked against the retail displacements), and the only absolute addresses are
-; the VDP ports from ram93.asm.
+; the VDP ports.
 ; .region code
 	org	$7FB76
 
 ; includes for stubs to replace removed code
-    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
+    include "ram93.asm"		;ports, RAM map and structure equates
 
 ; Main segment code
 	include	checksum93.asm

@@ -20,7 +20,7 @@ RAMStart = $FF0000
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ; External addresses outside $2EFA2-$7FB75: none. The segment is incbin only.
-; Run npm run extractassets first (npm run seg:graphics93 does) to write Extracted\Graphics.
+; Run npm run extractassets first (npm run seg:does) to write Extracted\Graphics.
 ; .region data
 	org	$2EFA2
 

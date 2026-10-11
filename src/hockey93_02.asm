@@ -1,5 +1,5 @@
 ;	NHLPA Hockey 93 (retail) segment $8AC4-$946D
-;	92 hockey.asm part 1, second half: ReplayMode, getpzjoy, suba4/adda4,
+;	92 part 1, second half: ReplayMode, getpzjoy, suba4/adda4
 ;	RestoreReplayFrame (92 SetRCords + nonshift), updatereplay, rtss2 ($9092),
 ;	updateplayers ($9094), updateanim, freezewindow ($933C), checkwindow ($9350).
 ;	Bytes match nhlpa93retail.bin. Rev A has a 10-byte insertion inside
@@ -242,7 +242,7 @@ adda43	;a4 += replaysize, wrapping from replayend to replaystart
 	movea.l	#M68K_RAM,a4		;replaystart
 	rts
 
-UpdateCameraPos	;93 only. Camera struct a5 = object a3's x/y, Hpos/Vpos =
+UpdateCameraPos	;Camera struct a5 = object a3's x/y, Hpos/Vpos =
 	;that position clamped to the scroll limits
 	movem.l	d0-d2,-(sp)
 	move.w	(a3),d0

@@ -21,10 +21,10 @@ RAMStart = $FF0000
 
 ; External routines and data outside $6C0A-$8AC3, at their retail addresses.
 ; Names are or source names from the SEGMENT_AGENT.md rename table.
-InitMenuState = $6A00		; menu93
-HandleMenuInput = $6A4E		; menu93
-PrintTeamData = $6BB6		; menu93
-MenuWaitVblank = $6BF4		; menu93
+InitMenuState = $6A00
+HandleMenuInput = $6A4E
+PrintTeamData = $6BB6
+MenuWaitVblank = $6BF4
 getpzjoy = $8DB8
 rtss2 = $9092
 nodiag = $D966
@@ -78,14 +78,14 @@ IceRinkMap = $33864
 SmallFontMap = $795B4
 ScoresMap = $7CF1E		; retail address $7CF1E (graphics used by ShowScores)
 
-reenergizeteam = $F332		; penalty93
-waitx = $D896			; middle93
-PauseText2 = $15A56		; hockey93_06_11
+reenergizeteam = $F332
+waitx = $D896
+PauseText2 = $15A56
 ; .region code
 	org	$6C0A
 
 ; includes for stubs to replace removed code
-    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
+    include "ram93.asm"		;ports, RAM map and structure equates
 
 ; Main segment code
 	include	stats93.Asm

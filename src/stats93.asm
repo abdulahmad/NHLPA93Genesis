@@ -1,7 +1,7 @@
 ;	NHLPA Hockey 93 (retail) segment $6C0A-$8AC3
 ;	93-only stats, line editor, roster, scoring/penalty summary, team stats,
 ;	crowd meter and goalie select screens. Not in NHL 92.
-;Global names from the (Rev A listing). Entry points
+;Global names from the. Entry points
 ;	unnamed are named from the screen title they print.
 ;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
@@ -9,7 +9,7 @@
 ;	Inline print strings after printz/printsmallz/printbigz/appendz use the
 ;	String macro or a dc.w length (length word includes itself, padded to a word).
 
-ShowScores	;label (Rev A $6C18). "Scores" screen: lists the other games in
+ShowScores	;label. "Scores" screen: lists the other games in
 	;gstruct with both teams, scores and period. Up/down scroll, start exits.
 	;Entered from outside this segment (menu item handler)
 	moveq	#6,d0			;SetupScreen d0/d1: bitmap row offset / height
@@ -158,7 +158,7 @@ ScrollArrowTable	;DrawScrollArrows strings: none, up, down. Only 3 entries (the
 	String	$7B,$FB,$FF,$FA,$13,$20,$F9
 	String	$20,$FB,$FF,$FA,$13,$7D,$F9
 
-LineEditor	;label (Rev A $6E16). "Line Editor" screen for team a2.
+LineEditor	;label. "Line Editor" screen for team a2.
 	;Pick a line slot, then a player to put there. Entered from outside this
 	;segment (menu item handler)
 	bset	#0,tmflags(a2)		;set on entry to the line editor
@@ -213,7 +213,7 @@ LineEditorMenu	;Slot cursor loop. Also entered from
 	bsr.w	DrawAttributeMenu
 	bra.s	.loop
 
-MenuWaitVblankWrapper	;thunk to MenuWaitVblank (menu93)
+MenuWaitVblankWrapper	;thunk to MenuWaitVblank
 	bra.w	MenuWaitVblank
 
 SelectAttributeItem	;line editor: C pressed on slot TestList. Build the list of
@@ -525,7 +525,7 @@ ExitAttributeScreen	;line editor: start pressed. Run the exit menu (AttributeScr
 	move.l	(menudraw).w,-(sp)
 	movea.l	#rtss,a1
 	movea.l	#AttributeScreenText,a0
-	movea.w	#(databuffer-M68K_RAM),a3		;Rev A $CAF2
+	movea.w	#(databuffer-M68K_RAM),a3
 	move.w	$28(a2),d0		;team number + 1 = first databuffer byte?
 	addq.w	#1,d0
 	cmp.b	(a3),d0
@@ -573,7 +573,7 @@ DecodePlayerAttributes	;load team a2's lines from databuffer (byte 0 = team + 1,
 	;then one nibble per slot in AttributeOffsetTbl order, relative to the
 	;first forward, or first defenseman for slots 1-2)
 	movem.l	d0-d4/a0/a3,-(sp)
-	movea.w	#(databuffer-M68K_RAM),a0		;Rev A $CAF2
+	movea.w	#(databuffer-M68K_RAM),a0
 	addq.w	#1,a0
 	bsr.w	ReadAttributeNibble
 	move.w	d0,d1
@@ -604,11 +604,11 @@ DecodePlayerAttributes	;load team a2's lines from databuffer (byte 0 = team + 1,
 .done	movem.l	(sp)+,d0-d4/a0/a3
 	rts
 
-EncodePlayerAttributes	;label (Rev A $7426). Reverse of
+EncodePlayerAttributes	;label. Reverse of
 	;DecodePlayerAttributes: pack team a2's lines into databuffer and convert
 	;it with BitsToPW
 	movem.l	d0-d4/a0-a3,-(sp)
-	movea.w	#(databuffer-M68K_RAM),a0		;Rev A $CAF2
+	movea.w	#(databuffer-M68K_RAM),a0
 	move.w	$28(a2),d0
 	addq.w	#1,d0
 	move.b	d0,(a0)+
@@ -649,7 +649,7 @@ AttributeOffsetTbl	;line slots saved in databuffer ($FF ends)
 	dc.b	$31,$32,$33,$34
 	dc.b	$FF
 
-TeamRosterScreen	;label (Rev A $74AA). "Team Roster" screen for team a2
+TeamRosterScreen	;label. "Team Roster" screen for team a2
 	;one page per line (PlayerStatMenuTxt), scrolled sideways by 128 pixels.
 	;Up/down change line, left/right attribute columns, A switches team
 	moveq	#$D,d0
@@ -1012,7 +1012,7 @@ AttribWeight	;label ("jump for Weight"). 140 + 8 * rating lb
 	dc.b	' lb  ',0
 	rts
 
-ScoringSummaryScreen	;label (Rev A $79A0). "Scoring Summary": one 4 row
+ScoringSummaryScreen	;label. "Scoring Summary": one 4 row
 	;entry per goal in ScoreSum (6 bytes each). Scrolls to the end first,
 	;then up/down scroll, start exits
 	moveq	#$A,d0
@@ -1193,7 +1193,7 @@ GoalTypeTbl	;ScoreSum byte 2 & $7F: SH2, SH, even, PP, PP2
 	dc.w	$0006
 	dc.b	'PP2',0
 
-PenaltySummaryScreen	;label (Rev A $7C1A). "Penalty Summary": one 3 row
+PenaltySummaryScreen	;label. "Penalty Summary": one 3 row
 	;entry per penalty (4 bytes each from PenSum). Same scroll handling as
 	;ScoringSummaryScreen. 's DisplayPenaltyList label inside the misdecoded
 	;title string is not a real entry
@@ -1404,7 +1404,7 @@ DisplayTeamStats	;"Playoff Stats": DisplayAttributeScreen with d7 = 1 for the
 	movem.l	(sp)+,a2
 	rts
 
-PlayerStatsScreen	;label (Rev A $7F12). "Player Stats" (d7 = 0, game
+PlayerStatsScreen	;label. "Player Stats" (d7 = 0, game
 	;stats, A switches team)
 	clr.w	d7
 DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
@@ -1806,7 +1806,7 @@ ScrollArrowTbl2	;none, up, down, both
 	String	$20,$FB,$FF,$FA,$C,$7D,$F9
 	String	$7B,$FB,$FF,$FA,$C,$7D,$F9
 
-GameStatisticsScreen	;label (Rev A $84AC). "Game Statistics": both
+GameStatisticsScreen	;label. "Game Statistics": both
 	;teams' totals. Start exits
 	moveq	#9,d0
 	moveq	#$1C,d1
@@ -1929,7 +1929,7 @@ TeamStatTextTbl	;label, then team struct stat offset and second offset ($FFFF no
 	dc.b	'Passing',0
 	dc.w	$14,$12
 
-CrowdMeterScreen	;label (Rev A $867A). "Crowd Meter": current, average
+CrowdMeterScreen	;label. "Crowd Meter": current, average
 	;and peak crowd level in dB. Start exits
 	moveq	#9,d0
 	moveq	#$1C,d1
@@ -2096,7 +2096,7 @@ TimeoutMenu	;this code undecoded (dc.b in both listings). Pause menu "Timeout" f
 	moveq	#$78,d0
 	bra.w	waitx
 
-SelectGoalieMenu	;label (Rev A $890A). Pick team a2's goalie from a
+SelectGoalieMenu	;label. Pick team a2's goalie from a
 	;list (0 = no goalie). Start/C confirms; a change is stored in $26(a2)
 	;and setpersonel is called
 	move.w	(menuitem).w,-(sp)

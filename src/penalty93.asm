@@ -7,7 +7,7 @@
 ;	prefmes, the 93-only PrintPenaltyMessagesString, PenGoalStuff, the
 ;	93-only ClearPenaltyBuffer, updatepentime, the 93-only ProcessPenaltyList
 ;	and RemovePlayerFromList, chkatop, releasepl, GetLowestPen,
-;	updatepwrplay, ClrHor and SetHor. The Penaltylist data is in hockey93_06_11.
+;	updatepwrplay, ClrHor and SetHor. The Penaltylist data is.
 ;Global names from the 92 names where the routine is the
 ;	same (see the SEGMENT_AGENT.md rename table). Bytes match
 ;	nhlpa93retail.bin.
@@ -375,7 +375,7 @@ limitfo	;limit face off to 5-20 feet from walls of rink. Checks every player in 
 	bra.w	.sx
 .0	cmp.w	(foy).w,d1
 	bgt.w	rtss
-	move.w	#$41,(foy).w		;(xref is stats93 string bytes).nuy = 65
+	move.w	#$41,(foy).w		;(xref is string bytes).nuy = 65
 .sx	move.w	#$46,d0			;nux = 70
 	tst.w	(fox).w
 	bpl.w	.1
@@ -914,7 +914,7 @@ EASNLogo	;Draw easn.map at x 1, y $19 on the vertical ice rink if no power play.
 	bsr.w	printz
 	String	$BF,1,$19
 
-DrawEASNMap	;Draw the EASN logo map at the current printx/printy. Also called from stats93 ShowScores
+DrawEASNMap	;Draw the EASN logo map at the current printx/printy. Also called from ShowScores
 	movea.l	#EASNmap,a1
 	adda.l	4(a1),a1
 	movea.w	#$310,a2
@@ -1090,7 +1090,7 @@ SetupTeamForIntermission	;93: reset the bench, then for each team refill energy 
 	lea	tmsize(a2),a3
 	bsr.w	.r
 	exg	a2,a3			;falls in for the other team
-.r	bsr.w	reenergizeteam		;(name taken by the hockey93_01 92 restoreteams)
+.r	bsr.w	reenergizeteam		;name taken by 92 restoreteams)
 	clr.w	tmline(a3)
 	tst.w	(OptLine).w
 	bne.w	rtss			;line changes off
@@ -1132,7 +1132,7 @@ Intermission	;end of period junk (zamboni/stats). 93 opens the pause menu screen
 	lea	.sslist(pc),a0
 	movea.l	(a0,d0.w),a0
 	bset	#sfpz,(sflags).w
-	movea.l	#SetupPauseScreen,a1	;Rev A $69AA
+	movea.l	#SetupPauseScreen,a1
 	jsr	(InitMenuState).w
 	bsr.w	GetShifter
 	move.w	d1,(TickerNum).w
@@ -1164,7 +1164,7 @@ Intermission	;end of period junk (zamboni/stats). 93 opens the pause menu screen
 .clrz	st	(zamx).w
 	rts
 
-.sslist	;Menu item lists in hockey93_06_11 (Rev A + $18), by period then playoff period
+.sslist	;Menu item lists, by period then playoff period
 	dc.l	StartGameText,IntermissionText,IntermissionText,IntermissionText,ExitGameText
 	dc.l	StartGameTextPO,IntermissionText,IntermissionText,IntermissionText,ExitGameTextPO
 
@@ -1447,7 +1447,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 .ndi	clr.b	(sflags).w
 	move.b	#4,(sflags2).w		;1<<sf2drec
 	clr.b	(sflags3).w
-	bclr	#4,(disflags).w		;93 only
+	bclr	#4,(disflags).w
 	bset	#dfclock,(disflags).w
 	clr.w	(glovecords).w
 	clr.b	(iflags).w

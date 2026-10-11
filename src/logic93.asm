@@ -333,7 +333,7 @@ burst	;cbut press check/speed. Also entered from check4check
 	move.w	#$C7E,d1		;SPAburst
 	bra.w	SetSPA
 
-holdplayer	;abut press hold (92 Holdplayer). a0 = the player this one is
+holdplayer	;abut press hold. a0 = the player this one is
 	;assigned to, falls into Acheck
 	bset	#5,pflags(a3)
 	move.w	#$12DC,d1		;SPAHold
@@ -846,7 +846,7 @@ doshot	;stick is at puck so launch puck toward goal
 	dc.w	0,0,-$10,0,-$10,6,-$10,$C
 	dc.w	0,6
 
-shotdiradj	;92 checkgoalp is the goal/net collision in hockey93_03_05. 93 only. If the opposing goalie
+shotdiradj	;92 checkgoalp is the goal/net collision. If the opposing goalie
 	;covers the middle of the net, set passdir 2 or 6 to shoot at the open
 	;side, else 0. Skipped for computer players (pfjoycon clear)
 	btst	#pfjoycon,pflags(a3)
@@ -985,7 +985,7 @@ check4bench	;check if player a3 should go to bench. Called from assbench
 ;	(pfna 1, pfnc 2, pfjoycon 3, pfalock 5, pfteam 6, pfgoal 7), pflags2 $63
 ;	(pf2aip 1, pf2unav 2, pf2pen 4, pf2npc 5), pnum $66, aioff $6A,
 ;	aidef $6B, aggress $74, checking $75, handed $76.
-;	Every assignment starts with "btst #pfalock / bne rtss" (93 only).
+;	Every assignment starts with "btst #pfalock / bne rtss".
 
 assbench	;player a3 should goto bench
 	btst	#pfalock,pflags(a3)
@@ -2480,7 +2480,7 @@ GoalieSaveList	;92 assgoalie.list
 	dc.w	$20C			;SPAgstickr
 	dc.w	$23E			;SPAgstickl
 
-assgoalietopuck	;93 only: goalie skates out to a loose puck (inserted by
+assgoalietopuck	;goalie skates out to a loose puck (inserted by
 	;assgoalie)
 	btst	#3,pflags(a3)
 	bne.w	assexit
@@ -2985,7 +2985,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	sub.w	(puckx).w,d0
 	add.w	Ypos(a0),d1
 	sub.w	(pucky).w,d1
-	move.w	(puckvx).w,d3		;93: always lead the puck (92 only if carried)
+	move.w	(puckvx).w,d3		;93: always lead the puck (if carried)
 	asr.w	#6,d3
 	sub.w	d3,d0
 	move.w	(puckvy).w,d3
@@ -3121,7 +3121,7 @@ check4check	;look for good opportunity for checking opponent. Falls in from assn
 	rts
 
 asspassrec	;assignment for catching pass. Assignment apassrec ($13)
-	btst	#pfalock,pflags(a3)		;93 only
+	btst	#pfalock,pflags(a3)
 	bne.w	rtss
 	btst	#gmclock,(gmode).w
 	bne.w	donothing		;92 donothing
@@ -3145,7 +3145,7 @@ asspassrec	;assignment for catching pass. Assignment apassrec ($13)
 	bra.w	skateto
 
 assshoot	;assignment for computer shooting. Assignment ashoot ($12)
-	btst	#pfalock,pflags(a3)		;93 only
+	btst	#pfalock,pflags(a3)
 	bne.w	rtss
 	bclr	#pfna,pflags(a3)
 	beq.w	.nna
@@ -3290,7 +3290,7 @@ puckfaceoff	;this is where the action starts
 	rts
 
 ChkGoalies	;computer pulls goalie on delayed penalty. Called from periodicevents
-	btst	#gmclock,(gmode).w		;93 only
+	btst	#gmclock,(gmode).w
 	bne.w	rtss
 	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
@@ -3896,7 +3896,7 @@ ClearOffsidesIfAllPlayers	;93: a2 = team struct. Clears the team offsides flag (
 	rts
 
 a2offsides	;player a2 touched the puck: offsides penalty if his team is flagged and the puck is past the blue line. Called from a2touchpuck
-	btst	#gmoffs,(gmode).w		;93 only
+	btst	#gmoffs,(gmode).w
 	beq.w	rtss
 	move.w	(pucky).w,d0
 	btst	#pfgoal,pflags(a2)
@@ -4329,7 +4329,7 @@ vtoa	;d0/d1 are x/y distances which are converted into direction 0-7 and returne
 	cmp.w	d0,d1
 	bhi.w	.3
 	bset	#3,d2
-.3	movea.l	#.dt,a0			;retail $D0B6 (Rev A $D0CE)
+.3	movea.l	#.dt,a0
 	clr.w	d0
 	move.b	(a0,d2.w),d0
 	movem.l	(sp)+,d2/a0
@@ -4461,7 +4461,7 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	move.w	facedir(a3),d2
 	sub.w	d2,d0
 	andi.w	#7,d0
-	movea.l	#.ftab,a0		;retail $D2E0 (Rev A $D2F8)
+	movea.l	#.ftab,a0
 	asl.w	#1,d0
 	tst.w	(a0,d0.w)
 	beq.w	noturn0

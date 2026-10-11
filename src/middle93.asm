@@ -142,7 +142,7 @@ CopyPaletteToCRAM	;93: copy all 64 palfadenew colors straight to color ram and s
 	rts
 
 ;middle of code routines------------------------------------
-randomd0s	;(Rev A lst). d0 = range. Return d0 = random number (-range < d0 < range)
+randomd0s	;d0 = range. Return d0 = random number (-range < d0 < range)
 	move.w	d0,-(sp)
 	asl.w	#1,d0
 	bsr.w	randomd0
@@ -232,7 +232,7 @@ sfx	;play sound effect number. One word passed on stack
 	addq.w	#2,sp
 	rts
 
-song	;(Rev A lst). play song number. One word passed on stack
+song	;play song number. One word passed on stack
 	movem.l	d0-d7/a0-a6,-(sp)
 	clr.l	d0
 	move.w	$40(sp),d0		;16*4(a7)
@@ -393,7 +393,7 @@ ReadJoy	;read controller a0. Return d0 = direction (bit 0-3) and new button (bit
 	move.w	d1,-(sp)
 	andi.w	#$F0,d0
 	andi.w	#$F,d1
-	movea.l	#jdtab,a0		;(Rev A literal $DA88)
+	movea.l	#jdtab,a0
 	move.b	(a0,d1.w),d1
 	or.w	d1,d0
 	move.w	(sp)+,d1
@@ -402,7 +402,7 @@ ReadJoy	;read controller a0. Return d0 = direction (bit 0-3) and new button (bit
 jdtab	;convert buttons l,r,d,u into directions 0-7,8
 	dc.b	8,0,4,8,6,7,5,8,2,1,3,8,8,8,8,8
 
-DoDMApro	;(Rev A lst). initiate dma transfer and protect from vblank interuption. d0 = words to transfer, d1 = initial vram address, a0 = address to transfer from. Jumped to from DecompressGraphics
+DoDMApro	;initiate dma transfer and protect from vblank interuption. d0 = words to transfer, d1 = initial vram address, a0 = address to transfer from. Jumped to from DecompressGraphics
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	bsr.w	DoDMA
@@ -709,8 +709,8 @@ DecompressBytecode	;93: unpack a0 into the 256 byte ring buffer at DispAttribCtr
 	movea.w	#(DispAttribCtr-M68K_RAM),a1	;output buffer
 	movea.w	#(DispAttribCtr-M68K_RAM),a3
 	movea.w	#(callbackPtr-M68K_RAM),a4
-	movea.l	#remap,a5		;(Rev A literal $D642)
-	movea.l	#DoDMApro,a6		;(Rev A literal $DA98)
+	movea.l	#remap,a5
+	movea.l	#DoDMApro,a6
 	movem.l	d0-d3/a0-a2,-(sp)
 	move.w	d1,d3			;d3 = vram address
 	clr.w	d1			;d1 = output buffer offset
@@ -977,7 +977,7 @@ Framer	;frame and fill (uses framer.map graphics and assums tiles are already lo
 	move.w	d3,(a0)
 	rts
 
-printsmallz	;(Rev A lst). 93: see printsmall. String macro should follow the bsr/jsr to this routine; a1 is kept
+printsmallz	;93: see printsmall. String macro should follow the bsr/jsr to this routine; a1 is kept
 	move.l	a1,-(sp)
 	movea.l	4(sp),a1		;string after the call
 	bsr.w	printsmall
@@ -1001,7 +1001,7 @@ printsmall	;93: print string macro a1 at printx/y/m with printa. Bytes > 0 are c
 	bgt.w	.nocom
 	neg.w	d0			;control code (0 = padding)
 	asl.w	#2,d0
-	movea.l	#ControlCodeJumpTable,a2	;(Rev A literal $E128)
+	movea.l	#ControlCodeJumpTable,a2
 	movea.l	(a2,d0.w),a2
 	jsr	(a2)
 	bra.w	.1
@@ -1171,7 +1171,7 @@ FormatAndPrintTime	;93: print a period label and time. d0 bits 14-15 = period (P
 	swap	d0
 	clr.w	d0
 	rol.l	#2,d0			;d0.w = period
-	movea.l	#PeriodLabelTable,a1	;(Rev A literal $E2A4)
+	movea.l	#PeriodLabelTable,a1
 	bsr.w	PrintStringFromList
 	addq.w	#2,(printx).w
 	swap	d0
@@ -1256,7 +1256,7 @@ PushNumber	;convert d0 into string format of base 10 number, no leading zeros. R
 	move.l	(sp)+,d0
 	rts
 
-PushNumberWidth	;(Rev A lst DeterStrLength?). 93: convert d0 into a d1 digit base 10 string, leading zeros as spaces (the last digit always shown). Return a1 = string at PushWidthBuf
+PushNumberWidth	;93: convert d0 into a d1 digit base 10 string, leading zeros as spaces (the last digit always shown). Return a1 = string at PushWidthBuf
 	movem.l	d0-d3,-(sp)
 	movea.w	#(PushWidthBuf+2-M68K_RAM),a1
 	moveq	#1,d2

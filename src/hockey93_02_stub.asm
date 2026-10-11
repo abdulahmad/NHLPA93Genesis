@@ -22,32 +22,32 @@ RAMStart = $FF0000
 ; External routines and data outside $8AC4-$946D, at their retail addresses.
 ; Names are or source names from the SEGMENT_AGENT.md rename table.
 ; Add stubs here as the segment is decompiled.
-SPAList = $4D8E			; Frames93
-doinput = $946E			; logic93
-setpads = $A048			; logic93
-vtoa = $D05C			; logic93
-forceblack = $D67C		; middle93
-sfx = $D852			; middle93
-Readjoy1 = $D9B6		; middle93
-Readjoy2 = $D9D4		; middle93
-DoFill = $DB98			; middle93
-dobitmap = $DCE4		; middle93
-printz = $E1AE			; middle93
-ClrHor = $EEFE			; penalty93
-SetHor = $EF3C			; penalty93
-loadTeamStruct = $F2DA		; penalty93
-checkcoll = $FAE2		; hockey93_03_05
-rtss = $110E0			; hockey93_03_05
-setvideo = $118F2		; video93
-SprSort = $127F8		; hockey93_06_11
-asstab = $1518A			; hockey93_06_11
+SPAList = $4D8E
+doinput = $946E
+setpads = $A048
+vtoa = $D05C
+forceblack = $D67C
+sfx = $D852
+Readjoy1 = $D9B6
+Readjoy2 = $D9D4
+DoFill = $DB98
+dobitmap = $DCE4
+printz = $E1AE
+ClrHor = $EEFE
+SetHor = $EF3C
+loadTeamStruct = $F2DA
+checkcoll = $FAE2
+rtss = $110E0
+setvideo = $118F2
+SprSort = $127F8
+asstab = $1518A
 IceRinkMap = $33864		; graphics
 
 ; .region code
 	org	$8AC4
 
 ; includes for stubs to replace removed code
-    include "ram93.asm"		;ports, RAM map and structure equates (92 ram.asm)
+    include "ram93.asm"		;ports, RAM map and structure equates
 
 ; Main segment code
 	include	hockey93_02.Asm

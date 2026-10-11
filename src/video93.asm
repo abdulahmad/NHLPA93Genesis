@@ -3,7 +3,7 @@
 ;	NHLPA Hockey 93 (retail) segment $11802-$11D09
 ;	92 Video.asm first half: VBlank, vb2, DumpSprites, setvideo and the
 ;	sprite builders it calls (show_rink, showref, checkfo, showzam,
-;	SetSframe, showcrowd). showclock ... KillCrowd is video93.
+;	SetSframe, showcrowd). showclock ... KillCrowd.
 ;Global names from the 92 names where the routine is the
 ;	same (see the SEGMENT_AGENT.md rename table). Bytes match
 ;	nhlpa93retail.bin.
@@ -20,7 +20,7 @@
 ;	DMA list entries (a5): long source, word length in words, word vram.
 
 VBlank	;main vblank code for game play (vbint target, set by setupice).
-	;Not VBjsr: that is the level 6 vector stub in hockey93_01
+	;Not VBjsr: that is the level 6 vector stub
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
 	bne.w	.nograph		;don't screw with vchip cause I'm using it
@@ -71,13 +71,13 @@ DumpSprites	;transfer (by dma) scroll stuff, sprite table, vram data in dmalist.
 	bsr.w	SetScroll2
 
 DumpSprites2	;transfer sprite table, then the dma list. Falls into DoDMAList.
-	;Also called from 00014404 (retail $143EC)
+	;Also called from 00014404
 	movea.w	#(Satt-M68K_RAM),a0	;transfer sprite table
 	move.w	(Sattsize).w,d0
 	move.w	(VSPRITES).w,d1
 	bsr.w	DoDMA
 
-DoDMAList	;transfer data from dmalist (92 dodmalist). Also called from setupice
+DoDMAList	;transfer data from dmalist. Also called from setupice
 	movea.l	(DMAListend).w,a6
 	cmpa.l	#DMAList,a6
 	beq.w	rtss			;list empty
@@ -441,7 +441,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 ;	92 Video.asm second half: showclock, checksso, setsortcords, setffo,
 ;	uppads, addframe, addframe2, find3d, updatesound and KillCrowd, plus the
 ;	93-only pad label code (FormatControllerDisplay, RenderSmallFontChar).
-;	VBlank ... showcrowd is video93. 92 sizetab is in hockey93_06_11 here.
+;	VBlank ... showcrowd. 92 sizetab is in here.
 ;Global names from the 92 names where the routine is the
 ;	same (see the SEGMENT_AGENT.md rename table). Bytes match
 ;	nhlpa93retail.bin.
@@ -661,7 +661,7 @@ uppads	;update the gloves object and the 4 pad objects, and queue new pad labels
 	dbf	d4,.top
 	rts
 
-FormatControllerDisplay	;93 only: queue the 3 character label of a pad object (92 uppads .pd did 2 digits).
+FormatControllerDisplay	;queue the 3 character label of a pad object (92 uppads.pd did 2 digits).
 	;Called from uppads. d1 = label code: bits 7-4 and 3-0 are digits ($F = blank), bits 10-8 index
 	;ButtonLabelCharTable. a0 = pad object, a5 = dma list. Falls into RenderSmallFontChar for the last char
 	lea	ButtonLabelCharTable(pc),a4
@@ -691,7 +691,7 @@ FormatControllerDisplay	;93 only: queue the 3 character label of a pad object (9
 .btn	move.b	(a4,d2.w),d2
 	moveq	#2,d0			;char slot 2
 
-RenderSmallFontChar	;93 only, the 92 uppads .pd job: dma one small font tile to the object's chars.
+RenderSmallFontChar	;the 92 uppads.pd job: dma one small font tile to the object's chars.
 	;d2 = ascii char, d0 = char slot, a0 = object (VRchar), a5 = dma list
 	movea.l	#smallfontmap,a3
 	adda.l	4(a3),a3
