@@ -219,9 +219,9 @@ SelectAttributeItem	;line editor: C pressed on slot TestList. Build the list of
 	;defense) and let the user pick one
 	;(left/right pages the attribute columns). C stores the pick with
 	;SetLineSlot, start goes back. Both return to LineEditorMenu
-	bsr.w	ReadAttributeNibble
+	bsr.w	GetGoalieCount
 	move.w	d0,d1
-	bsr.w	ProcessNibble
+	bsr.w	GetForwardCount
 	move.w	(TestList).w,d2
 	andi.w	#7,d2			;slot within the line
 	cmp.w	#2,d2
@@ -573,9 +573,9 @@ DecodeTeamLines	;load team a2's lines from databuffer (byte 0 = team + 1,
 	movem.l	d0-d4/a0/a3,-(sp)
 	movea.w	#(databuffer-M68K_RAM),a0
 	addq.w	#1,a0
-	bsr.w	ReadAttributeNibble
+	bsr.w	GetGoalieCount
 	move.w	d0,d1
-	bsr.w	ProcessNibble
+	bsr.w	GetForwardCount
 	move.w	d0,d3
 	movea.l	#AttributeOffsetTbl,a3
 	clr.w	d4
@@ -611,9 +611,9 @@ EncodeTeamLines	;reverse of
 	addq.w	#1,d0
 	move.b	d0,(a0)+
 	lea	$16A(a2),a1
-	bsr.w	ReadAttributeNibble
+	bsr.w	GetGoalieCount
 	move.w	d0,d1
-	bsr.w	ProcessNibble
+	bsr.w	GetForwardCount
 	movea.l	#AttributeOffsetTbl,a3
 	clr.w	d4
 	clr.w	d2
@@ -821,7 +821,7 @@ DisplayPlayerList	;draw roster page SelectedPlayerIdx (0 goalies, 1-7 lines):
 	move.w	#$7FF,d2
 	bsr.w	eraser
 	move.w	(sp)+,(printy).w
-	bsr.w	ReadAttributeNibble
+	bsr.w	GetGoalieCount
 	move.w	d0,d1
 	subq.w	#1,d1
 	movea.l	#GoalieRowText,a5
@@ -922,7 +922,7 @@ attribjmp	;GetNameandAttrib column handlers, offsets from attribjmp
 	dc.w	AttribFighting-attribjmp
 	dc.w	AttribRating-attribjmp
 
-AttribStatus	;label ("jump for status"). Player d0's word at $66(a2)
+AttribStatus	;Roster column: status. Player d0's word at $66(a2)
 	;negative = not'ed status 0-2 (Ice/Bench/Injury P), positive = penalty
 	;time (bit $C injured G, bit $E prints C)
 	add.w	d0,d0
@@ -964,7 +964,7 @@ StatusTextTbl	;AttribStatus strings
 	dc.w	$0006
 	dc.b	' C  '
 
-AttribEnergy	;label ("jump for energy"). $32(a2) word / 40, max 100
+AttribEnergy	;Roster column: energy. $32(a2) word / 40, max 100
 	add.w	d0,d0
 	move.w	tmpde(a2,d0.w),d0
 	ext.l	d0
@@ -974,7 +974,7 @@ AttribEnergy	;label ("jump for energy"). $32(a2) word / 40, max 100
 	moveq	#$64,d0
 	bra.w	AttribPrintPct
 
-AttribFighting	;label ("jump for fighting"). Bit 0 of the nibble is
+AttribFighting	;Roster column: fighting. Bit 0 of the nibble is
 	;handedness, so only bits 1-3 count
 	andi.w	#$E,d0
 	subq.w	#1,d1
@@ -989,7 +989,7 @@ AttribPrintPct	;Print d0 4 wide plus padding
 	String	$20,$20,$20,$20
 	rts
 
-AttribHanded	;label ("jump for handedness"). Bit 0 of the sum
+AttribHanded	;Roster column: handedness. Bit 0 of the sum
 	andi.w	#1,d0
 	lea	HandedTextTbl(pc),a1
 	bra.w	PrintStringFromList
@@ -1000,7 +1000,7 @@ HandedTextTbl	;AttribHanded strings
 	dc.w	$000A
 	dc.b	'Lefty   '
 
-AttribWeight	;label ("jump for Weight"). 140 + 8 * rating lb
+AttribWeight	;Roster column: Weight. 140 + 8 * rating lb
 	asl.w	#3,d0
 	addi.w	#$8C,d0
 	bsr.w	PushNumber
@@ -1174,7 +1174,7 @@ PrintPeriodTime	;print player d0 (byte, negative = none) and go down a row.
 	;it prints a player not a time
 	ext.w	d0
 	bmi.w	.0
-	jsr	(FormatPlayerNameWithAttrib).l
+	jsr	(FormatPlayerNumInitial).l
 	bsr.w	print
 .0	addq.w	#1,(printy).w
 	rts
@@ -1352,7 +1352,7 @@ DisplayPenaltyEntry	;print penalty entry at offset d3: time, team (bit 7 of
 	move.w	#$10,(printx).w
 	clr.w	d0
 	move.b	3(a0,d3.w),d0
-	jsr	(FormatPlayerNameWithAttrib).l
+	jsr	(FormatPlayerNumInitial).l
 	bsr.w	print
 	addq.w	#1,(printy).w
 	move.w	#$13,(printx).w
@@ -1385,7 +1385,7 @@ ScrollArrowTbl	;none, up, down, both
 	String	$20,$FB,$FF,$FA,$11,$7D,$F9
 	String	$7B,$FB,$FF,$FA,$11,$7D,$F9
 
-PlayoffStatsScreen	;"Playoff Stats": DisplayAttributeScreen with d7 = 1 for the
+PlayoffStatsScreen	;"Playoff Stats": PlayerStatsList with d7 = 1 for the
 	;player's playoff team (potree), stats from ReadTeamStats
 	movem.l	a2,-(sp)
 	jsr	(ReadTeamStats).l
@@ -1397,14 +1397,14 @@ PlayoffStatsScreen	;"Playoff Stats": DisplayAttributeScreen with d7 = 1 for the
 	beq.w	.0
 	adda.w	#tmsize,a2
 .0	moveq	#1,d7
-	bsr.w	DisplayAttributeScreen
+	bsr.w	PlayerStatsList
 	movem.l	(sp)+,a2
 	rts
 
 PlayerStatsScreen	;"Player Stats" (d7 = 0, game
 	;stats, A switches team)
 	clr.w	d7
-DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
+PlayerStatsList	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	;Left/right picks the sort column (-1 goalie saves, 0-4 G A Pts SOG PIM),
 	;up/down scrolls the sorted player list
 	moveq	#$D,d0
@@ -1435,8 +1435,8 @@ DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	beq.w	.home
 	moveq	#$30,d0
 .home	bsr.w	PrintTeamData
-	bsr.w	DisplayAttributeMenu
-	bsr.w	DrawScrollArrowsAttribute
+	bsr.w	DrawStatsList
+	bsr.w	DrawStatsListArrows
 .loop	bsr.w	MenuWaitVblank
 	bsr.w	getpzjoy
 	btst	#7,d3
@@ -1457,7 +1457,7 @@ DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	btst	#1,d3
 	beq.w	.scroll
 .set	move.w	d0,(PlayerScrollCtr).w
-.scroll	bsr.w	UpdateAttributeScroll
+.scroll	bsr.w	UpdateStatsListScroll
 	bra.s	.loop
 .col	add.w	(DispAttribCtr).w,d0
 	cmp.w	#-1,d0
@@ -1465,8 +1465,8 @@ DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	cmp.w	#4,d0
 	bgt.s	.scroll
 	move.w	d0,(DispAttribCtr).w
-	bsr.w	DisplayAttributeMenu
-	bsr.w	DrawScrollArrowsAttribute
+	bsr.w	DrawStatsList
+	bsr.w	DrawStatsListArrows
 	bra.s	.scroll
 .switch	tst.w	d7			;No team switch in playoff stats
 	bne.s	.scroll
@@ -1476,7 +1476,7 @@ DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	movea.w	#(tmstruct-M68K_RAM),a2
 	bra.w	.redraw
 
-UpdateAttributeScroll	;stats screen per frame: scroll 0..SelectedPlayerIdx, stop
+UpdateStatsListScroll	;stats screen per frame: scroll 0..SelectedPlayerIdx, stop
 	;every 16 pixels (one row), draw the row coming into view
 	move.w	(PlayerScrollCtr).w,d0
 	beq.w	rtss2
@@ -1488,19 +1488,19 @@ UpdateAttributeScroll	;stats screen per frame: scroll 0..SelectedPlayerIdx, stop
 	move.w	d0,(VertLineScrolling).w
 	andi.w	#$F,d0
 	bne.w	.0
-	bsr.w	DrawScrollArrowsAttribute
+	bsr.w	DrawStatsListArrows
 	clr.w	(PlayerScrollCtr).w
 .0	andi.w	#$F,d1
-	bne.w	SetAttribScrollReg
+	bne.w	SetStatsListScrollReg
 	move.w	d0,-(sp)
 	cmp.w	#$E,d0
 	bne.w	.1
-	bsr.w	DisplayAttributeLineUp
+	bsr.w	DrawStatsRowUp
 .1	move.w	(sp)+,d0
 	cmp.w	#2,d0
-	bne.w	SetAttribScrollReg
-	bsr.w	DisplayAttributeLineDown
-SetAttribScrollReg	;VSRAM = VertLineScrolling - $68
+	bne.w	SetStatsListScrollReg
+	bsr.w	DrawStatsRowDown
+SetStatsListScrollReg	;VSRAM = VertLineScrolling - $68
 	move.w	(disflags).w,-(sp)
 	bset	#2,(disflags).w
 	movea.l	#VDP_DATA,a0
@@ -1511,24 +1511,24 @@ SetAttribScrollReg	;VSRAM = VertLineScrolling - $68
 	move.w	(sp)+,(disflags).w
 	rts
 
-DisplayAttributeLineUp	;draw the top row of the window
+DrawStatsRowUp	;draw the top row of the window
 	move.w	(VertLineScrolling).w,d3
 	lsr.w	#4,d3
-	bra.w	DisplayAttributeEntry
+	bra.w	DrawStatsRow
 
-DisplayAttributeLineDown	;draw the row below the window
+DrawStatsRowDown	;draw the row below the window
 	move.w	(VertLineScrolling).w,d3
 	lsr.w	#4,d3
 	addq.w	#6,d3
-	bra.w	DisplayAttributeEntry
+	bra.w	DrawStatsRow
 
-DisplayAttributeMenu	;stats screen: column headers (sort column highlighted),
+DrawStatsList	;stats screen: column headers (sort column highlighted),
 	;title for column DispAttribCtr, then sort the players by that column into
 	;Satt ($FF ends, goalies only when -1) and draw the visible rows
 	bsr.w	printsmallz
 	dc.w	$0012
 	dc.b	$F8,6,3,4,$B,$F9,1,'Player',$FB,7,0
-	lea	AttributeMenuTxt(pc),a1
+	lea	StatColumnHeaders(pc),a1
 	moveq	#5,d3
 	tst.w	(DispAttribCtr).w
 	bmi.w	.0
@@ -1549,7 +1549,7 @@ DisplayAttributeMenu	;stats screen: column headers (sort column highlighted),
 	bsr.w	Framer
 	bsr.w	printz
 	String	$8D,$A,8,0
-	lea	AttributeTitleTxt(pc),a1
+	lea	StatSortTitles(pc),a1
 	moveq	#1,d0
 	add.w	(DispAttribCtr).w,d0
 	bsr.w	PrintStringFromList
@@ -1558,7 +1558,7 @@ DisplayAttributeMenu	;stats screen: column headers (sort column highlighted),
 	clr.l	d6
 	tst.w	(DispAttribCtr).w
 	bpl.w	.2
-	bsr.w	ReadAttributeNibble	;goalie column: mark all skaters used
+	bsr.w	GetGoalieCount	;goalie column: mark all skaters used
 	bset	d0,d6
 	subq.w	#1,d6
 	not.l	d6
@@ -1571,7 +1571,7 @@ DisplayAttributeMenu	;stats screen: column headers (sort column highlighted),
 	clr.w	d2
 	move.w	(DispAttribCtr).w,d1
 	bmi.w	.4
-	bsr.w	CheckAttributeValid
+	bsr.w	GetStatColumn
 .4	ext.l	d2
 	asl.l	#8,d2
 	movea.l	tmdata(a2),a1
@@ -1607,11 +1607,11 @@ DisplayAttributeMenu	;stats screen: column headers (sort column highlighted),
 .ent	move.w	(VertLineScrolling).w,d3
 	lsr.w	#4,d3
 	add.w	d4,d3
-	bsr.w	DisplayAttributeEntry
+	bsr.w	DrawStatsRow
 	dbf	d4,.ent
-	bra.w	SetAttribScrollReg
+	bra.w	SetStatsListScrollReg
 
-DisplayAttributeEntry	;stats screen row d3 of Satt: rank, name, then either the
+DrawStatsRow	;stats screen row d3 of Satt: rank, name, then either the
 	;5 stat columns or goalie saves/shots/save %
 	movea.w	#(Satt-M68K_RAM),a4
 	adda.w	d3,a4
@@ -1647,7 +1647,7 @@ DisplayAttributeEntry	;stats screen row d3 of Satt: rank, name, then either the
 .0	clr.w	d0
 	move.b	(a4),d0
 	move.w	d5,d1
-	bsr.w	CheckAttributeValid
+	bsr.w	GetStatColumn
 	move.w	d2,d0
 	moveq	#4,d1
 	bsr.w	PushNumberWidth
@@ -1663,12 +1663,12 @@ DisplayAttributeEntry	;stats screen row d3 of Satt: rank, name, then either the
 .goalie	clr.w	d0			;Shots against
 	move.b	(a4),d0
 	moveq	#3,d1
-	bsr.w	GetAttributeValue2
+	bsr.w	ReadStatColumn
 	clr.w	d0
 	move.b	(a4),d0
 	moveq	#0,d1			;goals against
 	move.w	d2,-(sp)
-	bsr.w	GetAttributeValue2
+	bsr.w	ReadStatColumn
 	move.w	(sp)+,d0
 	move.w	d0,d3
 	sub.w	d2,d0
@@ -1697,24 +1697,24 @@ DisplayAttributeEntry	;stats screen row d3 of Satt: rank, name, then either the
 	String	$25
 .x	rts
 
-CheckAttributeValid	;d2 = stat column d1 for player d0. Goalies only have PIM
+GetStatColumn	;d2 = stat column d1 for player d0. Goalies only have PIM
 	;(column 4, mapped to 1 via btst d1,#6)
 	move.w	d0,-(sp)
-	bsr.w	ReadAttributeNibble
+	bsr.w	GetGoalieCount
 	move.w	d0,d2
 	move.w	(sp)+,d0
 	cmp.w	d2,d0
-	bge.w	GetAttributeValue2
+	bge.w	ReadStatColumn
 	clr.w	d2
 	btst	d1,#6
 	beq.w	rtss2
 	moveq	#1,d1
-GetAttributeValue2	;d2 = stat column d1 for player d0. d7 = 0: team struct
-	;bytes (AttributeOffsetTbl2), d7 = 1: playoff words (StatsOffsetTbl2).
+ReadStatColumn	;d2 = stat column d1 for player d0. d7 = 0: team struct
+	;bytes (StatColumnOffsets), d7 = 1: playoff words (StatsOffsetTbl2).
 	;Second offset of a pair is added ($FFFF/0 = none)
 	tst.w	d7
 	bne.w	.stats
-	lea	AttributeOffsetTbl2(pc),a1
+	lea	StatColumnOffsets(pc),a1
 	asl.w	#2,d1
 	adda.w	d1,a1
 	move.w	(a1),d1
@@ -1747,10 +1747,10 @@ GetStatsValue	;d2 += word d0 of the RAM table at StatsOffsetTbl2+d1 (0 = none)
 
 StatsOffsetTbl2	;playoff stat RAM tables per column (G, A, G+A, SOG, PIM)
 	dc.w	$C82A,0,$C85E,0,$C82A,$C85E,$C892,0,$C8C6,0
-AttributeOffsetTbl2	;team struct byte arrays per column, same order
+StatColumnOffsets	;team struct byte arrays per column, same order
 	dc.w	$B4,$FFFF,$CE,$FFFF,$B4,$CE,$E8,$FFFF,$102,$FFFF
 
-AttributeMenuTxt	;stats screen column headers (goalie header, then 5 columns)
+StatColumnHeaders	;stats screen column headers (goalie header, then 5 columns)
 	dc.w	$0016
 	dc.b	'Saves Shots Save %  '
 	dc.w	$0006
@@ -1763,7 +1763,7 @@ AttributeMenuTxt	;stats screen column headers (goalie header, then 5 columns)
 	dc.b	' SOG'
 	dc.w	$0006
 	dc.b	' PIM'
-AttributeTitleTxt	;label (lea at DisplayAttributeMenu+$66). Sort column
+StatSortTitles	;Sort column
 	;titles, [ ] are the left/right arrows
 	dc.w	$0016
 	dc.b	'    Goalie Saves   ]'
@@ -1778,7 +1778,7 @@ AttributeTitleTxt	;label (lea at DisplayAttributeMenu+$66). Sort column
 	dc.w	$0016
 	dc.b	'[ Penalty Minutes   '
 
-DrawScrollArrowsAttribute	;stats screen up/down arrows. Saves d0-d1/a1
+DrawStatsListArrows	;stats screen up/down arrows. Saves d0-d1/a1
 	movem.l	d0-d1/a1,-(sp)
 	bsr.w	printsmallz
 	String	CC_SetMapAndPosition,4,3,2,$B,CC_SetFont,1,0
@@ -2098,7 +2098,7 @@ SelectGoalieMenu	;pick team a2's goalie from a
 	;and setpersonel is called
 	move.w	(menuitem).w,-(sp)
 	move.w	(menuitem+2).w,-(sp)
-	bsr.w	ReadAttributeNibble
+	bsr.w	GetGoalieCount
 	move.w	d0,(menuitem+2).w
 	bsr.w	printz
 	String	$BD,4,$C,0
@@ -2188,7 +2188,7 @@ DisplayPlayerSelectMenu	;draw the goalie list, row menuitem highlighted,
 	dbf	d1,.0
 	rts
 
-ReadAttributeNibble	;d0 = goalies on team a2 (nibbles in the team data word
+GetGoalieCount	;d0 = goalies on team a2 (nibbles in the team data word
 	;at offset $A)
 	movem.l	d1/a0,-(sp)
 	movea.l	tmdata(a2),a0
@@ -2201,7 +2201,7 @@ ReadAttributeNibble	;d0 = goalies on team a2 (nibbles in the team data word
 	movem.l	(sp)+,d1/a0
 	rts
 
-ProcessNibble	;d0 = forwards on team a2 (high nibble of team data byte 3 at
+GetForwardCount	;d0 = forwards on team a2 (high nibble of team data byte 3 at
 	;the offset in word 8)
 	movem.l	a0,-(sp)
 	movea.l	tmdata(a2),a0

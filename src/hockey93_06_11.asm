@@ -3050,7 +3050,7 @@ CalcTeamStarScores	;star scores of team a2 (a3 = other team) to (a4)+, one long 
 	sub.w	tmscore(a3),d3		;goal difference
 	ext.l	d3
 	moveq	#$19,d4			;26 slots
-	jsr	(ReadAttributeNibble).l	;d0 = goalies on the team
+	jsr	(GetGoalieCount).l	;d0 = goalies on the team
 	neg.w	d0
 	add.w	d4,d0			;d4 above $19 - goalies: goalie slot
 .loop	move.l	d3,(a4)
@@ -3107,7 +3107,7 @@ ShowInjuryBox	;injury box "Injury to:" player TempPlOffset (set by setInjuryType
 	bsr.w	Framer
 	bsr.w	printz
 	String	$BF,$C,4,'Injury to:',$BF,$C,6,'Out for period',$BF,$C,5
-	bsr.w	GetPlayerNameWithAttrib	;in the string
+	bsr.w	GetPlayerNumInitial	;in the string
 	bsr.w	print
 	btst	#pf2fight,(puckx+pflags2).w
 	beq.w	.ex
@@ -3151,21 +3151,21 @@ ShowGoalBox	;goal box. Closes both line change boxes, then printbig "GOAL!" (or 
 .print	bsr.w	printbig
 	clr.w	d0
 	move.b	3(a4),d0
-	bsr.w	FormatPlayerNameWithAttrib
+	bsr.w	FormatPlayerNumInitial
 	bsr.w	print
 	clr.w	d0
 	move.b	4(a4),d0		;first assist
 	bmi.w	.ex
 	bsr.w	printz
 	String	$BF,$E,6,'Assist by:',$BF,$C,7
-	bsr.w	FormatPlayerNameWithAttrib	;in the string
+	bsr.w	FormatPlayerNumInitial	;in the string
 	bsr.w	print
 	clr.w	d0
 	move.b	5(a4),d0		;second assist
 	bmi.w	.ex
 	bsr.w	printz
 	String	$BF,$C,8
-	bsr.w	FormatPlayerNameWithAttrib	;and the next line in the string
+	bsr.w	FormatPlayerNumInitial	;and the next line in the string
 	bsr.w	print
 .ex	movem.l	(sp)+,d0-d2/a0-a4
 	rts
@@ -3214,7 +3214,7 @@ getname	;a1 = mesarea string "NN First Last" for player d0 of team a2. The numbe
 	movem.l	(sp)+,d0-d3/a0/a2-a3
 	rts
 
-GetPlayerNameWithAttrib	;a1 = mesarea "NN F. Last" (FormatPlayerNameWithAttrib) for player
+GetPlayerNumInitial	;a1 = mesarea "NN F. Last" (FormatPlayerNumInitial) for player
 	;TempPlOffset (bit 15 set: away team). Called from ShowInjuryBox
 	movem.l	d0/a2,-(sp)
 	movea.w	#(tmstruct-M68K_RAM),a2
@@ -3222,12 +3222,12 @@ GetPlayerNameWithAttrib	;a1 = mesarea "NN F. Last" (FormatPlayerNameWithAttrib) 
 	bpl.w	.get
 	andi.w	#$FF,d0
 	adda.w	#tmsize,a2		;away team
-.get	bsr.w	FormatPlayerNameWithAttrib
+.get	bsr.w	FormatPlayerNumInitial
 	movem.l	(sp)+,d0/a2
 	rts
 
-FormatPlayerNameWithAttrib	;a1 = mesarea string "NN F. Last" for player d0 of team a2, built in
-	;TextBuffer. Called from ShowGoalBox, GetPlayerNameWithAttrib, PrintPeriodTime and others
+FormatPlayerNumInitial	;a1 = mesarea string "NN F. Last" for player d0 of team a2, built in
+	;TextBuffer. Called from ShowGoalBox, GetPlayerNumInitial, PrintPeriodTime and others
 	movem.l	d0-d3/a0/a2,-(sp)
 	bsr.w	GetPlayerNamePointer
 	move.l	a0,-(sp)
@@ -3251,7 +3251,7 @@ FormatPlayerNameWithAttrib	;a1 = mesarea string "NN F. Last" for player d0 of te
 	rts
 
 FormatPlayerName	;a1 = mesarea string "NN Last" for player d0 of team a2, built in TextBuffer.
-	;Called from DisplayAttributeEntry
+	;Called from DrawStatsRow
 	movem.l	d0-d3/a0/a2,-(sp)
 	bsr.w	GetPlayerNamePointer
 	move.l	a0,-(sp)
