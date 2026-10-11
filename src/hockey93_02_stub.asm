@@ -20,25 +20,25 @@ RAMStart = $FF0000
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ; External routines and data outside $8AC4-$946D, at their retail addresses.
-; Names are IDA names, or source names from the SEGMENT_AGENT.md rename table.
+; Names are or source names from the SEGMENT_AGENT.md rename table.
 ; Add stubs here as the segment is decompiled.
 SPAList = $4D8E			; Frames93
 doinput = $946E			; logic93
-setpads = $A048			; logic93 (Rev A sub_A060)
+setpads = $A048			; logic93
 vtoa = $D05C			; logic93
 forceblack = $D67C		; middle93
 sfx = $D852			; middle93
 Readjoy1 = $D9B6		; middle93
 Readjoy2 = $D9D4		; middle93
-DoFill = $DB98			; middle93 (Rev A sub_DBB0)
+DoFill = $DB98			; middle93
 dobitmap = $DCE4		; middle93
 printz = $E1AE			; middle93
-ClrHor = $EEFE			; penalty93 (Rev A sub_EF16)
+ClrHor = $EEFE			; penalty93
 SetHor = $EF3C			; penalty93
 loadTeamStruct = $F2DA		; penalty93
 checkcoll = $FAE2		; hockey93_03_05
 rtss = $110E0			; hockey93_03_05
-setvideo = $118F2		; video93 (Rev A sub_1190A)
+setvideo = $118F2		; video93
 SprSort = $127F8		; hockey93_06_11
 asstab = $1518A			; hockey93_06_11
 IceRinkMap = $33864		; graphics

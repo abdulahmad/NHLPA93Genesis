@@ -1,7 +1,7 @@
 ;	NHLPA Hockey 93 (retail) segment $6A00-$6C09
 ;	93-only menu engine: InitMenuState through MenuWaitVblank. The generic
 ;	scrolling menu used by the pause screen (Pausemode in hockey93_01).
-;	Not in NHL 92; names are IDA names (Rev A listing).
+;Not in NHL 92; names are (Rev A listing).
 ;	Bytes match nhlpa93retail.bin.
 ;	92 equate names in comments are only used where the 93 value is the same.
 ;	Inline print strings after printsmallz/printsmall use the String macro
@@ -18,7 +18,7 @@ DrawMenuScreen	;call the draw routine, frame the menu box, print the items, fade
 	movea.l	(menudraw).w,a0
 	jsr	(a0)
 	bsr.w	printsmallz
-	String	$FE,4,$FC,$C
+	String	CC_SetAttribute,4,CC_SetY,$C
 	bsr.w	SetMenuPrintX
 	moveq	#$16,d0			;22 wide
 	moveq	#6,d1			;6 high
@@ -92,11 +92,12 @@ UpdateMenuSelection	;clamp the selection, scroll the 4 visible rows, print the m
 	move.w	#$D,(printy).w
 	movea.l	(menulist).w,a1
 	bsr.w	printsmall		;menu title
-	bsr.w	printsmallz		;clear the 4 item rows
-	dc.w	$0026			;String length, 36 bytes too long for the macro
-	dc.b	$FB,$01,$20,$FB,$FF,$FA,$01,$20,$FB,$FF,$FA,$01
-	dc.b	$20,$FB,$FF,$FA,$01,$20,$FB,$12,$20,$FB,$FF,$FA
-	dc.b	$FF,$20,$FB,$FF,$FA,$FF,$20,$FB,$FF,$FA,$FF,$20
+	bsr.w	printsmallz		;blank the selection marker columns left and right of the 4 item rows
+	dc.w	$0026			;String length word: 2 + 36 data bytes (too long for the String macro)
+	dc.b	CC_AddX,$01,$20,CC_AddX,$FF,CC_AddY,$01,$20	;left column: blank, down a row, blank ...
+	dc.b	CC_AddX,$FF,CC_AddY,$01,$20,CC_AddX,$FF,CC_AddY,$01,$20	;... 4 rows
+	dc.b	CC_AddX,$12,$20,CC_AddX,$FF,CC_AddY,$FF,$20	;right column (18 columns over), blank, up a row ...
+	dc.b	CC_AddX,$FF,CC_AddY,$FF,$20,CC_AddX,$FF,CC_AddY,$FF,$20	;... back to the top row
 	adda.w	(a1),a1
 	move.w	(menuitem+2).w,d0	;skip to first visible item
 	bra.w	.6
@@ -109,10 +110,10 @@ UpdateMenuSelection	;clamp the selection, scroll the 4 visible rows, print the m
 	move.w	(menuitem+2).w,d0
 	beq.w	.7
 	bsr.w	printsmallz		;more items above
-	String	$FE,5,$FB,1,$FA,1,$7B,$FA,$FF
+	String	CC_SetAttribute,5,CC_AddX,1,CC_AddY,1,$7B,CC_AddY,$FF
 .7	bsr.w	SetMenuPrintX
 	bsr.w	printsmallz
-	String	$FB,2,$FA,1
+	String	CC_AddX,2,CC_AddY,1
 	move.l	a1,-(sp)
 	movea.l	(menulist).w,a1
 	bsr.w	printsmall
@@ -128,7 +129,7 @@ UpdateMenuSelection	;clamp the selection, scroll the 4 visible rows, print the m
 	bmi.w	.x
 	bsr.w	SetMenuPrintX
 	bsr.w	printsmallz		;more items below
-	String	$FE,5,$FB,1,$7D
+	String	CC_SetAttribute,5,CC_AddX,1,$7D
 .x	rts
 
 PrintTeamData	;copy 2 rows of 12 map words from $FFC210+d0 to printx/printy,

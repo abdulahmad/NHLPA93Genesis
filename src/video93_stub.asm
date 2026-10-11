@@ -11,11 +11,11 @@
 ;	Imports and exports
 ;
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-cramfade = $D6D6		; middle93 (Rev A sub_D6EE)
+cramfade = $D6D6		; middle93
 sfx = $D852			; middle93
 jdtab = $DA70			; middle93 (movea.l operand, Rev A $DA88)
-DoDMA = $DA94			; middle93 (Rev A sub_DAAC)
-Vmaddr = $DCCA			; middle93 (Rev A sub_DCE2)
+DoDMA = $DA94			; middle93
+Vmaddr = $DCCA			; middle93
 rtss = $110E0			; hockey93_03_05
 sizetab = $154BC		; hockey93_06_11 (movea.l operand, Rev A $154D4)
 p_music_vblank = $166D4		; sound driver (jsr abs.l)
@@ -25,7 +25,7 @@ Spritetiles = $3A382		; graphics data (addi.l operand, Rev A $3A3B0)
 CrowdSprites = $748E2		; graphics data (movea.l operand)
 FaceOffSprites = $77170		; graphics data (movea.l operand)
 ZamSprites = $781E4		; graphics data (movea.l operand)
-smallfontmap = $795B4		; graphics data (movea.l operand, Rev A unk_795E2)
+smallfontmap = $795B4		; graphics data (movea.l operand)
 RAMStart = $FF0000	
 ; .region code
 	org	$11802

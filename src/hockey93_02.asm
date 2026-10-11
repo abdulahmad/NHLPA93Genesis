@@ -42,7 +42,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	bclr	#5,(sflags3).w		;no tracked object
 	st	(replayactive).w
 	movea.l	(recbpr).w,a4	;92 recbpr, record buffer pointer (current frame)
-.rwd	bsr.w	suba4			;IDA: RewindToStart. Rewind to first frame
+.rwd	bsr.w	suba4			;Rewind to first frame
 	tst.w	d7
 	bne.s	.rwd
 	jsr	SprSort
@@ -50,7 +50,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	bclr	#sf3rmplay,(sflags3).w		;play mode is off
 	move.w	#$18,(palcount).w	;fade in colors now/graphics are ready
 	moveq	#1,d7
-.top	move.w	(vcount).w,d0		;IDA: ReplayMainLoop
+.top	move.w	(vcount).w,d0
 	sub.w	(oldvcount).w,d0
 	cmp.w	d0,d7
 	bhi.s	.top			;wait d7 frames
@@ -63,13 +63,13 @@ ReplayMode	;this is instant replay play-back control and display code.
 	move.w	d1,d5
 	andi.w	#$F,d5			;new d-pad press?
 	beq.w	.nomans			;no: keep tracking
-.dir	btst	#3,d0			;IDA: CheckDirectionInput
+.dir	btst	#3,d0
 	bne.w	.nomans			;no d-pad input
 	bset	#sfscrl,(sflags).w		;manual scrolling is on
 	bne.w	.man
 	move.w	(Hpos).w,(a5)		;first frame: camera starts at the screen
 	move.w	(Vpos).w,$14(a5)
-.man	move.w	d0,d5			;IDA: ManualScroll. d5 = d-pad direction
+.man	move.w	d0,d5			;d5 = d-pad direction
 	andi.w	#7,d5
 	eori.w	#4,d5
 	movea.w	#(SortCords-M68K_RAM),a1
@@ -77,12 +77,12 @@ ReplayMode	;this is instant replay play-back control and display code.
 	bclr	#5,(sflags3).w
 	beq.w	.find
 	move.w	$16(a5),d3		;skip the object tracked now
-.find	move.w	(a5),d0			;IDA: FindTrackingTarget
+.find	move.w	(a5),d0
 	move.w	$14(a5),d1
 	moveq	#$B,d2			;12 players
 	move.l	#$100,d4		;nearest distance squared so far
 	movem.w	d0-d1,-(sp)
-.obj	cmp.w	SCnum(a1),d3		;IDA: CheckObjectLoop
+.obj	cmp.w	SCnum(a1),d3
 	beq.w	.skip
 	movem.w	(sp),d0-d1
 	sub.w	(a1),d0
@@ -108,7 +108,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	move.l	d0,d4
 	move.w	SCnum(a1),$16(a5)		;new target
 	bset	#5,(sflags3).w
-.skip	adda.w	#SCstruct,a1			;IDA: SkipObject
+.skip	adda.w	#SCstruct,a1
 	dbf	d2,.obj
 	addq.w	#4,sp
 	btst	#5,(sflags3).w
@@ -122,7 +122,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	bsr.w	UpdateCameraPos
 	jsr	(setvideo).l
 	bra.w	.top
-.scrl	bset	#5,(sflags).w		;IDA: UpdateManualScroll
+.scrl	bset	#5,(sflags).w
 	eori.w	#4,d5
 	asl.w	#2,d5
 	lea	.stab(pc),a0
@@ -133,27 +133,27 @@ ReplayMode	;this is instant replay play-back control and display code.
 	cmp.w	#-$88,d0
 	blt.w	.nox
 	move.w	d0,(a5)
-.nox	move.w	2(a0,d5.w),d1		;IDA: ClampCameraX
+.nox	move.w	2(a0,d5.w),d1
 	add.w	$14(a5),d1
 	cmp.w	#$126,d1
 	bgt.w	.noy
 	cmp.w	#-$126,d1
 	blt.w	.noy
 	move.w	d1,$14(a5)
-.noy	movea.w	a5,a3			;IDA: ClampCameraY
+.noy	movea.w	a5,a3
 	clr.w	$18(a5)
 	andi.w	#$FFF,(PadControlBits).w
 	ori.w	#$E000,(PadControlBits).w
 	bsr.w	UpdateCameraPos
 	jsr	(setvideo).l
 	bra.w	.top
-.stab	dc.w	0,2,2,2,2,0,2,-2,0,-2,-2,-2,-2,0,-2,2	;IDA: ScrollDirTbl. 92 steps * 2
+.stab	dc.w	0,2,2,2,2,0,2,-2,0,-2,-2,-2,-2,0,-2,2	;92 steps * 2
 
-.nomans	st	$18(a5)			;IDA: HandleNoInput
+.nomans	st	$18(a5)
 	btst	#5,d1			;cbut
 	beq.w	.00
 	bchg	#sf3rmplay,(sflags3).w		;switch play mode
-.00	btst	#6,d3			;IDA: CheckRewind. abut
+.00	btst	#6,d3			;abut
 	beq.w	.0
 	bsr.w	suba4			;fast rewind
 	bsr.w	suba4
@@ -163,26 +163,26 @@ ReplayMode	;this is instant replay play-back control and display code.
 	jsr	(setvideo).l
 	moveq	#1,d7
 	bclr	#1,(sflags3).w		;turn off play mode
-.0	btst	#4,d3			;IDA: CheckAdvance. bbut
+.0	btst	#4,d3			;bbut
 	beq.w	.1
 	btst	#6,d3			;abut
 	beq.w	.f1
 	bclr	#5,(sflags3).w
 	bclr	#5,(sflags).w		;a+b but = manual scroll off (hidden feature)
 	bra.w	.top
-.f1	bsr.w	adda4			;IDA: AdvanceOneFrame. Advance 1 frame
+.f1	bsr.w	adda4			;Advance 1 frame
 	jsr	SprSort
 	jsr	(setvideo).l
 	asl.w	#1,d7			;double delay time between frames = 1/2 speed slow motion
 	bclr	#1,(sflags3).w		;turn off play mode
-.1	btst	#sf3rmplay,(sflags3).w		;IDA: CheckPlayMode
+.1	btst	#sf3rmplay,(sflags3).w
 	beq.w	.noplay
 	st	(lastsfx).w		;play mode is on = advance one frame at original speed
 	bsr.w	adda4
 	move.w	(lastsfx).w,-(sp)	;play sound effects
 	bsr.w	sfx
 	jsr	SprSort
-.noplay	jsr	(setvideo).l		;IDA: CheckExit
+.noplay	jsr	(setvideo).l
 	btst	#7,d1			;sbut
 	beq.w	.top			;no exit yet
 	bsr.w	forceblack
@@ -203,7 +203,7 @@ getpzjoy	;read the joystick of the pad that paused
 	bne.w	Readjoy2
 	bra.w	Readjoy1
 
-suba4	;IDA: suba4_reverseReplayFrame. a4 = address in replay buffer of current
+suba4	;a4 = address in replay buffer of current
 	;frame. Back up 1 frame and set video parameters for display.
 	;d7 will be set to delay between frames or zero if at the end of replay
 	cmpa.l	#M68K_RAM,a4		;replaystart
@@ -215,11 +215,11 @@ suba4	;IDA: suba4_reverseReplayFrame. a4 = address in replay buffer of current
 	cmpa.l	(recbpr).w,a4
 	bne.w	RestoreReplayFrame
 	adda.w	#$62,a4			;reached the record point
-.end	bsr.w	RestoreReplayFrame	;IDA: loc_8DFE
+.end	bsr.w	RestoreReplayFrame
 	clr.w	d7
 	rts
 
-adda4	;IDA: adda4_advanceReplayFrame. a4 = address in replay buffer of current
+adda4	;a4 = address in replay buffer of current
 	;frame. Step forward 1 frame and set video parameters for display.
 	;d7 will be set to delay between frames or zero if at the end of replay
 	clr.w	d7
@@ -252,17 +252,17 @@ UpdateCameraPos	;93 only. Camera struct a5 = object a3's x/y, Hpos/Vpos =
 	cmp.w	#$3C,d0
 	blt.w	.0
 	move.w	#$3C,d0			;92 checkwindow .xslim
-.0	cmp.w	#-$3C,d0		;IDA: loc_8E60
+.0	cmp.w	#-$3C,d0
 	bgt.w	.1
 	move.w	#$FFC4,d0
-.1	move.w	d0,(Hpos).w		;IDA: loc_8E6C
+.1	move.w	d0,(Hpos).w
 	cmp.w	#$100,d1
 	blt.w	.2
 	move.w	#$100,d1		;92 .yslimu
-.2	cmp.w	#-200,d1		;IDA: loc_8E7C
+.2	cmp.w	#-200,d1
 	bgt.w	.3
 	move.w	#$FF38,d1		;92 .yslimd
-.3	move.w	d1,(Vpos).w		;IDA: loc_8E88
+.3	move.w	d1,(Vpos).w
 	movem.l	(sp)+,d0-d2
 	rts
 
@@ -275,19 +275,19 @@ RestoreReplayFrame	;a4 = current replay frame address to convert into normal
 	movea.l	a4,a0
 	moveq	#$F,d1			;16 objects to convert (12 players/puck/shadow/2 goal nets)
 	movea.w	#(SortCords-M68K_RAM),a3
-.top	move.w	2(a0),d2		;IDA: loc_8E9E
+.top	move.w	2(a0),d2
 	andi.w	#$3FF,d2
 	btst	#9,d2
 	beq.w	.p
 	ori.w	#$FC00,d2
-.p	move.w	d2,(a3)			;IDA: loc_8EB2. Xpos
+.p	move.w	d2,(a3)			;Xpos
 	move.l	(a0),d2
 	asr.l	#4,d2
 	asr.w	#6,d2
 	btst	#9,d2
 	beq.w	.p1
 	ori.w	#$FC00,d2
-.p1	move.w	d2,Ypos(a3)		;IDA: loc_8EC6
+.p1	move.w	d2,Ypos(a3)
 	move.w	(a0),d2
 	asr.w	#4,d2
 	andi.w	#$3FF,d2
@@ -302,13 +302,13 @@ RestoreReplayFrame	;a4 = current replay frame address to convert into normal
 	dbf	d1,.top
 	moveq	#5,d2			;6 pairs of players
 	movea.w	#(SortCords-M68K_RAM),a3
-.pl	move.b	(a0)+,rostnum(a3)		;IDA: loc_8EF8
+.pl	move.b	(a0)+,rostnum(a3)
 	move.b	(a0),d0
 	andi.w	#$F,d0
 	cmp.w	#$F,d0
 	bne.w	.n0
 	moveq	#-1,d0			;$F = not on ice
-.n0	move.w	d0,position(a3)		;IDA: loc_8F0C
+.n0	move.w	d0,position(a3)
 	adda.w	#SCstruct,a3
 	move.b	(a0)+,d0
 	lsr.b	#4,d0
@@ -322,7 +322,7 @@ RestoreReplayFrame	;a4 = current replay frame address to convert into normal
 	cmp.w	#$F,d0
 	bne.w	.n1
 	moveq	#-1,d0
-.n1	move.w	d0,position(a3)		;IDA: loc_8F36
+.n1	move.w	d0,position(a3)
 	adda.w	#SCstruct,a3
 	dbf	d2,.pl
 	move.b	(a0)+,d0
@@ -354,11 +354,11 @@ RestoreReplayFrame	;a4 = current replay frame address to convert into normal
 	asl.w	#7,d0
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d0,a3
-.cam	bsr.w	UpdateCameraPos		;IDA: loc_8FA2
+.cam	bsr.w	UpdateCameraPos
 	bra.w	.x
-.pos	move.w	(a0)+,(Hpos).w		;IDA: loc_8FAA
+.pos	move.w	(a0)+,(Hpos).w
 	move.w	(a0)+,(Vpos).w
-.x	movem.l	(sp)+,d0-d2/a0		;IDA: loc_8FB2
+.x	movem.l	(sp)+,d0-d2/a0
 	rts
 
 updatereplay	;called every frame to save replay events, d7 = elapsed frames
@@ -371,10 +371,10 @@ updatereplay	;called every frame to save replay events, d7 = elapsed frames
 	bne.w	.rec
 	bset	#sfwrap,(sflags).w
 	move.l	#M68K_RAM,(recbpr).w	;replaystart
-.rec	movea.l	(recbpr).w,a0	;IDA: loc_8FEE
+.rec	movea.l	(recbpr).w,a0
 	moveq	#$F,d2			;16 objects (92 record)
 	movea.w	#(SortCords-M68K_RAM),a3
-.top	clr.l	(a0)			;IDA: loc_8FF8
+.top	clr.l	(a0)
 	move.w	(a3),d1			;Xpos
 	andi.w	#$3FF,d1
 	move.w	d1,2(a0)
@@ -395,11 +395,11 @@ updatereplay	;called every frame to save replay events, d7 = elapsed frames
 	dbf	d2,.top
 	moveq	#5,d2			;6 pairs of players
 	movea.w	#(SortCords-M68K_RAM),a3
-.pl	move.b	rostnum(a3),(a0)+		;IDA: loc_9034
+.pl	move.b	rostnum(a3),(a0)+
 	move.w	position(a3),d0
 	bpl.w	.n0
 	moveq	#$F,d0			;not on ice
-.n0	andi.w	#$F,d0			;IDA: loc_9042
+.n0	andi.w	#$F,d0
 	move.b	d0,(a0)
 	adda.w	#SCstruct,a3
 	move.b	rostnum(a3),d0
@@ -411,7 +411,7 @@ updatereplay	;called every frame to save replay events, d7 = elapsed frames
 	move.w	position(a3),d0
 	bpl.w	.n1
 	moveq	#$F,d0
-.n1	asl.w	#4,d0			;IDA: nonshift (misplaced name, not 92 nonshift)
+.n1	asl.w	#4,d0			;(misplaced name, not 92 nonshift)
 	or.b	d0,(a0)+
 	adda.w	#SCstruct,a3
 	dbf	d2,.pl
@@ -435,8 +435,8 @@ updateplayers
 	btst	#sfhor,(sflags).w
 	bne.w	.u0
 	ori.w	#$F,(PadControlBits).w
-.u0	movea.w	#(SortCords-M68K_RAM),a3	;IDA: _scload
-.top	move.l	(a3),OldXpos(a3)		;IDA: _top. Xpos
+.u0	movea.w	#(SortCords-M68K_RAM),a3
+.top	move.l	(a3),OldXpos(a3)		;Xpos
 	move.l	Ypos(a3),OldYpos(a3)
 	move.l	Zpos(a3),OldZpos(a3)
 	tst.w	position(a3)
@@ -445,10 +445,10 @@ updateplayers
 	sub.b	d7,nopuck(a3)		;puck control
 	bpl.w	.np
 	clr.b	nopuck(a3)
-.np	sub.b	d7,$5F(a3)		;IDA: loc_90DE
+.np	sub.b	d7,$5F(a3)
 	bpl.w	.np2
 	clr.b	$5F(a3)
-.np2	btst	#6,(sflags3).w		;IDA: loc_90EA. Check line change mode
+.np2	btst	#6,(sflags3).w		;Check line change mode
 	beq.w	.vel
 	clr.w	d0
 	move.b	pnum(a3),d0
@@ -457,7 +457,7 @@ updateplayers
 	addi.w	#$136,d0
 	bsr.w	loadTeamStruct
 	addq.w	#1,(a2,d0.w)		;count frames on ice for this player
-.vel	cmpi.w	#$1616,SPA(a3)		;IDA: loc_910C. $1616: skip movement and bounce
+.vel	cmpi.w	#$1616,SPA(a3)		;$1616: skip movement and bounce
 	beq.w	.done
 ;----------------------------------	now update velocity
 	IF REV=1
@@ -465,7 +465,7 @@ updateplayers
 	tst.w	(music_global_tick_counter).w
 	beq.w	.ntsc
 	moveq	#$14,d4
-.ntsc	mulu.w	d7,d4			;IDA: loc_9122
+.ntsc	mulu.w	d7,d4
 	ELSE
 	move.w	d7,d4
 	asl.w	#4,d4
@@ -517,12 +517,12 @@ updateplayers
 	sub.b	Zvel(a3),d0
 	bpl.w	.snd
 	clr.w	d0
-.snd	cmp.w	#3,d0		;IDA: loc_91C4
+.snd	cmp.w	#3,d0
 	bhi.w	.done
 	addi.w	#$2C,d0			;bounce sound $2C-$2F by speed (92 SFXpuckice once)
 	move.w	d0,-(sp)
 	bsr.w	sfx
-.done	move.w	SCnum(a3),d6		;IDA: loc_91D6
+.done	move.w	SCnum(a3),d6
 	cmp.w	(puckc).w,d6
 	bne.w	.tp			;not puck carrier
 	btst	#pf2fight,pflags2(a3)
@@ -531,18 +531,18 @@ updateplayers
 	bne.w	.tp
 	moveq	#-2,d4			;pad index for puck carrier
 	bsr.w	setpads
-.tp	cmp.w	(c1playernum).w,d6	;IDA: loc_91FC
+.tp	cmp.w	(c1playernum).w,d6
 	bne.w	.t0
 	bsr.w	Readjoy1
 	clr.w	d4			;pad index for cont 1 player
 	bsr.w	doinput
 	bra.w	.t1
-.t0	cmp.w	(c2playernum).w,d6	;IDA: loc_9212
+.t0	cmp.w	(c2playernum).w,d6
 	bne.w	.t1
 	bsr.w	Readjoy2
 	moveq	#2,d4			;pad index for cont 2 player
 	bsr.w	doinput
-.t1	move.w	assnum(a3),d0		;IDA: loc_9224. 93 has no pfalock test here
+.t1	move.w	assnum(a3),d0		;93 has no pfalock test here
 	clr.w	d1
 	move.b	asslist(a3,d0.w),d1
 	asl.w	#2,d1
@@ -558,13 +558,13 @@ updateplayers
 	bne.w	.cc
 	cmp.w	OldYpos(a3),d3
 	beq.w	.nf
-.cc	bsr.w	checkcoll		;IDA: loc_925E. Check for coll if moved by at least 1 pix
-.nf	move.w	d7,d0			;IDA: loc_9262
+.cc	bsr.w	checkcoll		;Check for coll if moved by at least 1 pix
+.nf	move.w	d7,d0
 	asl.w	#1,d0
 	sub.w	d0,impact(a3)		;reduce impact at constant rate
 	bpl.w	.nf1
 	clr.w	impact(a3)
-.nf1	move.w	impact(a3),limpact(a3)		;IDA: loc_9272
+.nf1	move.w	impact(a3),limpact(a3)
 	adda.w	#SCstruct,a3
 	cmpi.w	#$F,SCnum-SCstruct(a3)		;the struct just done
 	blt.w	.top			;loop for all Sort objects
@@ -577,7 +577,7 @@ updateanim	;frame switch control on struct a3. Also called from
 	bclr	#pfalock,pflags(a3)
 	bclr	#pf2aip,pflags2(a3)
 	rts
-.ia	movea.l	#SPAList,a0		;IDA: loc_929E. Animation data tables (frames)
+.ia	movea.l	#SPAList,a0		;Animation data tables (frames)
 	adda.w	SPA(a3),a0
 	move.w	$10(a0),d1		;attributes for anim
 	move.w	facedir(a3),d0
@@ -587,12 +587,12 @@ updateanim	;frame switch control on struct a3. Also called from
 	bge.w	.nhor
 	subq.w	#2,d0			;direction adj for horizontal rink
 	andi.w	#7,d0
-.nhor	btst	#3,attribute(a3)		;IDA: loc_92CA. X flip flag
+.nhor	btst	#3,attribute(a3)		;X flip flag
 	beq.w	.nox
 	neg.w	d0
 	addq.w	#8,d0
 	andi.w	#7,d0
-.nox	asl.w	#1,d0			;IDA: loc_92DC
+.nox	asl.w	#1,d0
 	adda.w	(a0,d0.w),a0
 	move.w	SPAnum(a3),d0
 	move.w	(a0,d0.w),d2		;new frame
@@ -611,11 +611,11 @@ updateanim	;frame switch control on struct a3. Also called from
 	btst	#0,d1
 	bne.w	.1			;looper
 	clr.w	SPA(a3)
-.1	move.w	2(a0,d0.w),d0		;IDA: loc_9326
+.1	move.w	2(a0,d0.w),d0
 	bpl.w	.0
 	neg.w	d0
-.0	move.w	d0,SPAcnt(a3)		;IDA: loc_9330
-.cframe	sub.b	d7,glitch(a3)		;IDA: loc_9334. Limit minimum time between frame switches
+.0	move.w	d0,SPAcnt(a3)
+.cframe	sub.b	d7,glitch(a3)		;Limit minimum time between frame switches
 	bpl.w	rtss
 	clr.b	glitch(a3)
 	cmp.w	frame(a3),d2
@@ -650,18 +650,18 @@ checkwindow	;set hpos and vpos according to how screen should follow puck
 	blt.w	.ok
 	move.w	#$32,(yleader).w
 	bra.w	.ok
-.gd	sub.w	d0,(yleader).w		;IDA: loc_93B4
+.gd	sub.w	d0,(yleader).w
 	cmpi.w	#$FFCE,(yleader).w	;-.ylmax
 	bgt.w	.ok
 	move.w	#$FFCE,(yleader).w
-.ok	move.w	Yvel(a3),d2		;IDA: loc_93C8
+.ok	move.w	Yvel(a3),d2
 	asr.w	#7,d2
 	add.w	Ypos(a3),d2
 	add.w	(yleader).w,d2
 	move.w	(a3),d3			;Xpos
 	move.w	d2,(yc1).w
 	move.w	d3,(xc1).w
-.dd	move.w	d2,d0			;IDA: loc_93E0
+.dd	move.w	d2,d0
 	sub.w	(Vpos).w,d0
 	cmp.w	#-10,d0		;-.ylim
 	bge.w	.1
@@ -671,20 +671,20 @@ checkwindow	;set hpos and vpos according to how screen should follow puck
 	bgt.w	.2
 	move.w	#$FF38,d1
 	bra.w	.2
-.1	cmp.w	#10,d0		;IDA: loc_9404. .ylim
+.1	cmp.w	#10,d0		;ylim
 	ble.w	.2x
 	move.w	d2,d1
 	subi.w	#$A,d1
 	cmp.w	#256,d1		;.yslimu
 	blt.w	.2
 	move.w	#$100,d1
-.2	sub.w	(Vpos).w,d1		;IDA: loc_941E
+.2	sub.w	(Vpos).w,d1
 	beq.w	.2x
 	asr.w	#4,d1
 	bne.w	.v2
 	addq.w	#1,d1
-.v2	add.w	d1,(Vpos).w		;IDA: loc_942E
-.2x	move.w	d3,d0			;IDA: loc_9432
+.v2	add.w	d1,(Vpos).w
+.2x	move.w	d3,d0
 	sub.w	(Hpos).w,d0
 	cmp.w	#-40,d0		;-.xlim
 	bge.w	.3
@@ -694,17 +694,17 @@ checkwindow	;set hpos and vpos according to how screen should follow puck
 	bge.w	.4
 	move.w	#$FFC4,d1
 	bra.w	.4
-.3	cmp.w	#40,d0		;IDA: loc_9456. .xlim
+.3	cmp.w	#40,d0		;xlim
 	ble.w	rtss
 	move.w	d3,d1
 	subi.w	#$28,d1
 	cmp.w	#60,d1		;.xslim
 	ble.w	.4
 	move.w	#$3C,d1
-.4	sub.w	(Hpos).w,d1		;IDA: loc_9470
+.4	sub.w	(Hpos).w,d1
 	beq.w	rtss
 	asr.w	#4,d1
 	bne.w	.h2
 	addq.w	#1,d1
-.h2	add.w	d1,(Hpos).w		;IDA: loc_9480
+.h2	add.w	d1,(Hpos).w
 	rts

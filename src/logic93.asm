@@ -1,9 +1,8 @@
 ;======================================================================
-;	(was logic93_1.asm)
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $946E-$A0FB
 ;	92 Logic.Asm part 1: controller input for skaters (doinput ... setpads)
-;	and check4bench. Global names from the IDA export, 92 names where the
+;and check4bench. Global names from the 92 names where the
 ;	routine is the same (see the SEGMENT_AGENT.md rename table).
 ;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
@@ -27,13 +26,13 @@ doinput	;process controller input
 	tst.w	d4
 	beq.w	startpause1
 	bra.w	startpause2
-.0	btst	#sfhor,(sflags).w		;IDA: loc_949C. is screen in horizontal mode
+.0	btst	#sfhor,(sflags).w		;is screen in horizontal mode
 	beq.w	.nhor
 	btst	#3,d0
 	bne.w	.nhor
 	addq.w	#2,d0			;add 90 degrees if in horizontal mode
 	andi.w	#7,d0
-.nhor	btst	#sf2faceoff,(sflags2).w		;IDA: _nhor
+.nhor	btst	#sf2faceoff,(sflags2).w
 	bne.w	faceoffinput
 	btst	#pf2lcm,pflags2(a3)		;pf2lcm
 	bne.w	lineinput		;line change interface on
@@ -55,12 +54,12 @@ doinput	;process controller input
 	btst	#5,d1			;cbut
 	bne.w	burst			;burst/check
 	bra.w	doplayeracc		;no button, just dpad input
-.ispc	bsr.w	checkob			;IDA: loc_9516. Player is puck handler
+.ispc	bsr.w	checkob			;Player is puck handler
 	tst.w	position(a3)
 	bne.w	.pc1
 	btst	#pf2aip,pflags2(a3)		;goalie
 	bne.w	rtss
-.pc1	btst	#sfspdir,(sflags).w		;IDA: loc_952C
+.pc1	btst	#sfspdir,(sflags).w
 	bne.w	passmode
 	btst	#sfssdir,(sflags).w
 	bne.w	ShotMode
@@ -73,7 +72,7 @@ doinput	;process controller input
 	btst	#5,d1			;cbut
 	bne.w	SetShotMode
 	bra.w	doplayeracc
-.islocked	move.w	(puckc).w,d5		;IDA: loc_9564. Animation is locked /don't interupt it/
+.islocked	move.w	(puckc).w,d5		;Animation is locked /don't interupt it/
 	cmp.w	SCnum(a3),d5
 	beq.w	rtss
 	btst	#4,d1			;bbut, is not puck handler
@@ -88,7 +87,7 @@ faceoffinput	;controller processing for faceoff
 	btst	#pfgoal,pflags(a3)
 	beq.w	.2
 	movea.w	#(fodir2-M68K_RAM),a0
-.2	move.w	d0,(a0)			;IDA: loc_959A. Store dpad for faceoff pull
+.2	move.w	d0,(a0)			;Store dpad for faceoff pull
 	btst	#pf2aip,pflags2(a3)
 	bne.w	rtss
 	btst	#4,d1			;bbut
@@ -96,7 +95,7 @@ faceoffinput	;controller processing for faceoff
 	move.w	#$11A4,d1		;SPAfaceoff
 	bset	#pf2aip,pflags2(a3)
 	bra.w	SetSPA
-.1	move.w	#$11CE,d1		;IDA: loc_95BC. SPAfaceoffr
+.1	move.w	#$11CE,d1		;SPAfaceoffr
 	bra.w	SetSPA
 
 fightinput	;controller processing for fighting
@@ -112,22 +111,22 @@ fightinput	;controller processing for fighting
 	bne.w	.noa
 	andi.w	#7,d2
 	bsr.w	playeracc		;move player
-.noa	move.w	(xc1).w,d0		;IDA: _noa. Keep the players face to face and in range of xc1
+.noa	move.w	(xc1).w,d0		;Keep the players face to face and in range of xc1
 	addi.w	#$C,d0
 	cmpi.w	#2,facedir(a3)
 	bne.w	.0
 	subi.w	#$18,d0			;xc1 - 12
-.0	sub.w	(a3),d0			;IDA: _0
+.0	sub.w	(a3),d0
 	move.w	Xvel(a3),d1
 	eor.w	d0,d1
 	bpl.w	.ind
 	tst.w	d0
 	bpl.w	.1
 	neg.w	d0
-.1	muls.w	Xvel(a3),d0		;IDA: _1
+.1	muls.w	Xvel(a3),d0
 	asr.l	#4,d0
 	sub.w	d0,Xvel(a3)
-.ind	move.w	(sp)+,d1		;IDA: _ind
+.ind	move.w	(sp)+,d1
 	bset	#pf2aip,pflags2(a3)
 	bne.w	rtss
 	move.w	d1,d2
@@ -143,7 +142,7 @@ fightinput	;controller processing for fighting
 	bclr	#pf2aip,pflags2(a3)		;clear anim in prog if none
 	rts
 
-SetLCmode	;IDA: loc_9660. Initiate line change option if available (abut
+SetLCmode	;Initiate line change option if available (abut
 	;pressed by the puck carrier)
 	tst.w	(OptLine).w
 	bne.w	rtss			;exit if line changes off
@@ -153,20 +152,20 @@ SetLCmode	;IDA: loc_9660. Initiate line change option if available (abut
 	bclr	#2,(sflags).w		;terminate passing by this player
 	bclr	#3,(sflags).w		;same with shooting
 	bset	#pf2lcm,pflags2(a3)		;pf2lcm: this player in lc mode
-SetLCmode2	;IDA: showfaceoff. a2 = team struct for lc. Draw the lc box with
+SetLCmode2	;a2 = team struct for lc. Draw the lc box with
 	;one row per eligible line (A/B/C + line name). Also called from lineinput
 	bsr.w	setlccords		;set screen cords for this teams lc box
 	cmpi.w	#$F,(printy).w
 	blt.w	.box
 	bset	#sf3llcs,(sflags3).w		;flag for lower (on screen) line change
 	bra.w	.frame
-.box	jsr	(box).l			;IDA: loc_96A0
+.box	jsr	(box).l
 	bsr.w	setlccords
-.frame	bsr.w	Framer			;IDA: loc_96AA. Frame lc box
+.frame	bsr.w	Framer			;Frame lc box
 	subq.w	#2,(printy).w
 	addq.w	#1,(printx).w
 	moveq	#2,d4			;loop 3 times
-.loop	move.w	d4,d0			;IDA: loc_96B8
+.loop	move.w	d4,d0
 	bsr.w	getlchoice
 	tst.w	d0
 	bmi.w	.next			;no line for this button
@@ -175,7 +174,7 @@ SetLCmode2	;IDA: showfaceoff. a2 = team struct for lc. Draw the lc box with
 	cmp.w	$2E(a2),d4		;box being closed: only the chosen row
 	bne.w	.up
 	move.w	tmline(a2),d0
-.pr	movea.w	#(mesarea-M68K_RAM),a1	;IDA: loc_96DA
+.pr	movea.w	#(mesarea-M68K_RAM),a1
 	move.l	#$44120,(a1)		;String 'A '
 	add.b	d4,2(a1)		;'A'-'C'
 	bsr.w	print
@@ -185,8 +184,8 @@ SetLCmode2	;IDA: showfaceoff. a2 = team struct for lc. Draw the lc box with
 	move.w	(sp)+,d0
 	bsr.w	linebar
 	subq.w	#5,(printx).w
-.up	subq.w	#1,(printy).w		;IDA: loc_9702
-.next	dbf	d4,.loop		;IDA: loc_9706
+.up	subq.w	#1,(printy).w
+.next	dbf	d4,.loop
 	movea.l	tmdata(a2),a1		;team name
 	adda.w	4(a1),a1
 	adda.w	(a1),a1
@@ -199,10 +198,10 @@ setlccords	;set printx/y to cords for lc box on team a2
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	bne.w	.0
 	eori.w	#$16,d0
-.0	btst	#gmdir,(gmode).w		;IDA: loc_972A
+.0	btst	#gmdir,(gmode).w
 	beq.w	.noflip
 	eori.w	#$16,d0
-.noflip	bsr.w	printz			;IDA: loc_9738
+.noflip	bsr.w	printz
 	String	$BF,$16,0
 	add.w	d0,(printy).w
 	moveq	#2,d0
@@ -212,7 +211,7 @@ setlccords	;set printx/y to cords for lc box on team a2
 	bpl.w	.ex
 	subq.w	#1,d1			;no third choice: 2 rows
 	addq.w	#1,(printy).w
-.ex	moveq	#9,d0			;IDA: loc_975A
+.ex	moveq	#9,d0
 	rts
 
 getlchoice	;d0 = 0-2 (a2 = team)
@@ -222,13 +221,13 @@ getlchoice	;d0 = 0-2 (a2 = team)
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.0
 	move.w	tmap-tmsize(a2),d2
-.0	sub.w	tmap(a2),d2		;IDA: loc_9772. d2= number I'm short
+.0	sub.w	tmap(a2),d2		;d2= number I'm short
 	beq.w	.1
 	addi.w	#$15,d0			;3*7
 	tst.w	d2
 	bmi.w	.1
 	addi.w	#$15,d0
-.1	move.w	tmline(a2),d1		;IDA: loc_9788
+.1	move.w	tmline(a2),d1
 	add.w	d1,d0
 	add.w	d1,d0
 	add.w	d1,d0
@@ -237,7 +236,7 @@ getlchoice	;d0 = 0-2 (a2 = team)
 	ext.w	d0
 	movem.l	(sp)+,d1-d2
 	rts
-.tab	;IDA: unk_97A2
+.tab
 ;offset = 0 no power play
 	dc.b	0,1,2			;line 0
 	dc.b	1,2,0			;line 1
@@ -271,11 +270,11 @@ lineinput	;process input for line changes
 	btst	#pfteam,pflags(a3)
 	beq.w	.0
 	adda.w	#tmsize,a2
-.0	bclr	#0,tmflags(a2)		;IDA: loc_97F6. Flag to start lc mode
+.0	bclr	#0,tmflags(a2)		;Flag to start lc mode
 	beq.w	.1
 	bsr.w	lcfound2		;close the old box
 	bsr.w	SetLCmode2		;start lc mode
-.1	move.w	(sp)+,d1		;IDA: loc_9808. New presses
+.1	move.w	(sp)+,d1		;New presses
 	clr.w	d2			;choice made index
 	btst	#6,d1			;abut
 	bne.w	lcfound
@@ -291,7 +290,7 @@ lineinput	;process input for line changes
 	bne.w	.x
 	btst	#pf2fight,pflags2(a3)
 	beq.w	doplayeracc		;skate with dpad if not fighting
-.x	rts				;IDA: locret_9846
+.x	rts
 
 lcfound	;d2 = choice made 0-2
 	move.w	d2,d0
@@ -310,7 +309,7 @@ lcfound2	;close lc box. Also called from lineinput
 	cmpi.w	#$F,(printy).w
 	blt.w	.nollcm
 	bclr	#sf3llcs,(sflags3).w
-.nollcm	addq.w	#1,d1			;IDA: loc_988C
+.nollcm	addq.w	#1,d1
 	move.w	#$7FF,d2
 	bsr.w	eraser
 	bra.w	printscores1
@@ -321,7 +320,7 @@ burst	;cbut press check/speed. Also entered from check4check
 	bne.w	.0
 	subi.w	#$CC,d0			;$1000/20
 	bsr.w	setpde			;decrease players energy
-.0	lsr.w	#7,d0			;IDA: loc_98AE
+.0	lsr.w	#7,d0
 	move.w	d0,d1			;energy = speed increase (check violence)
 	move.w	facedir(a3),d2
 	asl.w	#2,d2
@@ -355,9 +354,9 @@ Acheck	;start hold (or hook if a0 is ahead, $CB0) on player a0. Also entered
 	btst	#pfgoal,pflags(a3)
 	beq.w	.0
 	neg.w	d0
-.0	bmi.w	.set			;IDA: loc_9920
+.0	bmi.w	.set
 	move.w	#$CB0,d1
-.set	bra.w	SetSPA			;IDA: loc_9928
+.set	bra.w	SetSPA
 
 setpassmode	;initialize pass mode
 	move.w	facedir(a3),(passdir).w	;default pass dir.
@@ -384,7 +383,7 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 	tst.w	position(a3)
 	beq.w	.pa			;goalie
 	move.b	passacc(a3),d0
-.pa	asl.w	#2,d0			;IDA: loc_9984
+.pa	asl.w	#2,d0
 	addi.w	#$A0,d0			;160
 	move.w	d0,(passspeed).w
 	moveq	#-1,d4			;look for closest and best player to pass to
@@ -393,7 +392,7 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 	cmpi.w	#6,SCnum(a3)
 	blt.w	.0
 	adda.w	#6*SCstruct,a1
-.0	cmpa.l	a1,a3			;IDA: loc_99A4
+.0	cmpa.l	a1,a3
 	beq.w	.next			;don't pass to yourself
 	tst.w	position(a1)
 	beq.w	.next			;don't pass to goalie
@@ -422,13 +421,13 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 	bhi.w	.next
 	move.l	d2,d4
 	movea.l	a1,a0
-.next	adda.w	#SCstruct,a1			;IDA: loc_9A02
+.next	adda.w	#SCstruct,a1
 	dbf	d3,.0
 	tst.l	d4
 	bmi.w	.nopp			;skip if no player to pass to
 	bsr.w	passtoa0
 	bra.w	.exit
-.nopp	move.w	(passdir).w,d0		;IDA: loc_9A18. Just hit puck in pass direction not to any player
+.nopp	move.w	(passdir).w,d0		;Just hit puck in pass direction not to any player
 	asl.w	#2,d0
 	movea.l	#dirtab,a0
 	move.w	2(a0,d0.w),d1		;y INC
@@ -447,16 +446,16 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 	move.w	#$1000,d0
 	bsr.w	randomd0
 	move.w	d0,(puckvz).w
-.exit	tst.w	position(a3)			;IDA: loc_9A5E. Start animation for player passing
+.exit	tst.w	position(a3)			;Start animation for player passing
 	bne.w	.notgoalie
 	tst.w	(puckvy).w
 	btst	#pfgoal,pflags(a3)
 	beq.w	.g0
 	bmi.w	.nvy
 	bra.w	.notgoalie
-.g0	bmi.w	.notgoalie		;IDA: loc_9A7C
-.nvy	neg.w	(puckvy).w		;IDA: loc_9A80
-.notgoalie	move.w	(puckvx).w,d0		;IDA: loc_9A84
+.g0	bmi.w	.notgoalie
+.nvy	neg.w	(puckvy).w
+.notgoalie	move.w	(puckvx).w,d0
 	move.w	(puckvy).w,d1
 	bsr.w	vtoa
 	move.w	#$386,d1		;SPAgswing
@@ -466,7 +465,7 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 	bsr.w	Findhittype
 	beq.w	.e1
 	move.w	#$7AA,d1		;SPApassb
-.e1	bsr.w	SetSPA			;IDA: loc_9AAC
+.e1	bsr.w	SetSPA
 	bset	#pfalock,pflags(a3)
 	moveq	#$C,d0			;pass sound $10+ by puck height (92 SFXpass first)
 	sub.b	(puckvz).w,d0
@@ -529,7 +528,7 @@ passtoa0	;pass puck to player a0
 	asr.w	#2,d5
 	bne.w	.0
 	moveq	#1,d5			;no div by zero
-.0	move.w	d0,d2			;IDA: CalcPassTime
+.0	move.w	d0,d2
 	neg.w	d0
 	sub.w	d4,d2
 	ext.l	d2
@@ -537,14 +536,14 @@ passtoa0	;pass puck to player a0
 	dbpl	d3,.0
 	bne.w	.1
 	addq.w	#1,d2			;can't be zero
-.1	cmp.w	#24,d2		;IDA: ClampPassTime. limit to 3 sec.
+.1	cmp.w	#24,d2		;limit to 3 sec.
 	bls.w	.2
 	moveq	#$18,d2
-.2	move.b	d2,(puckvz).w		;IDA: ClampPassTime2. d2 = time in 1/8 sec to intersection
+.2	move.b	d2,(puckvz).w		;d2 = time in 1/8 sec to intersection
 	cmp.w	#12,d2
 	blt.w	.3
 	move.b	#$C,(puckvz).w
-.3	move.w	d2,d0			;IDA: CalcPuckVelocities
+.3	move.w	d2,d0
 	asl.w	#3,d0
 	subi.w	#$A,d0			;92: 6
 	move.b	d0,$40(a0)		;temp2
@@ -589,8 +588,8 @@ changeplayer	;switch controller d4 (0/2) to the teammate nearest the puck,
 	cmpi.w	#1,(a1,d4.w)
 	beq.w	.t1
 	adda.w	#6*SCstruct,a0		;controller is on other team
-.t1	movea.w	#(c1playernum-M68K_RAM),a1	;IDA: t1_CheckPlayers
-.top	tst.w	position(a0)			;IDA: top_CheckPlayerLoop
+.t1	movea.w	#(c1playernum-M68K_RAM),a1
+.top	tst.w	position(a0)
 	ble.w	.next			;can't switch to goalie
 	btst	#pf2unav,pflags2(a0)		;pf2unav
 	bne.w	.next			;this player is unavailable for some reason
@@ -609,7 +608,7 @@ changeplayer	;switch controller d4 (0/2) to the teammate nearest the puck,
 	beq.w	.next			;this is current player
 	move.l	d0,d5
 	move.w	d1,d6
-.next	adda.w	#SCstruct,a0			;IDA: next_SkipPlayer
+.next	adda.w	#SCstruct,a0
 	dbf	d2,.top
 	addq.w	#4,sp
 	pea	(.ex).l
@@ -619,7 +618,7 @@ changeplayer	;switch controller d4 (0/2) to the teammate nearest the puck,
 	tst.w	d4
 	beq.w	setc1player
 	bra.w	setc2player
-.ex	movem.l	(sp)+,d0-d6/a0-a1	;IDA: ex_CheckSweep
+.ex	movem.l	(sp)+,d0-d6/a0-a1
 	rts
 
 Sweepcheck	;start sweep check on player a3
@@ -647,7 +646,7 @@ setc2player	;restore old player and switch to new d0 player on cont. 2
 	movem.l	(sp)+,d1/a0-a1
 	rts
 
-restorepl	;IDA: retorepl. Restore old joy controlled player d1, give d0
+restorepl	;Restore old joy controlled player d1, give d0
 	;the joystick. 93: if d1 is in line change mode it keeps control (d0 = d1)
 	movea.w	#(SortCords-M68K_RAM),a0
 	tst.w	d1
@@ -660,9 +659,9 @@ restorepl	;IDA: retorepl. Restore old joy controlled player d1, give d0
 	lsr.w	#7,d1
 	move.w	d1,d0
 	rts
-.rel	bclr	#pfjoycon,pflags(a0,d1.w)		;IDA: ReleaseOldPlayer
+.rel	bclr	#pfjoycon,pflags(a0,d1.w)
 	bset	#pfna,pflags(a0,d1.w)
-.spd	tst.w	d0			;IDA: spd_SetNewPlayer
+.spd	tst.w	d0
 	blt.w	rtss
 	cmp.w	#11,d0
 	bgt.w	rtss
@@ -682,7 +681,7 @@ Findhittype	;look for type of swing (forhand or backhand)
 	beq.w	.1
 	btst	d0,#$F0			;%11110000
 	rts
-.1	btst	d0,#$1E			;IDA: _1. %00011110
+.1	btst	d0,#$1E			;%00011110
 	rts
 
 SetShotMode	;initiate shot by player a3
@@ -693,7 +692,7 @@ SetShotMode	;initiate shot by player a3
 	btst	#pfgoal,pflags(a3)
 	bne.w	.ck0
 	neg.w	d1
-.ck0	sub.w	(a3),d0			;IDA: _ck0_CalcShotToGoal
+.ck0	sub.w	(a3),d0
 	sub.w	Ypos(a3),d1
 	bsr.w	vtoa
 	move.w	#$F,(passspeed).w
@@ -702,7 +701,7 @@ SetShotMode	;initiate shot by player a3
 	beq.w	.ck1
 	move.w	#$94E,d1		;SPAshotb
 	move.w	#$F,(passspeed).w	;minimum shot speed
-.ck1	bra.w	SetSPA			;IDA: _ck1_SetShotAnim
+.ck1	bra.w	SetSPA
 
 ShotMode	;shot input
 	cmpi.w	#$1C,SPAnum(a3)		;7*4
@@ -711,16 +710,16 @@ ShotMode	;shot input
 	bne.w	.ss0
 	andi.w	#7,d0
 	move.w	d0,(passdir).w		;set shot direction
-.ss0	cmpi.w	#$10,SPAnum(a3)		;IDA: ShotMode_ss0. 4*4
+.ss0	cmpi.w	#$10,SPAnum(a3)		;4*4
 	bge.w	rtss			;past full windup so no more passspeed
 	add.w	d7,(passspeed).w
 	cmpi.b	#$A,shotspd(a3)		;93: shotspd >= 10 must release the button
 	bge.w	.cb
 	cmpi.w	#8,SPAnum(a3)
 	bgt.w	.rev			;slow shooter: swing after 2 frames of windup
-.cb	btst	#5,d2			;IDA: CheckCButton. cbut
+.cb	btst	#5,d2			;cbut
 	beq.w	rtss			;button hasn't changed so continue windup
-.rev	neg.w	SPAnum(a3)			;IDA: ReverseShot. End wind and swing thru
+.rev	neg.w	SPAnum(a3)			;End wind and swing thru
 	addi.w	#$1C,SPAnum(a3)
 	rts
 
@@ -742,7 +741,7 @@ doshot	;stick is at puck so launch puck toward goal
 	move.w	(passspeed).w,d0
 	lsr.w	#2,d0			;sub 25% for backhand shots
 	sub.w	d0,(passspeed).w
-.nbh	move.b	shotspd(a3),d0		;IDA: doshot_nbh
+.nbh	move.b	shotspd(a3),d0
 	movea.l	a3,a0
 	bsr.w	makepde
 	addi.w	#$14,d0
@@ -755,7 +754,7 @@ doshot	;stick is at puck so launch puck toward goal
 	addq.w	#3,d0
 	bpl.w	.c
 	clr.w	d0
-.c	add.w	d0,(sp)			;IDA: loc_9E46
+.c	add.w	d0,(sp)
 	st	(puckc).w
 	move.b	#$10,nopuck(a3)
 	move.w	SCnum(a3),(lastplayer).w
@@ -763,7 +762,7 @@ doshot	;stick is at puck so launch puck toward goal
 	btst	#pfgoal,pflags(a3)
 	bne.w	.0
 	neg.w	d1
-.0	move.w	(passdir).w,d2		;IDA: doshot_0
+.0	move.w	(passdir).w,d2
 	asl.w	#2,d2
 	lea	.shotsets(pc),a0	;table of shot directions
 	move.w	(a0,d2.w),d0		;x offset
@@ -778,7 +777,7 @@ doshot	;stick is at puck so launch puck toward goal
 	tst.w	d0			;distance in pix to goal
 	bne.w	.1
 	addq.w	#1,d0
-.1	move.w	d0,d3			;IDA: doshot_1
+.1	move.w	d0,d3
 	btst	#gmhl,(gmode).w
 	bne.w	.perf
 	cmp.w	#200,d3
@@ -788,7 +787,7 @@ doshot	;stick is at puck so launch puck toward goal
 	bsr.w	randomd0
 	cmp.w	#14,d0		;chance of perfect shot
 	bgt.w	.perf			;is perfect
-.notperf	move.w	(passspeed).w,d0	;IDA: doshot_notperf
+.notperf	move.w	(passspeed).w,d0
 	lsr.w	#4,d0
 	sub.b	shotacc(a3),d0
 	addi.b	#$10,d0
@@ -797,10 +796,10 @@ doshot	;stick is at puck so launch puck toward goal
 	cmp.w	#250,d3
 	bhi.w	.cp
 	lsr.w	#1,d0			;closer than 250: half the error
-.cp	cmp.w	#$88,d0		;IDA: ClampPenalty
+.cp	cmp.w	#$88,d0
 	blt.w	.ar
 	move.w	#$88,d0
-.ar	move.w	d0,-(sp)		;IDA: AddRandomError
+.ar	move.w	d0,-(sp)
 	bsr.w	randomd0s
 	add.w	d0,2(sp)		;x dist
 	move.w	(sp),d0
@@ -808,16 +807,16 @@ doshot	;stick is at puck so launch puck toward goal
 	bls.w	.ay
 	moveq	#$3C,d0
 	move.w	d0,(sp)
-.ay	tst.w	4(sp)			;IDA: AddYError
+.ay	tst.w	4(sp)
 	bpl.w	.am
 	lsr.w	#1,d0
-.am	bsr.w	randomd0s		;IDA: AddMoreRandom
+.am	bsr.w	randomd0s
 	add.w	d0,4(sp)		;y dist
 	move.w	(sp)+,d0
 	lsr.w	#1,d0
 	bsr.w	randomd0
 	add.w	d0,4(sp)
-.perf	move.w	(passspeed).w,d2	;IDA: doshot_perf. Shot speed
+.perf	move.w	(passspeed).w,d2	;Shot speed
 	muls.w	#$44,d2			;1024/15
 	muls.w	(sp)+,d2
 	divs.w	d3,d2
@@ -838,16 +837,16 @@ doshot	;stick is at puck so launch puck toward goal
 	cmp.w	#$1800,d3
 	bls.w	.noup
 	move.w	#$1800,d3
-.noup	move.w	d3,(puckvz).w		;IDA: doshot_noup
-.ex	bsr.w	sfx			;IDA: doshot_ex
+.noup	move.w	d3,(puckvz).w
+.ex	bsr.w	sfx
 	movem.l	(sp)+,d0-d7/a0-a3
 	rts
-.shotsets	;IDA: shotsets. Offsets for different directions on the shot
+.shotsets	;Offsets for different directions on the shot
 	dc.w	0,$C,$10,$C,$10,6,$10,0
 	dc.w	0,0,-$10,0,-$10,6,-$10,$C
 	dc.w	0,6
 
-shotdiradj	;IDA name kept: 92 checkgoalp is the goal/net collision in hockey93_03_05. 93 only. If the opposing goalie (was: checkgoalp_CalcGoalShotDir)
+shotdiradj	;92 checkgoalp is the goal/net collision in hockey93_03_05. 93 only. If the opposing goalie
 	;covers the middle of the net, set passdir 2 or 6 to shoot at the open
 	;side, else 0. Skipped for computer players (pfjoycon clear)
 	btst	#pfjoycon,pflags(a3)
@@ -858,7 +857,7 @@ shotdiradj	;IDA name kept: 92 checkgoalp is the goal/net collision in hockey93_0
 	btst	#pfteam,pflags(a3)
 	bne.w	.g
 	adda.w	#6*SCstruct,a0
-.g	adda.w	#SCstruct,a0			;IDA: CheckOpponentGoalie
+.g	adda.w	#SCstruct,a0
 	tst.w	position(a0)			;position 0 = goalie
 	dbeq	d1,.g
 	bne.w	.x
@@ -885,7 +884,7 @@ shotdiradj	;IDA name kept: 92 checkgoalp is the goal/net collision in hockey93_0
 	btst	#pfgoal,pflags(a3)
 	bne.w	.l
 	neg.w	d4
-.l	movem.w	d3-d4,-(sp)		;IDA: CalcLeftAngle
+.l	movem.w	d3-d4,-(sp)
 	bsr.w	CalcAngleOffset
 	move.w	d4,d5
 	movem.w	(sp)+,d3-d4
@@ -900,11 +899,11 @@ shotdiradj	;IDA name kept: 92 checkgoalp is the goal/net collision in hockey93_0
 	btst	#7,pflags(a3)
 	beq.w	.s
 	neg.w	d4
-.s	moveq	#2,d0			;IDA: SetShotDirection
+.s	moveq	#2,d0
 	tst.w	d4
 	bpl.w	.x
 	moveq	#6,d0
-.x	move.w	d0,(passdir).w		;IDA: ReturnDefaultDir
+.x	move.w	d0,(passdir).w
 	rts
 
 CalcAngleOffset	;d4 = cross product of goalie vector d0/d1 and post vector
@@ -943,7 +942,7 @@ check4bench	;check if player a3 should go to bench. Called from assbench
 	bpl.w	.b
 	tst.b	newpnum(a3)
 	bmi.w	rtss
-.b	move.b	newpnum(a3),d0		;IDA: loc_A0A8
+.b	move.b	newpnum(a3),d0
 	cmp.b	pnum(a3),d0
 	beq.w	.samepl			;player should just change positions
 	move.w	assnum(a3),d0
@@ -957,7 +956,7 @@ check4bench	;check if player a3 should go to bench. Called from assbench
 	clr.w	temp1(a3)
 	move.l	#$B,d0			;abench
 	bra.w	assreplace
-.samepl	addq.w	#4,sp			;IDA: loc_A0E4
+.samepl	addq.w	#4,sp
 	bclr	#pf2unav,pflags2(a3)
 	bclr	#pfnc,pflags(a3)
 	st	newpnum(a3)
@@ -971,12 +970,11 @@ check4bench	;check if player a3 should go to bench. Called from assbench
 	bra.w	Setplass
 
 ;======================================================================
-;	(was logic93_2.asm)
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $A0FC-$AE87
 ;	92 Logic.Asm part 2: player assignments assbench ... asswingd, with the
-;	fight code (assfight, chkhit, banner). Global names from the IDA export,
-;	92 names where the routine is the same (see the SEGMENT_AGENT.md rename
+;fight code (assfight, chkhit, banner). Global names from the
+;where the routine is the same (see the SEGMENT_AGENT.md rename
 ;	table). Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
@@ -1004,12 +1002,12 @@ assbench	;player a3 should goto bench
 	btst	#pfteam,pflags(a3)
 	bne.w	.0
 	neg.w	d0
-.0	move.w	d0,temp4(a3)		;IDA: loc_A154. temp4 = bench y
+.0	move.w	d0,temp4(a3)		;temp4 = bench y
 	move.w	#$88,temp3(a3)		;sideline
 	neg.w	temp3(a3)
 	subq.w	#8,temp3(a3)		;temp3 = bench x
 	clr.w	temp1(a3)
-.nna	move.b	newpnum(a3),d0		;IDA: loc_A16A
+.nna	move.b	newpnum(a3),d0
 	cmp.b	pnum(a3),d0
 	beq.w	.nobench		;same player, just change position
 	sub.w	d7,temp1(a3)
@@ -1029,13 +1027,13 @@ assbench	;player a3 should goto bench
 	tst.w	position(a3)
 	bne.w	.gli
 	move.w	#2,d1			;SPAgready
-.gli	bsr.w	SetSPA			;IDA: loc_A1B8
+.gli	bsr.w	SetSPA
 	bset	#pfnc,pflags(a3)
 	cmpi.w	#4,facedir(a3)
 	beq.w	.ok
 	addq.w	#1,facedir(a3)		;turn toward the bench
 	andi.w	#7,facedir(a3)
-.ok	clr.w	Yvel(a3)			;IDA: loc_A1D6
+.ok	clr.w	Yvel(a3)
 	move.w	#$F800,Xvel(a3)		;-$800
 	cmp.w	#16,d0
 	bgt.w	rtss
@@ -1049,7 +1047,7 @@ assbench	;player a3 should goto bench
 	bset	#pfalock,pflags(a3)
 	move.w	#$64,temp1(a3)		;100
 	rts
-.done	clr.w	frame(a3)			;IDA: loc_A218
+.done	clr.w	frame(a3)
 	clr.w	d0
 	move.b	pnum(a3),d0
 	add.w	d0,d0
@@ -1057,18 +1055,18 @@ assbench	;player a3 should goto bench
 	btst	#6,pflags(a3)
 	beq.w	.t0
 	adda.w	#tmsize,a0
-.t0	move.w	#$FFFE,tmpdst(a0,d0.w)	;IDA: loc_A238. tmpdst: put used player on bench
+.t0	move.w	#$FFFE,tmpdst(a0,d0.w)	;tmpdst: put used player on bench
 	move.b	newpnum(a3),d3
 	bsr.w	.nobench2
 	bra.w	setplayer
-.nodec	btst	#pfnc,pflags(a3)		;IDA: loc_A24A
+.nodec	btst	#pfnc,pflags(a3)
 	bne.w	rtss
 	move.w	temp3(a3),d0
 	move.w	temp4(a3),d1
 	movea.l	#EvadePC,a0
 	bra.w	skateto
-.nobench	bclr	#pf2unav,pflags2(a3)		;IDA: loc_A266. pf2unav
-.nobench2	move.b	newpos(a3),d0		;IDA: loc_A26C
+.nobench	bclr	#pf2unav,pflags2(a3)		;pf2unav
+.nobench2	move.b	newpos(a3),d0
 	ext.w	d0
 	move.w	d0,position(a3)
 	bsr.w	Setplass
@@ -1087,7 +1085,7 @@ asseben	;player a3 should exit bench area
 	subq.w	#6,d0
 	bmi.w	.0
 	addq.w	#1,d0
-.0	muls.w	#$E,d0			;IDA: loc_A2AC
+.0	muls.w	#$E,d0
 	move.w	d0,Ypos(a3)
 	move.w	#$88,(a3)		;sideline
 	neg.w	(a3)
@@ -1095,7 +1093,7 @@ asseben	;player a3 should exit bench area
 	bset	#5,pflags(a3)
 	move.w	#$1128,d1		;SPAwallright
 	bra.w	SetSPA
-.nna	move.w	#4,facedir(a3)		;IDA: loc_A2CE
+.nna	move.w	#4,facedir(a3)
 	bclr	#pfnc,pflags(a3)
 	bclr	#pf2npc,pflags2(a3)		;pf2npc
 	bclr	#pf2unav,pflags2(a3)		;pf2unav
@@ -1119,11 +1117,11 @@ asspenalty	;player a3 should goto penalty box
 	bne.w	.0
 	lsr.w	#4,d1
 	neg.w	d0
-.0	andi.w	#$F,d1			;IDA: loc_A332
+.0	andi.w	#$F,d1
 	cmp.w	#2,d1
 	bls.w	.1
 	moveq	#2,d1
-.1	addq.w	#3,d1			;IDA: loc_A340
+.1	addq.w	#3,d1
 	muls.w	d0,d1
 	move.w	d1,temp4(a3)
 	move.w	#$88,temp3(a3)		;temp3 = sideline
@@ -1131,7 +1129,7 @@ asspenalty	;player a3 should goto penalty box
 	bset	#pf2npc,pflags2(a3)		;pf2npc: no player coll.
 	clr.w	Wallcos(a3)
 	clr.w	Wallsin(a3)
-.nna	move.w	Ypos(a3),d0		;IDA: loc_A360
+.nna	move.w	Ypos(a3),d0
 	sub.w	temp4(a3),d0
 	cmp.w	#12,d0
 	bgt.w	.st
@@ -1151,11 +1149,11 @@ asspenalty	;player a3 should goto penalty box
 	tst.b	handed(a3)
 	beq.w	.left
 	moveq	#2,d2
-.left	cmp.w	facedir(a3),d2		;IDA: loc_A3AC
+.left	cmp.w	facedir(a3),d2
 	beq.w	.ok
 	addq.w	#1,facedir(a3)
 	andi.w	#7,facedir(a3)
-.ok	clr.w	Yvel(a3)			;IDA: loc_A3BE
+.ok	clr.w	Yvel(a3)
 	move.w	#$1000,Xvel(a3)
 	cmp.w	#-8,d0
 	blt.w	rtss
@@ -1169,7 +1167,7 @@ asspenalty	;player a3 should goto penalty box
 	bclr	#pf2pen,pflags2(a3)		;pf2pen
 	move.l	#$D,d0			;adopen
 	bra.w	assreplace
-.st	move.w	temp3(a3),d0		;IDA: loc_A400
+.st	move.w	temp3(a3),d0
 	move.w	temp4(a3),d1
 	movea.l	#rtss,a0
 	bra.w	skateto
@@ -1191,7 +1189,7 @@ assdopen	;add player a3 to penalty box
 	btst	#6,pflags(a3)
 	beq.w	.1
 	moveq	#1,d0
-.1	add.b	d0,(PBnum).w		;IDA: loc_A448. Players in penalty box
+.1	add.b	d0,(PBnum).w		;Players in penalty box
 	st	position(a3)
 	clr.w	frame(a3)
 	rts
@@ -1209,7 +1207,7 @@ assepen	;player a3 should exit penalty area
 	beq.w	.1
 	moveq	#1,d0
 	neg.w	d1
-.1	sub.b	d0,(PBnum).w		;IDA: loc_A488. Players in penalty box
+.1	sub.b	d0,(PBnum).w		;Players in penalty box
 	move.w	d1,Ypos(a3)
 	clr.w	Xvel(a3)
 	clr.w	Yvel(a3)
@@ -1219,7 +1217,7 @@ assepen	;player a3 should exit penalty area
 	move.w	#$1166,d1		;SPAwallleft
 	bsr.w	SetSPA
 	jmp	SprSort
-.nna	move.w	#4,facedir(a3)		;IDA: loc_A4B6
+.nna	move.w	#4,facedir(a3)
 	st	newpnum(a3)
 	st	newpos(a3)
 	bclr	#pfjoycon,pflags(a3)
@@ -1236,7 +1234,7 @@ assfaceoff	;players do nothing until faceoff is over
 	beq.w	assexit			;exit once faceoff is over
 	rts
 
-assfaceoffpl	;assignment for players actually participating in faceoff (was: assfaceoffp1)
+assfaceoffpl	;assignment for players actually participating in faceoff
 	;a3 = player (92 assfaceoffpl)
 	btst	#5,pflags(a3)
 	bne.w	rtss
@@ -1245,17 +1243,17 @@ assfaceoffpl	;assignment for players actually participating in faceoff (was: ass
 	bclr	#1,pflags(a3)
 	beq.w	.nna
 	clr.w	temp1(a3)
-.nna	movea.l	#fofdata2,a0		;IDA: loc_A51E
+.nna	movea.l	#fofdata2,a0
 	btst	#6,pflags(a3)
 	beq.w	.0
 	addq.w	#4,a0
-.0	move.w	SPAnum(a3),d0		;IDA: loc_A530
+.0	move.w	SPAnum(a3),d0
 	lsr.w	#2,d0
 	addq.w	#1,d0
 	tst.b	handed(a3)
 	bne.w	.lefty
 	addq.w	#3,d0
-.lefty	move.w	d0,(a0)			;IDA: loc_A542
+.lefty	move.w	d0,(a0)
 	btst	#pfjoycon,pflags(a3)
 	bne.w	rtss
 	bset	#pf2aip,pflags2(a3)
@@ -1268,9 +1266,9 @@ assfaceoffpl	;assignment for players actually participating in faceoff (was: ass
 	tst.w	d0
 	beq.w	.d
 	move.w	#$11CE,d1		;SPAfaceoffr
-.d	bset	#pf2aip,pflags2(a3)		;IDA: loc_A576
+.d	bset	#pf2aip,pflags2(a3)
 	bra.w	SetSPA
-.exit	move.b	#$14,nopuck(a3)		;IDA: loc_A580. nopuck = 20
+.exit	move.b	#$14,nopuck(a3)		;nopuck = 20
 	bra.w	assexit
 
 assfight	;fighting logic
@@ -1290,16 +1288,16 @@ assfight	;fighting logic
 	cmp.w	#5,d0
 	bgt.w	.s
 	moveq	#5,d0			;min strength is 5
-.s	move.w	d0,temp3(a3)		;IDA: loc_A5C0. temp3 = strength
+.s	move.w	d0,temp3(a3)		;temp3 = strength
 	clr.w	temp2(a3)
 	move.w	#$FFFF,temp4(a3)		;temp4 = banner timer
 	cmpi.w	#2,facedir(a3)
 	bne.w	.nna
 	move.w	#$5A,temp4(a3)		;90: one player shows the banner
-.nna	sub.w	d7,temp4(a3)		;IDA: _nna. Sub frames elapsed from temp4
+.nna	sub.w	d7,temp4(a3)		;Sub frames elapsed from temp4
 	bcc.w	.nna2
 	bsr.w	banner			;show fighters' names
-.nna2	tst.w	temp3(a3)			;IDA: _nna2
+.nna2	tst.w	temp3(a3)
 	bmi.w	rtss
 	move.w	impactp(a3),d0
 	asl.w	#7,d0			;scsize
@@ -1330,37 +1328,37 @@ assfight	;fighting logic
 	cmp.w	#2,d0
 	bls.w	.p
 	andi.w	#1,d0
-.p	asl.w	#1,d0			;IDA: loc_A652
+.p	asl.w	#1,d0
 	lea	.al(pc),a1		;choose punch type
 	move.w	(a1,d0.w),d1
 	bsr.w	SetSPA
-.j	bsr.w	chkhit			;IDA: _j
+.j	bsr.w	chkhit
 	cmpi.w	#$FE2,SPA(a3)		;SPAfheld
 	beq.w	.njc
 	cmpi.w	#$F8E,SPA(a3)		;SPAfight
 	beq.w	.jc
 	btst	#3,pflags(a3)
 	bne.w	.jc
-.njc	move.w	(xc1).w,d0		;IDA: _njc
+.njc	move.w	(xc1).w,d0
 	addi.w	#$A,d0
 	cmpi.w	#2,facedir(a3)
 	bne.w	.0
 	subi.w	#$14,d0
-.0	sub.w	(a3),d0			;IDA: _0
+.0	sub.w	(a3),d0
 	asl.w	#5,d0			;93 adds to Xvel (92 clamps and sets)
 	add.w	d0,Xvel(a3)
-.jc	move.w	(yc1).w,d1		;IDA: _jc
+.jc	move.w	(yc1).w,d1
 	sub.w	Ypos(a3),d1
 	asl.w	#8,d1
 	cmp.w	#$1000,d1
 	blt.w	.y1
 	move.w	#$1000,d1
-.y1	cmp.w	#-$1000,d1		;IDA: _y1
+.y1	cmp.w	#-$1000,d1
 	bgt.w	.y2
 	move.w	#$F000,d1
-.y2	move.w	d1,Yvel(a3)		;IDA: _y2
+.y2	move.w	d1,Yvel(a3)
 	rts
-.al	dc.w	$1004			;IDA: _a1. SPAfhigh
+.al	dc.w	$1004			;SPAfhigh
 	dc.w	$1036			;SPAflow
 	dc.w	$FC0			;SPAfgrab
 
@@ -1404,23 +1402,23 @@ chkhit	;part of fight to see if player is hit
 	cmp.w	#90,d0
 	blt.w	.chkneg
 	moveq	#$5A,d0
-.chkneg	cmp.w	#-90,d0		;IDA: _chkneg
+.chkneg	cmp.w	#-90,d0
 	bgt.w	.drcont
 	moveq	#-$5A,d0
-.drcont	asr.w	#2,d0			;IDA: _drcont
+.drcont	asr.w	#2,d0
 	bne.w	.dr0
 	addq.w	#1,d0
-.dr0	move.b	d0,(glovecords).w	;IDA: _dr0
+.dr0	move.b	d0,(glovecords).w
 	move.w	(yc1).w,d0
 	asr.w	#2,d0
 	move.b	d0,(glovecords+1).w
 	bra.s	.ex
-.grab	exg	a0,a3			;IDA: _grab
+.grab	exg	a0,a3
 	bset	#pf2aip,pflags2(a3)
 	move.w	#$FE2,d1		;SPAfheld
 	bsr.w	SetSPA
 	bra.s	.ex
-.hithigh	exg	a0,a3			;IDA: _hithigh
+.hithigh	exg	a0,a3
 	bsr.w	.cwd			;crowd reacts, knock back
 	bset	#pf2aip,pflags2(a3)
 	subq.w	#1,temp3(a3)
@@ -1430,7 +1428,7 @@ chkhit	;part of fight to see if player is hit
 	move.w	#SFXhithigh,-(sp)		;SFXhithigh
 	bsr.w	sfx
 	bra.s	.ex
-.hitlow	exg	a0,a3			;IDA: _hitlow
+.hitlow	exg	a0,a3
 	bsr.w	.cwd
 	bset	#pf2aip,pflags2(a3)
 	subq.w	#1,temp3(a3)
@@ -1440,7 +1438,7 @@ chkhit	;part of fight to see if player is hit
 	move.w	#SFXhitlow,-(sp)		;SFXhitlow
 	bsr.w	sfx
 	bra.w	.ex
-.cwd	;IDA: CwdFight. Crowd reacts to a punch; push the hit player (a3)
+.cwd	;Crowd reacts to a punch; push the hit player (a3)
 	;back by the puncher's (a0) strength
 	addi.w	#$50,(crowdlevel).w
 	addi.w	#$A,(CwdExciteLvl).w
@@ -1450,13 +1448,13 @@ chkhit	;part of fight to see if player is hit
 	cmpi.w	#2,facedir(a3)
 	bne.w	.xveladj
 	neg.w	d0
-.xveladj	add.w	d0,Xvel(a3)		;IDA: _xveladj
+.xveladj	add.w	d0,Xvel(a3)
 	rts
-.fall	;IDA: FightFall. a3 lost the fight: change the a0 player's penalty to
+.fall	;a3 lost the fight: change the a0 player's penalty to
 	;fighting (PenFighting), maybe injure a3
 	movem.l	a1,-(sp)
 	movea.w	#(PenaltyBufferEnd-M68K_RAM),a1	;end of the scoring summary
-.loop	addq.w	#2,a1			;IDA: FindPenaltyLoop
+.loop	addq.w	#2,a1
 	cmpi.b	#$26,(a1)
 	bne.s	.loop
 	move.b	1(a1),d0
@@ -1483,7 +1481,7 @@ chkhit	;part of fight to see if player is hit
 	move.w	#$112C,tmpdst(a0,d1.w)	;overwrite setInjuryType result in the team struct
 	move.w	#3,(InjCntDown).w
 	bra.w	.ex
-.noinj	move.w	#$10AC,d1		;IDA: NoInjury. SPAbfall
+.noinj	move.w	#$10AC,d1		;SPAbfall
 	bsr.w	SetSPA
 	movea.w	#(tmstruct-M68K_RAM),a2
 	move.w	#$B,-(sp)		;SFXcrowdcheer
@@ -1491,10 +1489,10 @@ chkhit	;part of fight to see if player is hit
 	bne.w	.snd
 	lea	tmsize(a2),a2
 	move.w	#$C,(sp)		;SFXcrowdboo
-.snd	bsr.w	song			;IDA: PlayCrowdSound
+.snd	bsr.w	song
 	bra.w	.ex
 
-ShowInjuryMsg	;IDA: sub_A8AE (Rev A). Clear the message line
+ShowInjuryMsg	;(Rev A). Clear the message line
 	bsr.w	printz
 	String	$BF,0,1,0
 	moveq	#$28,d0
@@ -1531,7 +1529,7 @@ banner	;fight banner: close both line change boxes, frame a box with
 	tst.b	d3			;stronger fighter on top
 	bmi.w	.neg
 	move.w	#4,(printy).w
-.neg	move.b	-3(a0),d0		;IDA: _neg
+.neg	move.b	-3(a0),d0
 	bsr.w	addinfo
 	bsr.w	print
 	eori.w	#6,(printy).w
@@ -1554,7 +1552,7 @@ addinfo	;d0 = penalty byte (player SCnum in low nibble). Build
 	btst	#6,pflags(a1,d0.w)
 	beq.w	.0
 	adda.w	#tmsize,a2
-.0	move.b	pnum(a1,d0.w),d0		;IDA: _0
+.0	move.b	pnum(a1,d0.w),d0
 	ext.w	d0
 	jsr	(getname).l
 	movea.w	a1,a3
@@ -1567,7 +1565,7 @@ addinfo	;d0 = penalty byte (player SCnum in low nibble). Build
 	cmp.w	(a3),d2
 	bgt.w	.gt
 	move.w	(a3),d2
-.gt	movea.w	a3,a1			;IDA: _gt
+.gt	movea.w	a3,a1
 	move.w	(a1),d0
 	lsr.w	#1,d0
 	neg.w	d0
@@ -1584,7 +1582,7 @@ assfwatch	;for player who is watching fight
 	bclr	#1,pflags(a3)
 	beq.w	.nna
 	clr.w	temp1(a3)
-.nna	sub.w	d7,temp1(a3)		;IDA: loc_A9DA
+.nna	sub.w	d7,temp1(a3)
 	bpl.w	.go
 	addi.w	#$3C,temp1(a3)		;new spot every second
 	move.w	(a3),d0
@@ -1599,7 +1597,7 @@ assfwatch	;for player who is watching fight
 	move.w	d0,d2
 	bne.w	.d
 	moveq	#1,d2
-.d	movem.w	(sp)+,d0-d1		;IDA: loc_AA0C
+.d	movem.w	(sp)+,d0-d1
 	muls.w	#$50,d0			;80 pixels from the fight
 	divs.w	d2,d0
 	add.w	(xc1).w,d0
@@ -1607,22 +1605,22 @@ assfwatch	;for player who is watching fight
 	cmp.w	d3,d0
 	blt.w	.x0
 	move.w	d3,d0
-.x0	neg.w	d3			;IDA: loc_AA26
+.x0	neg.w	d3
 	cmp.w	d3,d0
 	bgt.w	.x1
 	move.w	d3,d0
-.x1	move.w	d0,temp3(a3)		;IDA: loc_AA30
+.x1	move.w	d0,temp3(a3)
 	muls.w	#$50,d1
 	divs.w	d2,d1
 	add.w	(yc1).w,d1
 	move.w	d1,temp4(a3)
-.go	move.w	temp3(a3),d0		;IDA: loc_AA42
+.go	move.w	temp3(a3),d0
 	move.w	temp4(a3),d1
 	lea	rtss(pc),a0
 	bsr.w	skateto
 	bra.w	check4check
 
-donothing	;player should do nothing (was: assnothing)
+donothing	;player should do nothing
 	btst	#5,pflags(a3)
 	bne.w	rtss
 	btst	#3,pflags(a3)
@@ -1639,10 +1637,10 @@ assstanley	;player a3 skates with stanley cup overhead
 	tst.w	(Hpos).w
 	bpl.w	.0
 	neg.w	temp3(a3)
-.0	move.w	(Vpos).w,temp4(a3)	;IDA: loc_AA96
+.0	move.w	(Vpos).w,temp4(a3)
 	move.w	#$1258,d1		;SPAStanley
 	bsr.w	SetSPA
-.nna	move.w	temp3(a3),d0		;IDA: loc_AAA4
+.nna	move.w	temp3(a3),d0
 	sub.w	(a3),d0
 	move.w	temp4(a3),d1
 	sub.w	Ypos(a3),d1
@@ -1664,8 +1662,8 @@ assscore	;player a3 celebrates, if scoring player then do arm pump
 	tst.w	(Hpos).w
 	bpl.w	.0
 	neg.w	temp3(a3)
-.0	move.w	(Vpos).w,temp4(a3)	;IDA: loc_AAF8
-.nna	movea.l	#rtss,a0		;IDA: loc_AAFE
+.0	move.w	(Vpos).w,temp4(a3)
+.nna	movea.l	#rtss,a0
 	move.w	temp3(a3),d0
 	move.w	temp4(a3),d1
 	sub.w	d7,temp1(a3)
@@ -1676,12 +1674,12 @@ assscore	;player a3 celebrates, if scoring player then do arm pump
 	cmp.w	SCnum(a3),d0
 	bne.w	.nopump
 	move.w	#$F1C,d1		;SPApump
-.nopump	bsr.w	SetSPA			;IDA: loc_AB2E
-.1	moveq	#$78,d0			;IDA: loc_AB32. 120
+.nopump	bsr.w	SetSPA
+.1	moveq	#$78,d0			;120
 	bsr.w	randomd0
 	move.w	d0,temp1(a3)
 	rts
-.chkcon	btst	#3,pflags(a3)		;IDA: loc_AB3E
+.chkcon	btst	#3,pflags(a3)
 	beq.w	skateto
 	rts
 
@@ -1697,7 +1695,7 @@ assdefo	;player a3 is defensive player on offense
 	beq.w	.nna
 	clr.w	temp1(a3)
 	move.w	#8,temp2(a3)
-.nna	sub.b	d7,temp1(a3)		;IDA: loc_AB80
+.nna	sub.b	d7,temp1(a3)
 	bpl.w	.nodec
 	move.b	aioff(a3),temp1(a3)
 	move.l	#2,d0			;adefd
@@ -1707,7 +1705,7 @@ assdefo	;player a3 is defensive player on offense
 	btst	#7,pflags(a3)
 	bne.w	.de1
 	neg.w	d1
-.de1	cmp.w	#$5D,d1		;IDA: loc_ABAE. blueline,d1
+.de1	cmp.w	#$5D,d1		;blueline,d1
 	blt.w	assreplace
 	move.w	(puckc).w,d1
 	bmi.w	.nodec
@@ -1716,22 +1714,22 @@ assdefo	;player a3 is defensive player on offense
 	subq.w	#6,d2
 	eor.w	d2,d1
 	bmi.w	assreplace		;other team has puck
-.nodec	lea	EvadePC(pc),a0		;IDA: loc_ABCC
+.nodec	lea	EvadePC(pc),a0
 	moveq	#$50,d0
 	cmpi.w	#2,position(a3)
 	beq.w	.1
 	neg.w	d0
-.1	move.w	#$62,d1			;IDA: loc_ABDE. 93: 98 (92 blueline+10)
+.1	move.w	#$62,d1			;93: 98 (92 blueline+10)
 	btst	#7,pflags(a3)
 	bne.w	.0
 	neg.w	d0
 	neg.w	d1
-.0	move.w	(puckx).w,d2		;IDA: loc_ABF0
+.0	move.w	(puckx).w,d2
 	eor.w	d0,d2
 	bmi.w	.2
 	move.w	(puckx).w,d0
 	bra.w	skateto
-.2	move.w	(puckx).w,d2		;IDA: loc_AC02
+.2	move.w	(puckx).w,d2
 	asr.w	#1,d2
 	add.w	d2,d0
 	bra.w	skateto
@@ -1748,7 +1746,7 @@ assdefd	;player a3 is defensive player on defense
 	beq.w	.nna
 	clr.w	temp1(a3)
 	move.w	#8,temp2(a3)
-.nna	sub.b	d7,temp1(a3)		;IDA: loc_AC44
+.nna	sub.b	d7,temp1(a3)
 	bpl.w	.de3
 	move.b	aidef(a3),temp1(a3)
 	move.w	(pucky).w,d1
@@ -1758,10 +1756,10 @@ assdefd	;player a3 is defensive player on defense
 	bne.w	.de00
 	neg.w	d1
 	neg.w	d3
-.de00	tst.w	d3			;IDA: loc_AC6A. 93: only lead when moving up ice
+.de00	tst.w	d3			;93: only lead when moving up ice
 	bpl.w	.v
 	clr.w	d3
-.v	add.w	d1,d3			;IDA: loc_AC72
+.v	add.w	d1,d3
 	cmp.w	#$58,d3
 	blt.w	.de0
 	btst	#4,tmflags(a2)
@@ -1776,70 +1774,70 @@ assdefd	;player a3 is defensive player on defense
 	subq.w	#6,d2
 	eor.w	d2,d1
 	bpl.w	assreplace		;our team has puck
-.de0	move.w	#$41,temp3(a3)		;IDA: loc_ACAA. 65
+.de0	move.w	#$41,temp3(a3)		;65
 	cmpi.w	#2,position(a3)
 	beq.w	.de1
 	neg.w	temp3(a3)
-.de1	movea.w	#(SortCords-M68K_RAM),a0	;IDA: loc_ACBE
+.de1	movea.w	#(SortCords-M68K_RAM),a0
 	cmpi.w	#6,SCnum(a3)
 	bge.w	.de2
 	adda.w	#6*SCstruct,a0
-.de2	moveq	#5,d2			;IDA: loc_ACD0. Find furthest-up attacker
+.de2	moveq	#5,d2			;Find furthest-up attacker
 	move.w	#$FC18,d0		;-1000
 	btst	#7,pflags(a3)
 	beq.w	.gdwn
 	neg.w	d0
-.gup	btst	#pf2unav,pflags2(a0)		;IDA: loc_ACE2. pf2unav
+.gup	btst	#pf2unav,pflags2(a0)		;pf2unav
 	bne.w	.gu0
 	tst.w	position(a0)
 	bmi.w	.gu0
 	move.w	Yvel(a0),d1
 	bmi.w	.gu2
 	clr.w	d1
-.gu2	asr.w	#4,d1			;IDA: loc_ACFE. 92 asr #5
+.gu2	asr.w	#4,d1			;92 asr #5
 	add.w	Ypos(a0),d1
 	cmp.w	d0,d1
 	bgt.w	.gu0
 	move.w	d1,d0
-.gu0	adda.w	#SCstruct,a0			;IDA: loc_AD0C
+.gu0	adda.w	#SCstruct,a0
 	dbf	d2,.gup
 	subi.w	#$32,d0			;93: 50 back of him
 	cmp.w	#-190,d0
 	bgt.w	.gu1
 	move.w	#$FF24,d0		;-220
-.gu1	move.w	d0,temp4(a3)		;IDA: loc_AD24
+.gu1	move.w	d0,temp4(a3)
 	move.w	(puckx).w,d0
 	move.w	temp3(a3),d1
 	eor.w	d0,d1
 	bpl.w	.de3
 	clr.w	temp3(a3)
 	bra.w	.de3
-.gdwn	btst	#pf2unav,pflags2(a0)		;IDA: loc_AD3E
+.gdwn	btst	#pf2unav,pflags2(a0)
 	bne.w	.gd0
 	tst.w	position(a0)
 	bmi.w	.gd0
 	move.w	Yvel(a0),d1
 	bpl.w	.gd2
 	clr.w	d1
-.gd2	asr.w	#4,d1			;IDA: loc_AD5A
+.gd2	asr.w	#4,d1
 	add.w	Ypos(a0),d1
 	cmp.w	d0,d1
 	blt.w	.gd0
 	move.w	d1,d0
-.gd0	adda.w	#SCstruct,a0			;IDA: loc_AD68
+.gd0	adda.w	#SCstruct,a0
 	dbf	d2,.gdwn
 	addi.w	#$32,d0
 	cmp.w	#190,d0
 	blt.w	.gd1
 	move.w	#$DC,d0			;220
-.gd1	move.w	d0,temp4(a3)		;IDA: loc_AD80
+.gd1	move.w	d0,temp4(a3)
 	neg.w	temp3(a3)
 	move.w	(puckx).w,d0
 	move.w	temp3(a3),d1
 	eor.w	d0,d1
 	bpl.w	.de3
 	clr.w	temp3(a3)
-.de3	move.w	temp3(a3),d0		;IDA: loc_AD9A
+.de3	move.w	temp3(a3),d0
 	move.w	temp4(a3),d1
 	movea.l	#EvadePC,a0
 	bsr.w	skateto
@@ -1857,7 +1855,7 @@ asswingd	;player a3 is wing on defense
 	beq.w	.nna
 	clr.w	temp1(a3)
 	move.w	#8,temp2(a3)
-.nna	sub.b	d7,temp1(a3)		;IDA: loc_ADE6
+.nna	sub.b	d7,temp1(a3)
 	bpl.w	.nodec
 	move.b	aidef(a3),temp1(a3)
 	move.w	(puckc).w,d1
@@ -1868,11 +1866,11 @@ asswingd	;player a3 is wing on defense
 	subq.w	#6,d2
 	eor.w	d2,d1
 	bpl.w	assreplace		;our team has puck
-.nodec	moveq	#$64,d0			;IDA: loc_AE10. 100
+.nodec	moveq	#$64,d0			;100
 	cmpi.w	#5,position(a3)
 	bne.w	.0
 	neg.w	d0
-.0	move.l	#$9E,d1			;IDA: loc_AE1E
+.0	move.l	#$9E,d1
 	btst	#7,pflags(a3)
 	beq.w	.up
 	neg.w	d0
@@ -1884,23 +1882,23 @@ asswingd	;player a3 is wing on defense
 	bgt.w	.lo
 	move.w	(pucky).w,d1
 	bra.w	.go
-.lo	move.w	#$FEF8,d2		;IDA: loc_AE4E. -264
+.lo	move.w	#$FEF8,d2		;-264
 	cmp.w	(pucky).w,d2
 	blt.w	.go
 	move.w	d2,d1
 	bra.w	.go
-.up	moveq	#$4E,d2			;IDA: loc_AE60
+.up	moveq	#$4E,d2
 	btst	#4,tmflags(a2)
 	bne.w	.set
 	cmp.w	(pucky).w,d2
 	blt.w	.hi
 	move.w	(pucky).w,d1
 	bra.w	.go
-.hi	move.w	#$108,d2		;IDA: loc_AE7C. 264
+.hi	move.w	#$108,d2		;264
 	cmp.w	(pucky).w,d2
 	bgt.w	.go
-.set	move.w	d2,d1			;IDA: loc_AE88
-.go	lea	rtss(pc),a0		;IDA: loc_AE8A
+.set	move.w	d2,d1
+.go	lea	rtss(pc),a0
 	move.w	(puckx).w,d2
 	eor.w	d0,d2
 	bmi.w	skateto
@@ -1908,11 +1906,10 @@ asswingd	;player a3 is wing on defense
 	bra.w	skateto
 
 ;======================================================================
-;	(was logic93_3.asm)
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $AE88-$BC6B
 ;	92 Logic.Asm part 3: asswingo ... asspuckc, chk4lc, chkpk, chk4shot,
-;	CompShoot, chk4pass, EvadePC. Global names from the IDA export, 92
+;CompShoot, chk4pass, EvadePC. Global names from the 92
 ;	names where the routine is the same (see the SEGMENT_AGENT.md rename
 ;	table). Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
@@ -1938,7 +1935,7 @@ asswingo	;player a3 is winger on offense
 	st	temp5(a3)			;temp5 = old zone number
 	clr.w	temp1(a3)
 	move.w	#8,temp2(a3)
-.nna	sub.b	d7,temp1(a3)		;IDA: loc_AEDA
+.nna	sub.b	d7,temp1(a3)
 	bpl.w	.nodec
 	move.b	aidef(a3),temp1(a3)
 	move.l	#3,d0			;awingd
@@ -1949,7 +1946,7 @@ asswingo	;player a3 is winger on offense
 	subq.w	#6,d2
 	eor.w	d2,d1
 	bmi.w	assreplace		;other team has puck
-.de0	move.w	(pucky).w,d0		;IDA: loc_AF04
+.de0	move.w	(pucky).w,d0
 	move.w	(puckvy).w,d3
 	asr.w	#6,d3
 	add.w	d0,d3
@@ -1957,7 +1954,7 @@ asswingo	;player a3 is winger on offense
 	bne.w	.de1
 	neg.w	d0
 	neg.w	d3
-.de1	clr.w	d2			;IDA: loc_AF1E. Set zone number
+.de1	clr.w	d2			;Set zone number
 	cmp.w	#-$58,d3		;-blueline,d3
 	blt.w	.de2
 	addq.w	#8,d2
@@ -1969,12 +1966,12 @@ asswingo	;player a3 is winger on offense
 	cmp.w	#$108,d3		;blueline+goalline,d3
 	blt.w	.de2
 	addq.w	#8,d2
-.de2	cmp.w	temp5(a3),d2		;IDA: loc_AF48
+.de2	cmp.w	temp5(a3),d2
 	bne.w	.de3
 	move.w	(VDP_CNTR).l,d0		;93: HV counter as random
 	andi.w	#$7F,d0
 	bne.w	.nodec
-.de3	move.w	d2,temp5(a3)		;IDA: loc_AF5E
+.de3	move.w	d2,temp5(a3)
 	lea	.dedata(pc),a0
 	move.w	2(a0,d2.w),d0
 	bsr.w	randomd0s
@@ -1985,21 +1982,21 @@ asswingo	;player a3 is winger on offense
 	add.w	4(a0,d2.w),d0
 	move.w	d0,temp4(a3)
 	bra.w	.nodec
-.dedata	;IDA: unk_AF8A. x, x random, y, y random
+.dedata	;x, x random, y, y random
 	dc.w	80,20,-70,10		;in own zone
 	dc.w	100,20,58,5		;center ice area
 	dc.w	60,50,230,20		;opp zone
 	dc.w	80,30,250,20		;past goalline
-.nodec	move.w	temp3(a3),d0		;IDA: loc_AFAA
+.nodec	move.w	temp3(a3),d0
 	cmpi.w	#5,position(a3)
 	beq.w	.1
 	neg.w	d0
-.1	move.w	temp4(a3),d1		;IDA: loc_AFBA
+.1	move.w	temp4(a3),d1
 	btst	#7,pflags(a3)
 	bne.w	.0
 	neg.w	d0
 	neg.w	d1
-.0	lea	EvadePC(pc),a0		;IDA: loc_AFCC
+.0	lea	EvadePC(pc),a0
 	bra.w	skateto
 
 asscenterd	;player a3 is center on defense
@@ -2014,7 +2011,7 @@ asscenterd	;player a3 is center on defense
 	beq.w	.nna
 	clr.w	temp1(a3)
 	move.w	#8,temp2(a3)
-.nna	sub.b	d7,temp1(a3)		;IDA: loc_B00A
+.nna	sub.b	d7,temp1(a3)
 	bpl.w	.nodec
 	move.b	aidef(a3),temp1(a3)
 	move.w	(puckc).w,d1
@@ -2025,21 +2022,21 @@ asscenterd	;player a3 is center on defense
 	subq.w	#6,d2
 	eor.w	d2,d1
 	bpl.w	assreplace		;our team has puck
-.nodec	move.w	(puckx).w,d0		;IDA: loc_B034
+.nodec	move.w	(puckx).w,d0
 	asr.w	#1,d0
 	move.w	(pucky).w,d2
 	btst	#7,pflags(a3)
 	bne.w	.0
 	neg.w	d2
-.0	moveq	#-$80,d1		;IDA: loc_B04A
+.0	moveq	#-$80,d1
 	cmp.w	#-$58,d2		;-blueline,d2
 	blt.w	.z0
 	add.w	(pucky).w,d1
 	asr.w	#1,d1
-.z0	btst	#7,pflags(a3)		;IDA: loc_B05A
+.z0	btst	#7,pflags(a3)
 	bne.w	.z1
 	neg.w	d1
-.z1	lea	rtss(pc),a0		;IDA: loc_B066
+.z1	lea	rtss(pc),a0
 	bra.w	skateto
 
 asscentero	;player a3 is center on offense
@@ -2055,7 +2052,7 @@ asscentero	;player a3 is center on offense
 	st	temp5(a3)			;old zone number
 	clr.w	temp1(a3)
 	move.w	#8,temp2(a3)
-.nna	sub.b	d7,temp1(a3)		;IDA: loc_B0A8
+.nna	sub.b	d7,temp1(a3)
 	bpl.w	.nodec
 	move.b	aidef(a3),temp1(a3)
 	move.w	(puckc).w,d1
@@ -2066,11 +2063,11 @@ asscentero	;player a3 is center on offense
 	subq.w	#6,d2
 	eor.w	d2,d1
 	bmi.w	assreplace
-.de0	move.w	(pucky).w,d0		;IDA: loc_B0D2
+.de0	move.w	(pucky).w,d0
 	btst	#7,pflags(a3)
 	bne.w	.de1
 	neg.w	d0
-.de1	clr.w	d2			;IDA: loc_B0E2. Set zone number
+.de1	clr.w	d2			;Set zone number
 	cmp.w	#-$58,d0		;-blueline,d0
 	blt.w	.de2
 	addq.w	#8,d2
@@ -2082,12 +2079,12 @@ asscentero	;player a3 is center on offense
 	cmp.w	#$108,d0		;blueline+goalline,d0
 	blt.w	.de2
 	addq.w	#8,d2
-.de2	cmp.w	temp5(a3),d2		;IDA: loc_B10C
+.de2	cmp.w	temp5(a3),d2
 	bne.w	.de3
 	move.w	(VDP_CNTR).l,d0
 	andi.w	#$7F,d0
 	bne.w	.nodec
-.de3	move.w	d2,temp5(a3)		;IDA: loc_B122
+.de3	move.w	d2,temp5(a3)
 	lea	.dedata(pc),a0
 	move.w	2(a0,d2.w),d0
 	bsr.w	randomd0s
@@ -2098,20 +2095,20 @@ asscentero	;player a3 is center on offense
 	add.w	4(a0,d2.w),d0
 	move.w	d0,temp4(a3)
 	bra.w	.nodec
-.dedata	;IDA: unk_B14E
+.dedata
 	dc.w	0,60,-70,10
 	dc.w	0,60,60,10
 	dc.w	0,40,170,30
 	dc.w	0,80,170,20
-.nodec	move.w	temp3(a3),d0		;IDA: loc_B16E
+.nodec	move.w	temp3(a3),d0
 	move.w	temp4(a3),d1
 	btst	#7,pflags(a3)
 	bne.w	.0
 	neg.w	d1
-.0	lea	EvadePC(pc),a0		;IDA: loc_B182
+.0	lea	EvadePC(pc),a0
 	bra.w	skateto
 
-assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
+assgoalie	;Player a3 is goalie. Also entered from assnearest
 	btst	#5,pflags(a3)
 	bne.w	rtss
 	bsr.w	check4bench
@@ -2120,7 +2117,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	clr.w	temp1(a3)
 	move.w	#8,temp2(a3)
 	st	temp4(a3)			;93: temp4 = cover countdown
-.nna	cmpi.w	#$34,(a3)		;IDA: loc_B1B0. Outside the crease area?
+.nna	cmpi.w	#$34,(a3)		;Outside the crease area?
 	bgt.w	.skate
 	cmpi.w	#$FFCC,(a3)
 	blt.w	.skate
@@ -2132,17 +2129,17 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	bgt.w	.noskate
 	cmpi.w	#$FF2E,Ypos(a3)
 	blt.w	.noskate
-.skate	lea	rtss(pc),a0		;IDA: loc_B1E8. Skate back to the net
+.skate	lea	rtss(pc),a0		;Skate back to the net
 	moveq	#4,d0
 	tst.w	(a3)
 	bpl.w	.0
 	neg.w	d0
-.0	move.w	#$E4,d1			;IDA: loc_B1F6
+.0	move.w	#$E4,d1
 	btst	#7,pflags(a3)
 	beq.w	skateto
 	neg.w	d1
 	bra.w	skateto
-.noskate	btst	#pf2aip,pflags2(a3)		;IDA: loc_B20A
+.noskate	btst	#pf2aip,pflags2(a3)
 	bne.w	rtss
 	move.w	#2,d1			;SPAgready
 	bsr.w	SetSPA
@@ -2155,11 +2152,11 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	beq.w	.mbfo
 	st	temp5(a3)
 	bra.w	.nofo
-.mbfo	sub.w	d7,temp5(a3)		;IDA: loc_B242
+.mbfo	sub.w	d7,temp5(a3)
 	bpl.w	.nofo
 	move.l	#8,d0			;PenGhold
 	bsr.w	AddPenalty2
-.nofo	sub.b	d7,temp1(a3)		;IDA: loc_B254
+.nofo	sub.b	d7,temp1(a3)
 	bpl.w	.nodec
 	move.b	aidef(a3),d0
 	lsr.b	#2,d0			;92 lsr #1
@@ -2176,16 +2173,16 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	beq.w	.de5
 	neg.w	d2
 	bra.w	.de5
-.cnt	subq.w	#1,temp4(a3)		;IDA: loc_B294
+.cnt	subq.w	#1,temp4(a3)
 	bpl.w	.pc
 	move.w	#$FFFF,temp4(a3)
-.pc	move.w	SCnum(a3),d0		;IDA: loc_B2A2
+.pc	move.w	SCnum(a3),d0
 	cmp.w	(puckc).w,d0
 	bne.w	.cover
 	tst.w	temp5(a3)
 	bpl.w	.hold
 	move.w	#$5A,temp5(a3)		;90 frames before holding penalty
-.hold	st	temp4(a3)			;IDA: loc_B2BC
+.hold	st	temp4(a3)
 	cmpi.w	#$5A,temp5(a3)
 	bgt.w	.de1
 	move.w	(VDP_CNTR).l,d0
@@ -2196,7 +2193,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	btst	#6,pflags(a3)
 	bne.w	.tl
 	adda.w	#6*SCstruct,a0
-.tl	btst	#pf2unav,pflags2(a0)		;IDA: loc_B2EC. pf2unav
+.tl	btst	#pf2unav,pflags2(a0)		;pf2unav
 	bne.w	.tn
 	move.w	(pucky).w,d1
 	sub.w	Ypos(a0),d1
@@ -2210,12 +2207,12 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	bgt.w	.tn
 	cmp.w	#-25,d1
 	bgt.w	.de1
-.tn	adda.w	#SCstruct,a0			;IDA: loc_B324
+.tn	adda.w	#SCstruct,a0
 	dbf	d0,.tl
 	move.w	#1,(threat).w
 	bsr.w	chk4pass
 	bra.w	.de1
-.cover	tst.w	temp4(a3)			;IDA: loc_B33A. 93: cover a loose puck at the crease
+.cover	tst.w	temp4(a3)			;93: cover a loose puck at the crease
 	bne.w	.de1
 	tst.w	(puckc).w
 	bpl.w	.de1
@@ -2244,17 +2241,17 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	addi.w	#$96,(crowdlevel).w	;150
 	addi.w	#$A,(CwdExciteLvl).w
 	rts
-.de1	movea.w	#(puckcross-M68K_RAM),a0	;IDA: loc_B3B2
+.de1	movea.w	#(puckcross-M68K_RAM),a0
 	move.w	#$104,d3		;goal line
 	btst	#7,pflags(a3)
 	beq.w	.de2
 	addq.w	#4,a0
 	neg.w	d3
-.de2	cmpi.w	#$104,Ypos(a3)		;IDA: loc_B3C8
+.de2	cmpi.w	#$104,Ypos(a3)
 	bgt.w	.out
 	cmpi.w	#$FEFC,Ypos(a3)
 	bgt.w	.in
-.out	clr.w	d2			;IDA: loc_B3DC. Behind the goal line
+.out	clr.w	d2			;Behind the goal line
 	clr.w	d0
 	cmpi.w	#$2C,(a3)
 	bgt.w	.de5
@@ -2265,7 +2262,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	bpl.w	.de5
 	neg.w	d0
 	bra.w	.de5
-.in	move.w	(puckx).w,d0		;IDA: loc_B400. Face the puck
+.in	move.w	(puckx).w,d0		;Face the puck
 	move.w	(pucky).w,d1
 	bsr.w	ClampYPosition
 	bsr.w	vtoa
@@ -2278,8 +2275,8 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	bgt.w	.lead2
 	cmpi.w	#$FF25,(pucky).w
 	bgt.w	.lead
-.lead2	subi.w	#$40,d0			;IDA: loc_B436
-.lead	move.w	d0,d1			;IDA: loc_B43A
+.lead2	subi.w	#$40,d0
+.lead	move.w	d0,d1
 	muls.w	(puckvx).w,d0
 	swap	d0
 	add.w	(puckx).w,d0
@@ -2295,20 +2292,20 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	bhi.w	.far
 	movem.w	(sp)+,d0-d1
 	bra.w	.de4
-.far	bsr.w	sroot			;IDA: loc_B470. Scale to an 18 (26 if shooting) pixel arc
+.far	bsr.w	sroot			;Scale to an 18 (26 if shooting) pixel arc
 	moveq	#1,d2
 	add.w	d0,d2
 	moveq	#$12,d4
 	btst	#sfssdir,(sflags).w
 	beq.w	.f0
 	addq.w	#8,d4
-.f0	movem.w	(sp)+,d0-d1		;IDA: loc_B486
+.f0	movem.w	(sp)+,d0-d1
 	muls.w	d4,d1
 	addq.w	#8,d4
 	muls.w	d4,d0
 	divs.w	d2,d0
 	divs.w	d2,d1
-.de4	add.w	d3,d1			;IDA: loc_B494
+.de4	add.w	d3,d1
 	move.w	d1,d2
 	cmpi.w	#$22,2(a0)		;frames til crossing
 	bhi.w	.de5
@@ -2336,7 +2333,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	btst	#3,attribute(a3)
 	beq.w	.noflip
 	eori.w	#1,d0
-.noflip	cmpi.w	#8,(puckz).w		;IDA: loc_B502
+.noflip	cmpi.w	#8,(puckz).w
 	bgt.w	.de7
 	cmpi.w	#$800,(puckvz).w
 	bgt.w	.de7
@@ -2350,7 +2347,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	tst.w	(puckc).w
 	bmi.w	.de7
 	subq.w	#2,d0			;stack
-.de7	add.w	d0,d0			;IDA: loc_B540
+.de7	add.w	d0,d0
 	lea	GoalieSaveList(pc),a1
 	move.w	(a1,d0.w),d1
 	cmp.w	#$198,d1
@@ -2360,19 +2357,19 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	cmpi.b	#$B,aggress(a3)
 	blt.w	.set
 	move.w	#$1CA,d1
-.set	bsr.w	SetSPA			;IDA: loc_B568
+.set	bsr.w	SetSPA
 	addi.w	#$96,(crowdlevel).w
 	addi.w	#$A,(CwdExciteLvl).w
-.de8	move.w	(a0),d0			;IDA: loc_B578
+.de8	move.w	(a0),d0
 	cmpi.w	#$FC,(pucky).w
 	bgt.w	.post
 	cmpi.w	#$FF04,(pucky).w
 	bgt.w	.de5
-.post	moveq	#$18,d0			;IDA: loc_B58E. Hug the post
+.post	moveq	#$18,d0			;Hug the post
 	tst.w	(puckx).w
 	bpl.w	.de5
 	neg.w	d0
-.de5	move.w	d2,d1			;IDA: loc_B59A
+.de5	move.w	d2,d1
 	movem.w	d0-d1,-(sp)
 	move.b	Xvel(a3),d0
 	ext.w	d0
@@ -2394,14 +2391,14 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	blt.w	.vt
 	clr.w	d0
 	clr.w	d1
-.vt	bsr.w	vtoa			;IDA: loc_B5DE
+.vt	bsr.w	vtoa
 	move.b	d0,temp2+1(a3)
-.nodec	move.b	temp2+1(a3),d2		;IDA: loc_B5E6
+.nodec	move.b	temp2+1(a3),d2
 	ext.w	d2
 	cmp.w	#7,d2
 	ble.w	playeracc
 	bra.w	StopNA
-.rush	tst.w	(puckc).w		;IDA: loc_B5F8. 93: rush a loose puck when
+.rush	tst.w	(puckc).w		;93: rush a loose puck when
 	bpl.s	.de5			;the score/time stats say so
 	btst	#2,(iflags).w
 	bne.s	.de5
@@ -2410,7 +2407,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	btst	#6,pflags(a3)
 	beq.w	.t0
 	exg	a1,a2
-.t0	cmpi.l	#$1324,$2A(a1)		;IDA: loc_B61A
+.t0	cmpi.l	#$1324,$2A(a1)
 	blt.w	.de5
 	cmpi.l	#$9C4,$2A(a2)
 	blt.w	.de5
@@ -2418,18 +2415,18 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	bgt.w	.dir
 	cmpi.w	#$FF20,(pucky).w
 	bgt.w	.de5
-.dir	tst.w	(puckvy).w		;IDA: loc_B646
+.dir	tst.w	(puckvy).w
 	btst	#7,pflags(a3)
 	beq.w	.dir2
 	eori	#8,ccr			;flip N
-.dir2	bmi.w	.de5			;IDA: loc_B658. Puck moving away
+.dir2	bmi.w	.de5			;Puck moving away
 	move.w	(puckvx).w,d0
 	bpl.w	.ax
 	neg.w	d0
-.ax	move.w	(puckvy).w,d1		;IDA: loc_B666
+.ax	move.w	(puckvy).w,d1
 	bpl.w	.ay
 	neg.w	d1
-.ay	cmp.w	d0,d1			;IDA: loc_B670
+.ay	cmp.w	d0,d1
 	blt.w	.de5
 	move.l	#$F,d0			;assgoalietopuck
 	bra.w	assinsert
@@ -2440,16 +2437,16 @@ ClampYPosition	;d1 = y clamped to +-$103, minus goal line d3. d0 = 0 if a3
 	cmp.w	SCnum(a3),d2
 	bne.w	.0
 	clr.w	d0
-.0	cmp.w	#$103,d1		;IDA: loc_B68E
+.0	cmp.w	#$103,d1
 	blt.w	.1
 	move.w	#$103,d1
-.1	cmp.w	#-$103,d1		;IDA: loc_B69A
+.1	cmp.w	#-$103,d1
 	bgt.w	.2
 	move.w	#$FEFD,d1
-.2	sub.w	d3,d1			;IDA: loc_B6A6
+.2	sub.w	d3,d1
 	rts
 
-AdjustFacingDirection	;IDA: AdjustFacingDirecion. Turn facedir one step
+AdjustFacingDirection	;Turn facedir one step
 	;toward direction d0, two steps past the directions the goalie can't
 	;face (bit masks by goal end)
 	move.w	facedir(a3),d1
@@ -2475,7 +2472,7 @@ AdjustFacingDirection	;IDA: AdjustFacingDirecion. Turn facedir one step
 	move.w	d1,facedir(a3)
 	rts
 
-GoalieSaveList	;IDA: unk_B6F2. 92 assgoalie .list
+GoalieSaveList	;92 assgoalie.list
 	dc.w	$166			;SPAgglover
 	dc.w	$198			;SPAgglovel
 	dc.w	$270			;SPAgstackr
@@ -2493,7 +2490,7 @@ assgoalietopuck	;93 only: goalie skates out to a loose puck (inserted by
 	bclr	#1,pflags(a3)
 	beq.w	.nna
 	clr.w	temp1(a3)
-.nna	sub.b	d7,temp1(a3)		;IDA: loc_B724
+.nna	sub.b	d7,temp1(a3)
 	bpl.w	.go
 	move.b	aidef(a3),d0
 	lsr.b	#2,d0
@@ -2504,17 +2501,17 @@ assgoalietopuck	;93 only: goalie skates out to a loose puck (inserted by
 	btst	#7,pflags(a3)
 	beq.w	.dir
 	eori	#8,ccr
-.dir	bmi.w	assexit			;IDA: loc_B750
+.dir	bmi.w	assexit
 	movea.w	#(tmstruct-M68K_RAM),a1
 	lea	tmsize(a1),a2
 	btst	#6,pflags(a3)
 	beq.w	.t0
 	exg	a1,a2
-.t0	cmpi.l	#$E10,$2A(a1)		;IDA: loc_B768
+.t0	cmpi.l	#$E10,$2A(a1)
 	blt.w	assexit
 	cmpi.l	#$640,$2A(a2)
 	blt.w	assexit
-.go	bra.w	skatetopuck		;IDA: loc_B780
+.go	bra.w	skatetopuck
 
 asspuckc	;player a3 is puck handler
 	move.w	(puckc).w,d0
@@ -2533,29 +2530,29 @@ asspuckc	;player a3 is puck handler
 	move.w	(VDP_CNTR).l,d0
 	andi.w	#3,d0
 	move.w	d0,temp3(a3)		;temp3 = random 0-3
-.nna	sub.b	d7,temp1(a3)		;IDA: asspuckc_nna
+.nna	sub.b	d7,temp1(a3)
 	bpl.w	.nodec
 	move.b	aioff(a3),temp1(a3)
 	bsr.w	checkob
 	bsr.w	chk4lc
 	bsr.w	chk4shot
 	bsr.w	chk4pass
-.nodec	moveq	#6,d0			;IDA: asspuckc_onside
+.nodec	moveq	#6,d0
 	add.w	temp3(a3),d0
 	lea	.postab(pc),a0
 	btst	#sf2offsig,(sflags2).w		;someone is over the line
 	beq.w	.nd1
 	move.w	position(a3),d0
-.nd1	asl.w	#2,d0			;IDA: asspuckc_nd1
+.nd1	asl.w	#2,d0
 	move.w	2(a0,d0.w),d1
 	move.w	(a0,d0.w),d0
 	btst	#7,pflags(a3)
 	bne.w	.nd0
 	neg.w	d0
 	neg.w	d1
-.nd0	lea	.chkdir(pc),a0		;IDA: asspuckc_nd0
+.nd0	lea	.chkdir(pc),a0
 	bra.w	skateto
-.chkdir	ext.w	d0			;IDA: asspuckc_chkdir
+.chkdir	ext.w	d0
 	move.b	Xvel(a3),d2
 	ext.w	d2
 	add.w	(puckx).w,d2
@@ -2568,7 +2565,7 @@ asspuckc	;player a3 is puck handler
 	cmpi.w	#6,SCnum(a3)
 	bge.w	.cd0
 	adda.w	#6*SCstruct,a0
-.cd0	move.b	Xvel(a0),d1		;IDA: asspuckc_cd0
+.cd0	move.b	Xvel(a0),d1
 	ext.w	d1
 	add.w	(a0),d1
 	sub.w	d2,d1
@@ -2598,10 +2595,10 @@ asspuckc	;player a3 is puck handler
 	andi.w	#1,d1
 	add.w	d1,d0
 	andi.w	#7,d0
-.next	adda.w	#SCstruct,a0			;IDA: asspuckc_next
+.next	adda.w	#SCstruct,a0
 	dbf	d4,.cd0
 	rts
-.postab	;IDA: _posttab. x,y by position when offsides (1-5), then 4
+.postab	;x,y by position when offsides (1-5), then 4
 	;random onside spots (6-9)
 	dc.w	-100,-20
 	dc.w	100,-20
@@ -2619,7 +2616,7 @@ chk4lc	;see if computer should call line change
 	btst	#7,pflags(a3)
 	bne.w	.gu
 	neg.w	d0
-.gu	tst.w	d0			;IDA: _gu
+.gu	tst.w	d0
 	bmi.w	rtss
 	cmp.w	#$58,d0		;blueline,d0
 	bgt.w	rtss
@@ -2633,7 +2630,7 @@ chk4lc	;see if computer should call line change
 	btst	#6,pflags(a3)
 	beq.w	.0
 	exg	a2,a1
-.0	bsr.w	AvgCline		;IDA: _0
+.0	bsr.w	AvgCline
 	cmp.w	#$C00,d0
 	bhi.w	rtss
 	bsr.w	CompLine
@@ -2666,14 +2663,14 @@ chk4shot	;player a3 looks for shot (computer controlled)
 	move.w	(VDP_CNTR).l,d0
 	andi.w	#3,d0
 	beq.w	CompShoot		;clear puck (no icing if pkilling)
-.npk	moveq	#$20,d4			;IDA: _npk
+.npk	moveq	#$20,d4
 	sub.b	spodds(a3),d4		;shot/pass odds
 	asl.w	#4,d4
 	move.w	#$108,d1		;blueline+goalline
 	btst	#7,pflags(a3)
 	bne.w	.c0
 	neg.w	d1
-.c0	sub.w	(pucky).w,d1		;IDA: _c0
+.c0	sub.w	(pucky).w,d1
 	move.w	(puckx).w,d0
 	neg.w	d0
 	movem.w	d0-d1,-(sp)
@@ -2691,7 +2688,7 @@ chk4shot	;player a3 looks for shot (computer controlled)
 	cmpi.w	#6,SCnum(a3)
 	bge.w	.co0
 	adda.w	#6*SCstruct,a1
-.co0	tst.w	position(a1)			;IDA: _co0
+.co0	tst.w	position(a1)
 	beq.w	.gl
 	move.w	(a1),d0
 	sub.w	(puckx).w,d0
@@ -2702,13 +2699,13 @@ chk4shot	;player a3 looks for shot (computer controlled)
 	bne.w	.co1
 	asl.w	#1,d4			;defender in the shot line
 	bra.w	.co1
-.gl	btst	#pf2aip,pflags2(a1)		;IDA: loc_BA1A. 93: goalie busy, shoot now
+.gl	btst	#pf2aip,pflags2(a1)		;93: goalie busy, shoot now
 	beq.w	.co1
 	clr.w	d3
 	moveq	#1,d4
-.co1	adda.w	#SCstruct,a1			;IDA: loc_BA28
+.co1	adda.w	#SCstruct,a1
 	dbf	d3,.co0
-.no1	move.w	d4,d0			;IDA: loc_BA30
+.no1	move.w	d4,d0
 	bsr.w	randomd0
 	cmp.w	#8,d0
 	bgt.w	rtss
@@ -2716,7 +2713,7 @@ chk4shot	;player a3 looks for shot (computer controlled)
 	btst	#7,pflags(a3)
 	bne.w	.ds0
 	neg.w	d0
-.ds0	tst.w	d0			;IDA: loc_BA4E
+.ds0	tst.w	d0
 	bmi.w	rtss			;don't shoot from behind center line
 	move.w	#$108,d1
 	sub.w	d0,d1
@@ -2729,13 +2726,13 @@ CompShoot	;player a3 shoots (computer controlled player)
 	btst	#7,pflags(a3)
 	bne.w	.ds0
 	neg.w	d0
-.ds0	move.w	#$108,d1		;IDA: loc_BA7A
+.ds0	move.w	#$108,d1
 	sub.w	d0,d1
 	lsr.w	#3,d1
 	cmp.w	#20,d1
 	blt.w	.lt
 	moveq	#$14,d1
-.lt	move.w	d1,temp2(a3)		;IDA: loc_BA8C. temp2 = swing time
+.lt	move.w	d1,temp2(a3)		;temp2 = swing time
 	move.l	#$12,d0			;ashoot
 	bra.w	assreplace
 
@@ -2747,12 +2744,12 @@ chk4pass	;player a3 looks for good pass (computer controlled)
 	bsr.w	randomd0
 	cmp.w	#8,d0
 	bgt.w	rtss
-.dp0	moveq	#6,d0			;IDA: _dp0. Set up pass assignment
+.dp0	moveq	#6,d0			;Set up pass assignment
 	bsr.w	randomd0
 	cmpi.w	#6,SCnum(a3)
 	blt.w	.dp1
 	addq.w	#6,d0
-.dp1	tst.w	position(a3)			;IDA: _dp1. 93: from the goalie, or skaters
+.dp1	tst.w	position(a3)			;93: from the goalie, or skaters
 	beq.w	.bl			;outside the slot only
 	cmpi.w	#$28,(puckx).w
 	bgt.w	.bl
@@ -2762,7 +2759,7 @@ chk4pass	;player a3 looks for good pass (computer controlled)
 	bgt.w	rtss
 	cmpi.w	#$FF34,(pucky).w
 	blt.w	rtss
-.bl	cmp.w	SCnum(a3),d0		;IDA: checkForPassAcrossBlueLine
+.bl	cmp.w	SCnum(a3),d0
 	beq.w	rtss			;don't pass to yourself
 	asl.w	#7,d0
 	movea.w	#(SortCords-M68K_RAM),a0
@@ -2779,7 +2776,7 @@ chk4pass	;player a3 looks for good pass (computer controlled)
 	bne.w	.f0
 	neg.w	d0
 	neg.w	d1
-.f0	btst	#gmoffs,(gmode).w		;IDA: _f0
+.f0	btst	#gmoffs,(gmode).w
 	beq.w	.oko
 	movem.w	d0-d1,-(sp)
 	subi.w	#$58,d0
@@ -2787,12 +2784,12 @@ chk4pass	;player a3 looks for good pass (computer controlled)
 	eor.w	d0,d1
 	movem.w	(sp)+,d0-d1
 	bmi.w	rtss
-.oko	cmp.w	#$58,d0		;IDA: _oko. blueline,d0
+.oko	cmp.w	#$58,d0		;blueline,d0
 	bgt.w	.ok
 	sub.w	d1,d0
 	cmp.w	#-15,d0
 	blt.w	rtss
-.ok	move.w	(a0),d0			;IDA: _ok
+.ok	move.w	(a0),d0
 	sub.w	(puckx).w,d0
 	move.w	Ypos(a0),d1
 	sub.w	(pucky).w,d1
@@ -2808,7 +2805,7 @@ chk4pass	;player a3 looks for good pass (computer controlled)
 	cmpi.w	#6,SCnum(a3)
 	bge.w	.co0
 	adda.w	#6*SCstruct,a1
-.co0	move.w	(a1),d0			;IDA: _co0
+.co0	move.w	(a1),d0
 	sub.w	(puckx).w,d0
 	move.w	Ypos(a1),d1
 	sub.w	(pucky).w,d1
@@ -2822,7 +2819,7 @@ chk4pass	;player a3 looks for good pass (computer controlled)
 	bsr.w	vtoa
 	cmp.w	(passdir).w,d0
 	beq.w	rtss			;opponent in the pass lane
-.co1	adda.w	#SCstruct,a1			;IDA: _co1
+.co1	adda.w	#SCstruct,a1
 	dbf	d3,.co0
 	bsr.w	dopass
 	tst.w	position(a3)
@@ -2862,7 +2859,7 @@ EvadePC	;player a3 should avoid the puck carrier if he's on my team
 	btst	#7,pflags(a3)
 	bne.w	.y
 	neg.w	d1
-.y	subi.w	#$58,d1			;IDA: loc_BC60
+.y	subi.w	#$58,d1
 	cmp.w	#10,d1
 	bgt.w	.x
 	cmp.w	#-50,d1
@@ -2872,16 +2869,15 @@ EvadePC	;player a3 should avoid the puck carrier if he's on my team
 	cmp.w	(puckx).w,d1
 	bgt.w	.x
 	moveq	#6,d0
-.x	rts				;IDA: locret_BC82
+.x	rts
 
 ;======================================================================
-;	(was logic93_4.asm)
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $BC6C-$C9E9
 ;	92 Logic.Asm part 4: checkob, assnearest, check4check, asspassrec,
 ;	assshoot, pucknothing, puckfaceoff, ChkGoalies, ReturnGoalies,
 ;	CPgoalie, CompLine, puckfaceoff2, updatefaceoff, Endfaceoff,
-;	pucknorm. Global names from the IDA export, 92 names where the
+;pucknorm. Global names from the 92 names where the
 ;	routine is the same (see the SEGMENT_AGENT.md rename table). Bytes
 ;	match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
@@ -2906,39 +2902,39 @@ checkob	;bring up little warning ref if a player on your team is over blue line.
 	cmpi.w	#6,SCnum(a3)
 	blt.w	.0
 	adda.w	#6*SCstruct,a0
-.0	moveq	#$5C,d1			;IDA: checkob_0. blue line y (92 move blueline,d1)
+.0	moveq	#$5C,d1			;blue line y (92 move blueline,d1)
 	btst	#pfgoal,pflags(a3)
 	bne.w	.top
 	neg.w	d1
 	cmp.w	(pucky).w,d1
 	bgt.w	.nob
-.bottom	tst.w	position(a0)			;IDA: checkob_bottom
+.bottom	tst.w	position(a0)
 	bmi.w	.bn
 	cmp.w	Ypos(a0),d1
 	bgt.w	.ob
-.bn	adda.w	#SCstruct,a0			;IDA: checkob_bn
+.bn	adda.w	#SCstruct,a0
 	dbf	d0,.bottom
-.nob	moveq	#$40,d0			;IDA: checkob_nob
+.nob	moveq	#$40,d0
 	bclr	#sf2offsig,(sflags2).w
 	bne.w	.dref
-.ex	movem.l	(sp)+,d0-d1/a0		;IDA: checkob_ex
+.ex	movem.l	(sp)+,d0-d1/a0
 	rts
 
-.ob	moveq	#6,d0			;IDA: checkob_ob (92 moveq #32,d0)
+.ob	moveq	#6,d0			;(92 moveq #32,d0)
 	bset	#sf2offsig,(sflags2).w
 	bne.s	.ex
-.dref	tst.w	(RefCnt).w		;IDA: checkob_dref
+.dref	tst.w	(RefCnt).w
 	bpl.s	.ex
 	bsr.w	PushRef
 	bra.s	.ex
 
-.top	cmp.w	(pucky).w,d1		;IDA: checkob_top
+.top	cmp.w	(pucky).w,d1
 	blt.s	.nob
-.top1	tst.w	position(a0)			;IDA: checkob_top1
+.top1	tst.w	position(a0)
 	bmi.w	.tn
 	cmp.w	Ypos(a0),d1
 	blt.s	.ob
-.tn	adda.w	#SCstruct,a0			;IDA: checkob_tn
+.tn	adda.w	#SCstruct,a0
 	dbf	d0,.top1
 	bra.s	.nob
 
@@ -2948,7 +2944,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	clr.w	temp3(a3)
 	move.w	#8,temp2(a3)
 	clr.w	temp1(a3)
-.nna	move.w	SCnum(a3),d1		;IDA: _nna
+.nna	move.w	SCnum(a3),d1
 	cmp.w	(puckc).w,d1
 	bne.w	.nopc
 	tst.w	position(a3)
@@ -2957,7 +2953,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	btst	#pfjoycon,pflags(a3)
 	beq.w	assinsert
 	rts
-.nopc	sub.b	d7,temp1(a3)		;IDA: _nopc
+.nopc	sub.b	d7,temp1(a3)
 	bpl.w	.nodec
 	move.b	aioff(a3),temp1(a3)
 	clr.l	$2A(a2)			;93: team long, set to best distance below
@@ -2971,10 +2967,10 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	eor.b	d0,d1
 	btst	#pfteam,d1
 	beq.w	.switch			;our team has the puck
-.np	moveq	#-1,d2			;IDA: _np
+.np	moveq	#-1,d2
 	moveq	#5,d4
 	movea.w	tmsort(a2),a0		;tmsort: first player of the team (92 from SCnum)
-.de0	tst.w	position(a0)			;IDA: _de0
+.de0	tst.w	position(a0)
 	ble.w	.next
 	tst.b	nopuck(a0)
 	bne.w	.next
@@ -3002,12 +2998,12 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	bhi.w	.next
 	move.l	d0,d2
 	movea.w	a0,a1
-.next	adda.w	#SCstruct,a0			;IDA: _next
+.next	adda.w	#SCstruct,a0
 	dbf	d4,.de0
 	tst.l	d2
 	bmi.w	.de1
 	move.l	d2,$2A(a2)		;93: nearest distance^2
-.switch	cmpa.w	a1,a3			;IDA: _switch
+.switch	cmpa.w	a1,a3
 	beq.w	.de1
 	btst	#gmclock,(gmode).w
 	bne.w	.de1
@@ -3019,7 +3015,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	bsr.w	assinsert
 	exg	a1,a3
 	bra.w	assexit
-.de1	btst	#pfalock,pflags(a3)		;IDA: _de1. 92 tst position / beq rtss
+.de1	btst	#pfalock,pflags(a3)		;92 tst position / beq rtss
 	bne.w	rtss
 	moveq	#2,d1
 	cmp.w	#$190,d2		;20^2,d2 (commented out in 92)
@@ -3027,20 +3023,20 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	subq.w	#2,d1
 	cmpi.w	#2,position(a3)
 	bls.w	.nodec			;close and position <= 2: no new temp3
-.nfar	btst	#sf2pwrplay,(sflags2).w		;IDA: _nfar
+.nfar	btst	#sf2pwrplay,(sflags2).w
 	beq.w	.x
 	subq.w	#2,d1
 	bsr.w	chkpk2
 	bne.w	.x			;not killing penalty
 	addq.w	#4,d1
-.x	moveq	#$14,d0			;IDA: _x
+.x	moveq	#$14,d0
 	sub.b	$75(a3),d0		;aggress
 	asl.w	d1,d0
 	bsr.w	randomd0
 	cmp.w	#1,d0		;(92 #2)
 	bhi.w	.nodec
 	move.w	#$F0,temp3(a3)		;temp3 = 240
-.nodec	btst	#pfalock,pflags(a3)		;IDA: _nodec. 92 tst position
+.nodec	btst	#pfalock,pflags(a3)		;92 tst position
 	bne.w	rtss
 	btst	#gmclock,(gmode).w
 	bne.w	donothing		;92 donothing
@@ -3053,7 +3049,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	sub.w	d7,temp3(a3)
 	bpl.w	.topuck
 	clr.w	temp3(a3)
-.mid	bsr.w	skatetopuckinit		;IDA: _topuck. 93: d0/d1 = halfway between
+.mid	bsr.w	skatetopuckinit		;93: d0/d1 = halfway between
 	movem.w	d0-d1,-(sp)		;skatetopuckinit's spot and (0,$F4),
 	neg.w	d0			;or (0,-$F4) if pfgoal
 	neg.w	d1
@@ -3061,7 +3057,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	btst	#pfgoal,pflags(a3)
 	beq.w	.nd0
 	subi.w	#$1E8,d1
-.nd0	asr.w	#1,d0			;IDA: _nd0
+.nd0	asr.w	#1,d0
 	asr.w	#1,d1
 	add.w	(sp)+,d0
 	add.w	(sp)+,d1
@@ -3073,13 +3069,13 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	blt.w	.go
 	move.w	#$44,d1
 	bra.w	.go
-.neg	cmp.w	#-$53,d1		;IDA: loc_BF0A
+.neg	cmp.w	#-$53,d1
 	bgt.w	.go
 	move.w	#-$44,d1
-.go	lea	rtss(pc),a0		;IDA: loc_BF16
+.go	lea	rtss(pc),a0
 	bsr.w	skateto
 	bra.w	check4check
-.topuck	bsr.w	skatetopuck		;IDA: topuck. Falls into check4check
+.topuck	bsr.w	skatetopuck		;Falls into check4check
 
 check4check	;look for good opportunity for checking opponent. Falls in from assnearest; also entered from assfwatch and asswingd
 	moveq	#$14,d0
@@ -3087,7 +3083,7 @@ check4check	;look for good opportunity for checking opponent. Falls in from assn
 	tst.w	(OptPen).w
 	beq.w	.nopen
 	asl.w	#1,d0
-.nopen	bsr.w	randomd0		;IDA: loc_BF36
+.nopen	bsr.w	randomd0
 	cmp.w	#3,d0		;(92 tst d0)
 	bhi.w	rtss
 	moveq	#5,d2
@@ -3095,7 +3091,7 @@ check4check	;look for good opportunity for checking opponent. Falls in from assn
 	cmpi.w	#6,SCnum(a3)
 	bge.w	.0
 	adda.w	#6*SCstruct,a0
-.0	tst.w	position(a0)			;IDA: loc_BF56
+.0	tst.w	position(a0)
 	beq.w	.next
 	btst	#pfalock,pflags(a0)		;93: skip
 	bne.w	.next
@@ -3120,11 +3116,11 @@ check4check	;look for good opportunity for checking opponent. Falls in from assn
 	andi.w	#3,d0			;hold/hook instead of a check
 	bne.w	burst
 	bra.w	Acheck
-.next	adda.w	#SCstruct,a0			;IDA: loc_BFBC
+.next	adda.w	#SCstruct,a0
 	dbf	d2,.0
 	rts
 
-asspassrec	;IDA: loc_BFC6. assignment for catching pass. Assignment apassrec ($13)
+asspassrec	;assignment for catching pass. Assignment apassrec ($13)
 	btst	#pfalock,pflags(a3)		;93 only
 	bne.w	rtss
 	btst	#gmclock,(gmode).w
@@ -3136,25 +3132,25 @@ asspassrec	;IDA: loc_BFC6. assignment for catching pass. Assignment apassrec ($1
 	bset	#pfdoff,pflags(a3)
 	move.b	#8,temp2+1(a3)
 	clr.b	temp2(a3)			;93: temp2 high byte
-.nna	tst.w	(puckc).w		;IDA: loc_BFFE
+.nna	tst.w	(puckc).w
 	bpl.w	.ex
 	sub.b	d7,temp1(a3)		;93: puck loose: wait temp1 (92 bmi skatetopuck)
 	bpl.w	rtss
-.ex	bclr	#pfdoff,pflags(a3)		;IDA: loc_C00E
+.ex	bclr	#pfdoff,pflags(a3)
 	bra.w	assexit
-;unreferenced (IDA dc.b): skate to temp3/temp4
+;unreferenced: skate to temp3/temp4
 	move.w	temp3(a3),d0
 	move.w	temp4(a3),d1
 	lea	rtss(pc),a0
 	bra.w	skateto
 
-assshoot	;IDA: loc_C028. assignment for computer shooting. Assignment ashoot ($12)
+assshoot	;assignment for computer shooting. Assignment ashoot ($12)
 	btst	#pfalock,pflags(a3)		;93 only
 	bne.w	rtss
 	bclr	#pfna,pflags(a3)
 	beq.w	.nna
 	bra.w	SetShotMode
-.nna	btst	#sfssdir,(sflags).w		;IDA: loc_C040
+.nna	btst	#sfssdir,(sflags).w
 	beq.w	assexit
 	clr.w	d2			;(92 also loads temp1 into d0)
 	sub.w	d7,temp2(a3)
@@ -3177,7 +3173,7 @@ puckfaceoff	;this is where the action starts
 	move.w	(tmstruct+tmscore).w,d0
 	cmp.w	(awtmstruct+tmscore).w,d0
 	bne.w	clockcont_0		;92 PeriodOver
-.npo	btst	#gmpendel,(gmode).w		;IDA: _npo
+.npo	btst	#gmpendel,(gmode).w
 	bne.w	Stop4Pen
 	move.w	(PerTimeTotal).w,d0	;93: song $34 once, at the first faceoff
 	asr.w	#1,d0			;past half the period with 60 s or more left,
@@ -3191,7 +3187,7 @@ puckfaceoff	;this is where the action starts
 	beq.w	.rg
 	move.w	#$34,-(sp)
 	bsr.w	song
-.rg	bsr.w	ReturnGoalies		;IDA: loc_C0D0
+.rg	bsr.w	ReturnGoalies
 	st	temp1(a3)
 	st	temp2(a3)
 	tst.w	(OptLine).w
@@ -3200,7 +3196,7 @@ puckfaceoff	;this is where the action starts
 	bclr	#1,(awtmstruct+tmflags).w	;93: bit 1
 	movea.w	#(SortCords-M68K_RAM),a0	;93: clear pf2lcm on all 12 players
 	moveq	#$B,d0
-.lcm	bclr	#pf2lcm,pflags2(a0)		;IDA: loc_C0F6
+.lcm	bclr	#pf2lcm,pflags2(a0)
 	adda.w	#SCstruct,a0
 	dbf	d0,.lcm
 	move.w	(cont1team).w,d0
@@ -3212,19 +3208,19 @@ puckfaceoff	;this is where the action starts
 	bset	#sfslock,(sflags).w
 	bsr.w	ClrHor
 	move.w	#$18,(palcount).w
-.nohor	move.w	(c1playernum).w,d0	;IDA: nohor
+.nohor	move.w	(c1playernum).w,d0
 	bmi.w	.nlp
 	bsr.w	.slc
-.nlp	move.w	(c2playernum).w,d0	;IDA: nlp
+.nlp	move.w	(c2playernum).w,d0
 	bmi.w	.nlp2
 	bsr.w	.slc
-.nlp2	movea.w	#(tmstruct-M68K_RAM),a1	;IDA: nlp2
+.nlp2	movea.w	#(tmstruct-M68K_RAM),a1
 	lea	tmsize(a1),a2
 	moveq	#2,d0
 	bsr.w	.sclc
 	bra.w	.nna
 
-.sclc	tst.w	(OptLine).w		;IDA: puckfaceoff_sclc
+.sclc	tst.w	(OptLine).w
 	bne.w	rtss
 	cmp.w	(cont1team).w,d0
 	beq.w	rtss
@@ -3234,7 +3230,7 @@ puckfaceoff	;this is where the action starts
 	bsr.w	setpersonel
 	bra.w	printscores1
 
-.slc	exg	a2,a3			;IDA: puckfaceoff_slc
+.slc	exg	a2,a3
 	asl.w	#7,d0			;scsize
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d0,a3
@@ -3249,11 +3245,11 @@ puckfaceoff	;this is where the action starts
 	move.w	#$168,temp2(a2)		;temp2 = 6*60 (92 3*60)
 	move.w	SCnum(a3),temp4(a2)		;temp4 = SCnum
 	bra.w	.slcex
-.t1	move.w	#$258,temp1(a2)		;IDA: loc_C1B8. temp1 = 10*60 (92 5*60)
+.t1	move.w	#$258,temp1(a2)		;temp1 = 10*60 (92 5*60)
 	move.w	SCnum(a3),temp3(a2)		;temp3 = SCnum
-.slcex	exg	a2,a3			;IDA: loc_C1C4
+.slcex	exg	a2,a3
 	rts
-.nna	move.w	#$40,d0			;IDA: nna. temp1
+.nna	move.w	#$40,d0			;temp1
 	bsr.w	.clc
 	move.w	#$42,d0			;temp2
 	bsr.w	.clc
@@ -3268,7 +3264,7 @@ puckfaceoff	;this is where the action starts
 	move.w	#$1C,d0			;pfaceoff2
 	bra.w	assreplace
 
-.clc	tst.w	(a3,d0.w)		;IDA: UpdatePlayerLineChangeTimer
+.clc	tst.w	(a3,d0.w)
 	bmi.w	rtss
 	move.w	4(a3,d0.w),d1		;temp3/temp4 = SCnum
 	asl.w	#7,d1
@@ -3277,11 +3273,11 @@ puckfaceoff	;this is where the action starts
 	btst	#pfteam,pflags(a0,d1.w)
 	beq.w	.clh
 	adda.w	#tmsize,a2
-.clh	btst	#pf2lcm,pflags2(a0,d1.w)		;IDA: loc_C222. pf2lcm
+.clh	btst	#pf2lcm,pflags2(a0,d1.w)		;pf2lcm
 	bne.w	.clnd
 	st	(a3,d0.w)
 	bra.w	SetLCmode2		;93: redraw lc box (92 rts)
-.clnd	sub.w	d7,(a3,d0.w)		;IDA: loc_C234
+.clnd	sub.w	d7,(a3,d0.w)
 	bpl.w	rtss
 	move.l	a3,-(sp)
 	lea	(a0,d1.w),a3
@@ -3290,7 +3286,7 @@ puckfaceoff	;this is where the action starts
 	clr.w	d2
 	bsr.w	lcfound
 	bsr.w	SetLCmode2		;93
-.clcex	movea.l	(sp)+,a3		;IDA: loc_C256
+.clcex	movea.l	(sp)+,a3
 	rts
 
 ChkGoalies	;computer pulls goalie on delayed penalty. Called from periodicevents
@@ -3302,7 +3298,7 @@ ChkGoalies	;computer pulls goalie on delayed penalty. Called from periodicevents
 	bsr.w	.CPG
 	moveq	#2,d0
 	exg	a1,a2
-.CPG	tst.w	tmgoalie(a2)			;IDA: CheckGoaliePull. tmgoalie already out
+.CPG	tst.w	tmgoalie(a2)			;tmgoalie already out
 	bmi.w	rtss
 	move.w	(puckc).w,d1
 	bmi.w	rtss
@@ -3310,27 +3306,27 @@ ChkGoalies	;computer pulls goalie on delayed penalty. Called from periodicevents
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.0
 	not.w	d1			;(92 neg)
-.0	tst.w	d1			;IDA: loc_C292
+.0	tst.w	d1
 	bpl.w	rtss			;exit unless team a2 has the puck
 	btst	#gmpendel,(gmode).w
 	beq.w	.cp
 	st	tmgoalie(a2)			;pull goalie (92 move #2,tmgoalie), any team
 	bra.w	setpersonel
-.cp	cmp.w	(cont1team).w,d0	;IDA: loc_C2AA. 93: rest is CPG for computer teams
+.cp	cmp.w	(cont1team).w,d0	;93: rest is CPG for computer teams
 	beq.w	rtss
 	cmp.w	(cont2team).w,d0
 	beq.w	rtss
 	move.w	(pucky).w,d1
 	bra.w	CPgoalie
 
-ReturnGoalies	;IDA: loc_C2C2. if computer pulled goalie, look to see if computer should return him. Called from puckfaceoff
+ReturnGoalies	;if computer pulled goalie, look to see if computer should return him. Called from puckfaceoff
 	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
 	moveq	#1,d0
 	bsr.w	.r
 	moveq	#2,d0
 	exg	a1,a2
-.r	cmpi.w	#-1,tmgoalie(a2)		;IDA: loc_C2D4. tmgoalie $FFFF stays out
+.r	cmpi.w	#-1,tmgoalie(a2)		;tmgoalie $FFFF stays out
 	beq.w	rtss
 	clr.b	tmgoalie(a2)			;return goalie
 	cmp.w	(cont1team).w,d0
@@ -3339,7 +3335,7 @@ ReturnGoalies	;IDA: loc_C2C2. if computer pulled goalie, look to see if computer
 	beq.w	rtss
 	move.w	(foy).w,d1
 
-CPgoalie	;IDA: loc_C2F6. see if computer should pull his goalie. d1 = puck/faceoff y. Falls in from ReturnGoalies; also entered from ChkGoalies
+CPgoalie	;see if computer should pull his goalie. d1 = puck/faceoff y. Falls in from ReturnGoalies; also entered from ChkGoalies
 	cmpi.w	#2,(gsp).w
 	bne.w	rtss			;exit if not 3rd per.
 	move.w	tmscore(a1),d0
@@ -3355,7 +3351,7 @@ CPgoalie	;IDA: loc_C2F6. see if computer should pull his goalie. d1 = puck/faceo
 	movea.l	(sp)+,a0
 	bne.w	.0
 	neg.w	d1
-.0	tst.w	d1			;IDA: loc_C332
+.0	tst.w	d1
 	bmi.w	rtss
 	st	tmgoalie(a2)			;pull goalie (92 move #2,tmgoalie)
 	bra.w	setpersonel
@@ -3368,7 +3364,7 @@ CompLine	;find good line for comp to switch to. a2 = team, a1 = other team. Call
 	beq.w	.nopwr
 	bpl.w	.0
 	addq.w	#2,d0
-.0	move.w	d0,-(sp)		;IDA: _0. find pk/pwr line
+.0	move.w	d0,-(sp)		;find pk/pwr line
 	bsr.w	getlinee
 	move.w	d0,d1
 	move.w	(sp),d0
@@ -3377,11 +3373,11 @@ CompLine	;find good line for comp to switch to. a2 = team, a1 = other team. Call
 	cmp.w	d0,d1
 	bge.w	.1
 	addq.w	#1,(sp)
-.1	move.w	(sp)+,tmline(a2)		;IDA: _1
-.ex	movem.l	(sp)+,d0-d2/a0		;IDA: _ex
+.1	move.w	(sp)+,tmline(a2)
+.ex	movem.l	(sp)+,d0-d2/a0
 	rts
 
-.nopwr	cmpa.w	#(tmstruct-M68K_RAM),a2	;IDA: _nopwr. find normal line
+.nopwr	cmpa.w	#(tmstruct-M68K_RAM),a2	;find normal line
 	bne.w	.away
 	moveq	#2,d1
 	lea	.hl1(pc),a0
@@ -3393,7 +3389,7 @@ CompLine	;find good line for comp to switch to. a2 = team, a1 = other team. Call
 	adda.w	#$E,a0
 	bgt.w	.h0			;(92 bgt .a0)
 	adda.w	#$E,a0
-.h0	move.w	tmline(a1),d1		;IDA: _h0
+.h0	move.w	tmline(a1),d1
 	asl.w	#1,d1
 	move.w	(a0,d1.w),d0
 	bsr.w	getlinee
@@ -3402,11 +3398,11 @@ CompLine	;find good line for comp to switch to. a2 = team, a1 = other team. Call
 	move.w	(a0,d1.w),tmline(a2)
 	bra.s	.ex
 
-.hl1	dc.w	0,1,2,0,1,0,1		;IDA: hl1
+.hl1	dc.w	0,1,2,0,1,0,1
 	dc.w	2,0,1,2,0,2,0
 	dc.w	0,1,0,0,1,0,1
 
-.away	moveq	#2,d1			;IDA: _away
+.away	moveq	#2,d1
 	lea	.al1(pc),a0
 	cmpi.w	#2,(gsp).w
 	bne.w	.a0
@@ -3416,14 +3412,14 @@ CompLine	;find good line for comp to switch to. a2 = team, a1 = other team. Call
 	addq.w	#6,a0
 	bgt.w	.a0
 	addq.w	#6,a0
-.a0	move.w	(a0)+,d0		;IDA: _a0
+.a0	move.w	(a0)+,d0
 	bsr.w	getlinee
 	cmp.w	#3*$1000/4,d0		;(92 19*$1000/20)
 	dbhi	d1,.a0
 	move.w	-(a0),tmline(a2)
 	bra.w	.ex
 
-.al1	dc.w	0,1,2			;IDA: _al1
+.al1	dc.w	0,1,2
 	dc.w	0,2,1
 	dc.w	0,1,0
 
@@ -3432,12 +3428,12 @@ puckfaceoff2	;face off control logic and general setup for action
 	beq.w	.nna			;not first time thru
 	movem.l	d0-d7/a0-a6,-(sp)
 	bsr.w	forceblack
-.p	btst	#dfok,(disflags).w		;IDA: _p
+.p	btst	#dfok,(disflags).w
 	bne.s	.p			;wait for vblank
 	cmpi.w	#$258,(crowdlevel).w
 	bls.w	.ntm
 	move.w	#$258,(crowdlevel).w	;limit crowd level
-.ntm	bset	#dfclock,(disflags).w		;IDA: _ntm. stop clock
+.ntm	bset	#dfclock,(disflags).w		;stop clock
 	bclr	#sfpz,(sflags).w		;no pause
 	bclr	#sf3llcs,(sflags3).w		;no line changes
 	clr.w	(glovecords).w		;no fighting gloves
@@ -3477,7 +3473,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	clr.w	(SortCords+(puckscnum*SCstruct)+attribute).w
 	bclr	#sfslock,(sflags).w		;free up scrolling
 	moveq	#$64,d4
-.cw	bsr.w	checkwindow		;IDA: _cw. scroll to faceoff spot
+.cw	bsr.w	checkwindow		;scroll to faceoff spot
 	dbf	d4,.cw
 	move.w	#$3C,(yleader).w
 	bsr.w	ResetBench
@@ -3491,7 +3487,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	move.l	a3,-(sp)
 	movea.w	#(SortCords-M68K_RAM),a3
 	moveq	#$B,d2
-.l0	move.w	#-$F0,(a3)		;IDA: loc_C552. Xpos = -240
+.l0	move.w	#-$F0,(a3)		;Xpos = -240
 	clr.w	Ypos(a3)
 	clr.w	frame(a3)
 	move.w	position(a3),d1
@@ -3504,18 +3500,18 @@ puckfaceoff2	;face off control logic and general setup for action
 	btst	#pfteam,pflags(a3)
 	beq.w	.tm
 	adda.w	#tmsize,a2
-.tm	clr.w	$18(a2)			;IDA: loc_C58A
+.tm	clr.w	$18(a2)
 	move.b	pnum(a3),$19(a2)
 	st	$1A(a2)
 	st	$1C(a2)
 	bclr	#3,tmflags(a2)		;tmflags bit 3
 	move.l	#$17,d0			;afaceoffpl
-.l1	bsr.w	assinsert		;IDA: loc_C5A8
-.goalie1	move.w	(tmstruct+tmap).w,d4	;IDA: loc_C5AC
+.l1	bsr.w	assinsert
+.goalie1	move.w	(tmstruct+tmap).w,d4
 	btst	#pfteam,pflags(a3)
 	beq.w	.t0
 	move.w	(awtmstruct+tmap).w,d4
-.t0	neg.w	d4			;IDA: loc_C5BE
+.t0	neg.w	d4
 	addq.w	#6,d4
 	asl.w	#3,d4
 	movea.l	#.apl,a1
@@ -3529,7 +3525,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	bne.w	.f0
 	neg.w	d0
 	neg.w	d1
-.f0	tst.w	position(a3)			;IDA: loc_C5EE
+.f0	tst.w	position(a3)
 	beq.w	.goalie2
 	cmp.w	#2*4,d4
 	bgt.w	.nodef
@@ -3539,12 +3535,12 @@ puckfaceoff2	;face off control logic and general setup for action
 	move.w	(foy).w,d3
 	asr.w	#3,d3
 	sub.w	d3,d1
-.notmid	move.w	(fox).w,d3		;IDA: loc_C610
+.notmid	move.w	(fox).w,d3
 	asr.w	#2,d3
 	sub.w	d3,d0
-.nodef	add.w	(fox).w,d0		;IDA: loc_C618
+.nodef	add.w	(fox).w,d0
 	add.w	(foy).w,d1
-.goalie2	move.w	d0,(a3)			;IDA: _goalie2. Xpos
+.goalie2	move.w	d0,(a3)			;Xpos
 	move.w	d1,Ypos(a3)
 	clr.w	Xvel(a3)
 	clr.w	Yvel(a3)
@@ -3558,7 +3554,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	bclr	#pfalock,pflags(a3)
 	move.w	#$52C,d1		;SPAglide
 	bsr.w	SetSPA
-.next	adda.w	#$80,a3			;IDA: _next
+.next	adda.w	#$80,a3
 	dbf	d2,.l0
 	bsr.w	SprSort
 	movea.l	(sp)+,a3
@@ -3569,7 +3565,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	tst.w	(fox).w
 	bpl.w	.fok
 	move.w	#$BE,d0			;(18*8)+46
-.fok	move.w	d0,(fodropx).w		;IDA: _fok
+.fok	move.w	d0,(fodropx).w
 	subi.w	#$2E,d0
 	asr.w	#3,d0
 	move.w	d0,(printx).w
@@ -3596,7 +3592,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	tst.w	(OptLine).w		;93: line names box when lines are on
 	bne.w	.nol
 	bsr.w	printsmallz
-	String	$FA,$A,$FE,4
+	String	CC_AddY,$A,CC_SetAttribute,4
 	moveq	#$C,d0
 	moveq	#3,d1
 	bsr.w	Framer
@@ -3605,7 +3601,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	btst	#gmdir,(gmode).w
 	bne.w	.nx
 	exg	d0,d1
-.nx	bsr.w	printsmallz		;IDA: loc_C6FA
+.nx	bsr.w	printsmallz
 	String	$FB,1,$FA,$FE
 	movea.l	#linelist,a1
 	bsr.w	PrintStringFromList
@@ -3613,7 +3609,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	move.w	d1,d0
 	movea.l	#linelist,a1
 	bsr.w	PrintStringFromList
-.nol	move.w	#$78,d0			;IDA: loc_C71E
+.nol	move.w	#$78,d0
 	bsr.w	randomd0
 	addi.w	#$B4,d0
 	move.w	d0,temp1(a3)		;time for puck drop
@@ -3629,15 +3625,15 @@ puckfaceoff2	;face off control logic and general setup for action
 	bne.w	.nfl
 	eori.w	#$800,2(a0)
 	eori.w	#$800,6(a0)
-.nfl	move.w	#-1,(fodir1).w		;IDA: _nfl
+.nfl	move.w	#-1,(fodir1).w
 	move.w	#-1,(fodir2).w
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts
-.nna	subq.w	#1,temp1(a3)		;IDA: loc_C784. (92 sub d7)
+.nna	subq.w	#1,temp1(a3)		;(92 sub d7)
 	bpl.w	updatefaceoff
 	bra.w	Endfaceoff
 
-.apl	;IDA: _apl
+.apl
 	dc.b	0,1,2,3,4,5,6,0
 	dc.b	0,1,5,3,4,2,0,0
 	dc.b	0,3,5,1,4,0,0,0
@@ -3657,11 +3653,11 @@ ResetAndSelectPlayers	;93 split from 92 puckfaceoff2: c1playernum/c2playernum = 
 	beq.w	.nt1
 	clr.w	d4
 	bsr.w	changeplayer
-.nt1	tst.w	(cont2team).w		;IDA: loc_C7DE
+.nt1	tst.w	(cont2team).w
 	beq.w	.nt2
 	moveq	#2,d4
 	bsr.w	changeplayer
-.nt2	rts				;IDA: locret_C7EC
+.nt2	rts
 
 updatefaceoff	;a3 = puck. Drop animation frame from temp1; at 0 erases the faceoff box (92 did that in Endfaceoff). Entered from puckfaceoff2
 	move.w	temp1(a3),d0
@@ -3674,7 +3670,7 @@ updatefaceoff	;a3 = puck. Drop animation frame from temp1; at 0 erases the faceo
 	addi.w	#$A,d0
 	move.w	d0,(fofdata).w		;92 fofdata+8
 	rts
-.erase	bclr	#4,(disflags).w		;IDA: loc_C80E
+.erase	bclr	#4,(disflags).w
 	bsr.w	printz
 	String	$BF,0,0
 	move.w	(fodropx).w,d0
@@ -3716,25 +3712,25 @@ Endfaceoff	;drop the puck: pick the faceoff winner and send the puck off. Entere
 	cmp.b	d0,d2
 	bls.w	.p1won
 	addq.w	#4,a1
-.p1won	btst	#3,2(a1)		;IDA: loc_C8AC
+.p1won	btst	#3,2(a1)
 	beq.w	.pos
 	move.w	(fodir2).w,d3
 	neg.w	d4
-.pos	move.w	d3,d0			;IDA: loc_C8BC
+.pos	move.w	d3,d0
 	btst	#3,d0
 	bne.w	.nojoy
 	andi.w	#7,d0
 	move.w	(VDP_CNTR).l,d1		;hvcount
 	andi.w	#3,d1
 	bne.w	.nj2
-.nojoy	moveq	#5,d0			;IDA: loc_C8D8
+.nojoy	moveq	#5,d0
 	bsr.w	randomd0
 	subq.w	#2,d0
 	andi.w	#7,d0
 	tst.w	d4
 	bmi.w	.nj2
 	eori.w	#4,d0
-.nj2	asl.w	#2,d0			;IDA: loc_C8EE
+.nj2	asl.w	#2,d0
 	movea.l	#dirtab,a0
 	move.w	(a0,d0.w),d1
 	asl.w	#5,d1
@@ -3758,14 +3754,14 @@ pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames si
 	beq.w	.nna
 	clr.w	temp1(a3)
 	move.w	#$78,temp2(a3)		;93: temp2 = still puck timer
-.nna	movea.w	#(puckcross-M68K_RAM),a1	;IDA: loc_C946. table for puck crossing lines
+.nna	movea.w	#(puckcross-M68K_RAM),a1	;table for puck crossing lines
 	sub.w	d7,2(a1)		;sub elapse frames from time til crossing
 	sub.w	d7,6(a1)
 	sub.w	d7,temp1(a3)
 	bpl.w	.0
 	addq.w	#5,temp1(a3)
 	bsr.w	findpc
-.0	move.w	(puckc).w,d0		;IDA: loc_C962
+.0	move.w	(puckc).w,d0
 	bmi.w	.nothandled
 	asl.w	#7,d0			;scsize
 	movea.w	#(SortCords-M68K_RAM),a2
@@ -3783,7 +3779,7 @@ pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames si
 	add.w	d1,Ypos(a3)
 	move.w	Xvel(a2),Xvel(a3)
 	move.w	Yvel(a2),Yvel(a3)
-.nothandled	bsr.w	puckIChk	;IDA: loc_C99E
+.nothandled	bsr.w	puckIChk
 	bsr.w	ChkOffsides
 	btst	#0,(gmode).w		;93: loose puck that has not moved
 	bne.w	.z			;(Xpos = $1C, Ypos = $20) for 120 calls
@@ -3799,9 +3795,9 @@ pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames si
 	subq.w	#1,temp2(a3)
 	bpl.w	.np
 	bsr.w	AddPenalty2
-.np	bra.w	.z			;IDA: loc_C9E0
-.mv	move.w	#$78,temp2(a3)		;IDA: loc_C9E4. reset still puck timer
-.z	tst.b	Zvel(a3)			;IDA: loc_C9EA
+.np	bra.w	.z
+.mv	move.w	#$78,temp2(a3)		;reset still puck timer
+.z	tst.b	Zvel(a3)
 	bne.w	checkpuckcoll
 	tst.w	Zpos(a3)
 	bne.w	checkpuckcoll
@@ -3809,7 +3805,6 @@ pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames si
 	bra.w	checkpuckcoll
 
 ;======================================================================
-;	(was logic93_5.asm)
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $C9EA-$D629
 ;	92 Logic.Asm part 5: ChkOffsides, a2offsides, a2touchpuck, PuckIChk,
@@ -3817,7 +3812,7 @@ pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames si
 ;	skatetopuck, assexit, assinsert, assreplace, vtoa, GetHot, SetSPA,
 ;	doplayeracc, goalieacc, noturn0, noturn, playeracc, MaxSpeed, dostop,
 ;	stopna, dirtab, then the 93-only UnpackNibbles and
-;	WeightedRandomSelect. Global names from the IDA export, 92 names
+;WeightedRandomSelect. Global names from the 92 names
 ;	where the routine is the same (see the SEGMENT_AGENT.md rename
 ;	table). Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
@@ -3849,19 +3844,19 @@ ChkOffsides	;check for offsides penalty. a3 = puck. 93 flags the whole team (tmf
 	btst	#gmdir,(gmode).w
 	beq.w	.t0
 	exg	a2,a1
-.t0	moveq	#5,d2			;IDA: loc_CA42
+.t0	moveq	#5,d2
 	movea.w	tmsort(a2),a0		;tmsort: first player of the team
-.0	tst.w	position(a0)			;IDA: loc_CA48. position: skip off ice
+.0	tst.w	position(a0)			;position: skip off ice
 	bmi.w	.1
 	cmp.w	Ypos(a0),d0
 	bge.w	.1
 	bset	#4,tmflags(a2)		;player past the line: team offsides
 	rts
-.1	adda.w	#SCstruct,a0			;IDA: loc_CA60
+.1	adda.w	#SCstruct,a0
 	dbf	d2,.0
 	rts
 
-.neg	neg.w	d0			;IDA: loc_CA6A
+.neg	neg.w	d0
 	cmp.w	Ypos(a3),d0
 	blt.w	rtss
 	cmp.w	OldYpos(a3),d0		;OldYpos: puck crossed the bottom line this frame?
@@ -3870,15 +3865,15 @@ ChkOffsides	;check for offsides penalty. a3 = puck. 93 flags the whole team (tmf
 	btst	#gmdir,(gmode).w
 	bne.w	.t1
 	exg	a2,a1
-.t1	moveq	#5,d2			;IDA: loc_CA8C
+.t1	moveq	#5,d2
 	movea.w	tmsort(a2),a0
-.2	tst.w	position(a0)			;IDA: loc_CA92
+.2	tst.w	position(a0)
 	bmi.w	.3
 	cmp.w	Ypos(a0),d0
 	ble.w	.3
 	bset	#4,tmflags(a2)		;team offsides
 	rts
-.3	adda.w	#SCstruct,a0			;IDA: loc_CAAA
+.3	adda.w	#SCstruct,a0
 	dbf	d2,.2
 	rts
 
@@ -3887,13 +3882,13 @@ ClearOffsidesIfAllPlayers	;93: a2 = team struct. Clears the team offsides flag (
 	beq.w	rtss
 	movea.w	tmsort(a2),a0
 	moveq	#5,d1
-.top	tst.w	position(a0)			;IDA: loc_CAC4. position: off ice keeps the last d0
+.top	tst.w	position(a0)			;position: off ice keeps the last d0
 	bmi.w	.next
 	move.w	Ypos(a0),d0
 	btst	#pfgoal,pflags(a0)
 	bne.w	.next
 	neg.w	d0
-.next	adda.w	#SCstruct,a0			;IDA: loc_CADC
+.next	adda.w	#SCstruct,a0
 	cmp.w	#$58,d0		;(blueline)
 	dbgt	d1,.top
 	bgt.w	rtss			;someone still past the line
@@ -3907,13 +3902,13 @@ a2offsides	;player a2 touched the puck: offsides penalty if his team is flagged 
 	btst	#pfgoal,pflags(a2)
 	bne.w	.0
 	neg.w	d0
-.0	cmp.w	#$58,d0		;IDA: loc_CB0E (92 cmp blueline,d0)
+.0	cmp.w	#$58,d0		;(92 cmp blueline,d0)
 	blt.w	rtss
 	movea.w	#(tmstruct-M68K_RAM),a0
 	btst	#pfteam,pflags(a2)
 	beq.w	.1
 	adda.w	#tmsize,a0
-.1	btst	#4,tmflags(a0)		;IDA: loc_CB28. team offsides flag (92 pf3oside loop over the players)
+.1	btst	#4,tmflags(a0)		;team offsides flag (92 pf3oside loop over the players)
 	beq.w	rtss
 	btst	#gmhl,(gmode).w
 	bne.w	rtss
@@ -3931,7 +3926,7 @@ a2touchpuck	;player a2 touches puck. Look for penalties/offsides/other junk. Cal
 	btst	#pfteam,pflags(a2)
 	beq.w	.t
 	lea	tmsize(a0),a0
-.t	clr.w	d0			;IDA: loc_CB6E
+.t	clr.w	d0
 	move.b	pnum(a2),d0
 	cmp.w	$18(a0),d0		;same player as the last touch: no change
 	beq.w	.same
@@ -3939,11 +3934,11 @@ a2touchpuck	;player a2 touches puck. Look for penalties/offsides/other junk. Cal
 	bne.w	.st
 	move.w	$1A(a0),$1C(a0)		;shift the touch list down
 	move.w	$18(a0),$1A(a0)
-.st	move.w	d0,$18(a0)		;IDA: loc_CB92
+.st	move.w	d0,$18(a0)
 	cmp.w	$1C(a0),d0
 	bne.w	.same
 	st	$1C(a0)			;player was also the third touch: drop it
-.same	bclr	#sf2shot,(sflags2).w		;IDA: loc_CBA2
+.same	bclr	#sf2shot,(sflags2).w
 	bsr.w	a2offsides
 	btst	#2,(iflags).w		;ifok
 	beq.w	.notice
@@ -3955,7 +3950,7 @@ a2touchpuck	;player a2 touches puck. Look for penalties/offsides/other junk. Cal
 	bne.w	.up
 	btst	#pfgoal,pflags(a2)
 	beq.w	.notice
-.icing	clr.w	d0			;IDA: loc_CBDC
+.icing	clr.w	d0
 	move.b	(icingPlayer).w,d0	;92 iflags+1
 	asl.w	#7,d0			;scsize
 	move.l	a3,-(sp)
@@ -3965,22 +3960,22 @@ a2touchpuck	;player a2 touches puck. Look for penalties/offsides/other junk. Cal
 	bsr.w	AddPenalty
 	movea.l	(sp)+,a3
 	rts
-.up	btst	#pfgoal,pflags(a2)		;IDA: loc_CBF8
+.up	btst	#pfgoal,pflags(a2)
 	beq.s	.icing
-.notice	clr.b	(iflags).w		;IDA: loc_CC00
+.notice	clr.b	(iflags).w
 	move.b	SCnum+1(a2),(icingPlayer).w
 	move.w	(pucky).w,d0
 	btst	#pfgoal,pflags(a2)
 	beq.w	.0
 	bset	#1,(iflags).w		;ifdir
 	neg.w	d0
-.0	bmi.w	rtss			;IDA: loc_CC20
+.0	bmi.w	rtss
 	move.w	(tmstruct+tmap).w,d0
 	sub.w	(awtmstruct+tmap).w,d0
 	btst	#pfteam,pflags(a2)
 	beq.w	.1
 	neg.w	d0
-.1	bmi.w	rtss			;IDA: loc_CC38
+.1	bmi.w	rtss
 	bset	#2,(iflags).w		;ifok
 	rts
 
@@ -3998,15 +3993,15 @@ puckIChk	;check for icing of puck penalty. Called from pucknorm
 	cmp.w	(pucky).w,d0
 	bgt.w	.chkx
 	rts
-.0	cmp.w	(pucky).w,d0		;IDA: loc_CC7A
+.0	cmp.w	(pucky).w,d0
 	bgt.w	rtss
-.chkx	cmpi.w	#$2C,(puckx).w		;IDA: loc_CC82. 93: |puckx| <= $2C at the goal line
+.chkx	cmpi.w	#$2C,(puckx).w		;93: |puckx| <= $2C at the goal line
 	bgt.w	.set
 	cmpi.w	#-$2C,(puckx).w
 	blt.w	.set
 	bclr	#2,(iflags).w		;ifok cleared: no icing
 	rts
-.set	bset	#0,(iflags).w		;IDA: loc_CC9E. ifcgl
+.set	bset	#0,(iflags).w		;ifcgl
 	rts
 
 puckunflip	;stop spinning puck. a3 = puck. Entered from pucknothing, called from pucknorm
@@ -4015,7 +4010,7 @@ puckunflip	;stop spinning puck. a3 = puck. Entered from pucknothing, called from
 	cmpi.w	#$18,SPAnum(a3)		;6*4
 	bge.w	.k
 	eori.w	#2,facedir(a3)
-.k	ori.w	#4,facedir(a3)		;IDA: loc_CCC0
+.k	ori.w	#4,facedir(a3)
 	clr.w	SPAnum(a3)
 	st	SPAcnt(a3)
 	rts
@@ -4038,10 +4033,10 @@ puckshadow	;assignment for puck shadow. a3 = puck shadow (struct after the puck)
 	btst	#sfhor,(sflags).w
 	beq.w	.nhor
 	moveq	#Xpos,d0
-.nhor	addq.w	#1,(a3,d0.w)		;IDA: loc_CD10
+.nhor	addq.w	#1,(a3,d0.w)
 	rts
 
-.siren	tst.w	frame(a3)			;IDA: loc_CD16
+.siren	tst.w	frame(a3)
 	beq.w	rtss
 	clr.w	(a3)			;Xpos
 	move.w	#$12C,Ypos(a3)		;Ypos 300
@@ -4051,7 +4046,7 @@ puckshadow	;assignment for puck shadow. a3 = puck shadow (struct after the puck)
 	move.w	#$8000,attribute(a3)
 	neg.w	Ypos(a3)
 	subq.w	#1,Zpos(a3)
-.s0	rts				;IDA: locret_CD42
+.s0	rts
 
 findpc	;find puck crossing lines: calculate when puck will cross goalline (if at all). Called from pucknorm
 	movem.l	d0-d4/a1-a2,-(sp)
@@ -4063,7 +4058,7 @@ findpc	;find puck crossing lines: calculate when puck will cross goalline (if at
 	bsr.w	.calc
 	movem.l	(sp)+,d0-d4/a1-a2
 	rts
-.calc	move.w	d4,d0			;IDA: findpc_calc
+.calc	move.w	d4,d0
 	sub.w	(pucky).w,d0
 	tst.w	(puckvy).w
 	beq.w	.nocross
@@ -4084,18 +4079,18 @@ findpc	;find puck crossing lines: calculate when puck will cross goalline (if at
 	add.w	d1,d0
 	add.w	d1,d0
 	add.w	d1,d0
-.o1	neg.w	d1			;IDA: loc_CDA4
+.o1	neg.w	d1
 	cmp.w	d1,d0
 	bgt.w	.o2
 	neg.w	d0
 	add.w	d1,d0
 	add.w	d1,d0
 	add.w	d1,d0
-.o2	neg.w	d1			;IDA: loc_CDB4
+.o2	neg.w	d1
 	move.w	d0,(a1)
 	bra.w	.next
-.nocross	move.w	#-1,2(a1)	;IDA: loc_CDBC
-.next	addq.w	#4,a1			;IDA: loc_CDC2
+.nocross	move.w	#-1,2(a1)
+.next	addq.w	#4,a1
 	rts
 
 skateto	;a0 = extra routine for collision avoidance, d0/d1 = x/y cord to skate to, d7 = elapse frames
@@ -4124,8 +4119,8 @@ skateto	;a0 = extra routine for collision avoidance, d0/d1 = x/y cord to skate t
 	blt.w	.vt
 	moveq	#9,d0			;close enough: no direction
 	bra.w	.nvt
-.vt	bsr.w	vtoa			;IDA: loc_CE1C
-.nvt	jsr	(a0)			;IDA: loc_CE20
+.vt	bsr.w	vtoa
+.nvt	jsr	(a0)
 	move.b	d0,temp2+1(a3)
 	cmp.w	#7,d0
 	ble.w	.ex
@@ -4138,7 +4133,7 @@ skateto	;a0 = extra routine for collision avoidance, d0/d1 = x/y cord to skate t
 	beq.w	.nf
 	move.w	(xc1).w,d0
 	move.w	(yc1).w,d1
-.nf	sub.w	(a3),d0			;IDA: loc_CE54
+.nf	sub.w	(a3),d0
 	sub.w	Ypos(a3),d1		;face towards puck
 	bsr.w	vtoa
 	sub.w	facedir(a3),d0
@@ -4150,7 +4145,7 @@ skateto	;a0 = extra routine for collision avoidance, d0/d1 = x/y cord to skate t
 	add.w	facedir(a3),d0
 	andi.w	#7,d0
 	move.w	d0,facedir(a3)
-.ex	clr.w	d0			;IDA: loc_CE7C
+.ex	clr.w	d0
 	move.b	temp2+1(a3),d0
 	bra.w	doplayeracc
 
@@ -4179,12 +4174,12 @@ avdgoal	;don't try to skate thru goal: if d0/d1 cords intersect thru goal then p
 	blt.w	.1
 	cmpi.w	#$FE,Ypos(a3)		;.gl
 	bgt.w	.2
-.1	move.w	#$B8,d3			;IDA: loc_CEDA. .gl-.yr-.ye
-.2	sub.w	d2,d3			;IDA: loc_CEDE
+.1	move.w	#$B8,d3			;gl-.yr-.ye
+.2	sub.w	d2,d3
 	move.w	d3,(deltay).w
 	bra.w	.chbar
 
-.lower	cmp.w	#-$DB,d2		;IDA: loc_CEE8. -.gl+.yr,d2
+.lower	cmp.w	#-$DB,d2		;-.gl+.yr,d2
 	bgt.w	.chbar
 	cmp.w	#-$121,d2		;-.gl-.yr,d2
 	blt.w	.chbar
@@ -4194,11 +4189,11 @@ avdgoal	;don't try to skate thru goal: if d0/d1 cords intersect thru goal then p
 	blt.w	.3
 	cmpi.w	#-$FE,Ypos(a3)
 	bgt.w	.4
-.3	move.w	#-$144,d3		;IDA: loc_CF12. -.gl-.yr-.ye
-.4	sub.w	d2,d3			;IDA: loc_CF16
+.3	move.w	#-$144,d3		;-.gl-.yr-.ye
+.4	sub.w	d2,d3
 	move.w	d3,(deltay).w
 
-.chbar	move.w	d1,d3			;IDA: loc_CF1C
+.chbar	move.w	d1,d3
 	subi.w	#$FE,d3			;.gl
 	move.w	Ypos(a3),d2
 	subi.w	#$FE,d2
@@ -4212,7 +4207,7 @@ avdgoal	;don't try to skate thru goal: if d0/d1 cords intersect thru goal then p
 	add.w	(deltay).w,d1
 	rts
 
-.ch1	move.w	d3,d4			;IDA: avggoal_ch1
+.ch1	move.w	d3,d4
 	eor.w	d2,d4
 	bpl.w	rtss
 	move.w	d0,d4
@@ -4229,9 +4224,9 @@ avdgoal	;don't try to skate thru goal: if d0/d1 cords intersect thru goal then p
 	tst.w	d4
 	bne.w	.ch2
 	tst.w	(a3)
-.ch2	bpl.w	.ch3			;IDA: loc_CF78
+.ch2	bpl.w	.ch3
 	neg.w	d3
-.ch3	sub.w	d4,d3			;IDA: loc_CF7E
+.ch3	sub.w	d4,d3
 	move.w	d3,(deltax).w
 	rts
 
@@ -4291,7 +4286,7 @@ skatetopuck	;player a3 should skate to puck. d7 = elapse frames
 	bls.w	.ex
 	cmp.l	#38*38,d0
 	bls.w	Sweepcheck
-.ex	move.b	temp2+1(a3),d0		;IDA: loc_D03C
+.ex	move.b	temp2+1(a3),d0
 	bra.w	doplayeracc
 
 assexit	;exit current assignment on player a3
@@ -4321,26 +4316,26 @@ vtoa	;d0/d1 are x/y distances which are converted into direction 0-7 and returne
 	bpl.w	.0
 	neg.w	d0
 	bset	#0,d2
-.0	tst.w	d1			;IDA: loc_D08E
+.0	tst.w	d1
 	bpl.w	.1
 	neg.w	d1
 	bset	#1,d2
-.1	asl.w	#1,d1			;IDA: loc_D09A
+.1	asl.w	#1,d1
 	cmp.w	d1,d0
 	bhi.w	.2
 	bset	#2,d2
-.2	lsr.w	#1,d1			;IDA: loc_D0A6
+.2	lsr.w	#1,d1
 	asl.w	#1,d0
 	cmp.w	d0,d1
 	bhi.w	.3
 	bset	#3,d2
-.3	movea.l	#.dt,a0			;IDA: loc_D0B4. retail $D0B6 (Rev A $D0CE)
+.3	movea.l	#.dt,a0			;retail $D0B6 (Rev A $D0CE)
 	clr.w	d0
 	move.b	(a0,d2.w),d0
 	movem.l	(sp)+,d2/a0
 	rts
 
-.nodir	moveq	#8,d0			;IDA: loc_D0C6
+.nodir	moveq	#8,d0
 	movem.l	(sp)+,d2/a0
 	rts
 
@@ -4364,15 +4359,15 @@ GetHot	;push long address of structure to get hot spot from. Hot spot x/y return
 	btst	#3,attribute(a0)
 	beq.w	.nox
 	neg.w	d0
-.nox	btst	#4,attribute(a0)		;IDA: loc_D116
+.nox	btst	#4,attribute(a0)
 	bne.w	.noy
 	neg.w	d1
-.noy	btst	#sfhor,(sflags).w		;IDA: loc_D122
+.noy	btst	#sfhor,(sflags).w
 	beq.w	.nhor
 	exg	d0,d1
 	neg.w	d1
 .nhor
-.ex	movem.l	(sp)+,a0-a1		;IDA: loc_D130
+.ex	movem.l	(sp)+,a0-a1
 	move.l	(sp)+,(sp)
 	rts
 
@@ -4391,7 +4386,7 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	btst	#pfrev,pflags(a3)
 	beq.w	.d0
 	move.w	#$A80,d1		;SPAglideback
-.d0	andi.w	#$F,d0			;IDA: loc_D168
+.d0	andi.w	#$F,d0
 	cmp.w	#7,d0
 	ble.w	.d1
 	cmp.w	#9,d0
@@ -4399,11 +4394,11 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	move.w	Xvel(a3),d0
 	or.w	Yvel(a3),d0
 	bne.w	dostop
-.cgl	btst	#pf2aip,pflags2(a3)		;IDA: loc_D188
+.cgl	btst	#pf2aip,pflags2(a3)
 	beq.s	SetSPA
 	rts
 
-.d1	movem.w	d0-d1,-(sp)		;IDA: loc_D192
+.d1	movem.w	d0-d1,-(sp)
 	move.w	d0,d2
 	move.w	SCnum(a3),d0
 	cmp.w	(puckc).w,d0
@@ -4421,7 +4416,7 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	neg.w	d1
 	neg.w	d3
 	eori.w	#4,d2
-.c1	btst	#pfrev,pflags(a3)		;IDA: loc_D1CE
+.c1	btst	#pfrev,pflags(a3)
 	bne.w	.inrev
 	tst.w	d3
 	bpl.w	.fwd			;skate back in own zone only
@@ -4433,7 +4428,7 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	cmp.w	#2,d0
 	bhi.w	.fwd
 	bra.w	.rev
-.inrev	subq.w	#3,d2			;IDA: loc_D1FC
+.inrev	subq.w	#3,d2
 	andi.w	#7,d2
 	cmp.w	#2,d2
 	bhi.w	.fwd
@@ -4443,7 +4438,7 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	cmp.w	#4,d0
 	bhi.w	.fwd
 
-.rev	btst	#pfrev,pflags(a3)		;IDA: loc_D21C
+.rev	btst	#pfrev,pflags(a3)
 	bne.w	.done
 	move.w	Xvel(a3),d0
 	or.w	Yvel(a3),d0
@@ -4456,13 +4451,13 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	andi.w	#7,d0
 	cmp.w	#2,d0
 	bhi.w	.done
-.setrev	bset	#pfrev,pflags(a3)		;IDA: loc_D24E
+.setrev	bset	#pfrev,pflags(a3)
 	bra.w	.done
 
-.fwd					;IDA: loc_D258
+.fwd
 .clrrev	bclr	#pfrev,pflags(a3)
 
-.done	movem.w	(sp)+,d0-d1		;IDA: loc_D25E
+.done	movem.w	(sp)+,d0-d1
 	move.w	facedir(a3),d2
 	sub.w	d2,d0
 	andi.w	#7,d0
@@ -4482,11 +4477,11 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	cmp.w	#$180,d4
 	bge.w	.iok
 	move.w	#$180,d4
-.iok	muls.w	(a0,d0.w),d4		;IDA: loc_D29E
+.iok	muls.w	(a0,d0.w),d4
 	btst	#pfrev,pflags(a3)
 	beq.w	.i0
 	neg.l	d4
-.i0	add.l	d4,facedir(a3)		;IDA: loc_D2AE
+.i0	add.l	d4,facedir(a3)
 	andi.w	#7,facedir(a3)
 	move.w	facedir(a3),d2
 
@@ -4497,12 +4492,12 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	tst.w	(a0,d0.w)
 	bpl.w	.s1
 	eori.w	#-$32,d1		;SPAturnl-SPAturnr
-.s1	btst	#3,attribute(a3)		;IDA: loc_D2D2
+.s1	btst	#3,attribute(a3)
 	beq.w	.s2
 	eori.w	#-$32,d1		;SPAturnl-SPAturnr
-.s2	addi.w	#$6B4,d1		;IDA: loc_D2E0. SPAturnr
+.s2	addi.w	#$6B4,d1		;SPAturnr
 	bset	#pf2aip,pflags2(a3)
-.s3	bsr.w	SetSPA			;IDA: loc_D2EA
+.s3	bsr.w	SetSPA
 
 	cmp.w	#2,d3
 	bhi.w	noturn
@@ -4520,10 +4515,10 @@ goalieacc	;goalie gets acc. in direction d0. 93 turns facedir one step toward d0
 	move.w	Xvel(a3),d0
 	or.w	Yvel(a3),d0
 	bne.w	StopNA
-.cgl	btst	#pf2aip,pflags2(a3)		;IDA: loc_D32C
+.cgl	btst	#pf2aip,pflags2(a3)
 	beq.w	SetSPA
 	rts
-.d1	sub.w	facedir(a3),d0		;IDA: loc_D338
+.d1	sub.w	facedir(a3),d0
 	beq.w	.spa
 	neg.w	d0
 	andi.w	#4,d0
@@ -4532,18 +4527,18 @@ goalieacc	;goalie gets acc. in direction d0. 93 turns facedir one step toward d0
 	add.w	facedir(a3),d0
 	andi.w	#7,d0
 	move.w	d0,facedir(a3)
-.spa	move.w	#$3F8,d1		;IDA: loc_D356. SPAgskate
+.spa	move.w	#$3F8,d1		;SPAgskate
 	bsr.w	SetSPA
 	move.w	facedir(a3),d2
 	bra.w	playeracc
 
-noturn0	;IDA: loc_D366. doplayeracc when the wanted direction needs no turn (.ftab entry 0). d0 = direction minus facedir, times 2
+noturn0	;doplayeracc when the wanted direction needs no turn (.ftab entry 0). d0 = direction minus facedir, times 2
 	moveq	#2,d4
 	btst	#pfrev,pflags(a3)
 	beq.w	.0
 	addq.w	#4,d4
 	eori.w	#8,d0
-.0	tst.w	d0			;IDA: loc_D378
+.0	tst.w	d0
 	beq.w	.nochg
 	move.w	Xvel(a3),d0
 	move.w	Yvel(a3),d1
@@ -4556,33 +4551,33 @@ noturn0	;IDA: loc_D366. doplayeracc when the wanted direction needs no turn (.ft
 	cmp.w	#4,d0
 	blt.w	dostop
 
-.nostop	addq.w	#1,facedir(a3)		;IDA: loc_D3A4
+.nostop	addq.w	#1,facedir(a3)
 	btst	#3,attribute(a3)
 	beq.w	.nos0
 	subq.w	#2,facedir(a3)
-.nos0	andi.w	#7,facedir(a3)		;IDA: loc_D3B6
+.nos0	andi.w	#7,facedir(a3)
 	move.w	#$52C,d1		;SPAglide
 	btst	#pfrev,pflags(a3)
 	beq.w	SetSPA
 	move.w	#$A80,d1		;SPAglideback
 	bra.w	SetSPA
 
-.nochg	move.w	#$AB2,d1		;IDA: loc_D3D2. SPAskateback
+.nochg	move.w	#$AB2,d1		;SPAskateback
 	btst	#pfrev,pflags(a3)
 	bne.w	.ns
 	move.w	#$5F0,d1		;SPAskate
 	btst	#6,pflags2(a3)		;93: pflags2 bit 6 uses animation $13A0
 	beq.w	.nb6
 	move.w	#$13A0,d1
-.nb6	move.w	(puckc).w,d4		;IDA: loc_D3F2
+.nb6	move.w	(puckc).w,d4
 	cmp.w	SCnum(a3),d4
 	bne.w	.ns
 	move.w	#$55E,d1		;SPAskatewp
-.ns	btst	#pf2aip,pflags2(a3)		;IDA: loc_D402
+.ns	btst	#pf2aip,pflags2(a3)
 	bne.w	noturn
 	bsr.w	SetSPA
 
-noturn	;IDA: loc_D410. reverse the acc. direction when skating backwards, then falls into playeracc. Entered from doplayeracc and noturn0
+noturn	;reverse the acc. direction when skating backwards, then falls into playeracc. Entered from doplayeracc and noturn0
 	btst	#pfrev,pflags(a3)
 	beq.w	playeracc
 	eori.w	#4,d2
@@ -4597,12 +4592,12 @@ playeracc	;d2 = direction of acc
 	eor.w	d0,d2
 	bpl.w	.nox
 	clr.w	d0
-.nox	move.w	Wallcos(a3),d2		;IDA: loc_D43C
+.nox	move.w	Wallcos(a3),d2
 	beq.w	.noy
 	eor.w	d1,d2
 	bmi.w	.noy
 	clr.w	d1
-.noy	clr.w	d2			;IDA: loc_D44C
+.noy	clr.w	d2
 	move.b	weight(a3),d2
 	lsr.w	#3,d2			;(92 lsr #4)
 	neg.w	d2
@@ -4613,7 +4608,7 @@ playeracc	;d2 = direction of acc
 	add.b	legstr(a3),d2		;93: goalie adds legstr twice plus 8
 	addq.w	#8,d2
 
-.ng	muls.w	d2,d0			;IDA: loc_D46C
+.ng	muls.w	d2,d0
 	muls.w	d2,d1
 	asr.l	#5,d0
 	asr.l	#5,d1
@@ -4641,14 +4636,14 @@ playeracc	;d2 = direction of acc
 	btst	#6,pflags2(a3)		;93: pflags2 bit 6 cuts max speed to 1/8
 	beq.w	.ms
 	lsr.l	#3,d2
-.ms	movem.w	(sp)+,d0-d1		;IDA: loc_D4B4
+.ms	movem.w	(sp)+,d0-d1
 
 	cmp.l	d2,d3			;max speed check
 	bhi.w	.sube
 	move.w	d0,Xvel(a3)
 	move.w	d1,Yvel(a3)
 
-.sube	tst.w	(OptLine).w		;IDA: loc_D4C6
+.sube	tst.w	(OptLine).w
 	bne.w	rtss
 	move.w	(VDP_CNTR).l,d0		;HVcount
 	andi.w	#$7F,d0
@@ -4680,7 +4675,7 @@ MaxSpeed	;max speed values for each rating level 0-f. 93: ((n+20)*275)^2 (92 use
 	dc.l	(34*275)*(34*275)
 	dc.l	(35*275)*(35*275)
 
-dostop	;IDA: loc_D538. player a3 stops. Entered from doplayeracc and noturn0
+dostop	;player a3 stops. Entered from doplayeracc and noturn0
 	cmpi.w	#$1000,Xvel(a3)		;.slim Xvel
 	bgt.w	.set
 	cmpi.w	#-$1000,Xvel(a3)
@@ -4690,27 +4685,27 @@ dostop	;IDA: loc_D538. player a3 stops. Entered from doplayeracc and noturn0
 	cmpi.w	#-$1000,Yvel(a3)
 	blt.w	.set
 	bra.w	StopNA			;stop with no anim
-.set	move.w	#$52C,d1		;IDA: loc_D564. SPAglide
+.set	move.w	#$52C,d1		;SPAglide
 	btst	#pfrev,pflags(a3)
 	bne.w	.0
 	bset	#pf2aip,pflags2(a3)
 	move.w	#$6E6,d1		;SPAstop
-.0	bsr.w	SetSPA			;IDA: loc_D57C
+.0	bsr.w	SetSPA
 StopNA	;slow player a3 by 150 on each axis, no animation change. Falls in from dostop, also entered from goalieacc and others
 	tst.w	Xvel(a3)
 	bpl.w	.xp
 	addi.w	#$96,Xvel(a3)		;150
 	bmi.w	.y
 	clr.w	Xvel(a3)
-.xp	subi.w	#$96,Xvel(a3)		;IDA: loc_D596
+.xp	subi.w	#$96,Xvel(a3)
 	bpl.w	.y
 	clr.w	Xvel(a3)
-.y	tst.w	Yvel(a3)			;IDA: loc_D5A4
+.y	tst.w	Yvel(a3)
 	bpl.w	.yp
 	addi.w	#$96,Yvel(a3)
 	bmi.w	rtss
 	clr.w	Yvel(a3)
-.yp	subi.w	#$96,Yvel(a3)		;IDA: loc_D5BA
+.yp	subi.w	#$96,Yvel(a3)
 	bpl.w	rtss
 	clr.w	Yvel(a3)
 	rts
@@ -4730,14 +4725,14 @@ UnpackNibbles	;93: a0 = packed data, d0 = count. Unpacks d0 4-bit values (high n
 	movea.w	#(nibblebuffer-M68K_RAM),a1
 	clr.w	d2
 	bra.w	.next
-.loop	move.b	(a0)+,d1		;IDA: process_one_nibble
+.loop	move.b	(a0)+,d1
 	bchg	#0,d2			;toggle high/low nibble
 	bne.w	.lo
 	subq.w	#1,a0			;high nibble: read the same byte again next time
 	lsr.w	#4,d1
-.lo	andi.w	#$F,d1			;IDA: extract_and_store_nibble
+.lo	andi.w	#$F,d1
 	move.w	d1,(a1)+
-.next	dbf	d0,.loop		;IDA: loop_control
+.next	dbf	d0,.loop
 	movem.l	(sp)+,d0-d2/a0-a1
 	rts
 
@@ -4746,11 +4741,11 @@ WeightedRandomSelect	;93: d0 = number of word weights at nibblebuffer. Return d0
 	movea.w	#(nibblebuffer-M68K_RAM),a1
 	clr.w	d1
 	bra.w	.next
-.sum	add.w	(a1)+,d1		;IDA: sum_all_weights
-.next	dbf	d0,.sum			;IDA: loop_control
+.sum	add.w	(a1)+,d1
+.next	dbf	d0,.sum
 	move.w	d1,d0			;d0 = total weight
 	bsr.w	randomd0
-.find	sub.w	-(a1),d0		;IDA: find_entry_random. walk back from the last weight
+.find	sub.w	-(a1),d0		;walk back from the last weight
 	bpl.s	.find
 	suba.w	#(nibblebuffer-M68K_RAM),a1
 	move.w	a1,d0

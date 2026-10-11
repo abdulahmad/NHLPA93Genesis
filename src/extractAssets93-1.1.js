@@ -79,7 +79,7 @@ const assets = [
     { name: 'sfx_hithigh_pcm.bin', folder: 'Sound', start: 0x026F9C, end: 0x0274F2 }, // samples 7 and 10: hithigh, hitlow, check1-4, songs $32 and $35-$37
     { name: 'sfx_shotfh_pcm.bin', folder: 'Sound', start: 0x0274F2, end: 0x0280AA }, // sample 3: shotfh
     { name: 'sfx_puckget_pcm.bin', folder: 'Sound', start: 0x0280AA, end: 0x02830A }, // sample 0: puckget
-    { name: 'fm_instrument_patches.bin', folder: 'Sound', start: 0x02830A, end: 0x02870A }, // IDA unk_28338: 32 FM patches x 32 bytes (byte $1E = pitch bend scale)
+    { name: 'fm_instrument_patches.bin', folder: 'Sound', start: 0x02830A, end: 0x02870A }, // 32 FM patches x 32 bytes (byte $1E = pitch bend scale)
     { name: 'sfx_beep1_cmdstream.bin', folder: 'Sound', start: 0x02877A, end: 0x028786 }, // sound 1 (SFXbeep1)
     { name: 'sfx_id_26_27_cmdstream.bin', folder: 'Sound', start: 0x028786, end: 0x02878A }, // sounds $26 and $27: empty stream
     { name: 'sfx_beep2_cmdstream.bin', folder: 'Sound', start: 0x02878A, end: 0x02879A }, // sound 2 (SFXbeep2)
@@ -138,31 +138,31 @@ const assets = [
     { name: 'fmtune_scouting_cmdstream.bin', folder: 'Sound', start: 0x02C8AA, end: 0x02CEC4 }, // song $37: ScoutingReport
     { name: 'ScoutingReportText.bin', folder: 'Text', start: 0x02CEC8, end: 0x02E1FB }, // ScoutingReportText (hockey93_07 stub): scouting report paragraphs
     { name: 'GameSetUp.map.jim', folder: 'Graphics', start: 0x02E1FC, end: 0x02EFA2 }, // 92 GameSetUp.map.jim: game setup bitmap (setoptions movea.l #$2E1FC)
-    { name: 'GameSetup.anim', folder: 'Graphics', start: 0x02EFA2, end: 0x02F0B0 }, // GameSetupSprites: IDA GameSetupMap: game setup roster sprites (AddTeamSpriteFrame SetSframe, tiles from +8). The 92 GameSetUpMap bitmap is $2E1FC, in sound93
+    { name: 'GameSetup.anim', folder: 'Graphics', start: 0x02EFA2, end: 0x02F0B0 }, // GameSetupSprites: game setup roster sprites (AddTeamSpriteFrame SetSframe, tiles from +8). The 92 GameSetUpMap bitmap is $2E1FC, in sound93
     { name: 'Title1.map.jim', folder: 'Graphics', start: 0x02F0B0, end: 0x031288 }, // Title1Map: 92 Title1Map: TitleScreen backdrop
-    { name: 'Title2.map.jim', folder: 'Graphics', start: 0x031288, end: 0x031F10 }, // Title2Map: 92 Title2Map: second TitleScreen bitmap (no IDA label; hockey93_07 loads #$31288)
-    { name: 'Title3.anim', folder: 'Graphics', start: 0x031F10, end: 0x0322CE }, // Title3Sprites: IDA Title3map: the three TitleAnimCallback sprites (SetSframe)
-    { name: 'TitleLogo.anim', folder: 'Graphics', start: 0x0322CE, end: 0x032860 }, // TitleLogoSprites: IDA Titlemap2: the four title logo sprites (FinalizeSpriteList SetSframe); palette reused by PlayoffScreen
-    { name: 'Scouting.map.jim', folder: 'Graphics', start: 0x032860, end: 0x033388 }, // ScoutMap: 92 ScoutMap (IDA unk_3288E): ScoutingReport background, also PlayoffScreen, SetupScreen, DrawTeamScreen
-    { name: 'Framer.map.jim', folder: 'Graphics', start: 0x033388, end: 0x033400 }, // FramerMap: 92 FramerMap (IDA Framermap)
+    { name: 'Title2.map.jim', folder: 'Graphics', start: 0x031288, end: 0x031F10 }, // Title2Map: 92 Title2Map: second TitleScreen bitmap ( hockey93_07 loads #$31288)
+    { name: 'Title3.anim', folder: 'Graphics', start: 0x031F10, end: 0x0322CE }, // Title3Sprites: the three TitleAnimCallback sprites (SetSframe)
+    { name: 'TitleLogo.anim', folder: 'Graphics', start: 0x0322CE, end: 0x032860 }, // TitleLogoSprites: the four title logo sprites (FinalizeSpriteList SetSframe); palette reused by PlayoffScreen
+    { name: 'Scouting.map.jim', folder: 'Graphics', start: 0x032860, end: 0x033388 }, // ScoutMap: 92 ScoutMap: ScoutingReport background, also PlayoffScreen, SetupScreen, DrawTeamScreen
+    { name: 'Framer.map.jim', folder: 'Graphics', start: 0x033388, end: 0x033400 }, // FramerMap: 92 FramerMap
     { name: 'FaceOff.map.jim', folder: 'Graphics', start: 0x033400, end: 0x033864 }, // FaceOffMap: 92 FaceOffMap
     { name: 'IceRink.map.jim', folder: 'Graphics', start: 0x033864, end: 0x038906 }, // IceRinkMap: 92 IceRinkMap
     { name: 'Refs.map.jim', folder: 'Graphics', start: 0x038906, end: 0x039462 }, // RefsMap: 92 RefsMap
-    { name: 'Refs2.map.jim', folder: 'Graphics', start: 0x039462, end: 0x03A378 }, // RefMap2: IDA RefMap2: the horizontal ref (PushRef); no 92 counterpart
-    { name: 'Sprites.anim', folder: 'Graphics', start: 0x03A378, end: 0x0748E2 }, // Sprites: 92 Sprites (IDA SpritesMap): $FFFFFFFF, long offset to FrameDataOff, then tiles
+    { name: 'Refs2.map.jim', folder: 'Graphics', start: 0x039462, end: 0x03A378 }, // RefMap2: the horizontal ref (PushRef); no 92 counterpart
+    { name: 'Sprites.anim', folder: 'Graphics', start: 0x03A378, end: 0x0748E2 }, // Sprites: 92 Sprites: $FFFFFFFF, long offset to FrameDataOff, then tiles
     { name: 'Crowd.anim', folder: 'Graphics', start: 0x0748E2, end: 0x077170 }, // CrowdSprites: 92 CrowdSprites
     { name: 'FaceOff.anim', folder: 'Graphics', start: 0x077170, end: 0x0781E4 }, // FaceOffSprites: 92 FaceOffSprites
     { name: 'Zam.anim', folder: 'Graphics', start: 0x0781E4, end: 0x078CFE }, // ZamSprites: 92 ZamSprites
-    { name: 'BigFont.map.jim', folder: 'Graphics', start: 0x078CFE, end: 0x0795B4 }, // BigFontMap: 92 BigFontMap (IDA bigfontmap)
-    { name: 'SmallFont.map.jim', folder: 'Graphics', start: 0x0795B4, end: 0x07A282 }, // SmallFontMap: 92 SmallFontMap (IDA smallfontmap)
-    { name: 'EnergyBar.map.jim', folder: 'Graphics', start: 0x07A282, end: 0x07A376 }, // EnergyBarMap: IDA unk_7A2B0: line energy bar frames drawn by linebar (92 dobar built the bar from font chars)
-    { name: 'TeamBlocks.map.jim', folder: 'Graphics', start: 0x07A376, end: 0x07C54E }, // Teamblocksmap: 92 Teamblocksmap (IDA TeamBlocksmap)
-    { name: 'Arrows.map.jim', folder: 'Graphics', start: 0x07C54E, end: 0x07C7AA }, // Arrowsmap: 92 Arrowsmap (IDA ArrowsMap)
+    { name: 'BigFont.map.jim', folder: 'Graphics', start: 0x078CFE, end: 0x0795B4 }, // BigFontMap: 92 BigFontMap
+    { name: 'SmallFont.map.jim', folder: 'Graphics', start: 0x0795B4, end: 0x07A282 }, // SmallFontMap: 92 SmallFontMap
+    { name: 'EnergyBar.map.jim', folder: 'Graphics', start: 0x07A282, end: 0x07A376 }, // EnergyBarMap: line energy bar frames drawn by linebar (92 dobar built the bar from font chars)
+    { name: 'TeamBlocks.map.jim', folder: 'Graphics', start: 0x07A376, end: 0x07C54E }, // Teamblocksmap: 92 Teamblocksmap
+    { name: 'Arrows.map.jim', folder: 'Graphics', start: 0x07C54E, end: 0x07C7AA }, // Arrowsmap: 92 Arrowsmap
     { name: 'EASN.map.jim', folder: 'Graphics', start: 0x07C7AA, end: 0x07C946 }, // EASNmap: 92 EASNmap
-    { name: 'RonBarr.map.jim', folder: 'Graphics', start: 0x07C946, end: 0x07CF1E }, // RonBarrMap: IDA Ronbarrmap: Ron Barr picture on the ScoutingReport (93 only)
-    { name: 'Scores.map.jim', folder: 'Graphics', start: 0x07CF1E, end: 0x07D304 }, // ScoresMap: IDA unk_7CF4C: bitmap under the title on the ShowScores "Scores" screen (93 only)
-    { name: 'Stanley.anim', folder: 'Graphics', start: 0x07D304, end: 0x07F4F6 }, // Stanleymap: 92 Stanleymap (IDA StanleyMap). 92 Stanley.map.jim was a bitmap; 93 draws the cup as sprites (UpdateStanleyCupAnimation SetSframe)
-    { name: 'EASN2.map.jim', folder: 'Graphics', start: 0x07F4F6, end: 0x07FB76 }, // EASNmap2: IDA EASNmap2: the five EASN bitmaps on the Stanley Cup screen (93 only)
+    { name: 'RonBarr.map.jim', folder: 'Graphics', start: 0x07C946, end: 0x07CF1E }, // RonBarrMap: Ron Barr picture on the ScoutingReport (93 only)
+    { name: 'Scores.map.jim', folder: 'Graphics', start: 0x07CF1E, end: 0x07D304 }, // ScoresMap: bitmap under the title on the ShowScores "Scores" screen (93 only)
+    { name: 'Stanley.anim', folder: 'Graphics', start: 0x07D304, end: 0x07F4F6 }, // Stanleymap: 92 Stanleymap. 92 Stanley.map.jim was a bitmap; 93 draws the cup as sprites (UpdateStanleyCupAnimation SetSframe)
+    { name: 'EASN2.map.jim', folder: 'Graphics', start: 0x07F4F6, end: 0x07FB76 }, // EASNmap2: the five EASN bitmaps on the Stanley Cup screen (93 only)
 ];
 
 // CRC32 of nhlpa93retail.bin. Rev A builds use the same slices: the source relocates the data.

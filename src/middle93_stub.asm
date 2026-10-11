@@ -12,17 +12,17 @@
 ;
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 updatecrowdf = $6710		; hockey93_01
-HandleMenuInput = $6A4E		; menu93 (Rev A sub_6A5C)
-PrintStringFromList = $F744	; penalty93 (Rev A sub_F75C)
+HandleMenuInput = $6A4E		; menu93
+PrintStringFromList = $F744	; penalty93
 rtss = $110E0			; hockey93_03_05
-vb2 = $1187E			; video93 (Rev A loc_11896)
-setvideo = $118F2		; video93 (Rev A sub_1190A)
-bfasciicon = $1542A		; hockey93_06_11 (Rev A unk_15442)
-play_sfx_or_music_track = $16608	; sound driver, no segment (Rev A sub_16620)
-Framermap = $33388		; graphics data, no segment (Rev A unk_333B6)
-bigfontmap = $78CFE		; graphics data, no segment (Rev A unk_78D2C)
-smallfontmap = $795B4		; graphics data, no segment (Rev A unk_795E2)
-Teamblocksmap = $7A376	; graphics data, no segment (Rev A unk_7A3AC)
+vb2 = $1187E			; video93
+setvideo = $118F2		; video93
+bfasciicon = $1542A		; hockey93_06_11
+play_sfx_or_music_track = $16608	; sound driver, no segment
+Framermap = $33388		; graphics data, no segment
+bigfontmap = $78CFE		; graphics data, no segment
+smallfontmap = $795B4		; graphics data, no segment
+Teamblocksmap = $7A376	; graphics data, no segment
 RAMStart = $FF0000	
 
 ; .region code

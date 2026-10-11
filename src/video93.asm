@@ -1,11 +1,10 @@
 ;======================================================================
-;	(was video93_1.asm)
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $11802-$11D09
 ;	92 Video.asm first half: VBlank, vb2, DumpSprites, setvideo and the
 ;	sprite builders it calls (show_rink, showref, checkfo, showzam,
 ;	SetSframe, showcrowd). showclock ... KillCrowd is video93.
-;	Global names from the IDA export, 92 names where the routine is the
+;Global names from the 92 names where the routine is the
 ;	same (see the SEGMENT_AGENT.md rename table). Bytes match
 ;	nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
@@ -20,7 +19,7 @@
 ;	flags 6 (top 5 bits used), size byte 7. 92 used a long pointer list.
 ;	DMA list entries (a5): long source, word length in words, word vram.
 
-VBlank	;IDA: VBlank_org. main vblank code for game play (vbint target, set by setupice).
+VBlank	;main vblank code for game play (vbint target, set by setupice).
 	;Not VBjsr: that is the level 6 vector stub in hockey93_01
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
@@ -28,8 +27,8 @@ VBlank	;IDA: VBlank_org. main vblank code for game play (vbint target, set by se
 	bclr	#dfok,(disflags).w
 	beq.w	.01
 	bsr.w	DumpSprites
-.01	bsr.w	cramfade		;IDA: _01
-.nograph	;IDA: _nograph
+.01	bsr.w	cramfade
+.nograph
 	btst	#sfpz,(sflags).w
 	bne.w	.c
 	btst	#gmclock,(gmode).w		;game clock stopped!
@@ -46,7 +45,7 @@ VBlank	;IDA: VBlank_org. main vblank code for game play (vbint target, set by se
 	blt.w	.c
 	move.w	#SFXbeep2,-(sp)		;SFXbeep2 (92 = 2), played when gameclock reaches 60
 	bsr.w	sfx
-.c	addq.w	#1,(vcount).w		;IDA: _c. 92 Vcount
+.c	addq.w	#1,(vcount).w		;92 Vcount
 	jsr	p_music_vblank
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
@@ -57,7 +56,7 @@ vb2	;vblank used for palfades only no dmas (vbint target).
 	btst	#dfng,(disflags).w
 	bne.w	.nograph
 	bsr.w	cramfade
-.nograph	;IDA: _nograph
+.nograph
 	addq.w	#1,(vcount).w
 	jsr	p_music_vblank
 	movem.l	(sp)+,d0-d7/a0-a6
@@ -72,7 +71,7 @@ DumpSprites	;transfer (by dma) scroll stuff, sprite table, vram data in dmalist.
 	bsr.w	SetScroll2
 
 DumpSprites2	;transfer sprite table, then the dma list. Falls into DoDMAList.
-	;Also called from IDA ROM:00014404 (retail $143EC)
+	;Also called from 00014404 (retail $143EC)
 	movea.w	#(Satt-M68K_RAM),a0	;transfer sprite table
 	move.w	(Sattsize).w,d0
 	move.w	(VSPRITES).w,d1
@@ -82,7 +81,7 @@ DoDMAList	;transfer data from dmalist (92 dodmalist). Also called from setupice
 	movea.l	(DMAListend).w,a6
 	cmpa.l	#DMAList,a6
 	beq.w	rtss			;list empty
-.0	move.w	-(a6),d1		;IDA: _0. vram address
+.0	move.w	-(a6),d1		;vram address
 	move.w	-(a6),d0		;words
 	movea.l	-(a6),a0		;source
 	bsr.w	DoDMA
@@ -90,7 +89,7 @@ DoDMAList	;transfer data from dmalist (92 dodmalist). Also called from setupice
 	bne.s	.0
 	rts
 
-SetScroll2	;IDA: DoScroller. write Hscroll / Vscroll to the vdp. Called from DumpSprites.
+SetScroll2	;write Hscroll / Vscroll to the vdp. Called from DumpSprites.
 	;Same body as 92 SetScroll2; 93 dropped 92 DoScroller's tempmap column transfers
 	move.w	(VSCRLPM).w,d0
 	addq.w	#2,d0
@@ -103,7 +102,7 @@ SetScroll2	;IDA: DoScroller. write Hscroll / Vscroll to the vdp. Called from Dum
 setvideo	;this is not vblank code but sets up ram for vblank transfers.
 	;Called once per game frame (DoGameFrame, Pausemode, ...)
 	movem.l	d0-d7/a0-a6,-(sp)
-.p	btst	#dfok,(disflags).w		;IDA: _p. wait for vblank to take the last frame
+.p	btst	#dfok,(disflags).w		;wait for vblank to take the last frame
 	bne.s	.p
 	movea.w	#(DMAList-M68K_RAM),a5	;dma transfer list
 	bsr.w	updatescroll		;93: after a5 is set (92 updatescroll came first)
@@ -121,7 +120,7 @@ setvideo	;this is not vblank code but sets up ram for vblank transfers.
 	bne.w	.n
 	clr.l	(a6)+			;no sprites: one blank sprite
 	clr.l	(a6)+
-.n	clr.b	-5(a6)			;IDA: _n. end sprite list (92 3-8(a6))
+.n	clr.b	-5(a6)			;end sprite list (92 3-8(a6))
 	move.l	a6,d0
 	subi.l	#Satt,d0
 	lsr.w	#1,d0			;93: halved (92 stored the byte count)
@@ -131,7 +130,7 @@ setvideo	;this is not vblank code but sets up ram for vblank transfers.
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts
 
-updatescroll	;using hpos and vpos set scroll cords; queue rink map rows on the dma list (a5) (was: show_rink)
+updatescroll	;using hpos and vpos set scroll cords; queue rink map rows on the dma list (a5)
 	;when vertical scrolling needs new rows. Called from setvideo. 93 version of 92
 	;updatescroll: rows go straight from IceRinkMap to the dma list, no tempmap
 	btst	#sfhor,(sflags).w
@@ -151,7 +150,7 @@ updatescroll	;using hpos and vpos set scroll cords; queue rink map rows on the d
 	movea.l	#IceRinkMap,a0		;(move/adda leave the cmp flags)
 	adda.l	4(a0),a0		;a0 = map header: (a0) = chars per row, data at 4(a0)
 	blt.w	.su			;row went up
-.sd	move.w	d1,d0			;IDA: loc_119B2
+.sd	move.w	d1,d0
 	neg.w	d0
 	addi.w	#$1E,d0
 	andi.w	#$1F,d0
@@ -170,7 +169,7 @@ updatescroll	;using hpos and vpos set scroll cords; queue rink map rows on the d
 	cmp.w	d4,d1
 	dbeq	d3,.sd
 	rts
-.su	move.w	d1,d0			;IDA: loc_119E8
+.su	move.w	d1,d0
 	neg.w	d0
 	addi.w	#$1D,d0
 	andi.w	#$1F,d0
@@ -201,17 +200,17 @@ showref	;draw ref graphics. Called from setvideo.
 	btst	#sfhor,(sflags).w
 	beq.w	.1
 	moveq	#$F,d0			;y pos in sb screen
-.1	asl.w	d2,d0			;IDA: loc_11A42
+.1	asl.w	d2,d0
 	moveq	#2,d1
 	asl.w	d2,d1
 	addq.w	#2,d0			;refx
 	btst	#sfhor,(sflags).w
 	beq.w	.2
 	addi.w	#$B,d0
-.2	asl.w	#1,d0			;IDA: loc_11A58
+.2	asl.w	#1,d0
 	add.w	(a1),d0
 	moveq	#7,d2			;refheight-1
-.0	move.l	a0,(a5)+		;IDA: loc_11A5E
+.0	move.l	a0,(a5)+
 	move.w	#7,(a5)+		;refwidth
 	move.w	d0,(a5)+
 	adda.w	#$E,a0			;refwidth*2
@@ -239,7 +238,7 @@ checkfo2	;face off graphics. a3 = face off data (word frame, word flags),
 	lsr.w	#3,d5
 	subq.w	#1,d5			;number of sprites in frame
 	adda.w	(a2,d4.w),a2
-.sloop	move.w	2(a2),d2		;IDA: _sloop
+.sloop	move.w	2(a2),d2
 	addi.w	#$80,d2
 	add.w	(fodropy).w,d2
 	move.w	d2,(a6)			;y global
@@ -252,7 +251,7 @@ checkfo2	;face off graphics. a3 = face off data (word frame, word flags),
 	asl.w	#1,d2
 	neg.w	d2
 	sub.w	(a2),d2
-.noxflip	;IDA: _noxflip
+.noxflip
 	addi.w	#$80,d2
 	add.w	(fodropx).w,d2
 	move.w	d2,6(a6)
@@ -271,7 +270,7 @@ checkfo2	;face off graphics. a3 = face off data (word frame, word flags),
 	addq.w	#8,a2
 	dbf	d5,.sloop
 	addq.w	#4,a3
-.next	dbf	d0,.top			;IDA: _next
+.next	dbf	d0,.top
 	rts
 
 showzam	;zamboni. Called from setvideo.
@@ -300,15 +299,15 @@ showzam	;zamboni. Called from setvideo.
 	subi.w	#$DA,d2
 	bpl.w	.pos
 	clr.w	d2			;x below $DA: first entry
-.pos	lsr.w	#2,d2			;IDA: loc_11B6C
+.pos	lsr.w	#2,d2
 	add.w	d2,d2
 	cmp.w	#$1A,d2
 	blt.w	.get
 	move.l	#$18,d2			;clamp to the last entry
-.get	movea.l	#.ftab,a1		;IDA: loc_11B7E
+.get	movea.l	#.ftab,a1
 	move.w	(a1,d2.w),d2
 	bra.w	SetSframe
-.ftab	dc.w	5,6,7,8,7,8,7,8,7,8,7,6,5	;IDA: unk_11B8C. frame by (x-$DA)/4
+.ftab	dc.w	5,6,7,8,7,8,7,8,7,8,7,6,5	;frame by (x-$DA)/4
 
 SetSframe	;draw one sprite frame. Called from showzam and from code outside this segment.
 	;a0 = framelist, d0/d1 = x/y cords, d2 = frame to setup (93 from 0, 92 from 1),
@@ -323,7 +322,7 @@ SetSframe	;draw one sprite frame. Called from showzam and from code outside this
 	lsr.w	#3,d4
 	subq.w	#1,d4			;number of sprites in frame
 	adda.w	(a0,d2.w),a0
-.loop	move.w	2(a0),(a6)		;IDA: write_sprite_piece. y
+.loop	move.w	2(a0),(a6)		;y
 	add.w	d1,(a6)+
 	move.b	7(a0),(a6)+		;size
 	move.b	d6,(a6)+		;link
@@ -339,7 +338,7 @@ SetSframe	;draw one sprite frame. Called from showzam and from code outside this
 	beq.w	.ex
 	addq.w	#8,a0
 	dbf	d4,.loop
-.ex	movem.l	(sp)+,d0-d5/a0		;IDA: exit_sprite_write
+.ex	movem.l	(sp)+,d0-d5/a0
 	rts
 
 showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two crowdframe frames.
@@ -352,7 +351,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	beq.w	.v
 	moveq	#-$40,d4
 	move.l	#$100,d5		;(92 also moved a1 by 31 frames here; 93 does it in .sc)
-.v	clr.w	d0			;IDA: _v
+.v	clr.w	d0
 	move.b	(PBnum).w,d2		;low nibble
 	moveq	#$1A,d3			;frames 26+
 	bsr.w	.pb
@@ -365,23 +364,23 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	move.b	(crowdframe+1).w,d0
 	bra.w	.sc
 
-.pb	andi.w	#$F,d2			;IDA: showcrowd_pb. d2 = count, d3 = first frame
+.pb	andi.w	#$F,d2			;d2 = count, d3 = first frame
 	cmp.w	#3,d2
 	bls.w	.pb0
 	moveq	#3,d2			;max 3
-.pb0	bra.w	.nextpb			;IDA: _pb0
-.pbt	move.w	d3,d0			;IDA: _pbt
+.pb0	bra.w	.nextpb
+.pbt	move.w	d3,d0
 	add.w	d2,d0
 	bsr.w	.sc
-.nextpb	dbf	d2,.pbt			;IDA: _nextpb
+.nextpb	dbf	d2,.pbt
 	rts
 
-.sc	ext.w	d0			;IDA: showcrowd_sc. d0 = frame, 0 = none
+.sc	ext.w	d0			;d0 = frame, 0 = none
 	beq.w	rtss
 	btst	#sfhor,(sflags).w
 	beq.w	.chk
 	addi.w	#$1F,d0			;horizontal frames are 31 later
-.chk	cmp.w	#$40,d6			;IDA: loc_11C7E. MaxSprites
+.chk	cmp.w	#$40,d6			;MaxSprites
 	bge.w	rtss
 	movem.l	d0-d5,-(sp)
 	add.w	d0,d0
@@ -405,7 +404,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	addi.w	#$70,d3			;112
 
 	move.w	(sp)+,d4
-.loop	cmp.w	2(a0),d2		;IDA: _loop. skip sprites off screen
+.loop	cmp.w	2(a0),d2		;skip sprites off screen
 	bgt.w	.next
 	cmp.w	2(a0),d3
 	blt.w	.next
@@ -431,20 +430,19 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	addq.w	#1,d6
 	cmp.w	#$40,d6			;MaxSprites
 	beq.w	.ex
-.next	addq.w	#8,a0			;IDA: _next
+.next	addq.w	#8,a0
 	dbf	d4,.loop
-.ex	movem.l	(sp)+,d0-d5		;IDA: loc_11D1C
+.ex	movem.l	(sp)+,d0-d5
 	rts
 
 ;======================================================================
-;	(was video93_2.asm)
 ;======================================================================
 ;	NHLPA Hockey 93 (retail) segment $11D0A-$122A7
 ;	92 Video.asm second half: showclock, checksso, setsortcords, setffo,
 ;	uppads, addframe, addframe2, find3d, updatesound and KillCrowd, plus the
 ;	93-only pad label code (FormatControllerDisplay, RenderSmallFontChar).
 ;	VBlank ... showcrowd is video93. 92 sizetab is in hockey93_06_11 here.
-;	Global names from the IDA export, 92 names where the routine is the
+;Global names from the 92 names where the routine is the
 ;	same (see the SEGMENT_AGENT.md rename table). Bytes match
 ;	nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
@@ -486,7 +484,7 @@ showclock	;put the game clock in the dma list. Called from setvideo; returns unl
 	bne.w	.0
 	moveq	#-$10,d0		;' '-'0': blank leading zero
 	swap	d0
-.0	bsr.w	.char			;IDA: _0. minutes tens
+.0	bsr.w	.char			;minutes tens
 	move.l	a0,(a5)+
 	move.w	#5,(a5)+		;words to transfer
 
@@ -498,7 +496,7 @@ showclock	;put the game clock in the dma list. Called from setvideo; returns unl
 	movea.w	#(VmMap2-M68K_RAM),a1
 	moveq	#4,d0			;.clocky2 = 4
 	moveq	#$D,d2			;.clockx2 = 13
-.cv	move.w	2(a1),d1		;IDA: _cv. map width shift
+.cv	move.w	2(a1),d1		;map width shift
 	asl.w	d1,d0
 	add.w	d2,d0
 	asl.w	#1,d0
@@ -506,7 +504,7 @@ showclock	;put the game clock in the dma list. Called from setvideo; returns unl
 	move.w	d0,(a5)+		;vram destination
 	rts
 
-.char	swap	d0			;IDA: showclock_char. d0 high word = digit, write its tile to -(a0)
+.char	swap	d0			;d0 high word = digit, write its tile to -(a0)
 	asl.w	#1,d0
 	move.w	$64(a1,d0.w),d0		;4+('0'*2)
 	add.w	(smallfontchars).w,d0
@@ -529,7 +527,7 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 	adda.w	#$14,a3			;ssosize
 	move.w	#$183,d3		;SPFarrow+3
 
-.ca	tst.w	Zpos(a0)			;IDA: checksso_ca. a0 = object, a3 = sso, d3 = first arrow frame
+.ca	tst.w	Zpos(a0)			;a0 = object, a3 = sso, d3 = first arrow frame
 	bmi.w	rtss			;not on the ice
 	st	frame(a3)
 	move.w	(a0),d0			;Xpos
@@ -540,23 +538,23 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 	neg.w	d0
 	subi.w	#$C5,d1			;horoff
 	bra.w	.hord
-.nhor	sub.w	(Hpos).w,d0		;IDA: _nhor
+.nhor	sub.w	(Hpos).w,d0
 	sub.w	(Vpos).w,d1
 
-.hord	clr.w	d2			;IDA: _hord. d2 = off screen directions as joystick bits
+.hord	clr.w	d2			;d2 = off screen directions as joystick bits
 	cmp.w	#$74,d0			;.xoff = 116
 	blt.w	.0
 	bset	#3,d2			;rbut
-.0	cmp.w	#-$74,d0		;IDA: _0. -.xoff
+.0	cmp.w	#-$74,d0		;-.xoff
 	bgt.w	.1
 	bset	#2,d2			;lbut
-.1	cmp.w	#$64,d1			;IDA: _1. .yoff = 100
+.1	cmp.w	#$64,d1			;yoff = 100
 	blt.w	.2
 	bset	#0,d2			;ubut
-.2	cmp.w	#-$64,d1		;IDA: _2. -.yoff
+.2	cmp.w	#-$64,d1		;-.yoff
 	bgt.w	.3
 	bset	#1,d2			;dbut
-.3	tst.w	d2			;IDA: _3
+.3	tst.w	d2
 	beq.w	rtss			;on screen: no arrow
 	movea.l	#jdtab,a1		;Rev A operand $DA88
 	move.b	(a1,d2.w),d2		;direction 0-7
@@ -566,13 +564,13 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 	move.w	(a1,d2.w),d4		;x spot, 0 = keep player x
 	beq.w	.4
 	move.w	d4,d0
-.4	addi.w	#$100,d0		;IDA: _4. 128+128
+.4	addi.w	#$100,d0		;128+128
 	move.w	d0,(a3)			;Xcord
 
 	move.w	2(a1,d2.w),d4		;y spot, 0 = keep player y
 	beq.w	.5
 	move.w	d4,d1
-.5	neg.w	d1			;IDA: _5
+.5	neg.w	d1
 	addi.w	#$F0,d1			;112+128
 	move.w	d1,2(a3)		;Ycord
 
@@ -581,7 +579,7 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 	move.w	6(a1,d2.w),attribute(a3)	;flip bits
 	bra.w	addframe2
 
-.tab	dc.w	0,$64,0,$0000		;IDA: _tab. x spot, y spot, frame add, attribute per direction
+.tab	dc.w	0,$64,0,$0000		;x spot, y spot, frame add, attribute per direction
 	dc.w	$74,$64,1,$0000		;.xspot = 116, .yspot = 100
 	dc.w	$74,0,2,$0000
 	dc.w	$74,-$64,1,$1000
@@ -594,7 +592,7 @@ setsortcords	;setup sort cord graphics: addframe for the 16 objects in OOlist or
 	;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter
 	movea.w	#(OOlist-M68K_RAM),a4
 	move.w	#$F,d0			;sortobjs-1
-.top	clr.w	d1			;IDA: loc_11EEA
+.top	clr.w	d1
 	move.b	(a4)+,d1
 	asl.w	#6,d1			;scsize-1
 	movea.w	#(SortCords-M68K_RAM),a3
@@ -608,14 +606,14 @@ setffo	;draw the 5 objects tied to icerink scrolling (pads ...). Called from set
 	bsr.w	uppads
 	move.w	#4,d0			;ffonum-1
 	movea.w	#(pads-M68K_RAM),a3	;92 ffo
-.top	movea.w	a6,a0			;IDA: loc_11F0C. a0 = first sprite this object writes
+.top	movea.w	a6,a0			;a0 = first sprite this object writes
 	bsr.w	addframe
 	cmpa.w	a6,a0
 	beq.w	.next			;no sprites added
 	move.w	2(a3),d1		;x offset (set by FormatControllerDisplay)
 	add.w	d1,6(a0)		;sprite 1 x
 	add.w	d1,$E(a0)		;sprite 2 x
-.next	adda.w	#$1C,a3			;IDA: loc_11F24. ffosize
+.next	adda.w	#$1C,a3			;ffosize
 	dbf	d0,.top
 	rts
 
@@ -633,12 +631,12 @@ uppads	;update the gloves object and the 4 pad objects, and queue new pad labels
 	asl.w	#2,d1
 	move.w	d1,Ypos(a0)
 	clr.w	Zpos(a0)			;shown
-.nogloves	moveq	#3,d4		;IDA: loc_11F54. 4 pads (92 3)
+.nogloves	moveq	#3,d4		;4 pads (92 3)
 	movea.w	#(pads-M68K_RAM),a0
 	movea.w	#(padcont-M68K_RAM),a1	;last label code per pad
 	movea.w	#(SortCords-M68K_RAM),a2
 	move.w	(PadControlBits).w,d3
-.top	move.w	d3,d0			;IDA: loc_11F66
+.top	move.w	d3,d0
 	andi.w	#$F,d0			;this pad's nibble: player number, $E or $F
 	move.w	#$F,d1			;label code for $E
 	cmp.w	#$E,d0
@@ -653,11 +651,11 @@ uppads	;update the gloves object and the 4 pad objects, and queue new pad labels
 	move.b	position+1(a2,d0.w),d1	;label code = position << 8 | rostnum
 	asl.w	#8,d1
 	move.b	rostnum(a2,d0.w),d1
-.chg	cmp.w	(a1),d1			;IDA: loc_11F9E
+.chg	cmp.w	(a1),d1
 	beq.w	.next			;same label as last time
 	move.w	d1,(a1)
 	bsr.w	FormatControllerDisplay
-.next	lsr.w	#4,d3			;IDA: loc_11FAA. next nibble
+.next	lsr.w	#4,d3			;next nibble
 	adda.w	#$1C,a0			;ffosize
 	addq.w	#2,a1
 	dbf	d4,.top
@@ -674,7 +672,7 @@ FormatControllerDisplay	;93 only: queue the 3 character label of a pad object (9
 	bne.w	.hi
 	move.w	#-$10,d2		;' '-'0': blank leading zero
 	subq.w	#4,2(a0)		;and move the label 4 left
-.hi	addi.w	#$30,d2			;IDA: loc_11FD4. '0'
+.hi	addi.w	#$30,d2			;'0'
 	clr.w	d0			;char slot 0
 	bsr.w	RenderSmallFontChar
 	move.w	d1,d2
@@ -682,7 +680,7 @@ FormatControllerDisplay	;93 only: queue the 3 character label of a pad object (9
 	cmp.w	#$F,d2
 	bne.w	.lo
 	move.w	#-$10,d2		;$F: blank
-.lo	addi.w	#$30,d2			;IDA: loc_11FF0. '0'
+.lo	addi.w	#$30,d2			;'0'
 	moveq	#1,d0			;char slot 1
 	bsr.w	RenderSmallFontChar
 	move.w	d1,d2
@@ -690,7 +688,7 @@ FormatControllerDisplay	;93 only: queue the 3 character label of a pad object (9
 	andi.w	#7,d2
 	bne.w	.btn
 	addq.w	#4,2(a0)		;index 0 (' '): move the label 4 right
-.btn	move.b	(a4,d2.w),d2		;IDA: loc_1200A
+.btn	move.b	(a4,d2.w),d2
 	moveq	#2,d0			;char slot 2
 
 RenderSmallFontChar	;93 only, the 92 uppads .pd job: dma one small font tile to the object's chars.
@@ -728,7 +726,7 @@ addframe	;a3 = cords.l frame/oldframe VRsize VRchar. Project the object with fin
 	cmp.w	#$4E20,d1		;osflag
 	beq.w	.exit
 	bsr.w	addframe2
-.exit	movem.l	(sp)+,d0-d2		;IDA: loc_1206A
+.exit	movem.l	(sp)+,d0-d2
 	rts
 
 addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = sprite table, d6 = link counter.
@@ -755,7 +753,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	adda.w	(a2,d4.w),a2		;92 SprStrdat
 	clr.w	d3
 	clr.w	d4
-.sloop	move.w	d0,-(sp)		;IDA: _sloop
+.sloop	move.w	d0,-(sp)
 	move.w	frame(a3),d0
 	andi.w	#$7FF,d0
 	cmp.w	oldframe(a3),d0
@@ -764,7 +762,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	tst.w	d5
 	bne.w	.nn
 	move.w	d0,oldframe(a3)		;last sprite: oldframe = frame
-.nn	movem.w	d0-d4,-(sp)		;IDA: _nn
+.nn	movem.w	d0-d4,-(sp)
 	move.w	4(a2),d2		;tile pointer (93 keeps it whole)
 	clr.w	d4
 	move.b	7(a2),d4		;size byte
@@ -783,7 +781,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	addq.w	#6,sp
 	bra.w	.dup
 
-.nodup	add.w	8(sp),d3		;IDA: _nodup
+.nodup	add.w	8(sp),d3
 	movem.w	(sp)+,d0-d1
 	addq.w	#6,sp
 
@@ -798,8 +796,8 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	move.w	d4,(a5)+		;words to transfer
 	move.w	d3,(a5)+		;vram destination
 	movem.w	(sp)+,d0-d4
-.dup	move.b	d3,VRoffs(a3,d5.w)		;IDA: _dup
-.noref	move.w	(sp)+,d0		;IDA: _noref
+.dup	move.b	d3,VRoffs(a3,d5.w)
+.noref	move.w	(sp)+,d0
 	movem.w	d0-d2,-(sp)		;write sprite att
 	move.w	2(a2),d2		;y global (93 +2, 92 +0)
 	btst	#4,attribute(a3)		;y flip
@@ -810,7 +808,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	asl.w	#3,d2
 	neg.w	d2
 	sub.w	2(a2),d2
-.noyflip	add.w	d2,d1		;IDA: _noyflip
+.noyflip	add.w	d2,d1
 	move.w	d1,(a6)
 
 	move.w	(a2),d2			;x global (93 +0, 92 +6)
@@ -822,7 +820,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	asl.w	#1,d2
 	neg.w	d2
 	sub.w	(a2),d2
-.noxflip	add.w	d2,d0		;IDA: _noxflip
+.noxflip	add.w	d2,d0
 	move.w	d0,6(a6)
 	move.b	7(a2),2(a6)		;size
 	move.b	d6,3(a6)		;link
@@ -835,7 +833,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	btst	#$E,d2
 	beq.w	.nospec
 	bset	#$D,d2			;team 2 color
-.nospec	or.b	VRoffs(a3,d5.w),d2		;IDA: _nospec
+.nospec	or.b	VRoffs(a3,d5.w),d2
 	add.w	VRchar(a3),d2
 	move.w	d2,4(a6)
 	movem.w	(sp)+,d0-d2
@@ -844,7 +842,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	addq.w	#8,a6
 	addq.w	#8,a2
 	dbf	d5,.sloop
-.exit	movem.l	(sp)+,d0-d5/a0-a2	;IDA: _exit
+.exit	movem.l	(sp)+,d0-d5/a0-a2
 	move.w	(sp)+,attribute(a3)		;restore attribute
 	rts
 
@@ -857,9 +855,9 @@ find3d	;input - d0=xfield,d1=yfield,d2=height off field
 	subi.w	#$C5,d1			;horoff
 	bra.w	.crange
 
-.nhor	sub.w	(Hpos).w,d0		;IDA: loc_121FC
+.nhor	sub.w	(Hpos).w,d0
 	sub.w	(Vpos).w,d1
-.crange	cmp.w	#$90,d0			;IDA: loc_12204. 128+16
+.crange	cmp.w	#$90,d0			;128+16
 	bgt.w	.offscr
 	cmp.w	#-$90,d0		;-(128+16)
 	blt.w	.offscr
@@ -874,7 +872,7 @@ find3d	;input - d0=xfield,d1=yfield,d2=height off field
 	neg.w	d1
 	addi.w	#$F0,d1			;112+128
 	rts
-.offscr	move.w	#$4E20,d1		;IDA: loc_12236. osflag
+.offscr	move.w	#$4E20,d1		;osflag
 	rts
 
 updatesound	;move the crowd noise volume (psg noise channel) toward crowdlevel.
@@ -886,17 +884,17 @@ updatesound	;move the crowd noise volume (psg noise channel) toward crowdlevel.
 	bls.w	.ip
 	move.w	#$EFF,d0
 
-.ip	moveq	#$28,d2			;IDA: loc_12252. max step 40
+.ip	moveq	#$28,d2			;max step 40
 	sub.w	(asv).w,d0
 	cmp.w	d2,d0
 	bgt.w	.iasv
 	neg.w	d2
 	cmp.w	d2,d0
 	bge.w	.non			;within 40: no change
-.iasv	add.w	d2,(asv).w		;IDA: loc_12266
+.iasv	add.w	d2,(asv).w
 	bpl.w	.non
 	clr.w	(asv).w
-.non	move.b	#$C8,(VDP_PSG).l	;IDA: loc_12272. 92 asound
+.non	move.b	#$C8,(VDP_PSG).l	;92 asound
 	move.b	#1,(VDP_PSG).l
 	move.b	(asv).w,d0
 	eori.b	#$F,d0

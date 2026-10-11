@@ -18,3 +18,9 @@ checkgoalp_CalcGoalShotDir,shotdiradj,IDA-leftover;94-name
 checkgoalp_CalcGoalShotDir,shotdiradj,IDA leftover; 94 name
 .loop/.add/.next/.bad/.fill/.halt (checksum93),ValidationLoop/SkipIncrement/ContinueValidation/VDPErrorSetup/VRAMWriteLoop/Halt,92G promoted
 (new label),Opening3/Opening4,92G
+.loop,ValidationLoop,earlier rename (source comment)
+.add,SkipIncrement,earlier rename (source comment)
+.next,ContinueValidation,earlier rename (source comment)
+.bad,VDPErrorSetup,earlier rename (source comment)
+.fill,VRAMWriteLoop,earlier rename (source comment)
+.halt,Halt,earlier rename (source comment)

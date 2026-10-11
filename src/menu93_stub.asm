@@ -20,7 +20,7 @@ RAMStart = $FF0000
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ; External routines outside $6A00-$6C09, at their retail addresses.
-; Names are IDA names, or source names from the SEGMENT_AGENT.md rename table.
+; Names are or source names from the SEGMENT_AGENT.md rename table.
 rtss2 = $9092
 seta2 = $69D8		; hockey93_01
 printsmallz = $E070

@@ -20,9 +20,9 @@ RAMStart = $FF0000
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ; External routines outside $15FE6-$165D7, at their retail addresses.
-; Names are IDA names, or source names from the SEGMENT_AGENT.md rename table.
+; Names are or source names from the SEGMENT_AGENT.md rename table.
 ; Every address was read from the retail bsr/bra/jsr displacement or operand.
-Readjoy1 = $D9B6		; middle93 (jsr abs.l at $165CA; IDA readjoy1)
+Readjoy1 = $D9B6		; middle93 (jsr abs.l at $165CA)
 ; .region code
 	org	$15FE6
 

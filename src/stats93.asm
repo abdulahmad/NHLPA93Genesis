@@ -1,7 +1,7 @@
 ;	NHLPA Hockey 93 (retail) segment $6C0A-$8AC3
 ;	93-only stats, line editor, roster, scoring/penalty summary, team stats,
 ;	crowd meter and goalie select screens. Not in NHL 92.
-;	Global names from the IDA export (Rev A listing). Entry points IDA left
+;Global names from the (Rev A listing). Entry points
 ;	unnamed are named from the screen title they print.
 ;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
@@ -9,7 +9,7 @@
 ;	Inline print strings after printz/printsmallz/printbigz/appendz use the
 ;	String macro or a dc.w length (length word includes itself, padded to a word).
 
-ShowScores	;IDA: no label (Rev A $6C18). "Scores" screen: lists the other games in
+ShowScores	;label (Rev A $6C18). "Scores" screen: lists the other games in
 	;gstruct with both teams, scores and period. Up/down scroll, start exits.
 	;Entered from outside this segment (menu item handler)
 	moveq	#6,d0			;SetupScreen d0/d1: bitmap row offset / height
@@ -34,22 +34,22 @@ ShowScores	;IDA: no label (Rev A $6C18). "Scores" screen: lists the other games 
 	subq.w	#8,(printx).w
 	jsr	(DrawEASNMap).l
 	bsr.w	printsmallz
-	String	$F8,4,2,4,0,0
+	String	CC_SetMapAndPosition,4,2,4,0,0
 	clr.w	(VertLineScrolling).w
 	bsr.w	UpdateVertScrollReg
 	jsr	(GetShifter).l		;d1 = number of games to list
 	move.w	d1,d3
 	ble.w	.skip
-.game	bsr.w	DisplayGameInfo		;IDA: loc_6C8C
+.game	bsr.w	DisplayGameInfo
 	dbf	d3,.game
-.skip	clr.w	(SelectedPlayerIdx).w	;IDA: loc_6C94
+.skip	clr.w	(SelectedPlayerIdx).w
 	move.w	(printy).w,d0
 	subi.w	#$15,d0			;rows printed past row $15 can be scrolled to
 	bmi.w	.loop
 	asl.w	#3,d0			;8 pixels per row
 	move.w	d0,(SelectedPlayerIdx).w	;max scroll
-	bsr.w	DrawScrollArrows	;IDA: loc_6CAA
-.loop	bsr.w	MenuWaitVblank		;IDA: loc_6CAE
+	bsr.w	DrawScrollArrows
+.loop	bsr.w	MenuWaitVblank
 	bsr.w	getpzjoy
 	btst	#7,d3			;start: leave
 	bne.w	ExitAttributeScreen2
@@ -59,8 +59,8 @@ ShowScores	;IDA: no label (Rev A $6C18). "Scores" screen: lists the other games 
 	neg.w	d0			;down: +2
 	btst	#1,d3
 	beq.w	.scroll
-.set	move.w	d0,(PlayerScrollCtr).w	;IDA: loc_6CD2
-.scroll	bsr.w	UpdatePlayerScroll	;IDA: loc_6CD6
+.set	move.w	d0,(PlayerScrollCtr).w
+.scroll	bsr.w	UpdatePlayerScroll
 	bra.s	.loop
 
 UpdatePlayerScroll	;called every frame by ShowScores. Add PlayerScrollCtr to
@@ -136,7 +136,7 @@ PrintGameInfo	;print team d0's name at x 6 and score d1 (2 digits) at x $18
 DrawScrollArrows	;ShowScores up/down arrows. Saves d0-d1/a1
 	movem.l	d0-d1/a1,-(sp)
 	bsr.w	printsmallz
-	String	$F8,4,3,4,6,$F9,1,0
+	String	CC_SetMapAndPosition,4,3,4,6,CC_SetFont,1,0
 	clr.w	d0
 	move.w	(VertLineScrolling).w,d1
 	tst.w	d1
@@ -158,7 +158,7 @@ ScrollArrowTable	;DrawScrollArrows strings: none, up, down. Only 3 entries (the
 	String	$7B,$FB,$FF,$FA,$13,$20,$F9
 	String	$20,$FB,$FF,$FA,$13,$7D,$F9
 
-LineEditor	;IDA: no label (Rev A $6E16). "Line Editor" screen for team a2.
+LineEditor	;label (Rev A $6E16). "Line Editor" screen for team a2.
 	;Pick a line slot, then a player to put there. Entered from outside this
 	;segment (menu item handler)
 	bset	#0,tmflags(a2)		;set on entry to the line editor
@@ -168,21 +168,21 @@ LineEditor	;IDA: no label (Rev A $6E16). "Line Editor" screen for team a2.
 	clr.w	(DispAttribCtr).w
 	clr.w	(PlayerScrollCtr).w
 	move.w	#1,(TestList).w		;cursor = first slot
-LineEditorRedraw	;IDA: loc_6E32. Clear the screen and redraw everything.
+LineEditorRedraw	;Clear the screen and redraw everything.
 	;Also entered from ExitAttributeScreen when its menu returns nonzero
 	bsr.w	printsmallz
-	String	$FF,2,$FD,0,$FC,0
+	String	CC_SetMap,2,CC_SetX,0,CC_SetY,0
 	moveq	#$28,d0
 	moveq	#$1C,d1
 	move.w	#$7FF,d2
 	bsr.w	eraser
 	st	(redrawicons).w		;force DrawAttributeMenu to redraw the icons
 	bsr.w	ClearMenuFlags
-LineEditorMenu	;IDA: loc_6E52. Slot cursor loop. Also entered from
+LineEditorMenu	;Slot cursor loop. Also entered from
 	;SelectAttributeItem when it is done
 	bsr.w	DrawTeamScreen
 	bsr.w	DrawAttributeMenu
-.loop	bsr.w	MenuWaitVblankWrapper	;IDA: loc_6E5A
+.loop	bsr.w	MenuWaitVblankWrapper
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
 	btst	#7,d1			;start: exit menu
@@ -201,14 +201,14 @@ LineEditorMenu	;IDA: loc_6E52. Slot cursor loop. Also entered from
 	moveq	#-8,d0			;left: previous line
 	btst	#2,d1
 	beq.s	.loop
-.move	add.w	(TestList).w,d0		;IDA: loc_6E9C
+.move	add.w	(TestList).w,d0
 	tst.w	(OptLine).w
 	beq.w	.set
 	cmp.w	#1,d0
 	blt.s	.loop			;OptLine set: only slots 1-5
 	cmp.w	#5,d0
 	bgt.s	.loop
-.set	lea	LineCursorTable(pc),a0	;IDA: loc_6EB4
+.set	lea	LineCursorTable(pc),a0
 	move.b	8(a0,d0.w),(TestList+1).w	;wrap/skip through the table
 	bsr.w	DrawAttributeMenu
 	bra.s	.loop
@@ -231,27 +231,27 @@ SelectAttributeItem	;line editor: C pressed on slot TestList. Build the list of
 	add.w	d0,d1			;slots 1-2 (defense): after goalies+forwards
 	bsr.w	GetPlayerCount
 	sub.w	d1,d0
-.n	subq.w	#1,d0			;IDA: loc_6EEA
+.n	subq.w	#1,d0
 	move.w	d0,(screentimer).w
 	clr.w	(PlayerScrollCtr).w
 	clr.w	(VertLineScrolling).w
 	movea.w	#(Satt-M68K_RAM),a0
 	clr.w	d2
-.fill	move.b	d1,(a0,d2.w)		;IDA: loc_6EFE
+.fill	move.b	d1,(a0,d2.w)
 	cmp.w	d1,d6			;player now in the slot?
 	bne.w	.nc
 	move.w	d2,(VertLineScrolling).w	;start the cursor on him
-.nc	addq.w	#1,d1			;IDA: loc_6F0C
+.nc	addq.w	#1,d1
 	addq.w	#1,d2
 	dbf	d0,.fill
 	bsr.w	ClearAttributeArea2
 	bsr.w	printsmallz
-	String	$F8,0,3,1,0,0
+	String	CC_SetMapAndPosition,0,3,1,0,0
 	moveq	#$12,d0
 	moveq	#3,d1
 	bsr.w	Framer
 	bsr.w	printsmallz
-	String	$FD,$15,$FC,0
+	String	CC_SetX,$15,CC_SetY,0
 	moveq	#$12,d0
 	moveq	#3,d1
 	bsr.w	Framer
@@ -260,7 +260,7 @@ SelectAttributeItem	;line editor: C pressed on slot TestList. Build the list of
 	dc.b	$F8,4,2,2,1,'{Select  Player}',0
 	clr.w	d0
 	bra.w	.vert
-.loop	bsr.w	MenuWaitVblankWrapper	;IDA: loc_6F60
+.loop	bsr.w	MenuWaitVblankWrapper
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
 	btst	#7,d1			;start: back to slot cursor
@@ -278,26 +278,26 @@ SelectAttributeItem	;line editor: C pressed on slot TestList. Build the list of
 	btst	#2,d1			;left: previous attribute page
 	bne.w	.horz
 	bra.s	.loop
-.horz	add.w	(DispAttribCtr).w,d0	;IDA: loc_6FA2
+.horz	add.w	(DispAttribCtr).w,d0
 	bmi.s	.loop
 	move.w	d0,(DispAttribCtr).w
 	bsr.w	PrintAttribHeader
 	bra.s	.loop
-.vert	add.w	(VertLineScrolling).w,d0	;IDA: loc_6FB2. Cursor row 0..screentimer
+.vert	add.w	(VertLineScrolling).w,d0	;Cursor row 0..screentimer
 	bmi.s	.loop
 	cmp.w	(screentimer).w,d0
 	bgt.s	.loop
 	move.w	d0,(VertLineScrolling).w
-	cmp.w	(PlayerScrollCtr).w,d0	;IDA: loc_6FC2. PlayerScrollCtr = first shown row
+	cmp.w	(PlayerScrollCtr).w,d0	;PlayerScrollCtr = first shown row
 	bgt.w	.top
-	move.w	d0,(PlayerScrollCtr).w	;IDA: loc_6FCA. Cursor above the window
-.top	subq.w	#5,d0			;IDA: loc_6FCE. 6 rows shown
+	move.w	d0,(PlayerScrollCtr).w	;Cursor above the window
+.top	subq.w	#5,d0			;6 rows shown
 	cmp.w	(PlayerScrollCtr).w,d0
 	ble.w	.draw
 	move.w	d0,(PlayerScrollCtr).w
-.draw	bsr.w	PrintAttribHeader	;IDA: loc_6FDC
+.draw	bsr.w	PrintAttribHeader
 	bra.w	.loop
-.pick	movea.w	#(Satt-M68K_RAM),a3	;IDA: loc_6FE4
+.pick	movea.w	#(Satt-M68K_RAM),a3
 	adda.w	(VertLineScrolling).w,a3
 	move.b	(a3),d0
 	addq.b	#1,d0
@@ -310,17 +310,17 @@ PrintAttribHeader	;line editor player list: column header for attribute page
 	;The cursor row is printed with attribute d7
 	bsr.w	printz
 	String	$BE,$16,1,0
-.0	movea.l	#PAttribColumns,a1	;IDA: loc_7006
+.0	movea.l	#PAttribColumns,a1
 	move.w	(DispAttribCtr).w,d0
 	bra.w	.2
-.1	adda.w	(a1),a1			;IDA: loc_7014
+.1	adda.w	(a1),a1
 	addq.w	#4,a1
-.2	tst.w	(a1)			;IDA: loc_7018. Negative = end of list
+.2	tst.w	(a1)			;Negative = end of list
 	dbmi	d0,.1
 	bpl.w	.3
 	subq.w	#1,(DispAttribCtr).w	;past the last page: back one
 	bra.s	.0
-.3	bsr.w	print			;IDA: loc_7028
+.3	bsr.w	print
 	move.l	(a1),d4			;column flags for GetNameandAttrib
 	movea.w	#(Satt-M68K_RAM),a3
 	move.w	(PlayerScrollCtr).w,d2
@@ -329,8 +329,8 @@ PrintAttribHeader	;line editor player list: column header for attribute page
 	cmp.w	#5,d1
 	bls.w	.4
 	moveq	#5,d1
-.4	move.w	#2,(printy).w		;IDA: loc_7046
-.row	bsr.w	printsmallz		;IDA: loc_704C
+.4	move.w	#2,(printy).w
+.row	bsr.w	printsmallz
 	dc.w	$0020
 	dc.b	$FE,4,$FD,5,$FA,1
 	dc.b	$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20
@@ -339,7 +339,7 @@ PrintAttribHeader	;line editor player list: column header for attribute page
 	cmp.w	(VertLineScrolling).w,d2
 	bne.w	.5
 	move.w	d7,(printa).w
-.5	clr.w	d0			;IDA: loc_707C
+.5	clr.w	d0
 	move.b	(a3,d2.w),d0
 	bsr.w	GetNameandAttrib
 	addq.w	#1,d2
@@ -356,22 +356,22 @@ DrawAttributeMenu	;line editor: draw the line icons for the cursor's line
 	tst.w	(OptLine).w
 	beq.w	.0
 	subq.w	#1,a0			;OptLine set: table starts one byte earlier
-.0	move.b	(a0),d0			;IDA: loc_70A6
+.0	move.b	(a0),d0
 	cmp.b	(redrawicons).w,d0
 	beq.w	.1			;same group as last time: no clear
 	move.b	d0,(redrawicons).w
 	bsr.w	ClearAttributeArea
-.1	btst	d5,(redrawicons).w	;IDA: loc_70B8. Line d5 in this group?
+.1	btst	d5,(redrawicons).w	;Line d5 in this group?
 	beq.w	.2
 	bsr.w	DrawMenuIcon
-.2	dbf	d5,.1			;IDA: loc_70C4
+.2	dbf	d5,.1
 	bsr.w	printsmallz
-	String	$F8,4,2,8,7,$F9,1,0
+	String	CC_SetMapAndPosition,4,2,8,7,CC_SetFont,1,0
 	moveq	#$18,d0
 	moveq	#3,d1
 	bsr.w	Framer
 	bsr.w	printsmallz
-	String	$FD,$15,$FC,8
+	String	CC_SetX,$15,CC_SetY,8
 	move.w	d6,d0
 	jsr	(getname).l
 	move.w	(a1),d0
@@ -395,7 +395,7 @@ DrawMenuIcon	;line editor: draw line d5 (name from linelist, then its player
 	tst.w	(OptLine).w
 	beq.w	.0
 	subq.w	#6,a0			;OptLine set: use the entry before
-.0	move.w	(a0),(printx).w		;IDA: loc_7122
+.0	move.w	(a0),(printx).w
 	move.w	2(a0),(printy).w
 	move.w	d5,d0
 	movea.l	#linelist,a1
@@ -411,9 +411,9 @@ DrawMenuIcon	;line editor: draw line d5 (name from linelist, then its player
 	move.w	2(a0),(printy).w
 	move.w	4(a0),d3		;slot count - 1
 	lea	$16A(a2),a3		;team line table
-.1	move.w	(a0),(printx).w		;IDA: loc_7164
+.1	move.w	(a0),(printx).w
 	bsr.w	printsmallz
-	String	$FB,$FF,$FA,2,$FE,6
+	String	CC_AddX,$FF,CC_AddY,2,CC_SetAttribute,6
 	clr.w	d0
 	move.b	(a3,d4.w),d0
 	subq.w	#1,d0
@@ -423,7 +423,7 @@ DrawMenuIcon	;line editor: draw line d5 (name from linelist, then its player
 	move.w	d0,d6			;player in the cursor slot
 	move.w	(printa).w,d7
 	move.w	#2,(printfontset).w	;highlight while printing
-.2	bsr.w	printsmall		;IDA: loc_7196
+.2	bsr.w	printsmall
 	clr.w	(printfontset).w
 	addq.w	#1,d4
 	dbf	d3,.1
@@ -432,17 +432,17 @@ DrawMenuIcon	;line editor: draw line d5 (name from linelist, then its player
 ClearAttributeArea	;line editor: erase the line area and print the
 	;position labels (LD RD LW C RW) at the first icon position
 	bsr.w	printsmallz
-	String	$FF,2,$FD,0,$FC,$A
+	String	CC_SetMap,2,CC_SetX,0,CC_SetY,$A
 	moveq	#$28,d0			;40 x 18
 	moveq	#$12,d1
 	move.w	#$7FF,d2
 	bsr.w	eraser
-	move.w	(MenuIconPosTable+2).l,(printy).l	;IDA: word_72A4
+	move.w	(MenuIconPosTable+2).l,(printy).l
 	move.w	(MenuIconPosTable).l,(printx).l
 	tst.w	(OptLine).w
 	beq.w	.0
-	move.w	(MenuIconPosTable-6).l,(printx).l	;IDA: word_729C
-.0	bsr.w	printsmallz		;IDA: loc_71E4
+	move.w	(MenuIconPosTable-6).l,(printx).l
+.0	bsr.w	printsmallz
 	dc.w	$0022
 	dc.b	$FE,4,$FB,$FD,$FA,2,'LD',$FB,$FE,$FA,2,'RD',$FB,$FE,$FA,2,'LW'
 	dc.b	$FB,$FE,$FA,2,'C ',$FB,$FE,$FA,2,'RW'
@@ -492,9 +492,9 @@ ClearMenuFlags	;clear palfadenew+$5A and palfadenew+$7A
 	clr.w	(palfadenew+$7A).w
 	rts
 
-	dc.w	$10,$C,4		;IDA: word_729C. Entry used when OptLine is set
+	dc.w	$10,$C,4		;Entry used when OptLine is set
 MenuIconPosTable	;line icons: x, y, slot count - 1 per line
-	dc.w	4,$C,4			;IDA: word_72A4 at +2
+	dc.w	4,$C,4			;at +2
 	dc.w	$10,$C,4
 	dc.w	$1C,$C,4
 	dc.w	4,$C,4
@@ -503,7 +503,7 @@ MenuIconPosTable	;line icons: x, y, slot count - 1 per line
 	dc.w	$10,$C,3
 	dc.w	$FFFF
 
-LineCursorTable	;IDA: unk_72CE. TestList after a cursor move: indexed by
+LineCursorTable	;TestList after a cursor move: indexed by
 	;new TestList + 8 (8 slots per line)
 	dc.b	1,1,2,3,4,5,$19,1
 	dc.b	1,1,2,3,4,5,$19,1
@@ -531,10 +531,10 @@ ExitAttributeScreen	;line editor: start pressed. Run the exit menu (AttributeScr
 	cmp.b	(a3),d0
 	beq.w	.0
 	movea.l	#ExitAttribText,a0
-.0	bsr.w	printsmallz		;IDA: loc_734E
+.0	bsr.w	printsmallz
 	String	$FF,2
 	bsr.w	InitMenuState
-.1	bsr.w	MenuWaitVblank		;IDA: loc_735A
+.1	bsr.w	MenuWaitVblank
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
 	move.w	d1,-(sp)
@@ -543,7 +543,7 @@ ExitAttributeScreen	;line editor: start pressed. Run the exit menu (AttributeScr
 	andi.w	#$A0,d1			;start or C
 	beq.s	.1
 	bsr.w	printsmallz
-	String	$F9,0
+	String	CC_SetFont,0
 	move.w	(menuitem).w,d0
 	move.l	(sp)+,(menudraw).w
 	move.l	(sp)+,(menulist).w
@@ -561,11 +561,11 @@ UpdatePlayerAttribute	;put player d0 (1 based) in line slot d2 of team a2. If he
 	andi.w	#$FFF8,d1
 	lea	(a0,d1.w),a1
 	moveq	#5,d1
-.0	cmp.b	1(a1,d1.w),d0		;IDA: loc_73AA
+.0	cmp.b	1(a1,d1.w),d0
 	dbeq	d1,.0
 	bne.w	.1
 	move.b	(a0,d2.w),1(a1,d1.w)
-.1	move.b	d0,(a0,d2.w)		;IDA: loc_73BC
+.1	move.b	d0,(a0,d2.w)
 	movem.l	(sp)+,d0-d2/a0-a1
 	rts
 
@@ -582,29 +582,29 @@ DecodePlayerAttributes	;load team a2's lines from databuffer (byte 0 = team + 1,
 	movea.l	#AttributeOffsetTbl,a3
 	clr.w	d4
 	clr.w	d2
-.next	move.b	(a3),d2			;IDA: ReadAttributeNibble (local)
+.next	move.b	(a3),d2			;(local)
 	bmi.w	.done
 	bchg	#0,d4
 	bne.w	.hi
 	move.b	(a0),d0
 	bra.w	.nib
-.hi	move.b	(a0)+,d0		;IDA: ReadHighNibble
+.hi	move.b	(a0)+,d0
 	lsr.w	#4,d0
-.nib	andi.w	#$F,d0			;IDA: ExtractNibble
+.nib	andi.w	#$F,d0
 	add.b	d1,d0
 	andi.w	#7,d2
 	cmp.w	#2,d2
 	bgt.w	.store
 	add.b	d3,d0
-.store	addq.b	#1,d0			;IDA: StoreAttribute
+.store	addq.b	#1,d0
 	andi.w	#$FF,d0
 	move.b	(a3)+,d2
 	bsr.w	UpdatePlayerAttribute
 	bra.s	.next
-.done	movem.l	(sp)+,d0-d4/a0/a3	;IDA: DecodeAttributesDone
+.done	movem.l	(sp)+,d0-d4/a0/a3
 	rts
 
-EncodePlayerAttributes	;IDA: no label (Rev A $7426). Reverse of
+EncodePlayerAttributes	;label (Rev A $7426). Reverse of
 	;DecodePlayerAttributes: pack team a2's lines into databuffer and convert
 	;it with BitsToPW
 	movem.l	d0-d4/a0-a3,-(sp)
@@ -619,7 +619,7 @@ EncodePlayerAttributes	;IDA: no label (Rev A $7426). Reverse of
 	movea.l	#AttributeOffsetTbl,a3
 	clr.w	d4
 	clr.w	d2
-.next	move.b	(a3)+,d2		;IDA: GetAttributeValue
+.next	move.b	(a3)+,d2
 	bmi.w	.done
 	move.b	(a1,d2.w),d3
 	subq.b	#1,d3
@@ -628,14 +628,14 @@ EncodePlayerAttributes	;IDA: no label (Rev A $7426). Reverse of
 	cmp.w	#2,d2
 	bgt.w	.pack
 	sub.b	d0,d3
-.pack	bchg	#0,d4			;IDA: PackAttributeNibble
+.pack	bchg	#0,d4
 	bne.w	.hi
 	move.b	d3,(a0)
 	bra.s	.next
-.hi	asl.b	#4,d3			;IDA: PackHighNibble
+.hi	asl.b	#4,d3
 	or.b	d3,(a0)+
 	bra.s	.next
-.done	jsr	(BitsToPW).l		;IDA: EncodeAttributesDone
+.done	jsr	(BitsToPW).l
 	movem.l	(sp)+,d0-d4/a0-a3
 	rts
 
@@ -649,7 +649,7 @@ AttributeOffsetTbl	;line slots saved in databuffer ($FF ends)
 	dc.b	$31,$32,$33,$34
 	dc.b	$FF
 
-TeamRosterScreen	;IDA: no label (Rev A $74AA). "Team Roster" screen for team a2:
+TeamRosterScreen	;label (Rev A $74AA). "Team Roster" screen for team a2
 	;one page per line (PlayerStatMenuTxt), scrolled sideways by 128 pixels.
 	;Up/down change line, left/right attribute columns, A switches team
 	moveq	#$D,d0
@@ -659,7 +659,7 @@ TeamRosterScreen	;IDA: no label (Rev A $74AA). "Team Roster" screen for team a2:
 	add.w	tmline(a2),d0		;start on the current line
 	move.w	d0,(SelectedPlayerIdx).w
 	clr.w	(DispAttribCtr).w
-.redraw	bsr.w	printz			;IDA: loc_74C0
+.redraw	bsr.w	printz
 	String	$BD,7,1,0
 	moveq	#$1A,d0
 	moveq	#6,d1
@@ -671,7 +671,7 @@ TeamRosterScreen	;IDA: no label (Rev A $74AA). "Team Roster" screen for team a2:
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.home
 	moveq	#$30,d0
-.home	bsr.w	PrintTeamData		;IDA: loc_74F6
+.home	bsr.w	PrintTeamData
 	bsr.w	printsmallz
 	dc.w	$0034
 	dc.b	$F8,6,3,2,$C,$F9,1,'Pos.^Player',$FD,$1E,$FC,$C,'Rating'
@@ -686,13 +686,13 @@ TeamRosterScreen	;IDA: no label (Rev A $74AA). "Team Roster" screen for team a2:
 	moveq	#$12,d0
 	moveq	#3,d1
 	bsr.w	Framer
-	bsr.w	DisplayPlayerList	;IDA: loc_7556
+	bsr.w	DisplayPlayerList
 	move.w	(SelectedPlayerIdx).w,d0
 	mulu.w	#$80,d0			;128 pixels per line page
 	move.w	d0,(VertLineScrolling).w
 	bsr.w	UpdatePlayerListScroll
 	clr.w	(PlayerScrollCtr).w
-.loop	bsr.w	MenuWaitVblank		;IDA: loc_756E
+.loop	bsr.w	MenuWaitVblank
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
 	btst	#7,d3			;start: leave
@@ -714,15 +714,15 @@ TeamRosterScreen	;IDA: no label (Rev A $74AA). "Team Roster" screen for team a2:
 	neg.w	d0
 	btst	#1,d3
 	beq.w	.scroll
-.set	move.w	d0,(PlayerScrollCtr).w	;IDA: loc_75BE
-.scroll	bsr.w	CheckPlayerListScroll	;IDA: loc_75C2
+.set	move.w	d0,(PlayerScrollCtr).w
+.scroll	bsr.w	CheckPlayerListScroll
 	bra.s	.loop
-.col	add.w	(DispAttribCtr).w,d0	;IDA: loc_75C8
+.col	add.w	(DispAttribCtr).w,d0
 	bmi.s	.scroll
 	move.w	d0,(DispAttribCtr).w
 	bsr.w	DisplayPlayerList
 	bra.s	.scroll
-.team	lea	tmsize(a2),a2		;IDA: loc_75D8
+.team	lea	tmsize(a2),a2
 	cmpa.w	#(awtmstruct-M68K_RAM),a2
 	beq.w	.redraw
 	movea.w	#(tmstruct-M68K_RAM),a2
@@ -747,15 +747,15 @@ UpdatePlayerListScroll	;set VertLineScrolling = d0. Stop on a page boundary. Whe
 	tst.w	d0
 	bne.w	.0
 	clr.w	(PlayerScrollCtr).w
-.0	andi.w	#$7F,d1			;IDA: loc_761E
+.0	andi.w	#$7F,d1
 	bne.w	.2
 	cmp.w	#$7E,d0
 	bne.w	.1
 	bsr.w	DisplayPlayerListUp
-.1	cmp.w	#2,d0		;IDA: loc_7632
+.1	cmp.w	#2,d0
 	bne.w	.2
 	bsr.w	DisplayPlayerListDown
-.2	move.w	(disflags).w,-(sp)	;IDA: loc_763E
+.2	move.w	(disflags).w,-(sp)
 	bset	#2,(disflags).w
 	movea.l	#VDP_DATA,a0
 	move.l	#$40020010,4(a0)
@@ -765,7 +765,7 @@ UpdatePlayerListScroll	;set VertLineScrolling = d0. Stop on a page boundary. Whe
 	move.w	(sp)+,(disflags).w
 	rts
 
-StopPlayerListScroll	;IDA: loc_7666. Out of range: stop scrolling
+StopPlayerListScroll	;Out of range: stop scrolling
 	clr.w	(PlayerScrollCtr).w
 	rts
 
@@ -790,34 +790,34 @@ DisplayPlayerList	;draw roster page SelectedPlayerIdx (0 goalies, 1-7 lines):
 	;title, attribute column header DispAttribCtr (clamped) and one row per
 	;position. Odd pages go 16 rows lower in the scroll map
 	bsr.w	printsmallz
-	String	$F8,7,3,2,9,$F9,1,0
+	String	CC_SetMapAndPosition,7,3,2,9,CC_SetFont,1,0
 	move.w	(SelectedPlayerIdx).w,d0
 	lea	PlayerStatMenuTxt(pc),a1
 	jsr	(AdvanceStringPtr).l
 	bsr.w	printsmall
 	bsr.w	printsmallz
-	String	$FD,$16,$FC,9
-.0	movea.l	#PAttribColumns,a1	;IDA: loc_76B8
+	String	CC_SetX,$16,CC_SetY,9
+.0	movea.l	#PAttribColumns,a1
 	move.w	(DispAttribCtr).w,d0
 	tst.w	(SelectedPlayerIdx).w
 	bne.w	.2
 	movea.l	#GAttribColumns,a1
 	bra.w	.2
-.1	adda.w	(a1),a1			;IDA: loc_76D4
+.1	adda.w	(a1),a1
 	addq.w	#4,a1
-.2	tst.w	(a1)			;IDA: loc_76D8
+.2	tst.w	(a1)
 	dbmi	d0,.1
 	bpl.w	.3
 	subq.w	#1,(DispAttribCtr).w
 	bra.s	.0
-.3	bsr.w	printsmall		;IDA: loc_76E8
+.3	bsr.w	printsmall
 	move.l	(a1),d4
 	bsr.w	printsmallz
-	String	$F8,4,2,0,0,$F9,0,0
+	String	CC_SetMapAndPosition,4,2,0,0,CC_SetFont,0,0
 	btst	#0,(SelectedPlayerIdx+1).w
 	beq.w	.4
 	addi.w	#$10,(printy).w
-.4	move.w	(printy).w,-(sp)	;IDA: loc_770C
+.4	move.w	(printy).w,-(sp)
 	moveq	#$28,d0
 	moveq	#$10,d1
 	move.w	#$7FF,d2
@@ -840,7 +840,7 @@ DisplayPlayerList	;draw roster page SelectedPlayerIdx (0 goalies, 1-7 lines):
 	cmpi.w	#5,(SelectedPlayerIdx).w
 	ble.w	.5
 	subq.w	#1,d1			;penalty kill lines: 4
-.5	move.w	#2,(printx).w		;IDA: loc_7760
+.5	move.w	#2,(printx).w
 	movea.l	a5,a1
 	bsr.w	print
 	movea.l	a1,a5
@@ -853,7 +853,7 @@ DisplayPlayerList	;draw roster page SelectedPlayerIdx (0 goalies, 1-7 lines):
 	dbf	d1,.5
 	rts
 
-GoalieRowText	;IDA: no label (movea.l #$7788 in Rev A). Position text for the
+GoalieRowText	;label (movea.l #$7788 in Rev A). Position text for the
 	;goalie page
 	String	'G'
 	String	'G'
@@ -889,14 +889,14 @@ GetNameandAttrib	;print player d0's name, then at x $1E the column picked by
 	bls.w	.jump			;status/energy: no ratings
 	movea.l	tmdata(a2),a0		;team data, player records
 	adda.w	(a0),a0
-.0	adda.w	(a0),a0			;IDA: loc_784E
+.0	adda.w	(a0),a0
 	addq.w	#8,a0
 	dbf	d0,.0
 	clr.w	d0
 	clr.w	d1
 	moveq	#$F,d2
 	swap	d4
-.1	btst	d2,d4			;IDA: loc_785E
+.1	btst	d2,d4
 	beq.w	.3
 	move.w	d2,d3
 	lsr.w	#1,d3
@@ -905,15 +905,15 @@ GetNameandAttrib	;print player d0's name, then at x $1E the column picked by
 	btst	#0,d2
 	beq.w	.2
 	lsr.w	#4,d3
-.2	andi.w	#$F,d3			;IDA: loc_7878
+.2	andi.w	#$F,d3
 	add.w	d3,d0			;d0 = sum of ratings
 	addi.w	#$F,d1			;d1 = 15 * count (max)
-.3	dbf	d2,.1			;IDA: loc_7882
+.3	dbf	d2,.1
 	swap	d4
-.jump	lea	attribjmp(pc),a0	;IDA: loc_7888
+.jump	lea	attribjmp(pc),a0
 	adda.w	(a0,d4.w),a0
 	jmp	(a0)
-.x	movem.l	(sp)+,d0-d4/a0-a1	;IDA: loc_7892
+.x	movem.l	(sp)+,d0-d4/a0-a1
 	rts
 
 attribjmp	;GetNameandAttrib column handlers, offsets from attribjmp
@@ -924,7 +924,7 @@ attribjmp	;GetNameandAttrib column handlers, offsets from attribjmp
 	dc.w	AttribFighting-attribjmp
 	dc.w	AttribRating-attribjmp
 
-AttribStatus	;IDA: no label ("jump for status"). Player d0's word at $66(a2):
+AttribStatus	;label ("jump for status"). Player d0's word at $66(a2)
 	;negative = not'ed status 0-2 (Ice/Bench/Injury P), positive = penalty
 	;time (bit $C injured G, bit $E prints C)
 	add.w	d0,d0
@@ -935,10 +935,10 @@ AttribStatus	;IDA: no label ("jump for status"). Player d0's word at $66(a2):
 	bls.w	.st
 	moveq	#1,d0
 	bra.w	.st
-.inj	moveq	#3,d0			;IDA: loc_78BE
-.st	lea	StatusTextTbl(pc),a1	;IDA: loc_78C0
+.inj	moveq	#3,d0
+.st	lea	StatusTextTbl(pc),a1
 	bra.w	PrintStringFromList
-.pen	btst	#$C,d0			;IDA: loc_78C8
+.pen	btst	#$C,d0
 	bne.s	.inj
 	subq.w	#1,(printx).w
 	move.w	d0,d1
@@ -949,7 +949,7 @@ AttribStatus	;IDA: no label ("jump for status"). Player d0's word at $66(a2):
 	bclr	#$E,d1
 	beq.w	.t
 	moveq	#5,d0
-.t	lea	StatusTextTbl(pc),a1	;IDA: loc_78EC
+.t	lea	StatusTextTbl(pc),a1
 	bra.w	PrintStringFromList
 
 StatusTextTbl	;AttribStatus strings
@@ -966,7 +966,7 @@ StatusTextTbl	;AttribStatus strings
 	dc.w	$0006
 	dc.b	' C  '
 
-AttribEnergy	;IDA: no label ("jump for energy"). $32(a2) word / 40, max 100
+AttribEnergy	;label ("jump for energy"). $32(a2) word / 40, max 100
 	add.w	d0,d0
 	move.w	tmpde(a2,d0.w),d0
 	ext.l	d0
@@ -976,14 +976,14 @@ AttribEnergy	;IDA: no label ("jump for energy"). $32(a2) word / 40, max 100
 	moveq	#$64,d0
 	bra.w	AttribPrintPct
 
-AttribFighting	;IDA: no label ("jump for fighting"). Bit 0 of the nibble is
+AttribFighting	;label ("jump for fighting"). Bit 0 of the nibble is
 	;handedness, so only bits 1-3 count
 	andi.w	#$E,d0
 	subq.w	#1,d1
-AttribRating	;IDA: no label. Sum d0 of d1/15 ratings as a percentage
+AttribRating	;label. Sum d0 of d1/15 ratings as a percentage
 	mulu.w	#$64,d0
 	divu.w	d1,d0
-AttribPrintPct	;IDA: loc_794E. Print d0 4 wide plus padding
+AttribPrintPct	;Print d0 4 wide plus padding
 	moveq	#4,d1
 	bsr.w	PushNumberWidth
 	bsr.w	print
@@ -991,7 +991,7 @@ AttribPrintPct	;IDA: loc_794E. Print d0 4 wide plus padding
 	String	$20,$20,$20,$20
 	rts
 
-AttribHanded	;IDA: no label ("jump for handedness"). Bit 0 of the sum
+AttribHanded	;label ("jump for handedness"). Bit 0 of the sum
 	andi.w	#1,d0
 	lea	HandedTextTbl(pc),a1
 	bra.w	PrintStringFromList
@@ -1002,7 +1002,7 @@ HandedTextTbl	;AttribHanded strings
 	dc.w	$000A
 	dc.b	'Lefty   '
 
-AttribWeight	;IDA: no label ("jump for Weight"). 140 + 8 * rating lb
+AttribWeight	;label ("jump for Weight"). 140 + 8 * rating lb
 	asl.w	#3,d0
 	addi.w	#$8C,d0
 	bsr.w	PushNumber
@@ -1012,7 +1012,7 @@ AttribWeight	;IDA: no label ("jump for Weight"). 140 + 8 * rating lb
 	dc.b	' lb  ',0
 	rts
 
-ScoringSummaryScreen	;IDA: no label (Rev A $79A0). "Scoring Summary": one 4 row
+ScoringSummaryScreen	;label (Rev A $79A0). "Scoring Summary": one 4 row
 	;entry per goal in ScoreSum (6 bytes each). Scrolls to the end first,
 	;then up/down scroll, start exits
 	moveq	#$A,d0
@@ -1042,16 +1042,16 @@ ScoringSummaryScreen	;IDA: no label (Rev A $79A0). "Scoring Summary": one 4 row
 	subi.w	#$80,d0			;4 entries fit on screen
 	bpl.w	.0
 	clr.w	d0
-.0	move.w	d0,(SelectedPlayerIdx).w	;IDA: loc_7A38
+.0	move.w	d0,(SelectedPlayerIdx).w
 	move.w	(VertLineScrolling).w,d0
-.1	bsr.w	MenuWaitVblank		;IDA: loc_7A40
+.1	bsr.w	MenuWaitVblank
 	bsr.w	UpdateGameStatScroll
 	move.w	(VertLineScrolling).w,d0
 	subq.w	#2,d0
 	cmp.w	(SelectedPlayerIdx).w,d0
 	bge.s	.1
 	clr.w	(PlayerScrollCtr).w
-.loop	bsr.w	MenuWaitVblank		;IDA: loc_7A58
+.loop	bsr.w	MenuWaitVblank
 	bsr.w	getpzjoy
 	btst	#7,d3
 	bne.w	ExitAttributeScreen2
@@ -1061,8 +1061,8 @@ ScoringSummaryScreen	;IDA: no label (Rev A $79A0). "Scoring Summary": one 4 row
 	neg.w	d0
 	btst	#1,d3
 	beq.w	.scroll
-.set	move.w	d0,(PlayerScrollCtr).w	;IDA: loc_7A7C
-.scroll	bsr.w	CheckGameStatScroll	;IDA: loc_7A80
+.set	move.w	d0,(PlayerScrollCtr).w
+.scroll	bsr.w	CheckGameStatScroll
 	bra.s	.loop
 
 CheckGameStatScroll	;ScoringSummaryScreen per frame: add PlayerScrollCtr to
@@ -1084,17 +1084,17 @@ UpdateGameStatScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	bne.w	.0
 	bsr.w	DrawScrollArrowsPenalty
 	clr.w	(PlayerScrollCtr).w
-.0	andi.w	#$1F,d1			;IDA: loc_7ABC
+.0	andi.w	#$1F,d1
 	bne.w	.2
 	move.l	d0,-(sp)
 	cmp.w	#$1E,d0
 	bne.w	.1
 	bsr.w	DisplayGameStatLineUp
-.1	move.l	(sp)+,d0		;IDA: loc_7AD2
+.1	move.l	(sp)+,d0
 	cmp.w	#2,d0
 	bne.w	.2
 	bsr.w	DisplayGameStatLineDown
-.2	move.w	(disflags).w,-(sp)	;IDA: loc_7AE0
+.2	move.w	(disflags).w,-(sp)
 	bset	#2,(disflags).w
 	movea.l	#VDP_DATA,a0
 	move.l	#$40020010,4(a0)
@@ -1153,7 +1153,7 @@ DisplayGameStatEntry	;print ScoreSum entry at offset d3: time, team (bit 7 of
 	btst	#7,2(a0,d3.w)
 	beq.w	.0
 	adda.w	#tmsize,a2
-.0	movea.l	tmdata(a2),a1		;IDA: loc_7B96
+.0	movea.l	tmdata(a2),a1
 	adda.w	4(a1),a1
 	adda.w	(a1),a1
 	move.w	#$C,(printx).w
@@ -1173,12 +1173,12 @@ DisplayGameStatEntry	;print ScoreSum entry at offset d3: time, team (bit 7 of
 	move.w	#$12,(printx).w
 	move.b	5(a0,d3.w),d0
 PrintPeriodTime	;print player d0 (byte, negative = none) and go down a row.
-	;IDA name, it prints a player not a time
+	;it prints a player not a time
 	ext.w	d0
 	bmi.w	.0
 	jsr	(FormatPlayerNameWithAttrib).l
 	bsr.w	print
-.0	addq.w	#1,(printy).w		;IDA: loc_7BFC
+.0	addq.w	#1,(printy).w
 	rts
 
 GoalTypeTbl	;ScoreSum byte 2 & $7F: SH2, SH, even, PP, PP2
@@ -1193,9 +1193,9 @@ GoalTypeTbl	;ScoreSum byte 2 & $7F: SH2, SH, even, PP, PP2
 	dc.w	$0006
 	dc.b	'PP2',0
 
-PenaltySummaryScreen	;IDA: no label (Rev A $7C1A). "Penalty Summary": one 3 row
+PenaltySummaryScreen	;label (Rev A $7C1A). "Penalty Summary": one 3 row
 	;entry per penalty (4 bytes each from PenSum). Same scroll handling as
-	;ScoringSummaryScreen. IDA's DisplayPenaltyList label inside the misdecoded
+	;ScoringSummaryScreen. 's DisplayPenaltyList label inside the misdecoded
 	;title string is not a real entry
 	moveq	#$A,d0
 	moveq	#$19,d1
@@ -1224,16 +1224,16 @@ PenaltySummaryScreen	;IDA: no label (Rev A $7C1A). "Penalty Summary": one 3 row
 	subi.w	#$78,d0			;5 entries fit on screen
 	bpl.w	.0
 	clr.w	d0
-.0	move.w	d0,(SelectedPlayerIdx).w	;IDA: loc_7CB2
+.0	move.w	d0,(SelectedPlayerIdx).w
 	move.w	(VertLineScrolling).w,d0
-.1	bsr.w	MenuWaitVblank		;IDA: loc_7CBA
+.1	bsr.w	MenuWaitVblank
 	bsr.w	UpdatePenaltyScroll
 	move.w	(VertLineScrolling).w,d0
 	subq.w	#2,d0
 	cmp.w	(SelectedPlayerIdx).w,d0
 	bge.s	.1
 	clr.w	(PlayerScrollCtr).w
-.loop	bsr.w	MenuWaitVblank		;IDA: loc_7CD2
+.loop	bsr.w	MenuWaitVblank
 	bsr.w	getpzjoy
 	btst	#7,d3
 	bne.w	ExitAttributeScreen2
@@ -1243,8 +1243,8 @@ PenaltySummaryScreen	;IDA: no label (Rev A $7C1A). "Penalty Summary": one 3 row
 	neg.w	d0
 	btst	#1,d3
 	beq.w	.scroll
-.set	move.w	d0,(PlayerScrollCtr).w	;IDA: loc_7CF6
-.scroll	bsr.w	CheckPenaltyScroll	;IDA: loc_7CFA
+.set	move.w	d0,(PlayerScrollCtr).w
+.scroll	bsr.w	CheckPenaltyScroll
 	bra.s	.loop
 
 CheckPenaltyScroll	;PenaltySummaryScreen per frame: add PlayerScrollCtr to
@@ -1266,7 +1266,7 @@ UpdatePenaltyScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	bne.w	.0
 	bsr.w	DrawScrollArrowsPenalty
 	clr.w	(PlayerScrollCtr).w
-.0	ext.l	d1			;IDA: loc_7D36
+.0	ext.l	d1
 	divs.w	#$18,d1
 	swap	d1
 	tst.w	d1
@@ -1275,11 +1275,11 @@ UpdatePenaltyScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	cmp.w	#$16,d0
 	bne.w	.1
 	bsr.w	DisplayPenaltyLineUp
-.1	move.l	(sp)+,d0		;IDA: loc_7D52
+.1	move.l	(sp)+,d0
 	cmp.w	#2,d0
 	bne.w	.2
 	bsr.w	DisplayPenaltyLineDown
-.2	move.w	(disflags).w,-(sp)	;IDA: loc_7D60
+.2	move.w	(disflags).w,-(sp)
 	bset	#2,(disflags).w
 	movea.l	#VDP_DATA,a0
 	move.l	#$40020010,4(a0)
@@ -1338,7 +1338,7 @@ DisplayPenaltyEntry	;print penalty entry at offset d3: time, team (bit 7 of
 	btst	#7,2(a0,d3.w)
 	beq.w	.0
 	adda.w	#tmsize,a2
-.0	movea.l	tmdata(a2),a1		;IDA: loc_7E18
+.0	movea.l	tmdata(a2),a1
 	adda.w	4(a1),a1
 	adda.w	(a1),a1
 	move.w	#$C,(printx).w
@@ -1366,7 +1366,7 @@ DisplayPenaltyEntry	;print penalty entry at offset d3: time, team (bit 7 of
 DrawScrollArrowsPenalty	;summary screen up/down arrows. Saves d0-d1/a1
 	movem.l	d0-d1/a1,-(sp)
 	bsr.w	printsmallz
-	String	$F8,4,3,4,9,$F9,1,0
+	String	CC_SetMapAndPosition,4,3,4,9,CC_SetFont,1,0
 	clr.w	d0
 	move.w	(VertLineScrolling).w,d1
 	tst.w	d1
@@ -1399,12 +1399,12 @@ DisplayTeamStats	;"Playoff Stats": DisplayAttributeScreen with d7 = 1 for the
 	cmp.w	$28(a2),d0
 	beq.w	.0
 	adda.w	#tmsize,a2
-.0	moveq	#1,d7			;IDA: loc_7F06
+.0	moveq	#1,d7
 	bsr.w	DisplayAttributeScreen
 	movem.l	(sp)+,a2
 	rts
 
-PlayerStatsScreen	;IDA: no label (Rev A $7F12). "Player Stats" (d7 = 0, game
+PlayerStatsScreen	;label (Rev A $7F12). "Player Stats" (d7 = 0, game
 	;stats, A switches team)
 	clr.w	d7
 DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
@@ -1415,7 +1415,7 @@ DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	bsr.w	SetupScreen
 	clr.w	(DispAttribCtr).w
 	clr.w	(VertLineScrolling).w
-.redraw	clr.w	(PlayerScrollCtr).w	;IDA: loc_7F24
+.redraw	clr.w	(PlayerScrollCtr).w
 	bsr.w	printz
 	String	$BD,5,1,0
 	moveq	#$1E,d0
@@ -1427,20 +1427,20 @@ DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	dc.w	$0016
 	dc.b	$BD,7,4,'Playoff  Stats',$BD,$E,1
 	bra.w	.team
-.title	bsr.w	printsmallz		;IDA: loc_7F5E
+.title	bsr.w	printsmallz
 	dc.w	$001C
 	dc.b	$F8,6,3,$C,$1A,$F9,1,'A^-^Switch^Teams',$F9,0,0
 	bsr.w	printbigz
 	dc.w	$0016
 	dc.b	$BD,8,4,'Player  Stats',$BD,$E,1,0
-.team	clr.w	d0			;IDA: loc_7F98
+.team	clr.w	d0
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.home
 	moveq	#$30,d0
-.home	bsr.w	PrintTeamData		;IDA: loc_7FA4
+.home	bsr.w	PrintTeamData
 	bsr.w	DisplayAttributeMenu
 	bsr.w	DrawScrollArrowsAttribute
-.loop	bsr.w	MenuWaitVblank		;IDA: loc_7FB0
+.loop	bsr.w	MenuWaitVblank
 	bsr.w	getpzjoy
 	btst	#7,d3
 	bne.w	ExitAttributeScreen2
@@ -1459,10 +1459,10 @@ DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	neg.w	d0
 	btst	#1,d3
 	beq.w	.scroll
-.set	move.w	d0,(PlayerScrollCtr).w	;IDA: loc_7FF4
-.scroll	bsr.w	UpdateAttributeScroll	;IDA: loc_7FF8
+.set	move.w	d0,(PlayerScrollCtr).w
+.scroll	bsr.w	UpdateAttributeScroll
 	bra.s	.loop
-.col	add.w	(DispAttribCtr).w,d0	;IDA: loc_7FFE
+.col	add.w	(DispAttribCtr).w,d0
 	cmp.w	#-1,d0
 	blt.s	.scroll
 	cmp.w	#4,d0
@@ -1471,7 +1471,7 @@ DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	bsr.w	DisplayAttributeMenu
 	bsr.w	DrawScrollArrowsAttribute
 	bra.s	.scroll
-.switch	tst.w	d7			;IDA: loc_801C. No team switch in playoff stats
+.switch	tst.w	d7			;No team switch in playoff stats
 	bne.s	.scroll
 	lea	tmsize(a2),a2
 	cmpa.w	#(awtmstruct-M68K_RAM),a2
@@ -1493,17 +1493,17 @@ UpdateAttributeScroll	;stats screen per frame: scroll 0..SelectedPlayerIdx, stop
 	bne.w	.0
 	bsr.w	DrawScrollArrowsAttribute
 	clr.w	(PlayerScrollCtr).w
-.0	andi.w	#$F,d1			;IDA: loc_8064
+.0	andi.w	#$F,d1
 	bne.w	SetAttribScrollReg
 	move.w	d0,-(sp)
 	cmp.w	#$E,d0
 	bne.w	.1
 	bsr.w	DisplayAttributeLineUp
-.1	move.w	(sp)+,d0		;IDA: loc_807A
+.1	move.w	(sp)+,d0
 	cmp.w	#2,d0
 	bne.w	SetAttribScrollReg
 	bsr.w	DisplayAttributeLineDown
-SetAttribScrollReg	;IDA: loc_8088. VSRAM = VertLineScrolling - $68
+SetAttribScrollReg	;VSRAM = VertLineScrolling - $68
 	move.w	(disflags).w,-(sp)
 	bset	#2,(disflags).w
 	movea.l	#VDP_DATA,a0
@@ -1537,16 +1537,16 @@ DisplayAttributeMenu	;stats screen: column headers (sort column highlighted),
 	bmi.w	.0
 	adda.w	(a1),a1
 	clr.w	d3
-.0	move.w	#$8000,(printa).w	;IDA: loc_80EE
+.0	move.w	#$8000,(printa).w
 	cmp.w	(DispAttribCtr).w,d3
 	bne.w	.1
 	move.w	#$C000,(printa).w
-.1	bsr.w	printsmall		;IDA: loc_8102
+.1	bsr.w	printsmall
 	addq.w	#1,d3
 	cmp.w	#5,d3
 	blt.s	.0
 	bsr.w	printsmallz
-	String	$F8,4,3,9,7,0
+	String	CC_SetMapAndPosition,4,3,9,7,0
 	moveq	#$16,d0
 	moveq	#3,d1
 	bsr.w	Framer
@@ -1565,23 +1565,23 @@ DisplayAttributeMenu	;stats screen: column headers (sort column highlighted),
 	bset	d0,d6
 	subq.w	#1,d6
 	not.l	d6
-.2	moveq	#-1,d4			;IDA: loc_8156. Selection sort, best so far
+.2	moveq	#-1,d4			;Selection sort, best so far
 	st	d5
 	bsr.w	GetPlayerCount
 	bra.w	.6
-.3	btst	d0,d6			;IDA: loc_8162
+.3	btst	d0,d6
 	bne.w	.6
 	clr.w	d2
 	move.w	(DispAttribCtr).w,d1
 	bmi.w	.4
 	bsr.w	CheckAttributeValid
-.4	ext.l	d2			;IDA: loc_8176
+.4	ext.l	d2
 	asl.l	#8,d2
 	movea.l	tmdata(a2),a1
 	adda.w	(a1),a1
 	move.w	d0,d1
 	subq.w	#8,a1
-.5	addq.w	#8,a1			;IDA: loc_8184
+.5	addq.w	#8,a1
 	adda.w	(a1),a1
 	dbf	d1,.5
 	move.b	#$FF,d2
@@ -1590,24 +1590,24 @@ DisplayAttributeMenu	;stats screen: column headers (sort column highlighted),
 	ble.w	.6
 	move.l	d2,d4
 	move.w	d0,d5
-.6	dbf	d0,.3			;IDA: loc_819C
+.6	dbf	d0,.3
 	bset	d5,d6			;used
 	move.b	d5,(a3)+
 	bpl.s	.2			;until none left ($FF)
 	moveq	#5,d0
-.7	st	(a3,d0.w)		;IDA: loc_81A8. Pad with empty rows
+.7	st	(a3,d0.w)		;Pad with empty rows
 	dbf	d0,.7
 	move.w	a3,d0
 	subi.w	#$BF30,d0		;rows past the first 7 in Satt
 	bpl.w	.8
 	clr.w	d0
-.8	asl.w	#4,d0			;IDA: loc_81BC
+.8	asl.w	#4,d0
 	move.w	d0,(SelectedPlayerIdx).w
 	cmp.w	(VertLineScrolling).w,d0
 	bcc.w	.9
 	move.w	d0,(VertLineScrolling).w
-.9	moveq	#5,d4			;IDA: loc_81CE
-.ent	move.w	(VertLineScrolling).w,d3	;IDA: loc_81D0
+.9	moveq	#5,d4
+.ent	move.w	(VertLineScrolling).w,d3
 	lsr.w	#4,d3
 	add.w	d4,d3
 	bsr.w	DisplayAttributeEntry
@@ -1647,7 +1647,7 @@ DisplayAttributeEntry	;stats screen row d3 of Satt: rank, name, then either the
 	tst.w	(DispAttribCtr).w
 	bmi.w	.goalie
 	clr.w	d5
-.0	clr.w	d0			;IDA: loc_8258
+.0	clr.w	d0
 	move.b	(a4),d0
 	move.w	d5,d1
 	bsr.w	CheckAttributeValid
@@ -1658,12 +1658,12 @@ DisplayAttributeEntry	;stats screen row d3 of Satt: rank, name, then either the
 	cmp.w	(DispAttribCtr).w,d5
 	bne.w	.1
 	move.w	#$C000,(printa).w
-.1	bsr.w	print			;IDA: loc_827E
+.1	bsr.w	print
 	addq.w	#1,d5
 	cmp.w	#5,d5
 	bne.s	.0
 	bra.w	.x
-.goalie	clr.w	d0			;IDA: loc_828E. Shots against
+.goalie	clr.w	d0			;Shots against
 	move.b	(a4),d0
 	moveq	#3,d1
 	bsr.w	GetAttributeValue2
@@ -1677,7 +1677,7 @@ DisplayAttributeEntry	;stats screen row d3 of Satt: rank, name, then either the
 	sub.w	d2,d0
 	bpl.w	.2
 	clr.w	d0
-.2	move.w	d0,d2			;IDA: loc_82B0
+.2	move.w	d0,d2
 	moveq	#4,d1
 	bsr.w	PushNumberWidth
 	addq.w	#1,(printx).w
@@ -1691,14 +1691,14 @@ DisplayAttributeEntry	;stats screen row d3 of Satt: rank, name, then either the
 	beq.w	.3
 	mulu.w	#$64,d2
 	divu.w	d3,d2
-.3	move.w	d2,d0			;IDA: loc_82DC
+.3	move.w	d2,d0
 	moveq	#4,d1
 	bsr.w	PushNumberWidth
 	addq.w	#2,(printx).w
 	bsr.w	print
 	bsr.w	printz
 	String	$25
-.x	rts				;IDA: locret_82F4
+.x	rts
 
 CheckAttributeValid	;d2 = stat column d1 for player d0. Goalies only have PIM
 	;(column 4, mapped to 1 via btst d1,#6)
@@ -1731,7 +1731,7 @@ GetAttributeValue2	;d2 = stat column d1 for player d0. d7 = 0: team struct
 	move.b	(a2,d1.w),d3
 	add.w	d3,d2
 	rts
-.stats	asl.w	#2,d1			;IDA: loc_833E
+.stats	asl.w	#2,d1
 	add.w	d0,d0
 	clr.w	d2
 	bsr.w	GetStatsValue
@@ -1766,7 +1766,7 @@ AttributeMenuTxt	;stats screen column headers (goalie header, then 5 columns)
 	dc.b	' SOG'
 	dc.w	$0006
 	dc.b	' PIM'
-AttributeTitleTxt	;IDA: no label (lea at DisplayAttributeMenu+$66). Sort column
+AttributeTitleTxt	;label (lea at DisplayAttributeMenu+$66). Sort column
 	;titles, [ ] are the left/right arrows
 	dc.w	$0016
 	dc.b	'    Goalie Saves   ]'
@@ -1784,7 +1784,7 @@ AttributeTitleTxt	;IDA: no label (lea at DisplayAttributeMenu+$66). Sort column
 DrawScrollArrowsAttribute	;stats screen up/down arrows. Saves d0-d1/a1
 	movem.l	d0-d1/a1,-(sp)
 	bsr.w	printsmallz
-	String	$F8,4,3,2,$B,$F9,1,0
+	String	CC_SetMapAndPosition,4,3,2,$B,CC_SetFont,1,0
 	clr.w	d0
 	move.w	(VertLineScrolling).w,d1
 	tst.w	d1
@@ -1806,7 +1806,7 @@ ScrollArrowTbl2	;none, up, down, both
 	String	$20,$FB,$FF,$FA,$C,$7D,$F9
 	String	$7B,$FB,$FF,$FA,$C,$7D,$F9
 
-GameStatisticsScreen	;IDA: no label (Rev A $84AC). "Game Statistics": both
+GameStatisticsScreen	;label (Rev A $84AC). "Game Statistics": both
 	;teams' totals. Start exits
 	moveq	#9,d0
 	moveq	#$1C,d1
@@ -1825,7 +1825,7 @@ GameStatisticsScreen	;IDA: no label (Rev A $84AC). "Game Statistics": both
 	clr.w	d0
 	bsr.w	PrintTeamData
 	bsr.w	DisplayTeamStatsScreen
-.loop	bsr.w	WaitVSyncAndReadInput	;IDA: loc_84F6
+.loop	bsr.w	WaitVSyncAndReadInput
 	btst	#7,d1
 	bne.w	ExitAttributeScreen2
 	bra.s	.loop
@@ -1844,7 +1844,7 @@ DisplayTeamStatsScreen	;team logos, then each TeamStatTextTbl row centred with
 	String	$BE,0,$C,0
 	moveq	#7,d6
 	lea	TeamStatTextTbl(pc),a1
-.0	move.w	(a1),d0			;IDA: loc_8534
+.0	move.w	(a1),d0
 	lsr.w	#1,d0
 	neg.w	d0
 	addi.w	#$15,d0
@@ -1871,10 +1871,10 @@ FormatStatValue	;print TeamStatTextTbl entry a0 for team a2 centred at printx:
 	cmpi.w	#$A,(a0)
 	beq.w	.0
 	bsr.w	PushNumber
-.0	cmpi.w	#$A,(a0)		;IDA: loc_858C
+.0	cmpi.w	#$A,(a0)
 	bne.w	.1
 	bsr.w	PushTime
-.1	bsr.w	appstring		;IDA: loc_8598
+.1	bsr.w	appstring
 	move.w	2(a0),d0
 	bmi.w	.x
 	bsr.w	appendz
@@ -1893,11 +1893,11 @@ FormatStatValue	;print TeamStatTextTbl entry a0 for team a2 centred at printx:
 	move.w	(a2,d1.w),d1
 	beq.w	.2
 	divu.w	d1,d0
-.2	bsr.w	PushNumber		;IDA: loc_85E0
+.2	bsr.w	PushNumber
 	bsr.w	appstring
 	bsr.w	appendz
 	String	$25,$29
-.x	movea.w	a3,a1			;IDA: loc_85F0
+.x	movea.w	a3,a1
 	move.w	(a1),d0
 	lsr.w	#1,d0
 	sub.w	d0,(printx).w
@@ -1929,7 +1929,7 @@ TeamStatTextTbl	;label, then team struct stat offset and second offset ($FFFF no
 	dc.b	'Passing',0
 	dc.w	$14,$12
 
-CrowdMeterScreen	;IDA: no label (Rev A $867A). "Crowd Meter": current, average
+CrowdMeterScreen	;label (Rev A $867A). "Crowd Meter": current, average
 	;and peak crowd level in dB. Start exits
 	moveq	#9,d0
 	moveq	#$1C,d1
@@ -1948,7 +1948,7 @@ CrowdMeterScreen	;IDA: no label (Rev A $867A). "Crowd Meter": current, average
 	clr.w	d0
 	bsr.w	PrintTeamData
 	bsr.w	DisplayGameStats
-.loop	bsr.w	WaitVSyncAndReadInput	;IDA: loc_86C0
+.loop	bsr.w	WaitVSyncAndReadInput
 	btst	#7,d1
 	bne.w	ExitAttributeScreen2
 	bra.s	.loop
@@ -2069,7 +2069,7 @@ ExitAttributeScreen2	;leave a stats screen: back to 32 cell mode, reload the
 	jsr	(setupIceRinkMap).l
 	jmp	(setplayercolors).l
 
-TimeoutMenu	;IDA left this code undecoded (dc.b in both listings). Pause menu "Timeout" for team a2: uses the
+TimeoutMenu	;this code undecoded (dc.b in both listings). Pause menu "Timeout" for team a2: uses the
 	;team's timeout (tmflags bit 2, so Pausemode shows PauseText2 from now on), prints "Timeout" in a frame
 	;with the team name, re-energizes both teams and waits $78 frames
 	subq.w	#1,(menuitem).w
@@ -2096,7 +2096,7 @@ TimeoutMenu	;IDA left this code undecoded (dc.b in both listings). Pause menu "T
 	moveq	#$78,d0
 	bra.w	waitx
 
-SelectGoalieMenu	;IDA: no label (Rev A $890A). Pick team a2's goalie from a
+SelectGoalieMenu	;label (Rev A $890A). Pick team a2's goalie from a
 	;list (0 = no goalie). Start/C confirms; a change is stored in $26(a2)
 	;and setpersonel is called
 	move.w	(menuitem).w,-(sp)
@@ -2112,9 +2112,9 @@ SelectGoalieMenu	;IDA: no label (Rev A $890A). Pick team a2's goalie from a
 	move.w	tmgoalie(a2),d0
 	bpl.w	.0
 	moveq	#-1,d0
-.0	addq.w	#1,d0			;IDA: loc_893A
+.0	addq.w	#1,d0
 	move.w	d0,(menuitem).w
-.loop	bsr.w	DisplayPlayerSelectMenu	;IDA: loc_8940
+.loop	bsr.w	DisplayPlayerSelectMenu
 	bsr.w	WaitVSyncAndReadInput
 	btst	#7,d1
 	bne.w	.done
@@ -2127,20 +2127,20 @@ SelectGoalieMenu	;IDA: no label (Rev A $890A). Pick team a2's goalie from a
 	cmp.w	(menuitem+2).w,d0
 	bgt.s	.loop
 	move.w	d0,(menuitem).w
-.up	btst	#0,d1			;IDA: loc_8970
+.up	btst	#0,d1
 	beq.s	.loop
 	subq.w	#1,(menuitem).w
 	bpl.s	.loop
 	clr.w	(menuitem).w
 	bra.s	.loop
-.done	move.w	(menuitem).w,d0	;IDA: loc_8982
+.done	move.w	(menuitem).w,d0
 	subq.w	#1,d0
 	bpl.w	.set
 	cmpi.w	#-1,tmgoalie(a2)
 	blt.w	.x
-.set	move.w	d0,tmgoalie(a2)		;IDA: loc_8996
+.set	move.w	d0,tmgoalie(a2)
 	jsr	setpersonel
-.x	move.w	(sp)+,(menuitem+2).w	;IDA: loc_89A0
+.x	move.w	(sp)+,(menuitem+2).w
 	move.w	(sp)+,(menuitem).w
 	rts
 
@@ -2149,12 +2149,12 @@ DisplayPlayerSelectMenu	;draw the goalie list, row menuitem highlighted,
 	move.w	#$D,(printy).w
 	move.w	(menuitem+2).w,d1
 	moveq	#0,d0
-.0	move.w	#5,(printx).w		;IDA: loc_89B6
+.0	move.w	#5,(printx).w
 	move.w	#$A000,(printa).w
 	cmp.w	(menuitem).w,d0
 	bne.w	.1
 	move.w	#$8000,(printa).w
-.1	bsr.w	printz			;IDA: loc_89D0
+.1	bsr.w	printz
 	dc.w	$0018
 	dc.b	'                      '
 	tst.w	d0
@@ -2164,14 +2164,14 @@ DisplayPlayerSelectMenu	;draw the goalie list, row menuitem highlighted,
 	dc.w	$000C
 	dc.b	'no goalie',0
 	bra.w	.next
-.player	movea.l	tmdata(a2),a1		;IDA: loc_8A0A+2
+.player	movea.l	tmdata(a2),a1
 	adda.w	(a1),a1
 	move.w	d0,d2
 	subq.w	#1,d2
 	bra.w	.3
-.2	adda.w	(a1),a1			;IDA: loc_8A1A
+.2	adda.w	(a1),a1
 	addq.w	#8,a1
-.3	dbf	d2,.2			;IDA: loc_8A1E
+.3	dbf	d2,.2
 	move.w	#8,(printx).w
 	bsr.w	print
 	move.b	(a1),d2
@@ -2198,7 +2198,7 @@ ReadAttributeNibble	;d0 = goalies on team a2 (nibbles in the team data word
 	adda.w	$A(a0),a0
 	move.w	(a0),d1
 	clr.w	d0
-.0	addq.w	#1,d0			;IDA: loc_8A74
+.0	addq.w	#1,d0
 	asl.w	#4,d1
 	bne.s	.0
 	movem.l	(sp)+,d1/a0
@@ -2231,7 +2231,7 @@ loopthroughplayers
 
 WaitVSyncAndReadInput	;wait for vcount to change and a new button press (d1)
 	move.w	(vcount).w,d1
-.0	cmp.w	(vcount).w,d1		;IDA: loc_8ABE
+.0	cmp.w	(vcount).w,d1
 	beq.s	.0
 	bsr.w	getpzjoy
 	bsr.w	nodiag

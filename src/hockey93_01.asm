@@ -2,8 +2,8 @@
 ;	VBjsr / Begin through seta2: 92 hockey.asm part 1 up to the end of Pausemode,
 ;	plus the 93 pause screen draw routine. The menu engine Pausemode calls
 ;	follows in menu93.asm ($6A00).
-;	Global names from the IDA export (Rev A listing), renamed to the NHL 92 name where the
-;	same routine exists in 92 (IDA name kept in an ;IDA: comment).
+;Global names from the (Rev A listing), renamed to the NHL 92 name where the
+;same routine exists in 92 (in an).
 ;	Local labels and comments follow NHL 92 hockey.asm where the code matches.
 ;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
@@ -12,7 +12,7 @@
 ;	Inline print strings after printsmallz use the String macro
 ;	(length word includes itself, odd data is padded to a word).
 
-VBjsr	;IDA: VBLANK. Vertical blank interrupt (vector $78), jumps through the vbint RAM vector
+VBjsr	;Vertical blank interrupt (vector $78), jumps through the vbint RAM vector
 	move.l	(vbint).w,-(sp)		;push handler address
 	rts				;and "return" into it
 
@@ -39,7 +39,7 @@ Begin	;cold start, entered from Reset. Clear RAM, init menus and sound, go to ti
 	jmp	(Opening).l		;goto title screen and options etc.
 ;----------------------------------------------------
 
-ChkShortPeriods	;IDA: loc_649E. Pad 1 = $E0 at game start forces 30 second periods
+ChkShortPeriods	;Pad 1 = $E0 at game start forces 30 second periods
 	bsr.w	Readjoy1
 	cmp.b	#$E0,d3
 	bne.w	StartGame
@@ -70,11 +70,11 @@ ClearShotData	;clear 49 words at $FFCB0A
 	dbf	d0,.0
 	rts
 
-restoreteams	;IDA: InitTeamShots. Put both teams' rosters on the bench
+restoreteams	;Put both teams' rosters on the bench
 	movea.w	#(tmstruct-M68K_RAM),a2	;team 1
 	bsr.w	.r
 	adda.w	#tmsize,a2		;team 2
-.r	;IDA: InitShotStruct. Reset one team struct (a2), falls in for team 2
+.r	;Reset one team struct (a2), falls in for team 2
 	move.w	#6,tmap(a2)		;no players in pen. box
 	moveq	#$32,d0			;(maxros-1)*2
 .0	move.w	#$FFFE,tmpdst(a2,d0.w)	;all players on bench
@@ -105,7 +105,7 @@ GetPeriodTime	;return d0 = period length in seconds for the period length option
 	lea	.timetab(pc),a0
 	move.w	0(a0,d0.w),d0
 	rts
-.timetab	;IDA: PeriodTimeTable. Period length in seconds: 5, 10, 20 min, 30 sec
+.timetab	;Period length in seconds: 5, 10, 20 min, 30 sec
 	dc.w	5*60,10*60,20*60,30
 
 StartPer	;start a period: reset stack, rink and clock, face off, run the game loop
@@ -318,7 +318,7 @@ clockcont_0	;end of period. Also entered from puckfaceoff+2E
 	move.l	#7,d0			;score assignment
 .n2	adda.w	#SCstruct,a3
 	dbf	d2,.t2
-.eog	jsr	(ClearPenaltyBuffer).l	;IDA: _n3. End of game
+.eog	jsr	(ClearPenaltyBuffer).l	;End of game
 	addi.w	#$3E8,(crowdlevel).w	;1000
 	addi.w	#$28,(CwdExciteLvl).w
 	bset	#gmclock,(gmode).w
@@ -326,7 +326,7 @@ clockcont_0	;end of period. Also entered from puckfaceoff+2E
 	move.w	#4,d0			;PenEOG
 	bra.w	AddPenalty2
 
-.chkot	cmpi.w	#3,(gsp).w		;IDA: loc_68AA. Tie or periods 1-2
+.chkot	cmpi.w	#3,(gsp).w		;Tie or periods 1-2
 	bne.w	.eop
 	tst.w	(OptPlayMode).w
 	beq.s	.eog			;gsp 3 with OptPlayMode 0 ends the game
@@ -407,13 +407,13 @@ SetupPauseScreen	;draw routine for the pause menu (92 Pausemode .pall / .top)
 	jsr	(setvideo).l
 	jsr	KillCrowd
 	bsr.w	printsmallz		;erase playfield 3
-	String	$FF,3,$FD,0,$FC,0
+	String	CC_SetMap,3,CC_SetX,0,CC_SetY,0
 	moveq	#$20,d0			;32
 	moveq	#$1C,d1			;28
 	move.w	#$7FF,d2
 	bra.w	eraser
 
-seta2	;IDA: GetTeamFromPause. Set a2 to tmstruct of pause joystick
+seta2	;Set a2 to tmstruct of pause joystick
 	;also called from HandleMenuInput (menu93)
 	movea.w	#(tmstruct-M68K_RAM),a2
 	btst	#sfpj,(sflags).w

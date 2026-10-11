@@ -18,14 +18,14 @@
 	include stats93.asm		;$006C0A-$008AC3  93 only: stats, attribute, game info screens
 	include hockey93_02.asm		;$008AC4-$00946D  ReplayMode ... updatereplay, updateplayers, updateanim, freezewindow, checkwindow
 
-	include logic93.asm		;$00946E-$00D629  92 logic.asm: doinput ... dirtab, 93 nibble/random helpers (was logic93..5)
-	include middle93.asm		;$00D62A-$00E525  92 middle.asm: remap ... AddTeamBlock (was middle93..2)
+	include logic93.asm		;$00946E-$00D629 92 logic.asm: doinput ... dirtab, 93 nibble/random helpers
+	include middle93.asm		;$00D62A-$00E525 92 middle.asm: remap ... AddTeamBlock
 	include penalty93.asm		;$00E526-$00FAE1  92 Penalty.asm: AddPenalty ... StartHL2 (was penalty93..2; Penaltylist data in hockey93_06_11)
 
 					;92 hockey.asm part 2 (checkcoll ... deflect)
 	include hockey93_03_05.asm		;$00FAE2-$011801  checkcoll ... setplayer (was hockey93_03_05..05; contiguous)
 
-	include video93.asm		;$011802-$0122A7  92 Video.asm: VBlank ... KillCrowd (was video93..2)
+	include video93.asm		;$011802-$0122A7 92 Video.asm: VBlank ... KillCrowd
 
 					;92 hockey.asm part 3 (setupice ... crash), then 93 data tables
 	include hockey93_06_11.asm		;$0122A8-$015FE5  setupice ... PlayoffScreen, ScoutingReport, setoptions, playoffs/password, ResolveGames, data tables (was hockey93_06_11..11; contiguous)

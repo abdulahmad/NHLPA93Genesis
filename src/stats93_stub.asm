@@ -20,7 +20,7 @@ RAMStart = $FF0000
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ; External routines and data outside $6C0A-$8AC3, at their retail addresses.
-; Names are IDA names, or source names from the SEGMENT_AGENT.md rename table.
+; Names are or source names from the SEGMENT_AGENT.md rename table.
 InitMenuState = $6A00		; menu93
 HandleMenuInput = $6A4E		; menu93
 PrintTeamData = $6BB6		; menu93
@@ -44,13 +44,13 @@ print = $E1C0
 FormatAndPrintTime = $E26C
 PushTime = $E29C
 PushNumber = $E300
-PushNumberWidth = $E334		; IDA: pushnumber (SNASM is case-insensitive, clashes with PushNumber)
+PushNumberWidth = $E334		; (SNASM is case-insensitive, clashes with PushNumber)
 appendz = $E390
 appstring = $E398
 printbigz = $E3DC
 AddSmallFont = $E4FE
 AddFramer = $E50C
-DrawEASNMap = $F0DE		; IDA name; retail target is $F0DE
+DrawEASNMap = $F0DE		; retail target is $F0DE
 PrintStringFromList = $F744
 AdvanceStringPtr = $F74C
 rtss = $110E0
@@ -72,11 +72,11 @@ GAttribColumns = $15820
 AttributeScreenText = $15F1E
 ExitAttribText = $15F8E
 BitsToPW = $164AC
-ScoutMap = $32860		; IDA Rev A address, graphics (bitmap header) used by SetupScreen/DrawTeamScreen
+ScoutMap = $32860		; A address, graphics (bitmap header) used by SetupScreen/DrawTeamScreen
 FramerMap = $33388
 IceRinkMap = $33864
 SmallFontMap = $795B4
-ScoresMap = $7CF1E		; IDA name; retail address $7CF1E (graphics used by ShowScores)
+ScoresMap = $7CF1E		; retail address $7CF1E (graphics used by ShowScores)
 
 reenergizeteam = $F332		; penalty93
 waitx = $D896			; middle93
