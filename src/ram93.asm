@@ -174,9 +174,9 @@ stickhand	=	$71
 endurance	=	$72
 handed	=	$76	;bit0 set is left handed. 92 $74
 pflags3	=	$64
-pf3oside	=	0	;player is offsides (93 flags the team: tmflags bit 4)
+pf3oside	=	0	;player is offsides (offsides is now flagged per team in tmflags bit 4)
 aggress	=	$73	;and offset
-;93 values: sfx / song numbers
+;sfx / song numbers
 SFXsiren	=	$0
 SFXbeep1	=	$1
 SFXbeep2	=	$2
@@ -392,7 +392,7 @@ tmATOP	=	$A	;attack time of possesion stat. 92 $C
 tmscore	=	$C	;score. 92 $16
 tmline	=	$16	;current line. 92 $18
 tmdata	=	$1E	;team data address. 92 $E
-tmsort	=	$22	;address of first sort obj. 92 $12 (long in 92, word in 93)
+tmsort	=	$22	;address of first sort obj. 92 $12 (long in 92)
 tmap	=	$24	;active players on ice 4-6. 92 $1A
 tmgoalie	=	$26	;goalie 1/2/none. 92 $1C
 tmflags	=	$30	;flags. 92 $1E

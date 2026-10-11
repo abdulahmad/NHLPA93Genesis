@@ -1,18 +1,15 @@
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment
-;	remap, forceblack, forcefade, cramfade, the
-;	CopyPaletteToCRAM, randomd0s, randomd0, sroot, sfx, song,
-;	waitx, waitxsr, waitjoy, orjoy,
-;	nodiag, the ProcessInputWithRepeat, Readjoy1, Readjoy2,
-;	ReadJoy, jdtab, DoDMApro, DoDMA, the DoDMA_nd2 (vram copy),
-;	DoFill, WaitDMA, setVram, setVram_0 and Vmaddr.
-;	Bytes match nhlpa93retail.bin.
+;	remap, forceblack, forcefade, cramfade, CopyPaletteToCRAM, randomd0s,
+;	randomd0, sroot, sfx, song, waitx, waitxsr, waitjoy, orjoy, nodiag,
+;	ProcessInputWithRepeat, Readjoy1, Readjoy2, ReadJoy, jdtab, DoDMApro,
+;	DoDMA, DoDMA_nd2 (vram copy), DoFill, WaitDMA, setVram, setVram_0 and
+;	Vmaddr. Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	disflags bits: df32c 1, dfng 2 (same as 92).
+;	disflags bits: df32c 1, dfng 2.
 
-remap	;a0 = data (char set), d0 = size in words, d1 = vram dest, a1 = mapping data (93: two color nibbles per byte, high nibble for even colors). Jumped to from DecompressGraphics
+remap	;a0 = data (char set), d0 = size in words, d1 = vram dest, a1 = mapping data (two color nibbles per byte, high nibble for even colors). Jumped to from DecompressGraphics
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	movem.l	d0-d4/a0-a2,-(sp)
@@ -169,7 +166,7 @@ randomd0	;d0 = range. Return random number in d0 (0 <= d0 < range)
 	movem.l	(sp)+,d1-d2
 	rts
 
-sroot	;Square Root, this returns (d0.L)^.5 in d0. 93: values above use a binary search
+sroot	;Square Root, this returns (d0.L)^.5 in d0. Large values use a binary search
 	tst.l	d0
 	beq.w	rtss			;zero^.5 = zero
 	cmp.l	#40*40,d0
@@ -186,9 +183,9 @@ sroot	;Square Root, this returns (d0.L)^.5 in d0. 93: values above use a binary 
 
 .m2	movem.l	d1-d4,-(sp)		;(92 d1-d3)
 	moveq	#9,d3			;max number of reps
-	move.w	#$8000,d1		;92 guess for big values, unused in 93
+	move.w	#$8000,d1		;unused (92 guess for big values)
 	cmp.l	#$F00000,d0
-	bhi.w	.big			;binary search (92 bhi .top)
+	bhi.w	.big			;binary search
 	move.l	d0,d1
 	lsr.l	#8,d1
 	addq.w	#2,d1
@@ -611,20 +608,19 @@ Vmaddr	;set video port to address d0. d0 = vram address, returns a0 = Vdata!!!
 
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment dobitmap, the tile decompressor
-;	(DecompressGraphicsWithCallback, DoDMA_clearCallbackPointer,
-;	DecompressGraphics, DecompressBytecode, jump_table, the Opcode_*
-;	handlers, FlushOutputBuffer), xyVmMap, eraser, Framer, the 93-only
-;	printsmallz/printsmall with ControlCodeJumpTable and the ControlCode_*
-;	handlers, printz, print, the FormatAndPrintTime and PeriodLabelTable,
-;	PushTime, PushNumber, the PushNumberWidth, appendz, appstring,
-;	printbigz, printbig, AddSmallFont, AddFramer and AddTeamBlock. Bytes
-;	match nhlpa93retail.bin.
+;	dobitmap, the tile decompressor (DecompressGraphicsWithCallback,
+;	DoDMA_clearCallbackPointer, DecompressGraphics, DecompressBytecode,
+;	jump_table, the Opcode_* handlers, FlushOutputBuffer), xyVmMap, eraser,
+;	Framer, printsmallz/printsmall with ControlCodeJumpTable and the
+;	ControlCode_* handlers, printz, print, FormatAndPrintTime and
+;	PeriodLabelTable, PushTime, PushNumber, PushNumberWidth, appendz,
+;	appstring, printbigz, printbig, AddSmallFont, AddFramer and AddTeamBlock.
+;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	disflags bits: dfng 2 (same as 92).
-;	93 loads tiles through DecompressGraphics (a2 = tile data, d4 = start
-;	char) instead of 92's direct DoDMA.
+;	disflags bits: dfng 2.
+;	Tiles are loaded through DecompressGraphics (a2 = tile data, d4 = start
+;	char); 92 used a direct DoDMA.
 
 dobitmap	;transfer palette data/map data/tiles data to vram. a0 = palette, a1 = map, a2 = tiles (DecompressGraphics data), d0 = start x, d1 = start y, d2 = width x, d3 = width y, d4 = start char, d5 = pal used bits (0-3) for color fam 1-4. printy is restored and the tiles go last through DecompressGraphics (returns d4 = end char)
 	move.w	(printy).w,-(sp)	;keep printy
@@ -896,7 +892,7 @@ FlushOutputBuffer	;send d1 bytes (0 = 256) of the ring buffer a1 to vram d3 and 
 .done	movem.l	(sp)+,d0-d1/a0-a1
 	rts
 
-xyVmMap	;use printx/y/m to set vram address. Returns a0 = Vdata. 93 saves d0-d2 and calls Vmaddr (92 branched to it)
+xyVmMap	;use printx/y/m to set vram address. Returns a0 = Vdata. Saves d0-d2 and calls Vmaddr
 	movem.l	d0-d2,-(sp)
 	move.w	(printx).w,d0
 	move.w	(printy).w,d1
@@ -1096,7 +1092,7 @@ ControlCode_SetFont	;printsmall code -7, next byte = char set index (printfontse
 	move.w	d0,(printfontset).w
 	rts
 
-printz	;see print. String macro should follow the bsr/jsr to this routine. 93 keeps a1 (92 popped the return into a1)
+printz	;see print. String macro should follow the bsr/jsr to this routine. Keeps a1 (92 popped the return into a1)
 	move.l	a1,-(sp)
 	movea.l	4(sp),a1		;string after the call
 	bsr.w	print
@@ -1104,7 +1100,7 @@ printz	;see print. String macro should follow the bsr/jsr to this routine. 93 ke
 	movea.l	(sp)+,a1
 	rts
 
-print	;a1 = string macro, printx/y = x/y cordinate on map for printing, printm = map to print on, printa = attribute for characters. string \-$ab,$xx,$yy,'Sample!'\ : a = map number (1-3), b = color/priority (0-3 = color fam, prio off),(4-7 = color fam, prio on), xx/yy = x/y cord to print at. 93: '@' = char $7FF, '^' = skip a column
+print	;a1 = string macro, printx/y = x/y cordinate on map for printing, printm = map to print on, printa = attribute for characters. string \-$ab,$xx,$yy,'Sample!'\ : a = map number (1-3), b = color/priority (0-3 = color fam, prio off),(4-7 = color fam, prio on), xx/yy = x/y cord to print at. '@' = char $7FF, '^' = skip a column
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	movem.l	d0-d3/a0/a2,-(sp)
@@ -1144,7 +1140,7 @@ print	;a1 = string macro, printx/y = x/y cordinate on map for printing, printm =
 	bne.w	.noblank
 	move.w	#$7FF,d0		;blank char (92 moveq #1)
 	bra.w	.p
-.noblank	cmp.b	#'^',d0		;(93)
+.noblank	cmp.b	#'^',d0		;'^' = skip a column
 	beq.w	.skip
 	asl.w	#1,d0
 	movea.l	#smallfontmap,a2
@@ -1316,7 +1312,7 @@ appstring	;append string a1 to string a3
 .ex	movem.l	(sp)+,d0/a0
 	rts
 
-printbigz	;see print big. String macro should follow the bsr/jsr to this routine. 93 keeps a1 (92 popped the return into a1)
+printbigz	;see print big. String macro should follow the bsr/jsr to this routine. Keeps a1 (92 popped the return into a1)
 	move.l	a1,-(sp)
 	movea.l	4(sp),a1		;string after the call
 	bsr.w	printbig
@@ -1378,7 +1374,7 @@ printbig	;same as print, only use bigfont.map graphics. a1 = string macro, print
 	move.w	(sp)+,(disflags).w
 	rts
 
-.dochar	subi.w	#$20,d0			;93 has no 92 beq.space
+.dochar	subi.w	#$20,d0			;no special case for space
 	movea.l	#bfasciicon,a0
 	moveq	#1,d2			;chars wide-1
 	move.b	(a0,d0.w),d1		;brush offset
@@ -1419,17 +1415,17 @@ printbig	;same as print, only use bigfont.map graphics. a1 = string macro, print
 	movem.l	(sp)+,d1/a0
 	rts
 
-AddSmallFont	;transfer smallfont.map tiles to vram. d4 = char to start tiles at, return d4 = end of tiles + 1. 93 goes through DecompressGraphics
+AddSmallFont	;transfer smallfont.map tiles to vram. d4 = char to start tiles at, return d4 = end of tiles + 1. Goes through DecompressGraphics
 	move.w	d4,(smallfontchars).w
 	movea.l	#SmallFontMap+8,a2
 	bra.w	DoDMA_clearCallbackPointer
 
-AddFramer	;transfer framer.map tiles to vram. d4 = char to start tiles at, return d4 = end of tiles + 1. 93 goes through DecompressGraphics
+AddFramer	;transfer framer.map tiles to vram. d4 = char to start tiles at, return d4 = end of tiles + 1. Goes through DecompressGraphics
 	movea.l	#FramerMap+8,a2
 	move.w	d4,(Framercset).w
 	bra.w	DoDMA_clearCallbackPointer
 
-AddTeamBlock	;transfer TeamBlocks.map tiles to vram at char 2. Return d4 = end of tiles + 1. 93 goes through DecompressGraphics
+AddTeamBlock	;transfer TeamBlocks.map tiles to vram at char 2. Return d4 = end of tiles + 1. Goes through DecompressGraphics
 	moveq	#2,d4
 	movea.l	#Teamblocksmap+8,a2
 	bra.w	DoDMA_clearCallbackPointer

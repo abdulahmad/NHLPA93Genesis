@@ -401,7 +401,7 @@ BackupRAM_Read	;load the saved block into databuffer at power on. Called once fr
 	movem.l	(sp)+,d0-d1
 	rts
 
-BitsToPW	;made the password text from passbits; 93 saves databuffer to backup RAM instead.
+BitsToPW	;save databuffer to backup RAM (92 made the password text from passbits here).
 	;Sets byte 127 = sum of bytes 0-125 and byte 126 = not sum, then writes the 128 bytes one at a time.
 	;Called from EncodePW and EncodePlayerAttributes. d0-d1/a0 kept, errorflag2 = -1 when it failed
 	movem.l	d0-d1/a0,-(sp)

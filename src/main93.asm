@@ -30,7 +30,7 @@ RAMStart = $FF0000
 	org	0
 	dc.l	InitialSP	; 0 initial stack pointer
 	dc.l	Start		; 4 initial program counter
-	dc.l	AddError	; 2 bus error: 93 has no BusError, bus and address error share AddError
+	dc.l	AddError	; 2 bus error: bus and address error share AddError
 	dc.l	AddError
 	dc.l	Illinst
 	dc.l	Zerodiv

@@ -515,10 +515,10 @@ ClearAllTrackAndSFXSlots	;free the 8 track slots and reset the 6 channel structs
 Z80_Program_Code	;First byte of the Z80 program (movea.l in p_initialZ80); the rest of the
 		;Z80 blob from and the data after it are the incbins below
 	dc.b	$18
-	incbin	..\Extracted\Sound\z80_snd_drv93.bin	;93 Z80 driver after its first byte, up to the ld bc of the FM patch bank address. p_initialZ80 copies $295 bytes
+	incbin	..\Extracted\Sound\z80_snd_drv93.bin	;Z80 driver after its first byte, up to the ld bc of the FM patch bank address. p_initialZ80 copies $295 bytes
 	dc.b	fm_instrument_patches&$FF,((fm_instrument_patches>>8)&$7F)|$80	;Z80 ld bc,$8000+(fm_instrument_patches&$7FFF): bank window address of the FM patches
 	dc.b	$09,$3E,fm_instrument_patches>>15	;Z80 add hl,bc / ld a,bank (32K bank) of the FM patches
-	incbin	..\Extracted\Sound\z80_snd_drv93_end.bin	;rest of the 93 Z80 driver
+	incbin	..\Extracted\Sound\z80_snd_drv93_end.bin	;rest of the Z80 driver
 	IF REV=0
 	dc.b	$83			;pad: retail leftover byte
 	ELSE
@@ -704,7 +704,7 @@ sfx_id_23_cmdstream
 	incbin	..\Extracted\Sound\sfx_id_23_cmdstream.bin	;sound $23: no caller found, same patches as playerwall
 	even
 sfx_puckwall1_cmdstream
-	incbin	..\Extracted\Sound\sfx_puckwall1_cmdstream.bin	;sound $28: puck off the wall by speed (wallcoll; 92 SFXpuckwall)
+	incbin	..\Extracted\Sound\sfx_puckwall1_cmdstream.bin	;sound $28: puck off the wall by speed (wallcoll)
 	even
 sfx_puckwall2_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckwall2_cmdstream.bin	;sound $29

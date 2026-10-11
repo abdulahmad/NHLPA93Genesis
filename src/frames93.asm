@@ -1,9 +1,5 @@
-; NHLPA Hockey '93 (Sega Genesis) - Auto-generated Frames.asm
-; Generated on 2026-01-05
-; Matches ROM binary exactly
-
-;This is a data table for animating the graphics in Sprites.anim
-;This list equates the sections of the alice animation file Sprites.anim
+;	Frame and SPA equates for the sprite animation file Sprites.anim:
+;	sprite frame (SPF) base indices and the SPA animation list offsets.
 
 ; Sprite Frame (SPF) base indices
 SPFskatewp	=	1
@@ -52,7 +48,7 @@ SPFbglass	=	SPFinjury1+12; 645 - New
 SPAlist
 	dc.w	0
 
-SPAgready	=	*-SPAlist	; 100 match to NHL '92
+SPAgready	=	*-SPAlist
 SPAgready_table: ; 0x004d90
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -93,7 +89,7 @@ SPAgready_table: ; 0x004d90
 .b	set	.b+.boff
 .7	dc.w	.a,180,.b,10,.b+1,10,.b,10,.b+1,10,.a,180,.b,10,.b+1,10,.b,-10
 
-SPAgready2	=	*-SPAlist	; 100 match to NHL '92
+SPAgready2	=	*-SPAlist
 SPAgready2_table: ; 0x004ec2
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -125,7 +121,7 @@ SPAgready2_table: ; 0x004ec2
 .a	set	.a+.aoff
 .7	dc.w	.a,-30
 
-SPAgglover	=	*-SPAlist	; 100 match to NHL '92
+SPAgglover	=	*-SPAlist
 SPAgglover_table: ; 0x004ef4
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -157,7 +153,7 @@ SPAgglover_table: ; 0x004ef4
 .a	set	.a+.aoff
 .7	dc.w	.a,-32
 
-SPAgglovel	=	*-SPAlist	; 100 match to NHL '92
+SPAgglovel	=	*-SPAlist
 SPAgglovel_table: ; 0x004f26
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -189,7 +185,7 @@ SPAgglovel_table: ; 0x004f26
 .a	set	.a+.aoff
 .7	dc.w	.a,-32
 
-SPAgglovel2	=	*-SPAlist	; 100 match to NHL '92
+SPAgglovel2	=	*-SPAlist
 SPAgglovel2_table: ; 0x004f58
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -214,7 +210,7 @@ SPAgglovel2_table: ; 0x004f58
 .6	dc.w	.b+15,-32
 .7	dc.w	.b+18,-32
 
-SPAgstickr	=	*-SPAlist	; 100 match to NHL '92
+SPAgstickr	=	*-SPAlist
 SPAgstickr_table: ; 0x004f9a
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -246,7 +242,7 @@ SPAgstickr_table: ; 0x004f9a
 .a	set	.a+.aoff
 .7	dc.w	.a,-32
 
-SPAgstickl	=	*-SPAlist	; 100 match to NHL '92
+SPAgstickl	=	*-SPAlist
 SPAgstickl_table: ; 0x004fcc
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -278,7 +274,7 @@ SPAgstickl_table: ; 0x004fcc
 .a	set	.a+.aoff
 .7	dc.w	.a,-32
 
-SPAgstackr	=	*-SPAlist	; 100 match to NHL '92
+SPAgstackr	=	*-SPAlist
 SPAgstackr_table: ; 0x004ffe
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -302,7 +298,7 @@ SPAgstackr_table: ; 0x004ffe
 .6	dc.w	.a+8,8,.a+9,-32
 .7	dc.w	.a+10,8,.a+11,-32
 
-SPAgstackl	=	*-SPAlist	; 100 match to NHL '92
+SPAgstackl	=	*-SPAlist
 SPAgstackl_table: ; 0x005050
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -326,7 +322,7 @@ SPAgstackl_table: ; 0x005050
 .6	dc.w	.a+8,8,.a+9,-32
 .7	dc.w	.a+10,8,.a+11,-32
 
-SPAgdive	=	*-SPAlist	; 100 match to NHL '92
+SPAgdive	=	*-SPAlist
 SPAgdive_table: ; 0x0050a2
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -358,7 +354,7 @@ SPAgdive_table: ; 0x0050a2
 .a	set	.a+.aoff
 .7	dc.w	.a,8,.a+1,48,.a,-8
 
-SPAgswing	=	*-SPAlist	; 100 match to NHL '92
+SPAgswing	=	*-SPAlist
 SPAgswing_table: ; 0x005114
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -390,7 +386,7 @@ SPAgswing_table: ; 0x005114
 .a	set	.a+.aoff
 .7	dc.w	.a,5,.a+1,8,.a,-16
 
-SPAgskate	=	*-SPAlist	; 100 match to NHL '92
+SPAgskate	=	*-SPAlist
 SPAgskate_table: ; 0x005186
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -422,7 +418,7 @@ SPAgskate_table: ; 0x005186
 .a	set	.a+.aoff
 .7	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-15
 
-SPApflip	=	*-SPAlist	; 100 match to NHL '92
+SPApflip	=	*-SPAlist
 SPApflip_table: ; 0x005218
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -446,7 +442,7 @@ SPApflip_table: ; 0x005218
 .6	dc.w	.a+4,-4096
 .7	dc.w	.a+4,-4096
 
-SPAglide	=	*-SPAlist	; 100 match to NHL '92
+SPAglide	=	*-SPAlist
 SPAglide_table: ; 0x0052ba
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -478,7 +474,7 @@ SPAglide_table: ; 0x0052ba
 .a	set	.a+.aoff
 .7	dc.w	.a,-8
 
-SPAskatewp	=	*-SPAlist	; 100 match to NHL '92
+SPAskatewp	=	*-SPAlist
 SPAskatewp_table: ; 0x0052ec
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -510,7 +506,7 @@ SPAskatewp_table: ; 0x0052ec
 .a	set	.a+.aoff
 .7	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
 
-SPAskate	=	*-SPAlist	; 100 match to NHL '92
+SPAskate	=	*-SPAlist
 SPAskate_table: ; 0x00537e
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -542,7 +538,7 @@ SPAskate_table: ; 0x00537e
 .a	set	.a+.aoff
 .7	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
 
-SPAturnl	=	*-SPAlist	; 100 match to NHL '92
+SPAturnl	=	*-SPAlist
 SPAturnl_table: ; 0x005410
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -574,7 +570,7 @@ SPAturnl_table: ; 0x005410
 .a	set	.a+.aoff
 .7	dc.w	.a,-8
 
-SPAturnr	=	*-SPAlist	; 100 match to NHL '92
+SPAturnr	=	*-SPAlist
 SPAturnr_table: ; 0x005442
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -606,7 +602,7 @@ SPAturnr_table: ; 0x005442
 .a	set	.a+.aoff
 .7	dc.w	.a,-8
 
-SPAstop	=	*-SPAlist	; 100 match to NHL '92
+SPAstop	=	*-SPAlist
 SPAstop_table: ; 0x005474
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -638,7 +634,7 @@ SPAstop_table: ; 0x005474
 .a	set	.a+.aoff
 .7	dc.w	.a,4,.a+1,-4
 
-SPApassf	=	*-SPAlist	; 100 match to NHL '92
+SPApassf	=	*-SPAlist
 SPApassf_table: ; 0x0054c6
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -670,7 +666,7 @@ SPApassf_table: ; 0x0054c6
 .a	set	.a+.aoff
 .7	dc.w	.a,4,.a+1,4,.a+2,-20
 
-SPApassb	=	*-SPAlist	; 100 match to NHL '92
+SPApassb	=	*-SPAlist
 SPApassb_table: ; 0x005538
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -702,7 +698,7 @@ SPApassb_table: ; 0x005538
 .a	set	.a+.aoff
 .7	dc.w	.a+2,4,.a+1,4,.a,-20
 
-SPAshotf	=	*-SPAlist	; 100 match to NHL '92
+SPAshotf	=	*-SPAlist
 SPAshotf_table: ; 0x0055aa
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -734,7 +730,7 @@ SPAshotf_table: ; 0x0055aa
 .a	set	.a+.aoff
 .7	dc.w	.a+3,4,.a+2,4,.a+1,4,.a,4,.a+1,4,.a+2,4,.a+3,4,.a+4,4,.a+5,-20
 
-SPAshotb	=	*-SPAlist	; 100 match to NHL '92
+SPAshotb	=	*-SPAlist
 SPAshotb_table: ; 0x0056dc
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -766,7 +762,7 @@ SPAshotb_table: ; 0x0056dc
 .a	set	.a+.aoff
 .7	dc.w	.a+2,4,.a+3,4,.a+4,4,.a+4,4,.a+4,4,.a+3,4,.a+2,4,.a+1,4,.a,-20
 
-SPAglideback	=	*-SPAlist	; 100 match to NHL '92
+SPAglideback	=	*-SPAlist
 SPAglideback_table: ; 0x00580e
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -798,7 +794,7 @@ SPAglideback_table: ; 0x00580e
 .a	set	.a+.aoff
 .7	dc.w	.a,-8
 
-SPAskateback	=	*-SPAlist	; 100 match to NHL '92
+SPAskateback	=	*-SPAlist
 SPAskateback_table: ; 0x005840
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -830,7 +826,7 @@ SPAskateback_table: ; 0x005840
 .a	set	.a+.aoff
 .7	dc.w	.a,10,.a+1,10,.a,10,.a+2,-10
 
-SPAsweepchk	=	*-SPAlist	; 100 match to NHL '92
+SPAsweepchk	=	*-SPAlist
 SPAsweepchk_table: ; 0x0058d2
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -862,7 +858,7 @@ SPAsweepchk_table: ; 0x0058d2
 .a	set	.a+.aoff
 .7	dc.w	.a,4,.a+1,8,.a,-4
 
-SPAshoulderchkl	=	*-SPAlist	; 100 match to NHL '92
+SPAshoulderchkl	=	*-SPAlist
 SPAshoulderchkl_table: ; 0x005944
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -894,7 +890,7 @@ SPAshoulderchkl_table: ; 0x005944
 .a	set	.a+.aoff
 .7	dc.w	.a,-24
 
-SPAshoulderchkr	=	*-SPAlist	; 100 match to NHL '92
+SPAshoulderchkr	=	*-SPAlist
 SPAshoulderchkr_table: ; 0x005976
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -926,7 +922,7 @@ SPAshoulderchkr_table: ; 0x005976
 .a	set	.a+.aoff
 .7	dc.w	.a,-24
 
-SPAhipchkl	=	*-SPAlist	; 100 match to NHL '92
+SPAhipchkl	=	*-SPAlist
 SPAhipchkl_table: ; 0x0059a8
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -958,7 +954,7 @@ SPAhipchkl_table: ; 0x0059a8
 .a	set	.a+.aoff
 .7	dc.w	.a,-24
 
-SPAhipchkr	=	*-SPAlist	; 100 match to NHL '92
+SPAhipchkr	=	*-SPAlist
 SPAhipchkr_table: ; 0x0059da
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -990,7 +986,7 @@ SPAhipchkr_table: ; 0x0059da
 .a	set	.a+.aoff
 .7	dc.w	.a,-24
 
-SPAburst	=	*-SPAlist	; 100 match to NHL '92
+SPAburst	=	*-SPAlist
 SPAburst_table: ; 0x005a0c
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1022,7 +1018,7 @@ SPAburst_table: ; 0x005a0c
 .a	set	.a+.aoff
 .7	dc.w	.a,-24
 
-SPAHold	=	*-SPAlist	; 100 match to NHL '92
+SPAHold	=	*-SPAlist
 SPAHold_table: ; 0x005a3e
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1054,7 +1050,7 @@ SPAHold_table: ; 0x005a3e
 .a	set	.a+.aoff
 .7	dc.w	.a,-30
 
-SPAHold2	=	*-SPAlist	; 100 match to NHL '92
+SPAHold2	=	*-SPAlist
 SPAHold2_table: ; 0x005a70
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1086,7 +1082,7 @@ SPAHold2_table: ; 0x005a70
 .a	set	.a+.aoff
 .7	dc.w	.a,-30
 
-SPAflail	=	*-SPAlist	; 100 match to NHL '92
+SPAflail	=	*-SPAlist
 SPAflail_table: ; 0x005aa2
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1118,7 +1114,7 @@ SPAflail_table: ; 0x005aa2
 .a	set	.a+.aoff
 .7	dc.w	.a,-30
 
-SPAfallfwd	=	*-SPAlist	; 100 match to NHL '92
+SPAfallfwd	=	*-SPAlist
 SPAfallfwd_table: ; 0x005ad4
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1159,7 +1155,7 @@ SPAfallfwd_table: ; 0x005ad4
 .b	set	.b+.boff
 .7	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
 
-SPAfallback	=	*-SPAlist	; 100 match to NHL '92
+SPAfallback	=	*-SPAlist
 SPAfallback_table: ; 0x005b86
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1200,7 +1196,7 @@ SPAfallback_table: ; 0x005b86
 .b	set	.b+.boff
 .7	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
 
-SPAcelebrate	=	*-SPAlist	; 100 match to NHL '92
+SPAcelebrate	=	*-SPAlist
 SPAcelebrate_table: ; 0x005c38
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1232,7 +1228,7 @@ SPAcelebrate_table: ; 0x005c38
 .a	set	.a+.aoff
 .7	dc.w	.a,12,.a+1,40,.a,-5
 
-SPApump	=	*-SPAlist	; 100 match to NHL '92
+SPApump	=	*-SPAlist
 SPApump_table: ; 0x005caa
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1264,7 +1260,7 @@ SPApump_table: ; 0x005caa
 .a	set	.a+.aoff
 .7	dc.w	.a,8,.a+1,8,.a,-8
 
-SPAfight	=	*-SPAlist	; 100 match to NHL '92
+SPAfight	=	*-SPAlist
 SPAfight_table: ; 0x005d1c
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1288,7 +1284,7 @@ SPAfight_table: ; 0x005d1c
 .6
 .7	dc.w	.a,8,.a+1,8,.a+2,8,.a+8,-6
 
-SPAfgrab	=	*-SPAlist	; 100 match to NHL '92
+SPAfgrab	=	*-SPAlist
 SPAfgrab_table: ; 0x005d4e
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1312,7 +1308,7 @@ SPAfgrab_table: ; 0x005d4e
 .6
 .7	dc.w	.a+6,28,.a+5,-4
 
-SPAfheld	=	*-SPAlist	; 100 match to NHL '92
+SPAfheld	=	*-SPAlist
 SPAfheld_table: ; 0x005d70
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1336,7 +1332,7 @@ SPAfheld_table: ; 0x005d70
 .6
 .7	dc.w	.a+6,30,.a+5,-4
 
-SPAfhigh	=	*-SPAlist	; 100 match to NHL '92
+SPAfhigh	=	*-SPAlist
 SPAfhigh_table: ; 0x005d92
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1360,7 +1356,7 @@ SPAfhigh_table: ; 0x005d92
 .6
 .7	dc.w	.a+7,6,.a+8,16,.a+7,4,.a+5,-16
 
-SPAflow	=	*-SPAlist	; 100 match to NHL '92
+SPAflow	=	*-SPAlist
 SPAflow_table: ; 0x005dc4
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1384,7 +1380,7 @@ SPAflow_table: ; 0x005dc4
 .6
 .7	dc.w	.a+7,6,.a+9,16,.a+7,4,.a+5,-16
 
-SPAfhith	=	*-SPAlist	; 100 match to NHL '92
+SPAfhith	=	*-SPAlist
 SPAfhith_table: ; 0x005df6
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1408,7 +1404,7 @@ SPAfhith_table: ; 0x005df6
 .6
 .7	dc.w	.a+11,16,.a+5,-8
 
-SPAfhitl	=	*-SPAlist	; 100 match to NHL '92
+SPAfhitl	=	*-SPAlist
 SPAfhitl_table: ; 0x005e18
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1432,7 +1428,7 @@ SPAfhitl_table: ; 0x005e18
 .6
 .7	dc.w	.a+10,16,.a+5,-8
 
-SPAffall	=	*-SPAlist	; 100 match to NHL '92
+SPAffall	=	*-SPAlist
 SPAffall_table: ; 0x005e3a
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1456,7 +1452,7 @@ SPAffall_table: ; 0x005e3a
 .6
 .7	dc.w	.a,8,.a+1,8,.a+2,200,.a+2,-2
 
-SPAfinjury	=	*-SPAlist	; 100 match to NHL '92
+SPAfinjury	=	*-SPAlist
 SPAfinjury_table: ; 0x005e5c
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1481,7 +1477,7 @@ SPAfinjury_table: ; 0x005e5c
 .6
 .7	dc.w	.a,8,.a+1,8,.a+2,20,.b,8,.b+1,8,.b+2,8,.b+3,10,.b+4,10,.b+5,10,.b+3,10,.b+4,10,.b+5,10,.b+3,10,.b+4,10,.b+5,10,.b+3,10,.b+4,10,.b+5,-400
 
-SPAwallright	=	*-SPAlist	; 100 match to NHL '92
+SPAwallright	=	*-SPAlist
 SPAwallright_table: ; 0x005eb6
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1505,7 +1501,7 @@ SPAwallright_table: ; 0x005eb6
 .6	dc.w	.a+3,8,.a+2,8,.a+1,8,.a,-8
 .7	; (skipped)
 
-SPAwallleft	=	*-SPAlist	; 100 match to NHL '92
+SPAwallleft	=	*-SPAlist
 SPAwallleft_table: ; 0x005ef4
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1529,7 +1525,7 @@ SPAwallleft_table: ; 0x005ef4
 .6	dc.w	.a,8,.a+1,8,.a+2,8,.a+3,-8
 .7	; (skipped)
 
-SPAfaceoff	=	*-SPAlist	; 100 match to NHL '92
+SPAfaceoff	=	*-SPAlist
 SPAfaceoff_table: ; 0x005f32
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1554,7 +1550,7 @@ SPAfaceoff_table: ; 0x005f32
 .6
 .7	dc.w	.a+20,2,.b+9,10,.b+8,-6
 
-SPAfaceoffr	=	*-SPAlist	; 100 match to NHL '92
+SPAfaceoffr	=	*-SPAlist
 SPAfaceoffr_table: ; 0x005f5c
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1578,7 +1574,7 @@ SPAfaceoffr_table: ; 0x005f5c
 .6
 .7	dc.w	.a+20,-5
 
-SPAsiren	=	*-SPAlist	; 100 match to NHL '92
+SPAsiren	=	*-SPAlist
 SPAsiren_table: ; 0x005f76
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1602,7 +1598,7 @@ SPAsiren_table: ; 0x005f76
 .6
 .7	dc.w	.a,3,.a+1,3,.a+2,3,.a+3,3,.a+4,3,.a+5,3,.a+6,3,.a+7,3,.a+8,3,.a+9,3,.a+10,3,.a+11,3,.a+12,3,.a+13,-3
 
-SPAbglass	=	*-SPAlist	; 100 match to NHL '92
+SPAbglass	=	*-SPAlist
 SPAbglass_table: ; 0x005fc0
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1626,7 +1622,7 @@ SPAbglass_table: ; 0x005fc0
 .6
 .7	dc.w	.a,8,.a+1,8,.a+2,8,.a+3,8,.a+4,-1000
 
-SPAstanley	=	*-SPAlist	; 100 match to NHL '92
+SPAstanley	=	*-SPAlist
 SPAstanley_table: ; 0x005fe6
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1658,7 +1654,7 @@ SPAstanley_table: ; 0x005fe6
 .a	set	.a+.aoff
 .7	dc.w	.a,-30
 
-SPAcatch	=	*-SPAlist	; 100 match to NHL '92
+SPAcatch	=	*-SPAlist
 SPAcatch_table: ; 0x006018
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1690,7 +1686,7 @@ SPAcatch_table: ; 0x006018
 .a	set	.a+.aoff
 .7	dc.w	.a,6,.a+1,-6
 
-SPAhook	=	*-SPAlist	; 100 match to NHL '92
+SPAhook	=	*-SPAlist
 SPAhook_table: ; 0x00606a
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1722,7 +1718,7 @@ SPAhook_table: ; 0x00606a
 .a	set	.a+.aoff
 .7	dc.w	.a,-30
 
-SPAhook2	=	*-SPAlist	; 100 match to NHL '92
+SPAhook2	=	*-SPAlist
 SPAhook2_table: ; 0x00609c
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1754,7 +1750,7 @@ SPAhook2_table: ; 0x00609c
 .a	set	.a+.aoff
 .7	dc.w	.a,9,.a+1,9,.a,9,.a+1,-9
 
-SPAstumble	=	*-SPAlist	; 100 match to NHL '92
+SPAstumble	=	*-SPAlist
 SPAstumble_table: ; 0x00612e
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1786,7 +1782,7 @@ SPAstumble_table: ; 0x00612e
 .a	set	.a+.aoff
 .7	dc.w	.a,6,.a+1,6,.a+2,8,.a+1,6,.a,-6
 
-SPAfake	=	*-SPAlist	; 100 match to NHL '92
+SPAfake	=	*-SPAlist
 SPAfake_table: ; 0x0061e0
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1812,7 +1808,7 @@ SPAfake_table: ; 0x0061e0
 .6	dc.w	.a+6,4,.a+5,4,.b+8,20,.c+5,4,.c+6,4,.c+7,-4
 .7	dc.w	.a+7,4,.a+6,4,.b+10,20,.c+6,4,.c+7,4,.c,-4
 
-SPAflip	=	*-SPAlist	; 100 match to NHL '92
+SPAflip	=	*-SPAlist
 SPAflip_table: ; 0x0062b2
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
@@ -1854,7 +1850,7 @@ SPAflip_table: ; 0x0062b2
 .c	set	.c+.coff
 .7	dc.w	.a,6,.a+1,6,.a+2,6,.a+3,6,.b,100,.b+1,8,.c,-8
 
-SPAinjury1	=	*-SPAlist	; 100 match to NHL '92
+SPAinjury1	=	*-SPAlist
 SPAinjury1_table: ; 0x0063a4
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
