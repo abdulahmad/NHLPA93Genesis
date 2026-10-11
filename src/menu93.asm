@@ -1,5 +1,5 @@
-;	NHLPA Hockey 93 (retail) segment $6A00-$6C09
-;	93-only menu engine: InitMenuState through MenuWaitVblank. The generic
+;	NHLPA Hockey 93 (retail) segment
+;	menu engine: InitMenuState through MenuWaitVblank. The generic
 ;	scrolling menu used by the pause screen (Pausemode).
 ;Not in NHL 92; names are.
 ;	Bytes match nhlpa93retail.bin.
@@ -95,9 +95,9 @@ UpdateMenuSelection	;clamp the selection, scroll the 4 visible rows, print the m
 	bsr.w	printsmallz		;blank the selection marker columns left and right of the 4 item rows
 	dc.w	$0026			;String length word: 2 + 36 data bytes (too long for the String macro)
 	dc.b	CC_AddX,$01,$20,CC_AddX,$FF,CC_AddY,$01,$20	;left column: blank, down a row, blank ...
-	dc.b	CC_AddX,$FF,CC_AddY,$01,$20,CC_AddX,$FF,CC_AddY,$01,$20	;... 4 rows
+	dc.b	CC_AddX,$FF,CC_AddY,$01,$20,CC_AddX,$FF,CC_AddY,$01,$20	;.. 4 rows
 	dc.b	CC_AddX,$12,$20,CC_AddX,$FF,CC_AddY,$FF,$20	;right column (18 columns over), blank, up a row ...
-	dc.b	CC_AddX,$FF,CC_AddY,$FF,$20,CC_AddX,$FF,CC_AddY,$FF,$20	;... back to the top row
+	dc.b	CC_AddX,$FF,CC_AddY,$FF,$20,CC_AddX,$FF,CC_AddY,$FF,$20	;.. back to the top row
 	adda.w	(a1),a1
 	move.w	(menuitem+2).w,d0	;skip to first visible item
 	bra.w	.6

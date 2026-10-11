@@ -76,7 +76,7 @@ ScoutMap = $32860		; A address, graphics (bitmap header) used by SetupScreen/Dra
 FramerMap = $33388
 IceRinkMap = $33864
 SmallFontMap = $795B4
-ScoresMap = $7CF1E		; retail address $7CF1E (graphics used by ShowScores)
+ScoresMap = $7CF1E		; retail address (graphics used by ShowScores)
 
 reenergizeteam = $F332
 waitx = $D896

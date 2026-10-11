@@ -1,14 +1,13 @@
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment $D62A-$DCE3
-;	92 Middle.Asm part 1: remap, forceblack, forcefade, cramfade, the
-;	93-only CopyPaletteToCRAM, randomd0s, randomd0, sroot, sfx, song,
-;	waitx, IntermissionLoop (93 version of waitxsr), waitjoy, orjoy,
-;	nodiag, the 93-only ProcessInputWithRepeat, Readjoy1, Readjoy2,
-;	ReadJoy, jdtab, DoDMApro, DoDMA, the 93-only DoDMA_nd2 (vram copy),
-;	DoFill, WaitDMA, setVram, setVram_0 and Vmaddr. Global names from the
-;where the routine is the same (see the
-;	SEGMENT_AGENT.md rename table). Bytes match nhlpa93retail.bin.
+;	NHLPA Hockey 93 (retail) segment
+;	remap, forceblack, forcefade, cramfade, the
+;	CopyPaletteToCRAM, randomd0s, randomd0, sroot, sfx, song,
+;	waitx, waitxsr, waitjoy, orjoy,
+;	nodiag, the ProcessInputWithRepeat, Readjoy1, Readjoy2,
+;	ReadJoy, jdtab, DoDMApro, DoDMA, the DoDMA_nd2 (vram copy),
+;	DoFill, WaitDMA, setVram, setVram_0 and Vmaddr.
+;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
 ;	disflags bits: df32c 1, dfng 2 (same as 92).
@@ -71,7 +70,7 @@ forcefade	;regardless of interupts/disflags fade in new palettes, don't upset an
 	move.w	(sp)+,sr
 	rts
 
-cramfade	;fade from current color in color ram to color held in palfadenew. This should be called during vblank because palette changes punch holes in video. 93: palcount 100 copies the palette with no fade (CopyPaletteToCRAM)
+cramfade	;fade from current color in color ram to color held in palfadenew. This should be called during vblank because palette changes punch holes in video. palcount 100 copies the palette with no fade (CopyPaletteToCRAM)
 	tst.w	(palcount).w
 	bmi.w	rtss
 	cmpi.w	#$64,(palcount).w	;93: 100 = copy now
@@ -170,7 +169,7 @@ randomd0	;d0 = range. Return random number in d0 (0 <= d0 < range)
 	movem.l	(sp)+,d1-d2
 	rts
 
-sroot	;Square Root, this returns (d0.L)^.5 in d0. 93: values above $F00000 use a binary search
+sroot	;Square Root, this returns (d0.L)^.5 in d0. 93: values above use a binary search
 	tst.l	d0
 	beq.w	rtss			;zero^.5 = zero
 	cmp.l	#40*40,d0
@@ -226,7 +225,7 @@ sfx	;play sound effect number. One word passed on stack
 	move.w	$40(sp),d0		;16*4(a7)
 	bmi.w	.none
 	move.w	d0,(lastsfx).w
-	jsr	(play_sfx_or_music_track).l	;(92 p_initfx)
+	jsr	(play_sfx_or_music_track).l
 .none	movem.l	(sp)+,d0-d7/a0-a6
 	move.l	(sp),2(sp)
 	addq.w	#2,sp
@@ -237,7 +236,7 @@ song	;play song number. One word passed on stack
 	clr.l	d0
 	move.w	$40(sp),d0		;16*4(a7)
 	bmi.w	.none
-	jsr	(play_sfx_or_music_track).l	;(92 p_initune)
+	jsr	(play_sfx_or_music_track).l
 .none	movem.l	(sp)+,d0-d7/a0-a6
 	move.l	(sp),2(sp)
 	addq.w	#2,sp
@@ -259,7 +258,7 @@ waitx	;wait d0 vblanks or until input from either joystick. Return joystick vari
 	bmi.s	.wait
 	rts
 
-waitxsr	;93 version of 92 waitxsr: wait d0 vblanks while the zamboni crosses (zamx counts up to $708) and the crowd updates. A key on either pad (sflags bit 1 = pad 2) leaves at least 120 frames and goes to HandleMenuInput; eq from it exits with d1 bit 7 set. Called from Intermission
+waitxsr	;93 version of wait d0 vblanks while the zamboni crosses (zamx counts up to $708) and the crowd updates. A key on either pad (sflags bit 1 = pad 2) leaves at least 120 frames and goes to HandleMenuInput; eq from it exits with d1 bit 7 set. Called from Intermission
 	movem.l	d4-d7/a0-a3,-(sp)
 	neg.w	d0
 	move.w	d0,(vcount).w
@@ -328,7 +327,7 @@ nodiag	;eliminate diagonal direction presses: if held directions (d3 bits 0-3) a
 .ok	movem.l	(sp)+,d0/d4-d5
 	rts
 
-ProcessInputWithRepeat	;93: nodiag, then key repeat on d1-d3 from Readjoy1/2. A change (d2) resets the delay to 15 frames; while the same buttons stay held, every 4 frames return d1 = held buttons (d3). Called from Pausemode, menus and IntermissionLoop
+ProcessInputWithRepeat	;nodiag, then key repeat on d1-d3 from Readjoy1/2. A change (d2) resets the delay to 15 frames; while the same buttons stay held, every 4 frames return d1 = held buttons (d3). Called from Pausemode, menus and IntermissionLoop
 	bsr.s	nodiag
 	tst.w	d3
 	beq.w	rtss			;nothing held
@@ -537,7 +536,7 @@ setVram	;initialize all necesary video parameters based on my variables. d0 = co
 	move.w	#$18,(palcount).w	;24
 	bsr.w	forcefade
 
-setVram_0	;second half of 92 setVram (no fade): clear vram and set the VDP registers from disflags, Map1col, VmMap1-3, VSPRITES and VSCRLPM. Falls in from setVram, called from SetupStanleyCupCelebrationScreen
+setVram_0	;second half of the 92 version (no fade): clear vram and set the VDP registers from disflags, Map1col, VmMap1-3, VSPRITES and VSCRLPM. Falls in from setVram, called from SetupStanleyCupCelebrationScreen
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	move.w	#$8F02,(VDP_CTRL).l	;VmInc 2
@@ -612,14 +611,14 @@ Vmaddr	;set video port to address d0. d0 = vram address, returns a0 = Vdata!!!
 
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment $DCE4-$E525
-;	92 Middle.Asm part 2: dobitmap, the 93-only tile decompressor
+;	NHLPA Hockey 93 (retail) segment
+;	dobitmap, the tile decompressor
 ;	(DecompressGraphicsWithCallback, DoDMA_clearCallbackPointer,
 ;	DecompressGraphics, DecompressBytecode, jump_table, the Opcode_*
 ;	handlers, FlushOutputBuffer), xyVmMap, eraser, Framer, the 93-only
 ;	printsmallz/printsmall with ControlCodeJumpTable and the ControlCode_*
-;	handlers, printz, print, the 93-only FormatAndPrintTime and
-;	PeriodLabelTable, PushTime, PushNumber, the 93-only PushNumberWidth,
+;	handlers, printz, print, the FormatAndPrintTime and
+;	PeriodLabelTable, PushTime, PushNumber, the PushNumberWidth,
 ;	appendz, appstring, printbigz, printbig, AddSmallFont, AddFramer and
 ;AddTeamBlock. Global names from the 92 names where the
 ;	routine is the same (see the SEGMENT_AGENT.md rename table). Bytes
@@ -630,7 +629,7 @@ Vmaddr	;set video port to address d0. d0 = vram address, returns a0 = Vdata!!!
 ;	93 loads tiles through DecompressGraphics (a2 = tile data, d4 = start
 ;	char) instead of 92's direct DoDMA.
 
-dobitmap	;transfer palette data/map data/tiles data to vram. a0 = palette, a1 = map, a2 = tiles (DecompressGraphics data), d0 = start x, d1 = start y, d2 = width x, d3 = width y, d4 = start char, d5 = pal used bits (0-3) for color fam 1-4. 93: printy is restored and the tiles go last through DecompressGraphics (returns d4 = end char)
+dobitmap	;transfer palette data/map data/tiles data to vram. a0 = palette, a1 = map, a2 = tiles (DecompressGraphics data), d0 = start x, d1 = start y, d2 = width x, d3 = width y, d4 = start char, d5 = pal used bits (0-3) for color fam 1-4. printy is restored and the tiles go last through DecompressGraphics (returns d4 = end char)
 	move.w	(printy).w,-(sp)	;93: keep printy
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
@@ -674,7 +673,7 @@ dobitmap	;transfer palette data/map data/tiles data to vram. a0 = palette, a1 = 
 	move.w	(sp)+,(printy).w
 	rts
 
-DecompressGraphicsWithCallback	;93: DecompressGraphics through remap. The 8 bytes after the bsr are the remap color table (callbackPtr = their address); returns past them. a2 = tile data, d4 = start char
+DecompressGraphicsWithCallback	;DecompressGraphics through remap. The 8 bytes after the bsr are the remap color table (callbackPtr = their address); returns past them. a2 = tile data, d4 = start char
 	move.l	(sp),(callbackPtr).w
 	bsr.w	DecompressGraphics
 	addq.l	#8,(sp)			;skip the inline remap table
@@ -723,7 +722,7 @@ DecompressBytecode	;93: unpack a0 into the 256 byte ring buffer at DispAttribCtr
 	jsr	(a2,d0.w)		;handler, reads its count from -1(a0)
 	bra.s	.loop
 
-jump_table	;93: DecompressBytecode handler offsets, one per opcode high nibble
+jump_table	;DecompressBytecode handler offsets, one per opcode high nibble
 	dc.w	Opcode_CopyLiteral-jump_table		;0
 	dc.w	Opcode_CopyLiteral-jump_table		;1
 	dc.w	Opcode_ClearBytes-jump_table		;2
@@ -985,7 +984,7 @@ printsmallz	;93: see printsmall. String macro should follow the bsr/jsr to this 
 	movea.l	(sp)+,a1
 	rts
 
-printsmall	;93: print string macro a1 at printx/y/m with printa. Bytes > 0 are chars ('@' = blank char $7FF, '^' = skip a column), tile = smallfontmap entry + smallfontchars[printfontset]. Bytes <= 0 run ControlCodeJumpTable entry -byte (0 = nothing)
+printsmall	;print string macro a1 at printx/y/m with printa. Bytes > 0 are chars ('@' = blank char $7FF, '^' = skip a column), tile = smallfontmap entry + smallfontchars[printfontset]. Bytes <= 0 run ControlCodeJumpTable entry -byte (0 = nothing)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	movem.l	d0-d3/a0/a2-a3,-(sp)
@@ -1030,7 +1029,7 @@ printsmall	;93: print string macro a1 at printx/y/m with printa. Bytes > 0 are c
 	bsr.w	xyVmMap
 	bra.s	.1
 
-ControlCodeJumpTable	;93: printsmall control codes, indexed by -byte
+ControlCodeJumpTable	;printsmall control codes, indexed by -byte
 	dc.l	rtss				;0: padding, no-op
 	dc.l	ControlCode_SetMap		;-1: map
 	dc.l	ControlCode_SetAttribute	;-2: palette/priority
@@ -1041,13 +1040,13 @@ ControlCodeJumpTable	;93: printsmall control codes, indexed by -byte
 	dc.l	ControlCode_SetFont		;-7: char set
 	dc.l	ControlCode_SetMapAndPosition	;-8: attribute, map, x, y
 
-ControlCode_SetMapAndPosition	;93: printsmall code -8, next 4 bytes = attribute, map, x, y
+ControlCode_SetMapAndPosition	;printsmall code -8, next 4 bytes = attribute, map, x, y
 	bsr.w	ControlCode_SetAttribute
 	bsr.w	ControlCode_SetMap
 	bsr.w	ControlCode_SetX
 	bra.w	ControlCode_SetY
 
-ControlCode_SetMap	;93: printsmall code -1, next byte = map number (1-3) -> printm
+ControlCode_SetMap	;printsmall code -1, next byte = map number (1-3) -> printm
 	move.b	(a1)+,d0
 	subq.w	#1,d3
 	andi.w	#3,d0
@@ -1056,7 +1055,7 @@ ControlCode_SetMap	;93: printsmall code -1, next byte = map number (1-3) -> prin
 	move.w	d0,(printm).w
 	bra.w	xyVmMap
 
-ControlCode_SetAttribute	;93: printsmall code -2, next byte = palette/priority (0-7) -> printa bits 13-15 and d2
+ControlCode_SetAttribute	;printsmall code -2, next byte = palette/priority (0-7) -> printa bits 13-15 and d2
 	move.b	(a1)+,d2
 	andi.w	#7,d2
 	subq.w	#1,d3
@@ -1064,35 +1063,35 @@ ControlCode_SetAttribute	;93: printsmall code -2, next byte = palette/priority (
 	move.w	d2,(printa).w
 	rts
 
-ControlCode_SetX	;93: printsmall code -3, next byte = printx
+ControlCode_SetX	;printsmall code -3, next byte = printx
 	clr.w	d0
 	move.b	(a1)+,d0
 	subq.w	#1,d3
 	move.w	d0,(printx).w
 	bra.w	xyVmMap
 
-ControlCode_SetY	;93: printsmall code -4, next byte = printy
+ControlCode_SetY	;printsmall code -4, next byte = printy
 	clr.w	d0
 	move.b	(a1)+,d0
 	subq.w	#1,d3
 	move.w	d0,(printy).w
 	bra.w	xyVmMap
 
-ControlCode_AddX	;93: printsmall code -5, add the next (signed) byte to printx
+ControlCode_AddX	;printsmall code -5, add the next (signed) byte to printx
 	move.b	(a1)+,d0
 	ext.w	d0
 	subq.w	#1,d3
 	add.w	d0,(printx).w
 	bra.w	xyVmMap
 
-ControlCode_AddY	;93: printsmall code -6, add the next (signed) byte to printy
+ControlCode_AddY	;printsmall code -6, add the next (signed) byte to printy
 	move.b	(a1)+,d0
 	ext.w	d0
 	subq.w	#1,d3
 	add.w	d0,(printy).w
 	bra.w	xyVmMap
 
-ControlCode_SetFont	;93: printsmall code -7, next byte = char set index (printfontset = index*2 into smallfontchars)
+ControlCode_SetFont	;printsmall code -7, next byte = char set index (printfontset = index*2 into smallfontchars)
 	clr.w	d0
 	move.b	(a1)+,d0
 	subq.w	#1,d3
@@ -1167,7 +1166,7 @@ print	;a1 = string macro, printx/y = x/y cordinate on map for printing, printm =
 	bsr.w	xyVmMap
 	bra.s	.1
 
-FormatAndPrintTime	;93: print a period label and time. d0 bits 14-15 = period (PeriodLabelTable entry), bits 0-13 = seconds. Called from DisplayGameStatEntry and DisplayPenaltyEntry
+FormatAndPrintTime	;print a period label and time. d0 bits 14-15 = period (PeriodLabelTable entry), bits 0-13 = seconds. Called from DisplayGameStatEntry and DisplayPenaltyEntry
 	swap	d0
 	clr.w	d0
 	rol.l	#2,d0			;d0.w = period
@@ -1189,7 +1188,7 @@ PeriodLabelTable	;93: String list for FormatAndPrintTime: " 1", " 2", " 3", "OT"
 	dc.w	4
 	dc.b	'OT'
 
-PushTime	;convert d0 into string format of minutes:seconds. Return a1 = string. 93 pads the minutes to 2 places with a space
+PushTime	;convert d0 into string format of minutes:seconds. Return a1 = string. pads the minutes to 2 places with a space
 	movea.w	#(mesarea+30-M68K_RAM),a1
 	move.l	d0,-(sp)
 	move.l	a1,-(sp)

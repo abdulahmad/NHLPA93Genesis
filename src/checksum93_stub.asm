@@ -19,7 +19,7 @@ RAMStart = $FF0000
 ;
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-; External addresses outside $7FB76-$7FBC7: none. Every branch in the segment is a bra.s / Bcc.s / dbf
+; External addresses outside: none. Every branch in the segment is a bra.s / Bcc.s / dbf
 ; to a label inside it (checked against the retail displacements), and the only absolute addresses are
 ; the VDP ports.
 ; .region code

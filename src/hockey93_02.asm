@@ -1,18 +1,18 @@
-;	NHLPA Hockey 93 (retail) segment $8AC4-$946D
+;	NHLPA Hockey 93 (retail) segment
 ;	92 part 1, second half: ReplayMode, getpzjoy, suba4/adda4
-;	RestoreReplayFrame (92 SetRCords + nonshift), updatereplay, rtss2 ($9092),
+;	RestoreReplayFrame, updatereplay, rtss2 ($9092)
 ;	updateplayers ($9094), updateanim, freezewindow ($933C), checkwindow ($9350).
 ;	Bytes match nhlpa93retail.bin. Rev A has a 10-byte insertion inside
 ;	updateplayers (speed x$14 when music_global_tick_counter is set); retail
 ;	has the 92 code there.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	Struct offsets are 93 SortCords offsets; 92 names in comments where the
+;	Struct offsets offsets; 92 names in comments where the
 ;	use matches 92 (Xpos 0, attribute 4, frame 6, Ypos $14, Zpos $18,
 ;	OldXpos $1C, Xvel $28, Yvel $2A, Zvel $2C, impact $32, position $34,
 ;	assnum $36, asslist $38, SCnum $52, facedir $54, SPA $58, SPAnum $5A,
 ;	SPAcnt $5C, pflags $62, pflags2 $63, glitch $65).
-;	Replay frames are $62 bytes (92 replaysize = 84) from $FFFF0000
+;	Replay frames are $62 bytes (92 used 84) from $FFFF0000
 ;	(replaystart) to $FFFFAF54 (replayend).
 
 ReplayMode	;this is instant replay play-back control and display code.
@@ -36,12 +36,12 @@ ReplayMode	;this is instant replay play-back control and display code.
 	move.w	#0,d5
 	movea.l	#IceRinkMap,a1
 	adda.l	4(a1),a1
-	movea.w	#$310,a2		;92 null
+	movea.w	#$310,a2
 	bsr.w	dobitmap		;display replay icon
 	bclr	#sfscrl,(sflags).w		;manual scroll is off
 	bclr	#5,(sflags3).w		;no tracked object
 	st	(replayactive).w
-	movea.l	(recbpr).w,a4	;92 recbpr, record buffer pointer (current frame)
+	movea.l	(recbpr).w,a4	;record buffer pointer (current frame)
 .rwd	bsr.w	suba4			;Rewind to first frame
 	tst.w	d7
 	bne.s	.rwd
@@ -251,7 +251,7 @@ UpdateCameraPos	;Camera struct a5 = object a3's x/y, Hpos/Vpos =
 	move.w	d1,$14(a5)
 	cmp.w	#$3C,d0
 	blt.w	.0
-	move.w	#$3C,d0			;92 checkwindow .xslim
+	move.w	#$3C,d0			;xslim
 .0	cmp.w	#-$3C,d0
 	bgt.w	.1
 	move.w	#$FFC4,d0
@@ -267,7 +267,7 @@ UpdateCameraPos	;Camera struct a5 = object a3's x/y, Hpos/Vpos =
 	rts
 
 RestoreReplayFrame	;a4 = current replay frame address to convert into normal
-	;cordinates (92 SetRCords), then set the other replay variables (92
+	;cordinates, then set the other replay variables (92
 	;nonshift). Returns d7 = frame delay. Hpos/Vpos come from the frame unless
 	;scrolling by hand (sfscrl), then from the camera or tracked object.
 	;Also the tail of suba4
@@ -372,7 +372,7 @@ updatereplay	;called every frame to save replay events, d7 = elapsed frames
 	bset	#sfwrap,(sflags).w
 	move.l	#M68K_RAM,(recbpr).w	;replaystart
 .rec	movea.l	(recbpr).w,a0
-	moveq	#$F,d2			;16 objects (92 record)
+	moveq	#$F,d2			;16 objects
 	movea.w	#(SortCords-M68K_RAM),a3
 .top	clr.l	(a0)
 	move.w	(a3),d1			;Xpos
@@ -411,7 +411,7 @@ updatereplay	;called every frame to save replay events, d7 = elapsed frames
 	move.w	position(a3),d0
 	bpl.w	.n1
 	moveq	#$F,d0
-.n1	asl.w	#4,d0			;(misplaced name, not 92 nonshift)
+.n1	asl.w	#4,d0			;(misplaced name)
 	or.b	d0,(a0)+
 	adda.w	#SCstruct,a3
 	dbf	d2,.pl
@@ -519,7 +519,7 @@ updateplayers
 	clr.w	d0
 .snd	cmp.w	#3,d0
 	bhi.w	.done
-	addi.w	#$2C,d0			;bounce sound $2C-$2F by speed (92 SFXpuckice once)
+	addi.w	#$2C,d0			;bounce sound $2C-$2F by speed
 	move.w	d0,-(sp)
 	bsr.w	sfx
 .done	move.w	SCnum(a3),d6

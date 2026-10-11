@@ -1,5 +1,5 @@
-;	92 checksum.asm (included from 92 under IF CHECKSUM=1). Retail $7FB76-$7FBC7; the $FF fill
-;	to $7FFFF follows. Retail has a different sum constant and loop count from Rev A, and a word Rev A lacks.
+;	(included from 92 under IF CHECKSUM=1). ; the $FF fill
+;	to follows. Retail has a different sum constant and loop count from Rev A, and a word Rev A lacks.
 
 	IF REV=0
 SecurityCheck	;Retail only: the $FFFF word before ValidationRoutine (Rev A has no word here). Data, not code

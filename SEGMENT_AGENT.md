@@ -456,3 +456,4 @@ Clash rule: if a routine, data label or RAM variable (RAM matched by usage, not 
 - No provenance tags in comments: no source-file/segment names like `(input94)` or `(hockey93_08)`, no same-name echoes like `(93 restorepl)`, no "93 hockey93_08 name:".
 - No hardcoded ROM addresses in comments (`ROM $FB024`, `Rev A $E128`, `$xxxx in 93`, `retail $a-$b`), except the ROM map in the top-level include list. Retail vs Rev A behaviour notes stay.
 - No "9x only" tags on small routines/lines; for major features (new modes, screens, systems) say "New in 9x:".
+- No names of routines/labels from other games in comments (`(93 X)`, `92 X.`, `92 name X`); say what differs instead (e.g. "92 used bit 6"). No `j_` thunk names unless they are real labels. No 4-6 digit ROM addresses in comments outside the top-level include map. Checked with a regex scan (/tmp/p2/scan.py style): IDA, j_, segment names, other-game label names, ROM addresses.

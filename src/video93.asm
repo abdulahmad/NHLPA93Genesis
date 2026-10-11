@@ -1,10 +1,9 @@
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment $11802-$11D09
-;	92 Video.asm first half: VBlank, vb2, DumpSprites, setvideo and the
+;	NHLPA Hockey 93 (retail) segment
+;	first half: VBlank, vb2, DumpSprites, setvideo and the
 ;	sprite builders it calls (show_rink, showref, checkfo, showzam,
 ;	SetSframe, showcrowd). showclock ... KillCrowd.
-;Global names from the 92 names where the routine is the
 ;	same (see the SEGMENT_AGENT.md rename table). Bytes match
 ;	nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
@@ -12,7 +11,7 @@
 ;	assembly.
 ;	92 bit names used in comments, same values in 93 unless noted:
 ;	disflags 0 dfok, 2 dfng, 3 dfclock; sflags 0 sfpz, 7 sfhor;
-;	gmode 0 gmclock; sflags2 1 sf2refref. 92 MaxSprites = 64 ($40).
+;	gmode 0 gmclock; sflags2 1 sf2refref. 92 used 64 ($40).
 ;	93 sprite frame data (FaceOffSprites, ZamSprites, CrowdSprites): long
 ;	at +4 is the offset to a word table of frame offsets; frame n sprites
 ;	run from word n to word n+1, 8 bytes each: x 0, y 2, char 4,
@@ -35,7 +34,7 @@ VBlank	;main vblank code for game play (vbint target, set by setupice).
 	bne.w	.c
 	tst.w	(gameclock).w
 	beq.w	.c
-	subi.w	#$AAA,(gameclock+2).w	;jiffy ($10000/24)
+	subi.w	#$AAA,(gameclock+2).w	;jiffy
 	bcc.w	.c
 	bset	#dfclock,(disflags).w
 	subq.w	#1,(gameclock).w
@@ -45,7 +44,7 @@ VBlank	;main vblank code for game play (vbint target, set by setupice).
 	blt.w	.c
 	move.w	#SFXbeep2,-(sp)		;SFXbeep2 (92 = 2), played when gameclock reaches 60
 	bsr.w	sfx
-.c	addq.w	#1,(vcount).w		;92 Vcount
+.c	addq.w	#1,(vcount).w
 	jsr	p_music_vblank
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
@@ -62,7 +61,7 @@ vb2	;vblank used for palfades only no dmas (vbint target).
 	movem.l	(sp)+,d0-d7/a0-a6
 
 IRQ7	;rte only. vb2 falls in; the vector table ($60, $64, ...) points here.
-	;Not 92 VBcount (that also counts Vcount)
+	;Not the 92 version (that also counts Vcount)
 	rte
 
 ;------------------------------------
@@ -90,7 +89,7 @@ DoDMAList	;transfer data from dmalist. Also called from setupice
 	rts
 
 SetScroll2	;write Hscroll / Vscroll to the vdp. Called from DumpSprites.
-	;Same body as 92 SetScroll2; 93 dropped 92 DoScroller's tempmap column transfers
+	;Same body as ; 93 dropped 's tempmap column transfers
 	move.w	(VSCRLPM).w,d0
 	addq.w	#2,d0
 	bsr.w	Vmaddr
@@ -105,7 +104,7 @@ setvideo	;this is not vblank code but sets up ram for vblank transfers.
 .p	btst	#dfok,(disflags).w		;wait for vblank to take the last frame
 	bne.s	.p
 	movea.w	#(DMAList-M68K_RAM),a5	;dma transfer list
-	bsr.w	updatescroll		;93: after a5 is set (92 updatescroll came first)
+	bsr.w	updatescroll		;93: after a5 is set
 	movea.w	#(Satt-M68K_RAM),a6	;sprite attribute table area
 	moveq	#1,d6			;link counter
 	bsr.w	checkfo
@@ -421,7 +420,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	move.w	6(a0),d5
 	andi.w	#$F800,d5
 	add.w	4(a0),d5
-	add.w	(gamesetuptilesetindex).w,d5	;92 crowdvrcset
+	add.w	(gamesetuptilesetindex).w,d5
 	move.w	d5,(a6)+
 	move.w	(a0),d5
 	addi.w	#$70,d5			;128-16
@@ -437,21 +436,20 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment $11D0A-$122A7
-;	92 Video.asm second half: showclock, checksso, setsortcords, setffo,
+;	NHLPA Hockey 93 (retail) segment
+;	second half: showclock, checksso, setsortcords, setffo,
 ;	uppads, addframe, addframe2, find3d, updatesound and KillCrowd, plus the
-;	93-only pad label code (FormatControllerDisplay, RenderSmallFontChar).
-;	VBlank ... showcrowd. 92 sizetab is in here.
-;Global names from the 92 names where the routine is the
+;	pad label code (FormatControllerDisplay, RenderSmallFontChar).
+;	VBlank ... showcrowd. the 92 version is in here.
 ;	same (see the SEGMENT_AGENT.md rename table). Bytes match
 ;	nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp; fixopcodes.js patches the encoding after
 ;	assembly.
-;	92 bit names used in comments, same values in 93: disflags 3 dfclock;
-;	sflags 7 sfhor; ubut 0, dbut 1, lbut 2, rbut 3. 92 osflag = 20000 ($4E20).
-;	Object offsets, same as 92: Xpos 0, attribute 4, frame 6, oldframe 8,
-;	VRoffs $A, VRchar $12, Ypos $14, Zpos $18. 92 ffosize = $1C, ssosize = $14,
+;	92 bit names used in comments, same values in disflags 3 dfclock
+;	sflags 7 sfhor; ubut 0, dbut 1, lbut 2, rbut 3. 92 used 20000 ($4E20).
+;	Object offsets, 0, attribute 4, frame 6, oldframe 8
+;	VRoffs $A, VRchar $12, Ypos $14, Zpos $18. 92 used $1C, ssosize = $14
 ;	scsize = 7 (128 byte SortCords entries).
 ;	DMA list entries (a5): long source, word length in words, word vram.
 
@@ -461,14 +459,14 @@ showclock	;put the game clock in the dma list. Called from setvideo; returns unl
 	beq.w	rtss
 	cmpi.w	#4,(gsp).w		;93: no clock update when gsp = 4
 	beq.w	rtss
-	movea.w	#(xc1-M68K_RAM),a0	;end of the 5 word clock buffer (92 clockram+(5*2)); written backward
+	movea.w	#(xc1-M68K_RAM),a0	;end of the 5 word clock buffer; written backward
 	movea.l	#smallfontmap,a1
 	adda.l	4(a1),a1
 
 	move.w	$78(a1),d0		;4+(':'*2)
 	add.w	(smallfontchars).w,d0
 	ori.w	#$8000,d0
-	move.w	d0,(clockram).w		;colon (92 clockram+(2*2))
+	move.w	d0,(clockram).w		;colon
 
 	move.w	(gameclock).w,d0
 	ext.l	d0
@@ -519,7 +517,7 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 	;93 returns in sfhor mode (92 drew the scoreboard sso objects there); falls into .ca for player 2
 	btst	#sfhor,(sflags).w
 	bne.w	rtss
-	movea.w	#(pads+ffosize-M68K_RAM),a0	;92 pads+ffosize
+	movea.w	#(pads+ffosize-M68K_RAM),a0	;+ffosize
 	movea.w	#(sso-M68K_RAM),a3
 	move.w	#$180,d3		;SPFarrow (92 $17A; 93 frames are 6 higher)
 	bsr.w	.ca
@@ -605,7 +603,7 @@ setffo	;draw the 5 objects tied to icerink scrolling (pads ...). Called from set
 	;93: when an object made sprites, 2(a3) is added to the x of its first two sprites
 	bsr.w	uppads
 	move.w	#4,d0			;ffonum-1
-	movea.w	#(pads-M68K_RAM),a3	;92 ffo
+	movea.w	#(pads-M68K_RAM),a3
 .top	movea.w	a6,a0			;a0 = first sprite this object writes
 	bsr.w	addframe
 	cmpa.w	a6,a0
@@ -619,7 +617,7 @@ setffo	;draw the 5 objects tied to icerink scrolling (pads ...). Called from set
 
 uppads	;update the gloves object and the 4 pad objects, and queue new pad labels.
 	;Called from setffo. a5 = dma list. 93 reads one PadControlBits nibble per pad (92 used padcont bits)
-	movea.w	#(glovestruct-M68K_RAM),a0	;pads+(4*ffosize) (92 ffo+(4*ffosize)): gloves
+	movea.w	#(glovestruct-M68K_RAM),a0	;pads+(4*ffosize): gloves
 	st	Zpos(a0)			;hidden
 	move.b	(glovecords).w,d0
 	beq.w	.nogloves
@@ -730,7 +728,7 @@ addframe	;a3 = cords.l frame/oldframe VRsize VRchar. Project the object with fin
 	rts
 
 addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = sprite table, d6 = link counter.
-	;Also entered from checksso .ca and setupice. 93 frame word: top 5 bits are attribute bits, low 11 the frame;
+	;Also entered from checksso .ca and setupice. frame word: top 5 bits are attribute bits, low 11 the frame
 	;frames come from SpritesMap (offset table at +4) instead of 92 framelist. attribute is restored on exit
 	move.w	attribute(a3),-(sp)		;save attribute
 	movem.l	d0-d5/a0-a2,-(sp)
@@ -749,8 +747,8 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	move.w	2(a2,d4.w),d5
 	sub.w	(a2,d4.w),d5
 	lsr.w	#3,d5
-	subq.w	#1,d5			;number of sprites in frame-1 (92 SprStrnum)
-	adda.w	(a2,d4.w),a2		;92 SprStrdat
+	subq.w	#1,d5			;number of sprites in frame-1
+	adda.w	(a2,d4.w),a2
 	clr.w	d3
 	clr.w	d4
 .sloop	move.w	d0,-(sp)
@@ -877,7 +875,7 @@ find3d	;input - d0=xfield,d1=yfield,d2=height off field
 
 updatesound	;move the crowd noise volume (psg noise channel) toward crowdlevel.
 	;Called from periodicevents
-	move.w	(crowdlevel).w,d0	;92 Crowdlevel
+	move.w	(crowdlevel).w,d0
 	asl.w	#3,d0
 	addi.w	#$400,d0
 	cmp.w	#$EFF,d0
@@ -894,7 +892,7 @@ updatesound	;move the crowd noise volume (psg noise channel) toward crowdlevel.
 .iasv	add.w	d2,(asv).w
 	bpl.w	.non
 	clr.w	(asv).w
-.non	move.b	#$C8,(VDP_PSG).l	;92 asound
+.non	move.b	#$C8,(VDP_PSG).l
 	move.b	#1,(VDP_PSG).l
 	move.b	(asv).w,d0
 	eori.b	#$F,d0
@@ -903,7 +901,7 @@ updatesound	;move the crowd noise volume (psg noise channel) toward crowdlevel.
 	rts
 
 KillCrowd	;silence the crowd noise (psg). Called from Reset, SetupPauseScreen, ...
-	move.b	#$E7,(VDP_PSG).l	;92 asound
+	move.b	#$E7,(VDP_PSG).l
 	move.b	#$DF,(VDP_PSG).l
 	move.b	#$C8,(VDP_PSG).l
 	move.b	#1,(VDP_PSG).l

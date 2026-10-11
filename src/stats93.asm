@@ -1,5 +1,5 @@
-;	NHLPA Hockey 93 (retail) segment $6C0A-$8AC3
-;	93-only stats, line editor, roster, scoring/penalty summary, team stats,
+;	NHLPA Hockey 93 (retail) segment
+;	stats, line editor, roster, scoring/penalty summary, team stats,
 ;	crowd meter and goalie select screens. Not in NHL 92.
 ;Global names from the. Entry points
 ;	unnamed are named from the screen title they print.

@@ -1,4 +1,4 @@
-;	NHLPA Hockey 93 (retail) segment $6446-$69FF
+;	NHLPA Hockey 93 (retail) segment
 ;	VBjsr / Begin through seta2: 92 part 1 up to the end of Pausemode
 ;	plus the 93 pause screen draw routine. The menu engine Pausemode calls
 ;	follows.asm ($6A00).
@@ -99,7 +99,6 @@ ResetClock	;set period length and stop clock
 	rts
 
 GetPeriodTime	;return d0 = period length in seconds for the period length option
-		;(split out of 92 ResetClock; 92 has no separate name)
 	move.w	(OptPerlen).w,d0
 	asl.w	#1,d0
 	lea	.timetab(pc),a0
@@ -124,7 +123,7 @@ StartPer	;start a period: reset stack, rink and clock, face off, run the game lo
 	bset	#sf2drec,(sflags2).w		;don't record
 	bclr	#sfwrap,(sflags).w		;reset replay stuff
 	move.w	#$FFFF,(lastsfx).w
-	move.l	#M68K_RAM,(recbpr).w	;92 replaystart
+	move.l	#M68K_RAM,(recbpr).w
 	move.w	(vcount).w,(oldvcount).w
 	bsr.w	DoGameFrame		;run two frames before the loop
 	bsr.w	DoGameFrame
@@ -242,7 +241,7 @@ updatecrowdf	;this is called every game loop with d7 = elapsed frames
 	addq.w	#2,(crowdstep).w
 	andi.w	#$1E,(crowdstep).w	;%00011110
 	add.w	(crowdstep).w,d0
-	movea.l	#cd0,a0			;$fftt frame/time table (92 .cd0)
+	movea.l	#cd0,a0			;$fftt frame/time table
 	move.b	0(a0,d0.w),(crowdframe+1).w
 	clr.w	d1
 	move.b	1(a0,d0.w),d1
@@ -268,7 +267,7 @@ clockcont	;monitor period clock and initiate various clock activated events
 	tst.w	(gameclock).w
 	bne.w	rtss2
 
-	move.w	#SFXhorn,-(sp)		;horn (92 SFXhorn = 24)
+	move.w	#SFXhorn,-(sp)		;horn (92 used 24)
 	bsr.w	sfx
 	bsr.w	freezewindow
 clockcont_0	;end of period. Also entered from puckfaceoff+2E
@@ -277,7 +276,7 @@ clockcont_0	;end of period. Also entered from puckfaceoff+2E
 	bsr.w	assinsert
 	cmpi.w	#2,(gsp).w		;periods 1-2 just end the period
 	blt.w	.chkot
-	move.l	#7,d0			;score assignment (92 ascore = 8)
+	move.l	#7,d0			;score assignment (92 used 8)
 	movea.w	#(SortCords-M68K_RAM),a3
 	cmpi.w	#3,(gamelevel).w	;playoffs?
 	bne.w	.t3
@@ -300,7 +299,7 @@ clockcont_0	;end of period. Also entered from puckfaceoff+2E
 .ns1	cmpi.w	#3,4(a0,d3.w)		;gspotwins(a0,d3)
 	bne.w	.t3
 
-.sc	move.l	#8,d0			;stanley cup assignment (92 astanley = 9)
+.sc	move.l	#8,d0			;stanley cup assignment (92 used 9)
 	moveq	#$B,d2			;all 12 players lose joystick control
 .t0	bclr	#pfjoycon,pflags(a3)
 	adda.w	#SCstruct,a3
@@ -379,7 +378,7 @@ Pausemode	;game is in pause mode now
 	bsr.w	HandleMenuInput
 	bne.s	.1			;eq = leave pause
 
-	;92 PauseExit: restore graphics and return from pause mode
+	;restore graphics and return from pause mode
 	bsr.w	forceblack
 	move.w	(sp)+,(sflags).w
 	btst	#sfhor,(sflags).w
@@ -398,7 +397,7 @@ Pausemode	;game is in pause mode now
 	move.w	(vcount).w,(oldvcount).w
 	rts
 
-SetupPauseScreen	;draw routine for the pause menu (92 Pausemode .pall / .top)
+SetupPauseScreen	;draw routine for the pause menu
 	;also called from $F9D4
 	movea.l	#VDP_DATA,a0
 	move.w	#$9100,4(a0)		;playfield 3 width

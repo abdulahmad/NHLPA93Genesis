@@ -19,10 +19,10 @@ RAMStart = $FF0000
 ;
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-; External addresses outside $165D8-$2EFA1, at their retail addresses (the sound data tables are labels).
+; External addresses outside, at their retail addresses (the sound data tables are labels).
 ; Names are or source names from the SEGMENT_AGENT.md rename table.
 ; Every address was read from the retail bsr/bra/Bcc displacement, lea (pc) displacement or movea.l operand.
-rtss = $110E0			; (bgt.w at $1660C)
+rtss = $110E0			; (bgt.w)
 ; .region code
 	org	$165D8
 

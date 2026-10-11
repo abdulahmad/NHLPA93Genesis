@@ -58,13 +58,13 @@ FIFO_EMPTY	=	9
 refwidth	=	7	;width of ref.map frames
 refheight	=	8	;height of ref.map frames
 
-M68K_RAM	=	$FFFF0000	;start of RAM, also the start of the replay frames (92 replaystart)
+M68K_RAM	=	$FFFF0000	;start of RAM, also the start of the replay frames
 replayend	=	$FFFFAF54	;end of replay ram (92 computed replaystart+(replaynum*replaysize))
 GoalieStruct	=	$FFFFAFCA	;below varstart
 varstart	=	$FFFFB000	;start of variable space (end of replay)
 Stack	=	$FFFFFFFE	;game stack (Begin, StartPer, Opening2). 92 $fffffdf0
 InitialSP	=	$FFFFF6	;reset vector 0. ($FFFFFFF6, the 32-bit form)
-;$FFFFFFFF: not used (the move.l #$FFFFFFFF in sound93 is a slot marker, not RAM)
+;$FFFFFFFF: not used
 
 Sortobjs	=	16	;number of sorted graphics objects- these are arranged so sprites lower on the screen are of higher priority
 SCstruct	=	$80	;ram for each sortobj
@@ -176,7 +176,7 @@ spodds	=	$70
 stickhand	=	$71
 endurance	=	$72
 handed	=	$76	;bit0 set is left handed. 92 $74
-pflags3	=	$64	;(92 pflags2+1)
+pflags3	=	$64
 pf3oside	=	0	;92: player is offsides (93 flags the team: tmflags bit 4)
 aggress	=	$73	;and offset
 ;93 values: sfx / song numbers
@@ -268,7 +268,7 @@ wcradiusy	rs.w	1
 palcount	rs.w	1	;counter for fading in color palettes
 palfadenew	rs.w	16	;palettes to fade into
 titleScreenState	rs.w	16
-palbuffer	rs.w	32	;to palfadenew+$80 (92 palfadenew rs.w 16*4)
+palbuffer	rs.w	32	;to palfadenew+$80
 ;$FFFFBD6A is palfadenew+$42
 ;$FFFFBD82 is palfadenew+$5A
 ;$FFFFBDA2 is palfadenew+$7A
@@ -279,7 +279,7 @@ pads	rs.w	42
 ffosize	=	OldXpos	;92: field objects tied to icerink scrolling, OldXpos bytes each
 CameraPosStruct	rs.w	11
 replayactive	rs.w	3	;set by ReplayMode.
-glovestruct	rs.w	14	;gloves object, pads+(4*ffosize) (92 ffo+(4*ffosize)).
+glovestruct	rs.w	14	;gloves object, pads+(4*ffosize).
 PadControlBits	rs.w	1
 padcont	rs.w	4
 sso	rs.w	20
@@ -316,7 +316,7 @@ deltay	rs.w	1
 collflag	rs.w	1	;collision has occured
 evalue	rs.w	1	;elasticity value (parameter of collisions)
 mesarea	rs.w	1	;temp area for mes chars
-TextBuffer	rs.w	49	;to mesarea+100 (92 mesarea rs.b 100)
+TextBuffer	rs.w	49	;to mesarea+100
 ;$FFFFBED4 is mesarea+30
 PushWidthBuf	rs.w	4	;PushNumberWidth string: length word, then digits.
 ;$FFFFBF1C is PushWidthBuf+2
@@ -384,7 +384,7 @@ ScoreSum	rs.w	90
 PenSumLength	rs.w	1	;bytes used in PenSum (4 per penalty).
 PenSum	rs.w	120	;penalty summary log, 4 bytes per penalty.
 
-;team variables (hmtmstruct, awtmstruct = hmtmstruct+tmsize; 92 tmstruct)
+;team variables (hmtmstruct, awtmstruct = hmtmstruct+tmsize)
 tmshots	=	$0	;shots stat
 tmPwrGoals	=	$2	;power play goals stat
 tmPwrPlays	=	$4	;power plays stat

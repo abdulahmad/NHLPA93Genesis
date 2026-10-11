@@ -26,11 +26,11 @@ cold_start:
 	movem.l	(a5)+,a0-a4		; regster initialize a0-a4.long
 
 security:
-	move.b	-$10ff(a1),d0	; ** a1 = $a11100 **
-	andi.b	#$000f,d0		;  -$10ff(a1) = $a10000
+	move.b	-$10ff(a1),d0
+	andi.b	#$000f,d0
 	beq.s	japan		; Ver. No. check
 	move.l	#'SEGA',$2f00(a1)	; "SEGA" moved to SECURITY part
-japan:				; 2f00(a1) = $a14000
+japan:
 reg_init:
 	move	(a4),d0		; vdp status dummy read
 	moveq	#0,d0
@@ -51,10 +51,9 @@ r_int1:
 ;------<<< DMA FILL >>>---------
 dma_fill:				; already sat reg. #18,19,23
 	move.l	(a5)+,(a4)
-	move	d0,(a3)		; set fill data ($0) to $c00000
+	move	d0,(a3)		; set fill data ($0)
 
 ;-------<<< Z80 initialize >>>----
-;	a0 = $a00000 / a1 = $a11100 / a2 = $a11200
 ; 	d0 = $0      / d7 = $100
 z80_clr:
 	move	d7,(a1)		; z80_busreq on
@@ -79,7 +78,6 @@ c_wk1:
 	dbra	d6,c_wk1
 
 ;-------<<< VDP color clear >>>-------------
-; a3 = $c00000 / a4 = $c00004 / d0 = $0
 clr_col:
 	move.l	(a5)+,(a4)		; vdp reg #1 = 4, #15 = 2
 	move.l	(a5)+,(a4)
@@ -89,7 +87,6 @@ c_col1:
 	dbra	d3,c_col1
 
 ; -------<<< V SCROLL clear >>>---------------
-; a3 = $c00000 / a4 = $c00004 / d0 = $0
 clr_vsc:
 	move.l	(a5)+,(a4)
 	moveq	#19,d4		; d4 = vscroll ram size-1
@@ -98,7 +95,6 @@ c_vsc1:
 	dbra	d4,c_vsc1
 
 ;---------<<< PSG clear >>>-------------------
-; a3 = $c00000 / a4 = $c00004 / d0 = $0
 ; a5 = psg_dat (clear data) point
 clr_psg:
 	moveq	#3,d5		; counter set

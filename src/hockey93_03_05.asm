@@ -1,15 +1,13 @@
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment $FAE2-$10387
 ;	92 part 2, first half: checkcoll, checkplcoll, checkcx
-;	newcheck, checkint, checkcheck, the 93-only checkagr, holdcheck, the
-;	93-only Bcheck, FallDown and the 93-only setInjuryType.
-;Global names from the 92 names where the routine is the
+;	newcheck, checkint, checkcheck, the checkagr, holdcheck, the
+;	93-only Bcheck, FallDown and the setInjuryType.
 ;	same (see the SEGMENT_AGENT.md rename table). Bytes match
 ;	nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp; fixopcodes.js patches the encoding after assembly.
-;	93 SortCords offsets ($80 per object), 92 names in comments where the
+;	SortCords offsets ($80 per object), 92 names in comments where the
 ;	use matches: Xpos 0, attribute 4, Ypos $14, OldXpos $1C, OldYpos $20,
 ;	Xvel $28, Yvel $2A, impactp $2E, impact $32, position $34, radiusx $4A,
 ;	radiusy $4C, Wallcos $4E, Wallsin $50, SCnum $52, facedir $54, SPA $58,
@@ -18,9 +16,9 @@
 ;the checking rating ("Chk rating").
 ;	pflags bits match 92 (2 pfnc, 3 pfjoycon, 5 pfalock, 6 pfteam). pflags2
 ;	bit 0 is pf2fight; 93 moved the others: bit 2 player unavailable (92
-;	pf2unav = 4), bit 4 caused a penalty (92 pf2pen = 6), bit 5 no player
-;	collision (92 pf2npc = 7).
-;	SPA values are 93 SPAList offsets; the 92 name in a comment gives the role.
+;	pf2unav = 4), bit 4 caused a penalty (92 used 6), bit 5 no player
+;	collision (92 used 7).
+;	SPA values offsets; the 92 name in a comment gives the role.
 ;	93 team struct (tmsize $1A2): $10 check count, $66 tmpdst (word per
 ;	player), $11C check count per player (byte).
 
@@ -102,8 +100,8 @@ checkcoll	;d2 = new x cord, d3 = new y cord, a3 = struct of object. Check wall c
 	move.w	OldYpos(a3),Ypos(a3)
 	rts
 
-checkplcoll	;d2/d3 = x/y cords, a3 = struct. Walk up and down the OOlist from a3 and call checkcx for each object within $10 in y (92 collrad*2). Called from checkcoll
-	btst	#pf2npc,pflags2(a3)		;93 no player coll bit (92 pf2npc = 7)
+checkplcoll	;d2/d3 = x/y cords, a3 = struct. Walk up and down the OOlist from a3 and call checkcx for each object within $10 in y. Called from checkcoll
+	btst	#pf2npc,pflags2(a3)		;93 no player coll bit (92 used 7)
 	bne.w	.ex
 	cmpi.w	#$B,SCnum(a3)
 	bgt.w	.ex			;not a player
@@ -140,13 +138,13 @@ checkplcoll	;d2/d3 = x/y cords, a3 = struct. Walk up and down the OOlist from a3
 
 checkcx	;d4 = obj. # * 2 for possible coll so check x range and distance for coll. d2 = x, d5 = delta y, a3 = moving object. Opposing players add impact and run newcheck, checkint, checkcheck and checkfight; then momentum moves from a3 to a2. Called from checkplcoll
 	movem.l	d0-d7/a0-a3,-(sp)
-	asl.w	#6,d4			;obj. # * 2 * $40 = * $80 (92 scsize-1)
+	asl.w	#6,d4			;obj. # * 2 * $40 = * $80
 	movea.l	#SortCords,a2
 	adda.w	d4,a2
 
 	btst	#pfnc,pflags(a2)
 	bne.w	.exit			;object has no coll mode on
-	btst	#pf2npc,pflags2(a2)		;93 no player coll bit (92 pf2npc = 7)
+	btst	#pf2npc,pflags2(a2)		;93 no player coll bit (92 used 7)
 	bne.w	.exit
 	cmpi.w	#$B,SCnum(a2)
 	bgt.w	.exit			;not a player
@@ -291,7 +289,7 @@ newcheck	;start a new check sound. 93: one of 4 sounds $1C-$1F (92: one of 5 fro
 	add.w	(ltack).w,d0	;last tackle sound
 	andi.w	#3,d0
 	move.w	d0,(ltack).w
-	addi.w	#$1C,d0			;first check sound (92 SFXcheck = 18)
+	addi.w	#$1C,d0			;first check sound (92 used 18)
 	move.w	d0,-(sp)
 	bsr.w	sfx			;tackle sound
 	move.l	(sp)+,d0
@@ -321,7 +319,7 @@ checkint	;check for interference penalty. player a2 interferes with a3 or vice-v
 	exg	a2,a3
 	cmpi.w	#$1E,impact(a2)		;impact 30
 	ble.w	rtss
-	btst	#pf2pen,pflags2(a3)		;93 penalty bit (92 pf2pen = 6)
+	btst	#pf2pen,pflags2(a3)		;93 penalty bit (92 used 6)
 	bne.w	rtss			;no double minor
 	moveq	#$14,d0			;93: penalty 3 times in (20 - byte $73)
 	sub.b	aggress(a3),d0
@@ -330,7 +328,7 @@ checkint	;check for interference penalty. player a2 interferes with a3 or vice-v
 	bhi.w	rtss
 	btst	#gmhl,(gmode).w
 	bne.w	rtss
-	move.l	#$22,d0			;93 penalty $22 (92 PenInterference = $1C)
+	move.l	#$22,d0			;93 penalty $22 (92 used $1C)
 	bra.w	AddPenalty
 
 checkcheck	;player is in contact look for various contact events. Runs .cc for a3 on a2, then for a2 on a3. d4 = impact. Called from checkcx
@@ -341,13 +339,13 @@ checkcheck	;player is in contact look for various contact events. Runs .cc for a
 	movem.l	(sp)+,d0-d4/a0-a3
 	rts
 
-.cc	cmpi.w	#$CB0,SPA(a2)		;player a3 is checking player a2. SPA (92 SPAHold)
+.cc	cmpi.w	#$CB0,SPA(a2)		;player a3 is checking player a2. SPA
 	beq.w	holdcheck		;if in hold animation
 	cmpi.w	#$12DC,SPA(a2)		;93: this anim also holds
 	beq.w	holdcheck
 	cmpi.w	#$B44,SPA(a2)		;93: this anim goes to Bcheck
 	beq.w	Bcheck
-	cmpi.w	#$C7E,SPA(a3)		;92 SPAburst
+	cmpi.w	#$C7E,SPA(a3)
 	bne.w	rtss			;if not in cbut burst anim exit
 	btst	#gmclock,(gmode).w
 	beq.w	.nofight
@@ -386,16 +384,16 @@ checkcheck	;player is in contact look for various contact events. Runs .cc for a
 	beq.w	.down
 	bmi.w	.down
 	bsr.w	randomd0
-	cmp.b	$75(a3),d0		;Chk rating (92 aggress)
+	cmp.b	$75(a3),d0		;Chk rating
 	ble.w	.down
-	bsr.w	checkagr		;93: penalty roll (92 HVcount mask)
+	bsr.w	checkagr		;93: penalty roll
 	cmp.w	#4,d0
 	bhi.w	rtss
 	btst	#gmhl,(gmode).w
 	bne.w	rtss
 	move.b	(VDP_CNTR).l,d0		;HVcount
 	andi.w	#2,d0
-	addi.w	#$16,d0			;random penalty $16 or $18 (92 PenCharging = $10)
+	addi.w	#$16,d0			;random penalty $16 or $18 (92 used $10)
 	bra.w	AddPenalty
 .down	bsr.w	checkagr
 	cmp.w	#3,d0
@@ -404,18 +402,18 @@ checkcheck	;player is in contact look for various contact events. Runs .cc for a
 	bne.w	.dn2
 	move.b	(VDP_CNTR).l,d0		;HVcount
 	andi.w	#2,d0
-	addi.w	#$1A,d0			;penalty $1A or $1C (92 PenTripping = $14, and #%110)
+	addi.w	#$1A,d0			;penalty $1A or $1C (92 used $14, and #%110)
 	bsr.w	AddPenalty
 .dn2	bra.w	FallDown
 
-.list	dc.w	$BB6			;92 SPAshoulderchkl
-	dc.w	$BE8			;92 SPAshoulderchkr
-	dc.w	$C4C			;92 SPAhipchkr
-	dc.w	$C4C			;92 SPAhipchkr
-	dc.w	$C4C			;92 SPAhipchkr
-	dc.w	$C1A			;92 SPAhipchkl
-	dc.w	$C1A			;92 SPAhipchkl
-	dc.w	$BB6			;92 SPAshoulderchkl
+.list	dc.w	$BB6
+	dc.w	$BE8
+	dc.w	$C4C
+	dc.w	$C4C
+	dc.w	$C4C
+	dc.w	$C1A
+	dc.w	$C1A
+	dc.w	$BB6
 
 checkagr	;93: penalty roll for player a3. Range = (20 - byte $73) * 13, doubled for a joystick player, halved within $28 of the puck in x and y. Return d0 = randomd0 of that range; the callers call a penalty when it is small. Called from checkcheck .cc, holdcheck and Bcheck
 	moveq	#$14,d0
@@ -439,7 +437,7 @@ checkagr	;93: penalty roll for player a3. Range = (20 - byte $73) * 13, doubled 
 	asr.w	#1,d0			;near the puck: half the range, more penalties
 .far	bra.w	randomd0
 
-holdcheck	;player a2 is in hold animation looking to hold opponent a3. Entered from checkcheck .cc for SPA $CB0 (92 SPAHold) or $12DC. 93 adds the facing test, the puck carrier sflags clear and the second hold anim, and rolls the penalty with checkagr
+holdcheck	;player a2 is in hold animation looking to hold opponent a3. Entered from checkcheck .cc for SPA $CB0 or $12DC. 93 adds the facing test, the puck carrier sflags clear and the second hold anim, and rolls the penalty with checkagr
 	btst	#pfalock,pflags(a3)
 	bne.w	rtss
 	tst.w	position(a3)
@@ -471,19 +469,19 @@ holdcheck	;player a2 is in hold animation looking to hold opponent a3. Entered f
 	move.w	d0,Yvel(a3)
 	move.w	d0,Yvel(a2)
 	bset	#pfalock,pflags(a3)
-	move.w	#$D14,d1		;92 SPAFlail
+	move.w	#$D14,d1
 	bsr.w	SetSPA
 	exg	a2,a3
 	bset	#5,pflags(a3)
-	move.w	#$CE2,d1		;92 SPAHold2
-	cmpi.w	#$CB0,SPA(a3)		;92 SPAHold
+	move.w	#$CE2,d1
+	cmpi.w	#$CB0,SPA(a3)
 	beq.w	.h2
 	move.w	#$130E,d1		;93: holding anim after $12DC
 .h2	bsr.w	SetSPA
 	bsr.w	checkagr
 	cmp.w	#6,d0
 	bhi.w	.ex
-	move.w	#$24,d0			;penalty $24 after $CE2 (92 PenHolding = $1E)
+	move.w	#$24,d0			;penalty $24 after $CE2 (92 used $1E)
 	cmpi.w	#$CE2,SPA(a3)
 	beq.w	.pen
 	move.w	#$1E,d0			;penalty $1E after $130E
@@ -539,9 +537,9 @@ FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $1
 	beq.w	rtss
 	cmpi.w	#$13A0,SPA(a2)
 	beq.w	rtss
-	cmpi.w	#$D46,SPA(a2)		;92 SPAfallfwd
+	cmpi.w	#$D46,SPA(a2)
 	beq.w	rtss
-	cmpi.w	#$DF8,SPA(a2)		;92 SPAfallback
+	cmpi.w	#$DF8,SPA(a2)
 	beq.w	rtss
 	cmpi.w	#$1524,SPA(a2)
 	beq.w	rtss
@@ -579,17 +577,17 @@ FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $1
 	move.w	Ypos(a3),d1
 	sub.w	Ypos(a2),d1
 	bsr.w	vtoa			;direction from a2 to the hitter
-	move.w	#$DF8,d1		;92 SPAfallback
+	move.w	#$DF8,d1
 	sub.w	facedir(a2),d0
 	addq.w	#1,d0
 	andi.w	#7,d0
 	cmp.w	#2,d0
 	bls.w	.2			;hit from the front: fall back
-	move.w	#$D46,d1		;92 SPAfallfwd
+	move.w	#$D46,d1
 	move.w	facedir(a2),d0
 	andi.w	#3,d0
 	bne.w	.2
-	cmpi.b	#$A,$75(a3)		;93: facedir 0 or 4 and hitter checking rating >= $A
+	cmpi.b	#$A,$75(a3)		;facedir 0 or 4 and hitter checking rating >= $A
 	blt.w	.2
 	cmpi.w	#$B,SCnum(a3)		;and the hitter is a player
 	bgt.w	.2
@@ -609,12 +607,12 @@ FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $1
 	st	(puckc).w
 	btst	#gmhl,(gmode).w		;no injury in highlights
 	bne.w	.snd
-	cmpi.w	#$DF8,SPA(a2)		;93 injury: only from a fall back (92 SPAfallback)
+	cmpi.w	#$DF8,SPA(a2)		;93 injury: only from a fall back
 	bne.w	.snd
 	move.w	facedir(a2),d0
 	andi.w	#3,d0			;with facedir 0 or 4
 	bne.w	.snd
-	btst	#pf2pen,pflags2(a2)		;93 penalty bit (92 pf2pen = 6)
+	btst	#pf2pen,pflags2(a2)		;93 penalty bit (92 used 6)
 	bne.w	.snd
 	move.l	#$A0,d0
 	bsr.w	randomd0
@@ -636,15 +634,15 @@ FallDown	;player a2 falls down, player a3 is the hitting player. 93 adds anim $1
 	move.l	#$12,d0			;else penalty $12, then Stop4Pen
 	bsr.w	AddPenalty2
 	bra.w	Stop4Pen
-.snd	move.w	#$B,-(sp)		;92 SFXcrowdcheer = 25 via SFX
+.snd	move.w	#$B,-(sp)		;92 used 25 via SFX
 	btst	#pfteam,pflags(a2)
 	bne.w	.3
-	move.w	#$C,(sp)		;92 SFXcrowdboo = 26
+	move.w	#$C,(sp)		;92 used 26
 .3	bsr.w	song
 	rts
 
 setInjuryType	;93: sets period injury. a2 = player injured, a3 = player checking. Marks a2 unavailable, pumps up the crowd, plays sfx $D, locks the scroll on a2, sets TempPlOffset (pnum, bit 15 set for the away team) and puts $FFFD (injured for the period) in a2's tmpdst. Called from FallDown and from chkhit.fall
-	bset	#pf2unav,pflags2(a2)		;set player unavailable (92 pf2unav = 4)
+	bset	#pf2unav,pflags2(a2)		;set player unavailable (92 used 4)
 	addi.w	#$12C,(crowdlevel).w	;pump up crowd
 	addi.w	#$1E,(CwdExciteLvl).w
 	move.w	#SFX0D,-(sp)		;SFX
@@ -667,17 +665,16 @@ setInjuryType	;93: sets period injury. a2 = player injured, a3 = player checking
 
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment $10388-$10E65
+;	NHLPA Hockey 93 (retail) segment
 ;	92 part 2, second half: checkfight, SetInst, checkwallcoll
-;	checkgoal, Goal, the 93-only GetPeriodTimeRemaining, checkgoalp,
+;	checkgoal, Goal, the GetPeriodTimeRemaining, checkgoalp,
 ;	CheckBump, wallcollb, wallcoll and checkpuckcoll.
-;Global names from the 92 names where the routine is the
 ;	same (see the SEGMENT_AGENT.md rename table). Bytes match
 ;	nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp; fixopcodes.js patches the encoding after
 ;	assembly, and also the exg a2,a1 encoding.
-;	93 SortCords offsets ($80 per object), 92 names in comments where the
+;	SortCords offsets ($80 per object), 92 names in comments where the
 ;	use matches: Xpos 0, attribute 4, frame 6, Ypos $14, Zpos $18,
 ;	OldXpos $1C, OldYpos $20, OldZpos $24, Xvel $28, Yvel $2A, Zvel $2C,
 ;	impactp $2E, impact $32, position $34, assnum $36, asslist $38,
@@ -686,13 +683,13 @@ setInjuryType	;93: sets period injury. a2 = player injured, a3 = player checking
 ;("fight value").
 ;	pflags bits match 92 (2 pfnc, 5 pfalock, 6 pfteam, 7 pfgoal). pflags2
 ;	bit 0 is pf2fight and bit 1 pf2aip; 93 moved the others: bit 2 player
-;	unavailable (92 pf2unav = 4), bit 4 caused a penalty (92 pf2pen = 6),
-;	bit 5 no player collision (92 pf2npc = 7).
-;	SPA values are 93 SPAList offsets, penalty numbers are 93 Penaltylist
-;	offsets and sound numbers are 93 sfx numbers; the 92 name in a comment
+;	unavailable (92 used 4), bit 4 caused a penalty (92 used 6)
+;	bit 5 no player collision (92 used 7).
+;	SPA values offsets, penalty numbers
+;	offsets and sound numbers numbers; the 92 name in a comment
 ;	gives the role and the 92 value.
-;	93 team struct (tmsize $1A2): $C (Goal adds 1, as 92 tmscore), $22 first
-;	sort obj (92 tmsort, a word here), $11C check count per player (byte).
+;	93 team struct (tmsize $1A2): $C (Goal adds 1), $22 first
+;	sort obj, $11C check count per player (byte).
 
 checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	;93 needs impact >= 10 on both, no anim lock, no penalty, no goalie, clock
@@ -707,7 +704,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	bne.w	rtss
 	btst	#pfalock,pflags(a2)
 	bne.w	rtss
-	btst	#pf2pen,pflags2(a3)		;caused a penalty (92 pf2pen = 6)
+	btst	#pf2pen,pflags2(a3)		;caused a penalty (92 used 6)
 	bne.w	rtss
 	btst	#pf2pen,pflags2(a2)
 	bne.w	rtss
@@ -773,7 +770,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	bne.w	.next
 	tst.w	position(a3)			;goalie
 	beq.w	.next
-	btst	#pf2unav,pflags2(a3)		;unavailable (92 pf2unav = 4)
+	btst	#pf2unav,pflags2(a3)		;unavailable (92 used 4)
 	bne.w	.next
 	bsr.w	assinsert
 .next	adda.w	#SCstruct,a3
@@ -788,7 +785,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	rts
 
 .sf	move.w	SCnum(a2),impactp(a3)		;start fight for a3 against a2. SCnum to impactp (92 called SetInst first here)
-	move.l	#$26,d0			;penalty $26 (92 PenFighting = $20)
+	move.l	#$26,d0			;penalty $26 (92 used $20)
 	bsr.w	AddPenalty2
 	move.w	SCnum(a3),d0
 	bsr.w	setd0player
@@ -801,20 +798,20 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	bset	#3,attribute(a3)		;flip the other way
 	neg.w	d1
 .sf2	move.w	d1,Xvel(a3)
-	bset	#pf2unav,pflags2(a3)		;unavailable (92 pf2unav = 4)
+	bset	#pf2unav,pflags2(a3)		;unavailable (92 used 4)
 	bset	#pf2aip,pflags2(a3)
-	bset	#pf2npc,pflags2(a3)		;no player coll (92 pf2npc = 7)
+	bset	#pf2npc,pflags2(a3)		;no player coll (92 used 7)
 	bclr	#pfalock,pflags(a3)
-	move.w	#$F8E,d1		;SPA $F8E (92 SPAfight = $DE8)
+	move.w	#$F8E,d1		;SPA $F8E (92 used $DE8)
 	bra.w	SetSPA
 
 SetInst	;93: d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swapped)
 	;Returns unless a3's fight rating ($74) >= d0, a2's >= 2 and a2's >= $10 -
 	;2 * a2's check count ($11C in its team struct). Then sets pf2fight on a2
 	;and a3. If a3 was not already fighting, OptPen is not 0 and HV counter & 3
-	;is 0, calls AddPenalty2 with penalty $2A (92 PenInst = $22) and a3 = the
+	;is 0, calls AddPenalty2 with penalty $2A (92 used $22) and a3 = the
 	;first skater on a3's team (not a3) that has no penalty and is available.
-	;a3 is restored. 92 SetInst only did that last part, for a shoulder check SPA
+	;a3 is restored. the 92 version only did that last part, for a shoulder check SPA
 	cmp.b	$74(a3),d0
 	bhi.w	rtss			;a3 fight rating < d0
 	cmpi.b	#2,$74(a2)
@@ -837,7 +834,7 @@ SetInst	;93: d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swa
 	bne.w	rtss			;a3 was already fighting
 	tst.w	(OptPen).w
 	beq.w	rtss
-	move.w	(VDP_CNTR).l,d0		;HV counter (92 HVcount)
+	move.w	(VDP_CNTR).l,d0		;HV counter
 	andi.w	#3,d0
 	bne.w	rtss			;3 of 4 times no penalty
 	movea.l	a3,a4
@@ -850,11 +847,11 @@ SetInst	;93: d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swa
 	beq.w	.next
 	tst.w	position(a3)
 	ble.w	.next
-	btst	#pf2pen,pflags2(a3)		;caused a penalty (92 pf2pen = 6)
+	btst	#pf2pen,pflags2(a3)		;caused a penalty (92 used 6)
 	bne.w	.next
-	btst	#pf2unav,pflags2(a3)		;unavailable (92 pf2unav = 4)
+	btst	#pf2unav,pflags2(a3)		;unavailable (92 used 4)
 	bne.w	.next
-	move.w	#$2A,d0			;penalty $2A (92 PenInst = $22)
+	move.w	#$2A,d0			;penalty $2A (92 used $22)
 	bsr.w	AddPenalty2
 	movea.l	a4,a3
 	rts
@@ -866,9 +863,9 @@ SetInst	;93: d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swa
 checkwallcoll	;d2/d3 = x/y to test, a3 = object, wcradiusx/wcradiusy = radius. Called from checkcoll
 	;Check the corner circles, the goals and then the side and end boards.
 	;Calls wallcollb (or checkgoal) on a hit, with d0/d1 = cos/sin of the wall
-	move.w	#$88,d4			;92 Sideline (a RAM word); 93 uses 136
+	move.w	#$88,d4			;the 92 version (a RAM word); 93 uses 136
 	sub.w	(wcradiusx).w,d4
-	move.w	#$12A,d5		;92 Blueline + .ywall (210); 93 uses 298
+	move.w	#$12A,d5		;+ .ywall (210); 93 uses 298
 	sub.w	(wcradiusy).w,d5
 	movem.w	d2-d5,-(sp)
 	neg.w	d4
@@ -1018,10 +1015,10 @@ checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x
 	cmp.w	d4,d2
 	bge.w	Goal
 .deflectsf	bsr.w	ChkShotStat		;off the post
-	move.w	#$25,-(sp)		;sfx $25 when the clock is stopped (92 SFXpuckpost = 9)
+	move.w	#$25,-(sp)		;sfx $25 when the clock is stopped (92 used 9)
 	btst	#gmclock,(gmode).w
 	bne.w	.snd
-	move.w	#8,(sp)			;sfx 8 (92 SFXoooh = 31) and crowd
+	move.w	#8,(sp)			;sfx 8 (92 used 31) and crowd
 	addi.w	#$12C,(crowdlevel).w	;add 300
 	addi.w	#$28,(CwdExciteLvl).w
 .snd	bsr.w	sfx
@@ -1074,7 +1071,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 .g1	addq.w	#1,tmscore(a2)
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	bne.w	.nocheer
-	move.w	#$30,-(sp)		;song $30 (92 SFX with SFXcrowdcheer = 25)
+	move.w	#$30,-(sp)		;song $30
 	bsr.w	song
 .nocheer	cmpi.w	#$B4,(ScoreSumbytes).w	;30 entries of 6 bytes full?
 	bne.w	.sum
@@ -1114,7 +1111,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	addq.b	#1,(a1,d0.w)		;other team byte $B4 + $26(a1) +1
 .pen	bsr.w	PenGoalStuff
 	bsr.w	printscores1
-	move.l	#7,d0			;assignment 7 (92 ascore = 8)
+	move.l	#7,d0			;assignment 7 (92 used 8)
 	bsr.w	.setass
 	clr.w	(collflag).w
 	clr.w	Xvel(a3)
@@ -1124,7 +1121,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	bpl.w	.1
 	neg.w	d0
 .1	move.w	d0,(a3)			;Xpos
-	move.w	#$110,d0		;92 blueline+goalline+8
+	move.w	#$110,d0		;+goalline+8
 	tst.w	Ypos(a3)
 	bpl.w	.0
 	neg.w	d0
@@ -1138,17 +1135,17 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	bsr.w	assreplace
 	move.l	a3,-(sp)
 	adda.w	#SCstruct,a3
-	move.w	#$11E8,d1		;SPA $11E8 (92 SPAsiren = $FE8)
+	move.w	#$11E8,d1		;SPA $11E8 (92 used $FE8)
 	bsr.w	SetSPA
 	movea.w	tmsort(a1),a3		;first sort obj of the other team (92 used the puck)
-	move.l	#$E,d0			;penalty $E (92 PenGoal = 6)
+	move.l	#$E,d0			;penalty $E (92 used 6)
 	bsr.w	AddPenalty2
 	movea.l	(sp)+,a3
 	rts
 
 .setass	move.l	a3,-(sp)		;d0 = assignment, a2 = team
 	;give each skater of team a2 that is not fighting assignment d0, clear pfnc
-	movea.w	tmsort(a2),a3		;92 tmsort is a long
+	movea.w	tmsort(a2),a3		;the 92 version is a long
 	moveq	#5,d3
 .loop	tst.w	position(a3)
 	ble.w	.nl
@@ -1173,7 +1170,7 @@ GetPeriodTimeRemaining	;93: return d0 = (gsp << 14 | PerTimeTotal) - gameclock. 
 checkgoalp	;check for player a3 collision with goal/net a2. Entered from checkgoal
 	;oval goal, .radiusx = 32, .radiusy = 11. Skipped for no player coll,
 	;Zpos > 10 and non players. Calls CheckBump, then wallcoll with the normal
-	btst	#pf2npc,pflags2(a3)		;no player coll (92 pf2npc = 7)
+	btst	#pf2npc,pflags2(a3)		;no player coll (92 used 7)
 	bne.w	rtss
 	cmpi.w	#$A,Zpos(a3)
 	bgt.w	rtss
@@ -1221,7 +1218,7 @@ CheckBump	;supply minimum separation velocity for coll with walls/goal/net. a2 =
 	;the goal, a3 stops, and if the clock runs penalty 8. That path returns
 	;straight to checkgoalp's caller
 	movem.l	d0-d1,-(sp)
-	move.w	(VDP_CNTR).l,d0		;HV counter (92 HVcount)
+	move.w	(VDP_CNTR).l,d0		;HV counter
 	andi.w	#$1F,d0
 	bne.w	.ex
 	move.w	(pucky).w,d0
@@ -1252,7 +1249,7 @@ CheckBump	;supply minimum separation velocity for coll with walls/goal/net. a2 =
 	bset	#sfslock,(sflags).w
 	btst	#gmclock,(gmode).w
 	bne.w	rtss
-	move.l	#8,d0			;penalty 8 (92 Penghold = $E)
+	move.l	#8,d0			;penalty 8 (92 used $E)
 	bra.w	AddPenalty2
 
 wallcollb	;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. Called from checkwallcoll
@@ -1298,7 +1295,7 @@ wallcollb	;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. C
 	asl.w	#7,d0			;scsize
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d0,a3
-	move.l	#6,d0			;penalty 6 (92 PenOOP = $C)
+	move.l	#6,d0			;penalty 6 (92 used $C)
 	bsr.w	AddPenalty2
 	movea.l	(sp)+,a3
 	rts
@@ -1335,7 +1332,7 @@ wallcoll	;d0 = cosine, d1 = sine of angle of incidence with wall, a3 = object. C
 	neg.w	d0
 	move.w	d0,Zvel(a3)
 	bsr.w	puckflip
-	move.w	d2,d0			;93: sfx $28 + ((v1n >> 10) + 4) & 3 (92 SFXpuckwall1-3 by speed)
+	move.w	d2,d0			;sfx $28 + ((v1n >> 10) + 4) & 3
 	asr.w	#8,d0
 	asr.w	#2,d0
 	addq.w	#4,d0
@@ -1357,7 +1354,7 @@ wallcoll	;d0 = cosine, d1 = sine of angle of incidence with wall, a3 = object. C
 	bgt.w	.nosfx
 	cmpi.w	#$A,impact(a3)
 	blt.w	.nosfx
-	move.w	#SFXplayerwall,-(sp)		;sfx $20 (92 SFXplayerwall = 15)
+	move.w	#SFXplayerwall,-(sp)		;sfx $20 (92 used 15)
 	bsr.w	sfx
 .nosfx	asr.w	#2,d2
 	cmp.w	#$FC7C,d2		;-900
@@ -1437,7 +1434,7 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 	bne.w	.exit			;object has no coll mode on
 	tst.b	nopuck(a2)
 	bne.w	.exit
-	btst	#pf2unav,pflags2(a2)		;unavailable (92 pf2unav = 4)
+	btst	#pf2unav,pflags2(a2)		;unavailable (92 used 4)
 	bne.w	.chkbody
 	cmpi.w	#5,Zpos(a3)		;Zpos, 2*8/3 = 5
 	bgt.w	.chkbody
@@ -1514,17 +1511,16 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment $10E66-$11801
+;	NHLPA Hockey 93 (retail) segment
 ;	92 part 2 tail (puckstick, setd0player, puckbody, puckgoalie
 ;	deflect), then the 92 part 3 player-roster code that 93 moved here
-;	(makepde ... setplayer) and the 93-only TryAddPlayerToList / ClampNibble.
-;Global names from the 92 names where the routine is the
+;	(makepde ... setplayer) and the TryAddPlayerToList / ClampNibble.
 ;	same (see the SEGMENT_AGENT.md rename table). Bytes match
 ;	nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp; fixopcodes.js patches the encoding after
 ;	assembly.
-;	93 SortCords offsets ($80 per object), 92 names in comments where the
+;	SortCords offsets ($80 per object), 92 names in comments where the
 ;	use matches: Xpos 0, attribute 4, frame 6, Ypos $14, Zpos $18, Xvel $28,
 ;	Yvel $2A, Zvel $2C, position $34, temp4 $46, temp5 $48, SCnum $52,
 ;	facedir $54, SPA $58, nopuck $5E (byte), newpos $60, newpnum $61,
@@ -1535,12 +1531,12 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 ;	$74 (4(a0) & $E; reads it as the fight rating), $75 (93
 ;	only), handed $76 (bit 0 set is left handed).
 ;	pflags bits match 92 (0 pfdoff, 5 pfalock, 6 pfteam). pflags2 bit 2 is
-;	unavailable (92 pf2unav = 4).
-;	93 team struct (tmsize $1A2, home at hmtmstruct): $C score (92 tmscore),
+;	unavailable (92 used 4).
+;	93 team struct (tmsize $1A2, home at hmtmstruct): $C score
 ;	$16 tmline, $1E tmdata (long), $22 tmsort (word), $24 tmap, $26
 ;	tmgoalie (negative = no goalie), $30 tmflags, $32 tmpde, $66 tmpdst
 ;	(92 -2 bench / -1 ice / >0 penalty box; 93 adds -3), $16A line sets.
-;	Assignment numbers are 93 asstab indexes; sound numbers are 93 sfx/song
+;	Assignment numbers indexes; sound numbers /song
 ;	numbers. The 92 name in a comment gives the role and the 92 value.
 
 puckstick	;puck collides with stick
@@ -1594,7 +1590,7 @@ puckstick	;puck collides with stick
 	move.w	SCnum(a0),(lastplayer).w
 	bclr	#sfspdir,(sflags).w
 	bclr	#sfssdir,(sflags).w
-.stdef	move.w	#6,-(sp)		;stick deflect sound (92 SFXstdef = 5)
+.stdef	move.w	#6,-(sp)		;stick deflect sound (92 used 5)
 	bsr.w	sfx
 	bsr.w	a2touchpuck
 	bra.w	deflect
@@ -1624,7 +1620,7 @@ puckglue	;Player a2 takes the puck (92 puckstick.glue)
 	;Global because puckgoalie .nopc also branches here. Plays song 7, or $C
 	;($B for the home team) when sflags3 bit 4 was set, and counts a pass
 	;completion when a2 is passReceiverPlayerNum. Falls into setd0player
-	move.w	#7,-(sp)		;song 7 (92 sfx SFXpuckget = 8)
+	move.w	#7,-(sp)		;song 7
 	move.w	SCnum(a2),d0
 	move.w	d0,(puckc).w
 	movea.w	#(tmstruct-M68K_RAM),a0
@@ -1690,7 +1686,7 @@ puckbody	;puck hits player a2. a3 = puck, d0 = distance^2 (from checkpuckcoll .c
 	andi.w	#$F,d1			;radius^2 from center
 	bne.w	rtss
 .hit	bsr.w	a2touchpuck
-	move.w	#SFXpuckbody,-(sp)		;puck body sound (92 SFXpuckbody = 5)
+	move.w	#SFXpuckbody,-(sp)		;puck body sound (92 used 5)
 	bsr.w	sfx
 	clr.w	Zvel(a3)
 	move.b	#8,nopuck(a2)
@@ -1726,7 +1722,7 @@ rtss	rts				;shared rts, branched to from many segments
 
 puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	;Save odds from the goalie's save attribute and the frame table .list2.
-	;93: song on a hard shot, a puck carrier loses the puck, and a slow
+	;song on a hard shot, a puck carrier loses the puck, and a slow
 	;loose puck (.nopc) is caught through puckglue
 	btst	#gmhl,(gmode).w
 	bne.s	rtss
@@ -1761,7 +1757,7 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	beq.w	.3
 	eori.w	#2,d2
 .3	move.w	frame(a2),d0
-	subi.w	#$197,d0		;first goalie frame (92 SPFgoalie)
+	subi.w	#$197,d0		;first goalie frame
 	move.b	(a0,d0.w),d0
 	lsr.w	d2,d0
 	andi.w	#3,d0
@@ -1781,7 +1777,7 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	beq.w	.song
 	move.w	#$D,(sp)		;song $D (visiting goalie)
 .song	bsr.w	song
-.nosong	move.w	#$24,-(sp)		;puck body sound (92 SFXpuckbody = 5)
+.nosong	move.w	#$24,-(sp)		;puck body sound (92 used 5)
 	bsr.w	sfx
 	move.w	(puckc).w,d2
 	bmi.w	.nopc			;loose puck
@@ -1823,12 +1819,12 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	bgt.s	.bounce
 	cmp.w	(puckvy).w,d0
 	bgt.s	.bounce
-	btst	#pf2unav,pflags2(a2)		;unavailable (92 pf2unav = 4)
+	btst	#pf2unav,pflags2(a2)		;unavailable (92 used 4)
 	bne.s	.bounce
 	clr.w	Zvel(a3)
 	bra.w	puckglue		;goalie holds the puck
 
-.list	dc.b	0,$73,0,$6E,0,$70,0,$72	;save attribute offsets (92 GGSleft, GGSright, GSSleft, GSSright)
+.list	dc.b	0,$73,0,$6E,0,$70,0,$72	;save attribute offsets
 
 .list2	;odds for stopping puck in each quadrant for each possible goalie frame
 	dc.b	$55,$9D,$67,$55,$9D,$67,$55,$9D,$67,$55,$9D,$67	;ready/glover/glovel (92 pix 1111,2131,1213)
@@ -1857,7 +1853,7 @@ deflect	;random puck direction on deflection puck = a3. Entered from puckstick .
 	bra.w	puckflip
 
 makepde	;pass d0 as value to be scaled by player a0's energy level
-	;return d0 as result. Called from puckstick and logic93 (ShotMode)
+	;return d0 as result. Called from puckstick and (ShotMode)
 	ext.w	d0
 	move.w	d0,-(sp)
 	movem.l	d1/a2-a3,-(sp)
@@ -1950,7 +1946,7 @@ SetPlList	;create list (PlList) of players who we want on the ice now
 	tst.w	tmgoalie(a2)
 	bpl.w	.gin
 	addq.w	#1,a0			;no goalie: skip priolist goalie entry
-.gin	lea	$16A(a2),a1		;line sets (92 tmdata LineSets)
+.gin	lea	$16A(a2),a1		;line sets
 	move.w	tmline(a2),d0
 	asl.w	#3,d0
 	adda.w	d0,a1
@@ -1980,7 +1976,7 @@ SetPlList	;create list (PlList) of players who we want on the ice now
 	ext.w	d0
 	asl.w	#1,d0
 	movea.l	#sublist,a0
-	adda.w	(a0,d0.w),a0		;93 sublist is word offsets (92 long pointers)
+	adda.w	(a0,d0.w),a0		;sublist is word offsets (92 long pointers)
 .s1	clr.w	d0
 	move.b	(a0)+,d0
 	bmi.w	.all			;end of list
@@ -1998,7 +1994,7 @@ SetPlList	;create list (PlList) of players who we want on the ice now
 	beq.s	.try
 	bra.s	.next1
 
-TryAddPlayerToList	;93 split of 92 SetPlList .s1/.s2. d0 = player number (1 based), d4 = PlList slot
+TryAddPlayerToList	;93 split of .s1/.s2. d0 = player number (1 based), d4 = PlList slot
 	;a2 = team struct, a4 = PlList. Return Z clear = added, Z set (d1 = 0) = not available
 	move.w	d0,d1
 	subq.w	#1,d0
@@ -2078,7 +2074,7 @@ Setplass	;set players (a3) initial assignment
 	move.b	(a0,d0.w),d0
 	bra.w	assreplace
 
-.alist	;93 asstab numbers
+.alist	;asstab numbers
 	dc.b	$E			;agoalie (92 15)
 	dc.b	2			;adefd
 	dc.b	2			;adefd
@@ -2120,7 +2116,7 @@ setplayer	;bring player onto the ice and set his stats
 	lsr.w	#1,d3
 	movea.l	tmdata(a0),a0
 	move.l	a0,-(sp)
-	adda.w	8(a0),a0		;team data + word at team data+8 (92 LineSets offset)
+	adda.w	8(a0),a0		;team data + word at team data+8
 	clr.l	(PPBonus).w	;all four bonus bytes
 	tst.w	position(a3)
 	beq.w	.nomod			;goalie: no modifiers
@@ -2159,7 +2155,7 @@ setplayer	;bring player onto the ice and set his stats
 .side	bpl.w	.nomod			;leading
 .close	move.b	#2,(ThirdPBonus).w
 .nomod	movea.l	(sp)+,a0		;tmdata
-	adda.w	(a0),a0			;roster records (92 Playerdata)
+	adda.w	(a0),a0			;roster records
 .find	adda.w	(a0),a0			;skip name
 	addq.w	#8,a0			;skip 8 attribute bytes
 	dbf	d3,.find

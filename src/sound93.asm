@@ -1,10 +1,10 @@
-;	NHLPA Hockey 93 (retail) segment $165D8-$16E52
+;	NHLPA Hockey 93 (retail) segment
 ;	68k side of the 93 sound driver, p_turnoff ... ClearAllTrackAndSFXSlots. No NHL 92 source: 92 used a
 ;	different driver (NHL92Genesis/src/sound/sound.asm). Only the entry names p_turnoff, p_music_vblank and
 ;	p_initialZ80 are shared with 92 (92 headers: audio stop, vblank handler, initialization).
 ;Global names from the (see the SEGMENT_AGENT.md rename table). Bytes match nhlpa93retail.bin.
-;	The Z80 program (Z80_Program_Code) starts at $16E52: p_initialZ80 loads movea.l #$16E52. Its first
-;	byte is the dc.b before the incbins; the rest of the Z80 blob and the sound data are incbins from $16E53.
+;	Its first
+;	byte is the dc.b before the incbins; the rest of the Z80 blob and the sound data are incbins from.
 ;	Driver RAM is named.asm at its retail address. RAM from $CAEE up is 4 bytes lower in retail
 ;	than in the Rev A listing: retail has no music_global_tick_counter / music_tick_divider words (see
 ;	p_music_vblank). The Rev A address is in the comment.
@@ -18,7 +18,7 @@
 ;	  voice table $CB9C (8 bytes per key): +0 word pitch bend (value - $2000), +3 patch.
 ;	  command buffer $CB7A (33 bytes, copied to Z80 RAM $02-$22): +0 key off bits, +1 key on bits,
 ;	    +2 volume bits, +3 frequency bits, +4 patch bits (one bit per output channel), $CB7F 7 volume
-;	    bytes, $CB86 7 frequency words, $CB94 7 patch bytes. $CB78 = buffer changed flag.
+;	    bytes, $CB86 7 frequency words, $ 7 patch bytes. $CB78 = buffer changed flag.
 ;	  events (4 bytes): +0 delay before this event, +1 status (bits 6-4 command, bits 3-0 channel),
 ;	    +2/+3 data. Status 0 ends the stream; a non-negative long at +2 is a loop pointer.
 
@@ -38,7 +38,7 @@ p_turnoff	;(audio stop). Silence everything: free all slots, key off and mute ev
 	rts
 
 play_sfx_or_music_track	;start sound d0 (0-$37) in a track slot. $30 and up are songs: the song already
-			;playing is stopped first. Does the jobs of 92 p_initfx / p_initune; called from sfx and song
+			;playing is stopped first. Does the jobs of / p_initune; called from sfx and song
 	cmp.w	#$37,d0
 	bgt.w	rtss			;out of range
 	movem.l	d0-d3/a0-a2,-(sp)
@@ -511,10 +511,10 @@ ClearAllTrackAndSFXSlots	;free the 8 track slots and reset the 6 channel structs
 	dbf	d0,.chan
 	rts
 
-Z80_Program_Code	;First byte of the Z80 program ($16E52, movea.l in p_initialZ80); the rest of the
-		;Z80 blob from $16E53 and the data after it are the incbins below
+Z80_Program_Code	;First byte of the Z80 program (movea.l in p_initialZ80); the rest of the
+		;Z80 blob from and the data after it are the incbins below
 	dc.b	$18
-	incbin	..\Extracted\Sound\z80_snd_drv93.bin	;93 Z80 driver after its first byte ($16E52 is Z80_Program_Code dc.b $18), up to the ld bc of the FM patch bank address. p_initialZ80 copies $295 bytes from $16E52
+	incbin	..\Extracted\Sound\z80_snd_drv93.bin	;93 Z80 driver after its first byte, up to the ld bc of the FM patch bank address. p_initialZ80 copies $295 bytes
 	dc.b	fm_instrument_patches&$FF,((fm_instrument_patches>>8)&$7F)|$80	;Z80 ld bc,$8000+(fm_instrument_patches&$7FFF): bank window address of the FM patches
 	dc.b	$09,$3E,fm_instrument_patches>>15	;Z80 add hl,bc / ld a,bank (32K bank) of the FM patches
 	incbin	..\Extracted\Sound\z80_snd_drv93_end.bin	;rest of the 93 Z80 driver
@@ -661,16 +661,16 @@ sfx_beep2_cmdstream
 	incbin	..\Extracted\Sound\sfx_beep2_cmdstream.bin	;sound 2 (SFXbeep2)
 	even
 sfx_horn_cmdstream
-	incbin	..\Extracted\Sound\sfx_horn_cmdstream.bin	;sound 4 (92 SFXhorn)
+	incbin	..\Extracted\Sound\sfx_horn_cmdstream.bin	;sound 4
 	even
 sfx_stdef_cmdstream
-	incbin	..\Extracted\Sound\sfx_stdef_cmdstream.bin	;sound 6 (92 SFXstdef)
+	incbin	..\Extracted\Sound\sfx_stdef_cmdstream.bin	;sound 6
 	even
 sfx_puckget_cmdstream
-	incbin	..\Extracted\Sound\sfx_puckget_cmdstream.bin	;sound 7 (92 SFXpuckget), puckglue
+	incbin	..\Extracted\Sound\sfx_puckget_cmdstream.bin	;sound 7, puckglue
 	even
 sfx_puckice1_cmdstream
-	incbin	..\Extracted\Sound\sfx_puckice1_cmdstream.bin	;sound $2C: puck bounce by speed (92 SFXpuckice)
+	incbin	..\Extracted\Sound\sfx_puckice1_cmdstream.bin	;sound $2C: puck bounce by speed
 	even
 sfx_puckice2_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckice2_cmdstream.bin	;sound $2D
@@ -682,16 +682,16 @@ sfx_puckice4_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckice4_cmdstream.bin	;sound $2F (SFXpuckice, Endfaceoff)
 	even
 sfx_puckbody_cmdstream
-	incbin	..\Extracted\Sound\sfx_puckbody_cmdstream.bin	;sound $24 (92 SFXpuckbody)
+	incbin	..\Extracted\Sound\sfx_puckbody_cmdstream.bin	;sound $24
 	even
 sfx_oooh_cmdstream
-	incbin	..\Extracted\Sound\sfx_oooh_cmdstream.bin	;sound 8 (92 SFXoooh), off the post with the clock running
+	incbin	..\Extracted\Sound\sfx_oooh_cmdstream.bin	;sound 8, off the post with the clock running
 	even
 sfx_puckpost_cmdstream
-	incbin	..\Extracted\Sound\sfx_puckpost_cmdstream.bin	;sound $25 (92 SFXpuckpost)
+	incbin	..\Extracted\Sound\sfx_puckpost_cmdstream.bin	;sound $25
 	even
 sfx_playerwall_cmdstream
-	incbin	..\Extracted\Sound\sfx_playerwall_cmdstream.bin	;sound $20 (92 SFXplayerwall)
+	incbin	..\Extracted\Sound\sfx_playerwall_cmdstream.bin	;sound $20
 	even
 sfx_id_21_cmdstream
 	incbin	..\Extracted\Sound\sfx_id_21_cmdstream.bin	;sound $21: no caller found, same patches as playerwall
@@ -715,13 +715,13 @@ sfx_puckwall4_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckwall4_cmdstream.bin	;sound $2B
 	even
 sfx_whistle_cmdstream
-	incbin	..\Extracted\Sound\sfx_whistle_cmdstream.bin	;sound 3 (92 SFXwhistle)
+	incbin	..\Extracted\Sound\sfx_whistle_cmdstream.bin	;sound 3
 	even
 sfx_shotwiff_cmdstream
-	incbin	..\Extracted\Sound\sfx_shotwiff_cmdstream.bin	;sound 5 (92 SFXshotwiff)
+	incbin	..\Extracted\Sound\sfx_shotwiff_cmdstream.bin	;sound 5
 	even
 sfx_check1_cmdstream
-	incbin	..\Extracted\Sound\sfx_check1_cmdstream.bin	;sound $1C: tackle sounds in turn (92 SFXcheck)
+	incbin	..\Extracted\Sound\sfx_check1_cmdstream.bin	;sound $1C: tackle sounds in turn
 	even
 sfx_check2_cmdstream
 	incbin	..\Extracted\Sound\sfx_check2_cmdstream.bin	;sound $1D
@@ -733,7 +733,7 @@ sfx_check4_cmdstream
 	incbin	..\Extracted\Sound\sfx_check4_cmdstream.bin	;sound $1F
 	even
 sfx_pass1_cmdstream
-	incbin	..\Extracted\Sound\sfx_pass1_cmdstream.bin	;sound $10: pass by puck height (92 SFXpass)
+	incbin	..\Extracted\Sound\sfx_pass1_cmdstream.bin	;sound $10: pass by puck height
 	even
 sfx_pass2_cmdstream
 	incbin	..\Extracted\Sound\sfx_pass2_cmdstream.bin	;sound $11
@@ -745,7 +745,7 @@ sfx_pass4_cmdstream
 	incbin	..\Extracted\Sound\sfx_pass4_cmdstream.bin	;sound $13
 	even
 sfx_shotbh1_cmdstream
-	incbin	..\Extracted\Sound\sfx_shotbh1_cmdstream.bin	;sound $14: backhand shot by speed (92 SFXshotbh)
+	incbin	..\Extracted\Sound\sfx_shotbh1_cmdstream.bin	;sound $14: backhand shot by speed
 	even
 sfx_shotbh2_cmdstream
 	incbin	..\Extracted\Sound\sfx_shotbh2_cmdstream.bin	;sound $15
@@ -757,7 +757,7 @@ sfx_shotbh4_cmdstream
 	incbin	..\Extracted\Sound\sfx_shotbh4_cmdstream.bin	;sound $17
 	even
 sfx_shotfh1_cmdstream
-	incbin	..\Extracted\Sound\sfx_shotfh1_cmdstream.bin	;sound $18: forehand shot by speed (92 SFXshotfh)
+	incbin	..\Extracted\Sound\sfx_shotfh1_cmdstream.bin	;sound $18: forehand shot by speed
 	even
 sfx_shotfh2_cmdstream
 	incbin	..\Extracted\Sound\sfx_shotfh2_cmdstream.bin	;sound $19
@@ -790,7 +790,7 @@ sfx_id_0D_cmdstream
 	incbin	..\Extracted\Sound\sfx_id_0D_cmdstream.bin	;sound $D: injury (setInjuryType), visiting goalie save
 	even
 sfx_siren_cmdstream
-	incbin	..\Extracted\Sound\sfx_siren_cmdstream.bin	;sound 0 (92 SFXsiren)
+	incbin	..\Extracted\Sound\sfx_siren_cmdstream.bin	;sound 0
 	even
 fmtune_goal_cmdstream
 	incbin	..\Extracted\Sound\fmtune_goal_cmdstream.bin	;song $30: Goal
@@ -808,7 +808,7 @@ fmtune_faceoff_cmdstream
 	incbin	..\Extracted\Sound\fmtune_faceoff_cmdstream.bin	;song $34: puckfaceoff
 	even
 fmtune_title_cmdstream
-	incbin	..\Extracted\Sound\fmtune_title_cmdstream.bin	;song $35: TitleScreen, ExitToOpening (92 SngTitle)
+	incbin	..\Extracted\Sound\fmtune_title_cmdstream.bin	;song $35: TitleScreen, ExitToOpening
 	even
 	dc.l	fmtune_title_loop	;end of the intro: loop pointer
 fmtune_title_loop
@@ -816,7 +816,7 @@ fmtune_title_loop
 	even
 	dc.l	fmtune_title_loop	;loop pointer
 fmtune_eog_cmdstream
-	incbin	..\Extracted\Sound\fmtune_eog_cmdstream.bin	;song $36: IntermissionStart, PlayoffScreen, StartHL2 (92 SngEOG / SngPO)
+	incbin	..\Extracted\Sound\fmtune_eog_cmdstream.bin	;song $36: IntermissionStart, PlayoffScreen, StartHL2
 	even
 	dc.l	fmtune_eog_cmdstream+4	;loop pointer (past the first event)
 fmtune_scouting_cmdstream
@@ -824,12 +824,12 @@ fmtune_scouting_cmdstream
 	even
 	dc.l	fmtune_scouting_cmdstream+4	;loop pointer (past the first event)
 ScoutingReportText	;scouting report text
-	incbin	..\Extracted\Text\ScoutingReportText.bin	;ScoutingReportText (hockey93_06_11 stub): scouting report paragraphs
+	incbin	..\Extracted\Text\ScoutingReportText.bin	;ScoutingReportText: scouting report paragraphs
 	IF REV=0
 	dc.b	$72			;pad: retail leftover byte
 	ELSE
 	dc.b	0
 	ENDIF
 GameSetUpMap	;game setup bitmap (setoptions)
-	incbin	..\Extracted\Graphics\GameSetUp.map.jim	;92 GameSetUp.map.jim: game setup bitmap (setoptions movea.l #$2E1FC)
+	incbin	..\Extracted\Graphics\GameSetUp.map.jim	;game setup bitmap
 	even
