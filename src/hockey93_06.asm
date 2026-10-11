@@ -531,8 +531,8 @@ Opening2	;reset the stack and clear the variables (92 REV A path), then options,
 	move.l	#vb2,(vbint).w
 	move.w	#$2500,sr
 	bsr.w	setoptions
-	bsr.w	PlayoffScreen		;(92 Opening3)
-	bsr.w	ScoutingReport		;(92 Opening4)
+Opening3	bsr.w	PlayoffScreen		;92 name (92 Opening3)
+Opening4	bsr.w	ScoutingReport		;92 name (92 Opening4)
 	jmp	(ChkShortPeriods).w	;92 jmp startgame; 93 first checks pad 1 for short periods
 
 PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver and Opening2.

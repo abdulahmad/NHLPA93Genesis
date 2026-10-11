@@ -14,3 +14,7 @@ PenaltyList,Penaltylist,92G
 NewPO,ContinuePlayoffs,clash:93NewPO-is-not-92NewPO(94-name)
 SelectRandomPlayoffTree,NewPO,92G
 UpdateTeamNameisplay,SetGoalieMode,misnamed-IDA(prints-nothing);94-name
+checkgoalp_CalcGoalShotDir,shotdiradj,IDA-leftover;94-name
+checkgoalp_CalcGoalShotDir,shotdiradj,IDA leftover; 94 name
+.loop/.add/.next/.bad/.fill/.halt (checksum93),ValidationLoop/SkipIncrement/ContinueValidation/VDPErrorSetup/VRAMWriteLoop/Halt,92G promoted
+(new label),Opening3/Opening4,92G

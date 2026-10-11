@@ -11,27 +11,27 @@ ValidationRoutine	;IDA and 92 name. Called once at power on from Start (main93 j
 	moveq	#0,d0			;sum
 	suba.l	a0,a0			;a0 = ROM address 0
 	move.l	#ValidationRoutine/4,d1	;number of longs below this routine (Rev A $1FEE9)
-.loop	cmpa.w	#$18C,a0		;IDA: loc_7FBAE (92 ValidationLoop). header long $18C-$18F holds the checksum word $18E
-	bne.s	.add
+ValidationLoop	cmpa.w	#$18C,a0		;IDA: loc_7FBAE (92 name, was: .loop). header long $18C-$18F holds the checksum word $18E
+	bne.s	SkipIncrement
 	addq.w	#4,a0			;skip it, not summed
-	bra.s	.next
-.add	add.l	(a0)+,d0		;IDA: loc_7FBB8 (92 SkipIncrement)
-.next	subq.l	#1,d1			;IDA: loc_7FBBA (92 ContinueValidation)
-	bgt.s	.loop
+	bra.s	ContinueValidation
+SkipIncrement	add.l	(a0)+,d0		;IDA: loc_7FBB8 (92 name, was: .add)
+ContinueValidation	subq.l	#1,d1			;IDA: loc_7FBBA (92 name, was: .next)
+	bgt.s	ValidationLoop
 	IF REV=1
 	cmpi.l	#$C62A6024,d0		;Rev A sum. Real CMPI (0C80), not EA cmp
 	ELSE
 	cmpi.l	#$EB689746,d0		;retail sum. Real CMPI (0C80), not EA cmp
 	ENDIF
-	bne.s	.bad			;wrong sum: red screen
+	bne.s	VDPErrorSetup			;wrong sum: red screen
 	rts
-.bad	movea.l	#VDP_CTRL,a4		;IDA: loc_7FBC8 (92 VDPErrorSetup)
+VDPErrorSetup	movea.l	#VDP_CTRL,a4		;IDA: loc_7FBC8 (92 name, was: .bad)
 	move.w	#$8F02,(a4)		;auto increment 2
 	move.w	#$8004,(a4)		;mode 1: h interrupt off
 	move.w	#$8700,(a4)		;backdrop = colour 0
 	move.w	#$8144,(a4)		;mode 2: display on, v interrupt off, dma off
 	move.w	#$C000,(a4)		;cram write, colour 0 (first command word only)
 	move.w	#$3F,d1			;64 colours
-.fill	move.w	#$E,(VDP_DATA).l	;IDA: loc_7FBE6 (92 VRAMWriteLoop). colour = $00E, full red
-	dbf	d1,.fill
-.halt	bra.s	.halt			;IDA: loc_7FBF2 (92 Halt). hang
+VRAMWriteLoop	move.w	#$E,(VDP_DATA).l	;IDA: loc_7FBE6 (92 name, was: .fill). colour = $00E, full red
+	dbf	d1,VRAMWriteLoop
+Halt	bra.s	Halt			;IDA: loc_7FBF2 (92 name, was: .halt). hang
