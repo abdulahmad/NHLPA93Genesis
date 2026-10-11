@@ -1,7 +1,7 @@
 ;	ReplayMode, getpzjoy, suba4/adda4, RestoreReplayFrame, updatereplay,
 ;	rtss2, updateplayers, updateanim, freezewindow, checkwindow.
 ;	Bytes match nhlpa93retail.bin. Rev A has a 10-byte insertion inside
-;	updateplayers (speed x$14 when music_global_tick_counter is set); retail
+;	updateplayers (speed x$14 when PalMode is set); retail
 ;	has the 92 code there.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
@@ -458,8 +458,8 @@ updateplayers
 	beq.w	.done
 ;----------------------------------	now update velocity
 	IF REV=1
-	moveq	#$10,d4			;Rev A: 16 per frame, 20 at 50 Hz (music_global_tick_counter set)
-	tst.w	(music_global_tick_counter).w
+	moveq	#$10,d4			;Rev A: 16 per frame, 20 at 50 Hz (PalMode set)
+	tst.w	(PalMode).w
 	beq.w	.ntsc
 	moveq	#$14,d4
 .ntsc	mulu.w	d7,d4

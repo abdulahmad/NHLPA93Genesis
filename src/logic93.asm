@@ -1471,7 +1471,7 @@ chkhit	;part of fight to see if player is hit
 	bset	#6,pflags2(a3)
 	move.w	#$10CE,d1		;SPAffall
 	bsr.w	SetSPA
-	bsr.w	ShowInjuryMsg
+	bsr.w	ClearMessageLine
 	movea.w	a3,a2
 	bsr.w	setInjuryType
 	move.w	#$112C,tmpdst(a0,d1.w)	;overwrite setInjuryType result in the team struct
@@ -1488,7 +1488,7 @@ chkhit	;part of fight to see if player is hit
 .snd	bsr.w	song
 	bra.w	.ex
 
-ShowInjuryMsg	;(Rev A). Clear the message line
+ClearMessageLine	;(Rev A). Clear the message line
 	bsr.w	printz
 	String	$BF,0,1,0
 	moveq	#$28,d0
@@ -3578,7 +3578,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	bsr.w	dobitmap
 	move.w	d4,(faceoffvrcset).w	;space for faceoff sprites
 	movea.l	#FaceOffSprites+8,a2	;replaces /DoDMA
-	bsr.w	DoDMA_clearCallbackPointer
+	bsr.w	DecompressGraphicsPlain
 	tst.w	(OptLine).w		;line names box when lines are on
 	bne.w	.nol
 	bsr.w	printsmallz
@@ -3683,7 +3683,7 @@ Endfaceoff	;drop the puck: pick the faceoff winner and send the puck off. Entere
 	bclr	#sf2faceoff,(sflags2).w
 	move.w	(ExtraChars).w,d4
 	movea.l	#RefsMap+8,a2
-	bsr.w	DoDMA_clearCallbackPointer	;ref cam chars
+	bsr.w	DecompressGraphicsPlain	;ref cam chars
 	bclr	#sf2drec,(sflags2).w
 	bclr	#gmclock,(gmode).w
 	bclr	#pf2fight,pflags2(a3)

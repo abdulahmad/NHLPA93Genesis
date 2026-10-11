@@ -89,7 +89,7 @@ chkprogress	;control progress of ref and game control thru penalty events. When 
 	bsr.w	SetHor
 	move.w	(ExtraChars).w,d4	;load horizontal ref tiles
 	movea.l	#RefMap2+8,a2
-	bsr.w	DoDMA_clearCallbackPointer
+	bsr.w	DecompressGraphicsPlain
 	bsr.w	NewTicker
 	bsr.w	NewTicker3
 	st	(puckc).w
@@ -964,7 +964,7 @@ pplpen	;?. Print one penalty box line: player number and time remaining. a2 = te
 	move.b	-8(a1),d0		;player number (BCD)
 	move.w	(printx).w,-(sp)
 	movea.w	#(TextBuffer-M68K_RAM),a1
-	bsr.w	ConverByteToDigits
+	bsr.w	ConvertByteToDigits
 	movea.w	#(mesarea-M68K_RAM),a1
 	move.w	#4,(a1)			;string length: 2 digits
 	bsr.w	print
@@ -1113,7 +1113,7 @@ Intermission	;end of period junk (zamboni/stats). Opens the pause menu screen (i
 	dbf	d0,.0
 	move.w	(ExtraChars).w,d4
 	movea.l	#ZamSprites+8,a2
-	bsr.w	DoDMA_clearCallbackPointer
+	bsr.w	DecompressGraphicsPlain
 	move.w	#$140,(zamx).w		;320
 	move.w	(gsp).w,d0
 	tst.w	(OptPlayMode).w
@@ -1453,7 +1453,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	move.w	#$9200,4(a0)		;window V position 0
 	move.w	(ExtraChars).w,d4	;ref cam chars
 	movea.l	#RefsMap+8,a2
-	bsr.w	DoDMA_clearCallbackPointer
+	bsr.w	DecompressGraphicsPlain
 	clr.w	(Vpos).w
 	clr.w	(Hpos).w
 	bsr.w	ResetBench

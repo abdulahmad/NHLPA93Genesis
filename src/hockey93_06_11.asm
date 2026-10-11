@@ -2,7 +2,7 @@
 ;======================================================================
 ;	setupice, defaultsprites, SprSort, resetplstuff, setteams,
 ;	setplayercolors, PeriodOver, Opening, Opening2 and PlayoffScreen, plus
-;	the setup helpers (setupice_highlight, setupIceRinkMap, setupEASNmap,
+;	the setup helpers (setupice_highlight, setupIceRinkPal, setupEASNmap,
 ;	setupTeamBlocksMap, defaultsprites2, clearTeamStats, InitTeamStructure)
 ;	and the playoff screen helpers.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
@@ -18,7 +18,7 @@
 
 setupice	;set all variables, send non purgeable graphics, build sprite frame lists for ice rink.
 	;Called from StartGame and StartPer. 93 decompresses the tile sets with
-	;DoDMA_clearCallbackPointer / DecompressGraphicsWithCallback
+	;DecompressGraphicsPlain / DecompressGraphicsWithCallback
 	movem.l	d0-d7/a0-a6,-(sp)
 	bset	#df32c,(disflags).w
 	move.w	#$C000,(VmMap2).w	;map 2 address
@@ -49,22 +49,22 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 	clr.w	d4			;vram char 0 (92 started at 2)
 	move.w	d4,(rinkvrcset).w	;1st vram char for rink map tiles
 	movea.l	#IceRinkMap+8,a2
-	bsr.w	DoDMA_clearCallbackPointer	;tiles to vram at d4, d4 advanced past them
+	bsr.w	DecompressGraphicsPlain	;tiles to vram at d4, d4 advanced past them
 
 	move.w	d4,(EASNcset).w		;1st vram char for easn logo tiles
 	bsr.w	setupEASNmap
 
 	move.w	d4,(energybarchars).w	;1st vram char for the energy bar tiles
 	movea.l	#EnergyBarMap+8,a2
-	bsr.w	DoDMA_clearCallbackPointer
+	bsr.w	DecompressGraphicsPlain
 
-	move.w	d4,(gamesetuptilesetindex).w	;1st vram char for crowd animation tiles
+	move.w	d4,(animchars).w	;1st vram char for crowd animation tiles
 	movea.l	#CrowdSprites+8,a2
-	bsr.w	DoDMA_clearCallbackPointer
+	bsr.w	DecompressGraphicsPlain
 
 	move.w	d4,(spritechars).w	;sprite char start, reused by setupice_highlight
 	bsr.w	defaultsprites
-	bsr.w	setupIceRinkMap		;transfer pal 0&1
+	bsr.w	setupIceRinkPal		;transfer pal 0&1
 
 	bsr.w	AddFramer		;Framer tiles (92 inline ReMap)
 	move.w	d4,(smallfontchars).w	;1st vram char for smallfont tiles
@@ -132,7 +132,7 @@ setupice_highlight	;Rebuild the rink sprites after a highlight replay without re
 	st	(zamx).w
 	move.w	(spritechars).w,d4	;sprite char start from setupice
 	bsr.w	defaultsprites
-	bsr.w	setupIceRinkMap		;transfer pal 0&1
+	bsr.w	setupIceRinkPal		;transfer pal 0&1
 	btst	#gmdir,(gmode).w
 	beq.w	.gok
 	movea.w	#(SortCords-M68K_RAM),a3
@@ -169,7 +169,7 @@ setupice_highlight	;Rebuild the rink sprites after a highlight replay without re
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts				;(its only xref is a constant, so no label)
 
-setupIceRinkMap	;copy the ice rink palettes (pal 0&1, 16 longs) to palfadenew.ipal.
+setupIceRinkPal	;copy the ice rink palettes (pal 0&1, 16 longs) to palfadenew.ipal.
 	;Called from setupice, setupice_highlight
 	movea.l	#IceRinkMap,a0
 	adda.l	(a0),a0			;palette offset in the map header
@@ -194,7 +194,7 @@ setupTeamBlocksMap	;Load TeamBlocks.map tiles at d4+$30 and copy the home and vi
 	movea.w	#(TeamBlockMap-M68K_RAM),a1	;map word buffer for CopyTeamBlockMapData
 	movea.l	#TeamBlocksmap,a0
 	lea	8(a0),a2
-	bsr.w	DoDMA_clearCallbackPointer	;all team block tiles to vram at d4
+	bsr.w	DecompressGraphicsPlain	;all team block tiles to vram at d4
 	adda.l	4(a0),a0		;map data
 	move.l	a0,-(sp)
 	move.w	(HomeTeam).w,d0
@@ -504,7 +504,7 @@ GameOver	;Save the password, show the playoff stats and playoff screen in playof
 .po	bsr.w	PlayoffScreen		;returns at once outside playoff mode
 
 ExitToOpening	;Song $35, then restart at Opening2. Falls in from GameOver
-	;also jumped to from HandleJoy1 to end the demo
+	;also jumped to from EndDemoOnPress to end the demo
 	move.w	#SngTitle,-(sp)
 	bsr.w	song
 	bra.w	Opening2
@@ -567,7 +567,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 
 	movea.l	#Arrowsmap+8,a2
 	move.w	d4,(ExtraChars).w
-	bsr.w	DoDMA_clearCallbackPointer	;arrow tiles at ExtraChars
+	bsr.w	DecompressGraphicsPlain	;arrow tiles at ExtraChars
 
 	bsr.w	printz
 	String	$CE,0,0			;(92 -$01,60,4 before the StanleyMap bitmap)
@@ -593,7 +593,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	move.l	-$20(a0),(a0)+		;pal 1 -> pal 2
 	dbf	d0,.pal
 	move.w	d4,(energybarchars).w
-	bsr.w	DoDMA_clearCallbackPointer
+	bsr.w	DecompressGraphicsPlain
 
 	move.w	#$104,(clampcounter).w	;RAM reused by this screen
 	move.w	#$110,(playoffspritey).w
@@ -903,7 +903,7 @@ ScoutingReport	;pregame scouting report. Called from PeriodOver.
 
 	bsr.w	printsmallz
 	String	CC_SetMapAndPosition,0,1,$15,$F,CC_SetFont,1	;attribute 0, map 1, x $15, y $F, char set 1
-	lea	StatsText(pc),a1	;rating names
+	lea	ScoutRatingText(pc),a1	;rating names
 .pl	move.w	(a1),d0
 	asr.w	#1,d0
 	neg.w	d0
@@ -1005,7 +1005,7 @@ StatNextLine	;Next line; branched to from PrintScoutLineRatings
 	addq.w	#1,(printy).w
 	rts
 
-StatsText	;rating names for the scouting report, centered by ScoutingReport. -1 ends the list
+ScoutRatingText	;rating names for the scouting report, centered by ScoutingReport. -1 ends the list
 	String	'Shooting'
 	String	'Skating'
 	String	'Passing'
@@ -1195,10 +1195,10 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 	bpl.s	.top
 	movea.l	#EASNmap2+8,a2
 	clr.w	d4			;tiles at vram char 0
-	bsr.w	DoDMA_clearCallbackPointer
+	bsr.w	DecompressGraphicsPlain
 	movea.l	#Stanleymap+8,a2
 	move.w	d4,(energybarchars).w	;1st vram char of the cup sprites
-	bsr.w	DoDMA_clearCallbackPointer
+	bsr.w	DecompressGraphicsPlain
 	bsr.w	UpdateStanleyCupAnimation
 	move.w	#$18,(palcount).w	;24
 	move	#$2500,sr
@@ -1330,7 +1330,7 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 	asl.w	#5,d0
 	lea	TitlePalettes(pc),a1	;one of 4 random palettes
 	adda.w	d0,a1
-	movea.w	#(titleScreenState-M68K_RAM),a0
+	movea.w	#(TitlePalBuffer-M68K_RAM),a0
 	moveq	#7,d0
 .tops0	move.l	(a1)+,(a0)+
 	dbf	d0,.tops0
@@ -1349,10 +1349,10 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 
 	movea.l	#TitleLogoSprites+8,a2
 	move.w	d4,(energybarchars).w	;1st vram char of the logo sprites
-	bsr.w	DoDMA_clearCallbackPointer
+	bsr.w	DecompressGraphicsPlain
 	movea.l	#Title3Sprites+8,a2
-	move.w	d4,(gamesetuptilesetindex).w	;1st vram char of the Title3map sprites
-	bsr.w	DoDMA_clearCallbackPointer
+	move.w	d4,(animchars).w	;1st vram char of the Title3map sprites
+	bsr.w	DecompressGraphicsPlain
 	clr.l	(fofdata2).w		;TitleAnimCallback timers
 	clr.w	(fofdata2+4).w
 	move.w	d4,(smallfontchars).w
@@ -1430,7 +1430,7 @@ TitleAnimCallback	;CallAnimationCallback routine for the title screen (from Titl
 	movea.w	#(fofdata2-M68K_RAM),a1
 	lea	TitleScrollTriggers(pc),a2
 	moveq	#2,d7
-	move.w	(gamesetuptilesetindex).w,d3
+	move.w	(animchars).w,d3
 	ori.w	#$8000,d3		;priority
 .top	move.w	(a1)+,d0
 	bmi.w	.chk
@@ -1457,7 +1457,7 @@ TitleAnimCallback	;CallAnimationCallback routine for the title screen (from Titl
 
 TitleScrollTriggers	;Hscroll trigger points for the three TitleAnimCallback sprites
 	dc.w	$B2,$DA,$6C
-TitlePalettes	;four 16 color palettes for titleScreenState, one picked at random by TitleScreen
+TitlePalettes	;four 16 color palettes for TitlePalBuffer, one picked at random by TitleScreen
 	dc.w	$EEA,$EEE,$CCC,$AAA,$888,$666,$444,$222,0,$66A,$46A,$446,$4A4,$484,$262,$40
 	dc.w	$EEA,$EEE,$CCC,$AAA,$888,$666,$444,$222,0,$66A,$46A,$446,$E44,$A44,$822,$400
 	dc.w	$EEA,$EEE,$CCC,$AAA,$888,$666,$444,$222,0,$66A,$46A,$446,$44A,$228,6,4
@@ -1612,7 +1612,7 @@ CheckSound	;sound test, no caller found. Runs only with start+a+c held on pad 1.
 	bra.s	.top
 
 ;	The game setup screen (setoptions) with the two team blocks and their
-;	animated roster players (UpdateBothTeamDisplays ... AddTeamSpriteFrame)
+;	animated roster players (UpdateRosterPlayers ... AddTeamSpriteFrame)
 ;	and its own vblank handler (VBlank_SetOptions).
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The
 ;	source has the real cmp; fixopcodes.js patches the encoding after assembly.
@@ -1676,8 +1676,8 @@ setoptions	;options screen display and input. Called from PeriodOver.
 	bsr.w	dobitmap
 
 	movea.l	#GameSetupSprites+8,a2	;roster player sprite tiles after the bitmap
-	move.w	d4,(gamesetuptilesetindex).w
-	bsr.w	DoDMA_clearCallbackPointer
+	move.w	d4,(animchars).w
+	bsr.w	DecompressGraphicsPlain
 	bsr.w	defaultsprites2
 	move.w	#$28,(SortCords+$1C).w	;home player x offset 40 (off the block)
 	move.w	#$28,(SortCords+$31C).w	;visitor player x offset 40
@@ -1716,7 +1716,7 @@ setoptions	;options screen display and input. Called from PeriodOver.
 	sub.w	(oldvcount).w,d1
 	beq.s	.wait			;wait for the next vblank
 	move.w	(vcount).w,(oldvcount).w
-	bsr.w	UpdateBothTeamDisplays
+	bsr.w	UpdateRosterPlayers
 	bsr.w	Readjoy1
 	bsr.w	ProcessInputWithRepeat
 	tst.w	d1
@@ -1991,7 +1991,7 @@ dotb	;draw team name bar d1 = team number at printx/printy. Called from TeamIcon
 	moveq	#2,d5			;color fam 2
 	bra.w	dobitmap
 
-ClearOptionDisplay	;erase the 12 x 2 player name area of team a2. Called from ClearAndSetFlag
+ClearRosterName	;erase the 12 x 2 player name area of team a2. Called from SlideOutRosterPlayer
 	bsr.w	setoptions_printpos2
 	moveq	#$C,d0
 	moveq	#2,d1
@@ -1999,7 +1999,7 @@ ClearOptionDisplay	;erase the 12 x 2 player name area of team a2. Called from Cl
 	bra.w	eraser
 
 setoptions_printpos2	;set the print position of team a2's player name: x 2 (visitor) or x $1A (home), y $A
-	;map 1 + priority. Called from ClearOptionDisplay and UpdateRosterPlayer
+	;map 1 + priority. Called from ClearRosterName and UpdateRosterPlayer
 	bsr.w	printz
 	String	$BF,2,$A
 	cmpa.w	#(tmstruct-M68K_RAM),a2	;(/ mulu.w)
@@ -2007,7 +2007,7 @@ setoptions_printpos2	;set the print position of team a2's player name: x 2 (visi
 	move.w	#$1A,(printx).w		;home team on the right
 	rts
 
-SetGoalieMode	;pick the goalie shown for team a2 when it changes: $26(a2) =
+PickStartingGoalie	;pick the goalie shown for team a2 when it changes: $26(a2) =
 	;weighted random roster index from the 4 nibbles at team data +$A offset (UnpackNibbles / WeightedRandomSelect).
 	;$26 stays 0 when a pad controls the team, gamelevel > 2 or OptLine is set. Called from UpdateRosterPlayer
 	movem.l	d0/a0,-(sp)
@@ -2038,7 +2038,7 @@ SetGoalieMode	;pick the goalie shown for team a2 when it changes: $26(a2) =
 .x	movem.l	(sp)+,d0/a0
 	rts
 
-UpdateBothTeamDisplays	;run the roster player in both team blocks and build their sprite list.
+UpdateRosterPlayers	;run the roster player in both team blocks and build their sprite list.
 	;Called once per frame from setoptions .wait
 	movem.l	d0-d7/a0-a6,-(sp)
 	moveq	#1,d7
@@ -2054,14 +2054,14 @@ UpdateRosterPlayer	;roster player of team a2 (sprite struct a3 = $22(a2), tmsort
 	;by setteams) differs from the one shown ((a2)), start over. Bit 2 of $30(a2) set: slide the player out 3 per
 	;frame, then SetupNextPlayer. Else slide in 1 per frame, run updateanim, and when the animation is done step
 	;the RosterAnimScripts script (8(a2) = script, $A(a2) = offset). A negative time also prints the
-	;player's number and name. Called from UpdateBothTeamDisplays
+	;player's number and name. Called from UpdateRosterPlayers
 	move.w	$28(a2),d0
 	cmp.w	(a2),d0
 	beq.w	.same
 	move.w	d0,(a2)			;new team
-	bsr.w	SetGoalieMode
+	bsr.w	PickStartingGoalie
 	clr.w	2(a2)			;first RosterOrderTable entry
-	bsr.w	ClearAndSetFlag
+	bsr.w	SlideOutRosterPlayer
 .same	movea.w	tmsort(a2),a3
 	btst	#2,tmflags(a2)
 	beq.w	.in
@@ -2085,7 +2085,7 @@ UpdateRosterPlayer	;roster player of team a2 (sprite struct a3 = $22(a2), tmsort
 	adda.w	$A(a2),a0
 	addq.w	#4,$A(a2)		;next step
 	move.w	(a0),d1			;animation
-	beq.w	ClearAndSetFlag		;end of script: slide out
+	beq.w	SlideOutRosterPlayer		;end of script: slide out
 	bsr.w	SetSPA
 	bset	#pf2aip,pflags2(a3)
 	move.w	2(a0),$54(a3)		;time
@@ -2101,7 +2101,7 @@ UpdateRosterPlayer	;roster player of team a2 (sprite struct a3 = $22(a2), tmsort
 	move.l	a0,-(sp)
 	adda.w	(a0),a0
 	move.b	(a0),d0			;player number (BCD)
-	bsr.w	ConverByteToDigits
+	bsr.w	ConvertByteToDigits
 	move.w	#$2000,4(a3)		;space, end
 	movea.l	(sp)+,a1
 	bsr.w	appstring		;"NN " + name
@@ -2139,9 +2139,9 @@ UpdateRosterPlayer	;roster player of team a2 (sprite struct a3 = $22(a2), tmsort
 	addq.w	#1,(printy).w
 	bra.w	print			;line 2 = last name
 
-ClearAndSetFlag	;erase the name of team a2 and set bit 2 of $30(a2) (slide the player out).
+SlideOutRosterPlayer	;erase the name of team a2 and set bit 2 of $30(a2) (slide the player out).
 	;Called and branched to from UpdateRosterPlayer
-	bsr.w	ClearOptionDisplay
+	bsr.w	ClearRosterName
 	bset	#2,tmflags(a2)
 	rts
 
@@ -2250,7 +2250,7 @@ RosterOrderTable	;line data slots shown in turn: C, RW, LW, G, RD, LD of line 1,
 	dc.b	4,5,3,0,2,1,$C,$D,$B,$A,9,$14,$15,$13,$12,$11,$FF,0
 
 UpdateTeamSprites	;sprite list for the two roster players. a5 = DMAList, a6 = Satt.
-	;Sets dfok for VBlank_SetOptions. Called from UpdateBothTeamDisplays
+	;Sets dfok for VBlank_SetOptions. Called from UpdateRosterPlayers
 	movea.w	#(DMAList-M68K_RAM),a5
 	movea.w	#(Satt-M68K_RAM),a6
 	moveq	#1,d6			;link counter
@@ -2289,7 +2289,7 @@ AddTeamSpriteFrame	;add player a3 (x = (a3) + $1C offset, y = $14) and a GameSet
 	addi.w	#$C0,d0
 .x	move.w	#$80,d1
 	moveq	#1,d2			;frame
-	move.w	(gamesetuptilesetindex).w,d3
+	move.w	(animchars).w,d3
 	bra.w	SetSframe
 
 VBlank_SetOptions	;vbint handler stored by setoptions: cramfade unless dfng, plus
@@ -2820,7 +2820,7 @@ ReadTeamStats	;Unpack the $68 playoff stat totals from the bit stream below $CB6
 ;======================================================================
 ;	ResolveGames, the end of game "Stars of the Game" box (ShowThreeStars,
 ;	TakeTopStarScore, CalcStarScores/Values), the injury and goal
-;	boxes, box, the player name formatters (getname ... ConverByteToDigits)
+;	boxes, box, the player name formatters (getname ... ConvertByteToDigits)
 ;	and the exception handlers AddError, Illinst, ZeroDiv and crash.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The
 ;	source has the real cmp; fixopcodes.js patches the encoding after assembly.
@@ -3205,7 +3205,7 @@ getname	;a1 = mesarea string "NN First Last" for player d0 of team a2. The numbe
 	lea	2(a3),a1
 	adda.w	(a0),a0			;byte after the name: number
 	move.b	(a0),d0
-	bsr.w	ConverByteToDigits
+	bsr.w	ConvertByteToDigits
 	bsr.w	appendz
 	String	' '
 	movea.l	(sp)+,a1		;name string
@@ -3234,7 +3234,7 @@ FormatPlayerNumInitial	;a1 = mesarea string "NN F. Last" for player d0 of team a
 	movea.w	#(TextBuffer-M68K_RAM),a1
 	adda.w	(a0),a0			;byte after the name: number
 	move.b	(a0),d0
-	bsr.w	ConverByteToDigits
+	bsr.w	ConvertByteToDigits
 	move.b	#$20,(a1)+		;' '
 	movea.l	(sp)+,a0
 	move.w	(a0)+,d0		;string length
@@ -3258,7 +3258,7 @@ FormatPlayerName	;a1 = mesarea string "NN Last" for player d0 of team a2, built 
 	movea.w	#(TextBuffer-M68K_RAM),a1
 	adda.w	(a0),a0			;byte after the name: number
 	move.b	(a0),d0
-	bsr.w	ConverByteToDigits
+	bsr.w	ConvertByteToDigits
 	move.b	#$20,(a1)+		;' '
 	movea.l	(sp)+,a0
 	move.w	(a0)+,d0		;string length
@@ -3317,7 +3317,7 @@ GetPlayerNamePointer	;a0 = name string of player d0 on team a2. From tmdata and 
 .cnt	dbf	d0,.next
 	rts
 
-ConverByteToDigits	;two ascii digits of bcd byte d0 to (a1)+, a leading 0 becomes a space.
+ConvertByteToDigits	;two ascii digits of bcd byte d0 to (a1)+, a leading 0 becomes a space.
 	;Called from getname, the FormatPlayerName routines, pplpen and others
 	move.w	d0,-(sp)
 	lsr.b	#4,d0
@@ -3932,7 +3932,7 @@ ExitGameTextPO	;intermission menu for gsp 4 in the playoffs
 	dc.l	CrowdMeterScreen
 	String	$FF
 
-AttributeScreenText	;line editor exit menu (LineEditorExit)
+LineEditorMenuText	;line editor exit menu (LineEditorExit)
 	String	$FE,6,$F9,1
 	String	$FE,4,$F9,1
 	String	'       Exit       '
@@ -3945,7 +3945,7 @@ AttributeScreenText	;line editor exit menu (LineEditorExit)
 	dc.l	DecodeTeamLines
 	String	$FF
 
-ExitAttribText	;line editor exit menu without Load Team Line (LineEditorExit)
+LineEditorMenuNoLoad	;line editor exit menu without Load Team Line (LineEditorExit)
 	String	$FE,6,$F9,1
 	String	$FE,4,$F9,1
 	String	'       Exit       '

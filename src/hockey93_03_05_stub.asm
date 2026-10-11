@@ -37,7 +37,7 @@ printscores1 = $EFA8
 ChkShotStat = $F28A
 sublist = $154CC		; (movea.l operand)
 priolist = $15536		; (movea.l operand)
-play_new_song = $16674		; sound driver
+stop_current_song = $16674		; sound driver
 RAMStart = $FF0000	
 
 ; .region code

@@ -609,7 +609,7 @@ Vmaddr	;set video port to address d0. d0 = vram address, returns a0 = Vdata!!!
 ;======================================================================
 ;======================================================================
 ;	dobitmap, the tile decompressor (DecompressGraphicsWithCallback,
-;	DoDMA_clearCallbackPointer, DecompressGraphics, DecompressBytecode,
+;	DecompressGraphicsPlain, DecompressGraphics, DecompressBytecode,
 ;	jump_table, the Opcode_* handlers, FlushOutputBuffer), xyVmMap, eraser,
 ;	Framer, printsmallz/printsmall with ControlCodeJumpTable and the
 ;	ControlCode_* handlers, printz, print, FormatAndPrintTime and
@@ -660,7 +660,7 @@ dobitmap	;transfer palette data/map data/tiles data to vram. a0 = palette, a1 = 
 	addq.w	#1,(printy).w
 	addq.w	#1,d6
 	dbf	d2,.loop2
-	bsr.w	DoDMA_clearCallbackPointer	;tiles a2 to char d4
+	bsr.w	DecompressGraphicsPlain	;tiles a2 to char d4
 	movem.l	(sp)+,d0-d3/d5-d6/a0-a3
 	move.w	(sp)+,(disflags).w
 	move.w	(sp)+,(printy).w
@@ -672,7 +672,7 @@ DecompressGraphicsWithCallback	;DecompressGraphics through remap. The 8 bytes af
 	addq.l	#8,(sp)			;skip the inline remap table
 	rts
 
-DoDMA_clearCallbackPointer	;clear callbackPtr (plain DMA, no remap) and fall into DecompressGraphics. a2 = tile data, d4 = start char
+DecompressGraphicsPlain	;clear callbackPtr (plain DMA, no remap) and fall into DecompressGraphics. a2 = tile data, d4 = start char
 	clr.l	(callbackPtr).w
 
 DecompressGraphics	;send tiles to vram. a2 = data: word count of tiles (0 = none, bit 15 set = compressed by DecompressBytecode), then the tiles. d4 = start char, returns d4 = end char + 1. Uses remap with callbackPtr when it is set, else DoDMApro
@@ -1418,14 +1418,14 @@ printbig	;same as print, only use bigfont.map graphics. a1 = string macro, print
 AddSmallFont	;transfer smallfont.map tiles to vram. d4 = char to start tiles at, return d4 = end of tiles + 1. Goes through DecompressGraphics
 	move.w	d4,(smallfontchars).w
 	movea.l	#SmallFontMap+8,a2
-	bra.w	DoDMA_clearCallbackPointer
+	bra.w	DecompressGraphicsPlain
 
 AddFramer	;transfer framer.map tiles to vram. d4 = char to start tiles at, return d4 = end of tiles + 1. Goes through DecompressGraphics
 	movea.l	#FramerMap+8,a2
 	move.w	d4,(Framercset).w
-	bra.w	DoDMA_clearCallbackPointer
+	bra.w	DecompressGraphicsPlain
 
 AddTeamBlock	;transfer TeamBlocks.map tiles to vram at char 2. Return d4 = end of tiles + 1. Goes through DecompressGraphics
 	moveq	#2,d4
 	movea.l	#Teamblocksmap+8,a2
-	bra.w	DoDMA_clearCallbackPointer
+	bra.w	DecompressGraphicsPlain

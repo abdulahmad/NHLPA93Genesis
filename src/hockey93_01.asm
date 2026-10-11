@@ -23,7 +23,7 @@ Begin	;cold start, entered from Reset. Clear RAM, init menus and sound, go to ti
 	IF REV=1
 	move.w	(VDP_CTRL).l,d0		;Rev A: VDP status bit 0 = PAL (50 Hz)
 	andi.w	#1,d0
-	move.w	d0,(music_global_tick_counter).w
+	move.w	d0,(PalMode).w
 	ENDIF
 
 	jsr	(SetupStanleyCupCelebrationScreen).l
@@ -88,7 +88,7 @@ ResetClock	;set period length and stop clock
 	move.w	#$258,d0		;OptPlayMode 0 overtime is always 10:00
 .set	move.w	d0,(gameclock).w
 	move.w	d0,(PerTimeTotal).w
-	move.w	d0,(periodendtime).w	;CheckPeriodEnd trigger time =
+	move.w	d0,(periodendtime).w	;CheckLateGameSong trigger time =
 	asr.w	#1,d0
 	bsr.w	randomd0
 	sub.w	d0,(periodendtime).w	;length - random(length/2)
@@ -164,8 +164,8 @@ periodicevents	;called every time thru game loop with d7 = elapsed frames
 	addi.w	#$18,(lldisp).w		;jps: only update once per second
 	bsr.w	ChkGoalies
 	bsr.w	UpdateCwdExcite
-	bsr.w	CheckPeriodEnd
-	bsr.w	UpdateLineChange
+	bsr.w	CheckLateGameSong
+	bsr.w	RestoreBenchEnergy
 	bsr.w	CheckInjury
 	jmp	(updatepwrplay).l
 
@@ -174,7 +174,7 @@ CheckInjury	;called once per second. Count down InjCntDown, act on it at zero
 	bne.w	rtss2
 	jmp	(ShowInjuryBox).l		;countdown expired
 
-UpdateLineChange	;called once per second. Restore energy for players on the bench
+RestoreBenchEnergy	;called once per second. Restore energy for players on the bench
 	tst.w	(OptLine).w
 	bne.w	.x			;exit if line changes are off
 	movea.w	#(tmstruct-M68K_RAM),a2	;team 1
@@ -191,7 +191,7 @@ UpdateLineChange	;called once per second. Restore energy for players on the benc
 	bpl.s	.b0
 .x	rts
 
-CheckPeriodEnd	;called once per second. 3rd period: play tune $32 once at the random
+CheckLateGameSong	;called once per second. 3rd period: play tune $32 once at the random
 		;trigger time set by ResetClock
 	cmpi.w	#2,(gsp).w		;3rd period only
 	bne.w	.x
@@ -337,13 +337,13 @@ demoread	;monitor joystick if in demo mode (called every game loop)
 	bsr.w	Readjoy1
 	btst	#7,d1			;sbut
 	bne.w	startpause1		;start on pad 1 pauses (92 went to Opening)
-	bsr.w	HandleJoy1
+	bsr.w	EndDemoOnPress
 	bsr.w	Readjoy2
 	btst	#7,d1			;sbut
 	bne.w	startpause2
-	;falls into HandleJoy1 with pad 2 in d1
+	;falls into EndDemoOnPress with pad 2 in d1
 
-HandleJoy1	;any button on the pad just read (d1) ends the demo
+EndDemoOnPress	;any button on the pad just read (d1) ends the demo
 	;falls in from demoread for pad 2
 	tst.w	d1
 	beq.w	rtss2			;nothing pressed

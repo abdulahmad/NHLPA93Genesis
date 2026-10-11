@@ -81,7 +81,7 @@ smallfontchars	rs.w	1	;vram tiles for SmallFont.map
 smallfont2chars	rs.w	1	;vram tiles for the 2nd small font set.
 energybarchars	rs.w	1	;vram tiles for the energy bar (also logo / cup sprites on the title screens).
 rinkvrcset	rs.w	1	;vram tiles for IceRink.map
-gamesetuptilesetindex	rs.w	1
+animchars	rs.w	1
 faceoffvrcset	rs.w	1	;vram tiles for FaceOff graphics
 Framercset	rs.w	1	;vram tiles for framer.map
 EASNcset	rs.w	1	;vram tiles for EASN.map
@@ -102,7 +102,7 @@ oldvcount	rs.w	1
 repeatdelayframes	rs.w	1
 asv	rs.w	1	;analog sound volume (crowd noise)
 lldisp	rs.w	1	;line level disp update counter
-periodendtime	rs.w	1	;CheckPeriodEnd trigger time.
+periodendtime	rs.w	1	;CheckLateGameSong trigger time.
 
 ;the following are equates for the sort object structure (SCstruct bytes each)
 Xpos	=	$0
@@ -265,7 +265,7 @@ wcradiusx	rs.w	1	;variables used in wall collisions
 wcradiusy	rs.w	1
 palcount	rs.w	1	;counter for fading in color palettes
 palfadenew	rs.w	16	;palettes to fade into
-titleScreenState	rs.w	16
+TitlePalBuffer	rs.w	16
 palbuffer	rs.w	32	;to palfadenew+$80
 ;$FFFFBD6A is palfadenew+$42
 ;$FFFFBD82 is palfadenew+$5A
@@ -467,7 +467,7 @@ demoflag	rs.w	1	;demo flag
 seed	rs.l	1
 dmaram	rs.l	1	;dma ram area.
 	IF REV=1
-music_global_tick_counter	rs.w	1	;Rev A only: VDP PAL bit (Begin). Set = 50 Hz: faster skating (updateplayers) and music (p_music_vblank)
+PalMode	rs.w	1	;Rev A only: VDP PAL bit (Begin). Set = 50 Hz: faster skating (updateplayers) and music (p_music_vblank)
 music_tick_divider	rs.w	1	;Rev A only: p_music_vblank runs the track slots again every 6th frame
 	ENDIF
 databuffer	rs.w	9

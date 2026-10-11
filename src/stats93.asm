@@ -513,8 +513,8 @@ LineCursorTable	;TestList after a cursor move: indexed by
 	dc.b	$25,$31,$32,$33,$34,$34,1,1
 	dc.b	$25,$31,$32,$33,$34,$34,1,1
 
-LineEditorExit	;line editor: start pressed. Run the exit menu (AttributeScreenText,
-	;or ExitAttribText if databuffer holds another team's lines). A nonzero
+LineEditorExit	;line editor: start pressed. Run the exit menu (LineEditorMenuText,
+	;or LineEditorMenuNoLoad if databuffer holds another team's lines). A nonzero
 	;choice goes back to LineEditorRedraw, zero leaves via ExitStatsScreen
 	bsr.w	ClearMenuFlags
 	move.w	#$18,(palcount).w
@@ -522,13 +522,13 @@ LineEditorExit	;line editor: start pressed. Run the exit menu (AttributeScreenTe
 	move.l	(menulist).w,-(sp)
 	move.l	(menudraw).w,-(sp)
 	movea.l	#rtss,a1
-	movea.l	#AttributeScreenText,a0
+	movea.l	#LineEditorMenuText,a0
 	movea.w	#(databuffer-M68K_RAM),a3
 	move.w	$28(a2),d0		;team number + 1 = first databuffer byte?
 	addq.w	#1,d0
 	cmp.b	(a3),d0
 	beq.w	.0
-	movea.l	#ExitAttribText,a0
+	movea.l	#LineEditorMenuNoLoad,a0
 .0	bsr.w	printsmallz
 	String	$FF,2
 	bsr.w	InitMenuState
@@ -2056,14 +2056,14 @@ ExitStatsScreen	;leave a stats screen: back to 32 cell mode, reload the
 	bset	#1,(disflags).w
 	move.w	(rinkvrcset).w,d4
 	movea.l	#IceRinkMap+8,a2
-	bsr.w	DoDMA_clearCallbackPointer
+	bsr.w	DecompressGraphicsPlain
 	move.w	(smallfontchars).w,d4
 	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$43434567,$89ABCDEF
 	move.w	(Framercset).w,d4
 	bsr.w	AddFramer
-	jsr	(setupIceRinkMap).l
+	jsr	(setupIceRinkPal).l
 	jmp	(setplayercolors).l
 
 TimeoutMenu	;pause menu "Timeout" for team a2: uses the

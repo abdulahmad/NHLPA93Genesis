@@ -416,7 +416,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	move.w	6(a0),d5
 	andi.w	#$F800,d5
 	add.w	4(a0),d5
-	add.w	(gamesetuptilesetindex).w,d5
+	add.w	(animchars).w,d5
 	move.w	d5,(a6)+
 	move.w	(a0),d5
 	addi.w	#$70,d5			;128-16
@@ -434,7 +434,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 ;======================================================================
 ;	showclock, checksso, setsortcords, setffo, uppads, addframe, addframe2,
 ;	find3d, updatesound and KillCrowd, plus the pad label code
-;	(FormatControllerDisplay, RenderSmallFontChar).
+;	(QueuePadLabel, RenderSmallFontChar).
 ;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp; fixopcodes.js patches the encoding after
@@ -600,7 +600,7 @@ setffo	;draw the 5 objects tied to icerink scrolling (pads ...). Called from set
 	bsr.w	addframe
 	cmpa.w	a6,a0
 	beq.w	.next			;no sprites added
-	move.w	2(a3),d1		;x offset (set by FormatControllerDisplay)
+	move.w	2(a3),d1		;x offset (set by QueuePadLabel)
 	add.w	d1,6(a0)		;sprite 1 x
 	add.w	d1,$E(a0)		;sprite 2 x
 .next	adda.w	#$1C,a3			;ffosize
@@ -644,14 +644,14 @@ uppads	;update the gloves object and the 4 pad objects, and queue new pad labels
 .chg	cmp.w	(a1),d1
 	beq.w	.next			;same label as last time
 	move.w	d1,(a1)
-	bsr.w	FormatControllerDisplay
+	bsr.w	QueuePadLabel
 .next	lsr.w	#4,d3			;next nibble
 	adda.w	#$1C,a0			;ffosize
 	addq.w	#2,a1
 	dbf	d4,.top
 	rts
 
-FormatControllerDisplay	;queue the 3 character label of a pad object (92 drew 2 digits).
+QueuePadLabel	;queue the 3 character label of a pad object (92 drew 2 digits).
 	;Called from uppads. d1 = label code: bits 7-4 and 3-0 are digits ($F = blank), bits 10-8 index
 	;ButtonLabelCharTable. a0 = pad object, a5 = dma list. Falls into RenderSmallFontChar for the last char
 	lea	ButtonLabelCharTable(pc),a4

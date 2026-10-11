@@ -7,7 +7,7 @@
 ;	incbins.
 ;	Driver RAM is in Ram93.Asm at its retail address. RAM from $CAEE up is 4
 ;	bytes lower in retail than in Rev A: retail has no
-;	music_global_tick_counter / music_tick_divider words (see p_music_vblank).
+;	PalMode / music_tick_divider words (see p_music_vblank).
 ;	The Rev A address is in the equate comment.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The source has the real
 ;	cmp; fixopcodes.js patches the encoding after assembly.
@@ -34,7 +34,7 @@ p_turnoff	;(audio stop). Silence everything: free all slots, key off and mute ev
 .att	move.b	#$7F,(a0)+		;$7F = silent
 	dbf	d0,.att
 	bsr.w	UploadCommandBufferToZ80
-	bsr.w	ClearZ80SpecialEffectsFlags
+	bsr.w	StopPCMChannel
 	movem.l	(sp)+,d0-d7/a0-a2
 	rts
 
@@ -45,7 +45,7 @@ play_sfx_or_music_track	;start sound d0 (0-$37) in a track slot. $30 and up are 
 	movem.l	d0-d3/a0-a2,-(sp)
 	cmp.w	#$30,d0
 	blt.w	.slot			;sound effect
-	bsr.w	play_new_song		;song: stop the current song
+	bsr.w	stop_current_song		;song: stop the current song
 .slot	movea.w	#(fm_track_slots-M68K_RAM),a1
 	moveq	#7,d3
 .new	move.l	(a1),d1			;new lowest pointer
@@ -58,7 +58,7 @@ play_sfx_or_music_track	;start sound d0 (0-$37) in a track slot. $30 and up are 
 	tst.w	(a2)
 	bpl.w	.ex			;no free slot (lowest pointer is in use): do nothing
 	asl.w	#1,d0
-	movea.l	#MusicTrackPointerTable,a0
+	movea.l	#SoundStreamTable,a0
 	adda.w	(a0,d0.w),a0		;start of the event stream
 	move.l	a0,(a2)
 	clr.w	4(a2)
@@ -75,12 +75,12 @@ play_sfx_or_music_track	;start sound d0 (0-$37) in a track slot. $30 and up are 
 .ex	movem.l	(sp)+,d0-d3/a0-a2
 	rts
 
-play_new_song	;stop the song in progress: free the first slot whose pointer is at or past the first song
+stop_current_song	;stop the song in progress: free the first slot whose pointer is at or past the first song
 		;($30) data and key off its channels. Called from play_sfx_or_music_track and checkgoal
 	movem.l	d0-d3/a0-a3,-(sp)
 	movea.w	#(fm_track_slots-M68K_RAM),a1
 	moveq	#7,d3
-	movea.l	#MusicTrackPointerTable,a0
+	movea.l	#SoundStreamTable,a0
 	adda.w	$60(a0),a0		;sound $30 data
 .find	cmpa.l	(a1),a0
 	addq.w	#6,a1
@@ -106,7 +106,7 @@ play_new_song	;stop the song in progress: free the first slot whose pointer is a
 
 p_music_vblank	;(vblank handler). Clear the change bits, run the 8 track slots (d7 = track 7-0)
 		;send the buffer if anything changed and age the channels. Called every frame from the vblank
-		;handlers. Rev A runs the slots again every 6th frame while music_global_tick_counter
+		;handlers. Rev A runs the slots again every 6th frame while PalMode
 		;is set (music_tick_divider $CAF0); retail has no such block (22 bytes shorter)
 	clr.b	(music_needs_z80_update).w
 	clr.l	(Z80_command_buffer).w		;key off/on, volume, frequency bits
@@ -117,7 +117,7 @@ p_music_vblank	;(vblank handler). Clear the change bits, run the 8 track slots (
 	addq.w	#6,a5
 	dbf	d7,.slot
 	IF REV=1
-	tst.w	(music_global_tick_counter).w	;Rev A: at 50 Hz run the slots again every 6th frame
+	tst.w	(PalMode).w	;Rev A: at 50 Hz run the slots again every 6th frame
 	beq.w	.tick
 	subq.w	#1,(music_tick_divider).w
 	bpl.w	.tick
@@ -213,17 +213,17 @@ handle_command_00	;event $0x: key off note +2 on channel +1 bits 3-0 of track d7
 	beq.w	rtss
 
 ReleaseChannelAndNote	;key off channel struct a2 if it is on. The PCM patches ($60 up) stop the PCM channel
-			;instead. Called from play_new_song
+			;instead. Called from stop_current_song
 	bclr	#0,5(a2)
 	beq.w	rtss			;was off
 	cmpi.b	#$60,2(a2)
-	bge.w	ClearZ80SpecialEffectsFlags	;PCM patch
+	bge.w	StopPCMChannel	;PCM patch
 	move.b	3(a2),d0		;output channel
 	bset	d0,(Z80_command_buffer).w	;key off
 	st	(music_needs_z80_update).w
 	rts
 
-ClearZ80SpecialEffectsFlags	;clear Z80 RAM $8E (the PCM rate byte written by UpdateChannelFrequencyAndVolume).
+StopPCMChannel	;clear Z80 RAM $8E (the PCM rate byte written by UpdateChannelFrequencyAndVolume).
 			;Called from p_turnoff and for a PCM key off
 	move.w	#$100,(IO_Z80BUS).l
 	clr.b	(Z80_RAM+$8E).l
@@ -595,63 +595,63 @@ sfx_puckget_pcm
 fm_instrument_patches	;32 FM patches x 32 bytes, byte $1E = pitch bend scale (UpdateChannelFrequencyAndVolume)
 	incbin	..\Extracted\Sound\fm_instrument_patches.bin	;32 FM patches x 32 bytes (byte $1E = pitch bend scale)
 	even
-MusicTrackPointerTable	;event stream of sounds 0-$37 as offsets from the table (play_sfx_or_music_track, play_new_song)
-	dc.w	sfx_siren_cmdstream-MusicTrackPointerTable	;sound $0
-	dc.w	sfx_beep1_cmdstream-MusicTrackPointerTable	;sound $1
-	dc.w	sfx_beep2_cmdstream-MusicTrackPointerTable	;sound $2
-	dc.w	sfx_whistle_cmdstream-MusicTrackPointerTable	;sound $3
-	dc.w	sfx_horn_cmdstream-MusicTrackPointerTable	;sound $4
-	dc.w	sfx_shotwiff_cmdstream-MusicTrackPointerTable	;sound $5
-	dc.w	sfx_stdef_cmdstream-MusicTrackPointerTable	;sound $6
-	dc.w	sfx_puckget_cmdstream-MusicTrackPointerTable	;sound $7
-	dc.w	sfx_oooh_cmdstream-MusicTrackPointerTable	;sound $8
-	dc.w	sfx_hithigh_cmdstream-MusicTrackPointerTable	;sound $9
-	dc.w	sfx_hitlow_cmdstream-MusicTrackPointerTable	;sound $A
-	dc.w	sfx_crowdcheer_cmdstream-MusicTrackPointerTable	;sound $B
-	dc.w	sfx_crowdboo_cmdstream-MusicTrackPointerTable	;sound $C
-	dc.w	sfx_id_0D_cmdstream-MusicTrackPointerTable	;sound $D
-	dc.w	sfx_id_0E_cmdstream-MusicTrackPointerTable	;sound $E
-	dc.w	sfx_homewin_cmdstream-MusicTrackPointerTable	;sound $F
-	dc.w	sfx_pass1_cmdstream-MusicTrackPointerTable	;sound $10
-	dc.w	sfx_pass2_cmdstream-MusicTrackPointerTable	;sound $11
-	dc.w	sfx_pass3_cmdstream-MusicTrackPointerTable	;sound $12
-	dc.w	sfx_pass4_cmdstream-MusicTrackPointerTable	;sound $13
-	dc.w	sfx_shotbh1_cmdstream-MusicTrackPointerTable	;sound $14
-	dc.w	sfx_shotbh2_cmdstream-MusicTrackPointerTable	;sound $15
-	dc.w	sfx_shotbh3_cmdstream-MusicTrackPointerTable	;sound $16
-	dc.w	sfx_shotbh4_cmdstream-MusicTrackPointerTable	;sound $17
-	dc.w	sfx_shotfh1_cmdstream-MusicTrackPointerTable	;sound $18
-	dc.w	sfx_shotfh2_cmdstream-MusicTrackPointerTable	;sound $19
-	dc.w	sfx_shotfh3_cmdstream-MusicTrackPointerTable	;sound $1A
-	dc.w	sfx_shotfh4_cmdstream-MusicTrackPointerTable	;sound $1B
-	dc.w	sfx_check1_cmdstream-MusicTrackPointerTable	;sound $1C
-	dc.w	sfx_check2_cmdstream-MusicTrackPointerTable	;sound $1D
-	dc.w	sfx_check3_cmdstream-MusicTrackPointerTable	;sound $1E
-	dc.w	sfx_check4_cmdstream-MusicTrackPointerTable	;sound $1F
-	dc.w	sfx_playerwall_cmdstream-MusicTrackPointerTable	;sound $20
-	dc.w	sfx_id_21_cmdstream-MusicTrackPointerTable	;sound $21
-	dc.w	sfx_id_22_cmdstream-MusicTrackPointerTable	;sound $22
-	dc.w	sfx_id_23_cmdstream-MusicTrackPointerTable	;sound $23
-	dc.w	sfx_puckbody_cmdstream-MusicTrackPointerTable	;sound $24
-	dc.w	sfx_puckpost_cmdstream-MusicTrackPointerTable	;sound $25
-	dc.w	sfx_id_26_27_cmdstream-MusicTrackPointerTable	;sound $26
-	dc.w	sfx_id_26_27_cmdstream-MusicTrackPointerTable	;sound $27
-	dc.w	sfx_puckwall1_cmdstream-MusicTrackPointerTable	;sound $28
-	dc.w	sfx_puckwall2_cmdstream-MusicTrackPointerTable	;sound $29
-	dc.w	sfx_puckwall3_cmdstream-MusicTrackPointerTable	;sound $2A
-	dc.w	sfx_puckwall4_cmdstream-MusicTrackPointerTable	;sound $2B
-	dc.w	sfx_puckice1_cmdstream-MusicTrackPointerTable	;sound $2C
-	dc.w	sfx_puckice2_cmdstream-MusicTrackPointerTable	;sound $2D
-	dc.w	sfx_puckice3_cmdstream-MusicTrackPointerTable	;sound $2E
-	dc.w	sfx_puckice4_cmdstream-MusicTrackPointerTable	;sound $2F
-	dc.w	fmtune_goal_cmdstream-MusicTrackPointerTable	;song $30
-	dc.w	fmtune_periodstart_cmdstream-MusicTrackPointerTable	;song $31
-	dc.w	fmtune_period3_cmdstream-MusicTrackPointerTable	;song $32
-	dc.w	fmtune_powerplay_cmdstream-MusicTrackPointerTable	;song $33
-	dc.w	fmtune_faceoff_cmdstream-MusicTrackPointerTable	;song $34
-	dc.w	fmtune_title_cmdstream-MusicTrackPointerTable	;song $35
-	dc.w	fmtune_eog_cmdstream-MusicTrackPointerTable	;song $36
-	dc.w	fmtune_scouting_cmdstream-MusicTrackPointerTable	;song $37
+SoundStreamTable	;event stream of sounds 0-$37 as offsets from the table (play_sfx_or_music_track, stop_current_song)
+	dc.w	sfx_siren_cmdstream-SoundStreamTable	;sound $0
+	dc.w	sfx_beep1_cmdstream-SoundStreamTable	;sound $1
+	dc.w	sfx_beep2_cmdstream-SoundStreamTable	;sound $2
+	dc.w	sfx_whistle_cmdstream-SoundStreamTable	;sound $3
+	dc.w	sfx_horn_cmdstream-SoundStreamTable	;sound $4
+	dc.w	sfx_shotwiff_cmdstream-SoundStreamTable	;sound $5
+	dc.w	sfx_stdef_cmdstream-SoundStreamTable	;sound $6
+	dc.w	sfx_puckget_cmdstream-SoundStreamTable	;sound $7
+	dc.w	sfx_oooh_cmdstream-SoundStreamTable	;sound $8
+	dc.w	sfx_hithigh_cmdstream-SoundStreamTable	;sound $9
+	dc.w	sfx_hitlow_cmdstream-SoundStreamTable	;sound $A
+	dc.w	sfx_crowdcheer_cmdstream-SoundStreamTable	;sound $B
+	dc.w	sfx_crowdboo_cmdstream-SoundStreamTable	;sound $C
+	dc.w	sfx_id_0D_cmdstream-SoundStreamTable	;sound $D
+	dc.w	sfx_id_0E_cmdstream-SoundStreamTable	;sound $E
+	dc.w	sfx_homewin_cmdstream-SoundStreamTable	;sound $F
+	dc.w	sfx_pass1_cmdstream-SoundStreamTable	;sound $10
+	dc.w	sfx_pass2_cmdstream-SoundStreamTable	;sound $11
+	dc.w	sfx_pass3_cmdstream-SoundStreamTable	;sound $12
+	dc.w	sfx_pass4_cmdstream-SoundStreamTable	;sound $13
+	dc.w	sfx_shotbh1_cmdstream-SoundStreamTable	;sound $14
+	dc.w	sfx_shotbh2_cmdstream-SoundStreamTable	;sound $15
+	dc.w	sfx_shotbh3_cmdstream-SoundStreamTable	;sound $16
+	dc.w	sfx_shotbh4_cmdstream-SoundStreamTable	;sound $17
+	dc.w	sfx_shotfh1_cmdstream-SoundStreamTable	;sound $18
+	dc.w	sfx_shotfh2_cmdstream-SoundStreamTable	;sound $19
+	dc.w	sfx_shotfh3_cmdstream-SoundStreamTable	;sound $1A
+	dc.w	sfx_shotfh4_cmdstream-SoundStreamTable	;sound $1B
+	dc.w	sfx_check1_cmdstream-SoundStreamTable	;sound $1C
+	dc.w	sfx_check2_cmdstream-SoundStreamTable	;sound $1D
+	dc.w	sfx_check3_cmdstream-SoundStreamTable	;sound $1E
+	dc.w	sfx_check4_cmdstream-SoundStreamTable	;sound $1F
+	dc.w	sfx_playerwall_cmdstream-SoundStreamTable	;sound $20
+	dc.w	sfx_id_21_cmdstream-SoundStreamTable	;sound $21
+	dc.w	sfx_id_22_cmdstream-SoundStreamTable	;sound $22
+	dc.w	sfx_id_23_cmdstream-SoundStreamTable	;sound $23
+	dc.w	sfx_puckbody_cmdstream-SoundStreamTable	;sound $24
+	dc.w	sfx_puckpost_cmdstream-SoundStreamTable	;sound $25
+	dc.w	sfx_id_26_27_cmdstream-SoundStreamTable	;sound $26
+	dc.w	sfx_id_26_27_cmdstream-SoundStreamTable	;sound $27
+	dc.w	sfx_puckwall1_cmdstream-SoundStreamTable	;sound $28
+	dc.w	sfx_puckwall2_cmdstream-SoundStreamTable	;sound $29
+	dc.w	sfx_puckwall3_cmdstream-SoundStreamTable	;sound $2A
+	dc.w	sfx_puckwall4_cmdstream-SoundStreamTable	;sound $2B
+	dc.w	sfx_puckice1_cmdstream-SoundStreamTable	;sound $2C
+	dc.w	sfx_puckice2_cmdstream-SoundStreamTable	;sound $2D
+	dc.w	sfx_puckice3_cmdstream-SoundStreamTable	;sound $2E
+	dc.w	sfx_puckice4_cmdstream-SoundStreamTable	;sound $2F
+	dc.w	fmtune_goal_cmdstream-SoundStreamTable	;song $30
+	dc.w	fmtune_periodstart_cmdstream-SoundStreamTable	;song $31
+	dc.w	fmtune_period3_cmdstream-SoundStreamTable	;song $32
+	dc.w	fmtune_powerplay_cmdstream-SoundStreamTable	;song $33
+	dc.w	fmtune_faceoff_cmdstream-SoundStreamTable	;song $34
+	dc.w	fmtune_title_cmdstream-SoundStreamTable	;song $35
+	dc.w	fmtune_eog_cmdstream-SoundStreamTable	;song $36
+	dc.w	fmtune_scouting_cmdstream-SoundStreamTable	;song $37
 sfx_beep1_cmdstream
 	incbin	..\Extracted\Sound\sfx_beep1_cmdstream.bin	;sound 1 (SFXbeep1)
 	even
@@ -800,7 +800,7 @@ fmtune_periodstart_cmdstream
 	incbin	..\Extracted\Sound\fmtune_periodstart_cmdstream.bin	;song $31: StartPer
 	even
 fmtune_period3_cmdstream
-	incbin	..\Extracted\Sound\fmtune_period3_cmdstream.bin	;song $32: CheckPeriodEnd, 3rd period
+	incbin	..\Extracted\Sound\fmtune_period3_cmdstream.bin	;song $32: CheckLateGameSong, 3rd period
 	even
 fmtune_powerplay_cmdstream
 	incbin	..\Extracted\Sound\fmtune_powerplay_cmdstream.bin	;song $33: updatepwrplay, home power play

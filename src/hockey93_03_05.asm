@@ -1044,7 +1044,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	btst	#gmclock,(gmode).w
 	bne.w	rtss
 	bsr.w	ChkShotStat
-	bsr.w	play_new_song
+	bsr.w	stop_current_song
 	move.w	#SFXsiren,-(sp)		;SFXsiren (92 same, 0)
 	bsr.w	sfx
 	bsr.w	freezewindow

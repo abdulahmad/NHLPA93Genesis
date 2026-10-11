@@ -49,7 +49,7 @@ SPAlist
 	dc.w	0
 
 SPAgready	=	*-SPAlist
-SPAgready_table: ; 0x004d90
+SPAgready_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0036
@@ -90,7 +90,7 @@ SPAgready_table: ; 0x004d90
 .7	dc.w	.a,180,.b,10,.b+1,10,.b,10,.b+1,10,.a,180,.b,10,.b+1,10,.b,-10
 
 SPAgready2	=	*-SPAlist
-SPAgready2_table: ; 0x004ec2
+SPAgready2_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -122,7 +122,7 @@ SPAgready2_table: ; 0x004ec2
 .7	dc.w	.a,-30
 
 SPAgglover	=	*-SPAlist
-SPAgglover_table: ; 0x004ef4
+SPAgglover_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -154,7 +154,7 @@ SPAgglover_table: ; 0x004ef4
 .7	dc.w	.a,-32
 
 SPAgglovel	=	*-SPAlist
-SPAgglovel_table: ; 0x004f26
+SPAgglovel_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -186,7 +186,7 @@ SPAgglovel_table: ; 0x004f26
 .7	dc.w	.a,-32
 
 SPAgglovel2	=	*-SPAlist
-SPAgglovel2_table: ; 0x004f58
+SPAgglovel2_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001e
@@ -211,7 +211,7 @@ SPAgglovel2_table: ; 0x004f58
 .7	dc.w	.b+18,-32
 
 SPAgstickr	=	*-SPAlist
-SPAgstickr_table: ; 0x004f9a
+SPAgstickr_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -243,7 +243,7 @@ SPAgstickr_table: ; 0x004f9a
 .7	dc.w	.a,-32
 
 SPAgstickl	=	*-SPAlist
-SPAgstickl_table: ; 0x004fcc
+SPAgstickl_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -275,7 +275,7 @@ SPAgstickl_table: ; 0x004fcc
 .7	dc.w	.a,-32
 
 SPAgstackr	=	*-SPAlist
-SPAgstackr_table: ; 0x004ffe
+SPAgstackr_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001a
@@ -299,7 +299,7 @@ SPAgstackr_table: ; 0x004ffe
 .7	dc.w	.a+10,8,.a+11,-32
 
 SPAgstackl	=	*-SPAlist
-SPAgstackl_table: ; 0x005050
+SPAgstackl_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001a
@@ -323,7 +323,7 @@ SPAgstackl_table: ; 0x005050
 .7	dc.w	.a+10,8,.a+11,-32
 
 SPAgdive	=	*-SPAlist
-SPAgdive_table: ; 0x0050a2
+SPAgdive_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001e
@@ -355,7 +355,7 @@ SPAgdive_table: ; 0x0050a2
 .7	dc.w	.a,8,.a+1,48,.a,-8
 
 SPAgswing	=	*-SPAlist
-SPAgswing_table: ; 0x005114
+SPAgswing_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001e
@@ -387,7 +387,7 @@ SPAgswing_table: ; 0x005114
 .7	dc.w	.a,5,.a+1,8,.a,-16
 
 SPAgskate	=	*-SPAlist
-SPAgskate_table: ; 0x005186
+SPAgskate_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0022
@@ -419,7 +419,7 @@ SPAgskate_table: ; 0x005186
 .7	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-15
 
 SPApflip	=	*-SPAlist
-SPApflip_table: ; 0x005218
+SPApflip_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0032
@@ -443,7 +443,7 @@ SPApflip_table: ; 0x005218
 .7	dc.w	.a+4,-4096
 
 SPAglide	=	*-SPAlist
-SPAglide_table: ; 0x0052ba
+SPAglide_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -475,7 +475,7 @@ SPAglide_table: ; 0x0052ba
 .7	dc.w	.a,-8
 
 SPAskatewp	=	*-SPAlist
-SPAskatewp_table: ; 0x0052ec
+SPAskatewp_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0022
@@ -507,7 +507,7 @@ SPAskatewp_table: ; 0x0052ec
 .7	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
 
 SPAskate	=	*-SPAlist
-SPAskate_table: ; 0x00537e
+SPAskate_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0022
@@ -539,7 +539,7 @@ SPAskate_table: ; 0x00537e
 .7	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
 
 SPAturnl	=	*-SPAlist
-SPAturnl_table: ; 0x005410
+SPAturnl_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -571,7 +571,7 @@ SPAturnl_table: ; 0x005410
 .7	dc.w	.a,-8
 
 SPAturnr	=	*-SPAlist
-SPAturnr_table: ; 0x005442
+SPAturnr_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -603,7 +603,7 @@ SPAturnr_table: ; 0x005442
 .7	dc.w	.a,-8
 
 SPAstop	=	*-SPAlist
-SPAstop_table: ; 0x005474
+SPAstop_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001a
@@ -635,7 +635,7 @@ SPAstop_table: ; 0x005474
 .7	dc.w	.a,4,.a+1,-4
 
 SPApassf	=	*-SPAlist
-SPApassf_table: ; 0x0054c6
+SPApassf_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001e
@@ -667,7 +667,7 @@ SPApassf_table: ; 0x0054c6
 .7	dc.w	.a,4,.a+1,4,.a+2,-20
 
 SPApassb	=	*-SPAlist
-SPApassb_table: ; 0x005538
+SPApassb_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001e
@@ -699,7 +699,7 @@ SPApassb_table: ; 0x005538
 .7	dc.w	.a+2,4,.a+1,4,.a,-20
 
 SPAshotf	=	*-SPAlist
-SPAshotf_table: ; 0x0055aa
+SPAshotf_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0036
@@ -731,7 +731,7 @@ SPAshotf_table: ; 0x0055aa
 .7	dc.w	.a+3,4,.a+2,4,.a+1,4,.a,4,.a+1,4,.a+2,4,.a+3,4,.a+4,4,.a+5,-20
 
 SPAshotb	=	*-SPAlist
-SPAshotb_table: ; 0x0056dc
+SPAshotb_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0036
@@ -763,7 +763,7 @@ SPAshotb_table: ; 0x0056dc
 .7	dc.w	.a+2,4,.a+3,4,.a+4,4,.a+4,4,.a+4,4,.a+3,4,.a+2,4,.a+1,4,.a,-20
 
 SPAglideback	=	*-SPAlist
-SPAglideback_table: ; 0x00580e
+SPAglideback_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -795,7 +795,7 @@ SPAglideback_table: ; 0x00580e
 .7	dc.w	.a,-8
 
 SPAskateback	=	*-SPAlist
-SPAskateback_table: ; 0x005840
+SPAskateback_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0022
@@ -827,7 +827,7 @@ SPAskateback_table: ; 0x005840
 .7	dc.w	.a,10,.a+1,10,.a,10,.a+2,-10
 
 SPAsweepchk	=	*-SPAlist
-SPAsweepchk_table: ; 0x0058d2
+SPAsweepchk_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001e
@@ -859,7 +859,7 @@ SPAsweepchk_table: ; 0x0058d2
 .7	dc.w	.a,4,.a+1,8,.a,-4
 
 SPAshoulderchkl	=	*-SPAlist
-SPAshoulderchkl_table: ; 0x005944
+SPAshoulderchkl_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -891,7 +891,7 @@ SPAshoulderchkl_table: ; 0x005944
 .7	dc.w	.a,-24
 
 SPAshoulderchkr	=	*-SPAlist
-SPAshoulderchkr_table: ; 0x005976
+SPAshoulderchkr_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -923,7 +923,7 @@ SPAshoulderchkr_table: ; 0x005976
 .7	dc.w	.a,-24
 
 SPAhipchkl	=	*-SPAlist
-SPAhipchkl_table: ; 0x0059a8
+SPAhipchkl_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -955,7 +955,7 @@ SPAhipchkl_table: ; 0x0059a8
 .7	dc.w	.a,-24
 
 SPAhipchkr	=	*-SPAlist
-SPAhipchkr_table: ; 0x0059da
+SPAhipchkr_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -987,7 +987,7 @@ SPAhipchkr_table: ; 0x0059da
 .7	dc.w	.a,-24
 
 SPAburst	=	*-SPAlist
-SPAburst_table: ; 0x005a0c
+SPAburst_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -1019,7 +1019,7 @@ SPAburst_table: ; 0x005a0c
 .7	dc.w	.a,-24
 
 SPAHold	=	*-SPAlist
-SPAHold_table: ; 0x005a3e
+SPAHold_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -1051,7 +1051,7 @@ SPAHold_table: ; 0x005a3e
 .7	dc.w	.a,-30
 
 SPAHold2	=	*-SPAlist
-SPAHold2_table: ; 0x005a70
+SPAHold2_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -1083,7 +1083,7 @@ SPAHold2_table: ; 0x005a70
 .7	dc.w	.a,-30
 
 SPAflail	=	*-SPAlist
-SPAflail_table: ; 0x005aa2
+SPAflail_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -1115,7 +1115,7 @@ SPAflail_table: ; 0x005aa2
 .7	dc.w	.a,-30
 
 SPAfallfwd	=	*-SPAlist
-SPAfallfwd_table: ; 0x005ad4
+SPAfallfwd_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0026
@@ -1156,7 +1156,7 @@ SPAfallfwd_table: ; 0x005ad4
 .7	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
 
 SPAfallback	=	*-SPAlist
-SPAfallback_table: ; 0x005b86
+SPAfallback_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0026
@@ -1197,7 +1197,7 @@ SPAfallback_table: ; 0x005b86
 .7	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
 
 SPAcelebrate	=	*-SPAlist
-SPAcelebrate_table: ; 0x005c38
+SPAcelebrate_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001e
@@ -1229,7 +1229,7 @@ SPAcelebrate_table: ; 0x005c38
 .7	dc.w	.a,12,.a+1,40,.a,-5
 
 SPApump	=	*-SPAlist
-SPApump_table: ; 0x005caa
+SPApump_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001e
@@ -1261,7 +1261,7 @@ SPApump_table: ; 0x005caa
 .7	dc.w	.a,8,.a+1,8,.a,-8
 
 SPAfight	=	*-SPAlist
-SPAfight_table: ; 0x005d1c
+SPAfight_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0012
@@ -1285,7 +1285,7 @@ SPAfight_table: ; 0x005d1c
 .7	dc.w	.a,8,.a+1,8,.a+2,8,.a+8,-6
 
 SPAfgrab	=	*-SPAlist
-SPAfgrab_table: ; 0x005d4e
+SPAfgrab_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0012
@@ -1309,7 +1309,7 @@ SPAfgrab_table: ; 0x005d4e
 .7	dc.w	.a+6,28,.a+5,-4
 
 SPAfheld	=	*-SPAlist
-SPAfheld_table: ; 0x005d70
+SPAfheld_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0012
@@ -1333,7 +1333,7 @@ SPAfheld_table: ; 0x005d70
 .7	dc.w	.a+6,30,.a+5,-4
 
 SPAfhigh	=	*-SPAlist
-SPAfhigh_table: ; 0x005d92
+SPAfhigh_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0012
@@ -1357,7 +1357,7 @@ SPAfhigh_table: ; 0x005d92
 .7	dc.w	.a+7,6,.a+8,16,.a+7,4,.a+5,-16
 
 SPAflow	=	*-SPAlist
-SPAflow_table: ; 0x005dc4
+SPAflow_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0012
@@ -1381,7 +1381,7 @@ SPAflow_table: ; 0x005dc4
 .7	dc.w	.a+7,6,.a+9,16,.a+7,4,.a+5,-16
 
 SPAfhith	=	*-SPAlist
-SPAfhith_table: ; 0x005df6
+SPAfhith_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0012
@@ -1405,7 +1405,7 @@ SPAfhith_table: ; 0x005df6
 .7	dc.w	.a+11,16,.a+5,-8
 
 SPAfhitl	=	*-SPAlist
-SPAfhitl_table: ; 0x005e18
+SPAfhitl_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0012
@@ -1429,7 +1429,7 @@ SPAfhitl_table: ; 0x005e18
 .7	dc.w	.a+10,16,.a+5,-8
 
 SPAffall	=	*-SPAlist
-SPAffall_table: ; 0x005e3a
+SPAffall_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0012
@@ -1453,7 +1453,7 @@ SPAffall_table: ; 0x005e3a
 .7	dc.w	.a,8,.a+1,8,.a+2,200,.a+2,-2
 
 SPAfinjury	=	*-SPAlist
-SPAfinjury_table: ; 0x005e5c
+SPAfinjury_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0012
@@ -1478,7 +1478,7 @@ SPAfinjury_table: ; 0x005e5c
 .7	dc.w	.a,8,.a+1,8,.a+2,20,.b,8,.b+1,8,.b+2,8,.b+3,10,.b+4,10,.b+5,10,.b+3,10,.b+4,10,.b+5,10,.b+3,10,.b+4,10,.b+5,10,.b+3,10,.b+4,10,.b+5,-400
 
 SPAwallright	=	*-SPAlist
-SPAwallright_table: ; 0x005eb6
+SPAwallright_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001e
@@ -1502,7 +1502,7 @@ SPAwallright_table: ; 0x005eb6
 .7	; (skipped)
 
 SPAwallleft	=	*-SPAlist
-SPAwallleft_table: ; 0x005ef4
+SPAwallleft_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001e
@@ -1526,7 +1526,7 @@ SPAwallleft_table: ; 0x005ef4
 .7	; (skipped)
 
 SPAfaceoff	=	*-SPAlist
-SPAfaceoff_table: ; 0x005f32
+SPAfaceoff_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001e
@@ -1551,7 +1551,7 @@ SPAfaceoff_table: ; 0x005f32
 .7	dc.w	.a+20,2,.b+9,10,.b+8,-6
 
 SPAfaceoffr	=	*-SPAlist
-SPAfaceoffr_table: ; 0x005f5c
+SPAfaceoffr_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -1575,7 +1575,7 @@ SPAfaceoffr_table: ; 0x005f5c
 .7	dc.w	.a+20,-5
 
 SPAsiren	=	*-SPAlist
-SPAsiren_table: ; 0x005f76
+SPAsiren_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0012
@@ -1599,7 +1599,7 @@ SPAsiren_table: ; 0x005f76
 .7	dc.w	.a,3,.a+1,3,.a+2,3,.a+3,3,.a+4,3,.a+5,3,.a+6,3,.a+7,3,.a+8,3,.a+9,3,.a+10,3,.a+11,3,.a+12,3,.a+13,-3
 
 SPAbglass	=	*-SPAlist
-SPAbglass_table: ; 0x005fc0
+SPAbglass_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0012
@@ -1623,7 +1623,7 @@ SPAbglass_table: ; 0x005fc0
 .7	dc.w	.a,8,.a+1,8,.a+2,8,.a+3,8,.a+4,-1000
 
 SPAstanley	=	*-SPAlist
-SPAstanley_table: ; 0x005fe6
+SPAstanley_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -1655,7 +1655,7 @@ SPAstanley_table: ; 0x005fe6
 .7	dc.w	.a,-30
 
 SPAcatch	=	*-SPAlist
-SPAcatch_table: ; 0x006018
+SPAcatch_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x001a
@@ -1687,7 +1687,7 @@ SPAcatch_table: ; 0x006018
 .7	dc.w	.a,6,.a+1,-6
 
 SPAhook	=	*-SPAlist
-SPAhook_table: ; 0x00606a
+SPAhook_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0016
@@ -1719,7 +1719,7 @@ SPAhook_table: ; 0x00606a
 .7	dc.w	.a,-30
 
 SPAhook2	=	*-SPAlist
-SPAhook2_table: ; 0x00609c
+SPAhook2_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0022
@@ -1751,7 +1751,7 @@ SPAhook2_table: ; 0x00609c
 .7	dc.w	.a,9,.a+1,9,.a,9,.a+1,-9
 
 SPAstumble	=	*-SPAlist
-SPAstumble_table: ; 0x00612e
+SPAstumble_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0026
@@ -1783,7 +1783,7 @@ SPAstumble_table: ; 0x00612e
 .7	dc.w	.a,6,.a+1,6,.a+2,8,.a+1,6,.a,-6
 
 SPAfake	=	*-SPAlist
-SPAfake_table: ; 0x0061e0
+SPAfake_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x002a
@@ -1809,7 +1809,7 @@ SPAfake_table: ; 0x0061e0
 .7	dc.w	.a+7,4,.a+6,4,.b+10,20,.c+6,4,.c+7,4,.c,-4
 
 SPAflip	=	*-SPAlist
-SPAflip_table: ; 0x0062b2
+SPAflip_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x002e
@@ -1851,7 +1851,7 @@ SPAflip_table: ; 0x0062b2
 .7	dc.w	.a,6,.a+1,6,.a+2,6,.a+3,6,.b,100,.b+1,8,.c,-8
 
 SPAinjury1	=	*-SPAlist
-SPAinjury1_table: ; 0x0063a4
+SPAinjury1_table:
 .t	;offset to each direction of animation (0-7)
 	dc.w	.0-.t ; 0x0012
 	dc.w	.1-.t ; 0x0012
