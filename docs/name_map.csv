@@ -11,3 +11,6 @@ menuawayteam,Opt2team,92G
 playofflevel,OptNOP,92G
 playoffroundoffset,pojoy,92G
 PenaltyList,Penaltylist,92G
+NewPO,ContinuePlayoffs,clash:93NewPO-is-not-92NewPO(94-name)
+SelectRandomPlayoffTree,NewPO,92G
+UpdateTeamNameisplay,SetGoalieMode,misnamed-IDA(prints-nothing);94-name

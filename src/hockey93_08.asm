@@ -90,10 +90,10 @@ setoptions	;options screen display and input. Called from PeriodOver (hockey93_0
 .keep	st	(demoflag).w		;IDA: loc_13A84
 	cmpi.w	#2,(OptPlayMode).w
 	blt.w	.notree			;regular season or continue playoffs
-	bsr.w	SelectRandomPlayoffTree	;new playoffs
+	bsr.w	NewPO	;new playoffs
 .notree	cmpi.w	#1,(OptPlayMode).w	;IDA: loc_13A96
 	bne.w	.nopo
-	bsr.w	NewPO			;continue playoffs
+	bsr.w	ContinuePlayoffs			;continue playoffs
 .nopo	clr.w	d7			;IDA: loc_13AA4. menu line 0
 	clr.w	d0
 	bsr.w	.nms
@@ -181,7 +181,7 @@ setoptions	;options screen display and input. Called from PeriodOver (hockey93_0
 	bne.w	.npo
 	tst.w	d7
 	bne.w	.npo
-	bsr.w	NewPO			;93: play mode moved onto continue playoffs
+	bsr.w	ContinuePlayoffs			;93: play mode moved onto continue playoffs
 	move.w	(gamelevel).w,d0
 	or.w	(bosgames).w,d0
 	beq.s	.ii1			;nothing to continue: step past it
@@ -190,9 +190,9 @@ setoptions	;options screen display and input. Called from PeriodOver (hockey93_0
 .npo	cmpi.w	#2,(OptPlayMode).w	;IDA: loc_13BF2
 	blt.w	rtss
 	tst.w	d7
-	beq.w	SelectRandomPlayoffTree	;new playoffs: play mode or team 1 changed (92 NewPo)
+	beq.w	NewPO	;new playoffs: play mode or team 1 changed (92 NewPo)
 	cmp.w	#4,d7
-	beq.w	SelectRandomPlayoffTree
+	beq.w	NewPO
 	rts
 
 .iilimit	;IDA: setoptions_clampoptionvalue. d3 + d2, wrapped into d5 ... d4-1
@@ -397,7 +397,7 @@ setoptions_printpos2	;93: set the print position of team a2's player name: x 2 (
 	move.w	#$1A,(printx).w		;home team on the right
 	rts
 
-UpdateTeamNameisplay	;93: (IDA name, it prints nothing) pick the goalie shown for team a2 when it changes: $26(a2) =
+SetGoalieMode	;93: (IDA name, it prints nothing) pick the goalie shown for team a2 when it changes: $26(a2) = (was: UpdateTeamNameisplay)
 	;weighted random roster index from the 4 nibbles at team data +$A offset (UnpackNibbles / WeightedRandomSelect).
 	;$26 stays 0 when a pad controls the team, gamelevel > 2 or OptLine is set. Called from UpdateTeamNameAnimation
 	movem.l	d0/a0,-(sp)
@@ -449,7 +449,7 @@ UpdateTeamNameAnimation	;93: roster player of team a2 (sprite struct a3 = $22(a2
 	cmp.w	(a2),d0
 	beq.w	.same
 	move.w	d0,(a2)			;new team
-	bsr.w	UpdateTeamNameisplay
+	bsr.w	SetGoalieMode
 	clr.w	2(a2)			;first RosterOrderTable entry
 	bsr.w	ClearAndSetFlag
 .same	movea.w	tmsort(a2),a3		;IDA: loc_14016

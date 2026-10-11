@@ -23,7 +23,7 @@ DefaultMenus	;set default menu choices for beginning of game. Called once from B
 .defom	dc.w	0,1,$F,3,1,0,1		;IDA: _defom. play mode, players, team 1, team 2, period length,
 					;penalties, line changes (92 0,1,14,8,1,0,1)
 
-NewPO	;93 continue playoffs: read the playoff state back from the password bits, rebuild the tree.
+ContinuePlayoffs	;93 continue playoffs: read the playoff state back from the password bits, rebuild the tree. (was: NewPO)
 	;Called from setoptions when play mode becomes "continue playoffs" (hockey93_08).
 	;92 does the same in GameOver (DecodePW + MakeTree). Not 92 NewPO (that is SelectRandomPlayoffTree).
 	movem.l	d0-d7/a0-a3,-(sp)
@@ -39,7 +39,7 @@ NewPO	;93 continue playoffs: read the playoff state back from the password bits,
 .ex	movem.l	(sp)+,d0-d7/a0-a3	;IDA: loc_1446C
 	rts
 
-SelectRandomPlayoffTree	;IDA name; body is 92 NewPO: new playoff generates tree with same team 1.
+NewPO	;IDA name; body is 92 NewPO: new playoff generates tree with same team 1. (was: SelectRandomPlayoffTree)
 	;Called from setoptions (hockey93_08) for "new playoffs". Falls into maketree.
 	moveq	#$20,d0			;32 trees
 	bsr.w	randomd0
