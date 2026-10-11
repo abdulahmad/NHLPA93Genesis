@@ -1,21 +1,19 @@
-;	NHLPA Hockey 93 (retail) segment ReplayMode, getpzjoy, suba4/adda4
-;	RestoreReplayFrame, updatereplay, rtss2, updateplayers,
-;	updateanim, freezewindow, checkwindow.
+;	ReplayMode, getpzjoy, suba4/adda4, RestoreReplayFrame, updatereplay,
+;	rtss2, updateplayers, updateanim, freezewindow, checkwindow.
 ;	Bytes match nhlpa93retail.bin. Rev A has a 10-byte insertion inside
 ;	updateplayers (speed x$14 when music_global_tick_counter is set); retail
 ;	has the 92 code there.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	Struct offsets offsets; in comments where the use matches 92 (Xpos 0,
-;	attribute 4, frame 6, Ypos $14, Zpos $18, OldXpos $1C, Xvel $28, Yvel
-;	$2A, Zvel $2C, impact $32, position $34, assnum $36, asslist $38,
-;	SCnum $52, facedir $54, SPA $58, SPAnum $5A, SPAcnt $5C, pflags $62,
-;	pflags2 $63, glitch $65).
-;	Replay frames are $62 bytes (92 used 84) from $FFFF0000
-;	(replaystart) to $FFFFAF54 (replayend).
+;	Struct offsets in comments: Xpos 0, attribute 4, frame 6, Ypos $14,
+;	Zpos $18, OldXpos $1C, Xvel $28, Yvel $2A, Zvel $2C, impact $32,
+;	position $34, assnum $36, asslist $38, SCnum $52, facedir $54, SPA $58,
+;	SPAnum $5A, SPAcnt $5C, pflags $62, pflags2 $63, glitch $65.
+;	Replay frames are $62 bytes (92 used 84) from $FFFF0000 (replaystart)
+;	to $FFFFAF54 (replayend).
 
 ReplayMode	;this is instant replay play-back control and display code.
-	;Called from the pause menu. 93 adds tracking: a d-pad press picks the
+	;Called from the pause menu. Tracking: a d-pad press picks the
 	;nearest object in that direction and the camera follows it
 	bsr.w	forceblack
 	move.w	(disflags).w,-(sp)
@@ -146,7 +144,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	bsr.w	UpdateCameraPos
 	jsr	(setvideo).l
 	bra.w	.top
-.stab	dc.w	0,2,2,2,2,0,2,-2,0,-2,-2,-2,-2,0,-2,2	;92 steps * 2
+.stab	dc.w	0,2,2,2,2,0,2,-2,0,-2,-2,-2,-2,0,-2,2	;steps * 2
 
 .nomans	st	$18(a5)
 	btst	#5,d1			;cbut
@@ -257,17 +255,17 @@ UpdateCameraPos	;Camera struct a5 = object a3's x/y, Hpos/Vpos =
 .1	move.w	d0,(Hpos).w
 	cmp.w	#$100,d1
 	blt.w	.2
-	move.w	#$100,d1		;92 .yslimu
+	move.w	#$100,d1		;upper y scroll limit
 .2	cmp.w	#-200,d1
 	bgt.w	.3
-	move.w	#$FF38,d1		;92 .yslimd
+	move.w	#$FF38,d1		;lower y scroll limit
 .3	move.w	d1,(Vpos).w
 	movem.l	(sp)+,d0-d2
 	rts
 
 RestoreReplayFrame	;a4 = current replay frame address to convert into normal
-	;cordinates, then set the other replay variables (92
-	;nonshift). Returns d7 = frame delay. Hpos/Vpos come from the frame unless
+	;cordinates, then set the other replay variables.
+	;Returns d7 = frame delay. Hpos/Vpos come from the frame unless
 	;scrolling by hand (sfscrl), then from the camera or tracked object.
 	;Also the tail of suba4
 	movem.l	d0-d2/a0,-(sp)
@@ -426,7 +424,7 @@ updatereplay	;called every frame to save replay events, d7 = elapsed frames
 	addq.w	#1,a0
 	move.w	(Hpos).w,(a0)+
 	move.w	(Vpos).w,(a0)+
-rtss2	rts				;shared rts, called from many segments
+rtss2	rts				;shared rts
 
 updateplayers
 	;this routine calls all collision/animation/assignment code for all the players
@@ -541,7 +539,7 @@ updateplayers
 	bsr.w	Readjoy2
 	moveq	#2,d4			;pad index for cont 2 player
 	bsr.w	doinput
-.t1	move.w	assnum(a3),d0		;93 has no pfalock test here
+.t1	move.w	assnum(a3),d0		;no pfalock test here
 	clr.w	d1
 	move.b	asslist(a3,d0.w),d1
 	asl.w	#2,d1

@@ -1,10 +1,11 @@
-;	graphics data (92 incbins after part 3). incbin only, no gap and no overlap. Each file is a slice of
-;	nhlpa93retail.bin written by npm run extractassets into Extracted\Graphics. SNASM symbols are case-
-;	insensitive, so the 92 spellings also match the A map's tiles start past its 8-byte header: the segments
-;	write that as label+8, like 92 #IceRinkMap+8 (the names). unk_44120 are not labels: their only
-;	references are the offset long at Sprites+4 and the
+;	Graphics data: incbin only, no gaps and no overlaps. Each file is a slice of
+;	nhlpa93retail.bin written by npm run extractassets into Extracted\Graphics.
+;	A map's tiles start past its 8-byte header, so code refers to them as
+;	label+8 (e.g. #IceRinkMap+8). SNASM symbols are case-insensitive.
+;	Sprites is one blob; its internal tables are equates below (offsets from
+;	the long at Sprites+4), not separate labels.
 
-GameSetupSprites		;game setup roster sprites (AddTeamSpriteFrame SetSframe, tiles from +8). The 92 bitmap
+GameSetupSprites		;game setup roster sprites drawn with SetSframe by AddTeamSpriteFrame, tiles from +8
 	incbin	..\Extracted\Graphics\GameSetup.anim
 	even
 Title1Map		;TitleScreen backdrop
@@ -34,7 +35,7 @@ IceRinkMap
 RefsMap
 	incbin	..\Extracted\Graphics\Refs.map.jim
 	even
-RefMap2		;the horizontal ref (PushRef); no 92 counterpart
+RefMap2		;the horizontal ref (PushRef)
 	incbin	..\Extracted\Graphics\Refs2.map.jim
 	even
 Sprites		;$FFFFFFFF, long offset to FrameDataOff, then tiles
@@ -77,7 +78,7 @@ RonBarrMap		;Ron Barr picture on the ScoutingReport
 ScoresMap		;bitmap under the title on the ShowScores "Scores" screen
 	incbin	..\Extracted\Graphics\Scores.map.jim
 	even
-Stanleymap		;92 Stanley.map.jim was a bitmap; 93 draws the cup as sprites (UpdateStanleyCupAnimation SetSframe)
+Stanleymap		;Stanley Cup sprites, drawn with SetSframe by UpdateStanleyCupAnimation (92 used a bitmap)
 	incbin	..\Extracted\Graphics\Stanley.anim
 	even
 EASNmap2		;the five EASN bitmaps on the Stanley Cup screen

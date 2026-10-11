@@ -1,15 +1,14 @@
-;	NHLPA Hockey 93 (retail) segment
-;	New in 93, no NHL 92 source: the serial backup RAM (cartridge EEPROM) driver, the save/load of the
-;	128-byte databuffer (BackupRAM_Read, BitsToPW, BackupRAM_Load), the ClearRAMBuffer status screen
-;	and BackupRAM_DetectDevice. p_turnoff (sound driver) starts.
-;Bytes match nhlpa93retail.bin. 's Read/Write names are kept as they are; the headers say what
-;each one does.
+;	New in 93: the serial backup RAM (cartridge EEPROM) driver, the save/load
+;	of the 128-byte databuffer (BackupRAM_Read, BitsToPW, BackupRAM_Load), the
+;	ClearRAMBuffer status screen and BackupRAM_DetectDevice.
+;	Bytes match nhlpa93retail.bin. Each routine header says what the
+;	Read/Write routines actually do.
 ;	The device is a word port (BackupRAM_Port). Low byte bit 7 is the data line (SDA, read back in bit 7)
 ;	and bit 6 the clock (SCL): $C0 = both high, $80 = data high clock low, $40 = data low clock high.
 ;	The control byte sent after a start is address<<1 + 1 to read (sequential read from that address)
 ;	or address<<1 to write one byte. Addresses are 0-127.
-;	The backup RAM variables (and databuffer) are named.asm at their retail addresses, 4 bytes
-;	lower than in the Rev A listing (the Rev A address is in the comment).
+;	The backup RAM variables (and databuffer) are in Ram93.Asm at their retail addresses, 4 bytes
+;	lower than in Rev A (the Rev A address is in the equate comment).
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The source has the real
 ;	cmp; fixopcodes.js patches the encoding after assembly.
 ;	Saved block (databuffer, 128 bytes): bytes 0-125 data, byte 126 = not(sum of 0-125), byte 127 = sum.

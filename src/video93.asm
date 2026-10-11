@@ -1,16 +1,14 @@
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment first half: VBlank, vb2, DumpSprites,
-;	setvideo and the sprite builders it calls (show_rink, showref,
-;	checkfo, showzam, SetSframe, showcrowd). showclock ... KillCrowd.
+;	VBlank, vb2, DumpSprites, setvideo and the sprite builders it calls
+;	(show_rink, showref, checkfo, showzam, SetSframe, showcrowd).
 ;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp; fixopcodes.js patches the encoding after
 ;	assembly.
-;	92 bit names used in comments, same values in 93 unless noted:
-;	disflags 0 dfok, 2 dfng, 3 dfclock; sflags 0 sfpz, 7 sfhor;
-;	gmode 0 gmclock; sflags2 1 sf2refref. 92 used 64 ($40).
-;	93 sprite frame data (FaceOffSprites, ZamSprites, CrowdSprites): long
+;	Bits: disflags 0 dfok, 2 dfng, 3 dfclock; sflags 0 sfpz, 7 sfhor;
+;	gmode 0 gmclock; sflags2 1 sf2refref.
+;	Sprite frame data (FaceOffSprites, ZamSprites, CrowdSprites): the long
 ;	at +4 is the offset to a word table of frame offsets; frame n sprites
 ;	run from word n to word n+1, 8 bytes each: x 0, y 2, char 4,
 ;	flags 6 (top 5 bits used), size byte 7. 92 used a long pointer list.
@@ -48,7 +46,7 @@ VBlank	;main vblank code for game play (vbint target, set by setupice).
 	rte
 
 vb2	;vblank used for palfades only no dmas (vbint target).
-	;93 has no rte here: falls into IRQ7
+	;no rte here: falls into IRQ7
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
 	bne.w	.nograph
@@ -87,7 +85,7 @@ DoDMAList	;transfer data from dmalist. Also called from setupice
 	rts
 
 SetScroll2	;write Hscroll / Vscroll to the vdp. Called from DumpSprites.
-	;Same body as ; 93 dropped 's tempmap column transfers
+	;No tempmap column transfers (92 had them)
 	move.w	(VSCRLPM).w,d0
 	addq.w	#2,d0
 	bsr.w	Vmaddr
@@ -218,7 +216,7 @@ showref	;draw ref graphics. Called from setvideo.
 checkfo	;check for face off sprites. Called from setvideo. Falls into checkfo2
 	btst	#sfpz,(sflags).w
 	bne.w	rtss
-	btst	#4,(disflags).w		;93 faceoff flag (92 tests sflags2 sf2faceoff)
+	btst	#4,(disflags).w		;faceoff flag (92 tested an sflags2 bit)
 	beq.w	rtss
 	movea.w	#(fofdata2-M68K_RAM),a3
 	moveq	#2,d0
@@ -272,7 +270,7 @@ checkfo2	;face off graphics. a3 = face off data (word frame, word flags),
 
 showzam	;zamboni. Called from setvideo.
 	;a5 = dma list, a6 = sprite table, d6 = link counter.
-	;93 draws frame 1, frame 2-4 picked by x, then frame 5 (home score not ahead) or a .ftab frame
+	;draws frame 1, frame 2-4 picked by x, then frame 5 (home score not ahead) or a .ftab frame
 	move.w	(zamx).w,d0
 	bmi.w	rtss			;no zamboni
 	movea.l	#ZamSprites,a0
@@ -306,9 +304,9 @@ showzam	;zamboni. Called from setvideo.
 	bra.w	SetSframe
 .ftab	dc.w	5,6,7,8,7,8,7,8,7,8,7,6,5	;frame by (x-$DA)/4
 
-SetSframe	;draw one sprite frame. Called from showzam and from code outside this segment.
-	;a0 = framelist, d0/d1 = x/y cords, d2 = frame to setup (93 from 0, 92 from 1),
-	;d3 = start char in vram. a6 = sprite table, d6 = link counter. 93 also saves a0
+SetSframe	;draw one sprite frame. Called from showzam and from the screen code.
+	;a0 = framelist, d0/d1 = x/y cords, d2 = frame to setup (from 0; 92 counted from 1),
+	;d3 = start char in vram. a6 = sprite table, d6 = link counter. Also saves a0
 	cmp.w	#$40,d6			;MaxSprites
 	bge.w	rtss
 	movem.l	d0-d5/a0,-(sp)
@@ -347,7 +345,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	btst	#sfhor,(sflags).w
 	beq.w	.v
 	moveq	#-$40,d4
-	move.l	#$100,d5		;(92 also moved a1 by 31 frames here; 93 does it in .sc)
+	move.l	#$100,d5		;(92 also moved a1 by 31 frames here; here .sc does it)
 .v	clr.w	d0
 	move.b	(PBnum).w,d2		;low nibble
 	moveq	#$1A,d3			;frames 26+
@@ -434,20 +432,17 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 
 ;======================================================================
 ;======================================================================
-;	NHLPA Hockey 93 (retail) segment
-;	second half: showclock, checksso, setsortcords, setffo,
-;	uppads, addframe, addframe2, find3d, updatesound and KillCrowd, plus the
-;	pad label code (FormatControllerDisplay, RenderSmallFontChar).
-;	VBlank ... showcrowd. in 92 this is in here. Bytes match
-;	nhlpa93retail.bin.
+;	showclock, checksso, setsortcords, setffo, uppads, addframe, addframe2,
+;	find3d, updatesound and KillCrowd, plus the pad label code
+;	(FormatControllerDisplay, RenderSmallFontChar).
+;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp; fixopcodes.js patches the encoding after
 ;	assembly.
-;	92 bit names used in comments, same values in disflags 3 dfclock
-;	sflags 7 sfhor; ubut 0, dbut 1, lbut 2, rbut 3. 92 used 20000 ($4E20).
-;	Object offsets, 0, attribute 4, frame 6, oldframe 8
-;	VRoffs $A, VRchar $12, Ypos $14, Zpos $18. 92 used $1C, ssosize = $14
-;	scsize = 7 (128 byte SortCords entries).
+;	Bits: disflags 3 dfclock; sflags 7 sfhor; ubut 0, dbut 1, lbut 2, rbut 3.
+;	Object offsets: Xpos 0, attribute 4, frame 6, oldframe 8, VRoffs $A,
+;	VRchar $12, Ypos $14, Zpos $18. ssosize = $14, scsize = 7 (128 byte
+;	SortCords entries).
 ;	DMA list entries (a5): long source, word length in words, word vram.
 
 showclock	;put the game clock in the dma list. Called from setvideo; returns unless dfclock is set.
@@ -511,12 +506,12 @@ showclock	;put the game clock in the dma list. Called from setvideo; returns unl
 
 checksso	;do graphics for sso structure: arrows for the two players when they are off screen.
 	;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter.
-	;93 returns in sfhor mode (92 drew the scoreboard sso objects there); falls into .ca for player 2
+	;returns in sfhor mode (92 drew the scoreboard sso objects there); falls into .ca for player 2
 	btst	#sfhor,(sflags).w
 	bne.w	rtss
 	movea.w	#(pads+ffosize-M68K_RAM),a0	;+ffosize
 	movea.w	#(sso-M68K_RAM),a3
-	move.w	#$180,d3		;SPFarrow (92 $17A; 93 frames are 6 higher)
+	move.w	#$180,d3		;SPFarrow (frame numbers are 6 higher than 92)
 	bsr.w	.ca
 	adda.w	#$1C,a0			;ffosize
 	adda.w	#$14,a3			;ssosize
@@ -613,7 +608,7 @@ setffo	;draw the 5 objects tied to icerink scrolling (pads ...). Called from set
 	rts
 
 uppads	;update the gloves object and the 4 pad objects, and queue new pad labels.
-	;Called from setffo. a5 = dma list. 93 reads one PadControlBits nibble per pad (92 used padcont bits)
+	;Called from setffo. a5 = dma list. Reads one PadControlBits nibble per pad
 	movea.w	#(glovestruct-M68K_RAM),a0	;pads+(4*ffosize): gloves
 	st	Zpos(a0)			;hidden
 	move.b	(glovecords).w,d0
@@ -656,7 +651,7 @@ uppads	;update the gloves object and the 4 pad objects, and queue new pad labels
 	dbf	d4,.top
 	rts
 
-FormatControllerDisplay	;queue the 3 character label of a pad object (92 uppads.pd did 2 digits).
+FormatControllerDisplay	;queue the 3 character label of a pad object (92 drew 2 digits).
 	;Called from uppads. d1 = label code: bits 7-4 and 3-0 are digits ($F = blank), bits 10-8 index
 	;ButtonLabelCharTable. a0 = pad object, a5 = dma list. Falls into RenderSmallFontChar for the last char
 	lea	ButtonLabelCharTable(pc),a4
@@ -726,7 +721,7 @@ addframe	;a3 = cords.l frame/oldframe VRsize VRchar. Project the object with fin
 
 addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = sprite table, d6 = link counter.
 	;Also entered from checksso .ca and setupice. frame word: top 5 bits are attribute bits, low 11 the frame
-	;frames come from SpritesMap (offset table at +4) instead of 92 framelist. attribute is restored on exit
+	;frames come from SpritesMap (offset table at +4) instead of a framelist. attribute is restored on exit
 	move.w	attribute(a3),-(sp)		;save attribute
 	movem.l	d0-d5/a0-a2,-(sp)
 	move.w	frame(a3),d4
@@ -758,7 +753,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	bne.w	.nn
 	move.w	d0,oldframe(a3)		;last sprite: oldframe = frame
 .nn	movem.w	d0-d4,-(sp)
-	move.w	4(a2),d2		;tile pointer (93 keeps it whole)
+	move.w	4(a2),d2		;tile pointer (kept whole)
 	clr.w	d4
 	move.b	7(a2),d4		;size byte
 	movea.l	#sizetab,a0
@@ -784,7 +779,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	add.w	VRchar(a3),d3
 	ext.l	d2
 	asl.l	#5,d2
-	addi.l	#Spritetiles,d2		;92 move.l Spritetiles,a0 / add.l d2,a0
+	addi.l	#Spritetiles,d2		;tile address
 	asl.w	#4,d4
 	asl.w	#5,d3
 	move.l	d2,(a5)+
@@ -794,7 +789,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 .dup	move.b	d3,VRoffs(a3,d5.w)
 .noref	move.w	(sp)+,d0
 	movem.w	d0-d2,-(sp)		;write sprite att
-	move.w	2(a2),d2		;y global (93 +2, 92 +0)
+	move.w	2(a2),d2		;y global (+2; 92 used +0)
 	btst	#4,attribute(a3)		;y flip
 	beq.w	.noyflip
 	move.b	7(a2),d2
@@ -806,7 +801,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 .noyflip	add.w	d2,d1
 	move.w	d1,(a6)
 
-	move.w	(a2),d2			;x global (93 +0, 92 +6)
+	move.w	(a2),d2			;x global (+0; 92 used +6)
 	btst	#3,attribute(a3)		;x flip
 	beq.w	.noxflip
 	move.b	7(a2),d2

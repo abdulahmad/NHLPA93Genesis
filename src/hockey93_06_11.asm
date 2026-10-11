@@ -275,7 +275,7 @@ defaultsprites	;allocate vram and assign char area for graphic structures. d4 = 
 	dc.w	0,0,$FFFF,$189,$8000,7	;attribute 0, 12 chars
 	dc.w	0,0,$FFFF,$161,0,5	;SPFgloves (92 same, $161)
 
-defaultsprites2	;objects which are tied to screen scrolling and have velocity relative to icerink;
+defaultsprites2	;objects which are tied to screen scrolling and have velocity relative to icerink
 	;also set some variables in the structure to default settings.
 	;Jumped to from defaultsprites, also called from setoptions. d4 = vram char; ends in SprSort
 	clr.w	d6
@@ -654,8 +654,8 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	tst.w	(gamelevel).w
 	beq.w	.nopage			;one page only
 	bsr.w	printz
-	String	$CD,$A,1,'Press [ or ] to page'	;
-.nopage	move.w	#$18,(palcount).w	;24 ( in the string)
+	String	$CD,$A,1,'Press [ or ] to page'
+.nopage	move.w	#$18,(palcount).w	;24 frames per color flash
 	move.w	#SngEOG,-(sp)		;song $36 (92 used 4)
 	bsr.w	song
 
@@ -842,7 +842,7 @@ ScoutingReport	;pregame scouting report. Called from PeriodOver.
 	move.w	#SngScout,-(sp)		;song $37
 	bsr.w	song
 	move.l	#vb2,(vbint).w
-	bsr.w	clearTeamStats		;
+	bsr.w	clearTeamStats
 	bclr	#df32c,(disflags).w
 	move.w	#6,(Map1col).w
 	move.w	#6,(Map2col).w
@@ -2007,7 +2007,7 @@ setoptions_printpos2	;set the print position of team a2's player name: x 2 (visi
 	move.w	#$1A,(printx).w		;home team on the right
 	rts
 
-SetGoalieMode	;( it prints nothing) pick the goalie shown for team a2 when it changes: $26(a2) =
+SetGoalieMode	;pick the goalie shown for team a2 when it changes: $26(a2) =
 	;weighted random roster index from the 4 nibbles at team data +$A offset (UnpackNibbles / WeightedRandomSelect).
 	;$26 stays 0 when a pad controls the team, gamelevel > 2 or OptLine is set. Called from UpdateTeamNameAnimation
 	movem.l	d0/a0,-(sp)
@@ -3089,7 +3089,7 @@ CalculateTeamAttributeValues	;star scores of team a2 (a3 = other team) to (a4)+,
 	addi.l	#$7D00,(a4)		;32000
 	tst.w	d1
 	bne.w	.next
-	addi.l	#$124F8,(a4)		;75000 for a shutout ( a constant, not a label)
+	addi.l	#$124F8,(a4)		;75000 for a shutout
 .next	addq.w	#2,a1
 	addq.w	#1,a2
 	addq.w	#4,a4
@@ -3113,7 +3113,7 @@ ShowInjuryBox	;injury box "Injury to:" player TempPlOffset (set by setInjuryType
 	beq.w	.ex
 	bsr.w	printz
 	String	$BF,$14,6,'the game'	;over "period"
-.ex	movem.l	(sp)+,d0-d2/a0-a4	;( in the string)
+.ex	movem.l	(sp)+,d0-d2/a0-a4
 	rts
 
 DisplayPlayerAttributeMenu	;goal box. Closes both line change boxes, then printbig "GOAL!" (or "HAT
@@ -3452,7 +3452,7 @@ asstab	;jump table of all the player logic assignments. There is no "do nothing"
 	dc.l	assfaceoffpl		;$17
 	dc.l	pucknorm		;$18 puck logic
 	dc.l	puckshadow		;$19
-	dc.l	pucknothing		;$1A (in the Rev A listing)
+	dc.l	pucknothing		;$1A
 	dc.l	puckfaceoff		;$1B
 	dc.l	puckfaceoff2		;$1C
 
@@ -3830,7 +3830,7 @@ PauseText2	;pause menu item list without Timeout, used when tmflags bit 2 of the
 	dc.l	CrowdMeterScreen
 	String	$FF
 
-StartGameText	;label. Intermission menu for gsp 0
+StartGameText	;intermission menu for gsp 0
 	String	$FE,5
 	String	$FE,4
 	String	'    Start Game    '
@@ -3845,7 +3845,7 @@ StartGameText	;label. Intermission menu for gsp 0
 	dc.l	ShowScores
 	String	$FF
 
-StartGameTextPO	;label. Intermission menu for gsp 0 in the playoffs
+StartGameTextPO	;intermission menu for gsp 0 in the playoffs
 	;adds Playoff Stats
 	String	$FE,5
 	String	$FE,4
@@ -3863,7 +3863,7 @@ StartGameTextPO	;label. Intermission menu for gsp 0 in the playoffs
 	dc.l	ShowScores
 	String	$FF
 
-IntermissionText	;label. Intermission menu for gsp 1-3, season and
+IntermissionText	;intermission menu for gsp 1-3, season and
 	;playoffs
 	String	$FE,5
 	String	$FE,4
@@ -3889,8 +3889,7 @@ IntermissionText	;label. Intermission menu for gsp 1-3, season and
 	dc.l	LineEditor
 	String	$FF
 
-ExitGameText	;label. Intermission menu for gsp 4.
-	;'s PlayoffScreenText2 label inside the Team Roster string is not created
+ExitGameText	;intermission menu for gsp 4.
 	String	$FE,5
 	String	$FE,4
 	String	'    Exit Game     '
@@ -3911,7 +3910,7 @@ ExitGameText	;label. Intermission menu for gsp 4.
 	dc.l	CrowdMeterScreen
 	String	$FF
 
-ExitGameTextPO	;label. Intermission menu for gsp 4 in the playoffs
+ExitGameTextPO	;intermission menu for gsp 4 in the playoffs
 	;same items as ExitGameText
 	String	$FE,5
 	String	$FE,4

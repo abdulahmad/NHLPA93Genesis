@@ -1,8 +1,9 @@
+;	Top level of the full ROM build: one include per ROM section, in ROM order.
 ;	ROM map: retail nhlpa93retail.bin addresses (inclusive) for every include.
-;	Boundaries are routine starts checked against the ROM bytes. 92 = the NHL 92
-;	file/part the code comes from. See SEGMENT_AGENT.md "ROM map".
-;	Top level of the full ROM build, like . holds
-;	the ports, RAM map and structure equates; each *_stub.asm includes it for a single segment build.
+;	Boundaries are routine starts checked against the ROM bytes. The "92 part"
+;	notes say which part of the NHL 92 source the code corresponds to.
+;	Ram93.Asm holds the ports, RAM map and structure equates; each *_stub.asm
+;	includes it for a single segment build.
 
 	include	Main93.Asm		;EA provided code for startup and EA logo
 	include	TeamData93.Asm		;$000310-$004D8D
@@ -11,22 +12,22 @@
 					;no ROM bytes (equates only)
 
 					;92 part 1 (Begin ... updateanim), with 93 menus/stats inserted
-	include hockey93_01.asm		;$006446-$0069FF  VBjsr, Begin ... Pausemode (92 PauseExit), SetupPauseScreen, seta2
+	include hockey93_01.asm		;$006446-$0069FF  VBjsr, Begin ... Pausemode, SetupPauseScreen, seta2
 	include menu93.asm		;$006A00-$006C09 InitMenuState ... MenuWaitVblank (menu engine)
 	include stats93.asm		;$006C0A-$008AC3 stats, attribute, game info screens
 	include hockey93_02.asm		;$008AC4-$00946D  ReplayMode ... updatereplay, updateplayers, updateanim, freezewindow, checkwindow
 
-	include logic93.asm		;$00946E-$00D629 doinput ... dirtab, 93 nibble/random helpers
+	include logic93.asm		;$00946E-$00D629 doinput ... dirtab, nibble/random helpers
 	include middle93.asm		;$00D62A-$00E525 remap ... AddTeamBlock
-	include penalty93.asm		;$00E526-$00FAE1 AddPenalty ... StartHL2 (was penalty93..2; Penaltylist data)
+	include penalty93.asm		;$00E526-$00FAE1 AddPenalty ... StartHL2
 
 					;92 part 2 (checkcoll ... deflect)
-	include hockey93_03_05.asm		;$00FAE2-$011801  checkcoll ... setplayer (was hockey93_03_05..05; contiguous)
+	include hockey93_03_05.asm		;$00FAE2-$011801  checkcoll ... setplayer
 
 	include video93.asm		;$011802-$0122A7 VBlank ... KillCrowd
 
 					;92 part 3 (setupice ... crash), then 93 data tables
-	include hockey93_06_11.asm		;$0122A8-$015FE5  setupice ... PlayoffScreen, ScoutingReport, setoptions, playoffs/password, ResolveGames, data tables (was hockey93_06_11..11; contiguous)
+	include hockey93_06_11.asm		;$0122A8-$015FE5  setupice ... PlayoffScreen, ScoutingReport, setoptions, playoffs/password, ResolveGames, data tables
 					;  PerLabels, sizetab, sublist, priolist, menu/pause text
 	
 	include sram93.asm		;$015FE6-$0165D7 BackupRAM_*, BitsToPW, ClearRAMBuffer, ClearVRAM

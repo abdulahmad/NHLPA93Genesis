@@ -1,11 +1,11 @@
-;	NHLPA Hockey 93 (retail) segment VBjsr / Begin through seta2: up to
-;	the end of Pausemode plus the 93 pause screen draw routine. The menu
-;	engine Pausemode calls follows.asm ($6A00).
-;	Local labels and comments follow NHL 92 where the code matches.
+;	VBjsr / Begin through seta2: startup, the game loop pieces up to the end
+;	of Pausemode, and the pause screen draw routine. The menu engine that
+;	Pausemode calls follows (menu93.asm).
+;	Local labels follow NHL 92 where the code matches.
 ;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	92 equate names in comments are only used where the 93 value is the same.
+;	Equate names in comments are only used where the value is the same as 92.
 ;	Inline print strings after printsmallz use the String macro
 ;	(length word includes itself, odd data is padded to a word).
 
@@ -267,7 +267,7 @@ clockcont	;monitor period clock and initiate various clock activated events
 	move.w	#SFXhorn,-(sp)		;horn (92 used 24)
 	bsr.w	sfx
 	bsr.w	freezewindow
-clockcont_0	;end of period. Also entered from puckfaceoff+2E
+clockcont_0	;end of period. Also entered from puckfaceoff
 	movea.w	#(puckx-M68K_RAM),a3	;puck
 	move.l	#$18,d0
 	bsr.w	assinsert

@@ -1,9 +1,7 @@
-;	NHLPA Hockey 93 (retail) segment
-;	menu engine: InitMenuState through MenuWaitVblank. The generic
-;	scrolling menu used by the pause screen (Pausemode).
-;Not in NHL 92; names are.
+;	Menu engine: InitMenuState through MenuWaitVblank. The generic scrolling
+;	menu used by the pause screen (Pausemode). Not in NHL 92.
 ;	Bytes match nhlpa93retail.bin.
-;	92 equate names in comments are only used where the 93 value is the same.
+;	Equate names in comments are only used where the value is the same as 92.
 ;	Inline print strings after printsmallz/printsmall use the String macro
 ;	(length word includes itself, odd data is padded to a word).
 

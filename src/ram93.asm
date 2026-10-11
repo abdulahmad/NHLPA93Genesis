@@ -1,6 +1,6 @@
-;Variables NHLPA 93 RAM map, ports and structure equates, in NHL92Genesis/src/order. Every address is the
-;	retail (nhlpa93retail.bin) address.
-;	Included.asm and by every *_stub.asm (segment builds). No ROM bytes.
+;	RAM map, ports and structure equates. Every address is the retail
+;	(nhlpa93retail.bin) address. Included by hockey93.asm and by every
+;	*_stub.asm (segment builds). No ROM bytes.
 
 ;hardware
 Asound	=	$c00011	;analog sound (VDP_PSG)
@@ -35,7 +35,7 @@ VDP__CTRL	=	$C00006
 VDP__DATA	=	$C00002
 VDP___CNTR	=	$C0000C
 VDP____CNTR	=	$C0000E
-Z80_RAM	=	$A00000	;Z80 RAM as seen from the 68000 ( Z80_RAM+$8E is the PCM rate byte)
+Z80_RAM	=	$A00000	;Z80 RAM as seen from the 68000 (Z80_RAM+$8E is the PCM rate byte)
 BackupRAM_Port	=	$200000	;serial backup RAM port: low byte bit 7 data, bit 6 clock
 Joy1	=	$a10003	;controller ports
 Joy2	=	$a10005
@@ -209,8 +209,9 @@ SFXpuckwall1	=	$28
 SFXpuckice	=	$2C
 SngTitle	=	$35
 SngEOG	=	$36
-SngScout	=	$37	;scouting report (no) printsmall control codes (bytes run ControlCodeJumpTable entry -byte; names match the
-;ControlCode_* routines)
+SngScout	=	$37	;scouting report
+
+;printsmall control codes (byte value = -(ControlCodeJumpTable entry); names match the ControlCode_* routines)
 CC_SetMap	=	$FF	;-1: next byte = map number -> printm
 CC_SetAttribute	=	$FE	;-2: next byte = palette/priority -> printa
 CC_SetX	=	$FD	;-3: next byte = printx

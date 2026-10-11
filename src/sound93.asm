@@ -1,13 +1,14 @@
-;	NHLPA Hockey 93 (retail) segment
-;	68k side of the 93 sound driver, p_turnoff ... ClearAllTrackAndSFXSlots. No NHL 92 source: 92 used a
-;	different driver (NHL92Genesis/src/sound/sound.asm). Only the entry names p_turnoff, p_music_vblank and
-;	p_initialZ80 are shared with 92 (92 headers: audio stop, vblank handler, initialization).
-;Bytes match nhlpa93retail.bin.
-;	Its first
-;	byte is the dc.b before the incbins; the rest of the Z80 blob and the sound data are incbins from.
-;	Driver RAM is named.asm at its retail address. RAM from $CAEE up is 4 bytes lower in retail
-;	than in the Rev A listing: retail has no music_global_tick_counter / music_tick_divider words (see
-;	p_music_vblank). The Rev A address is in the comment.
+;	68k side of the sound driver, p_turnoff ... ClearAllTrackAndSFXSlots.
+;	New in 93: this is a different driver from the 92 one; only the entry
+;	points p_turnoff (audio stop), p_music_vblank (vblank handler) and
+;	p_initialZ80 (initialization) keep the same roles.
+;	Bytes match nhlpa93retail.bin. The first byte of the Z80 program is the
+;	dc.b before the incbins; the rest of the Z80 blob and the sound data are
+;	incbins.
+;	Driver RAM is in Ram93.Asm at its retail address. RAM from $CAEE up is 4
+;	bytes lower in retail than in Rev A: retail has no
+;	music_global_tick_counter / music_tick_divider words (see p_music_vblank).
+;	The Rev A address is in the equate comment.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The source has the real
 ;	cmp; fixopcodes.js patches the encoding after assembly.
 ;	Data seen in the bytes:
@@ -18,7 +19,7 @@
 ;	  voice table $CB9C (8 bytes per key): +0 word pitch bend (value - $2000), +3 patch.
 ;	  command buffer $CB7A (33 bytes, copied to Z80 RAM $02-$22): +0 key off bits, +1 key on bits,
 ;	    +2 volume bits, +3 frequency bits, +4 patch bits (one bit per output channel), $CB7F 7 volume
-;	    bytes, $CB86 7 frequency words, $ 7 patch bytes. $CB78 = buffer changed flag.
+;	    bytes, $CB86 7 frequency words, $CB94 7 patch bytes. $CB78 = buffer changed flag.
 ;	  events (4 bytes): +0 delay before this event, +1 status (bits 6-4 command, bits 3-0 channel),
 ;	    +2/+3 data. Status 0 ends the stream; a non-negative long at +2 is a loop pointer.
 

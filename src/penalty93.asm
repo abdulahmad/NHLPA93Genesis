@@ -1084,7 +1084,7 @@ SetupTeamForIntermission	;reset the bench, then for each team refill energy and 
 	lea	tmsize(a2),a3
 	bsr.w	.r
 	exg	a2,a3			;falls in for the other team
-.r	bsr.w	reenergizeteam		;name taken by)
+.r	bsr.w	reenergizeteam		;refill energy for this team
 	clr.w	tmline(a3)
 	tst.w	(OptLine).w
 	bne.w	rtss			;line changes off
