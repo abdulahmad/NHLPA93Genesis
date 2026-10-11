@@ -720,7 +720,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	jsr	(SetupPauseScreen).w	;93: pause menu screen (92 DisplayStats)
 	jsr	(DrawMenuScreen).w
 	move.w	#$18,(palcount).w	;24
-	move.w	#$36,-(sp)		;song $36
+	move.w	#SngEOG,-(sp)		;song $36
 	bsr.w	song
 	movem.l	(sp),d0-d7/a0-a6
 	move.w	#4,8(a0)		;gsper: OT

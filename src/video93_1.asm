@@ -41,7 +41,7 @@ VBlank	;IDA: VBlank_org. main vblank code for game play (vbint target, set by se
 	bgt.w	.c
 	cmpi.w	#$3C,(gameclock).w	;60
 	blt.w	.c
-	move.w	#2,-(sp)		;SFXbeep2 (92 = 2), played when gameclock reaches 60
+	move.w	#SFXbeep2,-(sp)		;SFXbeep2 (92 = 2), played when gameclock reaches 60
 	bsr.w	sfx
 .c	addq.w	#1,(vcount).w		;IDA: _c. 92 Vcount
 	jsr	p_music_vblank

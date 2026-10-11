@@ -165,7 +165,7 @@ DisplayPeriodOver	;93 only: end of game "Stars of the Game" box. Called from Upd
 	move.w	(hmtmstruct+tmscore).w,d0	;home score
 	sub.w	(awtmstruct+tmscore).w,d0	;- visitor score
 	ble.w	.nosong
-	move.w	#$F,-(sp)		;song $F: home team won
+	move.w	#SFXhomewin,-(sp)		;song $F: home team won
 	bsr.w	song
 .nosong	movem.l	(sp)+,d0-d5/a0-a4	;IDA: skip_if_away_wins_or_tie
 	rts

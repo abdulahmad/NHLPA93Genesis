@@ -489,7 +489,7 @@ IntermissionStart	;IDA: _sp. PeriodOver tail (92 PeriodOver .sp): reset the cloc
 	;playoff team stats at game over, then Intermission. Next period, or GameOver when gsp = 4.
 	;Also jumped to from StartGame (hockey93_01, as _sp) for the pregame intermission
 	jsr	ResetClock
-	move.w	#$36,-(sp)		;song $36 (92 SngEOG = 3 here)
+	move.w	#SngEOG,-(sp)		;song $36 (92 SngEOG = 3 here)
 	bsr.w	song
 	bsr.w	UpdateScores
 	cmpi.w	#4,(gsp).w
@@ -511,7 +511,7 @@ GameOver	;IDA: loc_129FC. 92 name. Save the password, show the playoff stats and
 
 ExitToOpening	;IDA: loc_12A16. Song $35, then restart at Opening2. Falls in from GameOver,
 	;also jumped to from HandleJoy1 (hockey93_01, as loc_12A16) to end the demo
-	move.w	#$35,-(sp)		;93 only (92 GameOver played no song)
+	move.w	#SngTitle,-(sp)		;93 only (92 GameOver played no song)
 	bsr.w	song
 	bra.w	Opening2
 
@@ -662,7 +662,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	bsr.w	printz
 	String	$CD,$A,1,'Press [ or ] to page'	;(92 .pli 4th string)
 .nopage	move.w	#$18,(palcount).w	;IDA: loc_12C30+2. 24 (IDA hid this in the string)
-	move.w	#$36,-(sp)		;song $36 (92 SngPO = 4)
+	move.w	#SngEOG,-(sp)		;song $36 (92 SngPO = 4)
 	bsr.w	song
 
 	clr.w	d0

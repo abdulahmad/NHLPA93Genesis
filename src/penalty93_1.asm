@@ -344,7 +344,7 @@ Stop4Pen	;a0 = penaltylist penalty +2. Stop the clock, set the face off spot fro
 
 .skipfo	clr.w	(Pencntdwn).w		;IDA: _skipfo
 	bset	#gmpen,(gmode).w
-	move.w	#3,-(sp)		;whistle (92 SFXwhistle = 10)
+	move.w	#SFXwhistle,-(sp)		;whistle (92 SFXwhistle = 10)
 	bsr.w	sfx
 	move.w	#$A,d0			;whistle (92 PenWhistle = $26)
 	bra.w	SetPA

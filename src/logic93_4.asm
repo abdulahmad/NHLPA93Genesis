@@ -813,7 +813,7 @@ updatefaceoff	;a3 = puck. Drop animation frame from temp1; at 0 erases the faceo
 	bra.w	eraser
 
 Endfaceoff	;drop the puck: pick the faceoff winner and send the puck off. Entered from puckfaceoff2
-	move.w	#$2F,-(sp)		;SFXpuckice
+	move.w	#SFXpuckice+3,-(sp)		;SFXpuckice
 	bsr.w	sfx
 	bclr	#sf2faceoff,(sflags2).w
 	move.w	(ExtraChars).w,d4

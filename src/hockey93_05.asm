@@ -174,7 +174,7 @@ puckbody	;puck hits player a2. a3 = puck, d0 = distance^2 (from checkpuckcoll .c
 	andi.w	#$F,d1			;radius^2 from center
 	bne.w	rtss
 .hit	bsr.w	a2touchpuck		;IDA: loc_1107C
-	move.w	#$24,-(sp)		;puck body sound (92 SFXpuckbody = 5)
+	move.w	#SFXpuckbody,-(sp)		;puck body sound (92 SFXpuckbody = 5)
 	bsr.w	sfx
 	clr.w	Zvel(a3)
 	move.b	#8,nopuck(a2)
@@ -721,8 +721,8 @@ setplayer	;bring player onto the ice and set his stats
 	add.b	(HmAwBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,passacc(a3)
-	move.b	7(a0),$73(a3)		;aggress
-	andi.b	#$F,$73(a3)
+	move.b	7(a0),aggress(a3)		;aggress
+	andi.b	#$F,aggress(a3)
 	rts
 
 ClampNibble	;93 only: clamp byte d3 to 0-15. Called by setplayer

@@ -19,7 +19,7 @@
 ScoutingReport	;93 pregame scouting report (92 drew ScoutMap and position check marks). Called from PeriodOver.
 	;Draws both team blocks, the Ron Barr picture and the scouting report ratings, then types out
 	;the commentary paragraphs listed in TestList. Returns on start, or when screentimer runs out ($1E0 after the text ends)
-	move.w	#$37,-(sp)		;song $37
+	move.w	#SngScout,-(sp)		;song $37
 	bsr.w	song
 	move.l	#vb2,(vbint).w
 	bsr.w	clearTeamStats		;93: (92 bsr SetTeams)
@@ -440,7 +440,7 @@ StanleyCupPosTable	;IDA: unk_13422. 93: column, row of the five Stanley Cup bitm
 
 TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 	;93: Titlemap backdrop, three Title3map sprites, Titlemap2 logo sprites, scrolling credits. Start leaves
-	move.w	#$35,-(sp)		;song $35 (92 SngTitle = 1)
+	move.w	#SngTitle,-(sp)		;song $35 (92 SngTitle = 1)
 	bsr.w	song
 	move.w	(VDP_CNTR).l,(StanleyCupTimer).w	;seed randomd0 from the H/V counter
 	move.w	(VDP_CNTR).l,(StanleyCupTimer+2).w

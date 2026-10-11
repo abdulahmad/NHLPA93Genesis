@@ -268,7 +268,7 @@ clockcont	;monitor period clock and initiate various clock activated events
 	tst.w	(gameclock).w
 	bne.w	rtss2
 
-	move.w	#4,-(sp)		;horn (92 SFXhorn = 24)
+	move.w	#SFXhorn,-(sp)		;horn (92 SFXhorn = 24)
 	bsr.w	sfx
 	bsr.w	freezewindow
 clockcont_0	;end of period. Also entered from puckfaceoff+2E

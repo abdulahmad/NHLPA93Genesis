@@ -322,7 +322,7 @@ checkint	;check for interference penalty. player a2 interferes with a3 or vice-v
 	btst	#4,pflags2(a3)		;93 penalty bit (92 pf2pen = 6)
 	bne.w	rtss			;no double minor
 	moveq	#$14,d0			;93: penalty 3 times in (20 - byte $73)
-	sub.b	$73(a3),d0
+	sub.b	aggress(a3),d0
 	bsr.w	randomd0
 	cmp.w	#2,d0
 	bhi.w	rtss
@@ -417,7 +417,7 @@ checkcheck	;player is in contact look for various contact events. Runs .cc for a
 
 checkagr	;93: penalty roll for player a3. Range = (20 - byte $73) * 13, doubled for a joystick player, halved within $28 of the puck in x and y. Return d0 = randomd0 of that range; the callers call a penalty when it is small. Called from checkcheck .cc, holdcheck and Bcheck
 	moveq	#$14,d0
-	sub.b	$73(a3),d0
+	sub.b	aggress(a3),d0
 	mulu.w	#$D,d0
 	btst	#pfjoycon,pflags(a3)
 	beq.w	.nojoy
@@ -645,7 +645,7 @@ setInjuryType	;93: sets period injury. a2 = player injured, a3 = player checking
 	bset	#2,pflags2(a2)		;set player unavailable (92 pf2unav = 4)
 	addi.w	#$12C,(crowdlevel).w	;pump up crowd
 	addi.w	#$1E,(CwdExciteLvl).w
-	move.w	#$D,-(sp)		;SFX
+	move.w	#SFX0D,-(sp)		;SFX
 	bsr.w	sfx
 	move.w	(a2),(xc1).w		;move X and Y pos to scroll center
 	move.w	Ypos(a2),(yc1).w

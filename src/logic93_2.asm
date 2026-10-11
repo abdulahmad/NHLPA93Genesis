@@ -452,7 +452,7 @@ chkhit	;part of fight to see if player is hit
 	bmi.w	.fall
 	move.w	#$1068,d1		;SPAfhith
 	bsr.w	SetSPA
-	move.w	#9,-(sp)		;SFXhithigh
+	move.w	#SFXhithigh,-(sp)		;SFXhithigh
 	bsr.w	sfx
 	bra.s	.ex
 .hitlow	exg	a0,a3			;IDA: _hitlow
@@ -462,7 +462,7 @@ chkhit	;part of fight to see if player is hit
 	bmi.w	.fall
 	move.w	#$108A,d1		;SPAfhitl
 	bsr.w	SetSPA
-	move.w	#$A,-(sp)		;SFXhitlow
+	move.w	#SFXhitlow,-(sp)		;SFXhitlow
 	bsr.w	sfx
 	bra.w	.ex
 .cwd	;IDA: CwdFight. Crowd reacts to a punch; push the hit player (a3)

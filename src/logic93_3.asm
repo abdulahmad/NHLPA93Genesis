@@ -445,7 +445,7 @@ assgoalie	;IDA: loc_B18A. Player a3 is goalie. Also entered from assnearest
 	bne.w	.set
 	andi.w	#3,d3
 	beq.w	.set
-	cmpi.b	#$B,$73(a3)
+	cmpi.b	#$B,aggress(a3)
 	blt.w	.set
 	move.w	#$1CA,d1
 .set	bsr.w	SetSPA			;IDA: loc_B568

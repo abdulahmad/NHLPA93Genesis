@@ -390,7 +390,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	bne.w	rtss
 	bsr.w	ChkShotStat
 	bsr.w	play_new_song		;93 only
-	move.w	#0,-(sp)		;SFXsiren (92 same, 0)
+	move.w	#SFXsiren,-(sp)		;SFXsiren (92 same, 0)
 	bsr.w	sfx
 	bsr.w	freezewindow
 	addi.w	#$1F4,(crowdlevel).w	;add 500 (92 800)
@@ -612,7 +612,7 @@ wallcollb	;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. C
 	move.w	#$1232,d1		;SPA $1232 (93 only)
 	bsr.w	SetSPA
 	movea.l	(sp)+,a3
-	move.w	#$E,-(sp)		;sfx $E
+	move.w	#SFX0E,-(sp)		;sfx $E
 	bsr.w	sfx
 	addi.w	#$258,(crowdlevel).w	;add 600
 	addi.w	#$F,(CwdExciteLvl).w
@@ -688,7 +688,7 @@ wallcoll	;d0 = cosine, d1 = sine of angle of incidence with wall, a3 = object. C
 	bgt.w	.nosfx
 	cmpi.w	#$A,impact(a3)
 	blt.w	.nosfx
-	move.w	#$20,-(sp)		;sfx $20 (92 SFXplayerwall = 15)
+	move.w	#SFXplayerwall,-(sp)		;sfx $20 (92 SFXplayerwall = 15)
 	bsr.w	sfx
 .nosfx	asr.w	#2,d2
 	cmp.w	#$FC7C,d2		;-900
