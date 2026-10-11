@@ -1,6 +1,6 @@
 ;	New in 93: the serial backup RAM (cartridge EEPROM) driver, the save/load
-;	of the 128-byte databuffer (BackupRAM_Read, BitsToPW, BackupRAM_Load), the
-;	ClearRAMBuffer status screen and BackupRAM_DetectDevice.
+;	of the 128-byte databuffer (BackupRAM_Read, BackupRAM_Save, BackupRAM_Load), the
+;	ClearRAMBuffer status screen and ReadPad1Held.
 ;	Bytes match nhlpa93retail.bin. Each routine header says what the
 ;	Read/Write routines actually do.
 ;	The device is a word port (BackupRAM_Port). Low byte bit 7 is the data line (SDA, read back in bit 7)
@@ -13,7 +13,7 @@
 ;	cmp; fixopcodes.js patches the encoding after assembly.
 ;	Saved block (databuffer, 128 bytes): bytes 0-125 data, byte 126 = not(sum of 0-125), byte 127 = sum.
 
-BackupRAM_WriteControl	;start condition: data falls while the clock is high, then clock low. Called before every control byte
+BackupRAM_Start	;start condition: data falls while the clock is high, then clock low. Called before every control byte
 	nop
 	nop
 	nop
@@ -39,7 +39,7 @@ BackupRAM_WriteControl	;start condition: data falls while the clock is high, the
 	nop
 	rts
 
-BackupRAM_ControlSequenceData	;stop condition: data rises while the clock is high, then clock low with data released.
+BackupRAM_Stop	;stop condition: data rises while the clock is high, then clock low with data released.
 	;the first instruction as dc.b + ori.b (its BackupRAM_InitSequence label is inside it). Code, not data
 	move.w	#0,(BackupRAM_Port).l		;data low, clock low
 	nop
@@ -102,7 +102,7 @@ BackupRAM_ReadBit	;release the data line, pulse the clock and shift the data bit
 	roxl.w	#1,d0
 	rts
 
-BackupRAM_EndRead	;acknowledge a received byte (data low for one clock) so the sequential read goes on. Called by BackupRAM_WriteBlock
+BackupRAM_SendAck	;acknowledge a received byte (data low for one clock) so the sequential read goes on. Called by BackupRAM_ReadBlock
 	move.w	#0,(BackupRAM_Port).l		;data low, clock low
 	nop
 	nop
@@ -123,7 +123,7 @@ BackupRAM_EndRead	;acknowledge a received byte (data low for one clock) so the s
 	nop
 	rts
 
-BackupRAM_EndWrite	;no acknowledge after the last received byte (data high for one clock). Called by BackupRAM_WriteBlock before the stop
+BackupRAM_SendNoAck	;no acknowledge after the last received byte (data high for one clock). Called by BackupRAM_ReadBlock before the stop
 	move.w	#$80,(BackupRAM_Port).l	;data high, clock low
 	nop
 	nop
@@ -176,14 +176,14 @@ BackupRAM_WaitReady	;wait $1965 nops, then 9 x (clock high/low with data release
 	nop
 	nop
 	nop
-	bsr.w	BackupRAM_WriteControl	;clock high, start, clock low
+	bsr.w	BackupRAM_Start	;clock high, start, clock low
 	dbf	d0,.clk
-	bsr.w	BackupRAM_ControlSequenceData	;stop
+	bsr.w	BackupRAM_Stop	;stop
 	rts
 
-BackupRAM_WriteBlock	;reads: d1 bytes from backup RAM address d0 into a0 (sequential read).
+BackupRAM_ReadBlock	;reads: d1 bytes from backup RAM address d0 into a0 (sequential read).
 	;Retries from a bus reset while the device does not acknowledge, up to retrycount. Return a0, d0, d1 as passed,
-	;errorflag = retries used, or -1 when it failed. Called from BackupRAM_Read, BackupRAM_ReadBlock and BackupRAM_Load
+	;errorflag = retries used, or -1 when it failed. Called from BackupRAM_Read, BackupRAM_WriteBlock and BackupRAM_Load
 	move.w	#0,(errorflag).w
 	move.w	d1,(bytecount).w
 	move.l	a0,(sramdataptr).w
@@ -193,7 +193,7 @@ BackupRAM_WriteBlock	;reads: d1 bytes from backup RAM address d0 into a0 (sequen
 .retry	bsr.s	BackupRAM_WaitReady
 .start	movea.l	(sramdataptr).w,a0
 	move.l	(address).w,d0
-	bsr.w	BackupRAM_WriteControl	;start
+	bsr.w	BackupRAM_Start	;start
 	andi.w	#$7F,d0
 	lsl.w	#1,d0
 	ori.w	#1,d0			;address<<1 + 1 = read
@@ -227,10 +227,10 @@ BackupRAM_WriteBlock	;reads: d1 bytes from backup RAM address d0 into a0 (sequen
 	move.b	d0,(a0)+
 	subq.w	#1,(bytecount).w
 	beq.w	.last
-	bsr.w	BackupRAM_EndRead	;acknowledge, read the next byte
+	bsr.w	BackupRAM_SendAck	;acknowledge, read the next byte
 	bra.s	.byte
-.last	bsr.w	BackupRAM_EndWrite	;no acknowledge after the last byte
-	bsr.w	BackupRAM_ControlSequenceData	;stop
+.last	bsr.w	BackupRAM_SendNoAck	;no acknowledge after the last byte
+	bsr.w	BackupRAM_Stop	;stop
 .ex	movea.l	(sramdataptr).w,a0
 	move.l	(address).w,d0
 	move.l	(byecount).w,d1
@@ -238,9 +238,9 @@ BackupRAM_WriteBlock	;reads: d1 bytes from backup RAM address d0 into a0 (sequen
 .fail	move.w	#$FFFF,(errorflag).w	;= -1, failed
 	bra.s	.ex
 
-BackupRAM_ReadBlock	;writes: byte (a0) to backup RAM address d0, waits, reads it back with BackupRAM_WriteBlock.
-	;Retries as BackupRAM_WriteBlock does. Return a0, d0, d1 as passed, errorflag -1 when it failed.
-	;Called from BackupRAM_Read and BitsToPW, once per byte
+BackupRAM_WriteBlock	;writes: byte (a0) to backup RAM address d0, waits, reads it back with BackupRAM_ReadBlock.
+	;Retries as BackupRAM_ReadBlock does. Return a0, d0, d1 as passed, errorflag -1 when it failed.
+	;Called from BackupRAM_Read and BackupRAM_Save, once per byte
 	move.w	#0,(errorflag).w
 	move.l	a0,(bufferptr).w
 	move.l	d0,(address2).w
@@ -249,7 +249,7 @@ BackupRAM_ReadBlock	;writes: byte (a0) to backup RAM address d0, waits, reads it
 .retry	bsr.w	BackupRAM_WaitReady
 .start	movea.l	(bufferptr).w,a0
 	move.l	(address2).w,d0
-	bsr.w	BackupRAM_WriteControl	;start
+	bsr.w	BackupRAM_Start	;start
 	andi.w	#$7F,d0
 	lsl.w	#1,d0			;address<<1 + 0 = write
 	lsl.w	#8,d0			;control byte to bits 15-8
@@ -292,7 +292,7 @@ BackupRAM_ReadBlock	;writes: byte (a0) to backup RAM address d0, waits, reads it
 	bpl.w	.fail			;retries used up
 	bsr.w	BackupRAM_WaitReady
 	bra.w	.retry
-.stop	bsr.w	BackupRAM_ControlSequenceData	;stop starts the device write
+.stop	bsr.w	BackupRAM_Stop	;stop starts the device write
 	move.w	#$1518,d0		;wait $1519 nops for the write
 .delay	nop
 	dbf	d0,.delay
@@ -302,7 +302,7 @@ BackupRAM_ReadBlock	;writes: byte (a0) to backup RAM address d0, waits, reads it
 	moveq	#1,d1			;read 1 byte back
 	move.l	(address2).w,d0
 	lea	(command+1).w,a0
-	bsr.w	BackupRAM_WriteBlock
+	bsr.w	BackupRAM_ReadBlock
 	tst.w	(errorflag).w
 	bmi.w	.fail			;read back failed
 	movea.l	(bufferptr).w,a0
@@ -330,13 +330,13 @@ BackupRAM_Read	;load the saved block into databuffer at power on. Called once fr
 	movem.l	d0-d1,-(sp)
 	clr.w	(errorflag2).w
 	bsr.w	InitBackupRAM
-	bsr.w	BackupRAM_DetectDevice
+	bsr.w	ReadPad1Held
 	cmp.b	#$E0,d0
 	beq.w	.erase			;Start+A+C held: clear the saved block
 	moveq	#0,d0			;from address 0
 	move.l	#$80,d1			;128 bytes
 	lea	(databuffer).w,a0
-	bsr.w	BackupRAM_WriteBlock
+	bsr.w	BackupRAM_ReadBlock
 	tst.w	(errorflag).w
 	bmi.w	.error
 	move.w	#$7D,d1			;sum bytes 0-125
@@ -361,7 +361,7 @@ BackupRAM_Read	;load the saved block into databuffer at power on. Called once fr
 .c3	swap	d0
 	tst.w	d1
 	beq.w	.ok
-	bsr.w	BackupRAM_DetectDevice
+	bsr.w	ReadPad1Held
 	cmp.b	#$B0,d0
 	beq.w	.error			;Start+C+B held: report the bad block, do not clear it
 .erase	move.w	#1,(errorflag2).w	;= 1, cleared
@@ -373,7 +373,7 @@ BackupRAM_Read	;load the saved block into databuffer at power on. Called once fr
 	move.b	#$FF,(marker).w	;= databuffer+126: not(sum) of the cleared block
 	lea	(databuffer).w,a0
 	move.w	#0,d0
-.wr	bsr.w	BackupRAM_ReadBlock	;write byte d0
+.wr	bsr.w	BackupRAM_WriteBlock	;write byte d0
 	tst.w	(errorflag).w
 	bmi.w	.error
 	addq.l	#1,a0
@@ -382,7 +382,7 @@ BackupRAM_Read	;load the saved block into databuffer at power on. Called once fr
 	bne.s	.wr			;until all 128 written
 	bra.w	.ok
 .error	move.w	#$FFFF,(errorflag2).w	;= -1, failed
-	bsr.w	BackupRAM_DetectDevice
+	bsr.w	ReadPad1Held
 	cmp.b	#$B0,d0
 	beq.w	.red
 	cmp.b	#$E0,d0
@@ -390,7 +390,7 @@ BackupRAM_Read	;load the saved block into databuffer at power on. Called once fr
 .red	move.w	#$F,d0			;red backdrop
 	jmp	(ClearRAMBuffer).l
 	bra.w	.ex			;not reached ($60,0,0,$20)
-.ok	bsr.w	BackupRAM_DetectDevice
+.ok	bsr.w	ReadPad1Held
 	cmp.b	#$B0,d0
 	beq.w	.green
 	cmp.b	#$E0,d0
@@ -401,9 +401,9 @@ BackupRAM_Read	;load the saved block into databuffer at power on. Called once fr
 	movem.l	(sp)+,d0-d1
 	rts
 
-BitsToPW	;save databuffer to backup RAM (92 made the password text from passbits here).
+BackupRAM_Save	;save databuffer to backup RAM (92 made the password text from passbits here).
 	;Sets byte 127 = sum of bytes 0-125 and byte 126 = not sum, then writes the 128 bytes one at a time.
-	;Called from EncodePW and EncodePlayerAttributes. d0-d1/a0 kept, errorflag2 = -1 when it failed
+	;Called from EncodePW and EncodeTeamLines. d0-d1/a0 kept, errorflag2 = -1 when it failed
 	movem.l	d0-d1/a0,-(sp)
 	clr.w	(errorflag2).w
 	move.w	#$7D,d1			;sum bytes 0-125
@@ -417,7 +417,7 @@ BitsToPW	;save databuffer to backup RAM (92 made the password text from passbits
 	move.w	#$7F,d1			;128 bytes
 	moveq	#0,d0			;from address 0
 	lea	(databuffer).w,a0
-.wr	bsr.w	BackupRAM_ReadBlock	;write byte d0
+.wr	bsr.w	BackupRAM_WriteBlock	;write byte d0
 	move.w	(errorflag).w,(errorflag2).w
 	bmi.w	.ex			;failed
 	addq.l	#1,d0
@@ -433,7 +433,7 @@ BackupRAM_Load	;read the 128-byte block into databuffer and check bytes 126-127 
 	moveq	#0,d0			;from address 0
 	move.l	#$80,d1			;128 bytes
 	lea	(databuffer).w,a0
-	bsr.w	BackupRAM_WriteBlock
+	bsr.w	BackupRAM_ReadBlock
 	move.w	(errorflag).w,(errorflag2).w
 	bmi.w	.ex			;read failed
 	move.w	#$7D,d1			;sum bytes 0-125
@@ -484,7 +484,7 @@ ClearVRAM	;clear loop of ClearRAMBuffer, then display on and hang
 	move.w	#$8144,(a0)		;display on
 .hang	bra.s	.hang
 
-BackupRAM_DetectDevice	;reads pad 1 (Readjoy1). Return d0 = held buttons (bit 7 Start, 6 A, 5 C, 4 B). Called from BackupRAM_Read
+ReadPad1Held	;reads pad 1 (Readjoy1). Return d0 = held buttons (bit 7 Start, 6 A, 5 C, 4 B). Called from BackupRAM_Read
 	movem.l	d1-d7,-(sp)
 	jsr	(Readjoy1).l
 	move.w	d3,d0

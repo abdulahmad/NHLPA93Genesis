@@ -50,7 +50,7 @@ ShowScores	;"Scores" screen: lists the other games in
 .loop	bsr.w	MenuWaitVblank
 	bsr.w	getpzjoy
 	btst	#7,d3			;start: leave
-	bne.w	ExitAttributeScreen2
+	bne.w	ExitStatsScreen
 	moveq	#-2,d0			;up: scroll -2 pixels a frame
 	btst	#0,d3
 	bne.w	.set
@@ -167,24 +167,24 @@ LineEditor	;"Line Editor" screen for team a2.
 	clr.w	(PlayerScrollCtr).w
 	move.w	#1,(TestList).w		;cursor = first slot
 LineEditorRedraw	;Clear the screen and redraw everything.
-	;Also entered from ExitAttributeScreen when its menu returns nonzero
+	;Also entered from LineEditorExit when its menu returns nonzero
 	bsr.w	printsmallz
 	String	CC_SetMap,2,CC_SetX,0,CC_SetY,0
 	moveq	#$28,d0
 	moveq	#$1C,d1
 	move.w	#$7FF,d2
 	bsr.w	eraser
-	st	(redrawicons).w		;force DrawAttributeMenu to redraw the icons
+	st	(redrawicons).w		;force DrawLineIcons to redraw the icons
 	bsr.w	ClearMenuFlags
 LineEditorMenu	;Slot cursor loop. Also entered from
 	;SelectAttributeItem when it is done
 	bsr.w	DrawTeamScreen
-	bsr.w	DrawAttributeMenu
+	bsr.w	DrawLineIcons
 .loop	bsr.w	MenuWaitVblankWrapper
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
 	btst	#7,d1			;start: exit menu
-	bne.w	ExitAttributeScreen
+	bne.w	LineEditorExit
 	btst	#5,d1			;C: pick a player for this slot
 	bne.w	SelectAttributeItem
 	moveq	#1,d0			;down: next slot
@@ -208,7 +208,7 @@ LineEditorMenu	;Slot cursor loop. Also entered from
 	bgt.s	.loop
 .set	lea	LineCursorTable(pc),a0
 	move.b	8(a0,d0.w),(TestList+1).w	;wrap/skip through the table
-	bsr.w	DrawAttributeMenu
+	bsr.w	DrawLineIcons
 	bra.s	.loop
 
 MenuWaitVblankWrapper	;thunk to MenuWaitVblank
@@ -218,7 +218,7 @@ SelectAttributeItem	;line editor: C pressed on slot TestList. Build the list of
 	;players that can go in the slot in Satt (roster order is goalies, forwards,
 	;defense) and let the user pick one
 	;(left/right pages the attribute columns). C stores the pick with
-	;UpdatePlayerAttribute, start goes back. Both return to LineEditorMenu
+	;SetLineSlot, start goes back. Both return to LineEditorMenu
 	bsr.w	ReadAttributeNibble
 	move.w	d0,d1
 	bsr.w	ProcessNibble
@@ -242,7 +242,7 @@ SelectAttributeItem	;line editor: C pressed on slot TestList. Build the list of
 .nc	addq.w	#1,d1
 	addq.w	#1,d2
 	dbf	d0,.fill
-	bsr.w	ClearAttributeArea2
+	bsr.w	ClearLineEditorTop
 	bsr.w	printsmallz
 	String	CC_SetMapAndPosition,0,3,1,0,0
 	moveq	#$12,d0
@@ -300,7 +300,7 @@ SelectAttributeItem	;line editor: C pressed on slot TestList. Build the list of
 	move.b	(a3),d0
 	addq.b	#1,d0
 	move.w	(TestList).w,d2
-	bsr.w	UpdatePlayerAttribute
+	bsr.w	SetLineSlot
 	bra.w	LineEditorMenu
 
 PrintAttribHeader	;line editor player list: column header for attribute page
@@ -344,10 +344,10 @@ PrintAttribHeader	;line editor player list: column header for attribute page
 	dbf	d1,.row
 	rts
 
-DrawAttributeMenu	;line editor: draw the line icons for the cursor's line
-	;group (bit mask from AttributeMenuTable) and the name of player d6
+DrawLineIcons	;line editor: draw the line icons for the cursor's line
+	;group (bit mask from LineIconGroups) and the name of player d6
 	moveq	#6,d5			;7 lines
-	lea	AttributeMenuTable(pc),a0
+	lea	LineIconGroups(pc),a0
 	move.w	(TestList).w,d0
 	lsr.w	#3,d0			;line number
 	adda.w	d0,a0
@@ -358,7 +358,7 @@ DrawAttributeMenu	;line editor: draw the line icons for the cursor's line
 	cmp.b	(redrawicons).w,d0
 	beq.w	.1			;same group as last time: no clear
 	move.b	d0,(redrawicons).w
-	bsr.w	ClearAttributeArea
+	bsr.w	ClearLineArea
 .1	btst	d5,(redrawicons).w	;Line d5 in this group?
 	beq.w	.2
 	bsr.w	DrawMenuIcon
@@ -379,8 +379,8 @@ DrawAttributeMenu	;line editor: draw the line icons for the cursor's line
 	bsr.w	printsmall
 	clr.w	(printfontset).w
 	rts
-	dc.b	1			;AttributeMenuTable-1, used when OptLine is set
-AttributeMenuTable	;per line: bit mask of the lines drawn together
+	dc.b	1			;LineIconGroups-1, used when OptLine is set
+LineIconGroups	;per line: bit mask of the lines drawn together
 	dc.b	7,7,7,$18,$18,$60,$60
 
 DrawMenuIcon	;line editor: draw line d5 (name from linelist, then its player
@@ -427,7 +427,7 @@ DrawMenuIcon	;line editor: draw line d5 (name from linelist, then its player
 	dbf	d3,.1
 	rts
 
-ClearAttributeArea	;line editor: erase the line area and print the
+ClearLineArea	;line editor: erase the line area and print the
 	;position labels (LD RD LW C RW) at the first icon position
 	bsr.w	printsmallz
 	String	CC_SetMap,2,CC_SetX,0,CC_SetY,$A
@@ -448,7 +448,7 @@ ClearAttributeArea	;line editor: erase the line area and print the
 
 DrawTeamScreen	;line editor background: bitmap, frame, "Line Editor" title and
 	;the team logo of a2 (home at map offset 0, away at $30)
-	bsr.w	ClearAttributeArea2
+	bsr.w	ClearLineEditorTop
 	movem.l	d0-d5/a0-a2,-(sp)
 	bsr.w	printz
 	String	$FD,0,0
@@ -477,7 +477,7 @@ DrawTeamScreen	;line editor background: bitmap, frame, "Line Editor" title and
 	moveq	#$30,d0
 	bra.w	PrintTeamData
 
-ClearAttributeArea2	;erase 40 x 10 at the top of map 2
+ClearLineEditorTop	;erase 40 x 10 at the top of map 2
 	bsr.w	printz
 	String	$BE,0,0
 	moveq	#$28,d0
@@ -513,9 +513,9 @@ LineCursorTable	;TestList after a cursor move: indexed by
 	dc.b	$25,$31,$32,$33,$34,$34,1,1
 	dc.b	$25,$31,$32,$33,$34,$34,1,1
 
-ExitAttributeScreen	;line editor: start pressed. Run the exit menu (AttributeScreenText,
+LineEditorExit	;line editor: start pressed. Run the exit menu (AttributeScreenText,
 	;or ExitAttribText if databuffer holds another team's lines). A nonzero
-	;choice goes back to LineEditorRedraw, zero leaves via ExitAttributeScreen2
+	;choice goes back to LineEditorRedraw, zero leaves via ExitStatsScreen
 	bsr.w	ClearMenuFlags
 	move.w	#$18,(palcount).w
 	move.l	(menuitem).w,-(sp)
@@ -548,9 +548,9 @@ ExitAttributeScreen	;line editor: start pressed. Run the exit menu (AttributeScr
 	move.l	(sp)+,(menuitem).w
 	tst.w	d0
 	bne.w	LineEditorRedraw
-	bra.w	ExitAttributeScreen2
+	bra.w	ExitStatsScreen
 
-UpdatePlayerAttribute	;put player d0 (1 based) in line slot d2 of team a2. If he
+SetLineSlot	;put player d0 (1 based) in line slot d2 of team a2. If he
 	;is already in another slot of the same line, the old occupant of d2 is
 	;moved there (swap)
 	movem.l	d0-d2/a0-a1,-(sp)
@@ -567,7 +567,7 @@ UpdatePlayerAttribute	;put player d0 (1 based) in line slot d2 of team a2. If he
 	movem.l	(sp)+,d0-d2/a0-a1
 	rts
 
-DecodePlayerAttributes	;load team a2's lines from databuffer (byte 0 = team + 1,
+DecodeTeamLines	;load team a2's lines from databuffer (byte 0 = team + 1,
 	;then one nibble per slot in AttributeOffsetTbl order, relative to the
 	;first forward, or first defenseman for slots 1-2)
 	movem.l	d0-d4/a0/a3,-(sp)
@@ -597,14 +597,14 @@ DecodePlayerAttributes	;load team a2's lines from databuffer (byte 0 = team + 1,
 .store	addq.b	#1,d0
 	andi.w	#$FF,d0
 	move.b	(a3)+,d2
-	bsr.w	UpdatePlayerAttribute
+	bsr.w	SetLineSlot
 	bra.s	.next
 .done	movem.l	(sp)+,d0-d4/a0/a3
 	rts
 
-EncodePlayerAttributes	;reverse of
-	;DecodePlayerAttributes: pack team a2's lines into databuffer and convert
-	;it with BitsToPW
+EncodeTeamLines	;reverse of
+	;DecodeTeamLines: pack team a2's lines into databuffer and convert
+	;it with BackupRAM_Save
 	movem.l	d0-d4/a0-a3,-(sp)
 	movea.w	#(databuffer-M68K_RAM),a0
 	move.w	$28(a2),d0
@@ -633,7 +633,7 @@ EncodePlayerAttributes	;reverse of
 .hi	asl.b	#4,d3
 	or.b	d3,(a0)+
 	bra.s	.next
-.done	jsr	(BitsToPW).l
+.done	jsr	(BackupRAM_Save).l
 	movem.l	(sp)+,d0-d4/a0-a3
 	rts
 
@@ -694,7 +694,7 @@ TeamRosterScreen	;"Team Roster" screen for team a2
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
 	btst	#7,d3			;start: leave
-	bne.w	ExitAttributeScreen2
+	bne.w	ExitStatsScreen
 	btst	#6,d1			;A: other team
 	bne.w	.team
 	bsr.w	nodiag
@@ -1052,7 +1052,7 @@ ScoringSummaryScreen	;"Scoring Summary": one 4 row
 .loop	bsr.w	MenuWaitVblank
 	bsr.w	getpzjoy
 	btst	#7,d3
-	bne.w	ExitAttributeScreen2
+	bne.w	ExitStatsScreen
 	moveq	#-2,d0
 	btst	#0,d3
 	bne.w	.set
@@ -1233,7 +1233,7 @@ PenaltySummaryScreen	;"Penalty Summary": one 3 row
 .loop	bsr.w	MenuWaitVblank
 	bsr.w	getpzjoy
 	btst	#7,d3
-	bne.w	ExitAttributeScreen2
+	bne.w	ExitStatsScreen
 	moveq	#-2,d0
 	btst	#0,d3
 	bne.w	.set
@@ -1385,7 +1385,7 @@ ScrollArrowTbl	;none, up, down, both
 	String	$20,$FB,$FF,$FA,$11,$7D,$F9
 	String	$7B,$FB,$FF,$FA,$11,$7D,$F9
 
-DisplayTeamStats	;"Playoff Stats": DisplayAttributeScreen with d7 = 1 for the
+PlayoffStatsScreen	;"Playoff Stats": DisplayAttributeScreen with d7 = 1 for the
 	;player's playoff team (potree), stats from ReadTeamStats
 	movem.l	a2,-(sp)
 	jsr	(ReadTeamStats).l
@@ -1440,7 +1440,7 @@ DisplayAttributeScreen	;stats screen for team a2, d7 = 0 game / 1 playoff.
 .loop	bsr.w	MenuWaitVblank
 	bsr.w	getpzjoy
 	btst	#7,d3
-	bne.w	ExitAttributeScreen2
+	bne.w	ExitStatsScreen
 	btst	#6,d1
 	bne.w	.switch
 	bsr.w	nodiag
@@ -1824,7 +1824,7 @@ GameStatisticsScreen	;"Game Statistics": both
 	bsr.w	DisplayTeamStatsScreen
 .loop	bsr.w	WaitVSyncAndReadInput
 	btst	#7,d1
-	bne.w	ExitAttributeScreen2
+	bne.w	ExitStatsScreen
 	bra.s	.loop
 
 DisplayTeamStatsScreen	;team logos, then each TeamStatTextTbl row centred with
@@ -1944,30 +1944,30 @@ CrowdMeterScreen	;"Crowd Meter": current, average
 	addq.w	#4,(printx).w
 	clr.w	d0
 	bsr.w	PrintTeamData
-	bsr.w	DisplayGameStats
+	bsr.w	PrintCrowdMeter
 .loop	bsr.w	WaitVSyncAndReadInput
 	btst	#7,d1
-	bne.w	ExitAttributeScreen2
+	bne.w	ExitStatsScreen
 	bra.s	.loop
 
-DisplayGameStats	;crowd meter rows: CwdExciteLvl, average (SumCwdExciteLvl /
+PrintCrowdMeter	;crowd meter rows: CwdExciteLvl, average (SumCwdExciteLvl /
 	;NumCwdExciteLvl samples) and peak (MaxCwdExciteLvl)
 	bsr.w	printsmallz
 	dc.w	$0016
 	dc.b	$F8,4,2,4,$C,'Current Level',$FD,$1C
 	move.w	(CwdExciteLvl).w,d0
-	bsr.w	FormatPercentage
+	bsr.w	PrintCrowdDB
 	bsr.w	printsmallz
 	dc.w	$0016
 	dc.b	$FD,4,$FA,2,'Average Level',$FD,$1C,0
 	move.l	(SumCwdExciteLvl).w,d0
 	divu.w	(NumCwdExciteLvl).w,d0
-	bsr.w	FormatPercentage
+	bsr.w	PrintCrowdDB
 	bsr.w	printsmallz
 	dc.w	$0012
 	dc.b	$FD,4,$FA,2,'Peak Level',$FD,$1C
 	move.w	(MaxCwdExciteLvl).w,d0
-FormatPercentage	;print crowd level d0 as sqrt(d0*4) + 65 " dB"
+PrintCrowdDB	;print crowd level d0 as sqrt(d0*4) + 65 " dB"
 	ext.l	d0
 	asl.w	#2,d0
 	bsr.w	sroot
@@ -2044,7 +2044,7 @@ SetupScreen	;common start for the stats screens: blank, 40 cell mode, load
 	movem.l	(sp)+,d0-d1/a2
 	rts
 
-ExitAttributeScreen2	;leave a stats screen: back to 32 cell mode, reload the
+ExitStatsScreen	;leave a stats screen: back to 32 cell mode, reload the
 	;rink, font and framer graphics, rebuild the rink map and player colours
 	bsr.w	forceblack
 	move.w	(disflags).w,-(sp)

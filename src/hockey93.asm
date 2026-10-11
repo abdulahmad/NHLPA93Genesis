@@ -30,7 +30,7 @@
 	include hockey93_06_11.asm		;$0122A8-$015FE5  setupice ... PlayoffScreen, ScoutingReport, setoptions, playoffs/password, ResolveGames, data tables
 					;  PerLabels, sizetab, sublist, priolist, menu/pause text
 	
-	include sram93.asm		;$015FE6-$0165D7 BackupRAM_*, BitsToPW, ClearRAMBuffer, ClearVRAM
+	include sram93.asm		;$015FE6-$0165D7 BackupRAM_*, BackupRAM_Save, ClearRAMBuffer, ClearVRAM
 	include sound93.asm		;$0165D8-$02EFA1  sound driver (68k code, Z80 blob at $016E53, sound data)
 	include graphics93.asm	;$02EFA2-$07FB75 graphics data (92 incbins after part 3)
 	include checksum93.asm		;$07FB76-$07FBC7  SecurityCheck, ValidationRoutine

@@ -319,7 +319,7 @@ TextBuffer	rs.w	49	;to mesarea+100
 PushWidthBuf	rs.w	4	;PushNumberWidth string: length word, then digits.
 ;$FFFFBF1C is PushWidthBuf+2
 PushNumberBuf	rs.w	1	;PushNumber builds its string down from here.
-redrawicons	rs.w	1	;DrawAttributeMenu: last icon group drawn ($FF = redraw).
+redrawicons	rs.w	1	;DrawLineIcons: last icon group drawn ($FF = redraw).
 ltack	rs.w	1	;last tackle sound.
 lastsfx	rs.w	1	;last sound played
 Satt	rs.l	180	;sprite attribute table (for dma transfer

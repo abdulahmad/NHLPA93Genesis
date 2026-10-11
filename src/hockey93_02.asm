@@ -568,7 +568,7 @@ updateplayers
 	rts
 
 updateanim	;frame switch control on struct a3. Also called from
-	;UpdateTeamNameAnimation
+	;UpdateRosterPlayer
 	tst.w	SPA(a3)
 	bne.w	.ia
 	bclr	#pfalock,pflags(a3)

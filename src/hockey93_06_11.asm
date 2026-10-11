@@ -3,7 +3,7 @@
 ;	setupice, defaultsprites, SprSort, resetplstuff, setteams,
 ;	setplayercolors, PeriodOver, Opening, Opening2 and PlayoffScreen, plus
 ;	the setup helpers (setupice_highlight, setupIceRinkMap, setupEASNmap,
-;	setupTeamBlocksMap, defaultsprites2, clearTeamStats, InitTeamSructure)
+;	setupTeamBlocksMap, defaultsprites2, clearTeamStats, InitTeamStructure)
 ;	and the playoff screen helpers.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp; fixopcodes.js patches the encoding after
@@ -416,20 +416,20 @@ clearTeamStats	;clear both team structs (2 x tmsize) but keep the word at
 	st	(awtmstruct+$9A).w
 
 setteams	;use hometeam/visteam to set team structures. Falls in from clearTeamStats, also called.
-	;93 sets tmsort as a word and leaves the team data setup to InitTeamSructure
+	;93 sets tmsort as a word and leaves the team data setup to InitTeamStructure
 	movem.l	d0/a0-a2,-(sp)
 	movea.w	#(tmstruct-M68K_RAM),a2
 	move.w	(HomeTeam).w,d0
 	move.w	#(SortCords-M68K_RAM),tmsort(a2)
-	bsr.w	InitTeamSructure
+	bsr.w	InitTeamStructure
 	movea.w	#(awtmstruct-M68K_RAM),a2	;tmstruct+tmsize
 	move.w	(VisTeam).w,d0
 	move.w	#(SortCords-M68K_RAM)+(6*SCstruct),tmsort(a2)
-	bsr.w	InitTeamSructure
+	bsr.w	InitTeamStructure
 	movem.l	(sp)+,d0/a0-a2
 	rts
 
-InitTeamSructure	;Set up team struct a2 for team d0: store the team number at $28, the team data address
+InitTeamStructure	;Set up team struct a2 for team d0: store the team number at $28, the team data address
 	;at tmdata ($1E, from the team address table at $314), and copy 14 longs of line data (team data +6
 	;offset) to tmstruct+$16A. Called from setteams
 	move.w	d0,$28(a2)
@@ -488,7 +488,7 @@ IntermissionStart	;PeriodOver tail: reset the clock, song $36, ticker scores
 	bsr.w	UpdateScores
 	cmpi.w	#4,(gsp).w
 	bne.w	.1			;not game over
-	bsr.w	DisplayTeamStatsForPlayoffs
+	bsr.w	AddPlayoffTeamStats
 .1	bsr.w	Intermission
 	cmpi.w	#4,(gsp).w
 	beq.w	GameOver
@@ -500,7 +500,7 @@ GameOver	;Save the password, show the playoff stats and playoff screen in playof
 	tst.w	(OptPlayMode).w
 	beq.w	.po			;regular season
 	bclr	#sfpj,(sflags).w
-	jsr	(DisplayTeamStats).w	;"Playoff Stats"
+	jsr	(PlayoffStatsScreen).w	;"Playoff Stats"
 .po	bsr.w	PlayoffScreen		;returns at once outside playoff mode
 
 ExitToOpening	;Song $35, then restart at Opening2. Falls in from GameOver
@@ -535,7 +535,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	tst.w	(OptPlayMode).w
 	beq.w	rtss
 
-	move.l	#PlayoffScreenDataTable,(vbint).l
+	move.l	#VBlank_Playoff,(vbint).l
 	bclr	#df32c,(disflags).w
 	move.w	#0,(VSCRLPM).w
 	move.w	#$BC00,(VSPRITES).w
@@ -625,7 +625,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	move.b	(a0)+,(printx+1).w
 	clr.w	d0
 	move.b	(a0)+,d0
-	bsr.w	DrawPlayoffBracket	;draw the bracket lines
+	bsr.w	DrawTreeArrow	;draw the bracket lines
 	dbf	d4,.top2
 
 	bsr.w	printz
@@ -638,7 +638,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	movea.w	#(gstruct-M68K_RAM),a2
 .top3	move.b	(a0)+,(printx+1).w
 	move.b	(a0)+,(printy+1).w
-	bsr.w	FormatScore		;series scores
+	bsr.w	PrintSeriesScore		;series scores
 	adda.w	#$10,a2			;gssize
 	dbf	d4,.top3
 
@@ -736,7 +736,7 @@ PlayoffScreen_waitvsync	;each time palcount runs out, eor the color word at palb
 	move.w	d0,(oldvcount).w
 	rts
 
-FormatScore	;print best of 7 wins "t-b" for game struct a2 at printx/printy.doscores.
+PrintSeriesScore	;print best of 7 wins "t-b" for game struct a2 at printx/printy.doscores.
 	;Called from PlayoffScreen .top3
 	movea.w	#(mesarea-M68K_RAM),a1
 	move.w	#6,(a1)+		;string length
@@ -751,7 +751,7 @@ FormatScore	;print best of 7 wins "t-b" for game struct a2 at printx/printy.dosc
 	movea.w	#(mesarea-M68K_RAM),a1
 	bra.w	print
 
-DrawPlayoffBracket	;draw tree arrow d0 from Arrows.map at printx/printy.doarrow.
+DrawTreeArrow	;draw tree arrow d0 from Arrows.map at printx/printy.doarrow.
 	;Called from PlayoffScreen .top2
 	movem.l	d0-d7/a0-a3,-(sp)
 	movea.l	#ArrowsMap,a0
@@ -790,7 +790,7 @@ DrawTeamBlocks	;draw team block d1 (team*2) from TeamBlocks.map at printx/printy
 	movem.l	(sp)+,d0-d7/a0-a3
 	rts
 
-PlayoffScreenDataTable	;(it undecoded): the PlayoffScreen vblank handler (vbint).
+VBlank_Playoff	;(it undecoded): the PlayoffScreen vblank handler (vbint).
 	;If dfng is clear and Sattsize is set: clear Sattsize, DoDMA the sprite table (Satt) to VSPRITES, then
 	;Vmaddr(VSCRLPM) and write $FEA0+DispAttribCtr to the hscroll, then cramfade. Always vcount+1, p_music_vblank, rte
 	movem.l	d0-d7/a0-a6,-(sp)
@@ -825,7 +825,7 @@ PlayoffScreenText	;round titles by gamelevel, printed with printsmall. Used by P
 ;	ScoutingReport (team ratings and a typed commentary), the Stanley Cup
 ;	celebration screen, TitleScreen with its credits scroller and vblank, the
 ;	sprite list helpers CallAnimationCallback / EndSpriteList /
-;	FinalizeSpriteList, and an unreferenced sound test (CheckSound).
+;	AddTitleLogoSprites, and an unreferenced sound test (CheckSound).
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp; fixopcodes.js patches the encoding after
 ;	assembly.
@@ -921,11 +921,11 @@ ScoutingReport	;pregame scouting report. Called from PeriodOver.
 	adda.w	8(a0),a0		;a0 = home scouting report bytes
 	movea.l	(AwayTeamRosterPtr).w,a2
 	adda.w	8(a2),a2		;a2 = away scouting report bytes
-	bsr.w	DisplayPlayerStats	;home ratings at x $1D
+	bsr.w	PrintScoutRatings	;home ratings at x $1D
 	bsr.w	printsmallz
 	String	CC_SetX,7,CC_SetY,$F,CC_SetFont	;x 7, y $F, char set 0 (pad byte)
 	exg	a0,a2
-	bsr.w	DisplayPlayerStats	;away ratings at x 7
+	bsr.w	PrintScoutRatings	;away ratings at x 7
 
 	move.w	#$18,(palcount).w	;24
 	move.l	#vb2,(vbint).w
@@ -959,7 +959,7 @@ ScoutingReport	;pregame scouting report. Called from PeriodOver.
 	bpl.s	.top
 	rts
 
-DisplayPlayerStats	;print the 8 rating nibbles of the scouting report long at 4(a0), one per line, at printx.
+PrintScoutRatings	;print the 8 rating nibbles of the scouting report long at 4(a0), one per line, at printx.
 	;a0 = this team's scouting report, a2 = the other team's (for the combined line). Called from ScoutingReport
 	move.l	4(a0),d5		;bytes 4-7: shooting/skating, passing/defense, checking/fighting, goalkeeping/overall
 	moveq	#7,d6
@@ -970,11 +970,11 @@ DisplayPlayerStats	;print the 8 rating nibbles of the scouting report long at 4(
 	bsr.w	PrintStatNumber
 	cmp.w	#1,d6
 	bne.w	.next
-	bsr.w	DisplayCombinedStats	;after goalkeeping: power play and home team lines
+	bsr.w	PrintScoutLineRatings	;after goalkeeping: power play and home team lines
 .next	dbf	d6,.loop
 	rts
 
-DisplayCombinedStats	;print the power play line (byte 1 low nibble of a0 + byte 1 high nibble of a2), and on the right
+PrintScoutLineRatings	;print the power play line (byte 1 low nibble of a0 + byte 1 high nibble of a2), and on the right
 	;column (printx >= $14) the home team line (byte 2 high nibble of a0 + low nibble of a2). Falls into PrintStatNumber
 	eori.w	#2,(printfontset).w
 	move.w	(a0),d0
@@ -995,13 +995,13 @@ DisplayCombinedStats	;print the power play line (byte 1 low nibble of a0 + byte 
 	add.w	d1,d0
 
 PrintStatNumber	;print d0 as a 2 digit number at printx/printy in the small font, then move down a line.
-	;Called from DisplayPlayerStats, falls in from DisplayCombinedStats
+	;Called from PrintScoutRatings, falls in from PrintScoutLineRatings
 	moveq	#2,d1			;2 digits
 	bsr.w	PushNumberWidth
 	move.w	(printx).w,-(sp)
 	bsr.w	printsmall
 	move.w	(sp)+,(printx).w
-StatNextLine	;Next line; branched to from DisplayCombinedStats
+StatNextLine	;Next line; branched to from PrintScoutLineRatings
 	addq.w	#1,(printy).w
 	rts
 
@@ -1328,7 +1328,7 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 	moveq	#4,d0
 	bsr.w	randomd0
 	asl.w	#5,d0
-	lea	TitleData2(pc),a1	;one of 4 random palettes
+	lea	TitlePalettes(pc),a1	;one of 4 random palettes
 	adda.w	d0,a1
 	movea.w	#(titleScreenState-M68K_RAM),a0
 	moveq	#7,d0
@@ -1365,7 +1365,7 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 	movea.l	#Credits,a1		;copyright lines
 	bsr.w	.top4
 	addi.w	#$20,(Vscroll).w
-	move.w	#$104,(clampcounter).w	;FinalizeSpriteList logo slide in
+	move.w	#$104,(clampcounter).w	;AddTitleLogoSprites logo slide in
 	move.w	#$120,(playoffspritex).w	;logo x
 	move.w	#$D0,(playoffspritey).w	;logo y
 	clr.w	(asv).w
@@ -1425,10 +1425,10 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 
 TitleAnimCallback	;CallAnimationCallback routine for the title screen (from TitleScreen_wait).
 	;Three Title3map sprites: a running fofdata2 timer shows the sprite and counts down; a stopped one
-	;restarts at 20 when Hscroll + $1EC - TitleData1 entry is within 0-20 (mod $400)
+	;restarts at 20 when Hscroll + $1EC - TitleScrollTriggers entry is within 0-20 (mod $400)
 	movea.l	#Title3Sprites,a0
 	movea.w	#(fofdata2-M68K_RAM),a1
-	lea	TitleData1(pc),a2
+	lea	TitleScrollTriggers(pc),a2
 	moveq	#2,d7
 	move.w	(gamesetuptilesetindex).w,d3
 	ori.w	#$8000,d3		;priority
@@ -1455,9 +1455,9 @@ TitleAnimCallback	;CallAnimationCallback routine for the title screen (from Titl
 	dbf	d7,.top
 	rts
 
-TitleData1	;Hscroll trigger points for the three TitleAnimCallback sprites
+TitleScrollTriggers	;Hscroll trigger points for the three TitleAnimCallback sprites
 	dc.w	$B2,$DA,$6C
-TitleData2	;four 16 color palettes for titleScreenState, one picked at random by TitleScreen
+TitlePalettes	;four 16 color palettes for titleScreenState, one picked at random by TitleScreen
 	dc.w	$EEA,$EEE,$CCC,$AAA,$888,$666,$444,$222,0,$66A,$46A,$446,$4A4,$484,$262,$40
 	dc.w	$EEA,$EEE,$CCC,$AAA,$888,$666,$444,$222,0,$66A,$46A,$446,$E44,$A44,$822,$400
 	dc.w	$EEA,$EEE,$CCC,$AAA,$888,$666,$444,$222,0,$66A,$46A,$446,$44A,$228,6,4
@@ -1536,7 +1536,7 @@ CallAnimationCallback	;build a sprite list with routine a0 (a6 = Satt, d6 = link
 	movea.w	#(Satt-M68K_RAM),a6
 	moveq	#1,d6			;link counter
 	jsr	(a0)
-	bsr.w	FinalizeSpriteList
+	bsr.w	AddTitleLogoSprites
 EndSpriteList	;end of the sprite list build: close the sprite list at a6 and set Sattsize (in words).
 	;Branched to from UpdateStanleyCupAnimation
 	cmpa.w	#(Satt-M68K_RAM),a6
@@ -1550,7 +1550,7 @@ EndSpriteList	;end of the sprite list build: close the sprite list at a6 and set
 	move.w	d0,(Sattsize).w
 	rts
 
-FinalizeSpriteList	;four Titlemap2 logo sprites at playoffspritex, playoffspritey. clampcounter counts down by 2
+AddTitleLogoSprites	;four Titlemap2 logo sprites at playoffspritex, playoffspritey. clampcounter counts down by 2
 	;and the pieces drop into place from above, each 64 later than the next. Called from CallAnimationCallback
 	subq.w	#2,(clampcounter).w
 	bpl.w	.0
@@ -1681,7 +1681,7 @@ setoptions	;options screen display and input. Called from PeriodOver.
 	bsr.w	defaultsprites2
 	move.w	#$28,(SortCords+$1C).w	;home player x offset 40 (off the block)
 	move.w	#$28,(SortCords+$31C).w	;visitor player x offset 40
-	st	(tmstruct).w		;team shown = $FFxx, so UpdateTeamNameAnimation starts a new team
+	st	(tmstruct).w		;team shown = $FFxx, so UpdateRosterPlayer starts a new team
 	st	(awtmstruct).w
 
 	movea.l	#.text,a1		;options static text
@@ -1999,7 +1999,7 @@ ClearOptionDisplay	;erase the 12 x 2 player name area of team a2. Called from Cl
 	bra.w	eraser
 
 setoptions_printpos2	;set the print position of team a2's player name: x 2 (visitor) or x $1A (home), y $A
-	;map 1 + priority. Called from ClearOptionDisplay and UpdateTeamNameAnimation
+	;map 1 + priority. Called from ClearOptionDisplay and UpdateRosterPlayer
 	bsr.w	printz
 	String	$BF,2,$A
 	cmpa.w	#(tmstruct-M68K_RAM),a2	;(/ mulu.w)
@@ -2009,7 +2009,7 @@ setoptions_printpos2	;set the print position of team a2's player name: x 2 (visi
 
 SetGoalieMode	;pick the goalie shown for team a2 when it changes: $26(a2) =
 	;weighted random roster index from the 4 nibbles at team data +$A offset (UnpackNibbles / WeightedRandomSelect).
-	;$26 stays 0 when a pad controls the team, gamelevel > 2 or OptLine is set. Called from UpdateTeamNameAnimation
+	;$26 stays 0 when a pad controls the team, gamelevel > 2 or OptLine is set. Called from UpdateRosterPlayer
 	movem.l	d0/a0,-(sp)
 	clr.w	tmgoalie(a2)
 	bsr.w	FigureJoy		;sets cont1team / cont2team
@@ -2043,17 +2043,17 @@ UpdateBothTeamDisplays	;run the roster player in both team blocks and build thei
 	movem.l	d0-d7/a0-a6,-(sp)
 	moveq	#1,d7
 	movea.w	#(tmstruct-M68K_RAM),a2
-	bsr.w	UpdateTeamNameAnimation
+	bsr.w	UpdateRosterPlayer
 	adda.w	#tmsize,a2		;awtmstruct
-	bsr.w	UpdateTeamNameAnimation
+	bsr.w	UpdateRosterPlayer
 	bsr.w	UpdateTeamSprites
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts
 
-UpdateTeamNameAnimation	;roster player of team a2 (sprite struct a3 = $22(a2), tmsort). When the team ($28, set
+UpdateRosterPlayer	;roster player of team a2 (sprite struct a3 = $22(a2), tmsort). When the team ($28, set
 	;by setteams) differs from the one shown ((a2)), start over. Bit 2 of $30(a2) set: slide the player out 3 per
 	;frame, then SetupNextPlayer. Else slide in 1 per frame, run updateanim, and when the animation is done step
-	;the TeamNameAnimationTable script (8(a2) = script, $A(a2) = offset). A negative time also prints the
+	;the RosterAnimScripts script (8(a2) = script, $A(a2) = offset). A negative time also prints the
 	;player's number and name. Called from UpdateBothTeamDisplays
 	move.w	$28(a2),d0
 	cmp.w	(a2),d0
@@ -2080,7 +2080,7 @@ UpdateTeamNameAnimation	;roster player of team a2 (sprite struct a3 = $22(a2), t
 	bne.w	rtss			;animation still running
 	move.w	8(a2),d0		;script number
 	add.w	d0,d0
-	movea.l	#TeamNameAnimationTable,a0
+	movea.l	#RosterAnimScripts,a0
 	adda.w	(a0,d0.w),a0
 	adda.w	$A(a2),a0
 	addq.w	#4,$A(a2)		;next step
@@ -2093,7 +2093,7 @@ UpdateTeamNameAnimation	;roster player of team a2 (sprite struct a3 = $22(a2), t
 	neg.w	$54(a3)			;negative time: also show the name
 
 	move.w	4(a2),d0		;roster index
-	bsr.w	GetTeamNamePtr
+	bsr.w	GetRosterEntry
 	bsr.w	setoptions_printpos2
 	movea.w	#(mesarea-M68K_RAM),a3
 	lea	2(a3),a1
@@ -2140,14 +2140,14 @@ UpdateTeamNameAnimation	;roster player of team a2 (sprite struct a3 = $22(a2), t
 	bra.w	print			;line 2 = last name
 
 ClearAndSetFlag	;erase the name of team a2 and set bit 2 of $30(a2) (slide the player out).
-	;Called and branched to from UpdateTeamNameAnimation
+	;Called and branched to from UpdateRosterPlayer
 	bsr.w	ClearOptionDisplay
 	bset	#2,tmflags(a2)
 	rts
 
 SetupNextPlayer	;player of team a2 slid out. Load the team palette (setplayercolors.sp), put the
 	;sprite at x offset -40, take the next RosterOrderTable slot (goalie slot: $26(a2)), set the sprite flag from
-	;the player data and pick his animation script from the ratings. Branched to from UpdateTeamNameAnimation
+	;the player data and pick his animation script from the ratings. Branched to from UpdateRosterPlayer
 	movea.l	tmdata(a2),a0
 	adda.w	2(a0),a0		;Palettedata
 	movea.w	#(palbuffer-M68K_RAM),a1
@@ -2179,7 +2179,7 @@ SetupNextPlayer	;player of team a2 slid out. Load the team palette (setplayercol
 	bne.w	.pn
 	move.w	tmgoalie(a2),d0		;slot 0 (goalie): UpdateTeamNameisplay's pick
 .pn	move.w	d0,4(a2)
-	bsr.w	GetTeamNamePtr
+	bsr.w	GetRosterEntry
 	adda.w	(a0),a0			;past the name
 	bclr	#3,attribute(a3)
 	btst	#0,4(a0)
@@ -2188,22 +2188,22 @@ SetupNextPlayer	;player of team a2 slid out. Load the team palette (setplayercol
 .r	addq.w	#1,a0			;rating bytes
 	moveq	#6,d0			;7 bytes, 14 nibbles
 	clr.w	d2			;best rating
-	movea.l	#CharacterValidationTable,a1
+	movea.l	#SkaterRosterAnims,a1
 	move.w	6(a2),d3
 	andi.w	#7,d3
 	bne.w	.nib
-	movea.l	#AltCharValidationTable,a1	;goalie slot
+	movea.l	#GoalieRosterAnims,a1	;goalie slot
 .nib	move.b	(a0),d1
 	lsr.b	#4,d1
-	bsr.w	ValidateCharacterNibbles
+	bsr.w	PickRosterAnim
 	move.b	(a0)+,d1
 	andi.b	#$F,d1
-	bsr.w	ValidateCharacterNibbles
+	bsr.w	PickRosterAnim
 	dbf	d0,.nib
 	clr.w	$A(a2)			;start of the script
 	rts
 
-ValidateCharacterNibbles	;rating d1 against the next (minimum, script) pair at a1. If d1 >= minimum and
+PickRosterAnim	;rating d1 against the next (minimum, script) pair at a1. If d1 >= minimum and
 	;>= best d2 (and the minimum is not 0 once d2 is set), d2 = d1 and 8(a2) = script. Called from SetupNextPlayer
 	addq.w	#2,a1
 	cmp.b	-2(a1),d1
@@ -2219,8 +2219,8 @@ ValidateCharacterNibbles	;rating d1 against the next (minimum, script) pair at a
 	move.b	-1(a1),9(a2)
 	rts
 
-GetTeamNamePtr	;a0 = roster entry d0 of team a2 (name string, then 8 bytes: number and ratings).
-	;Called from UpdateTeamNameAnimation and SetupNextPlayer
+GetRosterEntry	;a0 = roster entry d0 of team a2 (name string, then 8 bytes: number and ratings).
+	;Called from UpdateRosterPlayer and SetupNextPlayer
 	movea.l	tmdata(a2),a0
 	adda.w	(a0),a0			;player data
 	bra.w	.cnt
@@ -2229,15 +2229,15 @@ GetTeamNamePtr	;a0 = roster entry d0 of team a2 (name string, then 8 bytes: numb
 .cnt	dbf	d0,.next
 	rts
 
-CharacterValidationTable	;skater (minimum rating, animation script) per rating nibble, used by SetupNextPlayer
+SkaterRosterAnims	;skater (minimum rating, animation script) per rating nibble, used by SetupNextPlayer
 	dc.b	0,1,$B,2,0,1,0,1,$B,6,$B,3,0,1,$B,7,$B,4,0,1,0,1,0,1,0,1,0,1
-AltCharValidationTable	;goalie (minimum rating, animation script) per rating nibble
+GoalieRosterAnims	;goalie (minimum rating, animation script) per rating nibble
 	dc.b	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,$B,5,$B,5
-TeamNameAnimationTable	;roster player animation scripts 0-7 (offsets), each (SetSPA animation, time) pairs ending in 0.
-	;A negative time also prints the name. Used by UpdateTeamNameAnimation
-	dc.w	.s0-TeamNameAnimationTable,.s1-TeamNameAnimationTable,.s2-TeamNameAnimationTable
-	dc.w	.s3-TeamNameAnimationTable,.s4-TeamNameAnimationTable,.s5-TeamNameAnimationTable
-	dc.w	.s6-TeamNameAnimationTable,.s7-TeamNameAnimationTable
+RosterAnimScripts	;roster player animation scripts 0-7 (offsets), each (SetSPA animation, time) pairs ending in 0.
+	;A negative time also prints the name. Used by UpdateRosterPlayer
+	dc.w	.s0-RosterAnimScripts,.s1-RosterAnimScripts,.s2-RosterAnimScripts
+	dc.w	.s3-RosterAnimScripts,.s4-RosterAnimScripts,.s5-RosterAnimScripts
+	dc.w	.s6-RosterAnimScripts,.s7-RosterAnimScripts
 .s0	dc.w	$134,3,$134,4,$134,5,$134,-4,$166,4,$134,4,$198,4,$134,4,0
 .s5	dc.w	$134,3,$134,4,$134,5,$134,-4,$1CA,4,$134,4,$134,4,0
 .s1	dc.w	$5F0,3,$5F0,4,$EAA,-5,$EAA,4,$52C,4,$52C,4,0
@@ -2310,7 +2310,7 @@ VBlank_SetOptions	;vbint handler stored by setoptions: cramfade unless dfng, plu
 ;======================================================================
 ;	DefaultMenus, NewPO, MakeTree, FigureJoy and the playoff password code
 ;	(ReadPassBits ... SuperDiv, GetShifter), then the playoff stat packing
-;	(DisplayTeamStatsForPlayoffs, ReadTeamStats).
+;	(AddPlayoffTeamStats, ReadTeamStats).
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The
 ;	source has the real cmp; fixopcodes.js patches the encoding after assembly.
 ;	The password bits are kept in a 5 word buffer at a3; there is no password
@@ -2597,7 +2597,7 @@ EncodePW	;after playoff game compute winners and password if needed. Called from
 	bmi.w	.userwon		;po team out, same as a win
 	movea.w	#(pwddatabuffer-M68K_RAM),a3		;password bits
 	bsr.w	WritePassBits
-	bsr.w	BitsToPW
+	bsr.w	BackupRAM_Save
 	btst	#sf3alttree,(sflags3).w
 	beq.w	rtss			;(92 retail; Rev A beq MakeTree)
 	movea.w	#(tpassbits-M68K_RAM),a3		;bits before all games resolved (retail)
@@ -2606,7 +2606,7 @@ EncodePW	;after playoff game compute winners and password if needed. Called from
 
 .userwon	movea.w	#(pwddatabuffer-M68K_RAM),a3	;password bits
 	bsr.w	ClrPassBits
-	bsr.w	BitsToPW
+	bsr.w	BackupRAM_Save
 	move.w	#2,(OptPlayMode).w	;new playoffs
 	cmpi.w	#7,(bosgames).w
 	beq.w	rtss
@@ -2733,7 +2733,7 @@ GetShifter	;returns:
 	move.l	(sp)+,d0
 	rts
 
-DisplayTeamStatsForPlayoffs	;Adds the po team's game stats to its packed playoff
+AddPlayoffTeamStats	;Adds the po team's game stats to its packed playoff
 	;totals. Called from PeriodOver at the end of a playoff game. Unpacks the totals
 	;(ReadTeamStats), adds the $68 stat bytes at team struct+$B4, then packs each total back into the
 	;bit stream below $CB68, clamped to its BitWidthTable width (8, 10, 6, 6 bits, by d0 & 3).
@@ -2786,11 +2786,11 @@ DisplayTeamStatsForPlayoffs	;Adds the po team's game stats to its packed playoff
 	rts
 
 BitWidthTable	;playoff stat bit widths, indexed by stat number & 3.
-	;Used by DisplayTeamStatsForPlayoffs and ReadTeamStats.
+	;Used by AddPlayoffTeamStats and ReadTeamStats.
 	dc.b	8,$A,6,6
 
 ReadTeamStats	;Unpack the $68 playoff stat totals from the bit stream below $CB68
-	;into statsbuffer words. Called from DisplayTeamStatsForPlayoffs and DisplayTeamStats.
+	;into statsbuffer words. Called from AddPlayoffTeamStats and PlayoffStatsScreen.
 	movea.w	#(statsbuffer-M68K_RAM),a0
 	movea.l	#BitWidthTable,a1
 	movea.w	#(outputbuffer-M68K_RAM),a2		;bit stream base
@@ -2818,8 +2818,8 @@ ReadTeamStats	;Unpack the $68 playoff stat totals from the bit stream below $CB6
 
 ;======================================================================
 ;======================================================================
-;	ResolveGames, the end of game "Stars of the Game" box (DisplayPeriodOver,
-;	FindMaxAttributeTEam, CalculateTeamAttributes/Values), the injury and goal
+;	ResolveGames, the end of game "Stars of the Game" box (ShowThreeStars,
+;	TakeTopStarScore, CalcStarScores/Values), the injury and goal
 ;	boxes, box, the player name formatters (getname ... ConverByteToDigits)
 ;	and the exception handlers AddError, Illinst, ZeroDiv and crash.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The
@@ -2941,9 +2941,9 @@ ResolveGames	;compute winners and losers for playoff matchups. Called from Encod
 	addq.w	#1,(gamelevel).w
 	rts
 
-DisplayPeriodOver	;end of game "Stars of the Game" box. Called from UpdatePA while RefPen is
+ShowThreeStars	;end of game "Stars of the Game" box. Called from UpdatePA while RefPen is
 	;the game over penalty. Waits for RefCnt <= $40 and runs once (gmode bit 7). Frames the box, draws a bitmap
-	;from IceRinkMap, then the three best star scores (FindMaxAttributeTEam): team data string and getname.
+	;from IceRinkMap, then the three best star scores (TakeTopStarScore): team data string and getname.
 	;Song $F when the home team won.
 	cmpi.w	#$40,(RefCnt).w
 	bgt.w	rtss			;ref animation not far enough yet
@@ -2967,10 +2967,10 @@ DisplayPeriodOver	;end of game "Stars of the Game" box. Called from UpdatePA whi
 	move.w	(rinkvrcset).w,d4
 	clr.w	d5
 	bsr.w	dobitmap
-	bsr.w	CalculateTeamAttributes
+	bsr.w	CalcStarScores
 	move.w	#$12,(printy).w
 	moveq	#2,d2			;3 stars
-.loop	bsr.w	FindMaxAttributeTEam	;a2 = team, d0 = player
+.loop	bsr.w	TakeTopStarScore	;a2 = team, d0 = player
 	move.w	#$1A,(printx).w
 	addq.w	#1,(printy).w
 	movea.l	tmdata(a2),a1		;string at team data offset 4, then its first offset
@@ -2989,8 +2989,8 @@ DisplayPeriodOver	;end of game "Stars of the Game" box. Called from UpdatePA whi
 .nosong	movem.l	(sp)+,d0-d5/a0-a4
 	rts
 
-FindMaxAttributeTEam	;take the highest of the 52 star scores at DispAttribCtr (26 per team, home first)
-	;and clear it. Returns d0 = player slot, a2 = its team struct. Called from DisplayPeriodOver
+TakeTopStarScore	;take the highest of the 52 star scores at DispAttribCtr (26 per team, home first)
+	;and clear it. Returns d0 = player slot, a2 = its team struct. Called from ShowThreeStars
 	movem.l	d1-d2/a1/a4,-(sp)
 	movea.w	#(DispAttribCtr-M68K_RAM),a4
 	clr.l	d0			;best so far
@@ -3012,19 +3012,19 @@ FindMaxAttributeTEam	;take the highest of the 52 star scores at DispAttribCtr (2
 .home	movem.l	(sp)+,d1-d2/a1/a4
 	rts
 
-CalculateTeamAttributes	;star score for every roster slot of both teams to DispAttribCtr (26 longs per
+CalcStarScores	;star score for every roster slot of both teams to DispAttribCtr (26 longs per
 	;team, home first). d5 = GetPeriodTime + d2, the goalie ice time needed. If gsp is 3 and the score is
-	;not tied, the scorer of the last goal gets $7FFFFFFF. Called from DisplayPeriodOver
+	;not tied, the scorer of the last goal gets $7FFFFFFF. Called from ShowThreeStars
 	movea.w	#(DispAttribCtr-M68K_RAM),a4
 	jsr	(GetPeriodTime).w
 	move.w	d0,d5
 	add.w	d2,d5
 	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a3		;a3 = other team
-	bsr.w	CalculateTeamAttributeValues	;home
+	bsr.w	CalcTeamStarScores	;home
 	movea.w	a3,a2
 	lea	-tmsize(a2),a3
-	bsr.w	CalculateTeamAttributeValues	;away (d3 = away - home score)
+	bsr.w	CalcTeamStarScores	;away (d3 = away - home score)
 	cmpi.w	#3,(gsp).w
 	bne.w	.x
 	tst.w	d3
@@ -3041,10 +3041,10 @@ CalculateTeamAttributes	;star score for every roster slot of both teams to DispA
 	move.l	#$7FFFFFFF,0(a0,d0.w)	;game winner is the first star
 .x	rts
 
-CalculateTeamAttributeValues	;star scores of team a2 (a3 = other team) to (a4)+, one long per roster
+CalcTeamStarScores	;star scores of team a2 (a3 = other team) to (a4)+, one long per roster
 	;slot (26). Each starts at the goal difference. Skaters: goals*11000 + assists*10100 + shots*10, or in a
 	;tied game shots*1000 + frames on ice. Goalies (the first slots) on ice at least d5 with shots against:
-	;+32000 if goals against*100/shots <= 4, +75000 more for a shutout. Called from CalculateTeamAttributes
+	;+32000 if goals against*100/shots <= 4, +75000 more for a shutout. Called from CalcStarScores
 	movea.w	a2,a1
 	move.w	tmscore(a2),d3
 	sub.w	tmscore(a3),d3		;goal difference
@@ -3116,7 +3116,7 @@ ShowInjuryBox	;injury box "Injury to:" player TempPlOffset (set by setInjuryType
 .ex	movem.l	(sp)+,d0-d2/a0-a4
 	rts
 
-DisplayPlayerAttributeMenu	;goal box. Closes both line change boxes, then printbig "GOAL!" (or "HAT
+ShowGoalBox	;goal box. Closes both line change boxes, then printbig "GOAL!" (or "HAT
 	;TRICK!" on the scorer's third goal), the scorer and up to two assists of the last goal entry.
 	;Called from SetPA for the goal penalty number
 	movem.l	d0-d2/a0-a4,-(sp)
@@ -3141,7 +3141,7 @@ DisplayPlayerAttributeMenu	;goal box. Closes both line change boxes, then printb
 	btst	#7,2(a4)
 	beq.w	.home			;home team scored
 	adda.w	#tmsize,a2
-.home	lea	attrText(pc),a1
+.home	lea	GoalBoxText(pc),a1
 	clr.w	d0
 	move.b	3(a4),d0		;scorer
 	addi.w	#$B4,d0
@@ -3170,7 +3170,7 @@ DisplayPlayerAttributeMenu	;goal box. Closes both line change boxes, then printb
 .ex	movem.l	(sp)+,d0-d2/a0-a4
 	rts
 
-attrText	;printbig strings for DisplayPlayerAttributeMenu: GOAL!, then HAT TRICK!
+GoalBoxText	;printbig strings for ShowGoalBox: GOAL!, then HAT TRICK!
 	String	$BF,$F,3,'GOAL!',$BF,$C,5
 	String	$BF,$C,3,'HAT TRICK!',$BF,$C,5
 
@@ -3196,7 +3196,7 @@ GetPlayerName	;a1 = mesarea "NN First Last" (getname) for player TempPlOffset (b
 	rts
 
 getname	;a1 = mesarea string "NN First Last" for player d0 of team a2. The number is the bcd byte
-	;after the name. Called from DisplayPeriodOver, GetPlayerName, banner and others
+	;after the name. Called from ShowThreeStars, GetPlayerName, banner and others
 	movem.l	d0-d3/a0/a2-a3,-(sp)
 	bsr.w	GetPlayerNamePointer
 	move.l	a0,-(sp)
@@ -3227,7 +3227,7 @@ GetPlayerNameWithAttrib	;a1 = mesarea "NN F. Last" (FormatPlayerNameWithAttrib) 
 	rts
 
 FormatPlayerNameWithAttrib	;a1 = mesarea string "NN F. Last" for player d0 of team a2, built in
-	;TextBuffer. Called from DisplayPlayerAttributeMenu, GetPlayerNameWithAttrib, PrintPeriodTime and others
+	;TextBuffer. Called from ShowGoalBox, GetPlayerNameWithAttrib, PrintPeriodTime and others
 	movem.l	d0-d3/a0/a2,-(sp)
 	bsr.w	GetPlayerNamePointer
 	move.l	a0,-(sp)
@@ -3646,7 +3646,7 @@ PlayoffTreeSetup	;Playoff tree layout by gamelevel:
 	dc.w	.l4-PlayoffTreeSetup
 
 	;tree graphics for level 0: teams-1 then x,y per team (DrawTeamBlocks), arrows-1 then x,d0 per
-	;arrow (DrawPlayoffBracket), scores-1 then x,y per score (FormatScore, negative: none)
+	;arrow (DrawTreeArrow), scores-1 then x,y per score (PrintSeriesScore, negative: none)
 .l0	dc.b	16-1
 	dc.b	45,2,45,5,45,8,45,11,45,14,45,17,45,20,45,23
 	dc.b	71,2,71,5,71,8,71,11,71,14,71,17,71,20,71,23
@@ -3858,7 +3858,7 @@ StartGameTextPO	;intermission menu for gsp 0 in the playoffs
 	String	'   Team Roster    '
 	dc.l	TeamRosterScreen
 	String	'  Playoff Stats   '
-	dc.l	DisplayTeamStats
+	dc.l	PlayoffStatsScreen
 	String	'   Other Scores   '
 	dc.l	ShowScores
 	String	$FF
@@ -3932,26 +3932,26 @@ ExitGameTextPO	;intermission menu for gsp 4 in the playoffs
 	dc.l	CrowdMeterScreen
 	String	$FF
 
-AttributeScreenText	;line editor exit menu (ExitAttributeScreen)
+AttributeScreenText	;line editor exit menu (LineEditorExit)
 	String	$FE,6,$F9,1
 	String	$FE,4,$F9,1
 	String	'       Exit       '
 	dc.l	rtss
 	String	'Set Original lines'
-	dc.l	InitTeamSructure+$10	;the line copy loop of InitTeamSructure
+	dc.l	InitTeamStructure+$10	;the line copy loop of InitTeamStructure
 	String	'  Save Team Line  '
-	dc.l	EncodePlayerAttributes
+	dc.l	EncodeTeamLines
 	String	'  Load Team Line  '
-	dc.l	DecodePlayerAttributes
+	dc.l	DecodeTeamLines
 	String	$FF
 
-ExitAttribText	;line editor exit menu without Load Team Line (ExitAttributeScreen)
+ExitAttribText	;line editor exit menu without Load Team Line (LineEditorExit)
 	String	$FE,6,$F9,1
 	String	$FE,4,$F9,1
 	String	'       Exit       '
 	dc.l	rtss
 	String	'Set Original lines'
-	dc.l	InitTeamSructure+$10
+	dc.l	InitTeamStructure+$10
 	String	'  Save Team Line  '
-	dc.l	EncodePlayerAttributes
+	dc.l	EncodeTeamLines
 	String	$FF

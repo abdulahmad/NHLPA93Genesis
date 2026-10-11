@@ -2,7 +2,7 @@
 ;======================================================================
 ;	AddPenalty, AddPenalty2, PenaltyManager, chkprogress, InProgress,
 ;	coinsearch, checkfornewpen, Stop4Pen, limitfo, UpdatePA, SetPA, SetPA2,
-;	PushRef, prefmes, PrintPenaltyMessagesString, PenGoalStuff,
+;	PushRef, prefmes, ClearPenaltyMessage, PenGoalStuff,
 ;	ClearPenaltyBuffer, updatepentime, ProcessPenaltyList,
 ;	RemovePlayerFromList, chkatop, releasepl, GetLowestPen, updatepwrplay,
 ;	ClrHor and SetHor. Bytes match nhlpa93retail.bin.
@@ -378,7 +378,7 @@ limitfo	;limit face off to 5-20 feet from walls of rink. Checks every player in 
 .1	move.w	d0,(fox).w
 	rts
 
-UpdatePA	;animate ref in ref window. Also runs DisplayPeriodOver for game over and reprints the horizontal penalty message line when penmsgtimer runs out
+UpdatePA	;animate ref in ref window. Also runs ShowThreeStars for game over and reprints the horizontal penalty message line when penmsgtimer runs out
 	tst.w	(RefCnt).w
 	bmi.w	rtss
 	sub.w	d7,(RefCnt).w
@@ -386,11 +386,11 @@ UpdatePA	;animate ref in ref window. Also runs DisplayPeriodOver for game over a
 	bsr.w	SetPA2
 .0	cmpi.w	#4,(RefPen).l		;game over (92 used 4)
 	bne.w	.1
-	bsr.w	DisplayPeriodOver
+	bsr.w	ShowThreeStars
 .1	sub.w	d7,(penmsgtimer).w
 	bpl.w	rtss
 	move.w	#$7FFF,(penmsgtimer).w
-	bsr.w	PrintPenaltyMessagesString
+	bsr.w	ClearPenaltyMessage
 	bsr.w	printz
 	String	$BF,$11,$B
 	bsr.w	GetPlayerName
@@ -399,13 +399,13 @@ UpdatePA	;animate ref in ref window. Also runs DisplayPeriodOver for game over a
 	sub.w	d0,(printx).w		;center it
 	bra.w	print
 
-SetPA	;start ref animation. d0 = animation (penalty number). goal also calls DisplayPlayerAttributeMenu, and penmsgtimer is set to 60 in horizontal mode. Falls into SetPA2
+SetPA	;start ref animation. d0 = animation (penalty number). goal also calls ShowGoalBox, and penmsgtimer is set to 60 in horizontal mode. Falls into SetPA2
 	move.w	d0,(RefPen).w
 	clr.w	(RefStep).w
 	bsr.w	prefmes
 	cmp.w	#$E,d0			;goal (92 used 6)
 	bne.w	.0
-	bsr.w	DisplayPlayerAttributeMenu
+	bsr.w	ShowGoalBox
 .0	move.w	#$7FFF,(penmsgtimer).w
 	btst	#sfhor,(sflags).w
 	beq.w	SetPA2
@@ -510,7 +510,7 @@ prefmes	;print message for penalty d0 (negative clears it). Vertical mode: frame
 	bsr.w	print
 	bra.w	.ex
 
-.hor	bsr.w	PrintPenaltyMessagesString	;clears the line first
+.hor	bsr.w	ClearPenaltyMessage	;clears the line first
 	tst.w	d0
 	bmi.w	.ex
 	bsr.w	printz
@@ -525,7 +525,7 @@ prefmes	;print message for penalty d0 (negative clears it). Vertical mode: frame
 .ex	movem.l	(sp)+,d0-d2/a1
 	rts
 
-PrintPenaltyMessagesString	;blank the horizontal mode penalty message line (22 spaces at x 5, y $B). Called from UpdatePA and prefmes
+ClearPenaltyMessage	;blank the horizontal mode penalty message line (22 spaces at x 5, y $B). Called from UpdatePA and prefmes
 	bsr.w	printz
 	String	$BF,5,$B,'                      ',0
 	rts

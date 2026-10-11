@@ -17,7 +17,7 @@ Title2Map		;second TitleScreen bitmap
 Title3Sprites		;the three TitleAnimCallback sprites
 	incbin	..\Extracted\Graphics\Title3.anim
 	even
-TitleLogoSprites		;the four title logo sprites (FinalizeSpriteList SetSframe); palette reused by PlayoffScreen
+TitleLogoSprites		;the four title logo sprites (AddTitleLogoSprites SetSframe); palette reused by PlayoffScreen
 	incbin	..\Extracted\Graphics\TitleLogo.anim
 	even
 ScoutMap		;ScoutingReport background, also PlayoffScreen, SetupScreen, DrawTeamScreen
