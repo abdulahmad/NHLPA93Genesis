@@ -170,3 +170,27 @@ gamesetuptilesetindex,animchars,behavior (body/usage read)
 #$13A0,SPAstumble,frames93 offset
 #$55E,SPAskatewp,frames93 offset
 #$6E6,SPAstop,frames93 offset
+#$1616,SPAinjury1,frames93 offset
+#$D14,SPAflail,frames93 offset
+#$CE2,SPAHold2,frames93 offset
+#$130E,SPAhook2,frames93 offset
+#$D46,SPAfallfwd,frames93 offset
+#$DF8,SPAfallback,frames93 offset
+#$1524,SPAflip,frames93 offset
+#$1232,SPAbglass,frames93 offset
+#$128A,SPAcatch,frames93 offset
+#$197,SPFGoalie,frames93 frame index
+#$188,SPFpad+2,frames93 frame index
+#$186,SPFpad,frames93 frame index
+#$187,SPFpad+1,frames93 frame index
+#$189,SPFreplay,frames93 frame index
+#$161,SPFgloves,frames93 frame index
+#$195,SPFgoal,frames93 frame index
+#$196,SPFgoal+1,frames93 frame index
+#$18B,SPFpuck+1,frames93 frame index
+#$134,SPAgready2,frames93 offset
+#$1452,SPAfake,frames93 offset
+#$BB6,SPAshoulderchkl,frames93 offset
+#$BE8,SPAshoulderchkr,frames93 offset
+#$C4C,SPAhipchkr,frames93 offset
+#$C1A,SPAhipchkl,frames93 offset

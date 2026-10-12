@@ -872,7 +872,7 @@ updateplayers
 	addi.w	#$136,d0
 	bsr.w	loadTeamStruct
 	addq.w	#1,(a2,d0.w)		;count frames on ice for this player
-.vel	cmpi.w	#$1616,SPA(a3)		;$1616: skip movement and bounce
+.vel	cmpi.w	#SPAinjury1,SPA(a3)		;skip movement and bounce
 	beq.w	.done
 ;----------------------------------	now update velocity
 	IF REV=1
@@ -1667,13 +1667,13 @@ checkcheck	;player is in contact look for various contact events. Runs .cc for a
 	movem.l	(sp)+,d0-d4/a0-a3
 	rts
 
-.cc	cmpi.w	#$CB0,SPA(a2)		;player a3 is checking player a2. SPA
+.cc	cmpi.w	#SPAHold,SPA(a2)		;player a3 is checking player a2
 	beq.w	holdcheck		;if in hold animation
-	cmpi.w	#$12DC,SPA(a2)		;this anim also holds
+	cmpi.w	#SPAhook,SPA(a2)		;this anim also holds
 	beq.w	holdcheck
-	cmpi.w	#$B44,SPA(a2)		;this anim goes to Bcheck
+	cmpi.w	#SPAsweepchk,SPA(a2)		;this anim goes to Bcheck
 	beq.w	Bcheck
-	cmpi.w	#$C7E,SPA(a3)
+	cmpi.w	#SPAburst,SPA(a3)
 	bne.w	rtss			;if not in cbut burst anim exit
 	btst	#gmclock,(gmode).w
 	beq.w	.nofight
@@ -1734,14 +1734,14 @@ checkcheck	;player is in contact look for various contact events. Runs .cc for a
 	bsr.w	AddPenalty
 .dn2	bra.w	FallDown
 
-.list	dc.w	$BB6
-	dc.w	$BE8
-	dc.w	$C4C
-	dc.w	$C4C
-	dc.w	$C4C
-	dc.w	$C1A
-	dc.w	$C1A
-	dc.w	$BB6
+.list	dc.w	SPAshoulderchkl
+	dc.w	SPAshoulderchkr
+	dc.w	SPAhipchkr
+	dc.w	SPAhipchkr
+	dc.w	SPAhipchkr
+	dc.w	SPAhipchkl
+	dc.w	SPAhipchkl
+	dc.w	SPAshoulderchkl
 
 checkagr	;penalty roll for player a3. Range = (20 - byte $73) * 13, doubled for a joystick player, halved within $28 of the puck in x and y. Return d0 = randomd0 of that range; the callers call a penalty when it is small. Called from checkcheck .cc, holdcheck and Bcheck
 	moveq	#$14,d0
@@ -1765,7 +1765,7 @@ checkagr	;penalty roll for player a3. Range = (20 - byte $73) * 13, doubled for 
 	asr.w	#1,d0			;near the puck: half the range, more penalties
 .far	bra.w	randomd0
 
-holdcheck	;player a2 is in hold animation looking to hold opponent a3. Entered from checkcheck .cc for SPA $CB0 or $12DC. Checks facing, clears the puck carrier sflags, has a second hold anim, and rolls the penalty with checkagr
+holdcheck	;player a2 is in hold animation looking to hold opponent a3. Entered from checkcheck .cc for SPAHold or SPAhook. Checks facing, clears the puck carrier sflags, has a second hold anim, and rolls the penalty with checkagr
 	btst	#pfalock,pflags(a3)
 	bne.w	rtss
 	tst.w	position(a3)
@@ -1797,20 +1797,20 @@ holdcheck	;player a2 is in hold animation looking to hold opponent a3. Entered f
 	move.w	d0,Yvel(a3)
 	move.w	d0,Yvel(a2)
 	bset	#pfalock,pflags(a3)
-	move.w	#$D14,d1
+	move.w	#SPAflail,d1
 	bsr.w	SetSPA
 	exg	a2,a3
 	bset	#5,pflags(a3)
-	move.w	#$CE2,d1
-	cmpi.w	#$CB0,SPA(a3)
+	move.w	#SPAHold2,d1
+	cmpi.w	#SPAHold,SPA(a3)
 	beq.w	.h2
-	move.w	#$130E,d1		;holding anim after $12DC
+	move.w	#SPAhook2,d1		;holding anim after SPAhook
 .h2	bsr.w	SetSPA
 	bsr.w	checkagr
 	cmp.w	#6,d0
 	bhi.w	.ex
 	move.w	#$24,d0			;penalty $24 after $CE2 (92 used $1E)
-	cmpi.w	#$CE2,SPA(a3)
+	cmpi.w	#SPAHold2,SPA(a3)
 	beq.w	.pen
 	move.w	#$1E,d0			;penalty $1E after $130E
 .pen	bsr.w	AddPenalty
@@ -1818,7 +1818,7 @@ holdcheck	;player a2 is in hold animation looking to hold opponent a3. Entered f
 	st	(collflag).w
 	rts
 
-Bcheck	;player a2 is in SPA $B44 and a3 is the other player. Entered from checkcheck .cc. If OptPen is 0 and a2 is joystick controlled, a2 needs randomd0($10 + a2 checking rating - a3 legstr) >= $C. If a3 is within 1 direction of where a2 faces, a3 falls and checkagr may call penalty $20 on a2. Sets collflag to -1
+Bcheck	;player a2 is in SPAsweepchk and a3 is the other player. Entered from checkcheck .cc. If OptPen is 0 and a2 is joystick controlled, a2 needs randomd0($10 + a2 checking rating - a3 legstr) >= $C. If a3 is within 1 direction of where a2 faces, a3 falls and checkagr may call penalty $20 on a2. Sets collflag to -1
 	btst	#pfalock,pflags(a3)
 	bne.w	rtss
 	tst.w	position(a3)			;position: not on a goalie
@@ -1856,22 +1856,22 @@ Bcheck	;player a2 is in SPA $B44 and a3 is the other player. Entered from checkc
 	st	(collflag).w
 	rts
 
-FallDown	;player a2 falls down, player a3 is the hitting player. Some players get anim $13A0 instead of a fall; also counts check stats for the hitter, has a third fall anim ($1524), and injuries (setInjuryType) with a penalty. Called from checkint.ci, checkcheck.cc and Bcheck; also entered from setd0player
+FallDown	;player a2 falls down, player a3 is the hitting player. Some players get SPAstumble instead of a fall; also counts check stats for the hitter, has a third fall anim (SPAflip), and injuries (setInjuryType) with a penalty. Called from checkint.ci, checkcheck.cc and Bcheck; also entered from setd0player
 	cmpi.w	#$B,SCnum(a2)
 	bgt.w	rtss			;not a player
 	btst	#pf2fight,pflags2(a2)
 	bne.w	rtss
-	cmpi.w	#$1616,SPA(a2)		;SPA: already in one of the fall anims
+	cmpi.w	#SPAinjury1,SPA(a2)		;already in one of the fall anims
 	beq.w	rtss
-	cmpi.w	#$13A0,SPA(a2)
+	cmpi.w	#SPAstumble,SPA(a2)
 	beq.w	rtss
-	cmpi.w	#$D46,SPA(a2)
+	cmpi.w	#SPAfallfwd,SPA(a2)
 	beq.w	rtss
-	cmpi.w	#$DF8,SPA(a2)
+	cmpi.w	#SPAfallback,SPA(a2)
 	beq.w	rtss
-	cmpi.w	#$1524,SPA(a2)
+	cmpi.w	#SPAflip,SPA(a2)
 	beq.w	rtss
-	move.w	#$13A0,d1		;anim $13A0 instead of a fall when byte $71 >= $C
+	move.w	#SPAstumble,d1		;instead of a fall when byte $71 >= $C
 	cmpi.b	#$C,$71(a2)		;timer $5F is 0 and impact < $10-$1F (HVcount)
 	blt.w	.fall
 	tst.b	$5F(a2)
@@ -1905,13 +1905,13 @@ FallDown	;player a2 falls down, player a3 is the hitting player. Some players ge
 	move.w	Ypos(a3),d1
 	sub.w	Ypos(a2),d1
 	bsr.w	vtoa			;direction from a2 to the hitter
-	move.w	#$DF8,d1
+	move.w	#SPAfallback,d1
 	sub.w	facedir(a2),d0
 	addq.w	#1,d0
 	andi.w	#7,d0
 	cmp.w	#2,d0
 	bls.w	.2			;hit from the front: fall back
-	move.w	#$D46,d1
+	move.w	#SPAfallfwd,d1
 	move.w	facedir(a2),d0
 	andi.w	#3,d0
 	bne.w	.2
@@ -1919,7 +1919,7 @@ FallDown	;player a2 falls down, player a3 is the hitting player. Some players ge
 	blt.w	.2
 	cmpi.w	#$B,SCnum(a3)		;and the hitter is a player
 	bgt.w	.2
-	move.w	#$1524,d1		;third fall anim
+	move.w	#SPAflip,d1		;third fall anim
 .2	exg	a2,a3
 	bset	#pfalock,pflags(a3)
 	bsr.w	SetSPA
@@ -1935,7 +1935,7 @@ FallDown	;player a2 falls down, player a3 is the hitting player. Some players ge
 	st	(puckc).w
 	btst	#gmhl,(gmode).w		;no injury in highlights
 	bne.w	.snd
-	cmpi.w	#$DF8,SPA(a2)		;injury: only from a fall back
+	cmpi.w	#SPAfallback,SPA(a2)		;injury: only from a fall back
 	bne.w	.snd
 	move.w	facedir(a2),d0
 	andi.w	#3,d0			;with facedir 0 or 4
@@ -1949,7 +1949,7 @@ FallDown	;player a2 falls down, player a3 is the hitting player. Some players ge
 	btst	#gmclock,(gmode).w
 	bne.w	.snd
 	exg	a2,a3
-	move.w	#$1616,d1		;injured anim
+	move.w	#SPAinjury1,d1
 	bsr.w	SetSPA
 	exg	a2,a3
 	bsr.w	setInjuryType
@@ -2124,7 +2124,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	bset	#pf2aip,pflags2(a3)
 	bset	#pf2npc,pflags2(a3)		;no player coll (92 used 7)
 	bclr	#pfalock,pflags(a3)
-	move.w	#$F8E,d1		;SPA $F8E (92 used $DE8)
+	move.w	#SPAfight,d1		;92 used $DE8
 	bra.w	SetSPA
 
 SetInst	;d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swapped) Returns
@@ -2456,7 +2456,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	bsr.w	assreplace
 	move.l	a3,-(sp)
 	adda.w	#SCstruct,a3
-	move.w	#$11E8,d1		;SPA $11E8 (92 used $FE8)
+	move.w	#SPAsiren,d1		;92 used $FE8
 	bsr.w	SetSPA
 	movea.w	tmsort(a1),a3		;first sort obj of the other team (92 used the puck)
 	move.l	#$E,d0			;penalty $E (92 used 6)
@@ -2577,7 +2577,7 @@ wallcollb	;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. C
 	;Not the puck: wallcoll. Zpos > 29, or Zpos > 18 with Ypos < 280, goes
 	;over: pfnc, scroll lock, frame of the next struct cleared and, if the
 	;clock runs, penalty 6 for ltplayer. Also: Ypos >= 280, Xpos 13-15 and
-	;Yvel >= $FA0 halves Yvel, starts SPA $1232 on the next struct with sfx $E
+	;Yvel >= $FA0 halves Yvel, starts SPAbglass on the next struct with sfx $E
 	;and crowd, then goes over
 	cmpi.w	#$E,SCnum(a3)		;puckSCnum
 	bne.w	wallcoll		;not puck so wall coll
@@ -2596,7 +2596,7 @@ wallcollb	;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. C
 	move.l	a3,-(sp)
 	asr.w	Yvel(a3)			;halve Yvel
 	adda.w	#SCstruct,a3
-	move.w	#$1232,d1		;SPA $1232
+	move.w	#SPAbglass,d1
 	bsr.w	SetSPA
 	movea.l	(sp)+,a3
 	move.w	#SFX0E,-(sp)		;sfx $E
@@ -2970,9 +2970,9 @@ puckglue	;Player a2 takes the puck
 	bne.w	setd0player
 	bsr.w	ChkShotStat
 	move.w	#$8C,temp5(a2)		;temp5 = 140, count down for faceoff (92 120)
-	cmpi.w	#$314,SPA(a2)
+	cmpi.w	#SPAgdive,SPA(a2)
 	bne.w	setd0player
-	move.w	#5,temp5(a2)		;temp5 = 5 for SPA $314
+	move.w	#5,temp5(a2)		;temp5 = 5 for SPAgdive
 
 setd0player	;give control of player d0 to a controller if his team is controlled
 	;d0 = SCnum. Also called by checkfight.sf
@@ -2997,7 +2997,7 @@ setd0player	;give control of player d0 to a controller if his team is controlled
 
 puckbody	;puck hits player a2. a3 = puck, d0 = distance^2 (from checkpuckcoll .ccx)
 	;Uses the old puck speed: a fast puck above 12 knocks a2 down
-	;(FallDown), a slower one above 8 plays SPA $128A on a2
+	;(FallDown), a slower one above 8 plays SPAcatch on a2
 	cmpi.w	#8,Zpos(a3)		;Zpos, 3*8/3
 	bgt.w	.hit
 	move.w	d0,d1
@@ -3032,7 +3032,7 @@ puckbody	;puck hits player a2. a3 = puck, d0 = distance^2 (from checkpuckcoll .c
 	rts
 .slow	bset	#pfalock,pflags(a2)
 	bne.w	rtss			;already in a locked anim
-	move.w	#$128A,d1		;SPA for a2
+	move.w	#SPAcatch,d1		;on a2
 	exg	a2,a3
 	bsr.w	SetSPA
 	exg	a2,a3
@@ -3075,7 +3075,7 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	beq.w	.3
 	eori.w	#2,d2
 .3	move.w	frame(a2),d0
-	subi.w	#$197,d0		;first goalie frame
+	subi.w	#SPFGoalie,d0
 	move.b	(a0,d0.w),d0
 	lsr.w	d2,d0
 	andi.w	#3,d0
@@ -3120,7 +3120,7 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 .0	move.b	d0,Xvel(a3)
 	move.b	d1,Yvel(a3)
 	bra.w	puckflip
-.nopc	cmpi.w	#$314,SPA(a2)
+.nopc	cmpi.w	#SPAgdive,SPA(a2)
 	beq.s	.bounce
 	moveq	#2,d0
 	add.b	shotspd(a2),d0		;shotspd byte
@@ -3824,11 +3824,11 @@ defaultsprites	;allocate vram and assign char area for graphic structures. d4 = 
 	dc.w	0,0,0,0,9
 
 .listffo	;xcord,ycord,zpos,frame,attribute,vram char size
-	dc.w	0,0,$FFFF,$188,0,7	;+2 ($182)
-	dc.w	0,0,$FFFF,$186,0,7	;+0 ($180)
-	dc.w	0,0,$FFFF,$187,0,7	;+1 ($181)
-	dc.w	0,0,$FFFF,$189,$8000,7	;attribute 0, 12 chars
-	dc.w	0,0,$FFFF,$161,0,5	;SPFgloves (92 same, $161)
+	dc.w	0,0,$FFFF,SPFpad+2,0,7
+	dc.w	0,0,$FFFF,SPFpad,0,7
+	dc.w	0,0,$FFFF,SPFpad+1,0,7
+	dc.w	0,0,$FFFF,SPFreplay,$8000,7		;attribute 0, 12 chars
+	dc.w	0,0,$FFFF,SPFgloves,0,5
 
 defaultsprites2	;objects which are tied to screen scrolling and have velocity relative to icerink
 	;also set some variables in the structure to default settings.
@@ -3885,11 +3885,11 @@ defaultsprites2	;objects which are tied to screen scrolling and have velocity re
 	dc.w	-$C8,$64,0,1,1,$14,8,4,0,$40
 	dc.w	-$C8,$78,0,1,1,$14,8,4,0,$40
 
-	dc.w	0,$10C,0,$195,0,$B,$14,6,0,0	;goal net (92 used $18E)
-	dc.w	0,-$10C,0,$196,0,$11,$14,6,0,0
+	dc.w	0,$10C,0,SPFgoal,0,$B,$14,6,0,0		;goal net (92 used $18E)
+	dc.w	0,-$10C,0,SPFgoal+1,0,$11,$14,6,0,0
 
-	dc.w	0,0,0,$18B,0,1,5,5,$18,1	;puck: pnorm, 1<<pfdoff
-	dc.w	0,0,0,$18A,0,$11,3,3,$19,4	;puck shadow: pshad, 1<<pfnc (92 used $183, 4 chars)
+	dc.w	0,0,0,SPFpuck+1,0,1,5,5,$18,1		;puck: pnorm, 1<<pfdoff
+	dc.w	0,0,0,SPFpuck,0,$11,3,3,$19,4		;puck shadow: pshad, 1<<pfnc (92 used $183, 4 chars)
 
 SprSort	;sort objects in struct SortObj and set corresponding tables for keeping them sorted later
 	movem.l	d0-d4/a0-a2,-(sp)
@@ -3947,7 +3947,7 @@ resetplstuff	;reset team variables/and players on both teams. Called from puckfa
 .loop	clr.b	pflags2(a3)			;pflags2 (92 also cleared pflags3)
 	tst.w	position(a3)
 	bmi.w	.next
-	move.w	#$52C,d1		;SPAglide (92 $346)
+	move.w	#SPAglide,d1		;92 $346
 	bsr.w	SetSPA
 	clr.w	impact(a3)
 	clr.b	nopuck(a3)			;clear the byte
@@ -5793,14 +5793,14 @@ RosterAnimScripts	;roster player animation scripts 0-7 (offsets), each (SetSPA a
 	dc.w	.s0-RosterAnimScripts,.s1-RosterAnimScripts,.s2-RosterAnimScripts
 	dc.w	.s3-RosterAnimScripts,.s4-RosterAnimScripts,.s5-RosterAnimScripts
 	dc.w	.s6-RosterAnimScripts,.s7-RosterAnimScripts
-.s0	dc.w	$134,3,$134,4,$134,5,$134,-4,$166,4,$134,4,$198,4,$134,4,0
-.s5	dc.w	$134,3,$134,4,$134,5,$134,-4,$1CA,4,$134,4,$134,4,0
-.s1	dc.w	$5F0,3,$5F0,4,$EAA,-5,$EAA,4,$52C,4,$52C,4,0
-.s2	dc.w	$55E,4,$55E,4,$1452,-4,$52C,4,$52C,4,0
-.s3	dc.w	$55E,5,$55E,5,$81C,-5,$52C,5,$52C,5,0
-.s4	dc.w	$55E,3,$55E,3,$13A0,-3,$81C,3,$52C,3,$52C,3,0
-.s6	dc.w	$5F0,4,$5F0,5,$B44,-5,$B44,5,$5F0,5,$B44,5,$52C,5,$52C,5,0
-.s7	dc.w	$5F0,3,$5F0,2,$F8E,-2,$1004,2,$1036,2,$1004,2,$1036,2,0
+.s0	dc.w	SPAgready2,3,SPAgready2,4,SPAgready2,5,SPAgready2,-4,SPAgglover,4,SPAgready2,4,SPAgglovel,4,SPAgready2,4,0
+.s5	dc.w	SPAgready2,3,SPAgready2,4,SPAgready2,5,SPAgready2,-4,SPAgglovel2,4,SPAgready2,4,SPAgready2,4,0
+.s1	dc.w	SPAskate,3,SPAskate,4,SPAcelebrate,-5,SPAcelebrate,4,SPAglide,4,SPAglide,4,0
+.s2	dc.w	SPAskatewp,4,SPAskatewp,4,SPAfake,-4,SPAglide,4,SPAglide,4,0
+.s3	dc.w	SPAskatewp,5,SPAskatewp,5,SPAshotf,-5,SPAglide,5,SPAglide,5,0
+.s4	dc.w	SPAskatewp,3,SPAskatewp,3,SPAstumble,-3,SPAshotf,3,SPAglide,3,SPAglide,3,0
+.s6	dc.w	SPAskate,4,SPAskate,5,SPAsweepchk,-5,SPAsweepchk,5,SPAskate,5,SPAsweepchk,5,SPAglide,5,SPAglide,5,0
+.s7	dc.w	SPAskate,3,SPAskate,2,SPAfight,-2,SPAfhigh,2,SPAflow,2,SPAfhigh,2,SPAflow,2,0
 RosterOrderTable	;line data slots shown in turn: C, RW, LW, G, RD, LD of line 1, then lines 2 and 3; $FF ends
 	dc.b	4,5,3,0,2,1,$C,$D,$B,$A,9,$14,$15,$13,$12,$11,$FF,0
 
