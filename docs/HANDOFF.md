@@ -59,3 +59,6 @@ Follow 92G (EA source): 2105 locals, ~31% number-only (.0, .1 ...), the rest sho
 - Local label pass (locals + header register notes; checklist "Local labels" in docs/name_review_9x.md):
   93G DONE (all modules). Next: 94G (also finish routine names by body), then 95G (also data labels and
   equates by usage), then NHLPA93SNES.
+- Segment inline (93G): hockey93_01/_02/_03_05/_06_11 are now inline in src/hockey93.asm (as 92 hockey.asm);
+  their files, stubs and seg:* scripts are gone. tools/verify_all.sh checks full ROM (retail + Rev A) + remaining segments.
+- Header rewrite (93G/94G/95G file header comments, short and consistent, 92 style): in progress.

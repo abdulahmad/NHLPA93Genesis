@@ -1,6 +1,6 @@
 // Overlay one assembled and fixopcodes-patched segment onto a copy of the reference ROM and compare that range.
 // Usage: node verifySegment.js <segment> <org> <reference.bin> [<first> <last>]
-// Example: node verifySegment.js hockey93_01 0x6446 nhlpa93retail.bin
+// Example: node verifySegment.js menu93 0x6A00 nhlpa93retail.bin
 // <first> <last> (inclusive ROM addresses) compare only that part of the segment, for example
 // node verifySegment.js sound93 0x165D8 nhlpa93retail.bin 0x165D8 0x16E52
 // Reads output/modified_<segment>.bin (written by fixopcodes.js), not the raw assembler output/<segment>.bin.

@@ -12,10 +12,9 @@ Merged files (older notes below may still use the old part names):
 - middle93.asm = middle93_1..2 ($D62A-$E525)
 - penalty93.asm = penalty93_1..2 ($E526-$FAE1)
 - video93.asm = video93_1..2 ($11802-$122A7)
-- hockey93_03_05.asm = hockey93_03..05 ($FAE2-$11801, contiguous; penalty93 before, video93 after)
-- hockey93_06_11.asm = hockey93_06..11 ($122A8-$15FE5, contiguous)
-- hockey93_01 and hockey93_02 stay separate (menu93/stats93 and logic93 sit between them in ROM).
-Each merged file has a `(was X.asm)` banner per part. One stub per merged file; seg scripts: seg:logic93, seg:middle93, seg:penalty93, seg:video93, seg:hockey93_03_05, seg:hockey93_06_11.
+- hockey93.asm holds the former hockey93_01, _02, _03_05 and _06_11 code inline, as 92 hockey.asm does.
+Seg scripts: seg:menu93, seg:stats93, seg:logic93, seg:middle93, seg:penalty93, seg:video93, seg:sram93, seg:sound93, seg:graphics93, seg:checksum93.
+The hockey93 code itself is verified by the full ROM build.
 
 ## Features of this version:
 - Retail (`1992.JUL -00`) and Rev A (`1992.OCT -01`) ROMs build bitwise perfect from the same source (`IF REV=1` blocks)

@@ -3,7 +3,7 @@ setlocal EnableDelayedExpansion
 
 REM ==============================================
 REM  Usage: build.bat <rom_name>
-REM  Example: build.bat hockey93_01
+REM  Example: build.bat menu93
 REM
 REM  Builds: src\<rom_name>.asm  →  output\<rom_name>.bin
 REM ==============================================
@@ -16,7 +16,7 @@ if "%~1"=="" (
     echo   %~nx0 ^<rom_name^>
     echo.
     echo Example:
-    echo   %~nx0 hockey93_01
+    echo   %~nx0 menu93
     echo.
     exit /b 1
 )
@@ -28,7 +28,7 @@ REM Create output folder if missing
 if not exist "%WORKSPACE%output" mkdir "%WORKSPACE%output"
 
 REM Optional: disable checksum with environment variable
-REM Example: set checksum=0 & build.bat hockey93_01
+REM Example: set checksum=0 & build.bat menu93
 if not defined checksum set "checksum=1"
 
 set "CHECKSUM_FLAG=/e CHECKSUM=1"
