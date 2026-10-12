@@ -1,27 +1,20 @@
-;	68k side of the sound driver, p_turnoff ... ClearAllTrackAndSFXSlots.
-;	New in 93: this is a different driver from the 92 one; only the entry
-;	points p_turnoff (audio stop), p_music_vblank (vblank handler) and
-;	p_initialZ80 (initialization) keep the same roles.
-;	Bytes match nhlpa93retail.bin. The first byte of the Z80 program is the
-;	dc.b before the incbins; the rest of the Z80 blob and the sound data are
-;	incbins.
-;	Driver RAM is in Ram93.Asm at its retail address. RAM from $CAEE up is 4
-;	bytes lower in retail than in Rev A: retail has no
-;	PalMode / music_tick_divider words (see p_music_vblank).
-;	The Rev A address is in the equate comment.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The source has the real
-;	cmp; fixopcodes.js patches the encoding after assembly.
-;	Data seen in the bytes:
-;	  track slots $CDC0 (8 x 6 bytes): +0 long event pointer (negative = free or ended), +4 word delay
-;	    count (+5 = the delay byte read from the stream). Slot n (from $CDC0) is track 7-n.
-;	  channel structs $CD9C (6 x 6 bytes, the 6th at $CDBA is the PCM channel): +0 key (midi channel*8 +
-;	    track), +1 note, +2 patch, +3 output channel (0,1,2,4,5,6), +4 age (+1 each frame), +5 bit 0 on.
-;	  voice table $CB9C (8 bytes per key): +0 word pitch bend (value - $2000), +3 patch.
-;	  command buffer $CB7A (33 bytes, copied to Z80 RAM $02-$22): +0 key off bits, +1 key on bits,
-;	    +2 volume bits, +3 frequency bits, +4 patch bits (one bit per output channel), $CB7F 7 volume
-;	    bytes, $CB86 7 frequency words, $CB94 7 patch bytes. $CB78 = buffer changed flag.
-;	  events (4 bytes): +0 delay before this event, +1 status (bits 6-4 command, bits 3-0 channel),
-;	    +2/+3 data. Status 0 ends the stream; a non-negative long at +2 is a loop pointer.
+;	Sound driver, 68000 side: entry points p_initialZ80, p_turnoff and p_music_vblank, the
+;	song and sound effect players, followed by the Z80 program and sound data.
+;	Retail has no PalMode / music_tick_divider words, so the driver RAM after them is 4 bytes
+;	lower than in Rev A (see p_music_vblank).
+;	Data layout:
+;	  track slots (8 x 6 bytes): +0 long event pointer (negative = free or ended), +4 word
+;	    delay count (+5 = the delay byte read from the stream). Slot n is track 7-n.
+;	  channel structs (6 x 6 bytes, the 6th is the PCM channel): +0 key (midi channel*8 +
+;	    track), +1 note, +2 patch, +3 output channel (0,1,2,4,5,6), +4 age (+1 each frame),
+;	    +5 bit 0 on.
+;	  voice table (8 bytes per key): +0 word pitch bend (value - $2000), +3 patch.
+;	  command buffer (33 bytes, copied to Z80 RAM $02-$22): +0 key off bits, +1 key on bits,
+;	    +2 volume bits, +3 frequency bits, +4 patch bits (one bit per output channel), then
+;	    7 volume bytes, 7 frequency words, 7 patch bytes.
+;	  events (4 bytes): +0 delay before this event, +1 status (bits 6-4 command, bits 3-0
+;	    channel), +2/+3 data. Status 0 ends the stream; a non-negative long at +2 is a loop
+;	    pointer.
 
 p_turnoff	;(audio stop). Silence everything: free all slots, key off and mute every output
 		;channel, send the buffer and stop the PCM channel. Called from Begin, StartPer, game screens

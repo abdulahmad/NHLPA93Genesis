@@ -1,11 +1,7 @@
-;	Stats, line editor, roster, scoring/penalty summary, team stats, crowd
-;	meter and goalie select screens. Not in NHL 92. Entry points are named
-;	after the screen title they print.
-;	Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
-;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	Inline print strings after printz/printsmallz/printbigz/appendz use the
-;	String macro or a dc.w length (length word includes itself, padded to a word).
+;	Stats and team screens: stats, line editor, roster, scoring and penalty summaries,
+;	team stats, crowd meter and goalie select. Entry points are named after the screen title
+;	they print. Inline print strings use the String macro or a dc.w length (the length word
+;	includes itself, padded to a word).
 
 ShowScores	;"Scores" screen: lists the other games in
 	;gstruct with both teams, scores and period. Up/down scroll, start exits.

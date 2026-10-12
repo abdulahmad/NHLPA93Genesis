@@ -1,9 +1,6 @@
-;	Graphics data: incbin only, no gaps and no overlaps. Each file is a slice of
-;	nhlpa93retail.bin written by npm run extractassets into Extracted\Graphics.
-;	A map's tiles start past its 8-byte header, so code refers to them as
-;	label+8 (e.g. #IceRinkMap+8). SNASM symbols are case-insensitive.
-;	Sprites is one blob; its internal tables are equates below (offsets from
-;	the long at Sprites+4), not separate labels.
+;	Graphics data, all incbins from Extracted\Graphics. A map's tiles start past its 8-byte
+;	header, so code refers to them as label+8 (e.g. #IceRinkMap+8). Sprites is one blob; its
+;	internal tables are equates below (offsets from the long at Sprites+4).
 
 GameSetupSprites		;game setup roster sprites drawn with SetSframe by AddTeamSpriteFrame, tiles from +8
 	incbin	..\Extracted\Graphics\GameSetup.anim

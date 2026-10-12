@@ -1,9 +1,5 @@
-;	Menu engine: InitMenuState through MenuWaitVblank. The generic scrolling
-;	menu used by the pause screen (Pausemode). Not in NHL 92.
-;	Bytes match nhlpa93retail.bin.
-;	Equate names in comments are only used where the value is the same as 92.
-;	Inline print strings after printsmallz/printsmall use the String macro
-;	(length word includes itself, odd data is padded to a word).
+;	Menu engine: the generic scrolling menu used by the pause screen.
+;	Inline print strings after printsmallz/printsmall use the String macro.
 
 InitMenuState	;start a menu. a0 = item list, a1 = screen draw routine
 	;falls into DrawMenuScreen

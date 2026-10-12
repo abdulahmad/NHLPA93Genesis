@@ -1,6 +1,5 @@
-;	ROM checksum check, assembled when CHECKSUM=1, followed by the $FF fill to
-;	the end of the ROM. Retail has a different sum constant and loop count from
-;	Rev A, and a word Rev A lacks.
+;	ROM security check (assembled when CHECKSUM=1), followed by the $FF fill to the end of
+;	the ROM. Retail and Rev A use different sum constants and loop counts.
 
 	IF REV=0
 SecurityCheck	;Retail only: the $FFFF word before ValidationRoutine (Rev A has no word here). Data, not code

@@ -1,17 +1,11 @@
-;	New in 93: the serial backup RAM (cartridge EEPROM) driver, the save/load
-;	of the 128-byte databuffer (BackupRAM_Read, BackupRAM_Save, BackupRAM_Load), the
+;	Backup RAM: the serial EEPROM driver, save and load of the 128-byte databuffer, the
 ;	ClearRAMBuffer status screen and ReadPad1Held.
-;	Bytes match nhlpa93retail.bin. Each routine header says what the
-;	Read/Write routines actually do.
-;	The device is a word port (BackupRAM_Port). Low byte bit 7 is the data line (SDA, read back in bit 7)
-;	and bit 6 the clock (SCL): $C0 = both high, $80 = data high clock low, $40 = data low clock high.
-;	The control byte sent after a start is address<<1 + 1 to read (sequential read from that address)
-;	or address<<1 to write one byte. Addresses are 0-127.
-;	The backup RAM variables (and databuffer) are in Ram93.Asm at their retail addresses, 4 bytes
-;	lower than in Rev A (the Rev A address is in the equate comment).
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The source has the real
-;	cmp; fixopcodes.js patches the encoding after assembly.
-;	Saved block (databuffer, 128 bytes): bytes 0-125 data, byte 126 = not(sum of 0-125), byte 127 = sum.
+;	The device is a word port (BackupRAM_Port). Low byte bit 7 is the data line (SDA, read
+;	back in bit 7) and bit 6 the clock (SCL): $C0 = both high, $80 = data high clock low,
+;	$40 = data low clock high. The control byte sent after a start is address<<1 + 1 to read
+;	(sequential read from that address) or address<<1 to write one byte. Addresses are 0-127.
+;	Saved block (databuffer, 128 bytes): bytes 0-125 data, byte 126 = not(sum of 0-125),
+;	byte 127 = sum.
 
 BackupRAM_Start	;start condition: data falls while the clock is high, then clock low. Called before every control byte
 	nop
