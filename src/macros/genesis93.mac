@@ -1,5 +1,5 @@
-;	Assembler macros: VmInc (VDP auto increment), String and StringB (length-prefixed
-;	print strings), HEX2, PLAYER (roster entry) and PIX.
+;	Assembler macros used throughout the game: setting the VDP auto increment, writing print
+;	strings with their length in front, hex digits, roster entries and pictures.
 
 VmInc MACRO ;set video auto inc. mode
 	move	#$8f00+(\1&255),Vctrl

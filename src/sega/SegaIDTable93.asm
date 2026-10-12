@@ -1,5 +1,5 @@
-;	Sega ID header: console name, copyright and date, game titles, serial number,
-;	checksum, I/O support, ROM and RAM ranges and region codes.
+;	Sega ID header. It tells the console what the cartridge is: its name, copyright, titles,
+;	serial number, checksum, supported controllers, memory ranges and regions.
 
 	org	$00000100
 ;					Data No. Address	Description

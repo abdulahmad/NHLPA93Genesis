@@ -1,5 +1,5 @@
-;	ROM security check (assembled when CHECKSUM=1), followed by the $FF fill to the end of
-;	the ROM. Retail and Rev A use different sum constants and loop counts.
+;	ROM security check. When the checksum is enabled, this routine adds up the ROM and stops the
+;	game if the sum is wrong. The fill that pads the ROM out to its full size follows it.
 
 	IF REV=0
 SecurityCheck	;Retail only: the $FFFF word before ValidationRoutine (Rev A has no word here). Data, not code

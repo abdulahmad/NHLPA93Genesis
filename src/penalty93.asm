@@ -1,7 +1,6 @@
-;	Penalty logic: penalties and stoppages (whistle, icing, offsides, goals), the penalty
-;	box and power plays, referee messages, and the horizontal/vertical rink switch.
-;	Penalty numbers are PenaltyList word offsets: EOG 4, OOP 6, whistle $A, icing $C,
-;	goal $E, offsides $10, delay $2C.
+;	Penalty logic. This file calls penalties and the other stoppages of play, such as the
+;	whistle, icing, offsides and goals. It sends players to the penalty box, runs power plays,
+;	shows the referee's messages and switches the rink between its horizontal and vertical views.
 
 AddPenalty	;add penalty d0 (PenaltyList offset) for player a3. Ignored while the clock is stopped, when penalties are off, or offsides when offsides are off. Falls into AddPenalty2
 	btst	#gmclock,(gmode).w

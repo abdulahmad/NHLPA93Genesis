@@ -1,9 +1,7 @@
-;	Player logic: controller input for skaters (passing, shooting, checking, line
-;	changes), the computer player assignments (positions, goalie, fights, bench and penalty
-;	box), puck logic (faceoffs, offsides, icing) and the movement helpers.
-;	SortCords offsets: Xpos 0, attribute 4, Ypos $14, Xvel $28, Yvel $2A, impact $32,
-;	position $34, assnum $36, asslist $38, SCnum $52, facedir $54, SPA $58, SPAnum $5A,
-;	nopuck $5E, pflags $62, pflags2 $63. Team struct: tmline $16, tmap $24.
+;	Player logic. This file turns controller input into skater actions such as passing, shooting,
+;	checking and line changes, and it runs the computer players: each player is given an
+;	assignment for his position, and the goalie, fights, the bench and the penalty box have
+;	their own. It also handles the puck at faceoffs, offsides and icing.
 
 doinput	;process controller input
 	;d0 = dpad

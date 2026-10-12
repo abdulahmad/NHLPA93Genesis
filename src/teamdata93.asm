@@ -1,6 +1,6 @@
-;	Team data: TeamList and the offsets into each team record, the All-Star teams, one
-;	record per team (players, palettes, name, line sets, scouting report, scoring odds),
-;	the playoff seeds and the credits.
+;	Team data. TeamList points to one record per team, the All-Star teams included. A record
+;	holds the players, colors, name, lines, scouting report and scoring odds. The playoff seeds
+;	and the credits come after the teams.
 
 	dc.l	$0000
 

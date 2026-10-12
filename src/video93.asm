@@ -1,5 +1,7 @@
-;	Game play vblank code: VBlank, sprite list building and DMA, and the sprite builders
-;	for the rink, referee, faceoff, zamboni and crowd.
+;	Game play vertical blank code. Every frame it builds the sprite list and sends it and other
+;	graphics to video memory, and it draws the sprites for the rink, the referee, faceoffs, the
+;	zamboni and the crowd.
+
 ;	Sprite frame data (FaceOffSprites, ZamSprites, CrowdSprites): the long at +4 is the
 ;	offset to a word table of frame offsets; frame n sprites run from word n to word n+1,
 ;	8 bytes each: x 0, y 2, char 4, flags 6 (top 5 bits used), size byte 7.

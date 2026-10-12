@@ -1,5 +1,5 @@
-;	Sega's Genesis hard initial program (1989-90). Runs from reset before anything else:
-;	checks the hardware, sets up the VDP, Z80 and PSG, clears RAM, then starts the game.
+;	Sega's standard startup code. It runs from reset before anything else, checks the hardware,
+;	sets up the video chip, the Z80 and the sound chip, clears RAM and then starts the game.
 
 	org	$00000200
 SegaInit:

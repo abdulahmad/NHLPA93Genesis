@@ -63,3 +63,4 @@ Follow 92G (EA source): 2105 locals, ~31% number-only (.0, .1 ...), the rest sho
   their files, stubs and seg:* scripts are gone. tools/verify_all.sh checks full ROM (retail + Rev A) + remaining segments.
 - Header rewrite (file header comments, 92 style): 93G hockey93, main, teamdata, frames, ram, macros, sega, logic, middle, penalty, video, menu, stats, sram, sound, graphics, checksum, all stubs done (93G complete).
 - Restructure: root .js tools (fixopcodes, verifyRom, verifySegment, find, checkAssetsinROM, generateFrameData, generateTeamData) and src/extractAssets93-1.1.js moved to tools/; run from repo root as node tools/<name>.js (default Extracted/output paths resolve from the repo root). verify_all.sh also fails on segment assembly errors. Fresh extract + ROM (retail, Rev A) + all segments MATCH.
+- Header rewrite 2 (story-style file headers, model hockey93/main93/menu93): all 93G modules done. MATCH.

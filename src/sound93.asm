@@ -1,7 +1,6 @@
-;	Sound driver, 68000 side: entry points p_initialZ80, p_turnoff and p_music_vblank, the
-;	song and sound effect players, followed by the Z80 program and sound data.
-;	Retail has no PalMode / music_tick_divider words, so the driver RAM after them is 4 bytes
-;	lower than in Rev A (see p_music_vblank).
+;	Sound driver, 68000 side. It starts the Z80, plays the songs and sound effects frame by frame
+;	and turns the sound off. The Z80 program and the sound data that the driver plays follow it.
+
 ;	Data layout:
 ;	  track slots (8 x 6 bytes): +0 long event pointer (negative = free or ended), +4 word
 ;	    delay count (+5 = the delay byte read from the stream). Slot n is track 7-n.

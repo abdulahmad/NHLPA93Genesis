@@ -1,5 +1,6 @@
-;	Shared helpers: palette fades, random numbers, square root, sound calls, joystick
-;	reading and waits, VRAM DMA and fill, video setup, and the graphics decompressor.
+;	Shared helpers used all over the game. They fade palettes, make random numbers and square
+;	roots, start sounds, read the joysticks and wait for buttons, move and fill video memory, set
+;	up the screen and unpack compressed graphics.
 
 remap	;a0 = data (char set), d0 = size in words, d1 = vram dest, a1 = mapping data (two color nibbles per byte, high nibble for even colors). Jumped to from DecompressGraphics
 	move.w	(disflags).w,-(sp)

@@ -1,7 +1,6 @@
-;	Stats and team screens: stats, line editor, roster, scoring and penalty summaries,
-;	team stats, crowd meter and goalie select. Entry points are named after the screen title
-;	they print. Inline print strings use the String macro or a dc.w length (the length word
-;	includes itself, padded to a word).
+;	Stats and team screens. This file shows the game stats, the line editor and roster, the
+;	scoring and penalty summaries, team stats, the crowd meter and goalie selection. Each screen's
+;	entry point is named after the title it prints.
 
 ShowScores	;"Scores" screen: lists the other games in
 	;gstruct with both teams, scores and period. Up/down scroll, start exits.

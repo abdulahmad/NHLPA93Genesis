@@ -1,5 +1,5 @@
-;	Data table for animating the graphics in Sprites.anim: sprite frame (SPF) base indices
-;	and the SPA animation list offsets.
+;	Sprite frame tables. These tables tell the animation code where each group of frames starts
+;	in the sprite graphics and where each animation's list begins.
 
 ; Sprite Frame (SPF) base indices
 SPFskatewp	=	1

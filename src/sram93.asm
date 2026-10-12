@@ -1,5 +1,6 @@
-;	Backup RAM: the serial EEPROM driver, save and load of the 128-byte databuffer, the
-;	ClearRAMBuffer status screen and ReadPad1Held.
+;	Battery backup. This file drives the save chip on the cartridge, saves and loads the game's
+;	save block with a checksum, shows the screen for clearing saved data and reads the first pad.
+
 ;	The device is a word port (BackupRAM_Port). Low byte bit 7 is the data line (SDA, read
 ;	back in bit 7) and bit 6 the clock (SCL): $C0 = both high, $80 = data high clock low,
 ;	$40 = data low clock high. The control byte sent after a start is address<<1 + 1 to read

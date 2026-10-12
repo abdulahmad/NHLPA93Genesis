@@ -1,4 +1,5 @@
-;	RAM allocation, hardware ports and structure equates. No ROM bytes.
+;	RAM map. This file names the work RAM variables, the hardware ports and the offsets inside
+;	the game's structures. It holds equates only and adds nothing to the ROM.
 
 ;hardware
 Asound	=	$c00011	;analog sound (VDP_PSG)
