@@ -79,11 +79,11 @@ function findPatternInFile(filename) {
 if (process.argv.length < 3) {
   console.log(`
   Usage:
-    node find-pattern.js <binary-file>
+    node tools/find.js <binary-file>
     
   Example:
-    node find-pattern.js game.exe
-    node find-pattern.js dump.bin
+    node tools/find.js game.exe
+    node tools/find.js dump.bin
   `);
   process.exit(1);
 }

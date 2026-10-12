@@ -183,7 +183,7 @@ async function verifyCRC32(filePath) {
 async function extractAssets(romPath, options = {}) {
     // Set default options
     const extractOptions = {
-        outputDir: options.outputDir || 'Extracted',
+        outputDir: options.outputDir || path.join(__dirname, '..', 'Extracted'),
         verbose: options.verbose || false
     };
     
@@ -237,7 +237,7 @@ function parseArgs() {
     const args = process.argv.slice(2);
     const options = {
         romFile: null,
-        outputDir: 'Extracted',
+        outputDir: path.join(__dirname, '..', 'Extracted'),
         verbose: false
     };
 
@@ -273,20 +273,20 @@ NHL 93 Asset Extractor
 
 This script extracts assets from NHLPA Hockey 93 ROM files.
 
-Usage: node src/extractAssets93-1.1.js [options] <rom_file_path>
+Usage: node tools/extractAssets93-1.1.js [options] <rom_file_path>
 
 Options:
   -h, --help              Display this help message
   -v, --verbose           Display detailed extraction information
-  -o, --output <dir>      Specify output directory (default: 'Extracted')
+  -o, --output <dir>      Specify output directory (default: <repo>/Extracted)
 
 Notes:
   - This script extracts all known assets from the NHLPA 93 retail ROM (nhlpa93retail.bin)
   - ROM checksums are verified to ensure correct ROM is used
 
 Examples:
-  node src/extractAssets93-1.1.js nhlpa93retail.bin
-  node src/extractAssets93-1.1.js --verbose --output NHL93Assets nhlpa93retail.bin
+  node tools/extractAssets93-1.1.js nhlpa93retail.bin
+  node tools/extractAssets93-1.1.js --verbose --output NHL93Assets nhlpa93retail.bin
     `);
 }
 

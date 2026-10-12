@@ -46,8 +46,8 @@ function checkAssetsInROM(sourceDir, targetROM) {
 
 // Command-line usage
 if (process.argv.length !== 4) {
-  console.error('Usage: node check-rom-assets.js <source_directory> <target_rom_file>');
-  console.error('Example: node check-rom-assets.js ./NHL92_assets NHLPA93.rom');
+  console.error('Usage: node tools/checkAssetsinROM.js <source_directory> <target_rom_file>');
+  console.error('Example: node tools/checkAssetsinROM.js ./NHL92_assets NHLPA93.rom');
   process.exit(1);
 }
 

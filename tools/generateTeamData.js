@@ -280,9 +280,9 @@ function generateTeamSource(romPath) {
   console.log('Output written to team_data.asm'); // Optional: confirm in console
 }
 
-// Usage: node script.js path_to_nhlpa93_rom.bin
+// Usage: node tools/generateTeamData.js path_to_nhlpa93_rom.bin
 if (process.argv.length < 3) {
-  console.error('Usage: node script.js <rom_path>');
+  console.error('Usage: node tools/generateTeamData.js <rom_path>');
   process.exit(1);
 }
 generateTeamSource(process.argv[2]);

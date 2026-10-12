@@ -10,11 +10,11 @@ ROMs (gitignored, never commit): nhlpa93retail.bin and nhlpa93retailRevA.bin in 
 Windows: `npm run build:retail` and `npm run build:reva` (extractassets, build93.bat, fixopcodes, verify);
 segments: `npm run seg:<name>` (all keys in package.json `seg:*`).
 Linux (wine): `apt install wine wine32` (dpkg --add-architecture i386), `export WINEDEBUG=-all`, then
-1. `node src/extractAssets93-1.1.js nhlpa93retail.bin` (once, fills Extracted/)
+1. `node tools/extractAssets93-1.1.js nhlpa93retail.bin` (once, fills Extracted/)
 2. `wine cmd /c "set rev=0&& set checksum=1&& build93.bat"` (rev=1 for Rev A, ref nhlpa93retailRevA.bin)
-3. `node fixopcodes.js "output/nhl93 .lst" output/nhl93.bin`
-4. `node verifyRom.js output/modified_nhl93.bin <reference ROM>` must print MATCH
-5. Segments: run each package.json `seg:*` chain the same way (`wine cmd /c "buildseg.bat <seg>"`, then its node steps); verifySegment.js must MATCH.
+3. `node tools/fixopcodes.js "output/nhl93 .lst" output/nhl93.bin`
+4. `node tools/verifyRom.js output/modified_nhl93.bin <reference ROM>` must print MATCH
+5. Segments: run each package.json `seg:*` chain the same way (`wine cmd /c "buildseg.bat <seg>"`, then its node steps); tools/verifySegment.js must MATCH.
 Failed-assembly detection: delete output/*.bin first, then check the bin exists and is fresh and that output/Build*.log has no
 `^[1-9][0-9]* error` line. tools/verify_all.sh does all of this (top ROM + every segment).
 
@@ -62,3 +62,4 @@ Follow 92G (EA source): 2105 locals, ~31% number-only (.0, .1 ...), the rest sho
 - Segment inline (93G): hockey93_01/_02/_03_05/_06_11 are now inline in src/hockey93.asm (as 92 hockey.asm);
   their files, stubs and seg:* scripts are gone. tools/verify_all.sh checks full ROM (retail + Rev A) + remaining segments.
 - Header rewrite (file header comments, 92 style): 93G hockey93, main, teamdata, frames, ram, macros, sega, logic, middle, penalty, video, menu, stats, sram, sound, graphics, checksum, all stubs done (93G complete).
+- Restructure: root .js tools (fixopcodes, verifyRom, verifySegment, find, checkAssetsinROM, generateFrameData, generateTeamData) and src/extractAssets93-1.1.js moved to tools/; run from repo root as node tools/<name>.js (default Extracted/output paths resolve from the repo root). verify_all.sh also fails on segment assembly errors. Fresh extract + ROM (retail, Rev A) + all segments MATCH.

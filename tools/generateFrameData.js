@@ -1,7 +1,7 @@
 // generate_frames_asm.js
 // Node.js script to extract animation tables from NHLPA Hockey '93 (Genesis) ROM
 // and generate a matching Frames.asm
-// Usage: node generate_frames_asm.js path/to/nhlpa93.bin [output.asm]
+// Usage: node tools/generateFrameData.js path/to/nhlpa93.bin [output.asm]
 
 const { table } = require('console');
 const fs = require('fs');
@@ -148,7 +148,7 @@ const skipDirList = ["wallright", "wallleft"];
 // ======================================================
 
 if (process.argv.length < 3) {
-  console.log('Usage: node generate_frames_asm.js <rom_path> [output.asm]');
+  console.log('Usage: node tools/generateFrameData.js <rom_path> [output.asm]');
   process.exit(1);
 }
 

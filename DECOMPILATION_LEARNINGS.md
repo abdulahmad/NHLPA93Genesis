@@ -3,7 +3,7 @@
 Notes for humans and models working on the NHLPA Hockey 93 Sega Genesis matching rebuild.
 Read this before editing `src/`. A function is done only when the rebuilt ROM matches the target bytes.
 
-Seeded from the public `NHLPA93Genesis` README / `fixopcodes.js` / `package.json`, then updated from the private disassembly tree `abdulahmad/EA-NHL-Disassembly-Project` at `NHL93-Genesis/` (commit `9a2a373`, 2026-10-04 read).
+Seeded from the public `NHLPA93Genesis` README / `tools/fixopcodes.js` / `package.json`, then updated from the private disassembly tree `abdulahmad/EA-NHL-Disassembly-Project` at `NHL93-Genesis/` (commit `9a2a373`, 2026-10-04 read).
 
 The `.idb` files were not parsed. They are IDA databases. The v1.1 `.lst` is 12MB and was not treated as current: the IDB is the up-to-date database, the listing may be stale. `rommap.md` is empty.
 
@@ -63,7 +63,7 @@ Node, then `npm i` in the public `NHLPA93Genesis` repo. Copy the retail ROM in l
 npm run extractassets
 ```
 
-`npm run extractassets` runs `src/extractAssets93-1.1.js` on `nhlpa93retail.bin` (CRC32 `CBBF4262`; any other file aborts with exit code 1). It is the only extractor. It writes the slices the `teamdata93.asm`, `sound93.asm` and `graphics93.asm` incbins need. Every build script runs it first.
+`npm run extractassets` runs `tools/extractAssets93-1.1.js` on `nhlpa93retail.bin` (CRC32 `CBBF4262`; any other file aborts with exit code 1). It is the only extractor. It writes the slices the `teamdata93.asm`, `sound93.asm` and `graphics93.asm` incbins need. Every build script runs it first.
 
 Builds, from `package.json`:
 
@@ -72,7 +72,7 @@ Builds, from `package.json`:
 | `npm run build:retail` | `rev=0`, `checksum=1` | Retail, validation included, verified against `nhlpa93retail.bin`. Opcode-corrected output is `output/modified_nhl93.bin`. |
 | `npm run build:reva` | `rev=1`, `checksum=1` | Rev A with validation, verified against `nhlpa93retailRevA.bin`. |
 | `npm run build:dev` | `rev=1`, `checksum=0` | Rev A flags, no validation. Use this while editing. Not identical to `nhlpa93devRevA.bin` (that ROM has its own header and tail). |
-| `npm run seg:<name>` | `rev=0` | One segment through `buildseg.bat`, `fixopcodes.js` and `verifySegment.js` against the retail ROM. |
+| `npm run seg:<name>` | `rev=0` | One segment through `buildseg.bat`, `tools/fixopcodes.js` and `tools/verifySegment.js` against the retail ROM. |
 
 Dev builds default to Rev A flags. Retail validation will refuse to boot if either checksum is wrong. `npm run build:reva` builds Rev A (`rev=1`, `checksum=1`) and verifies it byte for byte. There is no Rev B build.
 
@@ -82,7 +82,7 @@ There is no checksum generator in this repo (the old notes mention `generateChec
 
 ## EA compiler opcode fixer
 
-`fixopcodes.js` rewrites encodings in the built binary using the `.lst`, and writes `modified_<filename>`. Compare the modified file to the retail ROM, not the raw assembler output.
+`tools/fixopcodes.js` rewrites encodings in the built binary using the `.lst`, and writes `modified_<filename>`. Compare the modified file to the retail ROM, not the raw assembler output.
 
 Known rewrites:
 
@@ -146,7 +146,7 @@ Team data from `discovery.md` (big endian):
 - Lines `0x56`–`0x8D`: 7 x 8 bytes. G, LD, RD, LW, C, RW, extra attacker, alignment `00`.
 - Player records are variable length. Name length includes alignment padding. Ratings are nibbles. Uniform number is tens in bits 7–4 and ones in bits 3–0. Goalie fields reuse the skater rating slots (glove hand, glove saves, stick saves, consistency).
 
-`generateTeamData.js` and `generateFrameData.js` exist in the public repo. Prefer regenerating data from the ROM over hand-editing a table.
+`tools/generateTeamData.js` and `tools/generateFrameData.js` exist in the public repo. Prefer regenerating data from the ROM over hand-editing a table.
 
 ## Frames and SPAList
 

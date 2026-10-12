@@ -20,7 +20,7 @@ The hockey93 code itself is verified by the full ROM build.
 - Retail (`1992.JUL -00`) and Rev A (`1992.OCT -01`) ROMs build bitwise perfect from the same source (`IF REV=1` blocks)
 - Label-based source: RAM, ports and structure equates live in `src/ram93.asm` (laid out like NHL 92 `ram.asm`), and the code and data use labels instead of addresses
 - Every code segment can also be built and verified on its own against the retail ROM (`npm run seg:<name>`, `src/<name>_stub.asm`)
-- Script which changes opcodes to match the custom compiler EA used to build the game (`fixopcodes.js`)
+- Script which changes opcodes to match the custom compiler EA used to build the game (`tools/fixopcodes.js`)
 - Disassembled Retail Validation Check code (`checksum93.asm`) included via the checksum env variable
 - Script to extract assets from the retail ROM (team palettes, graphics, PCM samples, FM patches, sound event streams, Z80 sound driver, scouting report text)
 - Documentation of the file formats used within the game
@@ -34,7 +34,7 @@ The hockey93 code itself is verified by the full ROM build.
 
 3. Copy the NHLPA Hockey 93 Sega Genesis retail ROM file into the `NHLPA93Genesis` folder as `nhlpa93retail.bin` (CRC32 `CBBF4262`). Copy the Rev A ROM as `nhlpa93retailRevA.bin` if you want to verify Rev A builds
 
-4. Build one of these versions. Each build runs `npm run extractassets` first (`node src/extractAssets93-1.1.js nhlpa93retail.bin`, which writes `Extracted/Sound`, `Extracted/Text` and `Extracted/Graphics`), assembles `src/hockey93.asm` to `output/nhl93.bin`, and fixes the opcodes into `output/modified_nhl93.bin`:
+4. Build one of these versions. Each build runs `npm run extractassets` first (`node tools/extractAssets93-1.1.js nhlpa93retail.bin`, which writes `Extracted/Sound`, `Extracted/Text` and `Extracted/Graphics`), assembles `src/hockey93.asm` to `output/nhl93.bin`, and fixes the opcodes into `output/modified_nhl93.bin`:
 
     - For the `Retail` ROM, run `npm run build:retail` -- verified byte for byte against `nhlpa93retail.bin`
 
