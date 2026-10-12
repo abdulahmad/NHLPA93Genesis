@@ -44,5 +44,5 @@ No force-push, no PRs, never commit ROMs, Extracted/ or output/.
 - Comment review: done in 93, 94, 95 and NHLPA93SNES.
 - Name pass (full body read), records in docs/name_review_93.md / _94.md / _95.md:
   - Phase A (93): DONE, all modules. Renames propagated to 94/95/NHLPA93SNES.
-  - Phase B (94): done: all 94 modules except sound94, cards94, graphics94 (next). Checklist: docs/name_review_94.md.
+  - Phase B (94): done: all 94 src modules (checklist docs/name_review_94.md). Todo: 94 RAM names in src/stubinc/ram_addrs.inc (237) and equates in stubinc/equals.inc, then phase C.
   - Phase C (95, docs/name_review_95.md): todo. Names in 95 not in 94/93/92.
