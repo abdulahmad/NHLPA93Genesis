@@ -8,6 +8,15 @@ REM Set default values for rev and checksum if not provided
 if not defined rev set rev=0
 if not defined checksum set checksum=1
 
+REM Pre-step: tools\prebuild.js checks the ROM and Extracted/ and extracts the assets if they are missing
+REM or incomplete; it stops the build with the ROM path, SHA-1 and size if the ROM is missing. The npm
+REM scripts run it first and set NHL_PREBUILD_DONE; tools/verify_all.sh does the same under wine.
+set "prebuildTarget=retail"
+if "%rev%"=="1" set "prebuildTarget=reva"
+if not defined NHL_PREBUILD_DONE (
+    node "%workspaceFolder%tools\prebuild.js" %prebuildTarget% || exit /b 1
+)
+
 @REM echo Using rev=%rev% and checksum=%checksum%
 
 REM Create the output directory

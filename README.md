@@ -34,7 +34,7 @@ The hockey93 code itself is verified by the full ROM build.
 
 3. Copy the NHLPA Hockey 93 Sega Genesis retail ROM file into the `NHLPA93Genesis` folder as `nhlpa93retail.bin` (CRC32 `CBBF4262`). Copy the Rev A ROM as `nhlpa93retailRevA.bin` if you want to verify Rev A builds
 
-4. Build one of these versions. Each build runs `npm run extractassets` first (`node tools/extractAssets93-1.1.js nhlpa93retail.bin`, which writes `Extracted/Sound`, `Extracted/Text` and `Extracted/Graphics`), assembles `src/hockey93.asm` to `output/nhl93.bin`, and fixes the opcodes into `output/modified_nhl93.bin`:
+4. Build one of these versions. Each build first runs `tools/prebuild.js` (see "Build pre-step" below): it checks the ROM and extracts the assets into `Extracted/Sound`, `Extracted/Text` and `Extracted/Graphics` if they are missing or incomplete. It then assembles `src/hockey93.asm` to `output/nhl93.bin`, and fixes the opcodes into `output/modified_nhl93.bin`:
 
     - For the `Retail` ROM, run `npm run build:retail` -- verified byte for byte against `nhlpa93retail.bin`
 
@@ -42,7 +42,24 @@ The hockey93 code itself is verified by the full ROM build.
 
     - For developing your own version, run `npm run build:dev` -- `Rev A` code without the checksum validation check (not verified against any ROM)
 
-5. To build and verify one code segment against the retail ROM, run `npm run seg:<name>` (for example `npm run seg:logic93_1`)
+5. To build and verify one code segment against the retail ROM, run `npm run seg:<name>` (for example `npm run seg:logic93`)
+
+## Build pre-step: ROM check and automatic asset extraction
+Every build entry point (`npm run build:*`, `npm run seg:*`, and the batch files run directly) first runs `node tools/prebuild.js`. It:
+
+1. checks that the ROM the build needs is in place and is exactly the right version (SHA-1 and size);
+2. checks that `Extracted/` is complete: the extractor writes `Extracted/.extract-complete.json` last, listing every file it wrote (with its size), the ROM it read and the extractor's own SHA-1;
+3. runs the extractor if `Extracted/` is missing, incomplete (no marker, a missing or resized file) or was written by an older extractor.
+
+If the ROM is missing (or is a different dump), the build stops with the full path and file name to put it at, its SHA-1 and size, and a reminder that ROMs are not included in the repo:
+
+| Build | ROM needed (repo root) | SHA-1 | Size |
+| --- | --- | --- | --- |
+| `build:retail`, `seg:*`, `build93.bat` (rev=0), `buildseg.bat` | `nhlpa93retail.bin` | `8efc1cacb079ea223966dda065c16c49e584cac2` | 524288 bytes |
+| `build:reva`, `build93.bat` with rev=1 | `nhlpa93retailRevA.bin` | `2ab048fc7209df28b00ef47f2f686f5b7208466e` | 524288 bytes |
+| `build:dev` | either of the two | | |
+
+`npm run assets` runs only this step. `npm run extractassets` still forces a fresh extraction. The npm scripts set `NHL_PREBUILD_DONE=1` after the step so the batch file does not repeat it; `tools/verify_all.sh` runs the step with Linux node and sets the same variable for wine (there is no node under wine).
 
 # Documentation
 
@@ -59,7 +76,7 @@ Because the source uses labels, code and data can grow or move. Add new RAM to `
 | Retail | `1992.JUL`, `GM T-50396 -00` | `nhlpa93retail.bin` | `8efc1cacb079ea223966dda065c16c49e584cac2` |
 | Rev A | `1992.OCT`, `GM T-50396 -01` | `nhlpa93retailRevA.bin` | `2ab048fc7209df28b00ef47f2f686f5b7208466e` |
 
-`npm run extractassets` extracts from the retail ROM, `npm run extractassets:reva` (and `build:reva`) from the Rev A ROM.
+`npm run extractassets` extracts from the retail ROM, `npm run extractassets:reva` from the Rev A ROM. The builds extract automatically when needed (`tools/prebuild.js`).
 
 ## Retail (REV=0) vs Rev A (REV=1)
 Both build from the same source (`IF REV=1` blocks). Retail is `1992.JUL` version `-00`; Rev A is `1992.OCT` version `-01`.

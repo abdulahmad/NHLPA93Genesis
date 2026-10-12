@@ -200,7 +200,7 @@ async function extractAssets(romPath, options = {}) {
     
     try {
         const romData = await fs.readFile(romPath);
-        const { version, msg } = detectVersion(romData);
+        const { version, sha1, msg } = detectVersion(romData);
         if (!version) {
             console.error(msg + '\nAborting extraction.');
             process.exitCode = 1;
@@ -211,6 +211,10 @@ async function extractAssets(romPath, options = {}) {
         // Create base Extracted directory
         const baseDir = extractOptions.outputDir;
         await fs.mkdir(baseDir, { recursive: true });
+        // The completion marker is written last; remove it first so a broken run leaves none.
+        const markerPath = path.join(baseDir, '.extract-complete.json');
+        await fs.rm(markerPath, { force: true });
+        const written = [];
 
         // Extract each asset
         for (const asset of assets) {
@@ -225,6 +229,7 @@ async function extractAssets(romPath, options = {}) {
             // Write to file
             const outputPath = path.join(outputDir, asset.name);
             await fs.writeFile(outputPath, assetData);
+            written.push({ path: path.posix.join(asset.folder.replace(/\\/g, '/'), asset.name), size: assetData.length });
             
             if (extractOptions.verbose) {
                 console.log(`Extracted ${asset.name} (${assetData.length} bytes) from offset 0x${start.toString(16)} to 0x${end.toString(16)}`);
@@ -234,6 +239,10 @@ async function extractAssets(romPath, options = {}) {
             }
         }
 
+        // Completion marker for tools/prebuild.js: ROM, extractor version and every file written.
+        const extractorSha1 = crypto.createHash('sha1').update(await fs.readFile(__filename)).digest('hex');
+        await fs.writeFile(markerPath, JSON.stringify({ rom: version.id, romSha1: sha1, extractor: path.basename(__filename),
+            extractorSha1, files: written }, null, 1) + '\n');
         console.log('Extraction completed successfully.');
         console.log(`Extracted ${assets.length} assets from NHLPA 93 ROM.`);
     } catch (error) {

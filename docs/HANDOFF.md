@@ -7,10 +7,10 @@ bytes never change: every build must still MATCH the retail ROM.
 
 ## Setup
 ROMs (gitignored, never commit): nhlpa93retail.bin and nhlpa93retailRevA.bin in the repo root.
-Windows: `npm run build:retail` and `npm run build:reva` (extractassets, build93.bat, fixopcodes, verify);
+Windows: `npm run build:retail` and `npm run build:reva` (tools/prebuild.js, build93.bat, fixopcodes, verify);
 segments: `npm run seg:<name>` (all keys in package.json `seg:*`).
 Linux (wine): `apt install wine wine32` (dpkg --add-architecture i386), `export WINEDEBUG=-all`, then
-1. `node tools/extractAssets93-1.1.js nhlpa93retail.bin` (once, fills Extracted/) Accepts retail or Rev A (found by SHA-1; Rev A slices from $16E53 on are +$2E; same files). Other ROMs are refused.
+1. `node tools/prebuild.js retail` (or `reva`; checks the ROM, extracts into Extracted/ if missing or incomplete; same as `node tools/extractAssets93-1.1.js nhlpa93retail.bin`), then `export NHL_PREBUILD_DONE=1` so the .bat files skip their own pre-step (no node under wine). Accepts retail or Rev A (found by SHA-1; Rev A slices from $16E53 on are +$2E; same files). Other ROMs are refused.
 2. `wine cmd /c "set rev=0&& set checksum=1&& build93.bat"` (rev=1 for Rev A, ref nhlpa93retailRevA.bin)
 3. `node tools/fixopcodes.js "output/nhl93 .lst" output/nhl93.bin`
 4. `node tools/verifyRom.js output/modified_nhl93.bin <reference ROM>` must print MATCH
@@ -69,3 +69,4 @@ Follow 92G (EA source): 2105 locals, ~31% number-only (.0, .1 ...), the rest sho
   GameSetUpMap sound93 -> graphics93 (a bitmap). Stub orgs (middle93 $D5D2, graphics93 $2E1FC), package.json ranges and docs updated. MATCH.
 - Segment stubs moved to src/stubinc/ (buildseg.bat assembles stubinc\<seg>_stub.asm). MATCH.
 - Extractor takes any known retail ROM: SHA-1 detection (retail 8efc1cac..., Rev A 2ab048fc...), per-version slice offsets, clear refusal of unknown ROMs (e.g. the 1993.FEB build). verify_all.sh extracts fresh from each version's own ROM before its build. Fresh extract + ROM (retail, Rev A) + all segments MATCH.
+- Build pre-step: every entry point (npm build:*/seg:* scripts and the .bat files) runs tools/prebuild.js first. It checks the ROM (path, SHA-1, size; stops with a message naming the exact file and version if it is missing or wrong, ROMs are not in the repo) and re-runs the extractor when Extracted/ is missing or incomplete. The extractor writes Extracted/.extract-complete.json last (ROM SHA-1, extractor SHA-1, every file and size). npm scripts set NHL_PREBUILD_DONE=1 so the .bat does not repeat it; verify_all.sh runs it with Linux node. Tested with Windows npm/cmd under wine: fresh build auto-extracts and MATCHes; missing ROM stops with the message. MATCH.

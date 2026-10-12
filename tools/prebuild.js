@@ -1,0 +1,130 @@
+// prebuild.js: run before every build (npm run build:*, seg:*, build93.bat, buildseg.bat).
+// Usage: node tools/prebuild.js [retail|reva|any]
+//   retail / reva: the ROM that build is verified against must be present (and the right version).
+//   any: either ROM (build:dev, not verified).
+// Then makes sure Extracted/ is complete, and runs the extractor if it is not. If the ROM is
+// missing or wrong, stops with the path, file name, SHA-1 and size it must have.
+// The batch files skip this step when NHL_PREBUILD_DONE is set (the npm scripts set it after
+// running it; tools/verify_all.sh runs it with Linux node, since there is no node under wine).
+
+const GAME = 'NHLPA Hockey 93 (Sega Genesis)';
+const EXTRACTOR = 'tools/extractAssets93-1.1.js';
+const ROMS = {
+    retail: { label: 'NHLPA Hockey 93 retail (1992.JUL, GM T-50396 -00)', file: 'nhlpa93retail.bin',
+              sha1: '8efc1cacb079ea223966dda065c16c49e584cac2', size: 0x80000 },
+    reva:   { label: 'NHLPA Hockey 93 Rev A (1992.OCT, GM T-50396 -01)', file: 'nhlpa93retailRevA.bin',
+              sha1: '2ab048fc7209df28b00ef47f2f686f5b7208466e', size: 0x80000 },
+};
+const TARGETS = { retail: ['retail'], reva: ['reva'], any: ['retail', 'reva'] };
+// ---------------------------------------------------------------------------------------------
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const { spawnSync } = require('child_process');
+
+const ROOT = path.join(__dirname, '..');
+const EXTRACTED = path.join(ROOT, 'Extracted');
+const MARKER = path.join(EXTRACTED, '.extract-complete.json');
+
+const sha1Of = (buf) => crypto.createHash('sha1').update(buf).digest('hex');
+const sizeText = (n) => `${n} bytes (0x${n.toString(16).toUpperCase()}, ${n / 0x100000 >= 1 ? n / 0x100000 + ' MB' : n / 1024 + ' KB'})`;
+
+// Check one ROM file. Returns { ok, path } or { ok: false, reason: 'missing' | 'wrong', ... }.
+function checkRom(rom) {
+    const p = path.join(ROOT, rom.file);
+    if (!fs.existsSync(p)) return { ok: false, reason: 'missing', path: p };
+    const data = fs.readFileSync(p);
+    const sha1 = sha1Of(data);
+    if (sha1 !== rom.sha1 || data.length !== rom.size) return { ok: false, reason: 'wrong', path: p, sha1, size: data.length };
+    return { ok: true, path: p };
+}
+
+function romBlock(rom) {
+    return [
+        `  ${rom.label}`,
+        `    Put it at:  ${path.join(ROOT, rom.file)}`,
+        `                (${rom.file} in the repo folder)`,
+        `    SHA-1:      ${rom.sha1}`,
+        `    Size:       ${sizeText(rom.size)}`,
+    ].join('\n');
+}
+
+function stop(lines) {
+    console.error('');
+    console.error('*** BUILD STOPPED: ROM file needed ***');
+    console.error(lines.join('\n'));
+    console.error('');
+    console.error(`ROMs are not included in the repo. Use your own dump of the ${GAME} cartridge,`);
+    console.error('saved under exactly that file name, then run the build again. The assets in Extracted/');
+    console.error('are then extracted from it automatically.');
+    console.error('');
+    process.exit(1);
+}
+
+// Is Extracted/ complete? The extractor writes the marker last, listing every file it wrote, the
+// ROM it read and its own SHA-1. Any missing or resized file, an unknown ROM or a changed extractor
+// means the folder has to be extracted again.
+function extractedState() {
+    if (!fs.existsSync(EXTRACTED)) return 'Extracted/ is missing';
+    if (!fs.existsSync(MARKER)) return 'Extracted/ is incomplete (no .extract-complete.json marker)';
+    let m;
+    try { m = JSON.parse(fs.readFileSync(MARKER, 'utf8')); } catch (e) { return 'the Extracted/ marker is unreadable'; }
+    if (m.extractorSha1 !== sha1Of(fs.readFileSync(path.join(ROOT, EXTRACTOR)))) return `${EXTRACTOR} changed since the last extraction`;
+    if (!Object.values(ROMS).some((r) => r.sha1 === m.romSha1)) return 'Extracted/ came from an unknown ROM';
+    if (!Array.isArray(m.files) || m.files.length === 0) return 'the Extracted/ marker lists no files';
+    for (const f of m.files) {
+        const p = path.join(EXTRACTED, f.path);
+        if (!fs.existsSync(p)) return `Extracted/${f.path} is missing`;
+        if (fs.statSync(p).size !== f.size) return `Extracted/${f.path} has the wrong size`;
+    }
+    return null;
+}
+
+const target = process.argv[2] || 'retail';
+if (!TARGETS[target]) {
+    console.error(`prebuild: unknown target '${target}'. Use one of: ${Object.keys(TARGETS).join(', ')}`);
+    process.exit(1);
+}
+
+// 1. The ROM this build needs (for 'any', the first known ROM present).
+const candidates = TARGETS[target].map((id) => ROMS[id]);
+let romPath = null;
+const problems = [];
+for (const rom of candidates) {
+    const r = checkRom(rom);
+    if (r.ok) { romPath = r.path; break; }
+    problems.push({ rom, r });
+}
+if (!romPath) {
+    const lines = [];
+    const wrong = problems.filter((x) => x.r.reason === 'wrong');
+    for (const { rom, r } of wrong) {
+        lines.push(`Found ${r.path}, but it is not the right ROM:`);
+        lines.push(`    its SHA-1 is ${r.sha1}, size ${sizeText(r.size)}.`);
+        lines.push('    (a bad dump, a hack, another revision, or a byte-swapped / interleaved file)');
+    }
+    lines.push(candidates.length > 1
+        ? `This build needs one of these ROMs, each exactly the version shown:`
+        : `This build needs this ROM, exactly the version shown:`);
+    for (const rom of candidates) lines.push(romBlock(rom));
+    stop(lines);
+}
+
+// 2. Extracted/ assets: extract again if missing or incomplete.
+const why = extractedState();
+if (!why) {
+    console.log('prebuild: ROM OK, Extracted/ assets complete.');
+    process.exit(0);
+}
+console.log(`prebuild: ${why}; extracting assets from ${path.relative(ROOT, romPath)} ...`);
+const res = spawnSync(process.execPath, [path.join(ROOT, EXTRACTOR), romPath], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+const out = (res.stdout || '') + (res.stderr || '');
+const after = res.status === 0 ? extractedState() : 'the extractor failed';
+if (after) {
+    console.error(out);
+    console.error(`*** BUILD STOPPED: asset extraction failed (${after}) ***`);
+    process.exit(1);
+}
+const summary = out.split(/\r?\n/).filter((l) => /^ROM:|^Extracted \d+ (assets|slices)/.test(l));
+for (const l of summary) console.log('prebuild: ' + l);
+console.log('prebuild: Extracted/ assets complete.');
