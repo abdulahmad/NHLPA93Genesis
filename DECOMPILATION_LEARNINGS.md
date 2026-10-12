@@ -31,7 +31,7 @@ Private tree: `EA-NHL-Disassembly-Project/NHL93-Genesis/`
 | `NHLPA Hockey 93 (USA, Europe) (v1.1).bin.lst` | 12MB listing. May be older than the IDB. Re-export before trusting a name from it. |
 | `discovery.md` | Team data, frame map, SPAList format, 92-to-93 frame shifts, cross-game anim starts. |
 | `src/ram93.asm` | Ports, VDP status bits, structure fields and the named 68k RAM (retail addresses), laid out like NHL92 `ram.asm`. The only RAM map; `hockey93.asm` and every `*_stub.asm` include it. |
-| `src/<segment>_stub.asm` | Single-segment build: `org` at the segment's retail address, outside labels as retail-address equates, then `include ram93.asm` and the segment. |
+| `src/stubinc/<segment>_stub.asm` | Single-segment build: `org` at the segment's retail address, outside labels as retail-address equates, then `include ram93.asm` and the segment. |
 | `rommap.md` | Empty. |
 
 `NHLPA Hockey 93 (USA, Europe) (Rev A) (EASN).md` is not a markdown doc. It is 524,288 bytes and has the same blob SHA as `nhlpa93retailRevA.bin`. Do not read it as notes.

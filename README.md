@@ -19,7 +19,7 @@ The hockey93 code itself is verified by the full ROM build.
 ## Features of this version:
 - Retail (`1992.JUL -00`) and Rev A (`1992.OCT -01`) ROMs build bitwise perfect from the same source (`IF REV=1` blocks)
 - Label-based source: RAM, ports and structure equates live in `src/ram93.asm` (laid out like NHL 92 `ram.asm`), and the code and data use labels instead of addresses
-- Every code segment can also be built and verified on its own against the retail ROM (`npm run seg:<name>`, `src/<name>_stub.asm`)
+- Every code segment can also be built and verified on its own against the retail ROM (`npm run seg:<name>`, `src/stubinc/<name>_stub.asm`)
 - Script which changes opcodes to match the custom compiler EA used to build the game (`tools/fixopcodes.js`)
 - Disassembled Retail Validation Check code (`checksum93.asm`) included via the checksum env variable
 - Script to extract assets from the retail ROM (team palettes, graphics, PCM samples, FM patches, sound event streams, Z80 sound driver, scouting report text)

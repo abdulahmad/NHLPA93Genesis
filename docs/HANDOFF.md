@@ -67,3 +67,4 @@ Follow 92G (EA source): 2105 locals, ~31% number-only (.0, .1 ...), the rest sho
 - Boundary moves (Task D, routine names/headers only): UnpackNibbles + WeightedRandomSelect logic93 -> middle93 (shared helpers);
   DoHiLights + StartHL2 penalty93 -> hockey93 after the penalty93 include (intermission highlights, not penalties);
   GameSetUpMap sound93 -> graphics93 (a bitmap). Stub orgs (middle93 $D5D2, graphics93 $2E1FC), package.json ranges and docs updated. MATCH.
+- Segment stubs moved to src/stubinc/ (buildseg.bat assembles stubinc\<seg>_stub.asm). MATCH.

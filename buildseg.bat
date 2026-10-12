@@ -55,7 +55,7 @@ REM ─────────────────────────�
   /p /m /g ^
   /o d- /o s- /o r+ /o l+ /o l. /o ow+ /o op- /o os+ /o oz+ /o omq- /o oaq+ /o osq+ ^
   %CHECKSUM_FLAG% %REV_FLAG% ^
-  "%ROM_NAME%_stub.asm,%WORKSPACE%output\%ROM_NAME%.bin,%WORKSPACE%output\%ROM_NAME%,%WORKSPACE%output\%ROM_NAME%" ^
+  "stubinc\%ROM_NAME%_stub.asm,%WORKSPACE%output\%ROM_NAME%.bin,%WORKSPACE%output\%ROM_NAME%,%WORKSPACE%output\%ROM_NAME%" ^
   > "%WORKSPACE%output\Build_%ROM_NAME%.log"
 
 if errorlevel 1 (
