@@ -194,3 +194,5 @@ gamesetuptilesetindex,animchars,behavior (body/usage read)
 #$BE8,SPAshoulderchkr,frames93 offset
 #$C4C,SPAhipchkr,frames93 offset
 #$C1A,SPAhipchkl,frames93 offset
+#$180,SPFarrow,frames93 frame index
+#$183,SPFarrow+3,frames93 frame index

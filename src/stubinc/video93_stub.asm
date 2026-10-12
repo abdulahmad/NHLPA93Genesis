@@ -29,7 +29,8 @@ CrowdSprites = $748E2		; graphics data (movea.l operand)
 FaceOffSprites = $77170		; graphics data (movea.l operand)
 ZamSprites = $781E4		; graphics data (movea.l operand)
 smallfontmap = $795B4		; graphics data (movea.l operand)
-RAMStart = $FF0000	
+RAMStart = $FF0000
+SPFarrow = $180		;frames93 frame index
 ; .region code
 	org	$11802
 

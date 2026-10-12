@@ -504,11 +504,11 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 	bne.w	rtss
 	movea.w	#(pads+ffosize-M68K_RAM),a0	;+ffosize
 	movea.w	#(sso-M68K_RAM),a3
-	move.w	#$180,d3		;SPFarrow (frame numbers are 6 higher than 92)
+	move.w	#SPFarrow,d3		;frame numbers are 6 higher than 92
 	bsr.w	.ca
 	adda.w	#$1C,a0			;ffosize
 	adda.w	#$14,a3			;ssosize
-	move.w	#$183,d3		;SPFarrow+3
+	move.w	#SPFarrow+3,d3
 
 .ca	tst.w	Zpos(a0)			;a0 = object, a3 = sso, d3 = first arrow frame
 	bmi.w	rtss			;not on the ice
