@@ -308,17 +308,17 @@ PrintAttribHeader	;line editor player list: column header for attribute page
 	;The cursor row is printed with attribute d7
 	bsr.w	printz
 	String	$BE,$16,1,0
-.0	movea.l	#PAttribColumns,a1
+.top	movea.l	#PAttribColumns,a1
 	move.w	(DispAttribCtr).w,d0
 	bra.w	.2
-.1	adda.w	(a1),a1
+.next	adda.w	(a1),a1
 	addq.w	#4,a1
 .2	tst.w	(a1)			;Negative = end of list
-	dbmi	d0,.1
-	bpl.w	.3
+	dbmi	d0,.next
+	bpl.w	.found
 	subq.w	#1,(DispAttribCtr).w	;past the last page: back one
-	bra.s	.0
-.3	bsr.w	print
+	bra.s	.top
+.found	bsr.w	print
 	move.l	(a1),d4			;column flags for GetNameandAttrib
 	movea.w	#(Satt-M68K_RAM),a3
 	move.w	(PlayerScrollCtr).w,d2
@@ -356,13 +356,13 @@ DrawLineIcons	;line editor: draw the line icons for the cursor's line
 	subq.w	#1,a0			;OptLine set: table starts one byte earlier
 .0	move.b	(a0),d0
 	cmp.b	(redrawicons).w,d0
-	beq.w	.1			;same group as last time: no clear
+	beq.w	.line			;same group as last time: no clear
 	move.b	d0,(redrawicons).w
 	bsr.w	ClearLineArea
-.1	btst	d5,(redrawicons).w	;Line d5 in this group?
+.line	btst	d5,(redrawicons).w	;Line d5 in this group?
 	beq.w	.2
 	bsr.w	DrawLineIcon
-.2	dbf	d5,.1
+.2	dbf	d5,.line
 	bsr.w	printsmallz
 	String	CC_SetMapAndPosition,4,2,8,7,CC_SetFont,1,0
 	moveq	#$18,d0
@@ -409,7 +409,7 @@ DrawLineIcon	;line editor: draw line d5 (name from linelist, then its player
 	move.w	2(a0),(printy).w
 	move.w	4(a0),d3		;slot count - 1
 	lea	$16A(a2),a3		;team line table
-.1	move.w	(a0),(printx).w
+.slot	move.w	(a0),(printx).w
 	bsr.w	printsmallz
 	String	CC_AddX,$FF,CC_AddY,2,CC_SetAttribute,6
 	clr.w	d0
@@ -417,14 +417,14 @@ DrawLineIcon	;line editor: draw line d5 (name from linelist, then its player
 	subq.w	#1,d0
 	jsr	(FormatPlayerNameShort).l
 	cmp.w	(TestList).w,d4		;cursor slot?
-	bne.w	.2
+	bne.w	.nocur
 	move.w	d0,d6			;player in the cursor slot
 	move.w	(printa).w,d7
 	move.w	#2,(printfontset).w	;highlight while printing
-.2	bsr.w	printsmall
+.nocur	bsr.w	printsmall
 	clr.w	(printfontset).w
 	addq.w	#1,d4
-	dbf	d3,.1
+	dbf	d3,.slot
 	rts
 
 ClearLineArea	;line editor: erase the line area and print the
@@ -532,14 +532,14 @@ LineEditorExit	;line editor: start pressed. Run the exit menu (LineEditorMenuTex
 .0	bsr.w	printsmallz
 	String	$FF,2
 	bsr.w	InitMenuState
-.1	bsr.w	MenuWaitVblank
+.loop	bsr.w	MenuWaitVblank
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
 	move.w	d1,-(sp)
 	bsr.w	HandleMenuInput
 	move.w	(sp)+,d1
 	andi.w	#$A0,d1			;start or C
-	beq.s	.1
+	beq.s	.loop
 	bsr.w	printsmallz
 	String	CC_SetFont,0
 	move.w	(menuitem).w,d0
@@ -559,11 +559,11 @@ SetLineSlot	;put player d0 (1 based) in line slot d2 of team a2. If he
 	andi.w	#$FFF8,d1
 	lea	(a0,d1.w),a1
 	moveq	#5,d1
-.0	cmp.b	1(a1,d1.w),d0
-	dbeq	d1,.0
-	bne.w	.1
+.find	cmp.b	1(a1,d1.w),d0
+	dbeq	d1,.find
+	bne.w	.put
 	move.b	(a0,d2.w),1(a1,d1.w)
-.1	move.b	d0,(a0,d2.w)
+.put	move.b	d0,(a0,d2.w)
 	movem.l	(sp)+,d0-d2/a0-a1
 	rts
 
@@ -795,20 +795,20 @@ DisplayPlayerList	;draw roster page SelectedPlayerIdx (0 goalies, 1-7 lines):
 	bsr.w	printsmall
 	bsr.w	printsmallz
 	String	CC_SetX,$16,CC_SetY,9
-.0	movea.l	#PAttribColumns,a1
+.top	movea.l	#PAttribColumns,a1
 	move.w	(DispAttribCtr).w,d0
 	tst.w	(SelectedPlayerIdx).w
 	bne.w	.2
 	movea.l	#GAttribColumns,a1
 	bra.w	.2
-.1	adda.w	(a1),a1
+.next	adda.w	(a1),a1
 	addq.w	#4,a1
 .2	tst.w	(a1)
-	dbmi	d0,.1
-	bpl.w	.3
+	dbmi	d0,.next
+	bpl.w	.found
 	subq.w	#1,(DispAttribCtr).w
-	bra.s	.0
-.3	bsr.w	printsmall
+	bra.s	.top
+.found	bsr.w	printsmall
 	move.l	(a1),d4
 	bsr.w	printsmallz
 	String	CC_SetMapAndPosition,4,2,0,0,CC_SetFont,0,0
@@ -829,16 +829,16 @@ DisplayPlayerList	;draw roster page SelectedPlayerIdx (0 goalies, 1-7 lines):
 	move.l	#$1020304,(a3)
 	move.w	(SelectedPlayerIdx).w,d0
 	subq.w	#1,d0
-	bmi.w	.5
+	bmi.w	.row
 	asl.w	#3,d0
 	lea	$16A(a2),a3
 	lea	1(a3,d0.w),a3
 	movea.l	#PlayerPositionText,a5
 	moveq	#4,d1			;5 positions
 	cmpi.w	#5,(SelectedPlayerIdx).w
-	ble.w	.5
+	ble.w	.row
 	subq.w	#1,d1			;penalty kill lines: 4
-.5	move.w	#2,(printx).w
+.row	move.w	#2,(printx).w
 	movea.l	a5,a1
 	bsr.w	print
 	movea.l	a1,a5
@@ -848,7 +848,7 @@ DisplayPlayerList	;draw roster page SelectedPlayerIdx (0 goalies, 1-7 lines):
 	subq.w	#1,d0
 	bsr.w	GetNameandAttrib
 	addq.w	#2,(printy).w
-	dbf	d1,.5
+	dbf	d1,.row
 	rts
 
 GoalieRowText	;position text for the
@@ -887,15 +887,15 @@ GetNameandAttrib	;print player d0's name, then at x $1E the column picked by
 	bls.w	.jump			;status/energy: no ratings
 	movea.l	tmdata(a2),a0		;team data, player records
 	adda.w	(a0),a0
-.0	adda.w	(a0),a0
+.skip	adda.w	(a0),a0
 	addq.w	#8,a0
-	dbf	d0,.0
+	dbf	d0,.skip
 	clr.w	d0
 	clr.w	d1
 	moveq	#$F,d2
 	swap	d4
-.1	btst	d2,d4
-	beq.w	.3
+.bit	btst	d2,d4
+	beq.w	.next
 	move.w	d2,d3
 	lsr.w	#1,d3
 	neg.w	d3
@@ -906,7 +906,7 @@ GetNameandAttrib	;print player d0's name, then at x $1E the column picked by
 .2	andi.w	#$F,d3
 	add.w	d3,d0			;d0 = sum of ratings
 	addi.w	#$F,d1			;d1 = 15 * count (max)
-.3	dbf	d2,.1
+.next	dbf	d2,.bit
 	swap	d4
 .jump	lea	attribjmp(pc),a0
 	adda.w	(a0,d4.w),a0
@@ -1042,12 +1042,12 @@ ScoringSummaryScreen	;"Scoring Summary": one 4 row
 	clr.w	d0
 .0	move.w	d0,(SelectedPlayerIdx).w
 	move.w	(VertLineScrolling).w,d0
-.1	bsr.w	MenuWaitVblank
+.toend	bsr.w	MenuWaitVblank
 	bsr.w	UpdateScoringScroll
 	move.w	(VertLineScrolling).w,d0
 	subq.w	#2,d0
 	cmp.w	(SelectedPlayerIdx).w,d0
-	bge.s	.1
+	bge.s	.toend
 	clr.w	(PlayerScrollCtr).w
 .loop	bsr.w	MenuWaitVblank
 	bsr.w	getpzjoy
@@ -1223,12 +1223,12 @@ PenaltySummaryScreen	;"Penalty Summary": one 3 row
 	clr.w	d0
 .0	move.w	d0,(SelectedPlayerIdx).w
 	move.w	(VertLineScrolling).w,d0
-.1	bsr.w	MenuWaitVblank
+.toend	bsr.w	MenuWaitVblank
 	bsr.w	UpdatePenaltyScroll
 	move.w	(VertLineScrolling).w,d0
 	subq.w	#2,d0
 	cmp.w	(SelectedPlayerIdx).w,d0
-	bge.s	.1
+	bge.s	.toend
 	clr.w	(PlayerScrollCtr).w
 .loop	bsr.w	MenuWaitVblank
 	bsr.w	getpzjoy
@@ -1531,17 +1531,17 @@ DrawStatsList	;stats screen: column headers (sort column highlighted),
 	lea	StatColumnHeaders(pc),a1
 	moveq	#5,d3
 	tst.w	(DispAttribCtr).w
-	bmi.w	.0
+	bmi.w	.head
 	adda.w	(a1),a1
 	clr.w	d3
-.0	move.w	#$8000,(printa).w
+.head	move.w	#$8000,(printa).w
 	cmp.w	(DispAttribCtr).w,d3
 	bne.w	.1
 	move.w	#$C000,(printa).w
 .1	bsr.w	printsmall
 	addq.w	#1,d3
 	cmp.w	#5,d3
-	blt.s	.0
+	blt.s	.head
 	bsr.w	printsmallz
 	String	CC_SetMapAndPosition,4,3,9,7,0
 	moveq	#$16,d0
@@ -1557,17 +1557,17 @@ DrawStatsList	;stats screen: column headers (sort column highlighted),
 	movea.w	#(Satt-M68K_RAM),a3
 	clr.l	d6
 	tst.w	(DispAttribCtr).w
-	bpl.w	.2
+	bpl.w	.sort
 	bsr.w	GetGoalieCount	;goalie column: mark all skaters used
 	bset	d0,d6
 	subq.w	#1,d6
 	not.l	d6
-.2	moveq	#-1,d4			;Selection sort, best so far
+.sort	moveq	#-1,d4			;Selection sort, best so far
 	st	d5
 	bsr.w	GetPlayerCount
-	bra.w	.6
-.3	btst	d0,d6
-	bne.w	.6
+	bra.w	.next
+.player	btst	d0,d6
+	bne.w	.next
 	clr.w	d2
 	move.w	(DispAttribCtr).w,d1
 	bmi.w	.4
@@ -1578,22 +1578,22 @@ DrawStatsList	;stats screen: column headers (sort column highlighted),
 	adda.w	(a1),a1
 	move.w	d0,d1
 	subq.w	#8,a1
-.5	addq.w	#8,a1
+.skip	addq.w	#8,a1
 	adda.w	(a1),a1
-	dbf	d1,.5
+	dbf	d1,.skip
 	move.b	#$FF,d2
 	sub.b	(a1),d2			;ties: lower player byte first
 	cmp.l	d4,d2
-	ble.w	.6
+	ble.w	.next
 	move.l	d2,d4
 	move.w	d0,d5
-.6	dbf	d0,.3
+.next	dbf	d0,.player
 	bset	d5,d6			;used
 	move.b	d5,(a3)+
-	bpl.s	.2			;until none left ($FF)
+	bpl.s	.sort			;until none left ($FF)
 	moveq	#5,d0
-.7	st	(a3,d0.w)		;Pad with empty rows
-	dbf	d0,.7
+.pad	st	(a3,d0.w)		;Pad with empty rows
+	dbf	d0,.pad
 	move.w	a3,d0
 	subi.w	#$BF30,d0		;rows past the first 7 in Satt
 	bpl.w	.8
@@ -1644,7 +1644,7 @@ DrawStatsRow	;stats screen row d3 of Satt: rank, name, then either the
 	tst.w	(DispAttribCtr).w
 	bmi.w	.goalie
 	clr.w	d5
-.0	clr.w	d0
+.col	clr.w	d0
 	move.b	(a4),d0
 	move.w	d5,d1
 	bsr.w	GetStatColumn
@@ -1658,7 +1658,7 @@ DrawStatsRow	;stats screen row d3 of Satt: rank, name, then either the
 .1	bsr.w	print
 	addq.w	#1,d5
 	cmp.w	#5,d5
-	bne.s	.0
+	bne.s	.col
 	bra.w	.x
 .goalie	clr.w	d0			;Shots against
 	move.b	(a4),d0
@@ -1841,7 +1841,7 @@ DisplayTeamStatsScreen	;team logos, then each TeamStatTextTbl row centred with
 	String	$BE,0,$C,0
 	moveq	#7,d6
 	lea	TeamStatTextTbl(pc),a1
-.0	move.w	(a1),d0
+.row	move.w	(a1),d0
 	lsr.w	#1,d0
 	neg.w	d0
 	addi.w	#$15,d0
@@ -1856,7 +1856,7 @@ DisplayTeamStatsScreen	;team logos, then each TeamStatTextTbl row centred with
 	bsr.w	PrintStatValue
 	lea	4(a0),a1
 	addq.w	#2,(printy).w
-	dbf	d6,.0
+	dbf	d6,.row
 	rts
 
 PrintStatValue	;print TeamStatTextTbl entry a0 for team a2 centred at printx:
@@ -2094,7 +2094,7 @@ TimeoutMenu	;pause menu "Timeout" for team a2: uses the
 	bra.w	waitx
 
 SelectGoalieMenu	;pick team a2's goalie from a
-	;list (0 = no goalie). Start/C confirms; a change is stored in $26(a2)
+	;list (0 = no goalie). Start/C confirms; a change is stored in tmgoalie(a2)
 	;and setpersonel is called
 	move.w	(menuitem).w,-(sp)
 	move.w	(menuitem+2).w,-(sp)
@@ -2146,7 +2146,7 @@ DrawGoalieSelectList	;draw the goalie list, row menuitem highlighted,
 	move.w	#$D,(printy).w
 	move.w	(menuitem+2).w,d1
 	moveq	#0,d0
-.0	move.w	#5,(printx).w
+.row	move.w	#5,(printx).w
 	move.w	#$A000,(printa).w
 	cmp.w	(menuitem).w,d0
 	bne.w	.1
@@ -2166,9 +2166,9 @@ DrawGoalieSelectList	;draw the goalie list, row menuitem highlighted,
 	move.w	d0,d2
 	subq.w	#1,d2
 	bra.w	.3
-.2	adda.w	(a1),a1
+.skip	adda.w	(a1),a1
 	addq.w	#8,a1
-.3	dbf	d2,.2
+.3	dbf	d2,.skip
 	move.w	#8,(printx).w
 	bsr.w	print
 	move.b	(a1),d2
@@ -2185,7 +2185,7 @@ DrawGoalieSelectList	;draw the goalie list, row menuitem highlighted,
 	bsr.w	print
 .next	addq.w	#1,(printy).w
 	addq.w	#1,d0
-	dbf	d1,.0
+	dbf	d1,.row
 	rts
 
 GetGoalieCount	;d0 = goalies on team a2 (nibbles in the team data word
@@ -2195,9 +2195,9 @@ GetGoalieCount	;d0 = goalies on team a2 (nibbles in the team data word
 	adda.w	$A(a0),a0
 	move.w	(a0),d1
 	clr.w	d0
-.0	addq.w	#1,d0
+.count	addq.w	#1,d0
 	asl.w	#4,d1
-	bne.s	.0
+	bne.s	.count
 	movem.l	(sp)+,d1/a0
 	rts
 
@@ -2228,8 +2228,8 @@ loopthroughplayers
 
 WaitVSyncAndReadInput	;wait for vcount to change and a new button press (d1)
 	move.w	(vcount).w,d1
-.0	cmp.w	(vcount).w,d1
-	beq.s	.0
+.wait	cmp.w	(vcount).w,d1
+	beq.s	.wait
 	bsr.w	getpzjoy
 	bsr.w	nodiag
 	tst.b	d1

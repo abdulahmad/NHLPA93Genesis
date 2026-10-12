@@ -56,5 +56,6 @@ Follow 92G (EA source): 2105 locals, ~31% number-only (.0, .1 ...), the rest sho
   - Phase A (93): DONE, all modules. Renames propagated to 94/95/NHLPA93SNES.
   - Phase B (94): DONE (all src modules, RAM names, equates; docs/name_review_94.md).
   - Phase C (95): DONE (all modules, ram95, graphics95, frames95, sound95; docs/name_review_95.md).
-- Local label pass (93G, locals + header register notes): menu93 done. Next: middle93, penalty93, video93,
-  hockey93_01/02/03_05/06_11, logic93, stats93. Checklist: docs/name_review_93.md "Local labels".
+- Local label pass (locals + header register notes; checklist "Local labels" in docs/name_review_9x.md):
+  93G DONE (all modules). Next: 94G (also finish routine names by body), then 95G (also data labels and
+  equates by usage), then NHLPA93SNES.

@@ -689,4 +689,16 @@ Number-only locals per module (before -> after). Data-table locals (frames93, te
 
 | module | before | after | notes |
 |---|---|---|---|
-| menu93 | 16 | 2 | PutTeamBlock header: TeamBlockMap instead of RAM address |
+| menu93 | 16 | 6 | PutTeamBlock header: TeamBlockMap instead of RAM address |
+| stats93 | 71 | 41 | SelectGoalieMenu header: tmgoalie(a2) |
+| hockey93_01 | 9 | 8 | Pausemode menu loop .loop; rest are 92 parent locals |
+| logic93 | 72 | 71 | banner .find; rest 92 parent locals or trivial (ClampYPosition, Acheck, addinfo) |
+| hockey93_06_11 | 30 | 30 | 92 parent locals (defaultsprites .0, vblank wait .0); clearTeamStats header: tmgoalie |
+| hockey93_02 | 14 | 14 | 92 parent locals; UpdateCameraPos clamps trivial |
+| hockey93_03_05 | 35 | 35 | 92 parent locals; setInjuryType trivial |
+| middle93 | 34 | 34 | 92 parent locals (printsmall uses print's, setVram_0 uses setVram's) |
+| penalty93 | 31 | 31 | 92 parent locals or trivial skips |
+| video93 | 12 | 12 | 92 parent locals |
+| frames93 | 488 | 488 | data table indices, as in 92 |
+| teamdata93 | 26 | 26 | team data .0, as in 92 |
+| total | 838 | 795 | |

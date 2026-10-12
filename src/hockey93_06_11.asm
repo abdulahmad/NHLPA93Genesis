@@ -401,8 +401,8 @@ resetplstuff	;reset team variables/and players on both teams. Called from puckfa
 	dbf	d2,.loop
 	rts
 
-clearTeamStats	;clear both team structs (2 x tmsize) but keep the word at
-	;tmstruct+$26 of each team, and set the byte at tmstruct+$9A of each. Falls into setteams.
+clearTeamStats	;clear both team structs (2 x tmsize) but keep
+	;tmgoalie of each team, and set the byte at tmstruct+$9A of each. Falls into setteams.
 	;Called from StartGame, StartHL2 and ScoutingReport
 	move.w	(tmstruct+tmgoalie).w,-(sp)
 	move.w	(awtmstruct+tmgoalie).w,-(sp)

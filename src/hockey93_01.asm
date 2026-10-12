@@ -369,11 +369,11 @@ Pausemode	;game is in pause mode now
 	beq.w	.0
 	movea.l	#PauseText2,a0		;alternate item list
 .0	bsr.w	InitMenuState
-.1	bsr.w	MenuWaitVblank		;wait for vblank and read controller
+.loop	bsr.w	MenuWaitVblank		;wait for vblank and read controller
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
 	bsr.w	HandleMenuInput
-	bne.s	.1			;eq = leave pause
+	bne.s	.loop			;eq = leave pause
 
 	;restore graphics and return from pause mode
 	bsr.w	forceblack

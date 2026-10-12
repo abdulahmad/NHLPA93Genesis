@@ -1506,8 +1506,8 @@ banner	;fight banner: close both line change boxes, frame a box with
 	jsr	(box).l
 	movea.w	#(PenBuf-M68K_RAM),a0
 	clr.w	d2			;widest line
-.0	tst.w	(a0)+			;find end of penalty list
-	bne.s	.0
+.find	tst.w	(a0)+			;find end of penalty list
+	bne.s	.find
 	move.b	-3(a0),d0		;last penalty: the two fighters
 	clr.b	d3
 	bsr.w	addinfo
