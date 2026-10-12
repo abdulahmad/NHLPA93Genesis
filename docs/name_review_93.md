@@ -682,3 +682,11 @@ Verdicts from reading each routine body / variable usage. "ok" = name matches be
 | vbint | ok |
 | vcount | ok |
 | zamx | ok |
+
+## Local labels
+
+Number-only locals per module (before -> after). Data-table locals (frames93, teamdata93) stay numeric as in 92.
+
+| module | before | after | notes |
+|---|---|---|---|
+| menu93 | 16 | 2 | PutTeamBlock header: TeamBlockMap instead of RAM address |

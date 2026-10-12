@@ -40,9 +40,21 @@ value-difference notes like "(94 $58)" / "92 used bit 6". Every routine has a he
 Small commits per module; builds MATCH before every push; `git pull --rebase origin main` then push to main.
 No force-push, no PRs, never commit ROMs, Extracted/ or output/.
 
+## Local label style
+Follow 92G (EA source): 2105 locals, ~31% number-only (.0, .1 ...), the rest short lowercase words
+(.loop, .next, .top, .done, .ex/.exit, .ok, .wait, .skip, plus abbreviations like .nna, .nodec, .sr).
+- Give a word where the branch has a clear meaning (loop top, next item, skip/no-X case, exit, wait).
+- Keep plain numbers for trivial jumps and for locals inherited from a matching parent routine.
+- A routine that matches a parent routine uses the parent's local names.
+- Data tables indexed by number (frames .0 .1 ..., team .0) stay numeric, as in 92.
+- Renames are scope-aware (only between the routine's global label and the next one, code part
+  only, never comments); every commit is diff-reviewed. Tool: /workspace/tools_ll/ll.py on the box.
+
 ## Current state / Next
 - Comment review: done in 93, 94, 95 and NHLPA93SNES.
 - Name pass (full body read), records in docs/name_review_93.md / _94.md / _95.md:
   - Phase A (93): DONE, all modules. Renames propagated to 94/95/NHLPA93SNES.
   - Phase B (94): DONE (all src modules, RAM names, equates; docs/name_review_94.md).
   - Phase C (95): DONE (all modules, ram95, graphics95, frames95, sound95; docs/name_review_95.md).
+- Local label pass (93G, locals + header register notes): menu93 done. Next: middle93, penalty93, video93,
+  hockey93_01/02/03_05/06_11, logic93, stats93. Checklist: docs/name_review_93.md "Local labels".
