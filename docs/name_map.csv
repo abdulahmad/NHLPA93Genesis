@@ -118,3 +118,55 @@ ExitAttribText,LineEditorMenuNoLoad,behavior (body/usage read)
 music_global_tick_counter,PalMode,behavior (body/usage read)
 titleScreenState,TitlePalBuffer,behavior (body/usage read)
 gamesetuptilesetindex,animchars,behavior (body/usage read)
+#$11A4,SPAfaceoff,frames93 offset
+#$11CE,SPAfaceoffr,frames93 offset
+#$F8E,SPAfight,frames93 offset
+#$1004,SPAfhigh,frames93 offset
+#$1036,SPAflow,frames93 offset
+#$FC0,SPAfgrab,frames93 offset
+#$C7E,SPAburst,frames93 offset
+#$12DC,SPAhook,frames93 offset
+#$CB0,SPAHold,frames93 offset
+#$386,SPAgswing,frames93 offset
+#$738,SPApassf,frames93 offset
+#$7AA,SPApassb,frames93 offset
+#$B44,SPAsweepchk,frames93 offset
+#$81C,SPAshotf,frames93 offset
+#$94E,SPAshotb,frames93 offset
+#$52C,SPAglide,frames93 offset
+#2,SPAgready,frames93 offset
+#$1166,SPAwallleft,frames93 offset
+#$1128,SPAwallright,frames93 offset
+#$FE2,SPAfheld,frames93 offset
+#$164,SPFfight+2,frames93 frame index
+#$168,SPFfight+6,frames93 frame index
+#$16D,SPFfight+6+5,frames93 frame index
+#$169,SPFfight+7,frames93 frame index
+#$16E,SPFfight+7+5,frames93 frame index
+#$166,SPFfight+4,frames93 frame index
+#$16B,SPFfight+4+5,frames93 frame index
+#$1068,SPAfhith,frames93 offset
+#$108A,SPAfhitl,frames93 offset
+#$10CE,SPAfinjury,frames93 offset
+#$10AC,SPAffall,frames93 offset
+#$1258,SPAstanley,frames93 offset
+#$EAA,SPAcelebrate,frames93 offset
+#$F1C,SPApump,frames93 offset
+#$314,SPAgdive,frames93 offset
+#$198,SPAgglovel,frames93 offset
+#$1CA,SPAgglovel2,frames93 offset
+#$270,SPAgstackr,frames93 offset
+#$2C2,SPAgstackl,frames93 offset
+#$20C,SPAgstickr,frames93 offset
+#$23E,SPAgstickl,frames93 offset
+#$18A,SPFpuck,frames93 frame index
+#$48A,SPApflip,frames93 offset
+#$A80,SPAglideback,frames93 offset
+#-$32,SPAturnl-SPAturnr,frames93 offset difference
+#$6B4,SPAturnr,frames93 offset
+#$3F8,SPAgskate,frames93 offset
+#$AB2,SPAskateback,frames93 offset
+#$5F0,SPAskate,frames93 offset
+#$13A0,SPAstumble,frames93 offset
+#$55E,SPAskatewp,frames93 offset
+#$6E6,SPAstop,frames93 offset

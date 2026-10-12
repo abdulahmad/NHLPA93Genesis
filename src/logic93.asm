@@ -81,10 +81,10 @@ faceoffinput	;controller processing for faceoff
 	bne.w	rtss
 	btst	#4,d1			;bbut
 	beq.w	.1
-	move.w	#$11A4,d1		;SPAfaceoff
+	move.w	#SPAfaceoff,d1
 	bset	#pf2aip,pflags2(a3)
 	bra.w	SetSPA
-.1	move.w	#$11CE,d1		;SPAfaceoffr
+.1	move.w	#SPAfaceoffr,d1
 	bra.w	SetSPA
 
 fightinput	;controller processing for fighting
@@ -92,7 +92,7 @@ fightinput	;controller processing for fighting
 	bmi.w	rtss			;exit if fight is over
 	tst.w	(Pencntdwn).w
 	bmi.w	rtss			;exit if fight is over
-	cmpi.w	#$F8E,SPA(a3)		;SPAfight
+	cmpi.w	#SPAfight,SPA(a3)
 	beq.w	rtss			;exit if this player is not in ready position
 	move.w	d0,d2			;dpad input
 	move.w	d1,-(sp)		;new button presses
@@ -119,13 +119,13 @@ fightinput	;controller processing for fighting
 	bset	#pf2aip,pflags2(a3)
 	bne.w	rtss
 	move.w	d1,d2
-	move.w	#$1004,d1		;SPAfhigh
+	move.w	#SPAfhigh,d1
 	btst	#5,d2			;cbut
 	bne.w	SetSPA			;start hit high anim
-	move.w	#$1036,d1		;SPAflow
+	move.w	#SPAflow,d1
 	btst	#4,d2			;bbut
 	bne.w	SetSPA			;start hit low anim
-	move.w	#$FC0,d1		;SPAfgrab
+	move.w	#SPAfgrab,d1
 	btst	#6,d2			;abut
 	bne.w	SetSPA			;start grab anim
 	bclr	#pf2aip,pflags2(a3)		;clear anim in prog if none
@@ -319,23 +319,23 @@ burst	;cbut press check/speed. Also entered from check4check
 	add.w	d0,Xvel(a3)
 	add.w	d1,Yvel(a3)
 	bset	#pfalock,pflags(a3)		;lock in this animation
-	move.w	#$C7E,d1		;SPAburst
+	move.w	#SPAburst,d1
 	bra.w	SetSPA
 
 holdplayer	;abut press hold. a0 = the player this one is
 	;assigned to, falls into Acheck
 	bset	#5,pflags(a3)
-	move.w	#$12DC,d1		;SPAHold
+	move.w	#SPAhook,d1
 	tst.w	impact(a3)
 	beq.w	SetSPA
 	movea.w	#(SortCords-M68K_RAM),a0
 	move.w	impactp(a3),d0
 	asl.w	#7,d0
 	adda.w	d0,a0
-Acheck	;start hold (or hook if a0 is ahead, $CB0) on player a0. Also entered
+Acheck	;start SPAHold, or SPAhook if a0 is ahead, on player a0. Also entered
 	;from check4check
 	bset	#pfalock,pflags(a3)
-	move.w	#$12DC,d1		;SPAHold
+	move.w	#SPAhook,d1
 	tst.w	impact(a3)
 	beq.w	.set
 	move.w	Ypos(a3),d0
@@ -344,7 +344,7 @@ Acheck	;start hold (or hook if a0 is ahead, $CB0) on player a0. Also entered
 	beq.w	.0
 	neg.w	d0
 .0	bmi.w	.set
-	move.w	#$CB0,d1
+	move.w	#SPAHold,d1
 .set	bra.w	SetSPA
 
 setpassmode	;initialize pass mode
@@ -447,13 +447,13 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 .notgoalie	move.w	(puckvx).w,d0
 	move.w	(puckvy).w,d1
 	bsr.w	vtoa
-	move.w	#$386,d1		;SPAgswing
+	move.w	#SPAgswing,d1
 	tst.w	position(a3)
 	beq.w	.e1			;goalie anim
-	move.w	#$738,d1		;SPApassf
+	move.w	#SPApassf,d1
 	bsr.w	Findhittype
 	beq.w	.e1
-	move.w	#$7AA,d1		;SPApassb
+	move.w	#SPApassb,d1
 .e1	bsr.w	SetSPA
 	bset	#pfalock,pflags(a3)
 	moveq	#$C,d0			;pass sound $10+ by puck height
@@ -612,7 +612,7 @@ changeplayer	;switch controller d4 (0/2) to the teammate nearest the puck,
 
 Sweepcheck	;start sweep check on player a3
 	bset	#pfalock,pflags(a3)
-	move.w	#$B44,d1		;SPAsweepchk
+	move.w	#SPAsweepchk,d1
 	bra.w	SetSPA
 
 setc1player	;restore old player and switch to new d0 player on cont. 1
@@ -685,10 +685,10 @@ SetShotMode	;initiate shot by player a3
 	sub.w	Ypos(a3),d1
 	bsr.w	vtoa
 	move.w	#$F,(passspeed).w
-	move.w	#$81C,d1		;SPAshotf
+	move.w	#SPAshotf,d1
 	bsr.s	Findhittype
 	beq.w	.ck1
-	move.w	#$94E,d1		;SPAshotb
+	move.w	#SPAshotb,d1
 	move.w	#$F,(passspeed).w	;minimum shot speed
 .ck1	bra.w	SetSPA
 
@@ -724,7 +724,7 @@ doshot	;stick is at puck so launch puck toward goal
 	bne.w	.ex			;wiffed shot
 	move.w	#$18,(sp)		;92 used 13
 	bset	#sf2shot,(sflags2).w
-	cmpi.w	#$94E,SPA(a3)		;SPAshotb
+	cmpi.w	#SPAshotb,SPA(a3)
 	bne.w	.nbh
 	move.w	#$14,(sp)		;92 used 12
 	move.w	(passspeed).w,d0
@@ -1010,10 +1010,10 @@ assbench	;player a3 should goto bench
 	sub.w	temp3(a3),d0
 	cmp.w	#32,d0
 	bgt.w	.nodec
-	move.w	#$52C,d1		;SPAglide
+	move.w	#SPAglide,d1
 	tst.w	position(a3)
 	bne.w	.gli
-	move.w	#2,d1			;SPAgready
+	move.w	#SPAgready,d1
 .gli	bsr.w	SetSPA
 	bset	#pfnc,pflags(a3)
 	cmpi.w	#4,facedir(a3)
@@ -1029,7 +1029,7 @@ assbench	;player a3 should goto bench
 	bne.w	rtss
 	move.w	#$F800,Xvel(a3)
 	move.w	#2,facedir(a3)
-	move.w	#$1166,d1		;SPAwallleft
+	move.w	#SPAwallleft,d1
 	bsr.w	SetSPA
 	bset	#pfalock,pflags(a3)
 	move.w	#$64,temp1(a3)		;100
@@ -1078,7 +1078,7 @@ asseben	;player a3 should exit bench area
 	neg.w	(a3)
 	move.w	#2,facedir(a3)
 	bset	#5,pflags(a3)
-	move.w	#$1128,d1		;SPAwallright
+	move.w	#SPAwallright,d1
 	bra.w	SetSPA
 .nna	move.w	#4,facedir(a3)
 	bclr	#pfnc,pflags(a3)
@@ -1130,7 +1130,7 @@ asspenalty	;player a3 should goto penalty box
 	bpl.w	rtss
 	addq.w	#8,temp1(a3)
 	bset	#pfnc,pflags(a3)
-	move.w	#$52C,d1		;SPAglide
+	move.w	#SPAglide,d1
 	bsr.w	SetSPA
 	moveq	#6,d2
 	tst.b	handed(a3)
@@ -1149,7 +1149,7 @@ asspenalty	;player a3 should goto penalty box
 	bne.w	rtss
 	bset	#5,pflags(a3)
 	move.w	#2,facedir(a3)
-	move.w	#$1128,d1		;SPAwallright
+	move.w	#SPAwallright,d1
 	bsr.w	SetSPA
 	bclr	#pf2pen,pflags2(a3)		;pf2pen
 	move.l	#$D,d0			;adopen
@@ -1201,7 +1201,7 @@ assepen	;player a3 should exit penalty area
 	move.w	#$86,(a3)
 	move.w	#2,facedir(a3)
 	bset	#5,pflags(a3)
-	move.w	#$1166,d1		;SPAwallleft
+	move.w	#SPAwallleft,d1
 	bsr.w	SetSPA
 	jmp	SprSort
 .nna	move.w	#4,facedir(a3)
@@ -1245,14 +1245,14 @@ assfaceoffpl	;assignment for players actually participating in faceoff
 	bne.w	rtss
 	bset	#pf2aip,pflags2(a3)
 	bne.w	rtss
-	move.w	#$11A4,d1		;SPAfaceoff
+	move.w	#SPAfaceoff,d1
 	cmpi.w	#$10,(puckx+temp1).w
 	bls.w	.d
 	moveq	#8,d0
 	bsr.w	randomd0
 	tst.w	d0
 	beq.w	.d
-	move.w	#$11CE,d1		;SPAfaceoffr
+	move.w	#SPAfaceoffr,d1
 .d	bset	#pf2aip,pflags2(a3)
 	bra.w	SetSPA
 .exit	move.b	#$14,nopuck(a3)		;nopuck = 20
@@ -1320,9 +1320,9 @@ assfight	;fighting logic
 	move.w	(a1,d0.w),d1
 	bsr.w	SetSPA
 .j	bsr.w	chkhit
-	cmpi.w	#$FE2,SPA(a3)		;SPAfheld
+	cmpi.w	#SPAfheld,SPA(a3)
 	beq.w	.njc
-	cmpi.w	#$F8E,SPA(a3)		;SPAfight
+	cmpi.w	#SPAfight,SPA(a3)
 	beq.w	.jc
 	btst	#3,pflags(a3)
 	bne.w	.jc
@@ -1345,9 +1345,9 @@ assfight	;fighting logic
 	move.w	#$F000,d1
 .y2	move.w	d1,Yvel(a3)
 	rts
-.al	dc.w	$1004			;SPAfhigh
-	dc.w	$1036			;SPAflow
-	dc.w	$FC0			;SPAfgrab
+.al	dc.w	SPAfhigh
+	dc.w	SPAflow
+	dc.w	SPAfgrab
 
 chkhit	;part of fight to see if player is hit
 	;a3 = player, a0 = opponent
@@ -1355,7 +1355,7 @@ chkhit	;part of fight to see if player is hit
 	move.w	frame(a3),d0
 	cmp.w	oldframe(a3),d0
 	beq.w	.ex
-	cmp.w	#$164,d0		;SPFfight+2,d0
+	cmp.w	#SPFfight+2,d0
 	beq.w	.dropped
 	move.w	(a3),d0
 	sub.w	(a0),d0
@@ -1370,17 +1370,17 @@ chkhit	;part of fight to see if player is hit
 	cmp.w	#-8,d0
 	blt.w	.ex
 	move.w	frame(a3),d0
-	cmp.w	#$168,d0		;SPFfight+6,d0
+	cmp.w	#SPFfight+6,d0
 	beq.w	.hithigh
-	cmp.w	#$16D,d0		;SPFfight+6+5,d0
+	cmp.w	#SPFfight+6+5,d0
 	beq.w	.hithigh
-	cmp.w	#$169,d0		;SPFfight+7,d0
+	cmp.w	#SPFfight+7,d0
 	beq.w	.hitlow
-	cmp.w	#$16E,d0		;SPFfight+7+5,d0
+	cmp.w	#SPFfight+7+5,d0
 	beq.w	.hitlow
-	cmp.w	#$166,d0		;SPFfight+4,d0
+	cmp.w	#SPFfight+4,d0
 	beq.w	.grab
-	cmp.w	#$16B,d0		;SPFfight+4+5,d0
+	cmp.w	#SPFfight+4+5,d0
 	beq.w	.grab
 .ex	movem.l	(sp)+,d0/a0-a3
 	rts
@@ -1402,7 +1402,7 @@ chkhit	;part of fight to see if player is hit
 	bra.s	.ex
 .grab	exg	a0,a3
 	bset	#pf2aip,pflags2(a3)
-	move.w	#$FE2,d1		;SPAfheld
+	move.w	#SPAfheld,d1
 	bsr.w	SetSPA
 	bra.s	.ex
 .hithigh	exg	a0,a3
@@ -1410,7 +1410,7 @@ chkhit	;part of fight to see if player is hit
 	bset	#pf2aip,pflags2(a3)
 	subq.w	#1,temp3(a3)
 	bmi.w	.fall
-	move.w	#$1068,d1		;SPAfhith
+	move.w	#SPAfhith,d1
 	bsr.w	SetSPA
 	move.w	#SFXhithigh,-(sp)		;SFXhithigh
 	bsr.w	sfx
@@ -1420,7 +1420,7 @@ chkhit	;part of fight to see if player is hit
 	bset	#pf2aip,pflags2(a3)
 	subq.w	#1,temp3(a3)
 	bmi.w	.fall
-	move.w	#$108A,d1		;SPAfhitl
+	move.w	#SPAfhitl,d1
 	bsr.w	SetSPA
 	move.w	#SFXhitlow,-(sp)		;SFXhitlow
 	bsr.w	sfx
@@ -1460,7 +1460,7 @@ chkhit	;part of fight to see if player is hit
 	bgt.w	.noinj			;skip injury
 	move.w	#$B4,(Pencntdwn).w	;180: player is injured
 	bset	#6,pflags2(a3)
-	move.w	#$10CE,d1		;SPAffall
+	move.w	#SPAfinjury,d1
 	bsr.w	SetSPA
 	bsr.w	ClearMessageLine
 	movea.w	a3,a2
@@ -1468,7 +1468,7 @@ chkhit	;part of fight to see if player is hit
 	move.w	#$112C,tmpdst(a0,d1.w)	;overwrite setInjuryType result in the team struct
 	move.w	#3,(InjCntDown).w
 	bra.w	.ex
-.noinj	move.w	#$10AC,d1		;SPAbfall
+.noinj	move.w	#SPAffall,d1
 	bsr.w	SetSPA
 	movea.w	#(tmstruct-M68K_RAM),a2
 	move.w	#$B,-(sp)		;SFXcrowdcheer
@@ -1625,7 +1625,7 @@ assstanley	;player a3 skates with stanley cup overhead
 	bpl.w	.0
 	neg.w	temp3(a3)
 .0	move.w	(Vpos).w,temp4(a3)
-	move.w	#$1258,d1		;SPAStanley
+	move.w	#SPAstanley,d1
 	bsr.w	SetSPA
 .nna	move.w	temp3(a3),d0
 	sub.w	(a3),d0
@@ -1656,11 +1656,11 @@ assscore	;player a3 celebrates, if scoring player then do arm pump
 	sub.w	d7,temp1(a3)
 	bpl.w	.chkcon
 	bset	#5,pflags(a3)
-	move.w	#$EAA,d1		;SPAcelebrate
+	move.w	#SPAcelebrate,d1
 	move.w	(shotplayer).w,d0
 	cmp.w	SCnum(a3),d0
 	bne.w	.nopump
-	move.w	#$F1C,d1		;SPApump
+	move.w	#SPApump,d1
 .nopump	bsr.w	SetSPA
 .1	moveq	#$78,d0			;120
 	bsr.w	randomd0
@@ -2125,7 +2125,7 @@ assgoalie	;Player a3 is goalie. Also entered from assnearest
 	bra.w	skateto
 .noskate	btst	#pf2aip,pflags2(a3)
 	bne.w	rtss
-	move.w	#2,d1			;SPAgready
+	move.w	#SPAgready,d1
 	bsr.w	SetSPA
 	btst	#gmclock,(gmode).w
 	bne.w	rtss
@@ -2219,7 +2219,7 @@ assgoalie	;Player a3 is goalie. Also entered from assnearest
 	bsr.w	vtoa
 	move.w	d0,facedir(a3)
 	move.b	#8,nopuck(a3)
-	move.w	#$314,d1
+	move.w	#SPAgdive,d1
 	bsr.w	SetSPA
 	bset	#pf2aip,pflags2(a3)
 	addi.w	#$96,(crowdlevel).w	;150
@@ -2334,13 +2334,13 @@ assgoalie	;Player a3 is goalie. Also entered from assnearest
 .de7	add.w	d0,d0
 	lea	GoalieSaveList(pc),a1
 	move.w	(a1,d0.w),d1
-	cmp.w	#$198,d1
+	cmp.w	#SPAgglovel,d1
 	bne.w	.set
 	andi.w	#3,d3
 	beq.w	.set
 	cmpi.b	#$B,aggress(a3)
 	blt.w	.set
-	move.w	#$1CA,d1
+	move.w	#SPAgglovel2,d1
 .set	bsr.w	SetSPA
 	addi.w	#$96,(crowdlevel).w
 	addi.w	#$A,(CwdExciteLvl).w
@@ -2457,12 +2457,12 @@ AdjustFacingDirection	;Turn facedir one step
 	rts
 
 GoalieSaveList	;goalie save choices
-	dc.w	$166			;SPAgglover
-	dc.w	$198			;SPAgglovel
-	dc.w	$270			;SPAgstackr
-	dc.w	$2C2			;SPAgstackl
-	dc.w	$20C			;SPAgstickr
-	dc.w	$23E			;SPAgstickl
+	dc.w	SPAgglover
+	dc.w	SPAgglovel
+	dc.w	SPAgstackr
+	dc.w	SPAgstackl
+	dc.w	SPAgstickr
+	dc.w	SPAgstickl
 
 assgoalietopuck	;goalie skates out to a loose puck (inserted by
 	;assgoalie)
@@ -3448,7 +3448,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	clr.w	(a0)
 	move.w	#-$10C,Ypos(a0)
 	movea.w	#(SortCords+(15*SCstruct)-M68K_RAM),a0
-	move.w	#$18A,frame(a0)		;SPFpuck
+	move.w	#SPFpuck,frame(a0)
 	clr.w	SPA(a0)
 	clr.w	attribute(a0)
 	clr.w	(SortCords+(puckscnum*SCstruct)+attribute).w
@@ -3533,7 +3533,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	move.w	d0,facedir(a3)
 	bclr	#pf2unav,pflags2(a3)		;pf2unav
 	bclr	#pfalock,pflags(a3)
-	move.w	#$52C,d1		;SPAglide
+	move.w	#SPAglide,d1
 	bsr.w	SetSPA
 .next	adda.w	#$80,a3
 	dbf	d2,.l0
@@ -3998,11 +3998,11 @@ puckflip	;start puck spinning. a3 = puck, d0 bit 0 = flip. Called from checkgoal
 	eor.w	d0,facedir(a3)
 	andi.w	#3,facedir(a3)
 	st	SPAcnt(a3)
-	move.w	#$48A,d1		;SPApflip
+	move.w	#SPApflip,d1
 	bra.w	SetSPA
 
 puckshadow	;assignment for puck shadow. a3 = puck shadow (struct after the puck)
-	cmpi.w	#$18A,frame(a3)		;frame SPFpuck
+	cmpi.w	#SPFpuck,frame(a3)
 	bne.w	.siren			;shadow turns into siren on goals
 	move.w	Xpos-SCstruct(a3),(a3)
 	move.w	Ypos-SCstruct(a3),Ypos(a3)
@@ -4360,10 +4360,10 @@ SetSPA	;set sprite animation on struct a3. d1 = new animation
 doplayeracc	;player a3 gets acc. in d0 dir
 	tst.w	position(a3)
 	beq.w	goalieacc		;goalie is special
-	move.w	#$52C,d1		;SPAglide
+	move.w	#SPAglide,d1
 	btst	#pfrev,pflags(a3)
 	beq.w	.d0
-	move.w	#$A80,d1		;SPAglideback
+	move.w	#SPAglideback,d1
 .d0	andi.w	#$F,d0
 	cmp.w	#7,d0
 	ble.w	.d1
@@ -4469,11 +4469,11 @@ doplayeracc	;player a3 gets acc. in d0 dir
 	clr.w	d1
 	tst.w	(a0,d0.w)
 	bpl.w	.s1
-	eori.w	#-$32,d1		;SPAturnl-SPAturnr
+	eori.w	#SPAturnl-SPAturnr,d1
 .s1	btst	#3,attribute(a3)
 	beq.w	.s2
-	eori.w	#-$32,d1		;SPAturnl-SPAturnr
-.s2	addi.w	#$6B4,d1		;SPAturnr
+	eori.w	#SPAturnl-SPAturnr,d1
+.s2	addi.w	#SPAturnr,d1
 	bset	#pf2aip,pflags2(a3)
 .s3	bsr.w	SetSPA
 
@@ -4484,7 +4484,7 @@ doplayeracc	;player a3 gets acc. in d0 dir
 .ftab	dc.w	0,$10,$10,$10,0,-$10,-$10,-$10
 
 goalieacc	;goalie gets acc. in direction d0. Turns facedir one step toward d0 (92 set it directly)
-	move.w	#2,d1			;SPAgready
+	move.w	#SPAgready,d1
 	andi.w	#$F,d0
 	cmp.w	#7,d0
 	ble.w	.d1
@@ -4505,7 +4505,7 @@ goalieacc	;goalie gets acc. in direction d0. Turns facedir one step toward d0 (9
 	add.w	facedir(a3),d0
 	andi.w	#7,d0
 	move.w	d0,facedir(a3)
-.spa	move.w	#$3F8,d1		;SPAgskate
+.spa	move.w	#SPAgskate,d1
 	bsr.w	SetSPA
 	move.w	facedir(a3),d2
 	bra.w	playeracc
@@ -4534,23 +4534,23 @@ noturn0	;doplayeracc when the wanted direction needs no turn (.ftab entry 0). d0
 	beq.w	.nos0
 	subq.w	#2,facedir(a3)
 .nos0	andi.w	#7,facedir(a3)
-	move.w	#$52C,d1		;SPAglide
+	move.w	#SPAglide,d1
 	btst	#pfrev,pflags(a3)
 	beq.w	SetSPA
-	move.w	#$A80,d1		;SPAglideback
+	move.w	#SPAglideback,d1
 	bra.w	SetSPA
 
-.nochg	move.w	#$AB2,d1		;SPAskateback
+.nochg	move.w	#SPAskateback,d1
 	btst	#pfrev,pflags(a3)
 	bne.w	.ns
-	move.w	#$5F0,d1		;SPAskate
-	btst	#6,pflags2(a3)		;pflags2 bit 6 uses animation $13A0
+	move.w	#SPAskate,d1
+	btst	#6,pflags2(a3)		;pflags2 bit 6 uses animation SPAstumble
 	beq.w	.nb6
-	move.w	#$13A0,d1
+	move.w	#SPAstumble,d1
 .nb6	move.w	(puckc).w,d4
 	cmp.w	SCnum(a3),d4
 	bne.w	.ns
-	move.w	#$55E,d1		;SPAskatewp
+	move.w	#SPAskatewp,d1
 .ns	btst	#pf2aip,pflags2(a3)
 	bne.w	noturn
 	bsr.w	SetSPA
@@ -4663,11 +4663,11 @@ dostop	;player a3 stops. Entered from doplayeracc and noturn0
 	cmpi.w	#-$1000,Yvel(a3)
 	blt.w	.set
 	bra.w	StopNA			;stop with no anim
-.set	move.w	#$52C,d1		;SPAglide
+.set	move.w	#SPAglide,d1
 	btst	#pfrev,pflags(a3)
 	bne.w	.0
 	bset	#pf2aip,pflags2(a3)
-	move.w	#$6E6,d1		;SPAstop
+	move.w	#SPAstop,d1
 .0	bsr.w	SetSPA
 StopNA	;slow player a3 by 150 on each axis, no animation change. Falls in from dostop, also entered from goalieacc and others
 	tst.w	Xvel(a3)

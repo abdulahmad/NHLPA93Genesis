@@ -66,7 +66,56 @@ FaceOffMap = $33400		; graphics data
 RefsMap = $38906		; graphics data
 HotList = $743CE		; graphics data
 FaceOffSprites = $77170	; graphics data
-RAMStart = $FF0000	
+RAMStart = $FF0000
+
+; frames93 animation and sprite-frame offsets (segment build does not include the frame data)
+SPAgready = 2
+SPAgglover = $166
+SPAgglovel = $198
+SPAgglovel2 = $1CA
+SPAgstickr = $20C
+SPAgstickl = $23E
+SPAgstackr = $270
+SPAgstackl = $2C2
+SPAgdive = $314
+SPAgswing = $386
+SPAgskate = $3F8
+SPApflip = $48A
+SPAglide = $52C
+SPAskatewp = $55E
+SPAskate = $5F0
+SPAturnl = $682
+SPAturnr = $6B4
+SPAstop = $6E6
+SPApassf = $738
+SPApassb = $7AA
+SPAshotf = $81C
+SPAshotb = $94E
+SPAglideback = $A80
+SPAskateback = $AB2
+SPAsweepchk = $B44
+SPAburst = $C7E
+SPAHold = $CB0
+SPAcelebrate = $EAA
+SPApump = $F1C
+SPAfight = $F8E
+SPAfgrab = $FC0
+SPAfheld = $FE2
+SPAfhigh = $1004
+SPAflow = $1036
+SPAfhith = $1068
+SPAfhitl = $108A
+SPAffall = $10AC
+SPAfinjury = $10CE
+SPAwallright = $1128
+SPAwallleft = $1166
+SPAfaceoff = $11A4
+SPAfaceoffr = $11CE
+SPAstanley = $1258
+SPAhook = $12DC
+SPAstumble = $13A0
+SPFfight = $162
+SPFpuck = $18A
 
 ; .region code
 	org	$946E
