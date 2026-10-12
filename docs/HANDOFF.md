@@ -10,7 +10,7 @@ ROMs (gitignored, never commit): nhlpa93retail.bin and nhlpa93retailRevA.bin in 
 Windows: `npm run build:retail` and `npm run build:reva` (extractassets, build93.bat, fixopcodes, verify);
 segments: `npm run seg:<name>` (all keys in package.json `seg:*`).
 Linux (wine): `apt install wine wine32` (dpkg --add-architecture i386), `export WINEDEBUG=-all`, then
-1. `node tools/extractAssets93-1.1.js nhlpa93retail.bin` (once, fills Extracted/)
+1. `node tools/extractAssets93-1.1.js nhlpa93retail.bin` (once, fills Extracted/) Accepts retail or Rev A (found by SHA-1; Rev A slices from $16E53 on are +$2E; same files). Other ROMs are refused.
 2. `wine cmd /c "set rev=0&& set checksum=1&& build93.bat"` (rev=1 for Rev A, ref nhlpa93retailRevA.bin)
 3. `node tools/fixopcodes.js "output/nhl93 .lst" output/nhl93.bin`
 4. `node tools/verifyRom.js output/modified_nhl93.bin <reference ROM>` must print MATCH
@@ -68,3 +68,4 @@ Follow 92G (EA source): 2105 locals, ~31% number-only (.0, .1 ...), the rest sho
   DoHiLights + StartHL2 penalty93 -> hockey93 after the penalty93 include (intermission highlights, not penalties);
   GameSetUpMap sound93 -> graphics93 (a bitmap). Stub orgs (middle93 $D5D2, graphics93 $2E1FC), package.json ranges and docs updated. MATCH.
 - Segment stubs moved to src/stubinc/ (buildseg.bat assembles stubinc\<seg>_stub.asm). MATCH.
+- Extractor takes any known retail ROM: SHA-1 detection (retail 8efc1cac..., Rev A 2ab048fc...), per-version slice offsets, clear refusal of unknown ROMs (e.g. the 1993.FEB build). verify_all.sh extracts fresh from each version's own ROM before its build. Fresh extract + ROM (retail, Rev A) + all segments MATCH.

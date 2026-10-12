@@ -3,14 +3,16 @@ export WINEDEBUG=-all
 cd "$(dirname "$0")/.."
 fail=0
 for rev in 0 1; do
+  t=nhlpa93retail.bin; [ $rev = 1 ] && t=nhlpa93retailRevA.bin
+  rm -rf Extracted; node tools/extractAssets93-1.1.js $t >/tmp/x93.log 2>&1 || { echo "EXTRACT FAIL $t"; tail -5 /tmp/x93.log; fail=1; continue; }
   rm -f output/nhl93.bin output/modified_nhl93.bin
   wine cmd /c "set rev=$rev&& set checksum=1&& build93.bat" >/tmp/b93.log 2>&1 || { echo "ASM FAIL rev$rev"; fail=1; continue; }
   grep -q '^[1-9][0-9]* error' output/Build93.log && { fail=1; echo "ERR in log rev$rev"; grep -i error output/Build93.log|head; }
   [ -s output/nhl93.bin ] || { echo "no bin rev$rev"; fail=1; continue; }
   node tools/fixopcodes.js "output/nhl93 .lst" output/nhl93.bin >/dev/null 2>&1
-  t=nhlpa93retail.bin; [ $rev = 1 ] && t=nhlpa93retailRevA.bin
   node tools/verifyRom.js output/modified_nhl93.bin $t 2>&1 | tail -2
 done
+rm -rf Extracted; node tools/extractAssets93-1.1.js nhlpa93retail.bin >/dev/null 2>&1 || { echo 'EXTRACT FAIL retail'; fail=1; }
 for s in $(node -e 'for(const k in require("./package.json").scripts) if(k.startsWith("seg:")&&k!="seg:sound93-data") console.log(k)'); do
   cmd=$(node -e "console.log(require('./package.json').scripts['$s'])")
   seg=$(echo "$cmd" | grep -oP 'buildseg.bat \K\S+'); off=$(echo "$cmd" | grep -oP 'bin \K0x[0-9A-F]+' | head -1)

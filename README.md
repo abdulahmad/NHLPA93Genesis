@@ -51,6 +51,16 @@ Build with `build:dev` (`checksum=0`): `Start` skips `jsr ValidationRoutine` and
 
 Because the source uses labels, code and data can grow or move. Add new RAM to `src/ram93.asm`. Sound and graphics files come from `Extracted/`; replace a file there (keeping its name) to change an asset, or add an `incbin` with a label.
 
+## Supported ROMs
+`tools/extractAssets93-1.1.js` finds the version of the ROM it is given by SHA-1 and reads each slice at that version's address (Rev A: every slice from the Z80 driver at `$16E53` on is `$2E` bytes higher). Both give the same `Extracted/` files. Any other ROM (a bad dump, a hack, a prototype such as the `1993.FEB` or `1992.MAY` builds) is refused with its SHA-1, size and header.
+
+| Version | Header | File | SHA-1 |
+| --- | --- | --- | --- |
+| Retail | `1992.JUL`, `GM T-50396 -00` | `nhlpa93retail.bin` | `8efc1cacb079ea223966dda065c16c49e584cac2` |
+| Rev A | `1992.OCT`, `GM T-50396 -01` | `nhlpa93retailRevA.bin` | `2ab048fc7209df28b00ef47f2f686f5b7208466e` |
+
+`npm run extractassets` extracts from the retail ROM, `npm run extractassets:reva` (and `build:reva`) from the Rev A ROM.
+
 ## Retail (REV=0) vs Rev A (REV=1)
 Both build from the same source (`IF REV=1` blocks). Retail is `1992.JUL` version `-00`; Rev A is `1992.OCT` version `-01`.
 

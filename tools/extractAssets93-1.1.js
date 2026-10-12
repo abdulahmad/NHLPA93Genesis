@@ -1,6 +1,6 @@
 const fs = require('fs').promises;
 const path = require('path');
-const crc32 = require('crc-32'); // Requires 'crc-32' package: npm install crc-32
+const crypto = require('crypto');
 
 // NHLPA 93 asset extractor: writes the retail ROM slices that the source incbins (team palettes in
 // teamdata93.asm, sound and Z80 data in sound93.asm, graphics in graphics93.asm) into Extracted/.
@@ -165,19 +165,30 @@ const assets = [
     { name: 'EASN2.map.jim', folder: 'Graphics', start: 0x07F4F6, end: 0x07FB76 }, // EASNmap2: the five EASN bitmaps on the Stanley Cup screen (93 only)
 ];
 
-// CRC32 of nhlpa93retail.bin. Rev A builds use the same slices: the source relocates the data.
-const EXPECTED_CRC32 = 0xCBBF4262;
+// Known retail ROMs. Slices are listed at retail addresses; each version maps a retail address to
+// its own (Rev A: every slice from the Z80 driver at $16E53 on sits $2E bytes higher). The bytes of
+// every slice are the same in both, so either ROM gives the same Extracted/ files.
+const VERSIONS = [
+    { id: 'retail', label: 'NHLPA Hockey 93 retail (1992.JUL, GM T-50396 -00)', file: 'nhlpa93retail.bin',
+      sha1: '8efc1cacb079ea223966dda065c16c49e584cac2', size: 0x80000, date: '1992.JUL', serial: 'GM T-50396 -00',
+      map: (a) => a },
+    { id: 'reva', label: 'NHLPA Hockey 93 Rev A (1992.OCT, GM T-50396 -01)', file: 'nhlpa93retailRevA.bin',
+      sha1: '2ab048fc7209df28b00ef47f2f686f5b7208466e', size: 0x80000, date: '1992.OCT', serial: 'GM T-50396 -01',
+      map: (a) => (a >= 0x16E53 ? a + 0x2E : a) },
+];
 
-async function verifyCRC32(filePath) {
-    try {
-        const data = await fs.readFile(filePath);
-        const calculatedCRC = crc32.buf(data) >>> 0; // Convert to unsigned 32-bit integer
-        console.log(`ROM CRC32: ${calculatedCRC.toString(16).toUpperCase()} (expected ${EXPECTED_CRC32.toString(16).toUpperCase()})`);
-        return calculatedCRC === EXPECTED_CRC32;
-    } catch (error) {
-        console.error(`Error reading ROM file for CRC32 check: ${error.message}`);
-        return false;
-    }
+// Find the version of a ROM by SHA-1. Size and header are only used to explain a refusal.
+function detectVersion(data) {
+    const sha1 = crypto.createHash('sha1').update(data).digest('hex');
+    const v = VERSIONS.find((x) => x.sha1 === sha1);
+    if (v) return { version: v, sha1 };
+    const date = data.subarray(0x118, 0x120).toString('latin1');
+    const serial = data.subarray(0x180, 0x18E).toString('latin1');
+    const near = VERSIONS.find((x) => x.size === data.length && x.date === date && x.serial === serial);
+    let msg = `Unknown ROM: SHA-1 ${sha1}, ${data.length} bytes, header date '${date}', serial '${serial}'.\n`;
+    if (near) msg += `Header matches ${near.label}, but the SHA-1 does not (bad dump, hack, or byte-swapped/interleaved file?).\n`;
+    msg += 'Supported ROMs:\n' + VERSIONS.map((x) => `  ${x.label}: SHA-1 ${x.sha1} (${x.file})`).join('\n');
+    return { version: null, sha1, msg };
 }
 
 async function extractAssets(romPath, options = {}) {
@@ -188,16 +199,14 @@ async function extractAssets(romPath, options = {}) {
     };
     
     try {
-        // Verify CRC32
-        const isValid = await verifyCRC32(romPath);
-        if (!isValid) {
-            console.error(`CRC32 checksum mismatch. Expected ${EXPECTED_CRC32.toString(16).toUpperCase()} (nhlpa93retail.bin). Aborting extraction.`);
+        const romData = await fs.readFile(romPath);
+        const { version, msg } = detectVersion(romData);
+        if (!version) {
+            console.error(msg + '\nAborting extraction.');
             process.exitCode = 1;
             return;
         }
-
-        // Read the ROM file
-        const romData = await fs.readFile(romPath);
+        console.log(`ROM: ${version.label}`);
 
         // Create base Extracted directory
         const baseDir = extractOptions.outputDir;
@@ -210,14 +219,15 @@ async function extractAssets(romPath, options = {}) {
             await fs.mkdir(outputDir, { recursive: true });
 
             // Extract data
-            const assetData = romData.slice(asset.start, asset.end);
+            const start = version.map(asset.start), end = version.map(asset.end - 1) + 1;
+            const assetData = romData.slice(start, end);
 
             // Write to file
             const outputPath = path.join(outputDir, asset.name);
             await fs.writeFile(outputPath, assetData);
             
             if (extractOptions.verbose) {
-                console.log(`Extracted ${asset.name} (${assetData.length} bytes) from offset 0x${asset.start.toString(16)} to 0x${asset.end.toString(16)}`);
+                console.log(`Extracted ${asset.name} (${assetData.length} bytes) from offset 0x${start.toString(16)} to 0x${end.toString(16)}`);
                 console.log(`Saved to ${outputPath}`);
             } else {
                 console.log(`Extracted ${asset.name} to ${outputPath}`);
@@ -281,8 +291,8 @@ Options:
   -o, --output <dir>      Specify output directory (default: <repo>/Extracted)
 
 Notes:
-  - This script extracts all known assets from the NHLPA 93 retail ROM (nhlpa93retail.bin)
-  - ROM checksums are verified to ensure correct ROM is used
+  - Accepts the retail ROM (nhlpa93retail.bin) or the Rev A ROM (nhlpa93retailRevA.bin), found by SHA-1;
+    both give the same files. Any other ROM is refused
 
 Examples:
   node tools/extractAssets93-1.1.js nhlpa93retail.bin
