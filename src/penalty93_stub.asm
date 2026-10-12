@@ -1,3 +1,6 @@
+;	Segment build for penalty93.asm: defines the outside routines and data it uses as equates,
+;	then includes penalty93.asm on its own for checking against the ROM.
+
 	include	macros\genesis93.mac
 
 ;	68000

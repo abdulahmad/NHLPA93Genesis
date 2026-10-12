@@ -1,3 +1,6 @@
+;	Segment build for middle93.asm: defines the outside routines and data it uses as equates,
+;	then includes middle93.asm on its own for checking against the ROM.
+
 	include	macros\genesis93.mac
 
 ;	68000
