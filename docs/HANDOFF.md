@@ -42,7 +42,7 @@ No force-push, no PRs, never commit ROMs, Extracted/ or output/.
 
 ## Current state / Next
 - Comment review: done in 93, 94, 95 and NHLPA93SNES.
-- Name pass (full body read), records in docs/name_review_93.md:
-  - Phase A (93): DONE for all modules (stats93, menu93, hockey93_01/02/03_05/06_11, logic93, penalty93, sram93, graphics93, video93, teamdata93, middle93, sound93, frames93, ram93). Renames propagated to 94/95/NHLPA93SNES.
-  - Phase B (94, docs/name_review_94.md): NEXT. List every name in 94 not in 93/92; review module by module (bodies/usage); propagate to 95.
+- Name pass (full body read), records in docs/name_review_93.md / _94.md / _95.md:
+  - Phase A (93): DONE, all modules. Renames propagated to 94/95/NHLPA93SNES.
+  - Phase B (94): done: stats94 menu94 hockey94 penalty94 collide94 attract94 assign94 video94 setup94 teamdata94 sram94 replay94 fourway94 onetimer94 input94 data94 goalie94. Todo: crowd94 records94 checks94 period94 shootout94 frames94 scout94 optsetup94 title94 sound94 cards94 graphics94 (list = names in 94 not in 93/92, see name_review_94.md).
   - Phase C (95, docs/name_review_95.md): todo. Names in 95 not in 94/93/92.
