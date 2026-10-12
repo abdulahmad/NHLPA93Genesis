@@ -1,3 +1,6 @@
+;	EA startup code: macros, assembler options, the 68000 vector table, the Sega ID
+;	header and the EA logo.
+
 	include	macros\genesis93.mac
 
 ;	68000

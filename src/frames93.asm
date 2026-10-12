@@ -1,5 +1,5 @@
-;	Frame and SPA equates for the sprite animation file Sprites.anim:
-;	sprite frame (SPF) base indices and the SPA animation list offsets.
+;	Data table for animating the graphics in Sprites.anim: sprite frame (SPF) base indices
+;	and the SPA animation list offsets.
 
 ; Sprite Frame (SPF) base indices
 SPFskatewp	=	1

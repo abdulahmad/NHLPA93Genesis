@@ -1,9 +1,7 @@
-;	Top level of the full ROM build: one include per ROM section, in ROM order.
-;	ROM map: retail nhlpa93retail.bin addresses (inclusive) for every include.
-;	Boundaries are routine starts checked against the ROM bytes. The "92 part"
-;	notes say which part of the NHL 92 source the code corresponds to.
-;	Ram93.Asm holds the ports, RAM map and structure equates; each *_stub.asm
-;	includes it for a single segment build.
+;	Main game source and top level of the ROM build. Includes the other modules in ROM order and
+;	holds the core game code: startup and the game loop, pause, instant replay, player and
+;	animation update, collisions and checking, rink and team setup, and the title, playoff,
+;	scouting report and option screens with their data tables.
 
 	include	Main93.Asm		;EA provided code for startup and EA logo
 	include	TeamData93.Asm		;$000310-$004D8D

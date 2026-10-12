@@ -1,6 +1,4 @@
-;	RAM map, ports and structure equates. Every address is the retail
-;	(nhlpa93retail.bin) address. Included by hockey93.asm and by every
-;	*_stub.asm (segment builds). No ROM bytes.
+;	RAM allocation, hardware ports and structure equates. No ROM bytes.
 
 ;hardware
 Asound	=	$c00011	;analog sound (VDP_PSG)

@@ -1,9 +1,5 @@
-;****************************************************************
-;																* GENESIS / MEGA DRIVE HARD INITIAL PROGRAM * * 1989 11/30 * *
-;																HOT_START is GAME_PROGRAM start_address * = START + $100 *
-;																because this program size is 256 bytes. * * June 21'90 *
-;****************************************************************
-; No programs are permited to run before this program.
+;	Sega's Genesis hard initial program (1989-90). Runs from reset before anything else:
+;	checks the hardware, sets up the VDP, Z80 and PSG, clears RAM, then starts the game.
 
 	org	$00000200
 SegaInit:

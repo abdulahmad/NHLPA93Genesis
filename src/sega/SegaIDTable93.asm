@@ -1,3 +1,6 @@
+;	Sega ID header: console name, copyright and date, game titles, serial number,
+;	checksum, I/O support, ROM and RAM ranges and region codes.
+
 	org	$00000100
 ;					Data No. Address	Description
 	dc.b	'SEGA GENESIS    '	; 01	$100	Sega Genesis ID (16 bytes)
