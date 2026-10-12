@@ -4,6 +4,30 @@ Finish one NHLPA 93 segment so it assembles with SNASM68K and matches the retail
 
 Status: the code segments are done. Every code range in "ROM map" from `hockey93_01` through `checksum93` matches retail. The `sound93` 68k driver is the last code segment (`$165D8-$16E52`). The Z80 program and sound data are incbins from `$16E53`: the rest of the Z80 program after `Z80_Program_Code dc.b $18` (`$16E52`), the PCM samples, FM patches, sound event streams, the scouting report text and the game setup bitmap, to `$2EFA1`. `graphics93.asm` (`$2EFA2-$7FB75`) is incbin only. `npm run extractassets` (`tools/extractAssets93-1.1.js`) writes both from `nhlpa93retail.bin` to `Extracted\Sound`, `Extracted\Text` and `Extracted\Graphics`. Do not start another code segment. Do not transcribe or disassemble the Z80 blob, the sound data, or the graphics.
 
+## Current rules (Oct 2026; these override older notes below)
+
+Naming lineage is 92G -> 93G -> 94G -> 95G, and the SNES ports sit beside their Genesis parents (93S from 92G/93G, 94S from 93S plus the 94G features).
+- A routine, variable or table that matches its parent takes the parent's name. 92G is the naming root.
+- Clash rule: if one name would mean two different things, the earliest game's meaning keeps the name and the later one gets a new name.
+- Fix the earliest repo first, then propagate the change down the lineage (92 -> 93 -> 94 -> 95, and to the SNES repos).
+- Team names: 93 uses the city names of its own data; 94 and 95 use NYIslanders / NYRangers (short NYI / NYR).
+
+Source style:
+- No rename-history, provenance or origin-tag comments ("was X", "from 93G", "renamed"). That history lives in `docs/name_map.csv` only.
+- No hardcoded ROM addresses in comments, and no hand-kept derived counts (sizes, numbers of entries, totals) that the code or the assembler can compute.
+- Mark "new in 94" / "new in 95" only for major features, not for every changed routine.
+- Local labels in 92 style: `.loop`, `.next`, `.done`, `.exit`, and plain numbers for trivial jumps.
+- File headers are short plain-English stories of what the file does, modelled on `hockey93.asm`, `main93.asm` and `menu93.asm`.
+
+Layout (SNES repos, 93S and 94S): `src/banks/` holds ordered bank files named by content (one `org`, then `incsrc` lines in ROM order),
+`src/routines/<module>/<Routine>.asm` holds one routine per file, `src/data/<category>/` holds data. The folder is the module of the
+routine's origin: 94G for 94 code, else 93G, else 92G; SNES-only code goes in a sensibly named SNES folder. Segment build stubs go in
+`src/stubinc`, tools in `tools/`. The build runs a prebuild ROM check that names the path, file name, SHA-1 and size of the ROM it needs
+(and extracts the assets automatically where the repo extracts them).
+
+Work in small steps: every change is built and checked byte for byte against the reference ROM, then committed and pushed to main
+(no force push, no PRs). Keep `docs/HANDOFF.md` current after each push.
+
 ## Segment consolidation (Oct 2026)
 
 Merged files (older notes below may still use the old part names):
