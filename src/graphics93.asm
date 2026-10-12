@@ -1,6 +1,10 @@
 ;	Graphics data: the rink, the sprites, fonts, screen maps and pictures, all loaded from the
 ;	extracted graphics files. The equates below name the tables inside the sprite data.
 
+GameSetUpMap	;game setup bitmap (setoptions)
+	incbin	..\Extracted\Graphics\GameSetUp.map.jim	;game setup bitmap
+	even
+
 GameSetupSprites		;game setup roster sprites drawn with SetSframe by AddTeamSpriteFrame, tiles from +8
 	incbin	..\Extracted\Graphics\GameSetup.anim
 	even

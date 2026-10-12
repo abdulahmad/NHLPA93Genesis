@@ -2,6 +2,39 @@
 ;	roots, start sounds, read the joysticks and wait for buttons, move and fill video memory, set
 ;	up the screen and unpack compressed graphics.
 
+UnpackNibbles	;a0 = packed data, d0 = count. Unpacks d0 4-bit values (high nibble first) into words at nibblebuffer. Called from UpdateTeamNameisplay
+	movem.l	d0-d2/a0-a1,-(sp)
+	movea.w	#(nibblebuffer-M68K_RAM),a1
+	clr.w	d2
+	bra.w	.next
+.loop	move.b	(a0)+,d1
+	bchg	#0,d2			;toggle high/low nibble
+	bne.w	.lo
+	subq.w	#1,a0			;high nibble: read the same byte again next time
+	lsr.w	#4,d1
+.lo	andi.w	#$F,d1
+	move.w	d1,(a1)+
+.next	dbf	d0,.loop
+	movem.l	(sp)+,d0-d2/a0-a1
+	rts
+
+WeightedRandomSelect	;d0 = number of word weights at nibblebuffer. Return d0 = random index, picked with those weights. Called from SetScore_getscore and UpdateTeamNameisplay
+	movem.l	d1/a1,-(sp)
+	movea.w	#(nibblebuffer-M68K_RAM),a1
+	clr.w	d1
+	bra.w	.next
+.sum	add.w	(a1)+,d1
+.next	dbf	d0,.sum
+	move.w	d1,d0			;d0 = total weight
+	bsr.w	randomd0
+.find	sub.w	-(a1),d0		;walk back from the last weight
+	bpl.s	.find
+	suba.w	#(nibblebuffer-M68K_RAM),a1
+	move.w	a1,d0
+	lsr.w	#1,d0			;word offset -> index
+	movem.l	(sp)+,d1/a1
+	rts
+
 remap	;a0 = data (char set), d0 = size in words, d1 = vram dest, a1 = mapping data (two color nibbles per byte, high nibble for even colors). Jumped to from DecompressGraphics
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w

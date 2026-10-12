@@ -823,6 +823,3 @@ ScoutingReportText	;scouting report text
 	ELSE
 	dc.b	0
 	ENDIF
-GameSetUpMap	;game setup bitmap (setoptions)
-	incbin	..\Extracted\Graphics\GameSetUp.map.jim	;game setup bitmap
-	even

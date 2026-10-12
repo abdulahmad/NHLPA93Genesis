@@ -29,7 +29,7 @@ Teamblocksmap = $7A376	; graphics data, no segment
 RAMStart = $FF0000	
 
 ; .region code
-	org	$D62A
+	org	$D5D2
 
 ; includes for stubs to replace removed code
     include "ram93.asm"		;ports, RAM map and structure equates

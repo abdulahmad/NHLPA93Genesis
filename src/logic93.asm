@@ -3791,7 +3791,7 @@ pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames si
 ;	PuckIChk, puckunflip, puckflip, puckshadow, findpc, skateto, avdgoal,
 ;	skatetopuck, assexit, assinsert, assreplace, vtoa, GetHot, SetSPA,
 ;	doplayeracc, goalieacc, noturn0, noturn, playeracc, MaxSpeed, dostop,
-;	stopna, dirtab, UnpackNibbles and WeightedRandomSelect. Bytes
+;	stopna and dirtab. Bytes
 ;	match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
 ;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
@@ -4697,36 +4697,3 @@ dirtab	;x,y speed for each direction 0-7
 	dc.w	-141,-141
 	dc.w	-200,0
 	dc.w	-141,141
-
-UnpackNibbles	;a0 = packed data, d0 = count. Unpacks d0 4-bit values (high nibble first) into words at nibblebuffer. Called from UpdateTeamNameisplay
-	movem.l	d0-d2/a0-a1,-(sp)
-	movea.w	#(nibblebuffer-M68K_RAM),a1
-	clr.w	d2
-	bra.w	.next
-.loop	move.b	(a0)+,d1
-	bchg	#0,d2			;toggle high/low nibble
-	bne.w	.lo
-	subq.w	#1,a0			;high nibble: read the same byte again next time
-	lsr.w	#4,d1
-.lo	andi.w	#$F,d1
-	move.w	d1,(a1)+
-.next	dbf	d0,.loop
-	movem.l	(sp)+,d0-d2/a0-a1
-	rts
-
-WeightedRandomSelect	;d0 = number of word weights at nibblebuffer. Return d0 = random index, picked with those weights. Called from SetScore_getscore and UpdateTeamNameisplay
-	movem.l	d1/a1,-(sp)
-	movea.w	#(nibblebuffer-M68K_RAM),a1
-	clr.w	d1
-	bra.w	.next
-.sum	add.w	(a1)+,d1
-.next	dbf	d0,.sum
-	move.w	d1,d0			;d0 = total weight
-	bsr.w	randomd0
-.find	sub.w	-(a1),d0		;walk back from the last weight
-	bpl.s	.find
-	suba.w	#(nibblebuffer-M68K_RAM),a1
-	move.w	a1,d0
-	lsr.w	#1,d0			;word offset -> index
-	movem.l	(sp)+,d1/a1
-	rts

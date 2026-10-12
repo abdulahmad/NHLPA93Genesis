@@ -64,3 +64,6 @@ Follow 92G (EA source): 2105 locals, ~31% number-only (.0, .1 ...), the rest sho
 - Header rewrite (file header comments, 92 style): 93G hockey93, main, teamdata, frames, ram, macros, sega, logic, middle, penalty, video, menu, stats, sram, sound, graphics, checksum, all stubs done (93G complete).
 - Restructure: root .js tools (fixopcodes, verifyRom, verifySegment, find, checkAssetsinROM, generateFrameData, generateTeamData) and src/extractAssets93-1.1.js moved to tools/; run from repo root as node tools/<name>.js (default Extracted/output paths resolve from the repo root). verify_all.sh also fails on segment assembly errors. Fresh extract + ROM (retail, Rev A) + all segments MATCH.
 - Header rewrite 2 (story-style file headers, model hockey93/main93/menu93): all 93G modules done. MATCH.
+- Boundary moves (Task D, routine names/headers only): UnpackNibbles + WeightedRandomSelect logic93 -> middle93 (shared helpers);
+  DoHiLights + StartHL2 penalty93 -> hockey93 after the penalty93 include (intermission highlights, not penalties);
+  GameSetUpMap sound93 -> graphics93 (a bitmap). Stub orgs (middle93 $D5D2, graphics93 $2E1FC), package.json ranges and docs updated. MATCH.

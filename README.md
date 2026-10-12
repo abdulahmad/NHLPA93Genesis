@@ -8,9 +8,9 @@ Status: all 68k code is source and both the retail and the Rev A ROM build bitwi
 ## Segment consolidation (Oct 2026)
 
 Merged files (older notes below may still use the old part names):
-- logic93.asm = logic93_1..5 ($946E-$D629)
-- middle93.asm = middle93_1..2 ($D62A-$E525)
-- penalty93.asm = penalty93_1..2 ($E526-$FAE1)
+- logic93.asm = logic93_1..5 ($946E-$D5D1)
+- middle93.asm = middle93_1..2 ($D5D2-$E525)
+- penalty93.asm = penalty93_1..2 ($E526-$F757)
 - video93.asm = video93_1..2 ($11802-$122A7)
 - hockey93.asm holds the former hockey93_01, _02, _03_05 and _06_11 code inline, as 92 hockey.asm does.
 Seg scripts: seg:menu93, seg:stats93, seg:logic93, seg:middle93, seg:penalty93, seg:video93, seg:sram93, seg:sound93, seg:graphics93, seg:checksum93.

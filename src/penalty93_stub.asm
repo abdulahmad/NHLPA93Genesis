@@ -23,6 +23,7 @@ PutTeamBlock = $6BB6
 assinsert = $D03E
 assreplace = $D048
 WeightedRandomSelect = $D5FE
+DoHiLights = $F758
 forceblack = $D67C
 randomd0 = $D7A6
 sfx = $D852
