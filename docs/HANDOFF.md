@@ -45,4 +45,4 @@ No force-push, no PRs, never commit ROMs, Extracted/ or output/.
 - Name pass (full body read), records in docs/name_review_93.md / _94.md / _95.md:
   - Phase A (93): DONE, all modules. Renames propagated to 94/95/NHLPA93SNES.
   - Phase B (94): DONE (all src modules, RAM names, equates; docs/name_review_94.md).
-  - Phase C (95, docs/name_review_95.md): done: main lines scout injury title records logic control crowd video skate players fourway schedule sram replay collide summary faceoff hockey shootout penalty display SegaIDTable equals. Todo: setup95 goal95 sound95 middle95 pause95 trade95 frames95 awards95 graphics95 stats95 season95 create95 ram95.
+  - Phase C (95, docs/name_review_95.md): done: all small modules + setup goal middle pause trade awards. Todo: sound95 frames95 graphics95 stats95 season95 create95 ram95.
