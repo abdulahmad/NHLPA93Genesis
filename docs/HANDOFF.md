@@ -61,4 +61,4 @@ Follow 92G (EA source): 2105 locals, ~31% number-only (.0, .1 ...), the rest sho
   equates by usage), then NHLPA93SNES.
 - Segment inline (93G): hockey93_01/_02/_03_05/_06_11 are now inline in src/hockey93.asm (as 92 hockey.asm);
   their files, stubs and seg:* scripts are gone. tools/verify_all.sh checks full ROM (retail + Rev A) + remaining segments.
-- Header rewrite (file header comments, 92 style): 93G top level, main, teamdata, frames, ram, macros, sega done.
+- Header rewrite (file header comments, 92 style): 93G hockey93, main, teamdata, frames, ram, macros, sega, logic, middle, penalty, video done.

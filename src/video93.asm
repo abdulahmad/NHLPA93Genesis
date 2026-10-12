@@ -1,17 +1,8 @@
-;======================================================================
-;======================================================================
-;	VBlank, vb2, DumpSprites, setvideo and the sprite builders it calls
-;	(show_rink, showref, checkfo, showzam, SetSframe, showcrowd).
-;	Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
-;	The source has the real cmp; fixopcodes.js patches the encoding after
-;	assembly.
-;	Bits: disflags 0 dfok, 2 dfng, 3 dfclock; sflags 0 sfpz, 7 sfhor;
-;	gmode 0 gmclock; sflags2 1 sf2refref.
-;	Sprite frame data (FaceOffSprites, ZamSprites, CrowdSprites): the long
-;	at +4 is the offset to a word table of frame offsets; frame n sprites
-;	run from word n to word n+1, 8 bytes each: x 0, y 2, char 4,
-;	flags 6 (top 5 bits used), size byte 7. 92 used a long pointer list.
+;	Game play vblank code: VBlank, sprite list building and DMA, and the sprite builders
+;	for the rink, referee, faceoff, zamboni and crowd.
+;	Sprite frame data (FaceOffSprites, ZamSprites, CrowdSprites): the long at +4 is the
+;	offset to a word table of frame offsets; frame n sprites run from word n to word n+1,
+;	8 bytes each: x 0, y 2, char 4, flags 6 (top 5 bits used), size byte 7.
 ;	DMA list entries (a5): long source, word length in words, word vram.
 
 VBlank	;main vblank code for game play (vbint target, set by setupice).

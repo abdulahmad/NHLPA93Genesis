@@ -1,13 +1,5 @@
-;======================================================================
-;======================================================================
-;	remap, forceblack, forcefade, cramfade, CopyPaletteToCRAM, randomd0s,
-;	randomd0, sroot, sfx, song, waitx, waitxsr, waitjoy, orjoy, nodiag,
-;	ProcessInputWithRepeat, Readjoy1, Readjoy2, ReadJoy, jdtab, DoDMApro,
-;	DoDMA, DoDMA_nd2 (vram copy), DoFill, WaitDMA, setVram, setVram_0 and
-;	Vmaddr. Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
-;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	disflags bits: df32c 1, dfng 2.
+;	Shared helpers: palette fades, random numbers, square root, sound calls, joystick
+;	reading and waits, VRAM DMA and fill, video setup, and the graphics decompressor.
 
 remap	;a0 = data (char set), d0 = size in words, d1 = vram dest, a1 = mapping data (two color nibbles per byte, high nibble for even colors). Jumped to from DecompressGraphics
 	move.w	(disflags).w,-(sp)

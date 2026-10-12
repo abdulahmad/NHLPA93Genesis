@@ -1,16 +1,9 @@
-;======================================================================
-;======================================================================
-;	Controller input for skaters (doinput
-;	... setpads) and check4bench.
-;	Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
-;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	SortCords offsets in comments: Xpos 0, attribute 4, Ypos $14
-;	Xvel $28, Yvel $2A, impact $32, position $34, assnum $36, asslist $38,
-;	SCnum $52, facedir $54, SPA $58, SPAnum $5A, nopuck $5E, pflags $62
-;	(pfdoff 0, pfna 1, pfjoycon 3, pfalock 5, pfteam 6, pfgoal 7), pflags2 $63
-;	(pf2fight 0, pf2aip 1, pf2unav 2, pf2lcm 3). Team struct: tmline $16,
-;	tmap $24. Buttons: abut 6, bbut 4, cbut 5, sbut 7.
+;	Player logic: controller input for skaters (passing, shooting, checking, line
+;	changes), the computer player assignments (positions, goalie, fights, bench and penalty
+;	box), puck logic (faceoffs, offsides, icing) and the movement helpers.
+;	SortCords offsets: Xpos 0, attribute 4, Ypos $14, Xvel $28, Yvel $2A, impact $32,
+;	position $34, assnum $36, asslist $38, SCnum $52, facedir $54, SPA $58, SPAnum $5A,
+;	nopuck $5E, pflags $62, pflags2 $63. Team struct: tmline $16, tmap $24.
 
 doinput	;process controller input
 	;d0 = dpad
