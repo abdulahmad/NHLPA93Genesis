@@ -45,4 +45,4 @@ No force-push, no PRs, never commit ROMs, Extracted/ or output/.
 - Name pass (full body read), records in docs/name_review_93.md / _94.md / _95.md:
   - Phase A (93): DONE, all modules. Renames propagated to 94/95/NHLPA93SNES.
   - Phase B (94): DONE (all src modules, RAM names, equates; docs/name_review_94.md).
-  - Phase C (95, docs/name_review_95.md): done: all code modules (incl. stats season create). Todo: data/RAM names in sound95 frames95 graphics95 ram95 (checked one by one by usage in an earlier pass; record verdicts here).
+  - Phase C (95): DONE (all modules, ram95, graphics95, frames95, sound95; docs/name_review_95.md).
