@@ -2,7 +2,7 @@
 
 > **Work in progress:** this disassembly is unfinished and unpolished, and is being actively worked on. Expect labels, file layout and docs to change.
 
-Current status:
+## 🚧 Current Status
 
 - About 90-95% done.
 - Remaining: a few small label fixes, another check of the file split, and confirming all assets are extracted.
