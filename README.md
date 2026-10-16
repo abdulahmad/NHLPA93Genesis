@@ -2,6 +2,12 @@
 
 > **Work in progress:** this disassembly is unfinished and unpolished, and is being actively worked on. Expect labels, file layout and docs to change.
 
+Current status:
+
+- About 90-95% done.
+- Remaining: a few small label fixes, another check of the file split, and confirming all assets are extracted.
+- Frame lists and animation names still need proper labels.
+
 A work-in-progress attempt at reverse engineering a bitwise perfect compilable source of NHLPA Hockey 93 for Sega Genesis. Requires original ROM file to build.
 
 Built on the work that McMarkis (https://github.com/Mhopkinsinc/NHLHockey) did to get the NHL 92 source compiling, and my work to make the code bitwise perfect to the retail version. Also references chaos' disassembly work of NHL 92-94 (https://github.com/Chaos81/nhl94-disassembly).
