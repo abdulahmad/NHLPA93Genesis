@@ -1,37 +1,18 @@
 # NHLPA93Genesis
 
-> **Work in progress:** this disassembly is unfinished and unpolished, and is being actively worked on. Expect labels, file layout and docs to change.
-
-## 🚧 Current Status
-
-- About 90-95% done.
-- Remaining: a few small label fixes, another check of the file split, and confirming all assets are extracted.
-- Frame lists and animation names still need proper labels.
-
-A work-in-progress attempt at reverse engineering a bitwise perfect compilable source of NHLPA Hockey 93 for Sega Genesis. Requires original ROM file to build.
+Bitwise perfect compilable source of NHLPA Hockey 93 for Sega Genesis. Requires original ROM file to build.
 
 Built on the work that McMarkis (https://github.com/Mhopkinsinc/NHLHockey) did to get the NHL 92 source compiling, and my work to make the code bitwise perfect to the retail version. Also references chaos' disassembly work of NHL 92-94 (https://github.com/Chaos81/nhl94-disassembly).
 
 Status: all 68k code is source and both the retail and the Rev A ROM build bitwise perfect from it. The Z80 sound driver, the sound data (PCM samples, FM patches, event streams), the team palettes and the graphics are incbins of slices extracted from the retail ROM; anything in them that holds a ROM address is source, so the data follows the code.
 
-## Segment consolidation (Oct 2026)
-
-Merged files (older notes below may still use the old part names):
-- logic93.asm = logic93_1..5 ($946E-$D5D1)
-- middle93.asm = middle93_1..2 ($D5D2-$E525)
-- penalty93.asm = penalty93_1..2 ($E526-$F757)
-- video93.asm = video93_1..2 ($11802-$122A7)
-- hockey93.asm holds the former hockey93_01, _02, _03_05 and _06_11 code inline, as 92 hockey.asm does.
-Seg scripts: seg:menu93, seg:stats93, seg:logic93, seg:middle93, seg:penalty93, seg:video93, seg:sram93, seg:sound93, seg:graphics93, seg:checksum93.
-The hockey93 code itself is verified by the full ROM build.
-
 ## Features of this version:
 - Retail (`1992.JUL -00`) and Rev A (`1992.OCT -01`) ROMs build bitwise perfect from the same source (`IF REV=1` blocks)
 - Label-based source: RAM, ports and structure equates live in `src/ram93.asm` (laid out like NHL 92 `ram.asm`), and the code and data use labels instead of addresses
-- Every code segment can also be built and verified on its own against the retail ROM (`npm run seg:<name>`, `src/stubinc/<name>_stub.asm`)
 - Script which changes opcodes to match the custom compiler EA used to build the game (`tools/fixopcodes.js`)
 - Disassembled Retail Validation Check code (`checksum93.asm`) included via the checksum env variable
 - Script to extract assets from the retail ROM (team palettes, graphics, PCM samples, FM patches, sound event streams, Z80 sound driver, scouting report text)
+- One build script, `tools/build.js`, for Windows and Linux/macOS (wine)
 - Documentation of the file formats used within the game
 - Requires the retail ROM
 
@@ -41,93 +22,44 @@ The hockey93 code itself is verified by the full ROM build.
 
 2. In the `NHLPA93Genesis` folder, run `npm i` to install `node_modules`
 
-3. Copy the NHLPA Hockey 93 Sega Genesis retail ROM file into the `NHLPA93Genesis` folder as `nhlpa93retail.bin` (CRC32 `CBBF4262`). Copy the Rev A ROM as `nhlpa93retailRevA.bin` if you want to verify Rev A builds
+3. Copy the NHLPA Hockey 93 Sega Genesis retail ROM file into the `NHLPA93Genesis` folder as `nhlpa93retail.bin`. Copy the Rev A ROM as `nhlpa93retailRevA.bin` if you want to verify Rev A builds
 
-4. Build one of these versions. Each build first runs `tools/prebuild.js` (see "Build pre-step" below): it checks the ROM and extracts the assets into `Extracted/Sound`, `Extracted/Text` and `Extracted/Graphics` if they are missing or incomplete. It then assembles `src/hockey93.asm` to `output/nhl93.bin`, and fixes the opcodes into `output/modified_nhl93.bin`:
+    | ROM | File name | SHA-1 | Size |
+    | --- | --- | --- | --- |
+    | Retail (`1992.JUL`, `GM T-50396 -00`) | `nhlpa93retail.bin` | `8efc1cacb079ea223966dda065c16c49e584cac2` | 524288 bytes |
+    | Rev A (`1992.OCT`, `GM T-50396 -01`) | `nhlpa93retailRevA.bin` | `2ab048fc7209df28b00ef47f2f686f5b7208466e` | 524288 bytes |
 
-    - For the `Retail` ROM, run `npm run build:retail` -- verified byte for byte against `nhlpa93retail.bin`
+4. Build one of 3 versions. Everything runs through `tools/build.js` (node; on Windows it runs the assembler directly, on Linux/macOS under wine). Each build first runs `tools/prebuild.js`, which checks the ROM by SHA-1 and size (and stops with the expected file name, SHA-1 and size if it is missing or wrong), then extracts the assets into `Extracted/` if they are missing or incomplete. It then assembles `src/hockey93.asm`, fixes the opcodes and verifies the result.
 
-    - For the `Rev A` ROM, run `npm run build:reva` -- same build with `REV=1`, verified byte for byte against `nhlpa93retailRevA.bin`
+    - `npm run build:retail`: the `Retail` ROM, verified byte for byte against `nhlpa93retail.bin`
+    - `npm run build:reva`: the `Rev A` ROM (`REV=1`), verified byte for byte against `nhlpa93retailRevA.bin`
+    - `npm run build:dev`: for developing your own version. `Rev A` code without the checksum validation check (not verified against any ROM)
 
-    - For developing your own version, run `npm run build:dev` -- `Rev A` code without the checksum validation check (not verified against any ROM)
+    Each version has its own folder: the built ROM is `output/retail/nhl93.bin`, `output/reva/nhl93.bin` or `output/dev/nhl93.bin`, and that folder's `obj/` holds the intermediates (the assembler's binary, listing and log).
 
-5. To build and verify one code segment against the retail ROM, run `npm run seg:<name>` (for example `npm run seg:logic93`)
+Other scripts:
+- `npm run assets`: ROM check and asset extraction only (`npm run extractassets` and `extractassets:reva` run the extractor directly)
+- `npm run clean`: delete `output/` and `Extracted/` (re-extracted by the next build)
+- `tools/verify_all.sh`: extracts fresh and builds retail and Rev A, printing MATCH for each
+- Add `--verbose` to `node tools/build.js ...` for the full tool output
 
-## Build pre-step: ROM check and automatic asset extraction
-Every build entry point (`npm run build:*`, `npm run seg:*`, and the batch files run directly) first runs `node tools/prebuild.js`. It:
+## Build steps explained
 
-1. checks that the ROM the build needs is in place and is exactly the right version (SHA-1 and size);
-2. checks that `Extracted/` is complete: the extractor writes `Extracted/.extract-complete.json` last, listing every file it wrote (with its size), the ROM it read and the extractor's own SHA-1;
-3. runs the extractor if `Extracted/` is missing, incomplete (no marker, a missing or resized file) or was written by an older extractor.
+`tools/build.js` prints one line per step with a short note under it, and the step's result under that:
 
-If the ROM is missing (or is a different dump), the build stops with the full path and file name to put it at, its SHA-1 and size, and a reminder that ROMs are not included in the repo:
+1. **prebuild**: check the ROM and extract graphics, sound and text assets into `Extracted/`.
+2. **assemble**: SNASM68k turns `src/hockey93.asm` into a raw ROM image.
+3. **fixopcodes**: patch the instructions where SNASM picks a different encoding than EA's original assembler.
+4. **verify**: compare byte-for-byte with the retail or Rev A ROM. Dev builds are not verified.
 
-| Build | ROM needed (repo root) | SHA-1 | Size |
-| --- | --- | --- | --- |
-| `build:retail`, `seg:*`, `build93.bat` (rev=0), `buildseg.bat` | `nhlpa93retail.bin` | `8efc1cacb079ea223966dda065c16c49e584cac2` | 524288 bytes |
-| `build:reva`, `build93.bat` with rev=1 | `nhlpa93retailRevA.bin` | `2ab048fc7209df28b00ef47f2f686f5b7208466e` | 524288 bytes |
-| `build:dev` | either of the two | | |
-
-`npm run assets` runs only this step. `npm run extractassets` still forces a fresh extraction. The npm scripts set `NHL_PREBUILD_DONE=1` after the step so the batch file does not repeat it; `tools/verify_all.sh` runs the step with Linux node and sets the same variable for wine (there is no node under wine).
+In a terminal, each step turns a spinner while it runs and is redrawn with a green check or a red cross when it ends. The colours are off when the output is not a terminal, with `NO_COLOR` set, or with `--no-color`. A failing step prints `FAILED` (or `MISMATCH`), the relevant log lines (`output/<mode>/obj/Build_nhl93.log` for the assembler) and `BUILD FAILED at <step>`, and exits 1.
 
 # Documentation
 
-## Developing on this build
-Build with `build:dev` (`checksum=0`): `Start` skips `jsr ValidationRoutine` and the header checksum is 0, so changed code still boots. With `checksum=1` the validation routine sums the ROM, and any change turns the screen red. There is no checksum generator in this repo. `build:dev` is not identical to `nhlpa93devRevA.bin`: that ROM has its own header (`1992.MAY`, titles `NHLPA HOCKEY` / `NHL HOCKEY`, product `T-50236`) and different bytes from `$7FBA4` to the end.
+The documentation lives in [`docs/`](docs/README.md):
 
-Because the source uses labels, code and data can grow or move. Add new RAM to `src/ram93.asm`. Sound and graphics files come from `Extracted/`; replace a file there (keeping its name) to change an asset, or add an `incbin` with a label.
-
-## Supported ROMs
-`tools/extractAssets93-1.1.js` finds the version of the ROM it is given by SHA-1 and reads each slice at that version's address (Rev A: every slice from the Z80 driver at `$16E53` on is `$2E` bytes higher). Both give the same `Extracted/` files. Any other ROM (a bad dump, a hack, a prototype such as the `1993.FEB` or `1992.MAY` builds) is refused with its SHA-1, size and header.
-
-| Version | Header | File | SHA-1 |
-| --- | --- | --- | --- |
-| Retail | `1992.JUL`, `GM T-50396 -00` | `nhlpa93retail.bin` | `8efc1cacb079ea223966dda065c16c49e584cac2` |
-| Rev A | `1992.OCT`, `GM T-50396 -01` | `nhlpa93retailRevA.bin` | `2ab048fc7209df28b00ef47f2f686f5b7208466e` |
-
-`npm run extractassets` extracts from the retail ROM, `npm run extractassets:reva` from the Rev A ROM. The builds extract automatically when needed (`tools/prebuild.js`).
-
-## Retail (REV=0) vs Rev A (REV=1)
-Both build from the same source (`IF REV=1` blocks). Retail is `1992.JUL` version `-00`; Rev A is `1992.OCT` version `-01`.
-
-### Overall Differences Between Retail (REV=0) vs Rev A (REV=1)
-- Rev A supports 50 Hz: `Begin` stores the VDP PAL bit in `music_global_tick_counter`. When it is set, `updateplayers` moves skaters 20 units per frame instead of 16, and `p_music_vblank` runs the music track slots a second time every 6th frame.
-- Rev A adds two RAM words (`music_global_tick_counter`, `music_tick_divider`) before `databuffer`, so every variable from `databuffer` up is 4 bytes higher (`ram93.asm` handles it).
-- Retail has a `SecurityCheck` `$FFFF` word before `ValidationRoutine`; Rev A does not. The checksums differ (header `$2799` / `$FA57`, ROM sum `$EB689746` / `$C62A6024`).
-
-### Specific Differences and Comments
-- Header: Rev A writes the title `NHLPA HOCKEY '93` in capitals.
-- Code addresses move by +`$E` after `Begin`, +`$18` after `updateplayers` and +`$2E` after `p_music_vblank`. The source uses labels, so the moves are automatic, including the sound data's absolute pointers (PCM sample table, song loop pointers, the Z80 driver's FM patch bank address).
-- Pad bytes: retail has leftover values in 11 pad bytes (`Setplass .alist`, `ButtonLabelCharTable`, `bfasciicon`, `priolist`, `PlayoffTreeSetup`, the Z80 driver end, four PCM sample ends and the scouting text end); Rev A has 0.
-
-## Sound System Overview
-The 68k side of the driver is source (`src/sound93.asm`, `p_turnoff` ... `ClearAllTrackAndSFXSlots`); the Z80 side is the incbin `z80_snd_drv93.bin`. There is no NHL 92 code in it: 92 used a different driver.
-
-- **Sound numbers**: `sfx` and `song` both call `play_sfx_or_music_track`. Sounds 0-`$2F` are effects, `$30`-`$37` are songs (`$30` goal, `$31` period start, `$32` third period, `$33` power play, `$34` faceoff, `$35` title, `$36` end of game / playoffs / highlights, `$37` scouting report). Starting a song stops the one already playing.
-- **Track slots**: 8 slots at `fm_track_slots` (long event pointer, delay). `p_music_vblank` runs every slot once per frame; in Rev A, at 50 Hz, it runs them again every 6th frame.
-- **Event streams**: `MusicTrackPointerTable` holds word offsets of the 56 streams (`sfx_<name>_cmdstream`, `fmtune_<name>_cmdstream`). An event is 4 bytes: delay before it, status (bits 6-4 command, bits 3-0 MIDI channel), two data bytes. Commands: `$0x` key off, `$1x` key on (note, volume; volume 0 = key off), `$4x` set the channel's patch, `$6x` pitch bend; `$2x`, `$3x`, `$5x`, `$7x` are ignored. Status 0 ends the stream; a non-negative long after it is a loop pointer (songs `$35`-`$37`).
-- **Channels**: 6 channel structs (`fm_channel_structs`; the 6th, `pcm_channel_struct`, is the PCM channel). A key on takes an off channel that already has the patch, else the oldest channel.
-- **FM patches**: `fm_instrument_patches`, 32 patches of 32 bytes (byte `$1E` is the pitch bend scale). The Z80 reads them through the 32K bank window (bank `fm_instrument_patches>>15`).
-- **PCM**: patches `$60` and up are samples. `pcm_sample_table` has 15 entries (sample address, 0); the 68k copies them to Z80 RAM `$23`-`$28` and posts command `$29`. The 12 samples are `sfx_<name>_pcm` (signed 8-bit).
-- **68k to Z80**: changes collect in `Z80_command_buffer` (key off / key on / volume / frequency / patch bits, then 7 volumes, 7 frequency words, 7 patches) and are copied to Z80 RAM `$02` with command `$D1` when the Z80 is idle.
-- **Z80 start**: `p_initialZ80` copies `$295` bytes from `Z80_Program_Code` (`$16E52`) to Z80 RAM and builds 29 volume tables of 256 bytes below Z80 `$2000`.
-
-## .JIM
-Documentation for the NHLPA93 .JIM and .JZIP file format and tools to import/export to/from .JIM/.JZIP format lives here: https://github.com/abdulahmad/EA-NHL-Tools/tree/main/JIM-Tools
-
-## .ANIM94 format
-Documentation for the NHLPA93 .ANIM file format and tool to export from .ANIM format lives here: https://github.com/abdulahmad/EA-NHL-Tools/tree/main/ANIM94-To-BMP
-
-## .PAL
-.pal files use standard Genesis CRAM format for palette. Each color is 2 bytes in Genesis format (0000BBB0GGG0RRR0, where BBB=Blue bits, GGG=Green bits, RRR=Red bits).
-
-## Known Issues/Limitations
-- **Rev B**: `nhlpa93retailRevB.bin` (`1993.FEB`) is a separate later build (different rosters, graphics and about 145 code changes) and is not built.
-- **Z80 sound driver**: the Z80 code is the extracted binary, not source.
-- **Asset boundaries**: graphics and sound slices start at the labels the code uses; a few files may contain more than one asset.
-- **Checksum sensitivity**: `build:retail` / `build:reva` need the exact retail ROM for the extracted files; with validation on, any change stops the game at boot.
-
-## Modding Tips
-- **Custom music / SFX**: add an event stream file and an `incbin` with a label in `sound93.asm`, then point a `MusicTrackPointerTable` entry at it (`dc.w <label>-MusicTrackPointerTable`).
-- **New samples**: add the sample with a label and use it in `pcm_sample_table` (patch `$60` + index).
-- **Testing**: build `build:dev` so checksum validation does not lock the game.
+- [Retail vs Rev A](docs/retail-vs-reva.md): what differs between the two ROM versions and what `REV` changes
+- [Sound system](docs/sound-system.md): the 68000 driver, sound numbers, event streams, patches and samples
+- [File formats](docs/file-formats.md): `.JIM`, `.ANIM`, `.PAL` and the team data layout
+- [Modding](docs/modding.md): developing on this build, supported ROMs, known issues, tips
+- [Conventions](docs/conventions.md): naming lineage, comment rules, local labels

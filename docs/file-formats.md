@@ -1,16 +1,31 @@
-0x314-0x37B = Team Address
-0x37C-0x387 = Team 0 Offsets (6th offset tracks something different in 93 than 92)
-0x388-0x3C7 = Team home/away pals
+# File Formats
+
+Formats of the data in the NHLPA 93 ROM. The graphics tools live in other repositories.
+
+## .JIM
+Documentation for the NHLPA93 .JIM and .JZIP file format and tools to import/export to/from .JIM/.JZIP format lives here: https://github.com/abdulahmad/EA-NHL-Tools/tree/main/JIM-Tools
+
+## .ANIM94 format
+Documentation for the NHLPA93 .ANIM file format and tool to export from .ANIM format lives here: https://github.com/abdulahmad/EA-NHL-Tools/tree/main/ANIM94-To-BMP
+
+## .PAL
+.pal files use standard Genesis CRAM format for palette. Each color is 2 bytes in Genesis format (0000BBB0GGG0RRR0, where BBB=Blue bits, GGG=Green bits, RRR=Red bits).
+
+## Team data
+
+Team data layout of the retail ROM (all values big endian).
+
+Start of the team table: `0x314-0x37B` team addresses, `0x37C-0x387` team 0 offsets (the 6th offset tracks something different in 93 than in 92), `0x388-0x3C7` home and away palettes.
 
 
-## NHLPA93 Team Data Section (Big Endian)
+### NHLPA93 Team Data Section (Big Endian)
 By default, `NumTeams = 26`
 | Byte (All values in hexadecimal)                              | Value                 | Description |
 | --------                                                      | -------               | -------     |
 | `startOfTeamListOffset..startOfTeamListOffset+4*NumTeams`     | `<TeamList>`          | Table of pointers to each team's data |
 | `endofTeamList+1..endofTeamIndex0`                            | `<TeamAtIndexData>`          | Team Data. Includes Jersey Palettes, Scouting Report, Lines, Player Attributes, Team Name |
 
-## NHLPA93 TeamAtIndexData Section (Big Endian)
+### NHLPA93 TeamAtIndexData Section (Big Endian)
 | Byte (All values in hexadecimal)                              | Value                 | Description |
 | --------                                                      | -------               | -------     |
 | `0x00..0x01`  | `<uint16>` | Absolute pointer to Team at Index 0 |
@@ -19,7 +34,7 @@ By default, `NumTeams = 26`
 |...|...|...|
 | `0x0((NumTeams-1)*2)..0x0((NumTeams-1)*2+1)`  | `<uint16>` | Absolute pointer to Team at Index (NumTeams-1) |
 
-## NHLPA93 TeamAtIndexData Section (Big Endian)
+### NHLPA93 TeamAtIndexData Section (Big Endian)
 | Byte (All values in hexadecimal)                              | Value                 | Description |
 | --------                                                      | -------               | -------     |
 | `0x00..0x01`  | `<uint16>` | Relative pointer from `TeamAtIndexDataStart` to `PlayerData` |
@@ -36,7 +51,7 @@ By default, `NumTeams = 26`
 | `0x8E..endOfPlayerData`  | `<PlayerData>` | Player Data. 20 to 23 players. |
 | `endOfPlayerData+1..endOfTeamNameSection`  | `<TeamNameSection>` | Team Name & Abbreviation. |
 
-## NHLPA93 Scouting Report Section (Big Endian)
+### NHLPA93 Scouting Report Section (Big Endian)
 | Byte (All values in hexadecimal)                              | Value                 | Description |
 | --------                                                      | -------               | -------     |
 | `0x00`  | `<uint8>:Bits 7-4` | Unknown |
@@ -56,7 +71,7 @@ By default, `NumTeams = 26`
 | `0x07`  | `<uint8>:Bits 7-4` | Goalkeeping |
 | `0x07`  | `<uint8>:Bits 3-0` | Overall |
 
-## NHLPA93 Lines Section (Big Endian)
+### NHLPA93 Lines Section (Big Endian)
 | Byte (All values in hexadecimal)                              | Value                 | Description |
 | --------                                                      | -------               | -------     |
 | `0x00..0x07`  | `<LineAtIndexData>` | Line 1 |
@@ -67,7 +82,7 @@ By default, `NumTeams = 26`
 | `0x24..0x2A`  | `<LineAtIndexData>` | Line 6 |
 | `0x2B..0x31`  | `<LineAtIndexData>` | Line 7 |
 
-## NHLPA93 LineAtIndexData Section (Big Endian)
+### NHLPA93 LineAtIndexData Section (Big Endian)
 | Byte (All values in hexadecimal)                              | Value                 | Description |
 | --------                                                      | -------               | -------     |
 | `0x00`  | `<unit8>` | Team Player ID for Goalie |
@@ -79,7 +94,7 @@ By default, `NumTeams = 26`
 | `0x06`  | `<unit8>` | Team Player ID for Extra Attacker |
 | `0x07`  | `00`      | Alignment Byte |
 
-## NHLPA93 Player Data Section (Big Endian)
+### NHLPA93 Player Data Section (Big Endian)
 | Byte (All values in hexadecimal)                              | Value                 | Description |
 | --------                                                      | -------               | -------     |
 | `0x00..0x01`  | `<PlayerNameLength+2>` | Length of Player Name + 2. Includes extra alignment blank space as part of count if name is uneven |
@@ -101,7 +116,7 @@ By default, `NumTeams = 26`
 | `EndofName+8`  | `<uint8>:Bits 7-4` | passing accuracy / consistency |
 | `EndofName+8`  | `<uint8>:Bits 3-0` | aggressiveness (PIM) / NA |
 
-## NHLPA93 Team Name Section (Big Endian)
+### NHLPA93 Team Name Section (Big Endian)
 | Byte (All values in hexadecimal)                              | Value                 | Description |
 | --------                                                      | -------               | -------     |
 | `0x00..0x01`  | `<TeamNameLength+1>` | Length of Team Name + 1. Includes extra alignment blank space as part of count if name is uneven |

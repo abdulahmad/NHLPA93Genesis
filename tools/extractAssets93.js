@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 // NHLPA 93 asset extractor: writes the retail ROM slices that the source incbins (team palettes in
 // teamdata93.asm, sound and Z80 data in sound93.asm, graphics in graphics93.asm) into Extracted/.
-// Run by npm run extractassets (and by every build:* / seg:* script). Slices are [start, end) retail addresses.
+// Run by npm run extractassets (and by every build). Slices are [start, end) retail addresses.
 const assets = [
     { name: 'ASEh.pal', folder: 'Graphics/Pals', start: 0x388, end: 0x3A8 }, // ASE
     { name: 'ASEv.pal', folder: 'Graphics/Pals', start: 0x3A8, end: 0x3C8 },
@@ -292,7 +292,7 @@ NHL 93 Asset Extractor
 
 This script extracts assets from NHLPA Hockey 93 ROM files.
 
-Usage: node tools/extractAssets93-1.1.js [options] <rom_file_path>
+Usage: node tools/extractAssets93.js [options] <rom_file_path>
 
 Options:
   -h, --help              Display this help message
@@ -304,8 +304,8 @@ Notes:
     both give the same files. Any other ROM is refused
 
 Examples:
-  node tools/extractAssets93-1.1.js nhlpa93retail.bin
-  node tools/extractAssets93-1.1.js --verbose --output NHL93Assets nhlpa93retail.bin
+  node tools/extractAssets93.js nhlpa93retail.bin
+  node tools/extractAssets93.js --verbose --output NHL93Assets nhlpa93retail.bin
     `);
 }
 
