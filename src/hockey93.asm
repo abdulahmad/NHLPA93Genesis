@@ -323,14 +323,14 @@ clockcont_0	;end of period. Also entered from puckfaceoff
 	addi.w	#$28,(CwdExciteLvl).w
 	bset	#gmclock,(gmode).w
 	bset	#gmeog,(gmode).w		;set at end of game
-	move.w	#4,d0			;PenEOG
+	move.w	#PenEOG,d0
 	bra.w	AddPenalty2
 
 .chkot	cmpi.w	#3,(gsp).w		;Tie or periods 1-2
 	bne.w	.eop
 	tst.w	(OptPlayMode).w
 	beq.s	.eog			;gsp 3 with OptPlayMode 0 ends the game
-.eop	move.w	#2,d0			;PenEOP
+.eop	move.w	#PenEOP,d0
 	bra.w	AddPenalty2
 
 demoread	;monitor joystick if in demo mode (called every game loop)
