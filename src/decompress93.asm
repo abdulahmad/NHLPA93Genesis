@@ -34,7 +34,7 @@ DecompressGraphics	;send tiles to vram. a2 = data: word count of tiles (0 = none
 .packed	andi.w	#$7FFF,d0		;tile count
 	add.w	d0,d4
 	bsr.w	DecompressBytecode
-.done	movem.l	(sp)+,d0-d1/a0-a6
+.done	movem.l	(sp)+,d0-d1/a0-a6	;also the return target of the plain/remap paths (pea above)
 	rts
 
 DecompressBytecode	;unpack a0 into the 256 byte ring buffer at DispAttribCtr and flush each full buffer to vram d3 (FlushOutputBuffer). The high nibble of each opcode byte picks a handler from jump_table. Ends on a CopyBackwardReverseMedium code with distance 0. d1 = vram address
@@ -76,21 +76,21 @@ jump_table	;DecompressBytecode handler offsets, one per opcode high nibble
 Opcode_CopyLiteral	;opcodes 0-1, copy (low 5 bits)+1 bytes from the data
 	move.b	-1(a0),d0
 	andi.w	#$1F,d0
-.loop	move.b	(a0)+,(a1,d1.w)
-	addq.b	#1,d1
+.loop	move.b	(a0)+,(a1,d1.w)		;literal byte into the ring buffer
+	addq.b	#1,d1			;d1 is a byte index: wraps to 0 after 256 bytes
 	bne.w	.next
 	bsr.w	FlushOutputBuffer	;buffer full
-.next	dbf	d0,.loop
+.next	dbf	d0,.loop		;next literal byte
 	rts
 
 Opcode_ClearBytes	;opcode 2, write (low 4 bits)+1 zero bytes
 	move.b	-1(a0),d0
 	andi.w	#$F,d0
-.loop	clr.b	(a1,d1.w)
+.loop	clr.b	(a1,d1.w)		;zero byte into the ring buffer
 	addq.b	#1,d1
 	bne.w	.next
-	bsr.w	FlushOutputBuffer
-.next	dbf	d0,.loop
+	bsr.w	FlushOutputBuffer	;buffer full
+.next	dbf	d0,.loop		;next zero byte
 	rts
 
 Opcode_Fillbytes	;opcode 3, write the next data byte (low 4 bits)+3 times
@@ -98,11 +98,11 @@ Opcode_Fillbytes	;opcode 3, write the next data byte (low 4 bits)+3 times
 	andi.w	#$F,d0
 	addq.w	#2,d0
 	move.b	(a0)+,d2
-.loop	move.b	d2,(a1,d1.w)
+.loop	move.b	d2,(a1,d1.w)		;fill byte (d2) into the ring buffer
 	addq.b	#1,d1
 	bne.w	.next
-	bsr.w	FlushOutputBuffer
-.next	dbf	d0,.loop
+	bsr.w	FlushOutputBuffer	;buffer full
+.next	dbf	d0,.loop		;next fill byte
 	rts
 
 Opcode_CopyBackwardShort	;opcodes 4-7, copy (bits 0-2)+2 bytes from (bits 3-5)+1 back in the buffer
@@ -117,12 +117,12 @@ Opcode_CopyBackwardShort	;opcodes 4-7, copy (bits 0-2)+2 bytes from (bits 3-5)+1
 CopyBackwardRun	;shared copy loop, d0 = count-1, d2 = distance back. Entered from the CopyBackward Medium/Long/Extended handlers
 	neg.b	d2
 	add.b	d1,d2			;source offset in the ring buffer
-.loop	move.b	(a1,d2.w),(a1,d1.w)
+.loop	move.b	(a1,d2.w),(a1,d1.w)	;copy one byte from the earlier output (source walks up)
 	addq.b	#1,d2
 	addq.b	#1,d1
 	bne.w	.next
-	bsr.w	FlushOutputBuffer
-.next	dbf	d0,.loop
+	bsr.w	FlushOutputBuffer	;buffer full
+.next	dbf	d0,.loop		;next byte of the run
 	rts
 
 Opcode_CopyBackwardMedium	;opcode 8, copy (low 4 bits)+3 bytes, distance = next data byte
@@ -180,12 +180,12 @@ Opcode_CopyBackwardReverseShort	;opcodes C-D, copy (bits 0-1)+2 bytes backwards 
 CopyBackwardReverseRun	;shared reverse copy loop (source moves down), d0 = count-1, d2 = distance back. Entered from the CopyBackwardReverse Medium/Long handlers
 	neg.b	d2
 	add.b	d1,d2
-.loop	move.b	(a1,d2.w),(a1,d1.w)
+.loop	move.b	(a1,d2.w),(a1,d1.w)	;copy one byte from the earlier output (source walks down)
 	subq.b	#1,d2
 	addq.b	#1,d1
 	bne.w	.next
-	bsr.w	FlushOutputBuffer
-.next	dbf	d0,.loop
+	bsr.w	FlushOutputBuffer	;buffer full
+.next	dbf	d0,.loop		;next byte of the run
 	rts
 
 Opcode_CopyBackwardReverseMedium	;opcode E, reverse copy (low 4 bits)+3 bytes, distance = next data byte. Distance 0 is the end code: flush what is left and return from DecompressBytecode
@@ -218,7 +218,7 @@ FlushOutputBuffer	;send d1 bytes (0 = 256) of the ring buffer a1 to vram d3 and 
 	move.w	d1,d0
 	bne.w	.size
 	move.w	#$100,d0		;full buffer
-.size	lsr.w	#1,d0			;words
+.size	lsr.w	#1,d0			;bytes to words
 	move.w	d3,d1			;vram address
 	add.w	d0,d3
 	add.w	d0,d3
@@ -228,6 +228,6 @@ FlushOutputBuffer	;send d1 bytes (0 = 256) of the ring buffer a1 to vram d3 and 
 	movea.l	(a4),a1			;remap table
 	jsr	(a5)			;remap
 	bra.w	.done
-.dma	jsr	(a6)			;DoDMApro
-.done	movem.l	(sp)+,d0-d1/a0-a1
+.dma	jsr	(a6)			;DoDMApro: d0 words from a0 to vram d1
+.done	movem.l	(sp)+,d0-d1/a0-a1	;d3 stays advanced for the next flush
 	rts

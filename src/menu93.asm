@@ -53,9 +53,9 @@ HandleMenuInput	;92 Pausemode input. process one controller read (d1) for the cu
 	adda.w	(a0),a0
 	adda.w	(a0),a0
 	bra.w	.3
-.next	addq.w	#4,a0
-.3	adda.w	(a0),a0
-	dbf	d0,.next
+.next	addq.w	#4,a0			;step to the next item entry (4 bytes)
+.3	adda.w	(a0),a0			;add the entry's word offset to reach the following one
+	dbf	d0,.next		;d0 = selected item number: repeat until the selected entry
 	movea.l	(a0),a0
 	jsr	(a0)			;goto routine for current menu item
 	bsr.w	DrawMenuScreen
@@ -69,25 +69,25 @@ UpdateMenuSelection	;92 Pausemode .Pmenu. clamp the selection, scroll the 4 visi
 	bpl.w	.0
 	clr.w	(menuitem).w	;no item above the first
 	clr.w	d0
-.0	movea.l	(menulist).w,a0
+.0	movea.l	(menulist).w,a0		;walk the item list d0 entries, stopping at the last one
 	adda.w	(a0),a0
 	adda.w	(a0),a0
 	bra.w	.2
-.next	adda.w	(a0),a0
+.next	adda.w	(a0),a0			;advance to the next item entry
 	addq.w	#4,a0
 	tst.w	2(a0)			;negative = last item
-.2	dbmi	d0,.next
-	addq.w	#1,d0
+.2	dbmi	d0,.next		;stop after d0 items or at the last item
+	addq.w	#1,d0			;d0 = items left unwalked (-1 if all walked), +1 = overshoot
 	sub.w	d0,(menuitem).w	;no item below the last
 	move.w	(menuitem).w,d0
 	cmp.w	(menuitem+2).w,d0
 	bge.w	.3
 	move.w	d0,(menuitem+2).w	;scroll up
-.3	subq.w	#3,d0
+.3	subq.w	#3,d0			;selection - 3 = first visible item if it is on the bottom row
 	cmp.w	(menuitem+2).w,d0
 	ble.w	.print
 	move.w	d0,(menuitem+2).w	;scroll down
-.print	bsr.w	SetMenuPrintX
+.print	bsr.w	SetMenuPrintX		;print the menu: title, then marker columns, then the 4 rows
 	move.w	#$D,(printy).w
 	movea.l	(menulist).w,a1
 	bsr.w	printsmall		;menu title
@@ -100,9 +100,9 @@ UpdateMenuSelection	;92 Pausemode .Pmenu. clamp the selection, scroll the 4 visi
 	adda.w	(a1),a1
 	move.w	(menuitem+2).w,d0	;skip to first visible item
 	bra.w	.6
-.skip	adda.w	(a1),a1
+.skip	adda.w	(a1),a1			;skip one item entry
 	addq.w	#4,a1
-.6	dbf	d0,.skip
+.6	dbf	d0,.skip		;loop until a1 = first visible item
 	moveq	#3,d1			;4 rows
 	move.w	#$C,(printy).w
 	bsr.w	SetMenuPrintX
@@ -110,7 +110,7 @@ UpdateMenuSelection	;92 Pausemode .Pmenu. clamp the selection, scroll the 4 visi
 	beq.w	.row
 	bsr.w	printsmallz		;more items above
 	String	CC_SetAttribute,5,CC_AddX,1,CC_AddY,1,$7B,CC_AddY,$FF
-.row	bsr.w	SetMenuPrintX
+.row	bsr.w	SetMenuPrintX		;one row per visible item; d0 = item number, d1 = rows left-1
 	bsr.w	printsmallz
 	String	CC_AddX,2,CC_AddY,1
 	move.l	a1,-(sp)
@@ -119,7 +119,7 @@ UpdateMenuSelection	;92 Pausemode .Pmenu. clamp the selection, scroll the 4 visi
 	cmp.w	(menuitem).w,d0
 	bne.w	.nosel
 	bsr.w	printsmall		;selected item marker
-.nosel	movea.l	(sp)+,a1
+.nosel	movea.l	(sp)+,a1		;a1 = this item's text entry
 	bsr.w	printsmall		;item text
 	addq.w	#1,d0
 	addq.w	#4,a1
@@ -129,7 +129,7 @@ UpdateMenuSelection	;92 Pausemode .Pmenu. clamp the selection, scroll the 4 visi
 	bsr.w	SetMenuPrintX
 	bsr.w	printsmallz		;more items below
 	String	CC_SetAttribute,5,CC_AddX,1,$7D
-.x	rts
+.x	rts				;last item reached: no more-below marker
 
 PutTeamBlock	;copy 2 rows of 12 map words from TeamBlockMap+d0 to printx/printy,
 	;then printx += 12. Saves d0-d2/a0-a1
@@ -139,9 +139,9 @@ PutTeamBlock	;copy 2 rows of 12 map words from TeamBlockMap+d0 to printx/printy,
 	movea.w	#(TeamBlockMap-M68K_RAM),a1
 	adda.w	d0,a1
 	moveq	#1,d2			;2 rows
-.row	bsr.w	xyVmMap
+.row	bsr.w	xyVmMap			;a0 = vram data port at printx/y
 	moveq	#$B,d1			;12 words
-.1	move.w	(a1)+,(a0)
+.1	move.w	(a1)+,(a0)		;write one map word
 	dbf	d1,.1
 	addq.w	#1,(printy).w
 	dbf	d2,.row
@@ -154,7 +154,7 @@ PutTeamBlock	;copy 2 rows of 12 map words from TeamBlockMap+d0 to printx/printy,
 MenuWaitVblank	;92 Pausemode .rjoy wait. wait for the next vblank, then resync vcount. Saves d0
 	move.w	d0,-(sp)
 	move.w	(oldvcount).w,d0
-.wait	cmp.w	(vcount).w,d0
+.wait	cmp.w	(vcount).w,d0		;vcount is bumped by the vblank handler
 	beq.s	.wait
 	move.w	(oldvcount).w,(vcount).w
 	move.w	(sp)+,d0

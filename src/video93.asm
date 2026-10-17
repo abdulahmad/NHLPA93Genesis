@@ -1,6 +1,12 @@
 ;	Game play vertical blank code. Every frame it builds the sprite list and sends it and other
 ;	graphics to video memory, and it draws the sprites for the rink, the referee, faceoffs, the
 ;	zamboni and the crowd.
+;	In order: VBlank / vb2 / IRQ7 (the interrupt handlers), DumpSprites, DumpSprites2, DoDMAList and
+;	SetScroll2 (the vdp transfers), setvideo (per frame sprite and dma list build, calls the rest below),
+;	updatescroll, showref, checkfo/checkfo2, showzam, SetSframe, showcrowd, then (second half, after the
+;	=== banner) showclock, checksso, setsortcords, setffo, uppads, QueuePadLabel, RenderSmallFontChar,
+;	addframe, addframe2, find3d, updatesound and KillCrowd. Vram address helpers (Vmaddr, DoDMA, cramfade)
+;	live in other files. ROM address range: not determined here.
 
 ;	Sprite frame data (FaceOffSprites, ZamSprites, CrowdSprites): the long at +4 is the
 ;	offset to a word table of frame offsets; frame n sprites run from word n to word n+1,
@@ -15,8 +21,8 @@ VBlank	;main vblank code for game play (vbint target, set by setupice).
 	bclr	#dfok,(disflags).w
 	beq.w	.01
 	bsr.w	DumpSprites
-.01	bsr.w	cramfade
-.nograph
+.01	bsr.w	cramfade		;palette fades run every vblank unless dfng
+.nograph				;game clock part: runs even with dfng set
 	btst	#sfpz,(sflags).w
 	bne.w	.c
 	btst	#gmclock,(gmode).w		;game clock stopped!
@@ -33,8 +39,8 @@ VBlank	;main vblank code for game play (vbint target, set by setupice).
 	blt.w	.c
 	move.w	#SFXbeep2,-(sp)		;SFXbeep2 (92 = 2), played when gameclock reaches 60
 	bsr.w	sfx
-.c	addq.w	#1,(vcount).w
-	jsr	p_music_vblank
+.c	addq.w	#1,(vcount).w		;frame counter other code waits on
+	jsr	p_music_vblank		;sound driver tick
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
 
@@ -44,7 +50,7 @@ vb2	;vblank used for palfades only no dmas (vbint target).
 	btst	#dfng,(disflags).w
 	bne.w	.nograph
 	bsr.w	cramfade
-.nograph
+.nograph				;no sprite or dma work in this vblank
 	addq.w	#1,(vcount).w
 	jsr	p_music_vblank
 	movem.l	(sp)+,d0-d7/a0-a6
@@ -69,7 +75,7 @@ DoDMAList	;transfer data from dmalist. Also called from setupice
 	movea.l	(DMAListend).w,a6
 	cmpa.l	#DMAList,a6
 	beq.w	rtss			;list empty
-.0	move.w	-(a6),d1		;vram address
+.0	move.w	-(a6),d1		;vram address (list is read backwards from DMAListend)
 	move.w	-(a6),d0		;words
 	movea.l	-(a6),a0		;source
 	bsr.w	DoDMA
@@ -91,7 +97,7 @@ setvideo	;this is not vblank code but sets up ram for vblank transfers.
 	;Called once per game frame (DoGameFrame, Pausemode, ...)
 	movem.l	d0-d7/a0-a6,-(sp)
 .p	btst	#dfok,(disflags).w		;wait for vblank to take the last frame
-	bne.s	.p
+	bne.s	.p			;(VBlank clears dfok after DumpSprites)
 	movea.w	#(DMAList-M68K_RAM),a5	;dma transfer list
 	bsr.w	updatescroll		;after a5 is set
 	movea.w	#(Satt-M68K_RAM),a6	;sprite attribute table area
@@ -108,7 +114,7 @@ setvideo	;this is not vblank code but sets up ram for vblank transfers.
 	bne.w	.n
 	clr.l	(a6)+			;no sprites: one blank sprite
 	clr.l	(a6)+
-.n	clr.b	-5(a6)			;end sprite list (92 3-8(a6))
+.n	clr.b	-5(a6)			;end sprite list: link byte of the last sprite = 0 (92 3-8(a6))
 	move.l	a6,d0
 	subi.l	#Satt,d0
 	lsr.w	#1,d0			;halved (92 stored the byte count)
@@ -130,15 +136,15 @@ updatescroll	;using hpos and vpos set scroll cords; queue rink map rows on the d
 	move.w	d1,(Vscroll).w
 	neg.w	(Vscroll).w
 	move.w	(Oldrow).w,d4
-	asr.w	#3,d1
-	move.w	d1,(Oldrow).w
+	asr.w	#3,d1			;d1 = Vpos in 8 pixel rows
+	move.w	d1,(Oldrow).w		;d4 = previous row
 	moveq	#$1F,d3			;max lines to update
 	cmp.w	d4,d1
 	beq.w	rtss			;same row as last frame
 	movea.l	#IceRinkMap,a0		;(move/adda leave the cmp flags)
 	adda.l	4(a0),a0		;a0 = map header: (a0) = chars per row, data at 4(a0)
 	blt.w	.su			;row went up
-.sd	move.w	d1,d0
+.sd	move.w	d1,d0			;scrolling down: queue map rows, one per pass (d3 = max rows)
 	neg.w	d0
 	addi.w	#$1E,d0
 	andi.w	#$1F,d0
@@ -157,7 +163,7 @@ updatescroll	;using hpos and vpos set scroll cords; queue rink map rows on the d
 	cmp.w	d4,d1
 	dbeq	d3,.sd
 	rts
-.su	move.w	d1,d0
+.su	move.w	d1,d0			;scrolling up: same as .sd with rows going the other way
 	neg.w	d0
 	addi.w	#$1D,d0
 	andi.w	#$1F,d0
@@ -188,17 +194,17 @@ showref	;draw ref graphics. Called from setvideo.
 	btst	#sfhor,(sflags).w
 	beq.w	.1
 	moveq	#$F,d0			;y pos in sb screen
-.1	asl.w	d2,d0
+.1	asl.w	d2,d0			;row * map row size
 	moveq	#2,d1
-	asl.w	d2,d1
+	asl.w	d2,d1			;d1 = vram step of 2 map rows
 	addq.w	#2,d0			;refx
 	btst	#sfhor,(sflags).w
 	beq.w	.2
 	addi.w	#$B,d0
-.2	asl.w	#1,d0
-	add.w	(a1),d0
+.2	asl.w	#1,d0			;cells to bytes
+	add.w	(a1),d0			;d0 = vram address of the ref block in map 1
 	moveq	#7,d2			;refheight-1
-.0	move.l	a0,(a5)+
+.0	move.l	a0,(a5)+		;one dma entry per ref row (refwidth words from RefRamMap)
 	move.w	#refwidth,(a5)+		;refwidth
 	move.w	d0,(a5)+
 	adda.w	#$E,a0			;refwidth*2
@@ -215,7 +221,7 @@ checkfo	;check for face off sprites. Called from setvideo. Falls into checkfo2
 	moveq	#2,d0
 checkfo2	;face off graphics. a3 = face off data (word frame, word flags),
 	;d0 = count-1. a5 = dma list, a6 = sprite table, d6 = link counter
-.top	move.w	(a3),d4
+.top	move.w	(a3),d4			;frame of this faceoff object
 	bmi.w	.next
 	beq.w	.next			;no frame
 	movea.l	#FaceOffSprites,a2
@@ -226,39 +232,39 @@ checkfo2	;face off graphics. a3 = face off data (word frame, word flags),
 	lsr.w	#3,d5
 	subq.w	#1,d5			;number of sprites in frame
 	adda.w	(a2,d4.w),a2
-.sloop	move.w	2(a2),d2
-	addi.w	#$80,d2
+.sloop	move.w	2(a2),d2		;one sprite of the frame: y
+	addi.w	#$80,d2			;sprite coordinates start at 128
 	add.w	(fodropy).w,d2
 	move.w	d2,(a6)			;y global
 	move.w	(a2),d2			;x global
 	btst	#3,2(a3)		;x flip
 	beq.w	.noxflip
-	move.b	7(a2),d2
-	andi.w	#$C,d2
+	move.b	7(a2),d2		;mirror: x = -(sprite width in pixels) - x
+	andi.w	#$C,d2			;size byte bits 3-2 = width-1 in tiles (*4)
 	addq.w	#4,d2
-	asl.w	#1,d2
+	asl.w	#1,d2			;width in pixels
 	neg.w	d2
 	sub.w	(a2),d2
 .noxflip
 	addi.w	#$80,d2
 	add.w	(fodropx).w,d2
-	move.w	d2,6(a6)
-	move.b	7(a2),2(a6)
-	move.b	d6,3(a6)
+	move.w	d2,6(a6)		;sprite x
+	move.b	7(a2),2(a6)		;sprite size
+	move.b	d6,3(a6)		;link
 	move.w	6(a2),d2
-	andi.w	#$F800,d2
-	or.w	4(a2),d2
+	andi.w	#$F800,d2		;frame flags (attribute bits)
+	or.w	4(a2),d2		;plus char
 	move.w	2(a3),d1
-	andi.w	#$F800,d1
+	andi.w	#$F800,d1		;object flags xor'd in (flip bits)
 	eor.w	d1,d2
 	add.w	(faceoffvrcset).w,d2
-	move.w	d2,4(a6)
-	addq.w	#1,d6
+	move.w	d2,4(a6)		;char + flags
+	addq.w	#1,d6			;next link
 	addq.w	#8,a6
 	addq.w	#8,a2
 	dbf	d5,.sloop
-	addq.w	#4,a3
-.next	dbf	d0,.top
+	addq.w	#4,a3			;next faceoff object
+.next	dbf	d0,.top			;d0 = objects left
 	rts
 
 showzam	;zamboni. Called from setvideo.
@@ -287,13 +293,13 @@ showzam	;zamboni. Called from setvideo.
 	subi.w	#$DA,d2
 	bpl.w	.pos
 	clr.w	d2			;x below $DA: first entry
-.pos	lsr.w	#2,d2
-	add.w	d2,d2
+.pos	lsr.w	#2,d2			;(x-$DA)/4
+	add.w	d2,d2			;word index
 	cmp.w	#$1A,d2
 	blt.w	.get
 	move.l	#$18,d2			;clamp to the last entry
 .get	movea.l	#.ftab,a1
-	move.w	(a1,d2.w),d2
+	move.w	(a1,d2.w),d2		;frame from the table
 	bra.w	SetSframe
 .ftab	dc.w	5,6,7,8,7,8,7,8,7,8,7,6,5	;frame by (x-$DA)/4
 
@@ -310,7 +316,7 @@ SetSframe	;draw one sprite frame. Called from showzam and from the screen code.
 	lsr.w	#3,d4
 	subq.w	#1,d4			;number of sprites in frame
 	adda.w	(a0,d2.w),a0
-.loop	move.w	2(a0),(a6)		;y
+.loop	move.w	2(a0),(a6)		;per sprite: y (+ d1)
 	add.w	d1,(a6)+
 	move.b	7(a0),(a6)+		;size
 	move.b	d6,(a6)+		;link
@@ -323,7 +329,7 @@ SetSframe	;draw one sprite frame. Called from showzam and from the screen code.
 	add.w	d0,(a6)+
 	addq.w	#1,d6
 	cmp.w	#MaxSprites,d6			;MaxSprites
-	beq.w	.ex
+	beq.w	.ex			;sprite table full
 	addq.w	#8,a0
 	dbf	d4,.loop
 .ex	movem.l	(sp)+,d0-d5/a0
@@ -339,7 +345,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	beq.w	.v
 	moveq	#-$40,d4
 	move.l	#$100,d5		;(92 also moved a1 by 31 frames here; here .sc does it)
-.v	clr.w	d0
+.v	clr.w	d0			;d4/d5 = x/y of the view
 	move.b	(PBnum).w,d2		;low nibble
 	moveq	#$1A,d3			;frames 26+
 	bsr.w	.pb

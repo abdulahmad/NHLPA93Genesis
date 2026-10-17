@@ -1,5 +1,13 @@
 ;	Graphics data: the rink, the sprites, fonts, screen maps and pictures, all loaded from the
 ;	extracted graphics files. The equates below name the tables inside the sprite data.
+;	All of it is incbin data, in this order: the setup/title/scouting screens (GameSetUpMap ..
+;	ScoutMap), the framer, faceoff, rink and referee maps, the main Sprites block with its
+;	equates, then the crowd, faceoff and zamboni sprite files, the two fonts, the energy bar,
+;	team blocks, arrows, EASN logo, Ron Barr, Scores maps, the Stanley Cup sprites and the five
+;	EASN bitmaps. Files named .map.jim are tile maps: longs at +0 and +4 are offsets to map data
+;	(used as adda.l (a0),a0 / adda.l 4(a1),a1), compressed tiles start at +8 (DecompressGraphics*). Files
+;	named .anim are sprite frame sets (see the Sprites entry below, and the note in video93.asm).
+;	The code that uses each block is named in the label comments. Each incbin is word aligned.
 
 GameSetUpMap	;game setup bitmap (setoptions)
 	incbin	..\Extracted\Graphics\GameSetUp.map.jim	;game setup bitmap
@@ -23,16 +31,16 @@ TitleLogoSprites		;the four title logo sprites (AddTitleLogoSprites SetSframe); 
 ScoutMap		;ScoutingReport background, also PlayoffScreen, SetupScreen, DrawTeamScreen
 	incbin	..\Extracted\Graphics\Scouting.map.jim
 	even
-FramerMap
+FramerMap		;Framer tiles and map (AddFramer, print93.asm, hockey93.asm, stats93.asm)
 	incbin	..\Extracted\Graphics\Framer.map.jim
 	even
-FaceOffMap
+FaceOffMap		;face off referee/players background map (logic93.asm checkfo setup)
 	incbin	..\Extracted\Graphics\FaceOff.map.jim
 	even
-IceRinkMap
+IceRinkMap		;rink tiles and map for game play (setupice, hockey93.asm)
 	incbin	..\Extracted\Graphics\IceRink.map.jim
 	even
-RefsMap
+RefsMap		;referee tiles and maps for the ref cameras (logic93.asm, penalty93.asm)
 	incbin	..\Extracted\Graphics\Refs.map.jim
 	even
 RefMap2		;the horizontal ref (PushRef)
@@ -45,31 +53,31 @@ Spritetiles	equ	Sprites+$A	;sprite tiles
 FrameDataOff	equ	Sprites+$3574A	;frame offset table (= Sprites + the long at Sprites+4)
 SprDataBytes	equ	Sprites+$35C60	;8-byte sprite entries of each frame
 HotList	equ	Sprites+$3A056	;hot spot byte pair per frame
-CrowdSprites
+CrowdSprites		;crowd animation sprite frames (showcrowd in video93.asm)
 	incbin	..\Extracted\Graphics\Crowd.anim
 	even
-FaceOffSprites
+FaceOffSprites		;face off sprite frames (checkfo2 in video93.asm, logic93.asm)
 	incbin	..\Extracted\Graphics\FaceOff.anim
 	even
-ZamSprites
+ZamSprites		;zamboni sprite frames (video93.asm, penalty93.asm)
 	incbin	..\Extracted\Graphics\Zam.anim
 	even
-BigFontMap
+BigFontMap		;big font tiles and map (BigFontChars; print93.asm, hockey93.asm)
 	incbin	..\Extracted\Graphics\BigFont.map.jim
 	even
-SmallFontMap
+SmallFontMap		;small font tiles and map (smallfontchars; AddSmallFont and the screens)
 	incbin	..\Extracted\Graphics\SmallFont.map.jim
 	even
 EnergyBarMap		;line energy bar frames drawn by linebar
 	incbin	..\Extracted\Graphics\EnergyBar.map.jim
 	even
-Teamblocksmap
+Teamblocksmap		;team block tiles and map (AddTeamBlock, hockey93.asm, print93.asm)
 	incbin	..\Extracted\Graphics\TeamBlocks.map.jim
 	even
-Arrowsmap
+Arrowsmap		;playoff tree arrow tiles (DrawTreeArrow in hockey93.asm)
 	incbin	..\Extracted\Graphics\Arrows.map.jim
 	even
-EASNmap
+EASNmap		;EASN logo tiles and map (setupEASNmap, DrawEASNMap)
 	incbin	..\Extracted\Graphics\EASN.map.jim
 	even
 RonBarrMap		;Ron Barr picture on the ScoutingReport

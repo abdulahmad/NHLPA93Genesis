@@ -1,6 +1,25 @@
 ;	Stats and team screens. This file shows the game stats, the line editor and roster, the
 ;	scoring and penalty summaries, team stats, the crowd meter and goalie selection. Each screen's
 ;	entry point is named after the title it prints.
+;
+;	Contents, in file order (pause menu handlers; most use SetupScreen / ExitStatsScreen and
+;	leave the screen when start is pressed):
+;	  ShowScores            "Scores": the other games in progress (gstruct), vertically scrolled
+;	  LineEditor            "Line Editor" for team a2: slot cursor, player picker, exit menu;
+;	                        Encode/DecodeTeamLines save/load lines via databuffer
+;	  TeamRosterScreen      "Team Roster": 8 sideways-scrolling pages (goalies + 7 lines) with
+;	                        selectable attribute columns (GetNameandAttrib/attribjmp)
+;	  ScoringSummaryScreen  "Scoring Summary": one row per goal from ScoreSum
+;	  PenaltySummaryScreen  "Penalty Summary": one row per penalty
+;	  PlayerStatsScreen / PlayoffStatsScreen (PlayerStatsList)  per-player stats, sortable
+;	  StatsReport           "Game Statistics": team stat comparison (DisplayStats)
+;	  CrowdMeterScreen      "Crowd Meter" (current and average excitement level)
+;	  SetupScreen / ExitStatsScreen  common screen entry/exit (40 cell mode)
+;	  TimeoutMenu, SelectGoalieMenu  pause menu timeout and goalie choice
+;	  GetGoalieCount, GetForwardCount, GetPlayerCount  roster helpers for team a2
+;	Uses the shared print routines (print, printsmall, Framer, eraser, dobitmap) and the pause
+;	menu code in neighbouring files. Several routines descend from 92 (see their comments).
+;	ROM address range not determined here.
 
 ShowScores	;"Scores" screen: lists the other games in
 	;gstruct with both teams, scores and period. Up/down scroll, start exits.
@@ -33,16 +52,16 @@ ShowScores	;"Scores" screen: lists the other games in
 	jsr	(GetShifter).l		;d1 = number of games to list
 	move.w	d1,d3
 	ble.w	.skip
-.game	bsr.w	DisplayGameInfo
+.game	bsr.w	DisplayGameInfo	;print game d3 (skipped if not eligible)
 	dbf	d3,.game
-.skip	clr.w	(SelectedPlayerIdx).w
+.skip	clr.w	(SelectedPlayerIdx).w	;max scroll = 0 unless the list is long
 	move.w	(printy).w,d0
 	subi.w	#$15,d0			;rows printed past row $15 can be scrolled to
 	bmi.w	.loop
 	asl.w	#3,d0			;8 pixels per row
 	move.w	d0,(SelectedPlayerIdx).w	;max scroll
 	bsr.w	DrawScrollArrows
-.loop	bsr.w	MenuWaitVblank
+.loop	bsr.w	MenuWaitVblank	;per frame: read pad d3 (buttons held)
 	bsr.w	getpzjoy
 	btst	#7,d3			;start: leave
 	bne.w	ExitStatsScreen
@@ -52,16 +71,16 @@ ShowScores	;"Scores" screen: lists the other games in
 	neg.w	d0			;down: +2
 	btst	#1,d3
 	beq.w	.scroll
-.set	move.w	d0,(PlayerScrollCtr).w
-.scroll	bsr.w	UpdateScoresScroll
+.set	move.w	d0,(PlayerScrollCtr).w	;scroll speed/direction for this frame
+.scroll	bsr.w	UpdateScoresScroll	;apply any pending scroll
 	bra.s	.loop
 
 UpdateScoresScroll	;called every frame by ShowScores. Add PlayerScrollCtr to
 	;VertLineScrolling (0..SelectedPlayerIdx). On a 24 pixel boundary redraw the
 	;arrows and stop. Falls into UpdateVertScrollReg
-	move.w	(PlayerScrollCtr).w,d0
+	move.w	(PlayerScrollCtr).w,d0	;0 = not scrolling
 	beq.w	rtss2
-	add.w	(VertLineScrolling).w,d0
+	add.w	(VertLineScrolling).w,d0	;new position, must stay in 0..max
 	bmi.w	rtss2
 	cmp.w	(SelectedPlayerIdx).w,d0
 	bgt.w	rtss2
@@ -78,9 +97,9 @@ UpdateVertScrollReg	;write VSRAM word 1 = VertLineScrolling - $30
 	;(playfield B vertical scroll). Saves disflags
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w		;don't int graphics
-	movea.l	#Vdata,a0
+	movea.l	#Vdata,a0		;a0 = VDP data port, +4 = control port
 	move.l	#$40020010,4(a0)	;VSRAM write, address 2
-	move.w	#$FFD0,d0
+	move.w	#$FFD0,d0		;-$30
 	add.w	(VertLineScrolling).w,d0
 	move.w	d0,(a0)
 	move.w	(sp)+,(disflags).w
@@ -92,11 +111,11 @@ DisplayGameInfo	;92 NewTicker3. print game d3 of gstruct (2 team rows and period
 	beq.w	rtss2			;current game
 	moveq	#gssize,d0			;gssize
 	mulu.w	d3,d0
-	movea.w	#(gstruct-M68K_RAM),a0
+	movea.w	#(gstruct-M68K_RAM),a0	;a0 = gstruct + d3 * gssize
 	adda.w	d0,a0
 	btst	#gsfhl,gsflags(a0)		;gsflags(a0)
 	bne.w	rtss2
-	btst	#2,$E(a0)
+	btst	#2,$E(a0)		;gsflags bit 2: also skipped
 	bne.w	rtss2
 	move.w	2(a0),d0		;first team / score
 	move.w	$C(a0),d1
@@ -130,7 +149,7 @@ DrawScrollArrows	;ShowScores up/down arrows. Saves d0-d1/a1
 	movem.l	d0-d1/a1,-(sp)
 	bsr.w	printsmallz
 	String	CC_SetMapAndPosition,4,3,4,6,CC_SetFont,1,0
-	clr.w	d0
+	clr.w	d0			;d0 = up arrow flag, d1 = down arrow flag
 	move.w	(VertLineScrolling).w,d1
 	tst.w	d1
 	sgt	d0
@@ -175,7 +194,7 @@ LineEditorMenu	;Slot cursor loop. Also entered from
 	;SelectLinePlayer when it is done
 	bsr.w	DrawTeamScreen
 	bsr.w	DrawLineIcons
-.loop	bsr.w	MenuWaitVblankWrapper
+.loop	bsr.w	MenuWaitVblankWrapper	;per frame: d1 = pressed buttons with auto repeat
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
 	btst	#7,d1			;start: exit menu
@@ -194,14 +213,14 @@ LineEditorMenu	;Slot cursor loop. Also entered from
 	moveq	#-8,d0			;left: previous line
 	btst	#2,d1
 	beq.s	.loop
-.move	add.w	(TestList).w,d0
+.move	add.w	(TestList).w,d0		;d0 = tentative new slot
 	tst.w	(OptLine).w
 	beq.w	.set
 	cmp.w	#1,d0
 	blt.s	.loop			;OptLine set: only slots 1-5
 	cmp.w	#5,d0
 	bgt.s	.loop
-.set	lea	LineCursorTable(pc),a0
+.set	lea	LineCursorTable(pc),a0	;table is indexed by slot + 8
 	move.b	8(a0,d0.w),(TestList+1).w	;wrap/skip through the table
 	bsr.w	DrawLineIcons
 	bra.s	.loop
@@ -223,18 +242,18 @@ SelectLinePlayer	;line editor: C pressed on slot TestList. Build the list of
 	bgt.w	.n			;slots 3-5 (forwards): after the goalies
 	add.w	d0,d1			;slots 1-2 (defense): after goalies+forwards
 	bsr.w	GetPlayerCount
-	sub.w	d1,d0
+	sub.w	d1,d0			;d0 = candidates, d1 = first roster index
 .n	subq.w	#1,d0
-	move.w	d0,(screentimer).w
+	move.w	d0,(screentimer).w	;last candidate row (also the dbf count)
 	clr.w	(PlayerScrollCtr).w
 	clr.w	(VertLineScrolling).w
 	movea.w	#(Satt-M68K_RAM),a0
 	clr.w	d2
-.fill	move.b	d1,(a0,d2.w)
+.fill	move.b	d1,(a0,d2.w)		;Satt[d2] = roster index d1
 	cmp.w	d1,d6			;player now in the slot?
 	bne.w	.nc
 	move.w	d2,(VertLineScrolling).w	;start the cursor on him
-.nc	addq.w	#1,d1
+.nc	addq.w	#1,d1			;next candidate
 	addq.w	#1,d2
 	dbf	d0,.fill
 	bsr.w	ClearLineEditorTop
@@ -251,9 +270,9 @@ SelectLinePlayer	;line editor: C pressed on slot TestList. Build the list of
 	bsr.w	printsmallz
 	dc.w	$0018
 	dc.b	$F8,4,2,2,1,'{Select  Player}',0
-	clr.w	d0
+	clr.w	d0			;draw the list without moving the cursor
 	bra.w	.vert
-.loop	bsr.w	MenuWaitVblankWrapper
+.loop	bsr.w	MenuWaitVblankWrapper	;picker input loop
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
 	btst	#7,d1			;start: back to slot cursor
@@ -271,7 +290,7 @@ SelectLinePlayer	;line editor: C pressed on slot TestList. Build the list of
 	btst	#2,d1			;left: previous attribute page
 	bne.w	.horz
 	bra.s	.loop
-.horz	add.w	(DispAttribCtr).w,d0
+.horz	add.w	(DispAttribCtr).w,d0	;change attribute page (not below 0)
 	bmi.s	.loop
 	move.w	d0,(DispAttribCtr).w
 	bsr.w	PrintAttribHeader
@@ -288,12 +307,12 @@ SelectLinePlayer	;line editor: C pressed on slot TestList. Build the list of
 	cmp.w	(PlayerScrollCtr).w,d0
 	ble.w	.draw
 	move.w	d0,(PlayerScrollCtr).w
-.draw	bsr.w	PrintAttribHeader
+.draw	bsr.w	PrintAttribHeader	;redraw the 6 visible rows
 	bra.w	.loop
-.pick	movea.w	#(Satt-M68K_RAM),a3
+.pick	movea.w	#(Satt-M68K_RAM),a3	;C: chosen row's roster index
 	adda.w	(VertLineScrolling).w,a3
 	move.b	(a3),d0
-	addq.b	#1,d0
+	addq.b	#1,d0			;SetLineSlot wants 1 based
 	move.w	(TestList).w,d2
 	bsr.w	SetLineSlot
 	bra.w	LineEditorMenu
@@ -303,37 +322,37 @@ PrintAttribHeader	;line editor player list: column header for attribute page
 	;The cursor row is printed with attribute d7
 	bsr.w	printz
 	String	$BE,$16,1,0
-.top	movea.l	#PAttribColumns,a1
-	move.w	(DispAttribCtr).w,d0
+.top	movea.l	#PAttribColumns,a1	;list of column entries: word length, 4 byte flags, text
+	move.w	(DispAttribCtr).w,d0	;skip d0 entries
 	bra.w	.2
-.next	adda.w	(a1),a1
+.next	adda.w	(a1),a1			;next entry
 	addq.w	#4,a1
 .2	tst.w	(a1)			;Negative = end of list
 	dbmi	d0,.next
 	bpl.w	.found
 	subq.w	#1,(DispAttribCtr).w	;past the last page: back one
 	bra.s	.top
-.found	bsr.w	print
+.found	bsr.w	print			;print the header text of the entry
 	move.l	(a1),d4			;column flags for GetNameandAttrib
 	movea.w	#(Satt-M68K_RAM),a3
-	move.w	(PlayerScrollCtr).w,d2
+	move.w	(PlayerScrollCtr).w,d2	;d2 = first row shown
 	move.w	(screentimer).w,d1
 	sub.w	d2,d1
 	cmp.w	#5,d1
 	bls.w	.4
-	moveq	#5,d1
+	moveq	#5,d1			;at most 6 rows
 .4	move.w	#2,(printy).w
-.row	bsr.w	printsmallz
+.row	bsr.w	printsmallz		;blank the row (22 spaces), then print the player
 	dc.w	$0020
 	dc.b	$FE,4,$FD,5,$FA,1
 	dc.b	$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20
 	dc.b	$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20
 	dc.b	$FD,5
-	cmp.w	(VertLineScrolling).w,d2
+	cmp.w	(VertLineScrolling).w,d2	;cursor row?
 	bne.w	.5
-	move.w	d7,(printa).w
+	move.w	d7,(printa).w		;use the highlight attribute
 .5	clr.w	d0
-	move.b	(a3,d2.w),d0
+	move.b	(a3,d2.w),d0		;roster index of this row
 	bsr.w	GetNameandAttrib
 	addq.w	#1,d2
 	dbf	d1,.row
@@ -349,7 +368,7 @@ DrawLineIcons	;line editor: draw the line icons for the cursor's line
 	tst.w	(OptLine).w
 	beq.w	.0
 	subq.w	#1,a0			;OptLine set: table starts one byte earlier
-.0	move.b	(a0),d0
+.0	move.b	(a0),d0			;group mask for this line
 	cmp.b	(redrawicons).w,d0
 	beq.w	.line			;same group as last time: no clear
 	move.b	d0,(redrawicons).w
@@ -357,7 +376,7 @@ DrawLineIcons	;line editor: draw the line icons for the cursor's line
 .line	btst	d5,(redrawicons).w	;Line d5 in this group?
 	beq.w	.2
 	bsr.w	DrawLineIcon
-.2	dbf	d5,.line
+.2	dbf	d5,.line		;d5 counts 6..0 (next line)
 	bsr.w	printsmallz
 	String	CC_SetMapAndPosition,4,2,8,7,CC_SetFont,1,0
 	moveq	#$18,d0
@@ -365,17 +384,17 @@ DrawLineIcons	;line editor: draw the line icons for the cursor's line
 	bsr.w	Framer
 	bsr.w	printsmallz
 	String	CC_SetX,$15,CC_SetY,8
-	move.w	d6,d0
+	move.w	d6,d0			;name of the cursor slot's player
 	jsr	(getname).l
-	move.w	(a1),d0
+	move.w	(a1),d0			;string length word...
 	lsr.w	#1,d0
-	sub.w	d0,(printx).w
+	sub.w	d0,(printx).w		;...used to centre it
 	move.w	d7,(printa).w
 	bsr.w	printsmall
 	clr.w	(printfontset).w
 	rts
 	dc.b	1			;LineIconGroups-1, used when OptLine is set
-LineIconGroups	;per line: bit mask of the lines drawn together
+LineIconGroups	;per line: bit mask of the lines drawn together (line n = bit n)
 	dc.b	7,7,7,$18,$18,$60,$60
 
 DrawLineIcon	;line editor: draw line d5 (name from linelist, then its player
@@ -388,9 +407,9 @@ DrawLineIcon	;line editor: draw line d5 (name from linelist, then its player
 	tst.w	(OptLine).w
 	beq.w	.0
 	subq.w	#6,a0			;OptLine set: use the entry before
-.0	move.w	(a0),(printx).w
+.0	move.w	(a0),(printx).w		;x, y of the entry
 	move.w	2(a0),(printy).w
-	move.w	d5,d0
+	move.w	d5,d0			;line name string index
 	movea.l	#linelist,a1
 	move.w	#$8000,(printa).w
 	jsr	(Fprintsmall).l
@@ -404,11 +423,11 @@ DrawLineIcon	;line editor: draw line d5 (name from linelist, then its player
 	move.w	2(a0),(printy).w
 	move.w	4(a0),d3		;slot count - 1
 	lea	$16A(a2),a3		;team line table
-.slot	move.w	(a0),(printx).w
+.slot	move.w	(a0),(printx).w		;loop over the line's slots
 	bsr.w	printsmallz
 	String	CC_AddX,$FF,CC_AddY,2,CC_SetAttribute,6
 	clr.w	d0
-	move.b	(a3,d4.w),d0
+	move.b	(a3,d4.w),d0		;1 based player number in slot d4
 	subq.w	#1,d0
 	jsr	(FormatPlayerNameShort).l
 	cmp.w	(TestList).w,d4		;cursor slot?
@@ -416,9 +435,9 @@ DrawLineIcon	;line editor: draw line d5 (name from linelist, then its player
 	move.w	d0,d6			;player in the cursor slot
 	move.w	(printa).w,d7
 	move.w	#2,(printfontset).w	;highlight while printing
-.nocur	bsr.w	printsmall
+.nocur	bsr.w	printsmall		;print the (formatted) name
 	clr.w	(printfontset).w
-	addq.w	#1,d4
+	addq.w	#1,d4			;next slot
 	dbf	d3,.slot
 	rts
 
@@ -434,8 +453,8 @@ ClearLineArea	;line editor: erase the line area and print the
 	move.w	(LineIconPosTable).l,(printx).l
 	tst.w	(OptLine).w
 	beq.w	.0
-	move.w	(LineIconPosTable-6).l,(printx).l
-.0	bsr.w	printsmallz
+	move.w	(LineIconPosTable-6).l,(printx).l	;OptLine: use the entry before
+.0	bsr.w	printsmallz		;labels, one column per slot
 	dc.w	$0022
 	dc.b	$FE,4,$FB,$FD,$FA,2,'LD',$FB,$FE,$FA,2,'RD',$FB,$FE,$FA,2,'LW'
 	dc.b	$FB,$FE,$FA,2,'C ',$FB,$FE,$FA,2,'RW'
@@ -447,9 +466,9 @@ DrawTeamScreen	;line editor background: bitmap, frame, "Line Editor" title and
 	movem.l	d0-d5/a0-a2,-(sp)
 	bsr.w	printz
 	String	$FD,0,0
-	movea.l	#ScoutMap,a1
+	movea.l	#ScoutMap,a1		;background bitmap (map header + offset to data)
 	adda.l	4(a1),a1
-	movea.w	#$310,a2
+	movea.w	#$310,a2		;a2 saved/restored around this block
 	clr.w	d0
 	clr.w	d1
 	move.w	(a1),d2
@@ -466,11 +485,11 @@ DrawTeamScreen	;line editor background: bitmap, frame, "Line Editor" title and
 	bsr.w	printbigz
 	dc.w	$0014
 	dc.b	$BE,$A,4,'Line  Editor',$BE,$E,1
-	clr.w	d0
+	clr.w	d0			;map offset: home 0, away $30
 	cmpa.w	#(tmstruct-M68K_RAM),a2	;home team?
 	beq.w	PutTeamBlock
 	moveq	#$30,d0
-	bra.w	PutTeamBlock
+	bra.w	PutTeamBlock		;tail call: draws the team logo
 
 ClearLineEditorTop	;erase 40 x 10 at the top of map 2
 	bsr.w	printz
@@ -516,18 +535,18 @@ LineEditorExit	;line editor: start pressed. Run the exit menu (LineEditorMenuTex
 	move.l	(menuitem).w,-(sp)
 	move.l	(menulist).w,-(sp)
 	move.l	(menudraw).w,-(sp)
-	movea.l	#rtss,a1
+	movea.l	#rtss,a1		;a1 = menu callback (just an rts)
 	movea.l	#LineEditorMenuText,a0
 	movea.w	#(databuffer-M68K_RAM),a3
 	move.w	$28(a2),d0		;team number + 1 = first databuffer byte?
 	addq.w	#1,d0
 	cmp.b	(a3),d0
 	beq.w	.0
-	movea.l	#LineEditorMenuNoLoad,a0
+	movea.l	#LineEditorMenuNoLoad,a0	;no load option for another team's data
 .0	bsr.w	printsmallz
 	String	$FF,2
 	bsr.w	InitMenuState
-.loop	bsr.w	MenuWaitVblank
+.loop	bsr.w	MenuWaitVblank		;menu loop, d1 = pressed buttons
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
 	move.w	d1,-(sp)
@@ -549,16 +568,16 @@ SetLineSlot	;put player d0 (1 based) in line slot d2 of team a2. If he
 	;is already in another slot of the same line, the old occupant of d2 is
 	;moved there (swap)
 	movem.l	d0-d2/a0-a1,-(sp)
-	lea	$16A(a2),a0
+	lea	$16A(a2),a0		;a0 = team line table (8 bytes per line)
 	move.w	d2,d1
 	andi.w	#$FFF8,d1
-	lea	(a0,d1.w),a1
+	lea	(a0,d1.w),a1		;a1 = start of d2's line
 	moveq	#5,d1
-.find	cmp.b	1(a1,d1.w),d0
+.find	cmp.b	1(a1,d1.w),d0		;is player d0 already in this line?
 	dbeq	d1,.find
 	bne.w	.put
-	move.b	(a0,d2.w),1(a1,d1.w)
-.put	move.b	d0,(a0,d2.w)
+	move.b	(a0,d2.w),1(a1,d1.w)	;yes: old occupant of d2 takes his slot
+.put	move.b	d0,(a0,d2.w)		;store the player
 	movem.l	(sp)+,d0-d2/a0-a1
 	rts
 
@@ -575,23 +594,23 @@ DecodeTeamLines	;load team a2's lines from databuffer (byte 0 = team + 1,
 	movea.l	#AttributeOffsetTbl,a3
 	clr.w	d4
 	clr.w	d2
-.next	move.b	(a3),d2			;(local)
-	bmi.w	.done
-	bchg	#0,d4
+.next	move.b	(a3),d2			;d2 = next slot from AttributeOffsetTbl
+	bmi.w	.done			;$FF: finished
+	bchg	#0,d4			;d4 bit 0 toggles low/high nibble
 	bne.w	.hi
-	move.b	(a0),d0
+	move.b	(a0),d0			;first nibble of the byte: low
 	bra.w	.nib
-.hi	move.b	(a0)+,d0
+.hi	move.b	(a0)+,d0		;second nibble: high, then advance
 	lsr.w	#4,d0
 .nib	andi.w	#$F,d0
-	add.b	d1,d0
+	add.b	d1,d0			;+ goalie count
 	andi.w	#7,d2
 	cmp.w	#2,d2
-	bgt.w	.store
-	add.b	d3,d0
-.store	addq.b	#1,d0
+	bgt.w	.store			;slots 3-5 are forwards
+	add.b	d3,d0			;slots 1-2 defense: + forward count
+.store	addq.b	#1,d0			;1 based player number
 	andi.w	#$FF,d0
-	move.b	(a3)+,d2
+	move.b	(a3)+,d2		;d2 = slot index
 	bsr.w	SetLineSlot
 	bra.s	.next
 .done	movem.l	(sp)+,d0-d4/a0/a3
@@ -612,23 +631,23 @@ EncodeTeamLines	;reverse of
 	movea.l	#AttributeOffsetTbl,a3
 	clr.w	d4
 	clr.w	d2
-.next	move.b	(a3)+,d2
+.next	move.b	(a3)+,d2		;d2 = slot index, $FF ends
 	bmi.w	.done
-	move.b	(a1,d2.w),d3
+	move.b	(a1,d2.w),d3		;player number in the slot
 	subq.b	#1,d3
-	sub.b	d1,d3
+	sub.b	d1,d3			;relative to the first non-goalie
 	andi.w	#7,d2
 	cmp.w	#2,d2
-	bgt.w	.pack
-	sub.b	d0,d3
-.pack	bchg	#0,d4
+	bgt.w	.pack			;slots 3-5: forwards
+	sub.b	d0,d3			;slots 1-2: also minus forward count
+.pack	bchg	#0,d4			;alternate low / high nibble
 	bne.w	.hi
-	move.b	d3,(a0)
+	move.b	d3,(a0)			;low nibble (high is or'ed in next)
 	bra.s	.next
 .hi	asl.b	#4,d3
 	or.b	d3,(a0)+
 	bra.s	.next
-.done	jsr	(BackupRAM_Save).l
+.done	jsr	(BackupRAM_Save).l	;write the packed lines out
 	movem.l	(sp)+,d0-d4/a0-a3
 	rts
 
@@ -650,9 +669,9 @@ TeamRosterScreen	;"Team Roster" screen for team a2
 	bsr.w	SetupScreen
 	moveq	#1,d0
 	add.w	tmline(a2),d0		;start on the current line
-	move.w	d0,(SelectedPlayerIdx).w
+	move.w	d0,(SelectedPlayerIdx).w	;page 0 = goalies, 1.. = lines
 	clr.w	(DispAttribCtr).w
-.redraw	bsr.w	printz
+.redraw	bsr.w	printz			;(re)draw the whole screen, entered again after A
 	String	$BD,7,1,0
 	moveq	#$1A,d0
 	moveq	#6,d1
@@ -660,11 +679,11 @@ TeamRosterScreen	;"Team Roster" screen for team a2
 	bsr.w	printbigz
 	dc.w	$0014
 	dc.b	$BD,9,4,'Team  Roster',$BD,$E,1
-	clr.w	d0
+	clr.w	d0			;logo map offset: home 0, away $30
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.home
 	moveq	#$30,d0
-.home	bsr.w	PutTeamBlock
+.home	bsr.w	PutTeamBlock		;team logo block
 	bsr.w	printsmallz
 	dc.w	$0034
 	dc.b	$F8,6,3,2,$C,$F9,1,'Pos.^Player',$FD,$1E,$FC,$C,'Rating'
@@ -679,20 +698,20 @@ TeamRosterScreen	;"Team Roster" screen for team a2
 	moveq	#$12,d0
 	moveq	#3,d1
 	bsr.w	Framer
-	bsr.w	DisplayPlayerList
+	bsr.w	DisplayPlayerList	;draw the current page
 	move.w	(SelectedPlayerIdx).w,d0
 	mulu.w	#$80,d0			;128 pixels per line page
 	move.w	d0,(VertLineScrolling).w
-	bsr.w	UpdatePlayerListScroll
+	bsr.w	UpdatePlayerListScroll	;set the scroll register for it
 	clr.w	(PlayerScrollCtr).w
-.loop	bsr.w	MenuWaitVblank
+.loop	bsr.w	MenuWaitVblank		;per frame: d3 held, d1 pressed with repeat
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
 	btst	#7,d3			;start: leave
 	bne.w	ExitStatsScreen
 	btst	#6,d1			;A: other team
 	bne.w	.team
-	bsr.w	nodiag
+	bsr.w	nodiag			;filter out diagonal presses
 	moveq	#1,d0			;right/left: attribute columns
 	btst	#3,d1
 	bne.w	.col
@@ -707,52 +726,52 @@ TeamRosterScreen	;"Team Roster" screen for team a2
 	neg.w	d0
 	btst	#1,d3
 	beq.w	.scroll
-.set	move.w	d0,(PlayerScrollCtr).w
+.set	move.w	d0,(PlayerScrollCtr).w	;start a page scroll (-2/+2 pixels a frame)
 .scroll	bsr.w	CheckPlayerListScroll
 	bra.s	.loop
-.col	add.w	(DispAttribCtr).w,d0
+.col	add.w	(DispAttribCtr).w,d0	;new attribute column page (not below 0)
 	bmi.s	.scroll
 	move.w	d0,(DispAttribCtr).w
 	bsr.w	DisplayPlayerList
 	bra.s	.scroll
-.team	lea	tmsize(a2),a2
+.team	lea	tmsize(a2),a2		;A: next team struct; home -> away
 	cmpa.w	#(awtmstruct-M68K_RAM),a2
 	beq.w	.redraw
-	movea.w	#(tmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2	;away -> back to home
 	bra.w	.redraw
 
 CheckPlayerListScroll	;TeamRosterScreen per frame: add PlayerScrollCtr to
 	;VertLineScrolling, 0..$380 (7 line pages)
-	move.w	(PlayerScrollCtr).w,d0
+	move.w	(PlayerScrollCtr).w,d0	;0 = not scrolling
 	beq.w	rtss2
-	add.w	(VertLineScrolling).w,d0
+	add.w	(VertLineScrolling).w,d0	;new position
 	bmi.w	StopPlayerListScroll
 	cmp.w	#$380,d0
 	bgt.w	StopPlayerListScroll
 UpdatePlayerListScroll	;set VertLineScrolling = d0. Stop on a page boundary. When
 	;leaving a boundary, draw the page coming into view (2 pixels into a move).
 	;Then VSRAM = VertLineScrolling - $70
-	move.w	(VertLineScrolling).w,d1
+	move.w	(VertLineScrolling).w,d1	;d1 = old position
 	move.w	d0,(VertLineScrolling).w
 	ext.l	d0
-	divs.w	#$80,d0
+	divs.w	#$80,d0			;low word of d0 after swap = offset within the page
 	swap	d0
 	tst.w	d0
 	bne.w	.0
-	clr.w	(PlayerScrollCtr).w
-.0	andi.w	#$7F,d1
+	clr.w	(PlayerScrollCtr).w	;exactly on a page: stop
+.0	andi.w	#$7F,d1			;was the old position on a page boundary?
 	bne.w	.2
-	cmp.w	#$7E,d0
+	cmp.w	#$7E,d0			;moved back 2 pixels: draw previous page
 	bne.w	.1
 	bsr.w	DisplayPlayerListUp
-.1	cmp.w	#2,d0
+.1	cmp.w	#2,d0			;moved on 2 pixels: draw next page
 	bne.w	.2
 	bsr.w	DisplayPlayerListDown
-.2	move.w	(disflags).w,-(sp)
+.2	move.w	(disflags).w,-(sp)	;set the VSRAM scroll value
 	bset	#dfng,(disflags).w
 	movea.l	#Vdata,a0
 	move.l	#$40020010,4(a0)
-	move.w	#$FF90,d0
+	move.w	#$FF90,d0		;-$70
 	add.w	(VertLineScrolling).w,d0
 	move.w	d0,(a0)
 	move.w	(sp)+,(disflags).w
@@ -790,27 +809,27 @@ DisplayPlayerList	;draw roster page SelectedPlayerIdx (0 goalies, 1-7 lines):
 	bsr.w	printsmall
 	bsr.w	printsmallz
 	String	CC_SetX,$16,CC_SetY,9
-.top	movea.l	#PAttribColumns,a1
+.top	movea.l	#PAttribColumns,a1	;skater column list (goalie page: GAttribColumns)
 	move.w	(DispAttribCtr).w,d0
 	tst.w	(SelectedPlayerIdx).w
 	bne.w	.2
 	movea.l	#GAttribColumns,a1
 	bra.w	.2
-.next	adda.w	(a1),a1
+.next	adda.w	(a1),a1			;skip an entry
 	addq.w	#4,a1
-.2	tst.w	(a1)
+.2	tst.w	(a1)			;negative = end of list
 	dbmi	d0,.next
 	bpl.w	.found
-	subq.w	#1,(DispAttribCtr).w
+	subq.w	#1,(DispAttribCtr).w	;past the last page: back one and retry
 	bra.s	.top
-.found	bsr.w	printsmall
-	move.l	(a1),d4
+.found	bsr.w	printsmall		;column header text
+	move.l	(a1),d4			;column flags for GetNameandAttrib
 	bsr.w	printsmallz
 	String	CC_SetMapAndPosition,4,2,0,0,CC_SetFont,0,0
-	btst	#0,(SelectedPlayerIdx+1).w
+	btst	#0,(SelectedPlayerIdx+1).w	;odd pages are 16 rows lower
 	beq.w	.4
 	addi.w	#$10,(printy).w
-.4	move.w	(printy).w,-(sp)
+.4	move.w	(printy).w,-(sp)	;erase the page area first
 	moveq	#$28,d0
 	moveq	#$10,d1
 	move.w	#$7FF,d2
@@ -818,31 +837,31 @@ DisplayPlayerList	;draw roster page SelectedPlayerIdx (0 goalies, 1-7 lines):
 	move.w	(sp)+,(printy).w
 	bsr.w	GetGoalieCount
 	move.w	d0,d1
-	subq.w	#1,d1
-	movea.l	#GoalieRowText,a5
+	subq.w	#1,d1			;goalie page: one row per goalie
+	movea.l	#GoalieRowText,a5	;a5 = position label strings
 	movea.w	#(Satt-M68K_RAM),a3	;goalie page: players 1-4
 	move.l	#$1020304,(a3)
 	move.w	(SelectedPlayerIdx).w,d0
-	subq.w	#1,d0
+	subq.w	#1,d0			;line number
 	bmi.w	.row
-	asl.w	#3,d0
-	lea	$16A(a2),a3
+	asl.w	#3,d0			;8 bytes per line
+	lea	$16A(a2),a3		;a3 = player numbers of that line (skip byte 0)
 	lea	1(a3,d0.w),a3
 	movea.l	#PlayerPositionText,a5
 	moveq	#4,d1			;5 positions
 	cmpi.w	#5,(SelectedPlayerIdx).w
 	ble.w	.row
 	subq.w	#1,d1			;penalty kill lines: 4
-.row	move.w	#2,(printx).w
+.row	move.w	#2,(printx).w		;position label, a5 advances to the next string
 	movea.l	a5,a1
 	bsr.w	print
 	movea.l	a1,a5
-	move.w	#7,(printx).w
+	move.w	#7,(printx).w		;then name and column value
 	clr.w	d0
 	move.b	(a3)+,d0
-	subq.w	#1,d0
+	subq.w	#1,d0			;0 based player index
 	bsr.w	GetNameandAttrib
-	addq.w	#2,(printy).w
+	addq.w	#2,(printy).w		;2 text rows per player
 	dbf	d1,.row
 	rts
 
@@ -874,7 +893,7 @@ GetNameandAttrib	;print player d0's name, then at x $1E the column picked by
 	;d4 (from PAttribColumns/GAttribColumns): low word = attribjmp offset,
 	;high word = mask of rating nibbles to average (offsets > 2 only)
 	movem.l	d0-d4/a0-a1,-(sp)
-	pea	.x(pc)
+	pea	.x(pc)			;return address for the jmp below (handlers end in rts)
 	jsr	(getname).l
 	bsr.w	print
 	move.w	#$1E,(printx).w
@@ -882,31 +901,31 @@ GetNameandAttrib	;print player d0's name, then at x $1E the column picked by
 	bls.w	.jump			;status/energy: no ratings
 	movea.l	tmdata(a2),a0		;team data, player records
 	adda.w	(a0),a0
-.skip	adda.w	(a0),a0
+.skip	adda.w	(a0),a0			;step over d0 records (+1 header) to player d0
 	addq.w	#8,a0
 	dbf	d0,.skip
 	clr.w	d0
 	clr.w	d1
-	moveq	#$F,d2
+	moveq	#$F,d2			;test mask bits 15..0, one rating nibble each
 	swap	d4
 .bit	btst	d2,d4
 	beq.w	.next
 	move.w	d2,d3
 	lsr.w	#1,d3
 	neg.w	d3
-	move.b	-1(a0,d3.w),d3
+	move.b	-1(a0,d3.w),d3		;rating byte, two nibbles per byte before a0
 	btst	#0,d2
 	beq.w	.2
-	lsr.w	#4,d3
+	lsr.w	#4,d3			;odd bit: high nibble
 .2	andi.w	#$F,d3
 	add.w	d3,d0			;d0 = sum of ratings
 	addi.w	#$F,d1			;d1 = 15 * count (max)
 .next	dbf	d2,.bit
-	swap	d4
-.jump	lea	attribjmp(pc),a0
+	swap	d4			;back to the handler offset
+.jump	lea	attribjmp(pc),a0	;jump to the column handler; its rts lands on .x
 	adda.w	(a0,d4.w),a0
 	jmp	(a0)
-.x	movem.l	(sp)+,d0-d4/a0-a1
+.x	movem.l	(sp)+,d0-d4/a0-a1	;restore and return
 	rts
 
 attribjmp	;GetNameandAttrib column handlers, offsets from attribjmp
@@ -920,28 +939,28 @@ attribjmp	;GetNameandAttrib column handlers, offsets from attribjmp
 AttribStatus	;Roster column: status. Player d0's word at $66(a2)
 	;negative = not'ed status 0-2 (Ice/Bench/Injury P), positive = penalty
 	;time (bit $C injured G, bit $E prints C)
-	add.w	d0,d0
+	add.w	d0,d0			;word index by player
 	move.w	tmpdst(a2,d0.w),d0
-	bpl.w	.pen
-	not.w	d0
+	bpl.w	.pen			;positive: serving a penalty
+	not.w	d0			;negative: status 0-2
 	cmp.w	#2,d0
 	bls.w	.st
-	moveq	#1,d0
+	moveq	#1,d0			;anything else shown as Bench
 	bra.w	.st
-.inj	moveq	#3,d0
-.st	lea	StatusTextTbl(pc),a1
+.inj	moveq	#3,d0			;string 3 = Injury G
+.st	lea	StatusTextTbl(pc),a1	;d0 = string index
 	bra.w	Fprintsmall
-.pen	btst	#$C,d0
+.pen	btst	#$C,d0			;bit $C: injured goalie
 	bne.s	.inj
 	subq.w	#1,(printx).w
 	move.w	d0,d1
-	andi.w	#$FFF,d0
+	andi.w	#$FFF,d0		;penalty time
 	bsr.w	PushTime
 	bsr.w	print
-	moveq	#4,d0
-	bclr	#$E,d1
+	moveq	#4,d0			;string 4 = blank padding
+	bclr	#$E,d1			;bit $E: prints C
 	beq.w	.t
-	moveq	#5,d0
+	moveq	#5,d0			;string 5 = ' C  '
 .t	lea	StatusTextTbl(pc),a1
 	bra.w	Fprintsmall
 
@@ -960,11 +979,11 @@ StatusTextTbl	;AttribStatus strings
 	dc.b	' C  '
 
 AttribEnergy	;Roster column: energy. $32(a2) word / 40, max 100
-	add.w	d0,d0
+	add.w	d0,d0			;word index by player
 	move.w	tmpde(a2,d0.w),d0
 	ext.l	d0
 	divu.w	#$28,d0
-	cmp.w	#100,d0
+	cmp.w	#100,d0			;clamp to 100%
 	ble.w	AttribPrintPct
 	moveq	#$64,d0
 	bra.w	AttribPrintPct
@@ -1132,46 +1151,53 @@ DrawScoringRowDown	;draw goal entry (d0 high word) + 4 at the bottom
 
 DrawScoringRow	;print ScoreSum entry at offset d3: time, team (bit 7 of
 	;byte 2 = away), goal type (GoalTypeTbl), scorer and two assists
+	;entry layout (6 bytes): word 0 = period/time, byte 2 = goal type (+ bit 7 away), byte 3 = scorer,
+	;bytes 4/5 = assists ($FF/negative = none)
+	;clear the 4 map rows of this entry (40 wide, blank char $7FF); printy is kept
 	move.w	(printy).w,-(sp)
-	moveq	#$28,d0
-	moveq	#4,d1
-	move.w	#$7FF,d2
+	moveq	#$28,d0			;width 40 cells
+	moveq	#4,d1			;4 rows high
+	move.w	#$7FF,d2		;blank tile
 	bsr.w	eraser
 	move.w	(sp)+,(printy).w
+	;a0 = ScoreSum, d3 = byte offset of the entry; print period and time at x 1
 	movea.w	#(ScoreSum-M68K_RAM),a0
 	move.w	(a0,d3.w),d0
 	move.w	#1,(printx).w
 	bsr.w	FormatAndPrintTime
+	;a2 = home or away team struct (bit 7 of byte 2 set = away)
 	movea.w	#(tmstruct-M68K_RAM),a2
 	btst	#7,2(a0,d3.w)
-	beq.w	.0
-	adda.w	#tmsize,a2
-.0	movea.l	tmdata(a2),a1
+	beq.w	.0			;home goal
+	adda.w	#tmsize,a2		;away team struct
+.0	movea.l	tmdata(a2),a1		;team data -> team name string
 	adda.w	4(a1),a1
 	adda.w	(a1),a1
 	move.w	#$C,(printx).w
-	bsr.w	print
+	bsr.w	print			;team name at x $C
+	;goal type text (SH2/SH/blank/PP/PP2) at x $23
 	move.w	#$23,(printx).w
 	lea	GoalTypeTbl(pc),a1
 	move.b	2(a0,d3.w),d0
-	andi.w	#$7F,d0
+	andi.w	#$7F,d0			;strip the away bit -> string index
 	bsr.w	Fprintsmall
+	;scorer at x $10, then the two assists (palette attribute $E000) on the following rows at x $12
 	move.w	#$10,(printx).w
 	move.b	3(a0,d3.w),d0
 	bsr.w	PrintScorerName
 	move.w	#$E000,(printa).w
 	move.w	#$12,(printx).w
 	move.b	4(a0,d3.w),d0
-	bsr.w	PrintScorerName
+	bsr.w	PrintScorerName		;first assist
 	move.w	#$12,(printx).w
-	move.b	5(a0,d3.w),d0
+	move.b	5(a0,d3.w),d0		;second assist, falls into PrintScorerName
 PrintScorerName	;print player d0 (byte, negative = none) and go down a row.
 	;it prints a player not a time
-	ext.w	d0
-	bmi.w	.0
-	jsr	(FormatPlayerNumInitial).l
+	ext.w	d0			;sign extend: $FF = no player
+	bmi.w	.0			;nothing to print, just advance the row
+	jsr	(FormatPlayerNumInitial).l	;a1 = "NN F. Last" for player d0 of team a2
 	bsr.w	print
-.0	addq.w	#1,(printy).w
+.0	addq.w	#1,(printy).w		;next row
 	rts
 
 GoalTypeTbl	;ScoreSum byte 2 & $7F: SH2, SH, even, PP, PP2
@@ -1189,12 +1215,14 @@ GoalTypeTbl	;ScoreSum byte 2 & $7F: SH2, SH, even, PP, PP2
 PenaltySummaryScreen	;"Penalty Summary": one 3 row
 	;entry per penalty (4 bytes each from PenSum). Same scroll handling as
 	;ScoringSummaryScreen
+	;common stats screen setup (d0/d1 = first row / last row of the background copied to the scroll plane)
 	moveq	#$A,d0
 	moveq	#$19,d1
 	bsr.w	SetupScreen
+	;frame (32x6) with the big title, then the two team logo blocks (home at $30, away at 0)
 	bsr.w	printz
 	String	$BD,4,1,0
-	moveq	#$20,d0
+	moveq	#$20,d0			;frame 32 wide, 6 high
 	moveq	#6,d1
 	bsr.w	Framer
 	bsr.w	printbigz
@@ -1205,77 +1233,85 @@ PenaltySummaryScreen	;"Penalty Summary": one 3 row
 	addq.w	#4,(printx).w
 	clr.w	d0
 	bsr.w	PutTeamBlock
+	;column header line in the small font
 	bsr.w	printsmallz
 	dc.w	$0034
 	dc.b	$F8,6,3,0,8,$F9,1,'^Per^^Time^^Tm^^Player/Penalty^^^^min^^^',$F9,0,0
+	;VertLineScrolling = pixel height of all entries (entries * 24); it is the scroll position
+	;of the first drawn frame, SelectedPlayerIdx = the maximum scroll (last 5 entries visible)
 	clr.l	d0
 	move.w	(PenSumLength).w,d0	;penalty bytes
-	lsr.w	#2,d0
+	lsr.w	#2,d0			;/4 bytes per entry = number of penalties
 	mulu.w	#$18,d0			;24 pixels per entry
 	move.w	d0,(VertLineScrolling).w
 	subi.w	#$78,d0			;5 entries fit on screen
 	bpl.w	.0
-	clr.w	d0
-.0	move.w	d0,(SelectedPlayerIdx).w
+	clr.w	d0			;fewer than 5 entries: no scrolling
+.0	move.w	d0,(SelectedPlayerIdx).w	;maximum scroll position
 	move.w	(VertLineScrolling).w,d0
+	;intro: scroll back 2 pixels per frame from the end of the list down to the maximum scroll position
 .toend	bsr.w	MenuWaitVblank
-	bsr.w	UpdatePenaltyScroll
+	bsr.w	UpdatePenaltyScroll	;set scroll to d0, drawing entries as they come into view
 	move.w	(VertLineScrolling).w,d0
 	subq.w	#2,d0
 	cmp.w	(SelectedPlayerIdx).w,d0
-	bge.s	.toend
+	bge.s	.toend			;not there yet
 	clr.w	(PlayerScrollCtr).w
+	;main loop: Start leaves, up/down held set the scroll speed (-2 up, +2 down pixels per frame)
 .loop	bsr.w	MenuWaitVblank
-	bsr.w	getpzjoy
+	bsr.w	getpzjoy		;d3 = held buttons of the pad that paused
 	btst	#7,d3
-	bne.w	ExitStatsScreen
+	bne.w	ExitStatsScreen		;Start
 	moveq	#-2,d0
 	btst	#0,d3
-	bne.w	.set
-	neg.w	d0
+	bne.w	.set			;up held: scroll up
+	neg.w	d0			;+2
 	btst	#1,d3
-	beq.w	.scroll
+	beq.w	.scroll			;neither: keep the current PlayerScrollCtr (it is cleared at entry boundaries)
 .set	move.w	d0,(PlayerScrollCtr).w
 .scroll	bsr.w	CheckPenaltyScroll
 	bra.s	.loop
 
 CheckPenaltyScroll	;PenaltySummaryScreen per frame: add PlayerScrollCtr to
 	;VertLineScrolling (0..SelectedPlayerIdx)
-	move.w	(PlayerScrollCtr).w,d0
+	move.w	(PlayerScrollCtr).w,d0	;scroll step, 0 = not scrolling
 	beq.w	rtss2
-	add.w	(VertLineScrolling).w,d0
-	bmi.w	rtss2
+	add.w	(VertLineScrolling).w,d0	;new position
+	bmi.w	rtss2			;above the top
 	cmp.w	(SelectedPlayerIdx).w,d0
-	bgt.w	rtss2
+	bgt.w	rtss2			;past the maximum scroll
 UpdatePenaltyScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	;draw the entry coming into view, VSRAM = VertLineScrolling - $50
+	;d1 = old position, d0 = new position. d0 = new / 24: high word = entry index, low word = pixels into it
 	move.w	(VertLineScrolling).w,d1
 	move.w	d0,(VertLineScrolling).w
 	ext.l	d0
 	divs.w	#$18,d0
-	swap	d0
+	swap	d0			;low word = remainder, high word = entry
 	tst.w	d0
 	bne.w	.0
-	bsr.w	DrawScrollArrowsPenalty
+	bsr.w	DrawScrollArrowsPenalty	;landed on an entry boundary: refresh arrows and stop scrolling
 	clr.w	(PlayerScrollCtr).w
+	;only when the old position was on a boundary does a new entry start to appear
 .0	ext.l	d1
 	divs.w	#$18,d1
 	swap	d1
 	tst.w	d1
 	bne.w	.2
 	move.l	d0,-(sp)
-	cmp.w	#$16,d0
+	cmp.w	#$16,d0			;22 pixels in: moved up, the entry above is coming into view
 	bne.w	.1
 	bsr.w	DisplayPenaltyLineUp
 .1	move.l	(sp)+,d0
-	cmp.w	#2,d0
+	cmp.w	#2,d0			;2 pixels in: moved down, the entry below is coming into view
 	bne.w	.2
 	bsr.w	DisplayPenaltyLineDown
+	;write the vertical scroll value (VertLineScrolling - $50) to VSRAM address 2 with graphics int disabled
 .2	move.w	(disflags).w,-(sp)
-	bset	#dfng,(disflags).w
+	bset	#dfng,(disflags).w	;don't int graphics while the VDP is being addressed
 	movea.l	#Vdata,a0
-	move.l	#$40020010,4(a0)
-	move.w	#$FFB0,d0
+	move.l	#$40020010,4(a0)	;VDP command: VSRAM write, address 2
+	move.w	#$FFB0,d0		;-$50
 	add.w	(VertLineScrolling).w,d0
 	move.w	d0,(a0)
 	move.w	(sp)+,(disflags).w
@@ -1283,15 +1319,15 @@ UpdatePenaltyScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 
 DisplayPenaltyLineUp	;draw penalty entry (d0 high word) at the top of the window
 	move.l	d0,-(sp)
-	swap	d0
+	swap	d0			;d0 = entry index
 	move.w	d0,d3
-	asl.w	#2,d3
+	asl.w	#2,d3			;d3 = byte offset into PenSum (4 per entry)
 	bsr.w	printz
-	String	$BE,0,0
+	String	$BE,0,0			;print on map 2 (scroll plane), priority on, x 0
 	move.w	(VertLineScrolling).w,d0
-	lsr.w	#3,d0
-	subq.w	#2,d0
-	andi.w	#$1F,d0
+	lsr.w	#3,d0			;scroll in 8 pixel cell rows
+	subq.w	#2,d0			;2 rows above the window top
+	andi.w	#$1F,d0			;wrap in the 32 row map
 	move.w	d0,(printy).w
 	bsr.w	DisplayPenaltyEntry
 	move.l	(sp)+,d0
@@ -1299,16 +1335,16 @@ DisplayPenaltyLineUp	;draw penalty entry (d0 high word) at the top of the window
 
 DisplayPenaltyLineDown	;draw penalty entry (d0 high word) + 5 at the bottom
 	move.l	d0,-(sp)
-	swap	d0
-	addq.w	#5,d0
+	swap	d0			;d0 = entry index
+	addq.w	#5,d0			;the entry 5 below it
 	move.w	d0,d3
-	asl.w	#2,d3
+	asl.w	#2,d3			;d3 = byte offset into PenSum (4 per entry)
 	bsr.w	printz
-	String	$BE,0,0
+	String	$BE,0,0			;print on map 2 (scroll plane), priority on, x 0
 	move.w	(VertLineScrolling).w,d0
-	lsr.w	#3,d0
-	addi.w	#$F,d0
-	andi.w	#$1F,d0
+	lsr.w	#3,d0			;scroll in 8 pixel cell rows
+	addi.w	#$F,d0			;15 rows below the window top
+	andi.w	#$1F,d0			;wrap in the 32 row map
 	move.w	d0,(printy).w
 	bsr.w	DisplayPenaltyEntry
 	move.l	(sp)+,d0
@@ -1316,34 +1352,40 @@ DisplayPenaltyLineDown	;draw penalty entry (d0 high word) + 5 at the bottom
 
 DisplayPenaltyEntry	;print penalty entry at offset d3: time, team (bit 7 of
 	;byte 2 = away), minutes and name from PenaltyList, player (byte 3)
+	;entry layout (4 bytes): word 0 = period/time, byte 2 = penalty type (+ bit 7 away), byte 3 = player
+	;clear the 3 map rows of this entry (40 wide, blank char $7FF); printy is kept
 	move.w	(printy).w,-(sp)
-	moveq	#$28,d0
-	moveq	#3,d1
-	move.w	#$7FF,d2
+	moveq	#$28,d0			;width 40 cells
+	moveq	#3,d1			;3 rows high
+	move.w	#$7FF,d2		;blank tile
 	bsr.w	eraser
 	move.w	(sp)+,(printy).w
+	;a0 = PenSum, d3 = byte offset of the entry; print period and time at x 1
 	movea.w	#(PenSum-M68K_RAM),a0
 	move.w	(a0,d3.w),d0
 	move.w	#1,(printx).w
 	bsr.w	FormatAndPrintTime
+	;a2 = home or away team struct (bit 7 of byte 2 set = away)
 	movea.w	#(tmstruct-M68K_RAM),a2
 	btst	#7,2(a0,d3.w)
-	beq.w	.0
-	adda.w	#tmsize,a2
-.0	movea.l	tmdata(a2),a1
+	beq.w	.0			;home penalty
+	adda.w	#tmsize,a2		;away team struct
+.0	movea.l	tmdata(a2),a1		;team data -> team name string
 	adda.w	4(a1),a1
 	adda.w	(a1),a1
 	move.w	#$C,(printx).w
-	bsr.w	print
+	bsr.w	print			;team name at x $C
+	;a3 = Penaltylist record for the type: byte 1 = minutes, string from +2 = penalty name
 	move.b	2(a0,d3.w),d0
-	andi.w	#$7F,d0
+	andi.w	#$7F,d0			;strip the away bit
 	movea.l	#Penaltylist,a3
 	adda.w	(a3,d0.w),a3
 	clr.w	d0
-	move.b	1(a3),d0
+	move.b	1(a3),d0		;penalty minutes
 	bsr.w	PushNumber
 	move.w	#$23,(printx).w
-	bsr.w	print
+	bsr.w	print			;minutes at x $23
+	;player "NN F. Last" at x $10, then the penalty name on the next row (palette $E000)
 	move.w	#$10,(printx).w
 	clr.w	d0
 	move.b	3(a0,d3.w),d0
@@ -1352,38 +1394,43 @@ DisplayPenaltyEntry	;print penalty entry at offset d3: time, team (bit 7 of
 	addq.w	#1,(printy).w
 	move.w	#$13,(printx).w
 	move.w	#$E000,(printa).w
-	lea	2(a3),a1
-	bra.w	print
+	lea	2(a3),a1		;penalty name string
+	bra.w	print			;print it and return
 
 DrawScrollArrowsPenalty	;summary screen up/down arrows. Saves d0-d1/a1
 	movem.l	d0-d1/a1,-(sp)
 	bsr.w	printsmallz
-	String	CC_SetMapAndPosition,4,3,4,9,CC_SetFont,1,0
+	String	CC_SetMapAndPosition,4,3,4,9,CC_SetFont,1,0	;attribute 4, map 3, x 4, y 9, font set 1
+	;d0 = table index: bit 0 = can scroll up (position > 0), bit 1 = can scroll down (position < max)
 	clr.w	d0
 	move.w	(VertLineScrolling).w,d1
 	tst.w	d1
 	sgt	d0
-	neg.b	d0
+	neg.b	d0			;1 if scrolled down at all
 	cmp.w	(SelectedPlayerIdx).w,d1
 	slt	d1
-	neg.b	d1
+	neg.b	d1			;1 if not at the maximum
 	add.b	d1,d0
-	add.b	d1,d0
+	add.b	d1,d0			;+2
 	lea	ScrollArrowTbl(pc),a1
-	bsr.w	Fprintsmall
+	bsr.w	Fprintsmall		;print string d0 of the table
 	movem.l	(sp)+,d0-d1/a1
 	rts
 
 ScrollArrowTbl	;none, up, down, both
-	String	$20,$FB,$FF,$FA,$11,$20,$F9
-	String	$7B,$FB,$FF,$FA,$11,$20,$F9
-	String	$20,$FB,$FF,$FA,$11,$7D,$F9
-	String	$7B,$FB,$FF,$FA,$11,$7D,$F9
+	;each string: top glyph ($20 blank / $7B up arrow), then x-1, y+$11 (CC_AddX/CC_AddY),
+	;bottom glyph ($20 blank / $7D down arrow), then CC_SetFont
+	String	$20,$FB,$FF,$FA,$11,$20,$F9	;none
+	String	$7B,$FB,$FF,$FA,$11,$20,$F9	;up arrow only
+	String	$20,$FB,$FF,$FA,$11,$7D,$F9	;down arrow only
+	String	$7B,$FB,$FF,$FA,$11,$7D,$F9	;both arrows
 
 PlayoffStatsScreen	;"Playoff Stats": PlayerStatsList with d7 = 1 for the
 	;player's playoff team (potree), stats from ReadTeamStats
 	movem.l	a2,-(sp)
-	jsr	(ReadTeamStats).l
+	jsr	(ReadTeamStats).l	;load the playoff team stats
+	;find which team struct is the playoff team: d0 = potree[potreeteam] is compared with the word at
+	;tmstruct+$28 (probably the home team number); a2 = home struct if equal, else the away struct
 	movea.w	#(potree-M68K_RAM),a0
 	move.w	(potreeteam).w,d0
 	move.b	(a0,d0.w),d0
@@ -1391,7 +1438,7 @@ PlayoffStatsScreen	;"Playoff Stats": PlayerStatsList with d7 = 1 for the
 	cmp.w	$28(a2),d0
 	beq.w	.0
 	adda.w	#tmsize,a2
-.0	moveq	#1,d7
+.0	moveq	#1,d7			;playoff mode: stats come from the playoff RAM tables
 	bsr.w	PlayerStatsList
 	movem.l	(sp)+,a2
 	rts

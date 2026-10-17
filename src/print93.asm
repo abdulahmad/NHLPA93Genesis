@@ -25,14 +25,14 @@ eraser	;fill rectangle with char. d0/d1 = x/y size of rectangle, d2 = char word 
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	movem.w	d0-d1,-(sp)
-.1	bsr.s	xyVmMap
-	move.w	(sp),d0
+.1	bsr.s	xyVmMap			;one row: a0 = vram port at printx/y
+	move.w	(sp),d0			;width
 	subq.w	#1,d0
-.0	move.w	d2,(a0)
+.0	move.w	d2,(a0)			;fill one cell
 	dbf	d0,.0
-	addq.w	#1,(printy).w
+	addq.w	#1,(printy).w		;next row
 	andi.w	#$1F,(printy).w		;31
-	subq.w	#1,2(sp)
+	subq.w	#1,2(sp)		;rows left
 	bne.s	.1
 	addq.w	#4,sp
 	move.w	(sp)+,(disflags).w
@@ -49,35 +49,35 @@ Framer	;frame and fill (uses framer.map graphics and assums tiles are already lo
 	movea.l	#Framermap,a1
 	adda.l	4(a1),a1
 	addq.w	#4,a1
-	clr.w	d4
-	bsr.w	.tbline
+	clr.w	d4			;d4 = offset of the frame map row (6 bytes per row: left, middle, right)
+	bsr.w	.tbline			;top row
 
-	subq.w	#3,2(sp)
-.mtop	bsr.w	.tbline
-	subq.w	#6,d4
+	subq.w	#3,2(sp)		;height-3: loop counter for the middle rows
+.mtop	bsr.w	.tbline			;middle row (height-2 times)
+	subq.w	#6,d4			;stay on the middle map row
 	subq.w	#1,2(sp)
 	bpl.s	.mtop
-	addq.w	#6,d4
-	bsr.w	.tbline
+	addq.w	#6,d4			;step to the bottom map row
+	bsr.w	.tbline			;bottom row
 	addq.w	#4,sp
 	move.w	(sp)+,(disflags).w
 	movem.l	(sp)+,d0-d4/a0-a1
 	rts
 
-.tbline	bsr.w	xyVmMap
+.tbline	bsr.w	xyVmMap			;draw one frame row: left cell, width-2 middle cells, right cell
 	addq.w	#1,(printy).w
-	bsr.w	.setter
+	bsr.w	.setter			;left cell
 	addq.w	#2,d4
-	move.w	4(sp),d0
+	move.w	4(sp),d0		;width
 	subq.w	#3,d0
-.tblp	bsr.w	.setter
+.tblp	bsr.w	.setter			;middle cells
 	dbf	d0,.tblp
 	addq.w	#2,d4
-	bsr.w	.setter
-	addq.w	#2,d4
+	bsr.w	.setter			;right cell
+	addq.w	#2,d4			;d4 = next map row
 	rts
 
-.setter	move.w	(a1,d4.w),d3
+.setter	move.w	(a1,d4.w),d3		;frame map word + char base/attribute (d2), written to vram
 	add.w	d2,d3
 	move.w	d3,(a0)
 	rts
@@ -101,9 +101,9 @@ printsmall	;92 print. print string macro a1 at printx/y/m with printa. Bytes > 0
 	subq.w	#2,d3
 	bra.w	.1
 
-.0	move.b	(a1)+,d0
+.0	move.b	(a1)+,d0		;next string byte
 	ext.w	d0
-	bgt.w	.nocom
+	bgt.w	.nocom			;> 0: character
 	neg.w	d0			;control code (0 = padding)
 	asl.w	#2,d0
 	movea.l	#ControlCodeJumpTable,a2
@@ -111,22 +111,22 @@ printsmall	;92 print. print string macro a1 at printx/y/m with printa. Bytes > 0
 	jsr	(a2)
 	bra.w	.1
 
-.nocom	cmp.b	#'@',d0
+.nocom	cmp.b	#'@',d0			;ordinary character
 	bne.w	.noblank
 	move.w	#$7FF,d0		;blank char (92 moveq #1)
 	bra.w	.p
-.noblank	cmp.b	#'^',d0
+.noblank	cmp.b	#'^',d0		;not blank; '^' = skip a column
 	beq.w	.skip
-	asl.w	#1,d0
+	asl.w	#1,d0			;ascii -> word index into the font map
 	movea.l	#smallfontmap,a2
 	adda.l	4(a2),a2
-	move.w	4(a2,d0.w),d0
+	move.w	4(a2,d0.w),d0		;tile number of this char
 	move.w	(printfontset).w,d1	;char set * 2
 	add.w	(a3,d1.w),d0
 .p	add.w	d2,d0			;for alternate paletes
-	move.w	d0,(a0)
+	move.w	d0,(a0)			;write the cell
 	addq.w	#1,(printx).w
-.1	dbf	d3,.0
+.1	dbf	d3,.0			;d3 = bytes left in the string
 	movem.l	(sp)+,d0-d3/a0/a2-a3
 	move.w	(sp)+,(disflags).w
 	rts
@@ -223,23 +223,23 @@ print	;a1 = string macro, printx/y = x/y cordinate on map for printing, printm =
 	subq.w	#2,d3
 	bra.w	.1
 
-.0	move.b	(a1)+,d0
+.0	move.b	(a1)+,d0		;next string byte
 	beq.w	.1			;padding
 	ext.w	d0
-	bpl.w	.nocom
+	bpl.w	.nocom			;> 0: character
 	neg.w	d0			;-$ab: new attribute, map, x, y
 	move.w	d0,d2
 	asl.w	#8,d2
 	asl.w	#1,d2
-	andi.w	#$F800,d2
+	andi.w	#$F800,d2		;b (bits 7-4 of the code) -> palette/priority bits 15-11
 	move.w	d2,(printa).w
 
-	andi.w	#3,d0
+	andi.w	#3,d0			;a = map number
 	asl.w	#2,d0
-	subq.w	#4,d0
+	subq.w	#4,d0			;printm = (map-1)*4
 	move.w	d0,(printm).w
 
-	move.b	(a1)+,d0
+	move.b	(a1)+,d0		;xx
 	ext.w	d0
 	move.w	d0,(printx).w
 	move.b	(a1)+,d1
@@ -249,21 +249,21 @@ print	;a1 = string macro, printx/y = x/y cordinate on map for printing, printm =
 	subq.w	#2,d3
 	bra.w	.1
 
-.nocom	cmp.b	#'@',d0
+.nocom	cmp.b	#'@',d0			;ordinary character
 	bne.w	.noblank
 	move.w	#$7FF,d0		;blank char (92 moveq #1)
 	bra.w	.p
 .noblank	cmp.b	#'^',d0		;'^' = skip a column
 	beq.w	.skip
-	asl.w	#1,d0
+	asl.w	#1,d0			;ascii -> word index into the font map
 	movea.l	#smallfontmap,a2
 	adda.l	4(a2),a2
-	move.w	4(a2,d0.w),d0
-	add.w	(smallfontchars).w,d0
+	move.w	4(a2,d0.w),d0		;tile number of this char
+	add.w	(smallfontchars).w,d0	;plus first small font char in vram
 .p	add.w	d2,d0			;for alternate paletes
-	move.w	d0,(a0)
+	move.w	d0,(a0)			;write the cell
 	addq.w	#1,(printx).w
-.1	dbf	d3,.0
+.1	dbf	d3,.0			;d3 = bytes left in the string
 	movem.l	(sp)+,d0-d3/a0/a2
 	move.w	(sp)+,(disflags).w
 	rts
@@ -324,17 +324,17 @@ PushTime	;convert d0 into string format of minutes:seconds. Return a1 = string. 
 
 	move.b	#' ',-(a1)		;leading space
 	tst.w	d0
-	beq.w	.noz
+	beq.w	.noz			;minutes tens = 0: keep the space
 	addi.w	#'0',d0
 	move.b	d0,(a1)			;over the space (92 -(a1))
-.noz	move.l	(sp)+,d0
+.noz	move.l	(sp)+,d0		;d0 = end address of the string
 	sub.l	a1,d0
-	addq.w	#2,d0
+	addq.w	#2,d0			;length incl. the length word
 	btst	#0,d0
 	beq.w	.1
-	clr.b	-(a1)
+	clr.b	-(a1)			;pad to an even length
 	addq.w	#1,d0
-.1	move.w	d0,-(a1)
+.1	move.w	d0,-(a1)		;string length word in front
 	move.l	(sp)+,d0
 	rts
 
@@ -342,22 +342,22 @@ PushNumber	;convert d0 into string format of base 10 number, no leading zeros. R
 	movea.w	#(PushNumberBuf-M68K_RAM),a1
 	move.l	d0,-(sp)
 	move.l	a1,-(sp)
-.0	ext.l	d0
+.0	ext.l	d0			;next digit: remainder of /10, written backwards
 	divu.w	#10,d0
 	swap	d0
 	addi.w	#'0',d0
 	move.b	d0,-(a1)
 	swap	d0
 	tst.w	d0
-	bne.s	.0
-	move.l	(sp)+,d0
+	bne.s	.0			;quotient left: more digits
+	move.l	(sp)+,d0		;d0 = end address of the string
 	sub.l	a1,d0
-	addq.w	#2,d0
+	addq.w	#2,d0			;length incl. the length word
 	btst	#0,d0
 	beq.w	.1
-	clr.b	-(a1)
+	clr.b	-(a1)			;pad to an even length
 	addq.w	#1,d0
-.1	move.w	d0,-(a1)
+.1	move.w	d0,-(a1)		;string length word in front
 	move.l	(sp)+,d0
 	rts
 
@@ -367,10 +367,10 @@ PushNumberWidth	;convert d0 into a d1 digit base 10 string, leading zeros as spa
 	moveq	#1,d2
 	sub.w	d2,d1
 	bra.w	.pw
-.mul	mulu.w	#10,d2
+.mul	mulu.w	#10,d2			;d2 *= 10
 .pw	dbf	d1,.mul			;d2 = 10^(d1-1)
 	moveq	#' ',d3			;leading fill
-.dig	ext.l	d0
+.dig	ext.l	d0			;next digit: d0 / d2, high digit first
 	divu.w	d2,d0
 	bne.w	.digit
 	cmp.w	#1,d2
@@ -379,9 +379,9 @@ PushNumberWidth	;convert d0 into a d1 digit base 10 string, leading zeros as spa
 	bra.w	.put
 .digit	moveq	#'0',d3			;from here on zeros are digits
 	add.w	d3,d0
-.put	move.b	d0,(a1)+
-	swap	d0
-	divu.w	#10,d2
+.put	move.b	d0,(a1)+		;store the char (digit or space)
+	swap	d0			;d0.w = remainder for the next digit
+	divu.w	#10,d2			;next lower power of ten
 	bne.s	.dig
 	move.l	a1,d0
 	subi.w	#(PushWidthBuf-M68K_RAM),d0	;length incl. the length word
@@ -389,7 +389,7 @@ PushNumberWidth	;convert d0 into a d1 digit base 10 string, leading zeros as spa
 	beq.w	.even
 	clr.b	(a1)+
 	addq.w	#1,d0
-.even	movea.w	#(PushWidthBuf-M68K_RAM),a1
+.even	movea.w	#(PushWidthBuf-M68K_RAM),a1	;store the length word at the front
 	move.w	d0,(a1)
 	movem.l	(sp)+,d0-d3
 	rts
@@ -401,26 +401,26 @@ appendz	;see appstring. String macro should follow the bsr/jsr to this routine
 
 appstring	;append string a1 to string a3
 	movem.l	d0/a0,-(sp)
-	lea	2(a3),a0
-	move.w	(a3),d0
+	lea	2(a3),a0		;a0 scans a3's text for its terminating zero
+	move.w	(a3),d0			;a3 length word
 	subq.w	#3,d0
 	bmi.w	.1
-.0	addq.w	#1,a0
+.0	addq.w	#1,a0			;next byte of the destination
 	tst.b	(a0)
-	dbeq	d0,.0
-.1	move.w	(a1)+,d0
+	dbeq	d0,.0			;stop at the zero byte
+.1	move.w	(a1)+,d0		;a1 length word
 	subq.w	#3,d0
-	bmi.w	.ex
-.2	move.b	(a1)+,(a0)+
+	bmi.w	.ex			;empty source: nothing to append
+.2	move.b	(a1)+,(a0)+		;copy one char
 	bne.w	.3
-	subq.w	#1,a0
+	subq.w	#1,a0			;a zero byte is not kept, so it gets overwritten next
 .3	dbf	d0,.2
 	move.l	a0,d0
 	btst	#0,d0
 	beq.w	.4
-	clr.b	(a0)+
+	clr.b	(a0)+			;pad to an even length
 	addq.l	#1,d0
-.4	sub.l	a3,d0
+.4	sub.l	a3,d0			;new total length
 	move.w	d0,(a3)
 .ex	movem.l	(sp)+,d0/a0
 	rts
@@ -446,41 +446,41 @@ printbig	;same as print, only use bigfont.map graphics. a1 = string macro, print
 	subq.w	#2,d3
 	bra.w	.1
 
-.0	move.b	(a1)+,d0
-	beq.w	.1
+.0	move.b	(a1)+,d0		;next string byte
+	beq.w	.1			;padding
 	ext.w	d0
-	bpl.w	.nocom
-	neg.w	d0
+	bpl.w	.nocom			;> 0: character
+	neg.w	d0			;-$ab: new attribute, map, x, y
 	move.w	d0,d6
 	asl.w	#8,d6
 	asl.w	#1,d6
-	andi.w	#$F800,d6
+	andi.w	#$F800,d6		;b -> palette/priority bits
 	move.w	d6,(printa).w
-	add.w	(BigFontChars).w,d6
+	add.w	(BigFontChars).w,d6	;d6 = attribute + big font char base
 
-	andi.w	#3,d0
+	andi.w	#3,d0			;a = map number
 	asl.w	#2,d0
-	subq.w	#4,d0
+	subq.w	#4,d0			;printm = (map-1)*4
 	move.w	d0,(printm).w
 
-	move.b	(a1)+,d4
+	move.b	(a1)+,d4		;xx
 	ext.w	d4
 	move.w	d4,(printx).w
-	move.b	(a1)+,d5
+	move.b	(a1)+,d5		;yy
 	ext.w	d5
 	move.w	d5,(printy).w
-	subq.w	#2,d3
+	subq.w	#2,d3			;two extra bytes consumed
 	bra.w	.1
 
-.nocom	cmp.b	#'a',d0
+.nocom	cmp.b	#'a',d0			;big font has no lower case: fold to upper
 	blt.w	.2
 	cmp.b	#'z',d0
 	bgt.w	.2
 	addi.b	#'A'-'a',d0
-.2	move.w	d3,-(sp)
+.2	move.w	d3,-(sp)		;.dochar uses d3
 	bsr.w	.dochar
 	move.w	(sp)+,d3
-.1	dbf	d3,.0
+.1	dbf	d3,.0			;d3 = bytes left in the string
 	move.w	d4,(printx).w
 	move.w	d5,(printy).w
 	movem.l	(sp)+,d0-d7/a0/a2
@@ -488,32 +488,32 @@ printbig	;same as print, only use bigfont.map graphics. a1 = string macro, print
 	rts
 
 .dochar	subi.w	#$20,d0			;no special case for space
-	movea.l	#bfasciicon,a0
+	movea.l	#bfasciicon,a0		;per-char table of brush offsets into the big font map
 	moveq	#1,d2			;chars wide-1
 	move.b	(a0,d0.w),d1		;brush offset
 	ext.w	d1
 	bpl.w	.p0
 	neg.w	d1			;negative: one char wide
 	clr.w	d2
-.p0	asl.w	#1,d1
+.p0	asl.w	#1,d1			;word offset into the map
 	movea.l	#bigfontmap,a0
 	adda.l	4(a0),a0
-.p1	move.w	4(a0,d1.w),d3
+.p1	move.w	4(a0,d1.w),d3		;top tile of this column
 	bsr.w	.dump
-	move.w	(a0),d7
+	move.w	(a0),d7			;map width
 	asl.w	#1,d7
-	add.w	d7,d1
-	move.w	4(a0,d1.w),d3
+	add.w	d7,d1			;same column, row below
+	move.w	4(a0,d1.w),d3		;bottom tile
 	sub.w	d7,d1
 	addq.w	#1,d5
 	bsr.w	.dump
 	subq.w	#1,d5
 	addq.w	#1,d4			;x char position
-	addq.w	#2,d1
-	dbf	d2,.p1
+	addq.w	#2,d1			;next column of the brush
+	dbf	d2,.p1			;chars are two tiles tall, one or two wide
 	rts
 
-.dump	add.w	d6,d3
+.dump	add.w	d6,d3			;write tile d3 (+ attribute/char base d6) at d4/d5 of map printm
 	movem.l	d1/a0,-(sp)
 	move.w	d5,d0
 	movea.l	#VmMap1,a0		;$FFFFB004
