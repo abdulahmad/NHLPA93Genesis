@@ -271,6 +271,11 @@ replayactive	rs.w	3	;set by ReplayMode.
 glovestruct	rs.w	14	;gloves object, pads+(4*ffosize).
 PadControlBits	rs.w	1	;pad assignment bits: $FFFF = no pad assignments (set at game setup); the top 4 bits are masked and set around the camera and start-up code
 padcont	rs.w	4	;pad assignment data (4 words), cleared together with PadControlBits
+ffonum	=	5		;5 objects tied to icerink scrolling (3 pads + centre ice logo + gloves)
+ssonum	=	2		;2 objects not tied to icerink scrolling (the 2 arrows for off screen players; 92 had 4, with 2 scoreboard logos)
+ssosize	=	Ypos		;bytes per sso object
+Xcord	=	0		;x and y words at the start of an sso object (the defaultsprites sso lists)
+Ycord	=	2
 sso	rs.w	20	;screen objects not tied to the rink scroll: 2 arrows for off screen players (92 had 4, with 2 scoreboard logos)
 shotplayer	rs.w	1	;player who shot last
 lastplayer	rs.w	1	;last player who touched puck

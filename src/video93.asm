@@ -497,6 +497,8 @@ showclock	;put the game clock in the dma list. Called from setvideo; returns unl
 	ext.l	d0
 	rts
 
+horoff	equ	197		;subtracted from the screen y in the horizontal rink view (sfhor)
+
 checksso	;do graphics for sso structure: arrows for the two players when they are off screen.
 	;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter.
 	;returns in sfhor mode (92 drew the scoreboard sso objects there); falls into .ca for player 2
@@ -519,7 +521,7 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 	beq.w	.nhor
 	exg	d0,d1
 	neg.w	d0
-	subi.w	#$C5,d1			;horoff
+	subi.w	#horoff,d1
 	bra.w	.hord
 .nhor	sub.w	(Hpos).w,d0
 	sub.w	(Vpos).w,d1
@@ -835,7 +837,7 @@ find3d	;input - d0=xfield,d1=yfield,d2=height off field
 	beq.w	.nhor
 	exg	d0,d1
 	neg.w	d0
-	subi.w	#$C5,d1			;horoff
+	subi.w	#horoff,d1
 	bra.w	.crange
 
 .nhor	sub.w	(Hpos).w,d0
