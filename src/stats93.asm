@@ -1,25 +1,22 @@
-;	Stats and team screens. This file shows the game stats, the line editor and roster, the
-;	scoring and penalty summaries, team stats, the crowd meter and goalie selection. Each screen's
-;	entry point is named after the title it prints.
+;	Stats and team screens: game stats, line editor and roster, scoring and penalty summaries, player and team
+;	stats, crowd meter and goalie selection. Each entry point is named after the title it prints. Most screens use
+;	SetupScreen and ExitStatsScreen and leave when start is pressed. ROM address range not determined here.
 ;
-;	Contents, in file order (pause menu handlers; most use SetupScreen / ExitStatsScreen and
-;	leave the screen when start is pressed):
+;	In file order (pause menu handlers):
 ;	  ShowScores            "Scores": the other games in progress (gstruct), vertically scrolled
 ;	  LineEditor            "Line Editor" for team a2: slot cursor, player picker, exit menu;
-;	                        Encode/DecodeTeamLines save/load lines via databuffer
-;	  TeamRosterScreen      "Team Roster": 8 sideways-scrolling pages (goalies + 7 lines) with
-;	                        selectable attribute columns (GetNameandAttrib/attribjmp)
+;	                        Encode/DecodeTeamLines save and load lines via databuffer
+;	  TeamRosterScreen      "Team Roster": 8 sideways scrolling pages (goalies + 7 lines) with
+;	                        selectable attribute columns (GetNameandAttrib, attribjmp)
 ;	  ScoringSummaryScreen  "Scoring Summary": one row per goal from ScoreSum
 ;	  PenaltySummaryScreen  "Penalty Summary": one row per penalty
-;	  PlayerStatsScreen / PlayoffStatsScreen (PlayerStatsList)  per-player stats, sortable
+;	  PlayerStatsScreen, PlayoffStatsScreen (PlayerStatsList)   per-player stats, sortable
 ;	  StatsReport           "Game Statistics": team stat comparison (DisplayStats)
-;	  CrowdMeterScreen      "Crowd Meter" (current and average excitement level)
-;	  SetupScreen / ExitStatsScreen  common screen entry/exit (40 cell mode)
-;	  TimeoutMenu, SelectGoalieMenu  pause menu timeout and goalie choice
-;	  GetGoalieCount, GetForwardCount, GetPlayerCount  roster helpers for team a2
-;	Uses the shared print routines (print, printsmall, Framer, eraser, dobitmap) and the pause
-;	menu code in neighbouring files. Several routines descend from 92 (see their comments).
-;	ROM address range not determined here.
+;	  CrowdMeterScreen      "Crowd Meter": current and average excitement level
+;	  SetupScreen, ExitStatsScreen        common screen entry and exit (40 cell mode)
+;	  TimeoutMenu, SelectGoalieMenu       pause menu timeout and goalie choice
+;	  GetGoalieCount, GetForwardCount, GetPlayerCount   roster helpers for team a2
+;	Uses the shared print routines (print, printsmall, Framer, eraser, dobitmap). Several routines descend from 92.
 
 ShowScores	;"Scores" screen: lists the other games in
 	;gstruct with both teams, scores and period. Up/down scroll, start exits.

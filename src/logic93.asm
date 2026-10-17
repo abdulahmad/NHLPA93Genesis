@@ -1,34 +1,22 @@
-;	Player logic. This file turns controller input into skater actions such as passing, shooting,
-;	checking and line changes, and it runs the computer players: each player is given an
-;	assignment for his position, and the goalie, fights, the bench and the penalty box have
-;	their own. It also handles the puck at faceoffs, offsides and icing.
+;	Player logic. Turns controller input into skater actions (passing, shooting, checking, line changes) and runs
+;	the computer players. Each player has an assignment for his position, and the goalie, fights, bench and penalty
+;	box have their own. Also the puck at faceoffs, offsides and icing. ROM $00946E-$00D5D1.
 ;
-;	ROM $00946E-$00D5D1 (included from hockey93.asm). In order:
-;	  doinput              per-controller input dispatch (d0 dpad, d1 new, d2 changed, d3 held buttons, d4 pad 0/2):
-;	                       start/pause, faceoffinput, fightinput, line change (lineinput), pass/shot/check/burst.
-;	  SetLCmode..lcfound2  line change box: draw/close it, getlchoice and its .tab pick which line each button gives.
-;	  burst, holdplayer, Acheck   cbut skating burst, abut hold/hook on the player a0 being chased.
-;	  setpassmode/passmode/dopass/passtoa0   pass: dpad sets passdir, best teammate in that direction is chosen,
-;	                       passtoa0 solves the intercept so the puck meets the moving receiver.
-;	  changeplayer, setc1player/setc2player/restorepl, Sweepcheck   switch the joystick to the teammate nearest the puck.
-;	  SetShotMode/ShotMode/doshot/shotdiradj/CalcAngleOffset   wind-up and release of a shot, aim away from goalie.
-;	  setpads, check4bench, assbench, asseben, asspenalty, clrplayer, assdopen, assepen   bench/penalty box moves.
-;	  assfaceoff, assfaceoffpl, assfight, chkhit, banner, addinfo, assfwatch   faceoff and fight assignments.
-;	  donothing, assstanley, assscore   idle/celebration; assdefo/assdefd/asswingd/asswingo/asscenterd/
-;	  asscentero   computer positioning by role; assgoalie (+ClampYPosition, AdjustFacingDirection,
-;	  GoalieSaveList)   computer goalie; assgoalietopuck, asspuckc (puck carrier), chk4lc, chkpk, chk4shot,
-;	  CompShoot, chk4pass, EvadePC, checkob (offsides warning ref), assnearest, check4check, asspassrec,
-;	  assshoot   other assignments.
-;	  puckfaceoff..Endfaceoff, pucknorm, ChkOffsides, a2offsides, a2touchpuck, puckIChk (icing), puckshadow,
-;	  findpc   the puck object itself (faceoff, normal motion, offsides/icing, shadow, goalline crossing).
-;	  ChkGoalies, ReturnGoalies, CPgoalie, CompLine   computer goalie pull and line choice.
-;	  skateto, avdgoal, skatetopuck, assexit/assinsert/assreplace (assignment stack), vtoa (vector to dir 0-7),
-;	  GetHot, SetSPA, doplayeracc/goalieacc/playeracc/dostop/StopNA (acceleration), MaxSpeed, dirtab.
-;	Conventions: a3 = the object (SortCords entry, player or puck) being processed, d7 = frames elapsed, a2 = team
-;	struct (tmstruct, +tmsize for the visitors), SPA = sprite animation; most routines exit through rtss.
-;	Neighbours: this file is included from hockey93.asm, random/print helpers (randomd0, print) live in
-;	middle93.asm, flag and field names (pf*, sf*, tm*, temp1-5, SPA*) in ram93.asm. Differences from NHL 92
-;	are noted where seen.
+;	In order:
+;	  input: doinput, the line change box (SetLCmode ... lcfound2, getlchoice), burst, hold and hook, passing
+;	    (passmode, dopass, passtoa0), switching players (changeplayer), shooting (ShotMode, doshot)
+;	  bench and penalty box moves: setpads, check4bench, assbench ... assepen
+;	  faceoff and fight assignments: assfaceoff, assfight, banner
+;	  computer players: positioning by role (assdefo ... asscentero), assgoalie, assgoalietopuck, asspuckc, chk4lc,
+;	    chk4shot, chk4pass, EvadePC, assnearest, check4check, asspassrec, assshoot
+;	  the puck: puckfaceoff ... Endfaceoff, pucknorm, ChkOffsides, puckIChk (icing), puckshadow, findpc
+;	  goalie pull and line choice: ChkGoalies, ReturnGoalies, CPgoalie, CompLine
+;	  movement: skateto, skatetopuck, the assignment stack (assexit, assinsert, assreplace), vtoa, GetHot, SetSPA,
+;	    acceleration (doplayeracc ... StopNA), MaxSpeed, dirtab
+;
+;	Conventions: a3 = the object being processed (a SortCords entry, player or puck), d7 = frames elapsed,
+;	a2 = team struct (tmstruct, +tmsize for the visitors), SPA = sprite animation. Most routines exit through rtss.
+;	Flag and field names (pf*, sf*, tm*, temp1-5, SPA*) are in ram93.asm.
 
 doinput	;process controller input
 	;d0 = dpad

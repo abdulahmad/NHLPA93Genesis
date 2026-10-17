@@ -1,10 +1,8 @@
-;	Shared helpers used all over the game. They fade palettes, make random numbers and square
-;	roots, start sounds, read the joysticks and wait for buttons, move and fill video memory, set
-;	up the screen and draw bitmaps (dobitmap). The tile decompressor is in decompress93.asm and the text and box
-;	drawing in print93.asm.
+;	Shared helpers used all over the game: palette fades, random numbers and square roots, sound requests, joypad
+;	reads, DMA and vram fills, vdp setup and bitmap drawing (dobitmap). Called from nearly every other file.
+;	ROM $00D5D2-$00DD67. decompress93.asm and print93.asm are included at the end and run on to $00E525.
 ;
-;	ROM $00D5D2-$00DD67 for the code in this file; the included decompress93.asm and print93.asm
-;	carry on up to $00E525, where penalty93.asm starts. Routines in order:
+;	In order:
 ;	  UnpackNibbles, WeightedRandomSelect   nibble unpacking and weighted random pick
 ;	  remap                                 recolor 4bpp tile data through a nibble map
 ;	  forceblack, forcefade, cramfade,
@@ -18,7 +16,6 @@
 ;	  WaitDMA                               vdp dma, vram copy and fill
 ;	  setVram, setVram_0, Vmaddr            vdp register setup and vram address set
 ;	  dobitmap                              draw a map + palette + tiles (rink, EASN logo, energy bars)
-;	Called from nearly every other file (hockey93, logic93, menu93, penalty93 ...).
 
 UnpackNibbles	;a0 = packed data, d0 = count. Unpacks d0 4-bit values (high nibble first) into words at nibblebuffer. Called from UpdateTeamNameisplay
 	movem.l	d0-d2/a0-a1,-(sp)

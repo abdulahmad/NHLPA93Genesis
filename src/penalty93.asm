@@ -1,29 +1,19 @@
-;	Penalty logic. This file calls penalties and the other stoppages of play, such as the
-;	whistle, icing, offsides and goals. It sends players to the penalty box, runs power plays,
-;	shows the referee's messages and switches the rink between its horizontal and vertical views.
+;	Penalty logic. Calls penalties and the other stoppages of play (whistle, icing, offsides, goals), sends players
+;	to the penalty box, runs power plays, shows the referee's messages and switches the rink between its horizontal
+;	and vertical views. ROM $00E526-$00F757, followed by the scoreboard code and the highlights block.
 ;
-;	ROM $00E526-$00F757 (follows the print helpers of print93.asm). Contents in order:
-;	  AddPenalty, AddPenalty2         queue a penalty or stoppage (goal, icing, face off, game over)
-;	                                  as a (penalty, player) pair in PenBuf; crowd song on goals
-;	  PenaltyManager                  periodic driver: updatepentime, checkfornewpen, chkprogress, UpdatePA
+;	In order:
+;	  AddPenalty, AddPenalty2           queue a penalty or stoppage as a (penalty, player) pair in PenBuf
+;	  PenaltyManager                    periodic driver: updatepentime, checkfornewpen, chkprogress, UpdatePA
 ;	  chkprogress, InProgress,
-;	  coinsearch                      ref sequence: switch to the horizontal rink, log the penalty
-;	                                  (PenSum, penalty box list in the team struct), count players on ice
-;	  checkfornewpen, Stop4Pen,
-;	  limitfo                         call the penalty (at once or delayed), stop the clock, whistle,
-;	                                  pick the face off spot
-;	  UpdatePA, SetPA, SetPA2,
-;	  PushRef, prefmes,
-;	  ClearPenaltyMessage             ref animation (Penaltylist frames) and the penalty message text
-;	  PenGoalStuff, ClearPenaltyBuffer,
-;	  updatepentime, ProcessPenaltyList,
-;	  RemovePlayerFromList, chkatop,
-;	  releasepl, GetLowestPen,
-;	  updatepwrplay                   penalty clocks, players leaving the box, attack time, power play display
-;	  ClrHor, SetHor                  switch between the vertical and horizontal rink graphics
-;	  The scoreboard, ticker and intermission routines follow (listed in the block header after SetHor):
-;	  printscores1 ... AdvanceStringPtr, and at the very end DoHiLights, StartHL and StartHL2
-;	  (the intermission highlights of the other games; this block sits at the end of the file).
+;	  coinsearch                        the ref sequence: log the penalty, count players on the ice
+;	  checkfornewpen, Stop4Pen, limitfo call the penalty, stop the clock, whistle, pick the face off spot
+;	  UpdatePA, SetPA, SetPA2, PushRef,
+;	  prefmes, ClearPenaltyMessage      the ref animation and the penalty message text
+;	  PenGoalStuff ... updatepwrplay    penalty clocks, players leaving the box, attack time, power play display
+;	  ClrHor, SetHor                    switch between the vertical and horizontal rink graphics
+;	  printscores1 ... AdvanceStringPtr scoreboard, ticker and intermission code
+;	  DoHiLights, StartHL, StartHL2     intermission highlights, at the very end of the file
 
 AddPenalty	;add penalty d0 (PenaltyList offset) for player a3. Ignored while the clock is stopped, when penalties are off, or offsides when offsides are off. Falls into AddPenalty2
 	btst	#gmclock,(gmode).w

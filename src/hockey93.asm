@@ -1,32 +1,25 @@
-;	Main game source and top level of the ROM build. Includes the other modules in ROM order and
-;	holds the core game code: startup and the game loop, pause, instant replay, player and
-;	animation update, collisions and checking, rink and team setup, and the title, playoff,
-;	scouting report and option screens. The data tables are in tables93.asm.
+;	Main game source and top level of the ROM build. It includes the other modules in ROM order and holds the
+;	core game code: startup and the game loop, pause, instant replay, players, collisions, and the title,
+;	playoff, scouting and setup screens.
 ;
-;	Layout, in file (ROM) order. ROM ranges in brackets are those given on the include lines:
-;	 - includes Main93 (EA startup and logo), TeamData93 [$000310-$004D8D], Frames93 (sprite
-;	   frame graphics table) and Ram93 (RAM map and equates, no ROM bytes)
-;	 - startup: VBjsr, Begin, StartGame, restoreteams, ResetClock; the game loop: StartPer,
-;	   Gameloop, DoGameFrame, periodicevents (once-a-second jobs), crowd animation,
-;	   clockcont (end of period/game) and the pause screen (demoread, Pausemode, seta2)
-;	 - menu93 [$006A00-$006C09] menu engine and stats93 [$006C0A-$008AC3] stats screens
-;	 - instant replay (ReplayMode, record and playback of the replay buffer), updateplayers
-;	   (velocity, friction, gravity, input, assignments), updateanim and the scroll window
-;	 - logic93 [$00946E-$00D5D1] player logic, middle93 [$00D5D2-$00E525] and penalty93
-;	   [$00E526-$00F757] penalties and highlights
-;	 - collisions and checking (checkcoll, checkcx momentum transfer, checks, holds, falls,
-;	   injuries, fights), wall, goal and net collisions, Goal scoring, then puck collisions
-;	   and the player roster code (makepde ... setplayer)
-;	 - video93 [$011802-$0122A7] video and vblank code
-;	 - rink and team setup, title, playoffs and options screens, ScoutingReport, the Stanley
-;	   Cup celebration, TitleScreen, the game setup screen, playoff passwords and stat
-;	   packing, ResolveGames, the three stars box, injury and goal boxes, name formatters
-;	   and the exception handlers
-;	 - tables93 (data tables), sram93 [$015FE6-$0165D7] backup RAM, sound93 [$0165D8-$02E1FB]
-;	   sound driver and data, graphics93 [$02E1FC-$07FB75] graphics data and checksum93
-;	   [$07FB76-$07FBC7] security check and ROM end
-;	This is the retail 1.1 build (REV=1 conditionals give Rev A); it assembles to the retail ROM.
-;	Differences from the 92 game are noted where a routine changed (92 values in comments).
+;	Modules included here (ROM ranges where known):
+;	  main93, teamdata93 [$000310-$004D8D], frames93, ram93 (equates only)
+;	  menu93 [$006A00-$006C09], stats93 [$006C0A-$008AC3]
+;	  logic93 [$00946E-$00D5D1], middle93 [$00D5D2-$00E525], penalty93 [$00E526-$00F757]
+;	  video93 [$011802-$0122A7]
+;	  tables93, sram93 [$015FE6-$0165D7], sound93 [$0165D8-$02E1FB]
+;	  graphics93 [$02E1FC-$07FB75], checksum93 [$07FB76-$07FBC7]
+;
+;	Code in this file, in order:
+;	  startup and the game loop: VBjsr, Begin, StartGame, StartPer, Gameloop, DoGameFrame, periodicevents, clockcont
+;	  the pause screen (demoread, Pausemode) and instant replay (ReplayMode, record and playback)
+;	  updateplayers (velocity, friction, gravity, input, assignments), updateanim and the scroll window
+;	  collisions and checking, walls, goals and nets, Goal scoring, puck collisions
+;	  the player roster code (makepde ... setplayer), rink and team setup
+;	  the title, playoff, setup and scouting screens, the Stanley Cup screen, the end of game boxes
+;	  the name formatters and the exception handlers
+;
+;	This is the retail 1.1 build; REV=1 gives Rev A. Differences from 92 are noted in the comments.
 
 	include	Main93.Asm				;EA provided code for startup and EA logo
 	include	TeamData93.Asm			;$000310-$004D8D

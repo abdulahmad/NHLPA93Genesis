@@ -1,11 +1,11 @@
-;	Team data. TeamList points to one record per team, the All-Star teams included. A record
-;	holds the players, colors, name, lines, scouting report and scoring odds. The playoff seeds
-;	and the credits come after the teams.
-;	Record layout (the all-star records come first in the file, then the 24 teams): six word
-;	offsets from .0 (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds), then the
-;	home and visitor palettes (.pad), the scouting ratings (.sr), scoring odds (.sodds), the line
-;	sets (.ls, 7 lines of 8 bytes), the players (.pld), the team name (.tn) and abbreviation (.ta).
-;	Following the records: playoffseats (the 32 playoff tree layouts) and Credits.
+;	Team data. TeamList points to one record per team, the All-Star teams included. A record holds the
+;	players, colors, name, lines, scouting report and scoring odds. The playoff seeds and the credits follow.
+;
+;	Record layout (the all-star records come first in the file, then the 24 teams): six word offsets from .0
+;	(Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds), then the home and visitor palettes
+;	(.pad), the scouting ratings (.sr), scoring odds (.sodds), the line sets (.ls, 7 lines of 8 bytes), the
+;	players (.pld), the team name (.tn) and abbreviation (.ta). After the records: playoffseats (the 32
+;	playoff tree layouts) and Credits.
 
 	dc.l	$0000
 

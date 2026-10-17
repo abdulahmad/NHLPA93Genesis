@@ -1,11 +1,11 @@
-;	Data tables, included from hockey93.asm after the game code: the crowd frame table (cd0, used by
-;	updatecrowdf), the player logic assignment table asstab, PenaltyList (and its PenData records), bfasciicon, linelist,
-;	PlayerPositionText, PerLabels, sizetab, sublist, priolist, the playoff tree layout, the line editor / roster attribute column lists, and the
-;	menu item lists for the pause, intermission and line editor exit menus.
-;	Code addresses in these tables are routine labels; Rev A shifts them.
-;	Menu item lists (InitMenuState): two printsmall control Strings, then per
-;	item a String and the handler address (dc.l). Item 0 leaves the menu (its
-;	handler is rtss). String $FF ends the list.
+;	Data tables, included from hockey93.asm after the game code.
+;	In order: the crowd frame table (cd0, used by updatecrowdf), the player logic assignment table asstab,
+;	PenaltyList and its PenData records, bfasciicon, linelist, PlayerPositionText, PerLabels, sizetab, sublist,
+;	priolist, the playoff tree layout, the line editor and roster attribute column lists, and the menu item lists.
+;	Code addresses in these tables are routine labels, so Rev A shifts them.
+;
+;	Menu item lists (InitMenuState): two printsmall control Strings, then per item a String and the handler
+;	address (dc.l). Item 0 leaves the menu (its handler is rtss). String $FF ends the list.
 
 cd0	;$fftt = frame/time for various levels of crowd excitement.
 	;Used by updatecrowdf, indexed by crowd level and crowdstep

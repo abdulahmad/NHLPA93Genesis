@@ -1,28 +1,15 @@
-;	Sound driver, 68000 side. It starts the Z80, plays the songs and sound effects frame by frame
-;	and turns the sound off. The Z80 program and the sound data that the driver plays follow it.
-;	Routines in order: p_turnoff (silence), play_sfx_or_music_track (start a sound), stop_current_song,
-;	p_music_vblank (per frame), UploadCommandBufferToZ80, ProcessOneMusicTrack with command_jump_table
-;	and the handle_command_* handlers (key off, key on, patch, pitch bend), UpdateChannelFrequencyAndVolume
-;	with its note and pitch bend tables, p_initialZ80 and ClearAllTrackAndSFXSlots. Then data: the Z80
-;	program (Z80_Program_Code), pcm_sample_table and the PCM samples, fm_instrument_patches,
-;	SoundStreamTable and the sound effect and song event streams, and last the ScoutingReportText.
-;	The 92 sound.asm has the entry points p_turnoff, p_music_vblank, p_initialZ80 and p_initune as a
-;	branch table to _fn routines; 93 has the first three directly here, and starts sounds with
-;	play_sfx_or_music_track. Sound numbers are in ram93.asm (SFX*, Sng*).
+;	Sound driver, 68000 side. Starts the Z80, plays songs and sound effects frame by frame and turns the sound
+;	off. The Z80 program and the sound data the driver plays follow the code.
+;
+;	In order: p_turnoff, play_sfx_or_music_track, stop_current_song, p_music_vblank (per frame),
+;	UploadCommandBufferToZ80, ProcessOneMusicTrack and its command handlers, UpdateChannelFrequencyAndVolume,
+;	p_initialZ80, ClearAllTrackAndSFXSlots. Then the data: the Z80 program, PCM samples, FM instrument patches,
+;	the sound effect and song event streams, and ScoutingReportText.
+;
+;	92's sound.asm has p_turnoff, p_music_vblank, p_initialZ80 and p_initune as a branch table to _fn routines.
+;	93 has the first three directly and starts sounds with play_sfx_or_music_track. Sound numbers are in ram93.asm
+;	(SFX*, Sng*). The data layout is described above p_music_vblank.
 
-;	Data layout:
-;	  track slots (8 x 6 bytes): +0 long event pointer (negative = free or ended), +4 word
-;	    delay count (+5 = the delay byte read from the stream). Slot n is track 7-n.
-;	  channel structs (6 x 6 bytes, the 6th is the PCM channel): +0 key (midi channel*8 +
-;	    track), +1 note, +2 patch, +3 output channel (0,1,2,4,5,6), +4 age (+1 each frame),
-;	    +5 bit 0 on.
-;	  voice table (8 bytes per key): +0 word pitch bend (value - $2000), +3 patch.
-;	  command buffer (33 bytes, copied to Z80 RAM $02-$22): +0 key off bits, +1 key on bits,
-;	    +2 volume bits, +3 frequency bits, +4 patch bits (one bit per output channel), then
-;	    7 volume bytes, 7 frequency words, 7 patch bytes.
-;	  events (4 bytes): +0 delay before this event, +1 status (bits 6-4 command, bits 3-0
-;	    channel), +2/+3 data. Status 0 ends the stream; a non-negative long at +2 is a loop
-;	    pointer.
 
 p_turnoff	;(audio stop). Silence everything: free all slots, key off and mute every output
 		;channel, send the buffer and stop the PCM channel. Called from Begin, StartPer, game screens
@@ -104,6 +91,18 @@ stop_current_song	;stop the song in progress: free the first slot whose pointer 
 	bsr.w	UploadCommandBufferToZ80
 .ex	movem.l	(sp)+,d0-d3/a0-a3		;restore registers
 	rts
+
+;	Data layout:
+;	  track slots (8 x 6 bytes): +0 long event pointer (negative = free or ended), +4 word delay count
+;	    (+5 = the delay byte read from the stream). Slot n is track 7-n.
+;	  channel structs (6 x 6 bytes, the 6th is the PCM channel): +0 key (midi channel*8 + track), +1 note,
+;	    +2 patch, +3 output channel (0,1,2,4,5,6), +4 age (+1 each frame), +5 bit 0 on.
+;	  voice table (8 bytes per key): +0 word pitch bend (value - $2000), +3 patch.
+;	  command buffer (33 bytes, copied to Z80 RAM $02-$22): +0 key off bits, +1 key on bits, +2 volume bits,
+;	    +3 frequency bits, +4 patch bits (one bit per output channel), then 7 volume bytes, 7 frequency
+;	    words, 7 patch bytes.
+;	  events (4 bytes): +0 delay before this event, +1 status (bits 6-4 command, bits 3-0 channel),
+;	    +2/+3 data. Status 0 ends the stream; a non-negative long at +2 is a loop pointer.
 
 p_music_vblank	;(vblank handler). Clear the change bits, run the 8 track slots (d7 = track 7-0)
 		;send the buffer if anything changed and age the channels. Called every frame from the vblank

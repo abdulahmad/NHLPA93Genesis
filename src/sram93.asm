@@ -1,17 +1,17 @@
-;	Battery backup. This file drives the save chip on the cartridge, saves and loads the game's
-;	save block with a checksum, shows the screen for clearing saved data and reads the first pad.
-;	Routines in order: BackupRAM_Start/Stop/WriteBit/ReadBit/SendAck/SendNoAck/ReadAck (bit level
-;	serial protocol), InitBackupRAM and BackupRAM_WaitReady (bus reset), BackupRAM_ReadBlock and
-;	BackupRAM_WriteBlock (byte transfers with retries), BackupRAM_Read (power on load), BackupRAM_Save,
-;	BackupRAM_Load, ClearRAMBuffer/ClearVRAM (status screen) and ReadPad1Held. The saved bytes are
-;	used by the password/team line code (EncodePW, EncodeTeamLines in the game files).
+;	Battery backup. Drives the save chip on the cartridge, saves and loads the game's save block (with a
+;	checksum), shows the screen for clearing saved data, and reads the first pad.
+;
+;	In order: the bit-level serial protocol (BackupRAM_Start ... ReadAck), InitBackupRAM and WaitReady, block
+;	transfers with retries (ReadBlock, WriteBlock), BackupRAM_Read (power on load), Save, Load, ClearRAMBuffer and
+;	ClearVRAM (the status screen), and ReadPad1Held. The saved bytes feed the password and team line code
+;	(EncodePW, EncodeTeamLines). The device protocol is described above BackupRAM_Start.
 
-;	The device is a word port (BackupRAM_Port). Low byte bit 7 is the data line (SDA, read
-;	back in bit 7) and bit 6 the clock (SCL): $C0 = both high, $80 = data high clock low,
-;	$40 = data low clock high. The control byte sent after a start is address<<1 + 1 to read
-;	(sequential read from that address) or address<<1 to write one byte. Addresses are 0-127.
-;	Saved block (databuffer, 128 bytes): bytes 0-125 data, byte 126 = not(sum of 0-125),
-;	byte 127 = sum.
+
+;	Serial device. It is a word port (BackupRAM_Port). Low byte bit 7 is the data line (SDA, read back
+;	in bit 7) and bit 6 the clock (SCL): $C0 = both high, $80 = data high clock low, $40 = data low clock high.
+;	The control byte sent after a start is address<<1 + 1 to read (sequential read from that address) or
+;	address<<1 to write one byte. Addresses are 0-127.
+;	Saved block (databuffer, 128 bytes): bytes 0-125 data, byte 126 = not(sum of 0-125), byte 127 = sum.
 
 BackupRAM_Start	;start condition: data falls while the clock is high, then clock low. Called before every control byte
 	nop

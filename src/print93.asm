@@ -1,9 +1,11 @@
-;	Text and box drawing. xyVmMap sets the vram address from the print position, eraser and Framer fill and frame
-;	rectangles, printsmall/printz/print/printbig (with their control codes, FormatAndPrintTime, PushTime, PushNumber,
-;	appendz and appstring) draw text, and AddSmallFont, AddFramer and AddTeamBlock load the font, frame and team
-;	block tiles through DecompressGraphics.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The source has the real cmp / exg;
-;	fixopcodes.js patches the encoding after assembly.
+;	Text and box drawing.
+;	xyVmMap sets the vram address from the print position. eraser and Framer fill and frame rectangles.
+;	printsmall, printz, print and printbig draw text, with their control codes, FormatAndPrintTime, PushTime,
+;	PushNumber, appendz and appstring. AddSmallFont, AddFramer and AddTeamBlock load the font, frame and
+;	team block tiles through DecompressGraphics.
+;	;
+;	Build note: EA's compiler emits cmp #imm,Dn as CMP (Bxxx) but SNASM emits CMPI (0Cxx). The source has the real
+;	cmp / exg; fixopcodes.js patches the encoding after assembly.
 
 xyVmMap	;use printx/y/m to set vram address. Returns a0 = Vdata. Saves d0-d2 and calls Vmaddr
 	movem.l	d0-d2,-(sp)

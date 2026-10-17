@@ -1,17 +1,12 @@
-;	Game play vertical blank code. Every frame it builds the sprite list and sends it and other
-;	graphics to video memory, and it draws the sprites for the rink, the referee, faceoffs, the
-;	zamboni and the crowd.
-;	In order: VBlank / vb2 / IRQ7 (the interrupt handlers), DumpSprites, DumpSprites2, DoDMAList and
-;	SetScroll2 (the vdp transfers), setvideo (per frame sprite and dma list build, calls the rest below),
-;	updatescroll, showref, checkfo/checkfo2, showzam, SetSframe, showcrowd, then (second half, after the
-;	=== banner) showclock, checksso, setsortcords, setffo, uppads, QueuePadLabel, RenderSmallFontChar,
-;	addframe, addframe2, find3d, updatesound and KillCrowd. Vram address helpers (Vmaddr, DoDMA, cramfade)
-;	live in other files. ROM address range: not determined here.
+;	Game play vertical blank code. Every frame it builds the sprite list and sends it and other graphics to
+;	video memory, and it draws the sprites for the rink, the referee, faceoffs, the zamboni and the crowd.
+;
+;	In order: VBlank, vb2 and IRQ7 (the interrupt handlers), DumpSprites, DumpSprites2, DoDMAList and SetScroll2
+;	(the vdp transfers), setvideo (builds the sprite and dma lists, calls the rest), updatescroll, showref, checkfo,
+;	showzam, SetSframe, showcrowd, then showclock, checksso, setsortcords, setffo, uppads, QueuePadLabel,
+;	RenderSmallFontChar, addframe, addframe2, find3d, updatesound and KillCrowd. The sprite frame data and DMA
+;	list formats are described above DumpSprites. ROM address range: not determined here.
 
-;	Sprite frame data (FaceOffSprites, ZamSprites, CrowdSprites): the long at +4 is the
-;	offset to a word table of frame offsets; frame n sprites run from word n to word n+1,
-;	8 bytes each: x 0, y 2, char 4, flags 6 (top 5 bits used), size byte 7.
-;	DMA list entries (a5): long source, word length in words, word vram.
 
 VBlank	;main vblank code for game play (vbint target, set by setupice).
 	;Not VBjsr: that is the level 6 vector stub
@@ -60,6 +55,11 @@ IRQ7	;rte only. vb2 falls in; the vector table ($60, $64, ...) points here.
 	rte
 
 ;------------------------------------
+;	Sprite frame data (FaceOffSprites, ZamSprites, CrowdSprites): the long at +4 is the offset to a word
+;	table of frame offsets. Frame n's sprites run from word n to word n+1, 8 bytes each: x 0, y 2, char 4,
+;	flags 6 (top 5 bits used), size byte 7.
+;	DMA list entries (a5): long source, word length in words, word vram.
+
 DumpSprites	;transfer (by dma) scroll stuff, sprite table, vram data in dmalist.
 	;Called from VBlank when dfok was set. Falls into DumpSprites2
 	bsr.w	SetScroll2

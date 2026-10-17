@@ -1,9 +1,10 @@
-;	Menu engine and two screen helpers shared by the whole game.
+;	Menu engine shared by the whole game, plus two screen helpers.
 ;	The engine (InitMenuState, DrawMenuScreen, HandleMenuInput, UpdateMenuSelection, SetMenuPrintX) is a generic
-;	scrolling menu: an item list plus a screen draw routine. The pause menu, the line editor and the summary screens
-;	all run on it; the frame is always the pause menu's (22 wide, 6 high at the same row), so they all look alike.
-;	PutTeamBlock (team name bitmap) and MenuWaitVblank (vblank wait for screen loops) are not menu code: the stats and
-;	penalty screens use them too. They are here because they sit between the menu engine and stats93.asm in the ROM.
+;	scrolling menu: an item list plus a screen draw routine. The pause menu, line editor and summary screens all
+;	run on it, so they share the pause menu's frame (22 wide, 6 high).
+;
+;	PutTeamBlock (team name bitmap) and MenuWaitVblank (vblank wait for screen loops) are not menu code. They sit
+;	here because they lie between the menu engine and stats93.asm in the ROM.
 ;	Inline print strings after printsmallz/printsmall use the String macro.
 
 InitMenuState	;92 Pausemode .top. start a menu. a0 = item list, a1 = screen draw routine

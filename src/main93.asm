@@ -1,10 +1,8 @@
-;	EA startup code: macros, assembler options, the 68000 vector table, the Sega ID
-;	header and the EA logo.
-;	Order of contents, from ROM address 0: include of the 93 macros (genesis93.mac); vector table at
-;	$0 (initial SP, reset, bus/address error, illegal instruction, zero divide, level 4 and 6
-;	interrupts); ErrorStatus; the Sega ID header (sega\SegaIDTable93.asm, at $100); Start, which
-;	runs the Sega console init (SegaInit.asm), the optional ROM checksum (checksum93.asm), clears the
-;	crowd sound (KillCrowd, video93.asm) and branches to Begin (hockey93.asm).
+;	EA startup code: the 68000 vector table, the Sega ID header, the EA logo and the reset entry point.
+;
+;	In order from ROM address 0: the 93 macros (genesis93.mac), the vector table ($0-$FF), ErrorStatus, the Sega ID
+;	header (sega\SegaIDTable93.asm at $100), then Start. Start runs the console init (SegaInit.asm) and the optional
+;	ROM checksum (checksum93.asm), silences the crowd (KillCrowd, video93.asm) and branches to Begin (hockey93.asm).
 
 	include	macros\genesis93.mac
 

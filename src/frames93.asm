@@ -1,13 +1,9 @@
-;	Sprite frame tables. These tables tell the animation code where each group of frames starts
-;	in the sprite graphics and where each animation's list begins.
-;	First the SPF equates: the first frame number of each group of frames in Sprites.anim (the
-;	following comment gives the resulting number; "New" marks groups added in 93). Then SPAlist,
-;	and one table per animation in the order of the SPA numbers (an SPA value, as kept in SPA(a3),
-;	is the offset of its table from SPAlist; SetSPA in logic93.asm switches animation).
-;	Each table is: 8 word offsets (one per facing direction 0-7, relative to .t), a flags word
-;	(0 or 1), then per direction a list of frame,time word pairs; a negative time ends the list.
-;	Only the animation equate and table lines are commented; the .0-.7 direction labels and the
-;	.a/.b/.c/.aoff helper symbols are assembler temporaries that step through the SPF frame numbers.
+;	Sprite frame tables. They tell the animation code where each group of frames starts in the sprite graphics
+;	and where each animation's list begins.
+;
+;	First the SPF equates: the first frame number of each group of frames in Sprites.anim ("New" marks groups
+;	added in 93). Then SPAlist and one table per animation, in the order of the SPA numbers. The table format is
+;	described above SPAlist.
 
 ; Sprite Frame (SPF) base indices
 SPFskatewp	=	1					;skating, stick down
@@ -52,6 +48,12 @@ SPFstumble	=	SPFhook+16			; 601 - New (stumbling)
 SPFflip	=	SPFstumble+24			; 625 - New (flipping over)
 SPFinjury1	=	SPFflip+8			; 633 - New (injured on the ice)
 SPFbglass	=	SPFinjury1+12		; 645 - New (glass bang)
+
+;	Each animation table is: 8 word offsets (one per facing direction 0-7, relative to .t), a flags word
+;	(0 or 1), then per direction a list of frame,time word pairs; a negative time ends the list. A SPA value,
+;	as kept in SPA(a3), is the offset of its table from SPAlist; SetSPA in logic93.asm switches animation.
+;	Only the animation equate and table lines are commented. The .0-.7 direction labels and the .a/.b/.c/.aoff
+;	helper symbols are assembler temporaries that step through the SPF frame numbers.
 
 SPAlist	;base of the animation tables; a SPA value is the offset of a table from here
 	dc.w	0

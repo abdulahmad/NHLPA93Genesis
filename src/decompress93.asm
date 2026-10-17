@@ -1,10 +1,12 @@
-;	Tile decompressor. NHLPA 93 added it; 92 sent the tiles straight to vram with DoDMA. A graphic whose tile count
-;	has bit 15 set is packed: DecompressGraphics sends the tiles to vram (a plain graphic through the callbackPtr remap
-;	if one is set), DecompressBytecode unpacks the packed ones, and FlushOutputBuffer sends each full 256 byte
-;	buffer to vram. The packing is a byte oriented LZ77 style opcode stream: literal runs, zero and byte fills, and
-;	copies from the last 256 bytes, forward or reverse. Called from dobitmap and the tile loaders.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The source has the real cmp / exg;
-;	fixopcodes.js patches the encoding after assembly.
+;	Tile decompressor, new in 93 (92 sent tiles straight to vram with DoDMA).
+;	DecompressGraphics sends a graphic's tiles to vram. If the tile count has bit 15 set the tiles are packed:
+;	DecompressBytecode unpacks them and FlushOutputBuffer sends each full 256 byte buffer to vram.
+;
+;	The packing is a byte oriented LZ77 style opcode stream: literal runs, zero and byte fills, and copies
+;	from the last 256 bytes, forward or reverse. Called from dobitmap and the tile loaders.
+;	;
+;	Build note: EA's compiler emits cmp #imm,Dn as CMP (Bxxx) but SNASM emits CMPI (0Cxx). The source has the real
+;	cmp / exg; fixopcodes.js patches the encoding after assembly.
 
 DecompressGraphicsWithCallback	;DecompressGraphics through remap. The 8 bytes after the bsr are the remap color table (callbackPtr = their address); returns past them. a2 = tile data, d4 = start char
 	move.l	(sp),(callbackPtr).w

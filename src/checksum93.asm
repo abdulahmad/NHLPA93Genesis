@@ -1,4 +1,4 @@
-;	ROM security check. When the checksum is enabled, this routine adds up the ROM and stops the
+;	ROM security check. When the checksum is enabled, ValidationRoutine adds up the ROM and stops the
 ;	game if the sum is wrong. The fill that pads the ROM out to its full size follows it.
 
 	IF REV=0
