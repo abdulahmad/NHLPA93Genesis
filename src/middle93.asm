@@ -561,7 +561,7 @@ DoFill	;fill vram. d0 = words to fill, d1 = vram address, d2 = data to fill with
 	move.w	d2,d3			;d3 = fill word twice, for long writes
 	lsr.w	#1,d0			;words -> longs
 	subq.w	#1,d0
-.0	move.l	d3,(a1)
+.0	move.l	d3,(a1)			;two words per write
 	dbf	d0,.0
 	movem.l	(sp)+,d3/a1
 	rts

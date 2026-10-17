@@ -243,7 +243,7 @@ SelectLinePlayer	;line editor: C pressed on slot TestList. Build the list of
 	add.w	d0,d1			;slots 1-2 (defense): after goalies+forwards
 	bsr.w	GetPlayerCount
 	sub.w	d1,d0			;d0 = candidates, d1 = first roster index
-.n	subq.w	#1,d0
+.n	subq.w	#1,d0			;count - 1 for dbf
 	move.w	d0,(screentimer).w	;last candidate row (also the dbf count)
 	clr.w	(PlayerScrollCtr).w
 	clr.w	(VertLineScrolling).w
@@ -341,7 +341,7 @@ PrintAttribHeader	;line editor player list: column header for attribute page
 	cmp.w	#5,d1
 	bls.w	.4
 	moveq	#5,d1			;at most 6 rows
-.4	move.w	#2,(printy).w
+.4	move.w	#2,(printy).w		;first row at y 2
 .row	bsr.w	printsmallz		;blank the row (22 spaces), then print the player
 	dc.w	$0020
 	dc.b	$FE,4,$FD,5,$FA,1
@@ -351,7 +351,7 @@ PrintAttribHeader	;line editor player list: column header for attribute page
 	cmp.w	(VertLineScrolling).w,d2	;cursor row?
 	bne.w	.5
 	move.w	d7,(printa).w		;use the highlight attribute
-.5	clr.w	d0
+.5	clr.w	d0			;(not the cursor row)
 	move.b	(a3,d2.w),d0		;roster index of this row
 	bsr.w	GetNameandAttrib
 	addq.w	#1,d2
@@ -543,9 +543,9 @@ LineEditorExit	;line editor: start pressed. Run the exit menu (LineEditorMenuTex
 	cmp.b	(a3),d0
 	beq.w	.0
 	movea.l	#LineEditorMenuNoLoad,a0	;no load option for another team's data
-.0	bsr.w	printsmallz
+.0	bsr.w	printsmallz		;string $FF,2: probably selects the menu text mode
 	String	$FF,2
-	bsr.w	InitMenuState
+	bsr.w	InitMenuState		;a0 = menu text, a1 = callback
 .loop	bsr.w	MenuWaitVblank		;menu loop, d1 = pressed buttons
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
@@ -602,7 +602,7 @@ DecodeTeamLines	;load team a2's lines from databuffer (byte 0 = team + 1,
 	bra.w	.nib
 .hi	move.b	(a0)+,d0		;second nibble: high, then advance
 	lsr.w	#4,d0
-.nib	andi.w	#$F,d0
+.nib	andi.w	#$F,d0			;nibble value
 	add.b	d1,d0			;+ goalie count
 	andi.w	#7,d2
 	cmp.w	#2,d2
@@ -613,7 +613,7 @@ DecodeTeamLines	;load team a2's lines from databuffer (byte 0 = team + 1,
 	move.b	(a3)+,d2		;d2 = slot index
 	bsr.w	SetLineSlot
 	bra.s	.next
-.done	movem.l	(sp)+,d0-d4/a0/a3
+.done	movem.l	(sp)+,d0-d4/a0/a3	;all slots set
 	rts
 
 EncodeTeamLines	;reverse of
@@ -644,7 +644,7 @@ EncodeTeamLines	;reverse of
 	bne.w	.hi
 	move.b	d3,(a0)			;low nibble (high is or'ed in next)
 	bra.s	.next
-.hi	asl.b	#4,d3
+.hi	asl.b	#4,d3			;second nibble goes in the high half
 	or.b	d3,(a0)+
 	bra.s	.next
 .done	jsr	(BackupRAM_Save).l	;write the packed lines out
@@ -727,7 +727,7 @@ TeamRosterScreen	;"Team Roster" screen for team a2
 	btst	#1,d3
 	beq.w	.scroll
 .set	move.w	d0,(PlayerScrollCtr).w	;start a page scroll (-2/+2 pixels a frame)
-.scroll	bsr.w	CheckPlayerListScroll
+.scroll	bsr.w	CheckPlayerListScroll	;apply any pending page scroll
 	bra.s	.loop
 .col	add.w	(DispAttribCtr).w,d0	;new attribute column page (not below 0)
 	bmi.s	.scroll
@@ -908,7 +908,7 @@ GetNameandAttrib	;print player d0's name, then at x $1E the column picked by
 	clr.w	d1
 	moveq	#$F,d2			;test mask bits 15..0, one rating nibble each
 	swap	d4
-.bit	btst	d2,d4
+.bit	btst	d2,d4			;is rating nibble d2 selected in the mask?
 	beq.w	.next
 	move.w	d2,d3
 	lsr.w	#1,d3
@@ -917,10 +917,10 @@ GetNameandAttrib	;print player d0's name, then at x $1E the column picked by
 	btst	#0,d2
 	beq.w	.2
 	lsr.w	#4,d3			;odd bit: high nibble
-.2	andi.w	#$F,d3
+.2	andi.w	#$F,d3			;rating 0-15
 	add.w	d3,d0			;d0 = sum of ratings
 	addi.w	#$F,d1			;d1 = 15 * count (max)
-.next	dbf	d2,.bit
+.next	dbf	d2,.bit			;next bit
 	swap	d4			;back to the handler offset
 .jump	lea	attribjmp(pc),a0	;jump to the column handler; its rts lands on .x
 	adda.w	(a0,d4.w),a0
@@ -961,7 +961,7 @@ AttribStatus	;Roster column: status. Player d0's word at $66(a2)
 	bclr	#$E,d1			;bit $E: prints C
 	beq.w	.t
 	moveq	#5,d0			;string 5 = ' C  '
-.t	lea	StatusTextTbl(pc),a1
+.t	lea	StatusTextTbl(pc),a1	;print string d0 (blank or C)
 	bra.w	Fprintsmall
 
 StatusTextTbl	;AttribStatus strings
@@ -1073,8 +1073,8 @@ ScoringSummaryScreen	;"Scoring Summary": one 4 row
 	neg.w	d0			;down: +2
 	btst	#1,d3
 	beq.w	.scroll
-.set	move.w	d0,(PlayerScrollCtr).w
-.scroll	bsr.w	CheckScoringScroll
+.set	move.w	d0,(PlayerScrollCtr).w	;scroll speed/direction
+.scroll	bsr.w	CheckScoringScroll	;apply any pending scroll
 	bra.s	.loop
 
 CheckScoringScroll	;ScoringSummaryScreen per frame: add PlayerScrollCtr to
@@ -1102,7 +1102,7 @@ UpdateScoringScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	cmp.w	#$1E,d0			;moved back 2: draw the entry above
 	bne.w	.1
 	bsr.w	DrawScoringRowUp
-.1	move.l	(sp)+,d0
+.1	move.l	(sp)+,d0		;restore remainder
 	cmp.w	#2,d0			;moved on 2: draw the entry below
 	bne.w	.2
 	bsr.w	DrawScoringRowDown
@@ -1574,56 +1574,61 @@ DrawStatsRowDown	;draw the row below the window
 DrawStatsList	;stats screen: column headers (sort column highlighted),
 	;title for column DispAttribCtr, then sort the players by that column into
 	;Satt ($FF ends, goalies only when -1) and draw the visible rows
+	;"Player" column header, then the stat column headers (goalie mode: the single goalie header string)
 	bsr.w	printsmallz
 	dc.w	$0012
 	dc.b	$F8,6,3,4,$B,$F9,1,'Player',$FB,7,0
 	lea	StatColumnHeaders(pc),a1
-	moveq	#5,d3
+	moveq	#5,d3			;goalie mode: d3 = 5 so only the first (goalie) string is printed
 	tst.w	(DispAttribCtr).w
 	bmi.w	.head
-	adda.w	(a1),a1
-	clr.w	d3
+	adda.w	(a1),a1			;skip the goalie header string, a1 = " G" string
+	clr.w	d3			;d3 = column 0-4
 .head	move.w	#$8000,(printa).w
 	cmp.w	(DispAttribCtr).w,d3
 	bne.w	.1
-	move.w	#$C000,(printa).w
-.1	bsr.w	printsmall
+	move.w	#$C000,(printa).w	;highlight the sort column
+.1	bsr.w	printsmall		;print advances a1 to the next string
 	addq.w	#1,d3
 	cmp.w	#5,d3
 	blt.s	.head
+	;small frame (22x3) with the title of the sort column ("[ Goals ]" ...) from StatSortTitles
 	bsr.w	printsmallz
 	String	CC_SetMapAndPosition,4,3,9,7,0
-	moveq	#$16,d0
+	moveq	#$16,d0			;frame 22 wide, 3 high
 	moveq	#3,d1
 	bsr.w	Framer
 	bsr.w	printz
 	String	$8D,$A,8,0
 	lea	StatSortTitles(pc),a1
 	moveq	#1,d0
-	add.w	(DispAttribCtr).w,d0
+	add.w	(DispAttribCtr).w,d0	;string 0 = goalie saves, 1-5 = G A Pts SOG PIM
 	bsr.w	Fprintsmall
 	clr.w	(printfontset).w
+	;sort the players of team a2 by the chosen column into Satt (one player index per byte)
+	;d6 = bit mask of players already used (bit n = player n)
 	movea.w	#(Satt-M68K_RAM),a3
 	clr.l	d6
 	tst.w	(DispAttribCtr).w
 	bpl.w	.sort
 	bsr.w	GetGoalieCount	;goalie column: mark all skaters used
-	bset	d0,d6
+	bset	d0,d6			;(goalies come first in the roster: players 0 to count-1)
 	subq.w	#1,d6
-	not.l	d6
+	not.l	d6			;bits count and up set = skaters
+	;selection sort pass: find the best unused player. d4 = best key so far, d5 = its player index
 .sort	moveq	#-1,d4			;Selection sort, best so far
-	st	d5
-	bsr.w	GetPlayerCount
+	st	d5			;d5 = $FF: none found
+	bsr.w	GetPlayerCount		;d0 = number of players, loop counts d0 down from count-1
 	bra.w	.next
 .player	btst	d0,d6
-	bne.w	.next
+	bne.w	.next			;already used (or filtered out)
 	clr.w	d2
 	move.w	(DispAttribCtr).w,d1
-	bmi.w	.4
-	bsr.w	GetStatColumn
+	bmi.w	.4			;goalie column: key is just the tie-break byte
+	bsr.w	GetStatColumn		;d2 = stat for player d0
 .4	ext.l	d2
-	asl.l	#8,d2
-	movea.l	tmdata(a2),a1
+	asl.l	#8,d2			;key = stat * 256 ...
+	movea.l	tmdata(a2),a1		;walk the player records to record d0
 	adda.w	(a1),a1
 	move.w	d0,d1
 	subq.w	#8,a1
@@ -1632,30 +1637,32 @@ DrawStatsList	;stats screen: column headers (sort column highlighted),
 	dbf	d1,.skip
 	move.b	#$FF,d2
 	sub.b	(a1),d2			;ties: lower player byte first
-	cmp.l	d4,d2
-	ble.w	.next
+	cmp.l	d4,d2			;... + ($FF - first byte of the player record)
+	ble.w	.next			;not better than the best so far
 	move.l	d2,d4
 	move.w	d0,d5
 .next	dbf	d0,.player
 	bset	d5,d6			;used
-	move.b	d5,(a3)+
+	move.b	d5,(a3)+		;append the best player to the sorted list
 	bpl.s	.sort			;until none left ($FF)
 	moveq	#5,d0
 .pad	st	(a3,d0.w)		;Pad with empty rows
 	dbf	d0,.pad
+	;SelectedPlayerIdx = maximum scroll = (entries - 7, at least 0) * 16 pixels (a3 is just past the $FF end mark)
 	move.w	a3,d0
 	subi.w	#$BF30,d0		;rows past the first 7 in Satt
 	bpl.w	.8
 	clr.w	d0
-.8	asl.w	#4,d0
+.8	asl.w	#4,d0			;16 pixels per row
 	move.w	d0,(SelectedPlayerIdx).w
 	cmp.w	(VertLineScrolling).w,d0
 	bcc.w	.9
-	move.w	d0,(VertLineScrolling).w
+	move.w	d0,(VertLineScrolling).w	;clamp the current scroll to the new maximum
+	;draw the 6 visible rows starting at the current scroll position
 .9	moveq	#5,d4
 .ent	move.w	(VertLineScrolling).w,d3
 	lsr.w	#4,d3
-	add.w	d4,d3
+	add.w	d4,d3			;Satt row d3
 	bsr.w	DrawStatsRow
 	dbf	d4,.ent
 	bra.w	SetStatsListScrollReg

@@ -2994,36 +2994,36 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	move.l	d2,$2A(a2)		;nearest distance^2
 .switch	cmpa.w	a1,a3			;a1 = the player who should chase the puck
 	beq.w	.de1			;that is me
-	btst	#gmclock,(gmode).w
+	btst	#gmclock,(gmode).w	;clock stopped: no swap
 	bne.w	.de1
 	btst	#pf2unav,pflags2(a1)		;pf2unav
-	bne.w	.de1
-	exg	a1,a3
+	bne.w	.de1			;the nearest is unavailable
+	exg	a1,a3			;make the nearest player a3 for a moment ...
 	bclr	#pfdoff,pflags(a3)
 	move.l	#anearest,d0			;anearest
-	bsr.w	assinsert
+	bsr.w	assinsert		;... and give him the assnearest assignment
 	exg	a1,a3
-	bra.w	assexit
+	bra.w	assexit			;I (old a3) drop this assignment
 .de1	btst	#pfalock,pflags(a3)		;locked: skip
 	bne.w	rtss
-	moveq	#2,d1
+	moveq	#2,d1			;d1 = shift count for the random range below
 	cmp.w	#$190,d2		;20^2,d2 (commented out in 92)
-	bhi.w	.nfar
-	subq.w	#2,d1
+	bhi.w	.nfar			;nearest distance^2 above 400: far
+	subq.w	#2,d1			;close: d1 = 0
 	cmpi.w	#2,position(a3)
 	bls.w	.nodec			;close and position <= 2: no new temp3
-.nfar	btst	#sf2pwrplay,(sflags2).w
+.nfar	btst	#sf2pwrplay,(sflags2).w	;power play in progress?
 	beq.w	.x
 	subq.w	#2,d1
 	bsr.w	chkpk2
 	bne.w	.x			;not killing penalty
-	addq.w	#4,d1
+	addq.w	#4,d1			;killing a penalty: much larger range
 .x	moveq	#$14,d0
 	sub.b	$75(a3),d0		;aggress
-	asl.w	d1,d0
+	asl.w	d1,d0			;range = ($14 - aggress) << d1
 	bsr.w	randomd0
 	cmp.w	#1,d0		;(92 #2)
-	bhi.w	.nodec
+	bhi.w	.nodec			;usually nothing
 	move.w	#$F0,temp3(a3)		;temp3 = 240
 .nodec	btst	#pfalock,pflags(a3)		;locked: skip
 	bne.w	rtss
@@ -3034,8 +3034,8 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	btst	#tmfmid,tmflags(a2)		;tmflags bit 2 always takes the in-between spot
 	bne.w	.mid
 	tst.w	(puckc).w
-	bmi.w	.topuck
-	sub.w	d7,temp3(a3)
+	bmi.w	.topuck			;loose puck: go straight for it
+	sub.w	d7,temp3(a3)		;puck is carried: temp3 counts down, then fall through to .mid
 	bpl.w	.topuck
 	clr.w	temp3(a3)
 .mid	bsr.w	skatetopuckinit		;d0/d1 = halfway between
@@ -3045,7 +3045,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	addi.w	#$F4,d1
 	btst	#pfgoal,pflags(a3)
 	beq.w	.nd0
-	subi.w	#$1E8,d1
+	subi.w	#$1E8,d1		;$F4 - $1E8 = -$F4
 .nd0	asr.w	#1,d0
 	asr.w	#1,d1
 	add.w	(sp)+,d0
@@ -3056,76 +3056,77 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	beq.w	.neg
 	cmp.w	#$53,d1
 	blt.w	.go
-	move.w	#$44,d1
+	move.w	#$44,d1			;limit y when it is beyond $53
 	bra.w	.go
-.neg	cmp.w	#-$53,d1
+.neg	cmp.w	#-$53,d1		;mirrored for the other goal end
 	bgt.w	.go
 	move.w	#-$44,d1
-.go	lea	rtss(pc),a0
-	bsr.w	skateto
+.go	lea	rtss(pc),a0		;no extra routine for skateto
+	bsr.w	skateto			;skate to d0/d1
 	bra.w	check4check
 .topuck	bsr.w	skatetopuck		;Falls into check4check
 
 check4check	;look for good opportunity for checking opponent. Falls in from assnearest; also entered from assfwatch and asswingd
+	;roll against aggression first, then look for an opponent within 30 units whom a3 is facing
 	moveq	#$14,d0
 	sub.b	$75(a3),d0		;aggress
-	tst.w	(OptPen).w
+	tst.w	(OptPen).w		;OptPen nonzero: double the range (so checks are rarer)
 	beq.w	.nopen
 	asl.w	#1,d0
-.nopen	bsr.w	randomd0
+.nopen	bsr.w	randomd0		;0 <= d0 < ($14 - aggress) [*2]
 	cmp.w	#3,d0		;(92 tst d0)
-	bhi.w	rtss
-	moveq	#5,d2
+	bhi.w	rtss			;above 3: no check this time
+	moveq	#5,d2			;loop over the 6 opposing sort objects
 	movea.w	#(SortCords-M68K_RAM),a0
 	cmpi.w	#6,SCnum(a3)
 	bge.w	.0
-	adda.w	#6*SCstruct,a0
+	adda.w	#6*SCstruct,a0		;a3 is home: opponents are objects 6-11
 .0	tst.w	position(a0)
-	beq.w	.next
+	beq.w	.next			;skip the goalie
 	btst	#pfalock,pflags(a0)		;skip
 	bne.w	.next
 	btst	#pf2fight,pflags2(a0)		;skip
 	bne.w	.next
 	move.w	(a0),d0
-	sub.w	(a3),d0
+	sub.w	(a3),d0			;dx to the opponent
 	cmp.w	#30,d0
 	bgt.w	.next
 	cmp.w	#-30,d0
 	blt.w	.next
 	move.w	Ypos(a0),d1
-	sub.w	Ypos(a3),d1
+	sub.w	Ypos(a3),d1		;dy to the opponent
 	cmp.w	#30,d1
 	bgt.w	.next
 	cmp.w	#-30,d1
 	blt.w	.next
-	bsr.w	vtoa
+	bsr.w	vtoa			;d0 = direction to the opponent
 	cmp.w	facedir(a3),d0
-	bne.w	.next
+	bne.w	.next			;not facing him
 	move.w	(HVcount).l,d0		;HV counter as random, 1 in 4 is a
 	andi.w	#3,d0			;hold/hook instead of a check
-	bne.w	burst
-	bra.w	Acheck
-.next	adda.w	#SCstruct,a0
+	bne.w	burst			;3 in 4: burst/check (cbut press)
+	bra.w	Acheck			;1 in 4: hold or hook on a0
+.next	adda.w	#SCstruct,a0		;next opponent
 	dbf	d2,.0
 	rts
 
 asspassrec	;assignment for catching pass. Assignment apassrec ($13)
-	btst	#pfalock,pflags(a3)
+	btst	#pfalock,pflags(a3)	;animation lock: leave
 	bne.w	rtss
-	btst	#gmclock,(gmode).w
+	btst	#gmclock,(gmode).w	;clock stopped: stand still
 	bne.w	donothing
-	btst	#pfjoycon,pflags(a3)
+	btst	#pfjoycon,pflags(a3)	;human controlled: nothing to do
 	bne.w	assexit
-	bclr	#pfna,pflags(a3)
+	bclr	#pfna,pflags(a3)	;new assignment? (clears the flag)
 	beq.w	.nna
-	bset	#pfdoff,pflags(a3)
-	move.b	#8,temp2+1(a3)
+	bset	#pfdoff,pflags(a3)	;deceleration off while waiting for the pass
+	move.b	#8,temp2+1(a3)		;temp2 = 8
 	clr.b	temp2(a3)			;temp2 high byte
 .nna	tst.w	(puckc).w
-	bpl.w	.ex
+	bpl.w	.ex			;puck is carried: assignment is over
 	sub.b	d7,temp1(a3)		;puck loose: wait temp1 (92 bmi skatetopuck)
-	bpl.w	rtss
-.ex	bclr	#pfdoff,pflags(a3)
+	bpl.w	rtss			;still waiting
+.ex	bclr	#pfdoff,pflags(a3)	;deceleration back on
 	bra.w	assexit
 ;unreferenced: skate to temp3/temp4
 	move.w	temp3(a3),d0
@@ -3134,18 +3135,18 @@ asspassrec	;assignment for catching pass. Assignment apassrec ($13)
 	bra.w	skateto
 
 assshoot	;assignment for computer shooting. Assignment ashoot ($12)
-	btst	#pfalock,pflags(a3)
+	btst	#pfalock,pflags(a3)	;animation lock: leave
 	bne.w	rtss
-	bclr	#pfna,pflags(a3)
+	bclr	#pfna,pflags(a3)	;new assignment? (clears the flag)
 	beq.w	.nna
-	bra.w	SetShotMode
-.nna	btst	#sfssdir,(sflags).w
-	beq.w	assexit
+	bra.w	SetShotMode		;first frame: start the shot (temp2 = swing time set by CompShoot)
+.nna	btst	#sfssdir,(sflags).w	;still in set-shot-dir mode?
+	beq.w	assexit			;no: the shot is done
 	clr.w	d2			;(92 also loads temp1 into d0)
-	sub.w	d7,temp2(a3)
-	bpl.w	ShotMode
+	sub.w	d7,temp2(a3)		;count the swing time down
+	bpl.w	ShotMode		;still swinging: feed ShotMode no buttons
 	bset	#cbut,d2			;cbut
-	bra.w	ShotMode
+	bra.w	ShotMode		;swing time over: press the shot button (cbut)
 
 pucknothing	;puck just slides along
 	bra.w	puckunflip
