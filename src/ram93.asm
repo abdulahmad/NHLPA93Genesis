@@ -5,15 +5,6 @@
 Asound	=	$c00011	;analog sound (VDP_PSG)
 Vdata	=	$c00000	;video ports (VDP_DATA)
 Vctrl	=	Vdata+4
-refwidth	=	7	;width of ref.map frames
-refheight	=	8	;height of ref.map frames
-
-Joy1	=	$a10003	;controller ports
-Joy2	=	$a10005
-
-Stack	=	$FFFFFFFE	;game stack (Begin, StartPer, Opening2). 92 $fffffdf0
-InitialSP	=	$FFFFF6	;reset vector 0. ($FFFFFFF6, the 32-bit form)
-;$FFFFFFFF: not used
 
 ;hardware
 IO_CT1_CTRL	=	$A10008
@@ -49,6 +40,9 @@ VDP___CNTR	=	$C0000C
 VDP____CNTR	=	$C0000E
 Z80_RAM	=	$A00000	;Z80 RAM as seen from the 68000 (Z80_RAM+$8E is the PCM rate byte)
 BackupRAM_Port	=	$200000	;serial backup RAM port: low byte bit 7 data, bit 6 clock
+Joy1	=	$a10003	;controller ports
+Joy2	=	$a10005
+
 ;VDP status register bits
 PAL_MODE	=	0
 DMA_IN_PROGRESS	=	1
@@ -60,6 +54,13 @@ SPRITE_OVERFLOW	=	6
 VBLANK_PENDING	=	7
 FIFO_FULL	=	8
 FIFO_EMPTY	=	9
+
+refwidth	=	7	;width of ref.map frames
+refheight	=	8	;height of ref.map frames
+
+Stack	=	$FFFFFFFE	;game stack (Begin, StartPer, Opening2). 92 $fffffdf0
+InitialSP	=	$FFFFF6	;reset vector 0. ($FFFFFFF6, the 32-bit form)
+;$FFFFFFFF: not used
 
 ;sfx / song numbers
 SngTitle	=	$35
@@ -95,15 +96,6 @@ SFX26	=	$26
 SFX27	=	$27
 SFXpuckwall1	=	$28
 SFXpuckice	=	$2C
-;printsmall control codes (byte value = -(ControlCodeJumpTable entry); names match the ControlCode_* routines)
-CC_SetMap	=	$FF	;-1: next byte = map number -> printm
-CC_SetAttribute	=	$FE	;-2: next byte = palette/priority -> printa
-CC_SetX	=	$FD	;-3: next byte = printx
-CC_SetY	=	$FC	;-4: next byte = printy
-CC_AddX	=	$FB	;-5: add next signed byte to printx
-CC_AddY	=	$FA	;-6: add next signed byte to printy
-CC_SetFont	=	$F9	;-7: next byte = char set index
-CC_SetMapAndPosition	=	$F8	;-8: next 4 bytes = attribute, map, x, y
 M68K_RAM	=	$FFFF0000	;start of RAM, also the start of the replay frames
 replayend	=	$FFFFAF54	;end of replay ram (92 computed replaystart+(replaynum*replaysize))
 GoalieStruct	=	$FFFFAFCA	;below varstart
@@ -136,6 +128,15 @@ printy	rs.w	1	;y cordinate for printing
 printa	rs.w	1	;attribute for print characters
 printm	rs.w	1	;map to use (0 = map 1, 4 = map 2, 8 = map 3)
 printfontset	rs.w	1	;printsmall char set (index*2 into smallfontchars).
+;printsmall control codes (byte value = -(ControlCodeJumpTable entry); names match the ControlCode_* routines)
+CC_SetMap	=	$FF	;-1: next byte = map number -> printm
+CC_SetAttribute	=	$FE	;-2: next byte = palette/priority -> printa
+CC_SetX	=	$FD	;-3: next byte = printx
+CC_SetY	=	$FC	;-4: next byte = printy
+CC_AddX	=	$FB	;-5: add next signed byte to printx
+CC_AddY	=	$FA	;-6: add next signed byte to printy
+CC_SetFont	=	$F9	;-7: next byte = char set index
+CC_SetMapAndPosition	=	$F8	;-8: next 4 bytes = attribute, map, x, y
 fodropx	rs.w	1	;face off drop spot x/y
 fodropy	rs.w	1
 recbpr	rs.l	1
