@@ -1126,7 +1126,9 @@ checkwindow	;set hpos and vpos according to how screen should follow puck
 
 
 	include logic93.asm		;$00946E-$00D5D1 doinput ... dirtab
-	include middle93.asm		;$00D5D2-$00E525 UnpackNibbles ... AddTeamBlock
+	include middle93.asm		;$00D5D2-$00DD67 UnpackNibbles ... dobitmap
+	include decompress93.asm	;$00DD68-$00DF8D DecompressGraphicsWithCallback ... FlushOutputBuffer (new in 93)
+	include print93.asm		;$00DF8E-$00E525 xyVmMap ... AddTeamBlock
 	include penalty93.asm		;$00E526-$00F757 AddPenalty ... AdvanceStringPtr
 
 DoHiLights	;hilites logic: search for hilite game and show hilite (no OptPlayMode check). Called from Intermission
