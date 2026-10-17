@@ -4,7 +4,7 @@
 ;
 ;	The packing is a byte oriented LZ77 style opcode stream: literal runs, zero and byte fills, and copies
 ;	from the last 256 bytes, forward or reverse. Called from dobitmap and the tile loaders.
-;	;
+;
 ;	Build note: EA's compiler emits cmp #imm,Dn as CMP (Bxxx) but SNASM emits CMPI (0Cxx). The source has the real
 ;	cmp / exg; fixopcodes.js patches the encoding after assembly.
 

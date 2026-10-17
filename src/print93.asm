@@ -3,7 +3,7 @@
 ;	printsmall, printz, print and printbig draw text, with their control codes, FormatAndPrintTime, PushTime,
 ;	PushNumber, appendz and appstring. AddSmallFont, AddFramer and AddTeamBlock load the font, frame and
 ;	team block tiles through DecompressGraphics.
-;	;
+;
 ;	Build note: EA's compiler emits cmp #imm,Dn as CMP (Bxxx) but SNASM emits CMPI (0Cxx). The source has the real
 ;	cmp / exg; fixopcodes.js patches the encoding after assembly.
 
