@@ -1448,7 +1448,7 @@ chkhit	;part of fight to see if player is hit
 	andi.w	#$F,d0
 	cmp.w	SCnum(a0),d0
 	bne.s	.loop			;find the penalty of the a0 player
-	move.b	#$28,(a1)		;penalty becomes PenFighting
+	move.b	#PenFighting2,(a1)	;penalty becomes PenFighting2
 	movem.l	(sp)+,a1
 	move.w	#$3C,(Pencntdwn).w	;60
 	move.w	#$FFFF,temp3(a0)		;temp3 = -1
@@ -2138,7 +2138,7 @@ assgoalie	;Player a3 is goalie. Also entered from assnearest
 	bra.w	.nofo
 .mbfo	sub.w	d7,temp5(a3)
 	bpl.w	.nofo
-	move.l	#8,d0			;PenGhold
+	move.l	#PenGhold,d0
 	bsr.w	AddPenalty2
 .nofo	sub.b	d7,temp1(a3)
 	bpl.w	.nodec
@@ -3891,7 +3891,7 @@ a2offsides	;player a2 touched the puck: offsides penalty if his team is flagged 
 	btst	#gmhl,(gmode).w
 	bne.w	rtss
 	exg	a2,a3
-	move.l	#$10,d0			;PenOffsides
+	move.l	#PenOffsides,d0
 	bsr.w	AddPenalty
 	exg	a2,a3
 	rts
@@ -3934,7 +3934,7 @@ a2touchpuck	;player a2 touches puck. Look for penalties/offsides/other junk. Cal
 	move.l	a3,-(sp)
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d0,a3
-	move.w	#$C,d0			;PenIcing
+	move.w	#PenIcing,d0
 	bsr.w	AddPenalty
 	movea.l	(sp)+,a3
 	rts

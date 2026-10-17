@@ -677,3 +677,6 @@ dobitmap	;transfer palette data/map data/tiles data to vram. a0 = palette, a1 = 
 	move.w	(sp)+,(disflags).w
 	move.w	(sp)+,(printy).w
 	rts
+
+	include decompress93.asm	;$00DD68-$00DF8D DecompressGraphicsWithCallback ... FlushOutputBuffer (new in 93)
+	include print93.asm		;$00DF8E-$00E525 xyVmMap ... AddTeamBlock

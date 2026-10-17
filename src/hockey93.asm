@@ -323,14 +323,14 @@ clockcont_0	;end of period. Also entered from puckfaceoff
 	addi.w	#$28,(CwdExciteLvl).w
 	bset	#gmclock,(gmode).w
 	bset	#gmeog,(gmode).w		;set at end of game
-	move.w	#4,d0			;PenEOG
+	move.w	#PenEOG,d0
 	bra.w	AddPenalty2
 
 .chkot	cmpi.w	#3,(gsp).w		;Tie or periods 1-2
 	bne.w	.eop
 	tst.w	(OptPlayMode).w
 	beq.s	.eog			;gsp 3 with OptPlayMode 0 ends the game
-.eop	move.w	#2,d0			;PenEOP
+.eop	move.w	#PenEOP,d0
 	bra.w	AddPenalty2
 
 demoread	;monitor joystick if in demo mode (called every game loop)
@@ -1126,9 +1126,7 @@ checkwindow	;set hpos and vpos according to how screen should follow puck
 
 
 	include logic93.asm		;$00946E-$00D5D1 doinput ... dirtab
-	include middle93.asm		;$00D5D2-$00DD67 UnpackNibbles ... dobitmap
-	include decompress93.asm	;$00DD68-$00DF8D DecompressGraphicsWithCallback ... FlushOutputBuffer (new in 93)
-	include print93.asm		;$00DF8E-$00E525 xyVmMap ... AddTeamBlock
+	include middle93.asm		;$00D5D2-$00E525 UnpackNibbles ... AddTeamBlock
 	include penalty93.asm		;$00E526-$00F757 AddPenalty ... AdvanceStringPtr
 
 DoHiLights	;hilites logic: search for hilite game and show hilite (no OptPlayMode check). Called from Intermission

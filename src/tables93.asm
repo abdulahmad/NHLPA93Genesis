@@ -85,109 +85,130 @@ pfaceoff	=	(*-asstab)/4
 pfaceoff2	=	(*-asstab)/4
 	dc.l	puckfaceoff2
 
-Penaltylist	;Penalty number = word offset into this table
-	;and has 3 more entries. Used by AddPenalty, SetPA2, DisplayPenaltyEntry, ...
+Penaltylist	;Penalty number = word offset into this table. Used by AddPenalty, SetPA2, DisplayPenaltyEntry, ...
 	dc.w	$0000
-	dc.w	.eop-Penaltylist	;2 period over
-	dc.w	.eog-Penaltylist	;4 game over
-	dc.w	.ghold-Penaltylist	;6
-	dc.w	.ghold-Penaltylist	;8
-	dc.w	.whistle-Penaltylist	;$A whistle
-	dc.w	.ice-Penaltylist	;$C icing
-	dc.w	.goal-Penaltylist	;$E goal
-	dc.w	.offsides-Penaltylist	;$10 offsides
-	dc.w	.rough2-Penaltylist	;$12 roughing, slow down time $A
-	dc.w	.p14-Penaltylist	;$14 no text
-	dc.w	.charge-Penaltylist	;$16
-	dc.w	.slash-Penaltylist	;$18
-	dc.w	.rough-Penaltylist	;$1A
-	dc.w	.cross-Penaltylist	;$1C
-	dc.w	.hook-Penaltylist	;$1E
-	dc.w	.trip-Penaltylist	;$20
-	dc.w	.int-Penaltylist	;$22
-	dc.w	.hold-Penaltylist	;$24
-	dc.w	.fight-Penaltylist	;$26
-	dc.w	.fight2-Penaltylist	;$28
-	dc.w	.inst-Penaltylist	;$2A
-	dc.w	.delay-Penaltylist	;$2C delay
+PenEOP	equ	(*-Penaltylist)	;2 period over
+	dc.w	PenDataEOP-Penaltylist
+PenEOG	equ	(*-Penaltylist)	;4 game over
+	dc.w	PenDataEOG-Penaltylist
+PenOOP	equ	(*-Penaltylist)	;6
+	dc.w	PenDataGhold-Penaltylist
+PenGhold	equ	(*-Penaltylist)	;8
+	dc.w	PenDataGhold-Penaltylist
+PenWhistle	equ	(*-Penaltylist)	;$A whistle
+	dc.w	PenDatawhistle-Penaltylist
+PenIcing	equ	(*-Penaltylist)	;$C icing
+	dc.w	PenDataice-Penaltylist
+PenGoal	equ	(*-Penaltylist)	;$E goal
+	dc.w	PenDataGoal-Penaltylist
+PenOffsides	equ	(*-Penaltylist)	;$10 offsides
+	dc.w	PenDataoffsides-Penaltylist
+PenRoughing2	equ	(*-Penaltylist)	;$12 roughing, slow down time $A
+	dc.w	PenDatarough2-Penaltylist
+PenNoText	equ	(*-Penaltylist)	;$14 no text
+	dc.w	PenDataNoText-Penaltylist
+PenCharging	equ	(*-Penaltylist)	;$16
+	dc.w	PenDatacharge-Penaltylist
+PenSlashing	equ	(*-Penaltylist)	;$18
+	dc.w	PenDataslash-Penaltylist
+PenRoughing	equ	(*-Penaltylist)	;$1A
+	dc.w	PenDatarough-Penaltylist
+PenCrossChk	equ	(*-Penaltylist)	;$1C
+	dc.w	PenDatacross-Penaltylist
+PenHooking	equ	(*-Penaltylist)	;$1E
+	dc.w	PenDatahook-Penaltylist
+PenTripping	equ	(*-Penaltylist)	;$20
+	dc.w	PenDatatrip-Penaltylist
+PenInterference	equ	(*-Penaltylist)	;$22
+	dc.w	PenDataint-Penaltylist
+PenHolding	equ	(*-Penaltylist)	;$24
+	dc.w	PenDataHold-Penaltylist
+PenFighting	equ	(*-Penaltylist)	;$26
+	dc.w	PenDatafight-Penaltylist
+PenFighting2	equ	(*-Penaltylist)	;$28
+	dc.w	PenDatafight2-Penaltylist
+PenInst	equ	(*-Penaltylist)	;$2A
+	dc.w	PenDataInst-Penaltylist
+PenDelay	equ	(*-Penaltylist)	;$2C delay
+	dc.w	PenDatadelay-Penaltylist
 
 ;format
 ;	dc.w	$ttmm	;tt=slow dnw time in half secs,mm=penalty min.
 ;	String  'penalty text' dc.w     $ffdd,$ffdd,$ffdd,... ;ff =
 ;	frame,dd=delay (neg for end)
 
-.eop	dc.w	$0100
+PenDataEOP	dc.w	$0100
 	String	'Period Over'
 	dc.w	-$0510
-.eog	dc.w	$0100
+PenDataEOG	dc.w	$0100
 	String	'Game Over'
 	dc.w	$0510,-$4060
-.goal	dc.w	$0100
+PenDataGoal	dc.w	$0100
 	dc.w	2			;String with no text (92 'Goal!')
 	dc.w	$050a,-$4010
-.p14	dc.w	$0100
+PenDataNoText	dc.w	$0100
 	dc.w	2			;String with no text
 	dc.w	$0510,-$4018
-.ice	dc.w	$0100
+PenDataice	dc.w	$0100
 	String	'Icing'
 	dc.w	$0002,$0101,-$0206
-.offsides	dc.w	$0100
+PenDataoffsides	dc.w	$0100
 	String	'Off-side'
 	dc.w	$0002,$0301,-$040f
-.ghold	dc.w	$0100
+PenDataGhold	dc.w	$0100
 	String	'Face Off'
 	dc.w	-$050a
-.delay	dc.w	$0000
+PenDatadelay	dc.w	$0000
 	String	'Penalty'
 	dc.w	$0003,$0301,-$040f
 
-.whistle	dc.w	$0000
+PenDatawhistle	dc.w	$0000
 	dc.w	2			;String with no text
 	dc.w	-$050a
 
-.charge	dc.w	$0402
+PenDatacharge	dc.w	$0402
 	String	'Charging'
 	dc.w	$0004,$0101,$0a01,$0b01,$0a01,$0b01,$0a01,$0b01,$0a01,$0b01,-$0101
 
-.slash	dc.w	$0402
+PenDataslash	dc.w	$0402
 	String	'Slashing'
 	dc.w	$0004,$0101,$0201,$0301,$0201,$0301,$0201,$0301,$0201,$0301,-$0101
 
-.trip	dc.w	$0402
+PenDatatrip	dc.w	$0402
 	String	'Tripping'
 	dc.w	$0004,$0401,$0501,$0401,$0501,$0401,$0501,$0401,$0501,-$0101
 
-.rough2	dc.w	$0a02
+PenDatarough2	dc.w	$0a02
 	String	'Roughing'
 	dc.w	$0004,$0d01,$0e01,$0d01,$0e01,$0d01,$0e01,$0d01,$0e01,-$0101
 
-.rough	dc.w	$0402
+PenDatarough	dc.w	$0402
 	String	'Roughing'
 	dc.w	$0004,$0d01,$0e01,$0d01,$0e01,$0d01,$0e01,$0d01,$0e01,-$0101
 
-.hook	dc.w	$0402
+PenDatahook	dc.w	$0402
 	String	'Hooking'
 	dc.w	$0004,$0101,$0901,$0801,$0901,$0801,$0901,$0801,$0901,$0801,-$0101
 
-.cross	dc.w	$0402
+PenDatacross	dc.w	$0402
 	String	'Cross Check'
 	dc.w	$0004,$0601,$0f01,$1001,$0f01,$1001,$0f01,$1001,$0f01,$1001,-$0101
 
-.int	dc.w	$0402
+PenDataint	dc.w	$0402
 	String	'Interference'
 	dc.w	$0004,$0101,$0c06,-$0101
 
-.hold	dc.w	$0402
+PenDataHold	dc.w	$0402
 	String	'Holding'
 	dc.w	$0004,$0101,$0706,-$0101
 
-.fight	dc.w	$2805
+PenDatafight	dc.w	$2805
 	String	'Fighting'
 	dc.w	$0004,$0d01,$0e01,$0d01,$0e01,$0d01,$0e01,$0d01,$0e01,-$0101
-.fight2	dc.w	$2805
+PenDatafight2	dc.w	$2805
 	String	'Fighting *'
 	dc.w	$0004,$0d01,$0e01,$0d01,$0e01,$0d01,$0e01,$0d01,$0e01,-$0101
-.inst	dc.w	$2802
+PenDataInst	dc.w	$2802
 	String	'Fight Instigator'
 	dc.w	$0004,$0d01,$0e01,$0d01,$0e01,$0d01,$0e01,$0d01,$0e01,-$0101
 
