@@ -79,13 +79,12 @@ osflag	=	20000	;flag for off screen graphic ($4E20)
 ;sfx / song numbers
 SngGoal	=	$30	;home goal tune (fmtune_goal)
 SngPeriodStart	=	$31	;period start tune (fmtune_periodstart)
-SngPeriod3	=	$32	;3rd period late game tune (fmtune_period3)
+SngLateGame	=	$32	;late game tune, once in the 3rd period (CheckLateGameSong, fmtune_period3)
 SngPowerPlay	=	$33	;home team power play tune (fmtune_powerplay)
 SngFaceoff	=	$34	;face off tune, once per period (fmtune_faceoff)
 SngTitle	=	$35
-SngEOG	=	$36
+SngIntermission	=	$36	;plays at every period end and the end of the game (IntermissionStart), on the playoff screen and when the highlights start (fmtune_eog). 92 had SngEOP, SngEOG and SngPO for these
 SngScout	=	$37	;scouting report
-SngPO	=	SngEOG	;92 played its Playoffs music here (SngPO 4); 93 plays the End of Game tune
 SFXsiren	=	$0
 SFXbeep1	=	$1
 SFXbeep2	=	$2

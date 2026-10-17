@@ -205,7 +205,7 @@ CheckLateGameSong	;called once per second. 3rd period: play tune $32 once at the
 	cmp.w	(periodendtime).w,d0
 	bgt.w	.x			;not there yet
 	st	(periodendtime).w		;high byte $FF: trigger goes negative, fires once
-	move.w	#SngPeriod3,-(sp)
+	move.w	#SngLateGame,-(sp)
 	bsr.w	song
 .x	rts
 
@@ -1277,7 +1277,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	jsr	(SetupPauseScreen).w	;pause menu screen
 	jsr	(DrawMenuScreen).w
 	move.w	#$18,(palcount).w	;24
-	move.w	#SngEOG,-(sp)		;song $36
+	move.w	#SngIntermission,-(sp)		;song $36
 	bsr.w	song
 	movem.l	(sp),d0-d7/a0-a6
 	move.w	#4,gsper(a0)		;gsper: OT
@@ -4038,7 +4038,7 @@ IntermissionStart	;PeriodOver tail: reset the clock, song $36, ticker scores
 	;playoff team stats at game over, then Intermission. Next period, or GameOver when gsp = 4.
 	;Also jumped to from StartGame (as _sp) for the pregame intermission
 	jsr	ResetClock
-	move.w	#SngEOG,-(sp)		;song $36 (92 used 3 here)
+	move.w	#SngIntermission,-(sp)		;song $36 (92 used 3 here)
 	bsr.w	song
 	bsr.w	UpdateScores
 	cmpi.w	#4,(gsp).w
@@ -4211,7 +4211,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	bsr.w	printz
 	String	$CD,$A,1,'Press [ or ] to page'
 .nopage	move.w	#$18,(palcount).w	;24 frames per color flash
-	move.w	#SngPO,-(sp)		;song $36 (92 used 4)
+	move.w	#SngIntermission,-(sp)		;song $36 (92 used 4)
 	bsr.w	song
 
 	clr.w	d0
