@@ -55,12 +55,26 @@ VBLANK_PENDING	=	7
 FIFO_FULL	=	8
 FIFO_EMPTY	=	9
 
+MaxSprites	=	64	;max sprites during game (64 because 32 col mode)
+
 refwidth	=	7	;width of ref.map frames
 refheight	=	8	;height of ref.map frames
 
 Stack	=	$FFFFFFFE	;game stack (Begin, StartPer, Opening2). 92 $fffffdf0
 InitialSP	=	$FFFFF6	;reset vector 0. ($FFFFFFF6, the 32-bit form)
 ;$FFFFFFFF: not used
+
+;joystick button equates (bit numbers)
+ubut	=	0	;up
+dbut	=	1	;down
+lbut	=	2	;left
+rbut	=	3	;right
+bbut	=	4	;b button
+cbut	=	5	;c button
+abut	=	6	;a button
+sbut	=	7	;start button
+HVcount	=	VDP_CNTR	;Video port
+osflag	=	20000	;flag for off screen graphic ($4E20)
 
 ;sfx / song numbers
 SngTitle	=	$35
@@ -96,12 +110,23 @@ SFX26	=	$26
 SFX27	=	$27
 SFXpuckwall1	=	$28
 SFXpuckice	=	$2C
-M68K_RAM	=	$FFFF0000	;start of RAM, also the start of the replay frames
-replayend	=	$FFFFAF54	;end of replay ram (92 computed replaystart+(replaynum*replaysize))
-GoalieStruct	=	$FFFFAFCA	;below varstart
+goalline	=	176	;distance from blue line to goalline
+Blueline	=	$58	;distance from center line to blueline (92 kept it in a variable)
+Sideline	=	$88	;distance from center to side boards (92 kept it in a variable)
+
+replaystart	=	$FFFF0000	;start of ram area for replay frames, also the start of RAM
+M68K_RAM	=	replaystart
 varstart	=	$FFFFB000	;start of variable space (end of replay)
+GoalieStruct	=	$FFFFAFCA	;below varstart
+
+replaysize	=	98	;number of bytes per replay frame (92 84)
+replaynum	=	((varstart-replaystart)/replaysize)-1	;number of frames for replay
+replayend	=	replaystart+(replaynum*replaysize)	;end of replay ram ($FFFFAF54)
+
 Sortobjs	=	16	;number of sorted graphics objects- these are arranged so sprites lower on the screen are of higher priority
-SCstruct	=	$80	;ram for each sortobj
+scsize	=	7	;2 to this power indicates ram needed for each sortobj
+SCstruct	=	1<<scsize	;ram for each sortobj
+RAMSTART = varstart
 	RSSET	varstart
 VSCRLPM	rs.w	1	;location in vram of scroll parameters
 VSPRITES	rs.w	1	;location in vram of sprite attributes
@@ -116,7 +141,7 @@ smallfontchars	rs.w	1	;vram tiles for SmallFont.map
 smallfont2chars	rs.w	1	;vram tiles for the 2nd small font set.
 energybarchars	rs.w	1	;vram tiles for the energy bar (also logo / cup sprites on the title screens).
 rinkvrcset	rs.w	1	;vram tiles for IceRink.map
-animchars	rs.w	1
+crowdvrcset	rs.w	1	;vram tiles for the crowd animation (also the Title3map sprites)
 faceoffvrcset	rs.w	1	;vram tiles for FaceOff graphics
 Framercset	rs.w	1	;vram tiles for framer.map
 EASNcset	rs.w	1	;vram tiles for EASN.map
@@ -149,11 +174,15 @@ lldisp	rs.w	1	;line level disp update counter
 periodendtime	rs.w	1	;CheckLateGameSong trigger time.
 
 ;the following are equates for the sort object structure (SCstruct bytes each)
+Xcord	=	0
+Ycord	=	2
+
 Xpos	=	$0
 attribute	=	$4	;frame attribute switch bits
 frame	=	$6	;alice frame number
 oldframe	=	$8	;last frame
 VRoffs	=	$A	;offsets to find each sprites start char. (max of 6 sprites / frame)
+VRsize	=	VRoffs+6	;vram size in chars allocated for this graphic (92 stored it here; 93 does not)
 VRchar	=	$12	;vram char for graphic
 Ypos	=	$14
 Zpos	=	$18
@@ -213,11 +242,15 @@ aioff	=	$6A
 aidef	=	$6B
 shotspd	=	$6C
 shotacc	=	$6D
+GGSright	=	shotacc
 passacc	=	$6E
 rostnum	=	$6F
 spodds	=	$70
+GSSleft	=	spodds
 stickhand	=	$71
+GGSleft	=	stickhand
 endurance	=	$72
+GSSright	=	endurance
 aggress	=	$73	;and offset
 handed	=	$76	;bit0 set is left handed. 92 $74
 SortCords	rs.b	Sortobjs*SCstruct
@@ -297,7 +330,12 @@ ltplayer	rs.w	1	;last touch player
 ltx	rs.w	1	;last touch x cord
 lty	rs.w	1	;last touch y cord
 iflags	rs.b	1	;icing
+ifcgl	=	0	;crossed goalline
+ifdir	=	1	;1=must cross top line
+ifok	=	2
 icingPlayer	rs.b	5
+jps	=	24	;jiffys per second
+jiffy	=	$10000/jps
 clockram	rs.w	3	;ram for dma transfer of clock digits
 xc1	rs.w	1	;scroll lock x cord
 yc1	rs.w	1	;scroll lock y cord
@@ -395,8 +433,10 @@ tmline	=	$16	;current line. 92 $18
 tmap	=	$24	;active players on ice 4-6. 92 $1A
 tmgoalie	=	$26	;goalie 1/2/none. 92 $1C
 tmflags	=	$30	;flags. 92 $1E
+tmflcc	=	0	;line change on
 tmpde	=	$32	;energy level of each roster player. 92 $20
-tmpdst	=	$66	;-2=bench/-1=ice/0+=penalty box. 92 $54
+maxros	=	26
+tmpdst	=	tmpde+(2*maxros)	;-2=bench/-1=ice/0+=penalty box. 92 $54
 tmsize	=	$1A2	;92 $88
 tmstruct	rs.b	tmsize
 ;$FFFFC4FC is hmtmstruct+tmline
@@ -455,7 +495,10 @@ screentimer	rs.w	1	;frames left on a screen (ScoutingReport); last cursor row.
 TestList	rs.w	122
 nibblebuffer	rs.w	6	;UnpackNibbles words, WeightedRandomSelect weights.
 ;$FFFFCACE is nibblebuffer+4
+varend	=	nibblebuffer+8	;end of the variables cleared by Opening2 ($FFFFCAD2). 92 had a varend label after TickerNum
+menuitems	=	7	;number of menu items
 OptPlayMode	rs.w	1	;play mode
+optionsmenu	=	OptPlayMode
 OptNOP	rs.w	1
 Opt1team	rs.w	1
 Opt2team	rs.w	1

@@ -34,13 +34,13 @@ doinput	;process controller input
 	move.w	(puckc).w,d5
 	cmp.w	SCnum(a3),d5
 	beq.w	.ispc			;player is puck carrier
-	btst	#6,d1			;abut
+	btst	#abut,d1			;abut
 	bne.w	holdplayer		;hold button
 	btst	#4,d1			;bbut, is not puck c
 	bne.w	changeplayer		;switch players
 	tst.w	position(a3)
 	beq.w	rtss			;goalie can't check
-	btst	#5,d1			;cbut
+	btst	#cbut,d1			;cbut
 	bne.w	burst			;burst/check
 	bra.w	doplayeracc		;no button, just dpad input
 .ispc	bsr.w	checkob			;Player is puck handler
@@ -52,13 +52,13 @@ doinput	;process controller input
 	bne.w	passmode
 	btst	#sfssdir,(sflags).w
 	bne.w	ShotMode
-	btst	#4,d1			;bbut
+	btst	#bbut,d1			;bbut
 	bne.w	setpassmode
-	btst	#6,d1			;abut
+	btst	#abut,d1			;abut
 	bne.w	SetLCmode
 	tst.w	position(a3)
 	beq.w	rtss			;exit if goalie
-	btst	#5,d1			;cbut
+	btst	#cbut,d1			;cbut
 	bne.w	SetShotMode
 	bra.w	doplayeracc
 .islocked	move.w	(puckc).w,d5		;Animation is locked /don't interupt it/
@@ -79,7 +79,7 @@ faceoffinput	;controller processing for faceoff
 .2	move.w	d0,(a0)			;Store dpad for faceoff pull
 	btst	#pf2aip,pflags2(a3)
 	bne.w	rtss
-	btst	#4,d1			;bbut
+	btst	#bbut,d1			;bbut
 	beq.w	.1
 	move.w	#SPAfaceoff,d1
 	bset	#pf2aip,pflags2(a3)
@@ -120,13 +120,13 @@ fightinput	;controller processing for fighting
 	bne.w	rtss
 	move.w	d1,d2
 	move.w	#SPAfhigh,d1
-	btst	#5,d2			;cbut
+	btst	#cbut,d2			;cbut
 	bne.w	SetSPA			;start hit high anim
 	move.w	#SPAflow,d1
-	btst	#4,d2			;bbut
+	btst	#bbut,d2			;bbut
 	bne.w	SetSPA			;start hit low anim
 	move.w	#SPAfgrab,d1
-	btst	#6,d2			;abut
+	btst	#abut,d2			;abut
 	bne.w	SetSPA			;start grab anim
 	bclr	#pf2aip,pflags2(a3)		;clear anim in prog if none
 	rts
@@ -265,13 +265,13 @@ lineinput	;process input for line changes
 	bsr.w	SetLCmode2		;start lc mode
 .1	move.w	(sp)+,d1		;New presses
 	clr.w	d2			;choice made index
-	btst	#6,d1			;abut
+	btst	#abut,d1			;abut
 	bne.w	lcfound
 	addq.w	#1,d2
-	btst	#4,d1			;bbut
+	btst	#bbut,d1			;bbut
 	bne.w	lcfound
 	addq.w	#1,d2
-	btst	#5,d1			;cbut
+	btst	#cbut,d1			;cbut
 	bne.w	lcfound
 	btst	#pfjoycon,pflags(a3)
 	beq.w	.x
@@ -642,7 +642,7 @@ restorepl	;Restore old joy controlled player d1, give d0
 	blt.w	.spd
 	cmp.w	#11,d1
 	bgt.w	.spd
-	asl.w	#7,d1			;scsize
+	asl.w	#scsize,d1			;scsize
 	btst	#pf2lcm,pflags2(a0,d1.w)		;pf2lcm
 	beq.w	.rel
 	lsr.w	#7,d1
@@ -706,7 +706,7 @@ ShotMode	;shot input
 	bge.w	.cb
 	cmpi.w	#8,SPAnum(a3)
 	bgt.w	.rev			;slow shooter: swing after 2 frames of windup
-.cb	btst	#5,d2			;cbut
+.cb	btst	#cbut,d2			;cbut
 	beq.w	rtss			;button hasn't changed so continue windup
 .rev	neg.w	SPAnum(a3)			;End wind and swing thru
 	addi.w	#$1C,SPAnum(a3)
@@ -747,7 +747,7 @@ doshot	;stick is at puck so launch puck toward goal
 	st	(puckc).w
 	move.b	#$10,nopuck(a3)
 	move.w	SCnum(a3),(lastplayer).w
-	move.w	#$108,d1		;blueline+goalline
+	move.w	#Blueline+goalline,d1		;blueline+goalline
 	btst	#pfgoal,pflags(a3)
 	bne.w	.0
 	neg.w	d1
@@ -990,7 +990,7 @@ assbench	;player a3 should goto bench
 	bne.w	.0
 	neg.w	d0
 .0	move.w	d0,temp4(a3)		;temp4 = bench y
-	move.w	#$88,temp3(a3)		;sideline
+	move.w	#Sideline,temp3(a3)		;sideline
 	neg.w	temp3(a3)
 	subq.w	#8,temp3(a3)		;temp3 = bench x
 	clr.w	temp1(a3)
@@ -1074,7 +1074,7 @@ asseben	;player a3 should exit bench area
 	addq.w	#1,d0
 .0	muls.w	#$E,d0
 	move.w	d0,Ypos(a3)
-	move.w	#$88,(a3)		;sideline
+	move.w	#Sideline,(a3)		;sideline
 	neg.w	(a3)
 	move.w	#2,facedir(a3)
 	bset	#5,pflags(a3)
@@ -1111,7 +1111,7 @@ asspenalty	;player a3 should goto penalty box
 .1	addq.w	#3,d1
 	muls.w	d0,d1
 	move.w	d1,temp4(a3)
-	move.w	#$88,temp3(a3)		;temp3 = sideline
+	move.w	#Sideline,temp3(a3)		;temp3 = sideline
 	clr.w	temp1(a3)
 	bset	#pf2npc,pflags2(a3)		;pf2npc: no player coll.
 	clr.w	Wallcos(a3)
@@ -1287,7 +1287,7 @@ assfight	;fighting logic
 .nna2	tst.w	temp3(a3)
 	bmi.w	rtss
 	move.w	impactp(a3),d0
-	asl.w	#7,d0			;scsize
+	asl.w	#scsize,d0			;scsize
 	movea.w	#(SortCords-M68K_RAM),a0
 	adda.w	d0,a0			;a0 = opponent
 	move.w	(a3),d0
@@ -1939,15 +1939,15 @@ asswingo	;player a3 is winger on offense
 	neg.w	d0
 	neg.w	d3
 .de1	clr.w	d2			;Set zone number
-	cmp.w	#-$58,d3		;-blueline,d3
+	cmp.w	#-Blueline,d3		;-blueline,d3
 	blt.w	.de2
 	addq.w	#8,d2
-	cmp.w	#$58,d0		;blueline,d0
+	cmp.w	#Blueline,d0		;blueline,d0
 	blt.w	.de2
 	btst	#4,tmflags(a2)		;team flag keeps him back
 	bne.w	.de2
 	addq.w	#8,d2
-	cmp.w	#$108,d3		;blueline+goalline,d3
+	cmp.w	#Blueline+goalline,d3		;blueline+goalline,d3
 	blt.w	.de2
 	addq.w	#8,d2
 .de2	cmp.w	temp5(a3),d2
@@ -2013,7 +2013,7 @@ asscenterd	;player a3 is center on defense
 	bne.w	.0
 	neg.w	d2
 .0	moveq	#-$80,d1
-	cmp.w	#-$58,d2		;-blueline,d2
+	cmp.w	#-Blueline,d2		;-blueline,d2
 	blt.w	.z0
 	add.w	(pucky).w,d1
 	asr.w	#1,d1
@@ -2052,15 +2052,15 @@ asscentero	;player a3 is center on offense
 	bne.w	.de1
 	neg.w	d0
 .de1	clr.w	d2			;Set zone number
-	cmp.w	#-$58,d0		;-blueline,d0
+	cmp.w	#-Blueline,d0		;-blueline,d0
 	blt.w	.de2
 	addq.w	#8,d2
-	cmp.w	#$58,d0		;blueline,d0
+	cmp.w	#Blueline,d0		;blueline,d0
 	blt.w	.de2
 	btst	#4,tmflags(a2)
 	bne.w	.de2
 	addq.w	#8,d2
-	cmp.w	#$108,d0		;blueline+goalline,d0
+	cmp.w	#Blueline+goalline,d0		;blueline+goalline,d0
 	blt.w	.de2
 	addq.w	#8,d2
 .de2	cmp.w	temp5(a3),d2
@@ -2207,9 +2207,9 @@ assgoalie	;Player a3 is goalie. Also entered from assnearest
 	cmp.w	#-20,d0
 	blt.w	.de1
 	move.w	(pucky).w,d1
-	cmp.w	#$108,d1		;blueline+goalline,d1
+	cmp.w	#Blueline+goalline,d1		;blueline+goalline,d1
 	bgt.w	.de1
-	cmp.w	#-$108,d1		;-(blueline+goalline),d1
+	cmp.w	#-(Blueline+goalline),d1		;-(blueline+goalline),d1
 	blt.w	.de1
 	sub.w	Ypos(a3),d1
 	cmp.w	#30,d1
@@ -2602,9 +2602,9 @@ chk4lc	;see if computer should call line change
 	neg.w	d0
 .gu	tst.w	d0
 	bmi.w	rtss
-	cmp.w	#$58,d0		;blueline,d0
+	cmp.w	#Blueline,d0		;blueline,d0
 	bgt.w	rtss
-	move.w	(VDP_CNTR).l,d0		;HVcount
+	move.w	(HVcount).l,d0		;HVcount
 	andi.w	#3,d0
 	bne.w	rtss
 	btst	#pf2lcm,pflags2(a3)		;pf2lcm
@@ -2650,7 +2650,7 @@ chk4shot	;player a3 looks for shot (computer controlled)
 .npk	moveq	#$20,d4
 	sub.b	spodds(a3),d4		;shot/pass odds
 	asl.w	#4,d4
-	move.w	#$108,d1		;blueline+goalline
+	move.w	#Blueline+goalline,d1		;blueline+goalline
 	btst	#7,pflags(a3)
 	bne.w	.c0
 	neg.w	d1
@@ -2768,7 +2768,7 @@ chk4pass	;player a3 looks for good pass (computer controlled)
 	eor.w	d0,d1
 	movem.w	(sp)+,d0-d1
 	bmi.w	rtss
-.oko	cmp.w	#$58,d0		;blueline,d0
+.oko	cmp.w	#Blueline,d0		;blueline,d0
 	bgt.w	.ok
 	sub.w	d1,d0
 	cmp.w	#-15,d0
@@ -2940,7 +2940,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	clr.l	$2A(a2)			;team long, set to best distance below
 	move.w	(puckc).w,d1
 	bmi.w	.np
-	asl.w	#7,d1			;scsize
+	asl.w	#scsize,d1			;scsize
 	movea.w	#(SortCords-M68K_RAM),a1
 	adda.w	d1,a1
 	move.b	pflags(a1),d0
@@ -3136,7 +3136,7 @@ assshoot	;assignment for computer shooting. Assignment ashoot ($12)
 	clr.w	d2			;(92 also loads temp1 into d0)
 	sub.w	d7,temp2(a3)
 	bpl.w	ShotMode
-	bset	#5,d2			;cbut
+	bset	#cbut,d2			;cbut
 	bra.w	ShotMode
 
 pucknothing	;puck just slides along
@@ -3212,7 +3212,7 @@ puckfaceoff	;this is where the action starts
 	bra.w	printscores1
 
 .slc	exg	a2,a3
-	asl.w	#7,d0			;scsize
+	asl.w	#scsize,d0			;scsize
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d0,a3
 	bclr	#pf2lcm,pflags2(a3)		;pf2lcm
@@ -3701,7 +3701,7 @@ Endfaceoff	;drop the puck: pick the faceoff winner and send the puck off. Entere
 	btst	#3,d0
 	bne.w	.nojoy
 	andi.w	#7,d0
-	move.w	(VDP_CNTR).l,d1		;hvcount
+	move.w	(HVcount).l,d1		;hvcount
 	andi.w	#3,d1
 	bne.w	.nj2
 .nojoy	moveq	#5,d0
@@ -3744,7 +3744,7 @@ pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames si
 	bsr.w	findpc
 .0	move.w	(puckc).w,d0
 	bmi.w	.nothandled
-	asl.w	#7,d0			;scsize
+	asl.w	#scsize,d0			;scsize
 	movea.w	#(SortCords-M68K_RAM),a2
 	adda.w	d0,a2
 	bsr.w	a2touchpuck
@@ -3813,7 +3813,7 @@ ChkOffsides	;check for offsides penalty. a3 = puck. Flags the whole team (tmflag
 	bsr.w	ClearOffsidesIfAllPlayers
 	exg	a1,a2
 	bsr.w	ClearOffsidesIfAllPlayers
-	move.w	#$54,d0			;blueline-4 (92 move blueline,d0 / sub #4,d0)
+	move.w	#Blueline-4,d0			;blueline-4 (92 move blueline,d0 / sub #4,d0)
 	cmp.w	Ypos(a3),d0
 	bgt.w	.neg
 	cmp.w	OldYpos(a3),d0		;OldYpos: puck crossed the top line this frame?
@@ -3867,7 +3867,7 @@ ClearOffsidesIfAllPlayers	;a2 = team struct. Clears the team offsides flag (tmfl
 	bne.w	.next
 	neg.w	d0
 .next	adda.w	#SCstruct,a0
-	cmp.w	#$58,d0		;(blueline)
+	cmp.w	#Blueline,d0		;(blueline)
 	dbgt	d1,.top
 	bgt.w	rtss			;someone still past the line
 	bclr	#4,tmflags(a2)
@@ -3918,9 +3918,9 @@ a2touchpuck	;player a2 touches puck. Look for penalties/offsides/other junk. Cal
 	st	$1C(a0)			;player was also the third touch: drop it
 .same	bclr	#sf2shot,(sflags2).w
 	bsr.w	a2offsides
-	btst	#2,(iflags).w		;ifok
+	btst	#ifok,(iflags).w		;ifok
 	beq.w	.notice
-	btst	#0,(iflags).w		;ifcgl
+	btst	#ifcgl,(iflags).w		;ifcgl
 	beq.w	.notice
 	tst.w	position(a2)
 	beq.w	.notice
@@ -3930,7 +3930,7 @@ a2touchpuck	;player a2 touches puck. Look for penalties/offsides/other junk. Cal
 	beq.w	.notice
 .icing	clr.w	d0
 	move.b	(icingPlayer).w,d0	;+1
-	asl.w	#7,d0			;scsize
+	asl.w	#scsize,d0			;scsize
 	move.l	a3,-(sp)
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d0,a3
@@ -3954,17 +3954,17 @@ a2touchpuck	;player a2 touches puck. Look for penalties/offsides/other junk. Cal
 	beq.w	.1
 	neg.w	d0
 .1	bmi.w	rtss
-	bset	#2,(iflags).w		;ifok
+	bset	#ifok,(iflags).w		;ifok
 	rts
 
 puckIChk	;check for icing of puck penalty. Called from pucknorm
-	btst	#2,(iflags).w		;ifok
+	btst	#ifok,(iflags).w		;ifok
 	beq.w	rtss
-	btst	#0,(iflags).w		;ifcgl
+	btst	#ifcgl,(iflags).w		;ifcgl
 	bne.w	rtss
 	tst.w	(puckc).w
 	bpl.w	rtss
-	move.w	#$108,d0		;blueline+goalline
+	move.w	#Blueline+goalline,d0		;blueline+goalline
 	btst	#1,(iflags).w		;ifdir
 	bne.w	.0
 	neg.w	d0
@@ -3977,9 +3977,9 @@ puckIChk	;check for icing of puck penalty. Called from pucknorm
 	bgt.w	.set
 	cmpi.w	#-$2C,(puckx).w
 	blt.w	.set
-	bclr	#2,(iflags).w		;ifok cleared: no icing
+	bclr	#ifok,(iflags).w		;ifok cleared: no icing
 	rts
-.set	bset	#0,(iflags).w		;ifcgl
+.set	bset	#ifcgl,(iflags).w		;ifcgl
 	rts
 
 puckunflip	;stop spinning puck. a3 = puck. Entered from pucknothing, called from pucknorm
@@ -4029,8 +4029,8 @@ puckshadow	;assignment for puck shadow. a3 = puck shadow (struct after the puck)
 findpc	;find puck crossing lines: calculate when puck will cross goalline (if at all). Called from pucknorm
 	movem.l	d0-d4/a1-a2,-(sp)
 	movea.w	#(puckcross-M68K_RAM),a1
-	move.w	#$88,d1			;sideline
-	move.w	#$108,d4		;blueline+goalline
+	move.w	#Sideline,d1			;sideline
+	move.w	#Blueline+goalline,d4		;blueline+goalline
 	bsr.w	.calc
 	neg.w	d4
 	bsr.w	.calc
@@ -4623,7 +4623,7 @@ playeracc	;d2 = direction of acc
 
 .sube	tst.w	(OptLine).w
 	bne.w	rtss
-	move.w	(VDP_CNTR).l,d0		;HVcount
+	move.w	(HVcount).l,d0		;HVcount
 	andi.w	#$7F,d0
 	bne.w	rtss
 	bsr.w	getpde
