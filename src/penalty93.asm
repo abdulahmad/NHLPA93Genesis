@@ -1004,7 +1004,7 @@ linebar	;draw the energy bar of line d0 for team a2 at printx/printy (bitmap fro
 	cmp.w	#$F,d0
 	bls.w	.ok
 	moveq	#$F,d0			;clamp to 15
-.ok
+.ok					;d0 = energy step 0-15
 dobar	equ	*		;92 dobar (draw energy bar for energy level d0); in 92 this is a separate routine, here it is a branch target
 	moveq	#$F,d1
 	sub.w	d0,d1			;d1 = bar frame (15 = empty)

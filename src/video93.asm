@@ -245,7 +245,7 @@ checkfo2	;face off graphics. a3 = face off data (word frame, word flags),
 	asl.w	#1,d2			;width in pixels
 	neg.w	d2
 	sub.w	(a2),d2
-.noxflip
+.noxflip					;d2 = x offset (mirrored or not)
 	addi.w	#$80,d2
 	add.w	(fodropx).w,d2
 	move.w	d2,6(a6)		;sprite x
@@ -298,7 +298,7 @@ showzam	;zamboni. Called from setvideo.
 	cmp.w	#$1A,d2
 	blt.w	.get
 	move.l	#$18,d2			;clamp to the last entry
-.get	movea.l	#.ftab,a1
+.get	movea.l	#.ftab,a1		;d2 = table offset
 	move.w	(a1,d2.w),d2		;frame from the table
 	bra.w	SetSframe
 .ftab	dc.w	5,6,7,8,7,8,7,8,7,8,7,6,5	;frame by (x-$DA)/4
@@ -332,7 +332,7 @@ SetSframe	;draw one sprite frame. Called from showzam and from the screen code.
 	beq.w	.ex			;sprite table full
 	addq.w	#8,a0
 	dbf	d4,.loop
-.ex	movem.l	(sp)+,d0-d5/a0
+.ex	movem.l	(sp)+,d0-d5/a0	;restore registers
 	rts
 
 showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two crowdframe frames.
@@ -362,7 +362,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	cmp.w	#3,d2
 	bls.w	.pb0
 	moveq	#3,d2			;max 3
-.pb0	bra.w	.nextpb
+.pb0	bra.w	.nextpb		;next sprite
 .pbt	move.w	d3,d0			;frame = first frame + counter
 	add.w	d2,d0
 	bsr.w	.sc

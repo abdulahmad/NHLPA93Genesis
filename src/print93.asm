@@ -422,7 +422,7 @@ appstring	;append string a1 to string a3
 	addq.l	#1,d0
 .4	sub.l	a3,d0			;new total length
 	move.w	d0,(a3)
-.ex	movem.l	(sp)+,d0/a0
+.ex	movem.l	(sp)+,d0/a0		;restore registers and return
 	rts
 
 printbigz	;see print big. String macro should follow the bsr/jsr to this routine. Keeps a1 (92 popped the return into a1)
