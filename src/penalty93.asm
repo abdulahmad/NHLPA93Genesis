@@ -11,8 +11,7 @@
 ;	  checkfornewpen, Stop4Pen, limitfo call the penalty, stop the clock, whistle, pick the face off spot
 ;	  UpdatePA, SetPA, SetPA2, PushRef,
 ;	  prefmes, ClearPenaltyMessage      the ref animation and the penalty message text
-;	  PenGoalStuff ... updatepwrplay    penalty clocks, players leaving the box, attack time, power play
-;	    display
+;	  PenGoalStuff ... updatepwrplay    penalty clocks, players leaving the box, attack time, power plays
 ;	  ClrHor, SetHor                    switch between the vertical and horizontal rink graphics
 ;	  printscores1 ... AdvanceStringPtr scoreboard, ticker and intermission code
 ;	  DoHiLights, StartHL, StartHL2     intermission highlights, at the very end of the file

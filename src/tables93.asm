@@ -1,17 +1,17 @@
-;	Data tables, included from hockey93.asm after the game code. In order: the crowd frame table (cd0, used by
-;	updatecrowdf), the player logic assignment table asstab, PenaltyList and its PenData records, bfasciicon,
-;	linelist, PlayerPositionText, PerLabels, sizetab, sublist, priolist, the playoff tree layout, the line
-;	editor and roster attribute column lists, and the menu item lists. Code addresses in these tables are
-;	routine labels, so Rev A shifts them.
+;	Data tables, included from hockey93.asm after the game code.
+;	In order: the crowd frame table (cd0, used by updatecrowdf), the player logic assignment table asstab,
+;	PenaltyList and its PenData records, bfasciicon, linelist, PlayerPositionText, PerLabels, sizetab,
+;	sublist, priolist, the playoff tree layout, the line editor and roster attribute column lists, and the
+;	menu item lists. Code addresses in these tables are routine labels, so Rev A shifts them.
 ;
 ;	Menu item lists (InitMenuState): two printsmall control Strings, then per item a String and the handler
 ;	address (dc.l). Item 0 leaves the menu (its handler is rtss). String $FF ends the list.
 
 cd0									;$fftt = frame/time for various levels of crowd excitement.
-	;Used by updatecrowdf, indexed by crowd level and crowdstep 4 blocks of 16 words, one per crowd level
-	;range ((crowdlevel/2) and $60 = byte offset 0,$20,$40,$60) each step (crowdstep 0-$1E, word index) gives
-	;the crowd frame (high byte) and its base duration (low byte) block 0 is a calm crowd (time $0c), blocks
-	;1, 2 and 3 are livelier and faster (time 7, 7, 3)
+	;Used by updatecrowdf, indexed by crowd level and crowdstep
+	;4 blocks of 16 words, one per crowd level range ((crowdlevel/2) and $60 = byte offset 0,$20,$40,$60) each
+	;step (crowdstep 0-$1E, word index) gives the crowd frame (high byte) and its base duration (low byte)
+	;block 0 is a calm crowd (time $0c), blocks 1, 2 and 3 are livelier and faster (time 7, 7, 3)
 	dc.w	$010c,$020c,$030c,$040c,$050c,$0a0c,$090c,$080c
 	dc.w	$060c,$070c,$080c,$090c,$0a0c,$050c,$040c,$030c
 

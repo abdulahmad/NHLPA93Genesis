@@ -5,14 +5,14 @@
 ;	In order:
 ;	  input: doinput, the line change box (SetLCmode ... lcfound2, getlchoice), burst, hold and hook, passing
 ;	    (passmode, dopass, passtoa0), switching players (changeplayer), shooting (ShotMode, doshot)
-;	  bench and penalty box moves: setpads, check4bench, assbench ... assepen faceoff and fight assignments:
-;	  assfaceoff, assfight, banner computer players: positioning by role (assdefo ... asscentero), assgoalie,
-;	  assgoalietopuck, asspuckc, chk4lc,
-;	    chk4shot, chk4pass, EvadePC, assnearest, check4check, asspassrec, assshoot
-;	  the puck: puckfaceoff ... Endfaceoff, pucknorm, ChkOffsides, puckIChk (icing), puckshadow, findpc goalie
-;	  pull and line choice: ChkGoalies, ReturnGoalies, CPgoalie, CompLine movement: skateto, skatetopuck, the
-;	  assignment stack (assexit, assinsert, assreplace), vtoa, GetHot, SetSPA,
-;	    acceleration (doplayeracc ... StopNA), MaxSpeed, dirtab
+;	  bench and penalty box moves: setpads, check4bench, assbench ... assepen
+;	  faceoff and fight assignments: assfaceoff, assfight, banner
+;	  computer players: positioning by role (assdefo ... asscentero), assgoalie, assgoalietopuck, asspuckc,
+;	    chk4lc, chk4shot, chk4pass, EvadePC, assnearest, check4check, asspassrec, assshoot
+;	  the puck: puckfaceoff ... Endfaceoff, pucknorm, ChkOffsides, puckIChk (icing), puckshadow, findpc
+;	  goalie pull and line choice: ChkGoalies, ReturnGoalies, CPgoalie, CompLine
+;	  movement: skateto, skatetopuck, the assignment stack (assexit, assinsert, assreplace), vtoa, GetHot,
+;	    SetSPA, acceleration (doplayeracc ... StopNA), MaxSpeed, dirtab
 ;
 ;	Conventions: a3 = the object being processed (a SortCords entry, player or puck), d7 = frames elapsed, a2
 ;	= team struct (tmstruct, +tmsize for the visitors), SPA = sprite animation. Most routines exit through

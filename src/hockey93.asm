@@ -11,12 +11,13 @@
 ;	  graphics93 [$02E1FC-$07FB75], checksum93 [$07FB76-$07FBC7]
 ;
 ;	Code in this file, in order:
-;	  startup and the game loop: VBjsr, Begin, StartGame, StartPer, Gameloop, DoGameFrame, periodicevents,
-;	  clockcont the pause screen (demoread, Pausemode) and instant replay (ReplayMode, record and playback)
+;	  startup and the game loop: VBjsr, Begin, StartGame, StartPer, Gameloop, DoGameFrame, clockcont
+;	  the pause screen (demoread, Pausemode) and instant replay (ReplayMode, record and playback)
 ;	  updateplayers (velocity, friction, gravity, input, assignments), updateanim and the scroll window
-;	  collisions and checking, walls, goals and nets, Goal scoring, puck collisions the player roster code
-;	  (makepde ... setplayer), rink and team setup the title, playoff, setup and scouting screens, the Stanley
-;	  Cup screen, the end of game boxes the name formatters and the exception handlers
+;	  collisions and checking, walls, goals and nets, Goal scoring, puck collisions
+;	  the player roster code (makepde ... setplayer), rink and team setup
+;	  the title, playoff, setup and scouting screens, the Stanley Cup screen, the end of game boxes
+;	  the name formatters and the exception handlers
 ;
 ;	This is the retail 1.1 build; REV=1 gives Rev A. Differences from 92 are noted in the comments.
 

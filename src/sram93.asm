@@ -10,8 +10,8 @@
 ;	Serial device. It is a word port (BackupRAM_Port). Low byte bit 7 is the data line (SDA, read back in bit
 ;	7) and bit 6 the clock (SCL): $C0 = both high, $80 = data high clock low, $40 = data low clock high. The
 ;	control byte sent after a start is address<<1 + 1 to read (sequential read from that address) or
-;	address<<1 to write one byte. Addresses are 0-127. Saved block (databuffer, 128 bytes): bytes 0-125 data,
-;	byte 126 = not(sum of 0-125), byte 127 = sum.
+;	address<<1 to write one byte. Addresses are 0-127.
+;	Saved block (databuffer, 128 bytes): bytes 0-125 data, byte 126 = not(sum of 0-125), byte 127 = sum.
 
 BackupRAM_Start						;start condition: data falls while the clock is high, then clock low.
 	;Called before every control byte
