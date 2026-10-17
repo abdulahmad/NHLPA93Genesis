@@ -25,7 +25,7 @@ Begin	;cold start, entered from Reset. Clear RAM, init menus and sound, go to ti
 	cmpa.w	#(fm_track_slots+(8*6)-M68K_RAM),a0	;clear to the end of the track slots
 	blt.s	.0
 	IF REV=1
-	move.w	(VDP_CTRL).l,d0		;Rev A: VDP status bit 0 = PAL (50 Hz)
+	move.w	(Vctrl).l,d0		;Rev A: VDP status bit 0 = PAL (50 Hz)
 	andi.w	#1,d0
 	move.w	d0,(PalMode).w
 	ENDIF
@@ -385,7 +385,7 @@ Pausemode	;game is in pause mode now
 	btst	#sfhor,(sflags).w
 	bne.w	.hor
 	jsr	(ClrHor).l
-.hor	movea.l	#VDP_DATA,a0
+.hor	movea.l	#Vdata,a0
 	move.w	#$9100,4(a0)
 	move.w	#$9200,4(a0)
 	bset	#dfclock,(disflags).w		;clock needs update
@@ -399,7 +399,7 @@ Pausemode	;game is in pause mode now
 	rts
 
 SetupPauseScreen	;draw routine for the pause menu
-	movea.l	#VDP_DATA,a0
+	movea.l	#Vdata,a0
 	move.w	#$9100,4(a0)		;playfield 3 width
 	move.w	#$921C,4(a0)		;playfield 3 height
 	jsr	(SetHor).l
@@ -934,7 +934,7 @@ updateplayers
 	clr.w	d0
 .snd	cmp.w	#3,d0
 	bhi.w	.done
-	addi.w	#$2C,d0			;bounce sound $2C-$2F by speed
+	addi.w	#SFXpuckice,d0		;bounce sound $2C-$2F by speed
 	move.w	d0,-(sp)
 	bsr.w	sfx
 .done	move.w	SCnum(a3),d6
@@ -1206,7 +1206,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	jsr	p_turnoff
 	bsr.w	setupice_highlight
 	bsr.w	ClrHor
-	movea.l	#VDP_DATA,a0
+	movea.l	#Vdata,a0
 	move.w	#$9100,4(a0)		;window H position 0
 	move.w	#$9200,4(a0)		;window V position 0
 	move.w	(ExtraChars).w,d4	;ref cam chars
@@ -1277,7 +1277,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	jsr	(SetupPauseScreen).w	;pause menu screen
 	jsr	(DrawMenuScreen).w
 	move.w	#$18,(palcount).w	;24
-	move.w	#SngIntermission,-(sp)		;song $36
+	move.w	#SngEOP,-(sp)		;song $36
 	bsr.w	song
 	movem.l	(sp),d0-d7/a0-a6
 	move.w	#4,gsper(a0)		;gsper: OT
@@ -1617,7 +1617,7 @@ newcheck	;start a new check sound: one of 4 sounds $1C-$1F (92 picked one of 5 f
 	add.w	(ltack).w,d0	;last tackle sound
 	andi.w	#3,d0
 	move.w	d0,(ltack).w
-	addi.w	#$1C,d0			;first check sound (92 used 18)
+	addi.w	#SFXcheck,d0		;first check sound (92 used 18)
 	move.w	d0,-(sp)
 	bsr.w	sfx			;tackle sound
 	move.l	(sp)+,d0
@@ -1962,10 +1962,10 @@ FallDown	;player a2 falls down, player a3 is the hitting player. Some players ge
 	move.l	#$12,d0			;else penalty $12, then Stop4Pen
 	bsr.w	AddPenalty2
 	bra.w	Stop4Pen
-.snd	move.w	#$B,-(sp)		;92 used 25 via SFX
+.snd	move.w	#SFXcrowdcheer,-(sp)	;92 used 25 via SFX
 	btst	#pfteam,pflags(a2)
 	bne.w	.3
-	move.w	#$C,(sp)		;92 used 26
+	move.w	#SFXcrowdboo,(sp)	;92 used 26
 .3	bsr.w	song
 	rts
 
@@ -1973,7 +1973,7 @@ setInjuryType	;sets period injury. a2 = player injured, a3 = player checking. Ma
 	bset	#pf2unav,pflags2(a2)		;set player unavailable (92 used 4)
 	addi.w	#$12C,(crowdlevel).w	;pump up crowd
 	addi.w	#$1E,(CwdExciteLvl).w
-	move.w	#SFX0D,-(sp)		;SFX
+	move.w	#SFXoooh2,-(sp)		;SFX
 	bsr.w	sfx
 	move.w	(a2),(xc1).w		;move X and Y pos to scroll center
 	move.w	Ypos(a2),(yc1).w
@@ -2155,7 +2155,7 @@ SetInst	;d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swapped
 	bne.w	rtss			;a3 was already fighting
 	tst.w	(OptPen).w
 	beq.w	rtss
-	move.w	(VDP_CNTR).l,d0		;HV counter
+	move.w	(HVcount).l,d0		;HV counter
 	andi.w	#3,d0
 	bne.w	rtss			;3 of 4 times no penalty
 	movea.l	a3,a4
@@ -2539,7 +2539,7 @@ CheckBump	;supply minimum separation velocity for coll with walls/goal/net. a2 =
 	;the goal, a3 stops, and if the clock runs penalty 8. That path returns
 	;straight to checkgoalp's caller
 	movem.l	d0-d1,-(sp)
-	move.w	(VDP_CNTR).l,d0		;HV counter
+	move.w	(HVcount).l,d0		;HV counter
 	andi.w	#$1F,d0
 	bne.w	.ex
 	move.w	(pucky).w,d0
@@ -2599,7 +2599,7 @@ wallcollb	;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. C
 	move.w	#SPAbglass,d1
 	bsr.w	SetSPA
 	movea.l	(sp)+,a3
-	move.w	#SFX0E,-(sp)		;sfx $E
+	move.w	#SFXbglass,-(sp)		;sfx $E
 	bsr.w	sfx
 	addi.w	#$258,(crowdlevel).w	;add 600
 	addi.w	#$F,(CwdExciteLvl).w
@@ -2660,7 +2660,7 @@ wallcoll	;d0 = cosine, d1 = sine of angle of incidence with wall, a3 = object. C
 	bpl.w	.sf0
 	clr.w	d0
 .sf0	andi.w	#3,d0
-	addi.w	#$28,d0
+	addi.w	#SFXpuckwall1,d0
 	move.w	d0,-(sp)
 	bsr.w	sfx
 .pok	move.w	d3,d0			;reduce tangent speed on puck
@@ -3060,7 +3060,7 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	move.w	d0,d1
 	andi.w	#3,d1
 	bne.w	.2
-	move.w	(VDP_CNTR).l,d0		;HV counter, just for random bit
+	move.w	(HVcount).l,d0		;HV counter, just for random bit
 .2	andi.w	#4,d0
 	lsr.w	#2,d0
 	eori.w	#1,d0
@@ -3090,10 +3090,10 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	bgt.w	.setsfx
 	cmpi.w	#$D000,(puckvy).w
 	bgt.w	.nosong			;-$3000 < Yvel <= $3000: no song
-.setsfx	move.w	#$B,-(sp)		;song $B (home goalie)
+.setsfx	move.w	#SFXcrowdcheer,-(sp)	;song $B (home goalie)
 	btst	#pfteam,pflags(a2)
 	beq.w	.song
-	move.w	#$D,(sp)		;song $D (visiting goalie)
+	move.w	#SFXoooh2,(sp)		;song $D (visiting goalie)
 .song	bsr.w	song
 .nosong	move.w	#SFXpuckbody,-(sp)		;puck body sound (92 used 5)
 	bsr.w	sfx
@@ -4038,7 +4038,7 @@ IntermissionStart	;PeriodOver tail: reset the clock, song $36, ticker scores
 	;playoff team stats at game over, then Intermission. Next period, or GameOver when gsp = 4.
 	;Also jumped to from StartGame (as _sp) for the pregame intermission
 	jsr	ResetClock
-	move.w	#SngIntermission,-(sp)		;song $36 (92 used 3 here)
+	move.w	#SngEOP,-(sp)		;song $36 (92 used 3 here)
 	bsr.w	song
 	bsr.w	UpdateScores
 	cmpi.w	#4,(gsp).w
@@ -4153,7 +4153,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	move.w	#$104,(clampcounter).w	;RAM reused by this screen
 	move.w	#$110,(playoffspritey).w
 
-	movea.l	#VDP_CTRL,a0
+	movea.l	#Vctrl,a0
 	move.w	#$9202,(a0)		;window V position 2
 
 	movea.w	#(potree-M68K_RAM),a1
@@ -4211,7 +4211,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	bsr.w	printz
 	String	$CD,$A,1,'Press [ or ] to page'
 .nopage	move.w	#$18,(palcount).w	;24 frames per color flash
-	move.w	#SngIntermission,-(sp)		;song $36 (92 used 4)
+	move.w	#SngEOP,-(sp)		;song $36 (92 used 4)
 	bsr.w	song
 
 	clr.w	d0
@@ -4817,8 +4817,8 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 	;Titlemap backdrop, three Title3map sprites, Titlemap2 logo sprites, scrolling credits. Start leaves
 	move.w	#SngTitle,-(sp)		;song $35 (92 used 1)
 	bsr.w	song
-	move.w	(VDP_CNTR).l,(seed).w	;seed randomd0 from the H/V counter
-	move.w	(VDP_CNTR).l,(seed+2).w
+	move.w	(HVcount).l,(seed).w	;seed randomd0 from the H/V counter
+	move.w	(HVcount).l,(seed+2).w
 	move.l	#VBlank_TitleScreen,(vbint).l
 	bset	#df32c,(disflags).w
 	move.w	#5,(Map3col).w
@@ -4831,7 +4831,7 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 	move.w	#$FC00,(VSCRLPM).w
 	move.w	#0,d0			;fade to color
 	bsr.w	setVram
-	movea.l	#VDP_DATA,a0
+	movea.l	#Vdata,a0
 	move.w	#$9100,4(a0)		;window h position 0
 	move.w	#$9216,4(a0)		;window v position 22 (92 $9200+22)
 	move.w	#$8B03,4(a0)		;h scroll by line
@@ -5070,7 +5070,7 @@ VBlank_TitleScreen	;vbint handler for the title screen: line scroll and sprite t
 	move.w	(VSCRLPM).w,d1
 	move.w	#$1C0,d0
 	bsr.w	DoDMA
-	movea.l	#VDP_DATA,a0
+	movea.l	#Vdata,a0
 	move.l	#$40000010,4(a0)	;vsram write 0
 	move.w	(Vscroll).w,(a0)
 	movea.w	#(Satt-M68K_RAM),a0
@@ -5283,15 +5283,15 @@ setoptions	;options screen display and input. Called from PeriodOver.
 	dbf	d6,.wait
 
 	clr.w	(demoflag).w		;not a demo now
-	move.w	(VDP_CNTR).l,(seed).w	;92 used HVcount
-	move.w	(VDP_CNTR).l,(seed+2).w
+	move.w	(HVcount).l,(seed).w	;92 used HVcount
+	move.w	(HVcount).l,(seed+2).w
 	clr.w	(OptPlayMode).w		;regular season
 	clr.w	(OptNOP).w
 	clr.w	(OptLine).w		;line changes on
 	move.w	#1,(OptPen).w		;penalties "On"
 .ex	bsr.w	UpdatePlayoffLevel
-	move.w	(VDP_CNTR).l,(seed).w	;random seed hopefully
-	move.w	(VDP_CNTR).l,(seed+2).w
+	move.w	(HVcount).l,(seed).w	;random seed hopefully
+	move.w	(HVcount).l,(seed+2).w
 	bra.w	maketree
 
 .nd	btst	#sbut,d1			;sbut
@@ -6928,7 +6928,7 @@ crash	;printbig d1 then d0 as hex, set the vdp up, load a palette and hang. Copi
 	movea.w	#(mesarea-M68K_RAM),a1
 	bsr.w	printbig
 
-	movea.l	#VDP_DATA,a0
+	movea.l	#Vdata,a0
 	move.w	#$9100,4(a0)
 	move.w	#$9206,4(a0)
 	move.w	#$8F02,4(a0)

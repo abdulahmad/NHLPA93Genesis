@@ -69,12 +69,12 @@ const assets = [
     { name: 'z80_snd_drv93_end.bin', folder: 'Sound', start: 0x0170CF, end: 0x0170DD }, // rest of the 93 Z80 driver
     { name: 'sfx_shotbh_pcm.bin', folder: 'Sound', start: 0x017156, end: 0x01734A }, // sample 2: shotbh
     { name: 'sfx_pass_pcm.bin', folder: 'Sound', start: 0x01734A, end: 0x018077 }, // sample 1: pass
-    { name: 'sfx_oooh_pcm.bin', folder: 'Sound', start: 0x018078, end: 0x01B2BC }, // sample 12: oooh, sfx_id_0D, sfx_id_0E
+    { name: 'sfx_oooh_pcm.bin', folder: 'Sound', start: 0x018078, end: 0x01B2BC }, // sample 12: oooh, sfx_oooh2, sfx_bglass
     { name: 'sfx_crowdboo_pcm.bin', folder: 'Sound', start: 0x01B2BC, end: 0x01D809 }, // sample 11: crowdboo
     { name: 'sfx_check_pcm.bin', folder: 'Sound', start: 0x01D80A, end: 0x01F75C }, // sample 5: check1, check3
     { name: 'sfx_crowdcheer_pcm.bin', folder: 'Sound', start: 0x01F75C, end: 0x02263C }, // sample 13: crowdcheer, homewin
-    { name: 'sfx_id_0E_pcm.bin', folder: 'Sound', start: 0x02263C, end: 0x0260BB }, // sample 14: sfx_id_0E
-    { name: 'sfx_playerwall_pcm.bin', folder: 'Sound', start: 0x0260BC, end: 0x02656C }, // sample 6: playerwall, sfx_id_21-23
+    { name: 'sfx_bglass_pcm.bin', folder: 'Sound', start: 0x02263C, end: 0x0260BB }, // sample 14: sfx_bglass
+    { name: 'sfx_playerwall_pcm.bin', folder: 'Sound', start: 0x0260BC, end: 0x02656C }, // sample 6: playerwall, sfx_playerwall2-23
     { name: 'sfx_check2_pcm.bin', folder: 'Sound', start: 0x02656C, end: 0x026F9B }, // sample 4: check2, check4
     { name: 'sfx_hithigh_pcm.bin', folder: 'Sound', start: 0x026F9C, end: 0x0274F2 }, // samples 7 and 10: hithigh, hitlow, check1-4, songs $32 and $35-$37
     { name: 'sfx_shotfh_pcm.bin', folder: 'Sound', start: 0x0274F2, end: 0x0280AA }, // sample 3: shotfh
@@ -94,9 +94,9 @@ const assets = [
     { name: 'sfx_oooh_cmdstream.bin', folder: 'Sound', start: 0x0288AA, end: 0x0288C6 }, // sound 8 (92 SFXoooh), off the post with the clock running
     { name: 'sfx_puckpost_cmdstream.bin', folder: 'Sound', start: 0x0288C6, end: 0x0288D6 }, // sound $25 (92 SFXpuckpost)
     { name: 'sfx_playerwall_cmdstream.bin', folder: 'Sound', start: 0x0288D6, end: 0x0288F2 }, // sound $20 (92 SFXplayerwall)
-    { name: 'sfx_id_21_cmdstream.bin', folder: 'Sound', start: 0x0288F2, end: 0x02890E }, // sound $21: no caller found, same patches as playerwall
-    { name: 'sfx_id_22_cmdstream.bin', folder: 'Sound', start: 0x02890E, end: 0x02892A }, // sound $22: no caller found, same patches as playerwall
-    { name: 'sfx_id_23_cmdstream.bin', folder: 'Sound', start: 0x02892A, end: 0x028946 }, // sound $23: no caller found, same patches as playerwall
+    { name: 'sfx_playerwall2_cmdstream.bin', folder: 'Sound', start: 0x0288F2, end: 0x02890E }, // sound $21: no caller found, same patches as playerwall
+    { name: 'sfx_playerwall3_cmdstream.bin', folder: 'Sound', start: 0x02890E, end: 0x02892A }, // sound $22: no caller found, same patches as playerwall
+    { name: 'sfx_playerwall4_cmdstream.bin', folder: 'Sound', start: 0x02892A, end: 0x028946 }, // sound $23: no caller found, same patches as playerwall
     { name: 'sfx_puckwall1_cmdstream.bin', folder: 'Sound', start: 0x028946, end: 0x028956 }, // sound $28: puck off the wall by speed (wallcoll; 92 SFXpuckwall)
     { name: 'sfx_puckwall2_cmdstream.bin', folder: 'Sound', start: 0x028956, end: 0x028966 }, // sound $29
     { name: 'sfx_puckwall3_cmdstream.bin', folder: 'Sound', start: 0x028966, end: 0x028976 }, // sound $2A
@@ -124,8 +124,8 @@ const assets = [
     { name: 'sfx_homewin_cmdstream.bin', folder: 'Sound', start: 0x028B8C, end: 0x028BC4 }, // sound $F: home team won (game end)
     { name: 'sfx_crowdcheer_cmdstream.bin', folder: 'Sound', start: 0x028BC4, end: 0x028BD4 }, // sound $B (SFXcrowdcheer)
     { name: 'sfx_crowdboo_cmdstream.bin', folder: 'Sound', start: 0x028BD4, end: 0x028BE4 }, // sound $C (SFXcrowdboo)
-    { name: 'sfx_id_0E_cmdstream.bin', folder: 'Sound', start: 0x028BE4, end: 0x028C00 }, // sound $E: wallcollb (puck over the wall)
-    { name: 'sfx_id_0D_cmdstream.bin', folder: 'Sound', start: 0x028C00, end: 0x028C10 }, // sound $D: injury (setInjuryType), visiting goalie save
+    { name: 'sfx_bglass_cmdstream.bin', folder: 'Sound', start: 0x028BE4, end: 0x028C00 }, // sound $E: wallcollb (puck over the wall)
+    { name: 'sfx_oooh2_cmdstream.bin', folder: 'Sound', start: 0x028C00, end: 0x028C10 }, // sound $D: injury (setInjuryType), visiting goalie save
     { name: 'sfx_siren_cmdstream.bin', folder: 'Sound', start: 0x028C10, end: 0x028E38 }, // sound 0 (92 SFXsiren)
     { name: 'fmtune_goal_cmdstream.bin', folder: 'Sound', start: 0x028E38, end: 0x02910C }, // song $30: Goal
     { name: 'fmtune_periodstart_cmdstream.bin', folder: 'Sound', start: 0x02910C, end: 0x0292DC }, // song $31: StartPer
@@ -134,7 +134,7 @@ const assets = [
     { name: 'fmtune_faceoff_cmdstream.bin', folder: 'Sound', start: 0x029904, end: 0x029BE4 }, // song $34: puckfaceoff
     { name: 'fmtune_title_cmdstream.bin', folder: 'Sound', start: 0x029BE4, end: 0x029C42 }, // song $35: TitleScreen, ExitToOpening (92 SngTitle)
     { name: 'fmtune_title_loop_cmdstream.bin', folder: 'Sound', start: 0x029C46, end: 0x02AF60 }, // song $35 loop body
-    { name: 'fmtune_intermission_cmdstream.bin', folder: 'Sound', start: 0x02AF64, end: 0x02C8A6 }, // song $36: IntermissionStart, PlayoffScreen, StartHL2 (92 SngEOG / SngPO)
+    { name: 'fmtune_eop_cmdstream.bin', folder: 'Sound', start: 0x02AF64, end: 0x02C8A6 }, // song $36: IntermissionStart, PlayoffScreen, StartHL2 (92 SngEOG / SngPO)
     { name: 'fmtune_scouting_cmdstream.bin', folder: 'Sound', start: 0x02C8AA, end: 0x02CEC4 }, // song $37: ScoutingReport
     { name: 'ScoutingReportText.bin', folder: 'Text', start: 0x02CEC8, end: 0x02E1FB }, // ScoutingReportText: scouting report paragraphs
     { name: 'GameSetUp.map.jim', folder: 'Graphics', start: 0x02E1FC, end: 0x02EFA2 }, // 92 GameSetUp.map.jim: game setup bitmap (setoptions movea.l #$2E1FC)

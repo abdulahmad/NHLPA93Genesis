@@ -588,7 +588,7 @@ ProcessPenaltyList	;a2 = team. Walks the penalty box list ($9A): the first two p
 
 .chk	cmpi.w	#5,tmpdst(a2,d0.w)
 	bgt.w	rtss
-	move.w	#1,-(sp)		;SFXbeep1
+	move.w	#SFXbeep1,-(sp)	;SFXbeep1
 	tst.w	tmpdst(a2,d0.w)
 	bne.w	.snd
 	bsr.w	releasepl

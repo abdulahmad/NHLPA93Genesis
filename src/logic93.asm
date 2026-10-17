@@ -459,7 +459,7 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 	moveq	#$C,d0			;pass sound $10+ by puck height
 	sub.b	(puckvz).w,d0
 	lsr.w	#2,d0
-	addi.w	#$10,d0
+	addi.w	#SFXpass,d0
 	move.w	d0,-(sp)
 	bsr.w	sfx
 	movem.l	(sp)+,d0-d5/a0-a1
@@ -1952,7 +1952,7 @@ asswingo	;player a3 is winger on offense
 	addq.w	#8,d2
 .de2	cmp.w	temp5(a3),d2
 	bne.w	.de3
-	move.w	(VDP_CNTR).l,d0		;HV counter as random
+	move.w	(HVcount).l,d0		;HV counter as random
 	andi.w	#$7F,d0
 	bne.w	.nodec
 .de3	move.w	d2,temp5(a3)
@@ -2065,7 +2065,7 @@ asscentero	;player a3 is center on offense
 	addq.w	#8,d2
 .de2	cmp.w	temp5(a3),d2
 	bne.w	.de3
-	move.w	(VDP_CNTR).l,d0
+	move.w	(HVcount).l,d0
 	andi.w	#$7F,d0
 	bne.w	.nodec
 .de3	move.w	d2,temp5(a3)
@@ -2169,7 +2169,7 @@ assgoalie	;Player a3 is goalie. Also entered from assnearest
 .hold	st	temp4(a3)
 	cmpi.w	#$5A,temp5(a3)
 	bgt.w	.de1
-	move.w	(VDP_CNTR).l,d0
+	move.w	(HVcount).l,d0
 	andi.w	#3,d0
 	bne.w	.de1
 	moveq	#5,d0			;pass only if no opponent is near the puck
@@ -2511,7 +2511,7 @@ asspuckc	;player a3 is puck handler
 	beq.w	.nna
 	clr.w	temp1(a3)
 	move.w	#8,temp2(a3)
-	move.w	(VDP_CNTR).l,d0
+	move.w	(HVcount).l,d0
 	andi.w	#3,d0
 	move.w	d0,temp3(a3)		;temp3 = random 0-3
 .nna	sub.b	d7,temp1(a3)
@@ -2575,7 +2575,7 @@ asspuckc	;player a3 is puck handler
 	eori.w	#4,d1
 	cmp.w	d0,d1
 	bne.w	.next
-	move.w	(VDP_CNTR).l,d1		;turn either way
+	move.w	(HVcount).l,d1		;turn either way
 	andi.w	#1,d1
 	add.w	d1,d0
 	andi.w	#7,d0
@@ -2644,7 +2644,7 @@ chk4shot	;player a3 looks for shot (computer controlled)
 	bne.w	.npk			;not pkilling
 	tst.w	(threat).w
 	beq.w	.npk			;no threat
-	move.w	(VDP_CNTR).l,d0
+	move.w	(HVcount).l,d0
 	andi.w	#3,d0
 	beq.w	CompShoot		;clear puck (no icing if pkilling)
 .npk	moveq	#$20,d4
@@ -3093,7 +3093,7 @@ check4check	;look for good opportunity for checking opponent. Falls in from assn
 	bsr.w	vtoa
 	cmp.w	facedir(a3),d0
 	bne.w	.next
-	move.w	(VDP_CNTR).l,d0		;HV counter as random, 1 in 4 is a
+	move.w	(HVcount).l,d0		;HV counter as random, 1 in 4 is a
 	andi.w	#3,d0			;hold/hook instead of a check
 	bne.w	burst
 	bra.w	Acheck

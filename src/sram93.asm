@@ -448,7 +448,7 @@ BackupRAM_Load	;read the 128-byte block into databuffer and check bytes 126-127 
 ClearRAMBuffer	;backup RAM status screen. Interrupts off, display off, backdrop colour 0 = d0
 	;clears $4000 bytes of VRAM, display on, then loops forever. Jumped to from BackupRAM_Read (d0 = $F red, $F0 green)
 	move.w	#$2700,sr		;interrupts off
-	movea.l	#VDP_CTRL,a0
+	movea.l	#Vctrl,a0
 	move.w	#$8004,(a0)
 	move.w	#$8104,(a0)		;display off
 	move.w	#$8200,(a0)
@@ -468,13 +468,13 @@ ClearRAMBuffer	;backup RAM status screen. Interrupts off, display off, backdrop 
 	move.w	#$9000,(a0)
 	move.w	#$9100,(a0)
 	move.w	#$9200,(a0)
-	move.l	#$C0000000,(VDP_CTRL).l	;cram write, colour 0
-	move.w	d0,(VDP_DATA).l
-	move.l	#$40000000,(VDP_CTRL).l	;vram write, address 0
+	move.l	#$C0000000,(Vctrl).l	;cram write, colour 0
+	move.w	d0,(Vdata).l
+	move.l	#$40000000,(Vctrl).l	;vram write, address 0
 	move.w	#$FFF,d1		;$1000 longs
 	moveq	#0,d0
 ClearVRAM	;clear loop of ClearRAMBuffer, then display on and hang
-	move.l	d0,(VDP_DATA).l
+	move.l	d0,(Vdata).l
 	dbf	d1,ClearVRAM
 	move.w	#$8144,(a0)		;display on
 .hang	bra.s	.hang

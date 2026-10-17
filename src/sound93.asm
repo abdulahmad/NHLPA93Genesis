@@ -531,7 +531,7 @@ pcm_sample_table	;(sample address, 0) for PCM patches $60-$6E (lea in handle_com
 	dc.l	sfx_crowdboo_pcm,0		;patch $6B
 	dc.l	sfx_oooh_pcm,0		;patch $6C
 	dc.l	sfx_crowdcheer_pcm,0		;patch $6D
-	dc.l	sfx_id_0E_pcm,0		;patch $6E
+	dc.l	sfx_bglass_pcm,0		;patch $6E
 sfx_shotbh_pcm
 	incbin	..\Extracted\Sound\sfx_shotbh_pcm.bin	;sample 2: shotbh
 	even
@@ -543,7 +543,7 @@ sfx_pass_pcm
 	dc.b	0
 	ENDIF
 sfx_oooh_pcm
-	incbin	..\Extracted\Sound\sfx_oooh_pcm.bin	;sample 12: oooh, sfx_id_0D, sfx_id_0E
+	incbin	..\Extracted\Sound\sfx_oooh_pcm.bin	;sample 12: oooh, sfx_oooh2, sfx_bglass
 	even
 sfx_crowdboo_pcm
 	incbin	..\Extracted\Sound\sfx_crowdboo_pcm.bin	;sample 11: crowdboo
@@ -558,15 +558,15 @@ sfx_check_pcm
 sfx_crowdcheer_pcm
 	incbin	..\Extracted\Sound\sfx_crowdcheer_pcm.bin	;sample 13: crowdcheer, homewin
 	even
-sfx_id_0E_pcm
-	incbin	..\Extracted\Sound\sfx_id_0E_pcm.bin	;sample 14: sfx_id_0E
+sfx_bglass_pcm
+	incbin	..\Extracted\Sound\sfx_bglass_pcm.bin	;sample 14: sfx_bglass
 	IF REV=0
 	dc.b	$7D			;pad: retail leftover byte
 	ELSE
 	dc.b	0
 	ENDIF
 sfx_playerwall_pcm
-	incbin	..\Extracted\Sound\sfx_playerwall_pcm.bin	;sample 6: playerwall, sfx_id_21-23
+	incbin	..\Extracted\Sound\sfx_playerwall_pcm.bin	;sample 6: playerwall, sfx_playerwall2-23
 	even
 sfx_check2_pcm
 	incbin	..\Extracted\Sound\sfx_check2_pcm.bin	;sample 4: check2, check4
@@ -601,8 +601,8 @@ SoundStreamTable	;event stream of sounds 0-$37 as offsets from the table (play_s
 	dc.w	sfx_hitlow_cmdstream-SoundStreamTable	;sound $A
 	dc.w	sfx_crowdcheer_cmdstream-SoundStreamTable	;sound $B
 	dc.w	sfx_crowdboo_cmdstream-SoundStreamTable	;sound $C
-	dc.w	sfx_id_0D_cmdstream-SoundStreamTable	;sound $D
-	dc.w	sfx_id_0E_cmdstream-SoundStreamTable	;sound $E
+	dc.w	sfx_oooh2_cmdstream-SoundStreamTable	;sound $D
+	dc.w	sfx_bglass_cmdstream-SoundStreamTable	;sound $E
 	dc.w	sfx_homewin_cmdstream-SoundStreamTable	;sound $F
 	dc.w	sfx_pass1_cmdstream-SoundStreamTable	;sound $10
 	dc.w	sfx_pass2_cmdstream-SoundStreamTable	;sound $11
@@ -621,9 +621,9 @@ SoundStreamTable	;event stream of sounds 0-$37 as offsets from the table (play_s
 	dc.w	sfx_check3_cmdstream-SoundStreamTable	;sound $1E
 	dc.w	sfx_check4_cmdstream-SoundStreamTable	;sound $1F
 	dc.w	sfx_playerwall_cmdstream-SoundStreamTable	;sound $20
-	dc.w	sfx_id_21_cmdstream-SoundStreamTable	;sound $21
-	dc.w	sfx_id_22_cmdstream-SoundStreamTable	;sound $22
-	dc.w	sfx_id_23_cmdstream-SoundStreamTable	;sound $23
+	dc.w	sfx_playerwall2_cmdstream-SoundStreamTable	;sound $21
+	dc.w	sfx_playerwall3_cmdstream-SoundStreamTable	;sound $22
+	dc.w	sfx_playerwall4_cmdstream-SoundStreamTable	;sound $23
 	dc.w	sfx_puckbody_cmdstream-SoundStreamTable	;sound $24
 	dc.w	sfx_puckpost_cmdstream-SoundStreamTable	;sound $25
 	dc.w	sfx_id_26_27_cmdstream-SoundStreamTable	;sound $26
@@ -642,7 +642,7 @@ SoundStreamTable	;event stream of sounds 0-$37 as offsets from the table (play_s
 	dc.w	fmtune_powerplay_cmdstream-SoundStreamTable	;song $33
 	dc.w	fmtune_faceoff_cmdstream-SoundStreamTable	;song $34
 	dc.w	fmtune_title_cmdstream-SoundStreamTable	;song $35
-	dc.w	fmtune_intermission_cmdstream-SoundStreamTable	;song $36
+	dc.w	fmtune_eop_cmdstream-SoundStreamTable	;song $36
 	dc.w	fmtune_scouting_cmdstream-SoundStreamTable	;song $37
 sfx_beep1_cmdstream
 	incbin	..\Extracted\Sound\sfx_beep1_cmdstream.bin	;sound 1 (SFXbeep1)
@@ -686,14 +686,14 @@ sfx_puckpost_cmdstream
 sfx_playerwall_cmdstream
 	incbin	..\Extracted\Sound\sfx_playerwall_cmdstream.bin	;sound $20
 	even
-sfx_id_21_cmdstream
-	incbin	..\Extracted\Sound\sfx_id_21_cmdstream.bin	;sound $21: no caller found, same patches as playerwall
+sfx_playerwall2_cmdstream
+	incbin	..\Extracted\Sound\sfx_playerwall2_cmdstream.bin	;sound $21: no caller found, same patches as playerwall
 	even
-sfx_id_22_cmdstream
-	incbin	..\Extracted\Sound\sfx_id_22_cmdstream.bin	;sound $22: no caller found, same patches as playerwall
+sfx_playerwall3_cmdstream
+	incbin	..\Extracted\Sound\sfx_playerwall3_cmdstream.bin	;sound $22: no caller found, same patches as playerwall
 	even
-sfx_id_23_cmdstream
-	incbin	..\Extracted\Sound\sfx_id_23_cmdstream.bin	;sound $23: no caller found, same patches as playerwall
+sfx_playerwall4_cmdstream
+	incbin	..\Extracted\Sound\sfx_playerwall4_cmdstream.bin	;sound $23: no caller found, same patches as playerwall
 	even
 sfx_puckwall1_cmdstream
 	incbin	..\Extracted\Sound\sfx_puckwall1_cmdstream.bin	;sound $28: puck off the wall by speed (wallcoll)
@@ -776,11 +776,11 @@ sfx_crowdcheer_cmdstream
 sfx_crowdboo_cmdstream
 	incbin	..\Extracted\Sound\sfx_crowdboo_cmdstream.bin	;sound $C (SFXcrowdboo)
 	even
-sfx_id_0E_cmdstream
-	incbin	..\Extracted\Sound\sfx_id_0E_cmdstream.bin	;sound $E: wallcollb (puck over the wall)
+sfx_bglass_cmdstream
+	incbin	..\Extracted\Sound\sfx_bglass_cmdstream.bin	;sound $E: wallcollb (puck over the wall)
 	even
-sfx_id_0D_cmdstream
-	incbin	..\Extracted\Sound\sfx_id_0D_cmdstream.bin	;sound $D: injury (setInjuryType), visiting goalie save
+sfx_oooh2_cmdstream
+	incbin	..\Extracted\Sound\sfx_oooh2_cmdstream.bin	;sound $D: injury (setInjuryType), visiting goalie save
 	even
 sfx_siren_cmdstream
 	incbin	..\Extracted\Sound\sfx_siren_cmdstream.bin	;sound 0
@@ -808,10 +808,10 @@ fmtune_title_loop
 	incbin	..\Extracted\Sound\fmtune_title_loop_cmdstream.bin	;song $35 loop body
 	even
 	dc.l	fmtune_title_loop	;loop pointer
-fmtune_intermission_cmdstream
-	incbin	..\Extracted\Sound\fmtune_intermission_cmdstream.bin	;song $36: IntermissionStart, PlayoffScreen, StartHL2
+fmtune_eop_cmdstream
+	incbin	..\Extracted\Sound\fmtune_eop_cmdstream.bin	;song $36: IntermissionStart, PlayoffScreen, StartHL2
 	even
-	dc.l	fmtune_intermission_cmdstream+4	;loop pointer (past the first event)
+	dc.l	fmtune_eop_cmdstream+4	;loop pointer (past the first event)
 fmtune_scouting_cmdstream
 	incbin	..\Extracted\Sound\fmtune_scouting_cmdstream.bin	;song $37: ScoutingReport
 	even

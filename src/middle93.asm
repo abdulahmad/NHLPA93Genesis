@@ -115,7 +115,7 @@ cramfade	;fade from current color in color ram to color held in palfadenew. This
 	move.w	d5,d4
 	not.w	d4
 	movea.l	#palfadenew,a1
-	movea.l	#VDP_DATA,a0		;Vdata
+	movea.l	#Vdata,a0		;Vdata
 	clr.w	d6
 .top	move.w	d3,d2
 
@@ -153,7 +153,7 @@ CopyPaletteToCRAM	;copy all 64 palfadenew colors straight to color ram and set p
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	movea.w	#(palfadenew-M68K_RAM),a1
-	movea.l	#VDP_DATA,a0
+	movea.l	#Vdata,a0
 	move.l	#$C0000000,4(a0)	;cram write 0
 	moveq	#$1F,d0
 .0	move.l	(a1)+,(a0)
@@ -449,7 +449,7 @@ DoDMA	;initiate dma transfer (dma transfer bug is compensated for). d0 = words t
 	move.w	d2,d0
 	bra.w	.nd
 .dd	movem.l	d2/a1,-(sp)
-.nd	lea	(VDP_CTRL).l,a1		;set d0 = num of words
+.nd	lea	(Vctrl).l,a1		;set d0 = num of words
 	move.w	#$8154,(a1)		;$8100+%01010100
 	move.w	#$8F02,(a1)		;d1 = video address
 	move.w	#$9300,d2		;a0 = source address
@@ -493,7 +493,7 @@ DoDMA_nd2	;vram to vram copy by dma (reg 23 = $C0), protected from vblank. d0 = 
 	movem.l	d0-d3/a1,-(sp)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
-	lea	(VDP_CTRL).l,a1
+	lea	(Vctrl).l,a1
 	move.w	#$8154,(a1)		;$8100+%01010100
 	move.w	#$8F01,(a1)		;auto inc 1
 	move.w	#$9300,d3		;length low
@@ -527,7 +527,7 @@ DoDMA_nd2	;vram to vram copy by dma (reg 23 = $C0), protected from vblank. d0 = 
 
 DoFill	;fill vram. d0 = words to fill, d1 = vram address, d2 = data to fill with
 	movem.l	d3/a1,-(sp)
-	movea.l	#VDP_DATA,a1		;Vdata
+	movea.l	#Vdata,a1		;Vdata
 	andi.l	#$FFFF,d1
 	asl.l	#2,d1
 	lsr.w	#2,d1
@@ -545,7 +545,7 @@ DoFill	;fill vram. d0 = words to fill, d1 = vram address, d2 = data to fill with
 	rts
 
 WaitDMA	;wait for dma completion
-	move.w	(VDP_CTRL).l,-(sp)
+	move.w	(Vctrl).l,-(sp)
 	btst	#1,1(sp)
 	addq.w	#2,sp
 	bne.s	WaitDMA
@@ -562,7 +562,7 @@ setVram	;initialize all necesary video parameters based on my variables. d0 = co
 setVram_0	;second half of setVram without the fade: clear vram and set the VDP registers from disflags, Map1col, VmMap1-3, VSPRITES and VSCRLPM. Falls in from setVram, called from SetupStanleyCupCelebrationScreen
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
-	move.w	#$8F02,(VDP_CTRL).l	;VmInc 2
+	move.w	#$8F02,(Vctrl).l	;VmInc 2
 	clr.w	d0
 	bsr.w	Vmaddr
 	move.w	#$3FFF,d0
@@ -623,7 +623,7 @@ setVram_0	;second half of setVram without the fade: clear vram and set the VDP r
 	rts
 
 Vmaddr	;set video port to address d0. d0 = vram address, returns a0 = Vdata!!!
-	movea.l	#VDP_DATA,a0
+	movea.l	#Vdata,a0
 	asl.l	#2,d0
 	lsr.w	#2,d0
 	ori.w	#$4000,d0
