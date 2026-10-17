@@ -1,11 +1,11 @@
-;	Menu engine shared by the whole game, plus two screen helpers.
-;	The engine (InitMenuState, DrawMenuScreen, HandleMenuInput, UpdateMenuSelection, SetMenuPrintX) is a generic
-;	scrolling menu: an item list plus a screen draw routine. The pause menu, line editor and summary screens all
-;	run on it, so they share the pause menu's frame (22 wide, 6 high).
+;	Menu engine shared by the whole game, plus two screen helpers. The engine (InitMenuState, DrawMenuScreen,
+;	HandleMenuInput, UpdateMenuSelection, SetMenuPrintX) is a generic scrolling menu: an item list plus a
+;	screen draw routine. The pause menu, line editor and summary screens all run on it, so they share the
+;	pause menu's frame (22 wide, 6 high).
 ;
-;	PutTeamBlock (team name bitmap) and MenuWaitVblank (vblank wait for screen loops) are not menu code. They sit
-;	here because they lie between the menu engine and stats93.asm in the ROM.
-;	Inline print strings after printsmallz/printsmall use the String macro.
+;	PutTeamBlock (team name bitmap) and MenuWaitVblank (vblank wait for screen loops) are not menu code. They
+;	sit here because they lie between the menu engine and stats93.asm in the ROM. Inline print strings after
+;	printsmallz/printsmall use the String macro.
 
 InitMenuState						;92 Pausemode .top. start a menu. a0 = item list, a1 = screen draw routine
 	;falls into DrawMenuScreen
@@ -14,7 +14,8 @@ InitMenuState						;92 Pausemode .top. start a menu. a0 = item list, a1 = screen
 	clr.w	(menuitem).w			;selected item
 	clr.w	(menuitem+2).w			;first visible item
 
-DrawMenuScreen						;92 Pausemode setup. call the draw routine, frame the menu box, print the items, fade in
+DrawMenuScreen						;92 Pausemode setup. call the draw routine, frame the menu box, print the
+	;items, fade in
 	movea.l	(menudraw).w,a0
 	jsr	(a0)
 	bsr.w	printsmallz
@@ -65,7 +66,8 @@ HandleMenuInput						;92 Pausemode input. process one controller read (d1) for t
 .flip	eori	#4,ccr				;invert Z
 	rts
 
-UpdateMenuSelection					;92 Pausemode .Pmenu. clamp the selection, scroll the 4 visible rows, print the menu
+UpdateMenuSelection					;92 Pausemode .Pmenu. clamp the selection, scroll the 4 visible rows,
+	;print the menu
 	move.w	(menuitem).w,d0
 	bpl.w	.0
 	clr.w	(menuitem).w			;no item above the first
@@ -152,7 +154,8 @@ PutTeamBlock						;copy 2 rows of 12 map words from TeamBlockMap+d0 to printx/pr
 	movem.l	(sp)+,d0-d2/a0-a1
 	rts
 
-MenuWaitVblank						;92 Pausemode .rjoy wait. wait for the next vblank, then resync vcount. Saves d0
+MenuWaitVblank						;92 Pausemode .rjoy wait. wait for the next vblank, then resync vcount.
+	;Saves d0
 	move.w	d0,-(sp)
 	move.w	(oldvcount).w,d0
 .wait	cmp.w	(vcount).w,d0		;vcount is bumped by the vblank handler

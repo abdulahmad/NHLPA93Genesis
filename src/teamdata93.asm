@@ -9,7 +9,8 @@
 
 	dc.l	$0000
 
-TeamList							;table of long pointers to the team records, indexed by team number (HomeTeam/VisTeam); the 2 all-star teams are last
+TeamList							;table of long pointers to the team records, indexed by team number
+	;(HomeTeam/VisTeam); the 2 all-star teams are last
 	dc.l	Boston
 	dc.l	Buffalo
 	dc.l	Calgary
@@ -45,8 +46,10 @@ LineSets	=	6					;record offset of the word offset to the line sets (.ls)
 ScoutReport	=	8					;record offset of the word offset to the scouting report ratings (.sr)
 ScoreOdds	=	10					;record offset of the word offset to the scoring odds (.sodds)
 
-AllStarsEast						;team record: None (None). Pointer words at .0, then palettes, lines, scout report, odds, players, name
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+AllStarsEast						;team record: None (None). Pointer words at .0, then palettes, lines,
+	;scout report, odds, players, name
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -139,7 +142,8 @@ AllStarsEast						;team record: None (None). Pointer words at .0, then palettes,
 	StringB	'ASE'
 
 AllStarsWest						;team record: All Stars West (ASW)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -191,7 +195,8 @@ AllStarsWest						;team record: All Stars West (ASW)
 	StringB	'ASW'
 
 Boston								;team record: Boston (BOS)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -245,7 +250,8 @@ Boston								;team record: Boston (BOS)
 	StringB	'BOS'
 
 Buffalo								;team record: Buffalo (BUF)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -299,7 +305,8 @@ Buffalo								;team record: Buffalo (BUF)
 	StringB	'BUF'
 
 Calgary								;team record: Calgary (CGY)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -352,7 +359,8 @@ Calgary								;team record: Calgary (CGY)
 	StringB	'CGY'
 
 Chicago								;team record: Chicago (CHI)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -406,7 +414,8 @@ Chicago								;team record: Chicago (CHI)
 	StringB	'CHI'
 
 Detroit								;team record: Detroit (DET)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -459,7 +468,8 @@ Detroit								;team record: Detroit (DET)
 	StringB	'DET'
 
 Edmonton							;team record: Edmonton (EDM)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -512,7 +522,8 @@ Edmonton							;team record: Edmonton (EDM)
 	StringB	'EDM'
 
 Hartford							;team record: Hartford (HFD)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -565,7 +576,8 @@ Hartford							;team record: Hartford (HFD)
 	StringB	'HFD'
 
 LosAngeles							;team record: Los Angeles (LA)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -619,7 +631,8 @@ LosAngeles							;team record: Los Angeles (LA)
 	StringB	'LA'
 
 LongIsland							;team record: Long Island (LI)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -672,7 +685,8 @@ LongIsland							;team record: Long Island (LI)
 	StringB	'LI'
 
 Minnesota							;team record: Minnesota (MIN)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -725,7 +739,8 @@ Minnesota							;team record: Minnesota (MIN)
 	StringB	'MIN'
 
 Montreal							;team record: Montreal (MTL)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -779,7 +794,8 @@ Montreal							;team record: Montreal (MTL)
 	StringB	'MTL'
 
 NewJersey							;team record: New Jersey (NJ)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -832,7 +848,8 @@ NewJersey							;team record: New Jersey (NJ)
 	StringB	'NJ'
 
 NewYork								;team record: New York (NY)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -887,7 +904,8 @@ NewYork								;team record: New York (NY)
 	StringB	'NY'
 
 Ottawa								;team record: Ottawa (OTW)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -934,7 +952,8 @@ Ottawa								;team record: Ottawa (OTW)
 	StringB	'OTW'
 
 Philadelphia						;team record: Philadelphia (PHI)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -988,7 +1007,8 @@ Philadelphia						;team record: Philadelphia (PHI)
 	StringB	'PHI'
 
 Pittsburgh							;team record: Pittsburgh (PIT)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -1041,7 +1061,8 @@ Pittsburgh							;team record: Pittsburgh (PIT)
 	StringB	'PIT'
 
 Quebec								;team record: Quebec (QUE)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -1096,7 +1117,8 @@ Quebec								;team record: Quebec (QUE)
 	StringB	'QUE'
 
 SanJose								;team record: San Jose (SJ)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -1149,8 +1171,10 @@ SanJose								;team record: San Jose (SJ)
 .ta									;team abbreviation string
 	StringB	'SJ'
 
-StLouis								;team record: St. Louis (STL). Pointer words at .0, then palettes, lines, scout report, odds, players, name
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+StLouis								;team record: St. Louis (STL). Pointer words at .0, then palettes, lines,
+	;scout report, odds, players, name
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -1204,7 +1228,8 @@ StLouis								;team record: St. Louis (STL). Pointer words at .0, then palettes
 	StringB	'STL'
 
 TampaBay							;team record: Tampa Bay (TBY)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -1252,7 +1277,8 @@ TampaBay							;team record: Tampa Bay (TBY)
 	StringB	'TBY'
 
 Toronto								;team record: Toronto (TOR)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -1306,7 +1332,8 @@ Toronto								;team record: Toronto (TOR)
 	StringB	'TOR'
 
 Vancouver							;team record: Vancouver (VAN)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -1360,7 +1387,8 @@ Vancouver							;team record: Vancouver (VAN)
 	StringB	'VAN'
 
 Winnipeg							;team record: Winnipeg (WPG)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -1414,7 +1442,8 @@ Winnipeg							;team record: Winnipeg (WPG)
 	StringB	'WPG'
 
 Washington							;team record: Washington (WSH)
-.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname,
+	;LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
@@ -1468,7 +1497,8 @@ Washington							;team record: Washington (WSH)
 	StringB	'WSH'
 
 
-playoffseats						;32 playoff trees x 16 bytes: team numbers in first round tree order (adjacent pairs meet); used by NewPO and maketree
+playoffseats						;32 playoff trees x 16 bytes: team numbers in first round tree order
+	;(adjacent pairs meet); used by NewPO and maketree
 	dc.b	15,22,11,12, 1,0,6,10, 5,8,23,21, 9,4,18,3
 	dc.b	11,22,15,12, 6,0,1,10, 23,8,5,21, 18,4,9,3
 	dc.b	15,22,7,12, 6,0,16,10, 5,8,2,21, 9,4,20,3
@@ -1509,7 +1539,8 @@ playoffseats						;32 playoff trees x 16 bytes: team numbers in first round tree
 	dc.b	3,18,4,19, 21,23,8,5, 10,6,0,13, 12,11,22,15
 
 
-Credits								;copyright and credits text: groups of String lines, each group ended by String -1 (printed from hockey93.asm)
+Credits								;copyright and credits text: groups of String lines, each group ended by
+	;String -1 (printed from hockey93.asm)
 	String	'$ 1992 Electronic Arts'
 	String	'Licensed by'
 	String	'Sega Enterprises Ltd.'

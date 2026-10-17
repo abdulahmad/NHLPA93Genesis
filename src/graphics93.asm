@@ -1,19 +1,22 @@
-;	Graphics data: the rink, sprites, fonts, screen maps and pictures, all incbin files from the extraction step.
-;	The equates below name the tables inside the sprite data. The code that uses each block is named in its label comment.
+;	Graphics data: the rink, sprites, fonts, screen maps and pictures, all incbin files from the extraction
+;	step. The equates below name the tables inside the sprite data. The code that uses each block is named in
+;	its label comment.
 ;
 ;	In order: the setup, title and scouting screens (GameSetUpMap ... ScoutMap), the framer, faceoff, rink and
-;	referee maps, the main Sprites block with its equates, then the crowd, faceoff and zamboni sprite files, the two
-;	fonts, energy bar, team blocks, arrows, EASN logo, Ron Barr, Scores maps, Stanley Cup sprites and the five EASN bitmaps.
+;	referee maps, the main Sprites block with its equates, then the crowd, faceoff and zamboni sprite files,
+;	the two fonts, energy bar, team blocks, arrows, EASN logo, Ron Barr, Scores maps, Stanley Cup sprites and
+;	the five EASN bitmaps.
 ;
-;	Files named .map.jim are tile maps: the longs at +0 and +4 are offsets to map data (used as adda.l (a0),a0 and
-;	adda.l 4(a1),a1) and the compressed tiles start at +8 (DecompressGraphics*). Files named .anim are sprite frame
-;	sets (see the Sprites entry below and the note in video93.asm). Each incbin is word aligned.
+;	Files named .map.jim are tile maps: the longs at +0 and +4 are offsets to map data (used as adda.l (a0),a0
+;	and adda.l 4(a1),a1) and the compressed tiles start at +8 (DecompressGraphics*). Files named .anim are
+;	sprite frame sets (see the Sprites entry below and the note in video93.asm). Each incbin is word aligned.
 
 GameSetUpMap						;game setup bitmap (setoptions)
 	incbin	..\Extracted\Graphics\GameSetUp.map.jim	;game setup bitmap
 	even
 
-GameSetupSprites					;game setup roster sprites drawn with SetSframe by AddTeamSpriteFrame, tiles from +8
+GameSetupSprites					;game setup roster sprites drawn with SetSframe by AddTeamSpriteFrame,
+	;tiles from +8
 	incbin	..\Extracted\Graphics\GameSetup.anim
 	even
 Title1Map							;TitleScreen backdrop
@@ -25,10 +28,12 @@ Title2Map							;second TitleScreen bitmap
 Title3Sprites						;the three TitleAnimCallback sprites
 	incbin	..\Extracted\Graphics\Title3.anim
 	even
-TitleLogoSprites					;the four title logo sprites (AddTitleLogoSprites SetSframe); palette reused by PlayoffScreen
+TitleLogoSprites					;the four title logo sprites (AddTitleLogoSprites SetSframe); palette
+	;reused by PlayoffScreen
 	incbin	..\Extracted\Graphics\TitleLogo.anim
 	even
-ScoutMap							;ScoutingReport background, also PlayoffScreen, SetupScreen, DrawTeamScreen
+ScoutMap							;ScoutingReport background, also PlayoffScreen, SetupScreen,
+	;DrawTeamScreen
 	incbin	..\Extracted\Graphics\Scouting.map.jim
 	even
 FramerMap							;Framer tiles and map (AddFramer, print93.asm, hockey93.asm, stats93.asm)
@@ -86,7 +91,8 @@ RonBarrMap							;Ron Barr picture on the ScoutingReport
 ScoresMap							;bitmap under the title on the ShowScores "Scores" screen
 	incbin	..\Extracted\Graphics\Scores.map.jim
 	even
-Stanleymap							;Stanley Cup sprites, drawn with SetSframe by UpdateStanleyCupAnimation (92 used a bitmap)
+Stanleymap							;Stanley Cup sprites, drawn with SetSframe by UpdateStanleyCupAnimation
+	;(92 used a bitmap)
 	incbin	..\Extracted\Graphics\Stanley.anim
 	even
 EASNmap2							;the five EASN bitmaps on the Stanley Cup screen

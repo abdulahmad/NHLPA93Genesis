@@ -1,8 +1,9 @@
 ;	EA startup code: the 68000 vector table, the Sega ID header, the EA logo and the reset entry point.
 ;
-;	In order from ROM address 0: the 93 macros (genesis93.mac), the vector table ($0-$FF), ErrorStatus, the Sega ID
-;	header (sega\SegaIDTable93.asm at $100), then Start. Start runs the console init (SegaInit.asm) and the optional
-;	ROM checksum (checksum93.asm), silences the crowd (KillCrowd, video93.asm) and branches to Begin (hockey93.asm).
+;	In order from ROM address 0: the 93 macros (genesis93.mac), the vector table ($0-$FF), ErrorStatus, the
+;	Sega ID header (sega\SegaIDTable93.asm at $100), then Start. Start runs the console init (SegaInit.asm)
+;	and the optional ROM checksum (checksum93.asm), silences the crowd (KillCrowd, video93.asm) and branches
+;	to Begin (hockey93.asm).
 
 	include	macros\genesis93.mac
 
@@ -58,7 +59,8 @@
 	org     $90
 	dcb.b   112,$00					; $5E - $18 = 70 bytes
 
-ErrorStatus							;4 longs of zero (16 bytes, ends at $110); nothing in the source references it
+ErrorStatus							;4 longs of zero (16 bytes, ends at $110); nothing in the source
+	;references it
 	dc.l	0,0,0,0
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

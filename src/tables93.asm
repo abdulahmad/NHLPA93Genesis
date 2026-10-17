@@ -1,17 +1,17 @@
-;	Data tables, included from hockey93.asm after the game code.
-;	In order: the crowd frame table (cd0, used by updatecrowdf), the player logic assignment table asstab,
-;	PenaltyList and its PenData records, bfasciicon, linelist, PlayerPositionText, PerLabels, sizetab, sublist,
-;	priolist, the playoff tree layout, the line editor and roster attribute column lists, and the menu item lists.
-;	Code addresses in these tables are routine labels, so Rev A shifts them.
+;	Data tables, included from hockey93.asm after the game code. In order: the crowd frame table (cd0, used by
+;	updatecrowdf), the player logic assignment table asstab, PenaltyList and its PenData records, bfasciicon,
+;	linelist, PlayerPositionText, PerLabels, sizetab, sublist, priolist, the playoff tree layout, the line
+;	editor and roster attribute column lists, and the menu item lists. Code addresses in these tables are
+;	routine labels, so Rev A shifts them.
 ;
 ;	Menu item lists (InitMenuState): two printsmall control Strings, then per item a String and the handler
 ;	address (dc.l). Item 0 leaves the menu (its handler is rtss). String $FF ends the list.
 
 cd0									;$fftt = frame/time for various levels of crowd excitement.
-	;Used by updatecrowdf, indexed by crowd level and crowdstep
-	;4 blocks of 16 words, one per crowd level range ((crowdlevel/2) and $60 = byte offset 0,$20,$40,$60)
-	;each step (crowdstep 0-$1E, word index) gives the crowd frame (high byte) and its base duration (low byte)
-	;block 0 is a calm crowd (time $0c), blocks 1, 2 and 3 are livelier and faster (time 7, 7, 3)
+	;Used by updatecrowdf, indexed by crowd level and crowdstep 4 blocks of 16 words, one per crowd level
+	;range ((crowdlevel/2) and $60 = byte offset 0,$20,$40,$60) each step (crowdstep 0-$1E, word index) gives
+	;the crowd frame (high byte) and its base duration (low byte) block 0 is a calm crowd (time $0c), blocks
+	;1, 2 and 3 are livelier and faster (time 7, 7, 3)
 	dc.w	$010c,$020c,$030c,$040c,$050c,$0a0c,$090c,$080c
 	dc.w	$060c,$070c,$080c,$090c,$0a0c,$050c,$040c,$030c
 
@@ -24,7 +24,8 @@ cd0									;$fftt = frame/time for various levels of crowd excitement.
 	dc.w	$0e03,$0f03,$1003,$1103,$1203,$0b03,$0c03,$0d03
 	dc.w	$1203,$1103,$1003,$0f03,$0e03,$0d03,$0c03,$0b03
 
-asstab								;jump table of all the player logic assignments. There is no "do nothing" entry, so
+asstab								;jump table of all the player logic assignments. There is no "do nothing"
+	;entry, so
 	;assignment numbers from assscore on are one lower than in 92. Used by updateplayers
 	dc.l	rtss
 
@@ -88,7 +89,8 @@ pfaceoff	=	(*-asstab)/4		;puck object: faceoff start
 pfaceoff2	=	(*-asstab)/4		;puck object: faceoff control and setup
 	dc.l	puckfaceoff2
 
-Penaltylist							;Penalty number = word offset into this table. Used by AddPenalty, SetPA2, DisplayPenaltyEntry, ...
+Penaltylist							;Penalty number = word offset into this table. Used by AddPenalty, SetPA2,
+	;DisplayPenaltyEntry, ...
 	dc.w	$0000
 PenEOP	equ	(*-Penaltylist)			;2 period over
 	dc.w	PenDataEOP-Penaltylist
@@ -140,7 +142,8 @@ PenDelay	equ	(*-Penaltylist)		;$2C delay
 ;	String  'penalty text' dc.w     $ffdd,$ffdd,$ffdd,... ;ff =
 ;	frame,dd=delay (neg for end)
 
-PenDataEOP	dc.w	$0100			;ttmm: slow down 1 half sec, 0 minutes; then the text and frame/delay words
+PenDataEOP	dc.w	$0100			;ttmm: slow down 1 half sec, 0 minutes; then the text and frame/delay
+	;words
 	String	'Period Over'
 	dc.w	-$0510
 PenDataEOG	dc.w	$0100			;ttmm: slow down 1, 0 minutes
@@ -257,7 +260,8 @@ PerLabels	String	'1',18			;text list for periods. Used by printscores1, NewTicke
 sizetab								;sprite size code to tile count., used by addframe2
 	dc.b	1,2,3,4,2,4,6,8,3,6,9,12,4,8,12,16
 
-sublist								;substitution lists by position (goalie, LD, RD, LW, C, RW, extra attacker).
+sublist								;substitution lists by position (goalie, LD, RD, LW, C, RW, extra
+	;attacker).
 	;word offsets from sublist (92 used long pointers). Used by SetPlList
 	dc.w	.defl-sublist			;goalie
 	dc.w	.defl-sublist
@@ -277,7 +281,8 @@ sublist								;substitution lists by position (goalie, LD, RD, LW, C, RW, extra
 .wingr	dc.b	0+5,8+5,16+5,24+5,32+5,40+5,48+5	;right wing slots, then left wing, then center
 	dc.b	0+3,8+3,16+3,24+3,32+3,40+3,48+3
 	dc.b	0+4,8+4,16+4,24+4,32+4,40+4,48+4
-.center	dc.b	0+4,8+4,16+4,24+4,32+4,40+4,48+4	;center slots, then left wing, then right wing; -1 ends the table
+.center	dc.b	0+4,8+4,16+4,24+4,32+4,40+4,48+4	;center slots, then left wing, then right wing; -1 ends
+	;the table
 	dc.b	0+3,8+3,16+3,24+3,32+3,40+3,48+3
 	dc.b	0+5,8+5,16+5,24+5,32+5,40+5,48+5
 	dc.b	-1
@@ -455,7 +460,8 @@ PauseText							;92 Pausemode .mlist. pause menu item list (Pausemode)
 	dc.l	TimeoutMenu
 	String	$FF
 
-PauseText2							;pause menu item list without Timeout, used when tmflags bit 2 of the pausing
+PauseText2							;pause menu item list without Timeout, used when tmflags bit 2 of the
+	;pausing
 	;team is set (Pausemode)
 	String	$FE,5
 	String	$FE,4

@@ -2,8 +2,8 @@
 ;	and where each animation's list begins.
 ;
 ;	First the SPF equates: the first frame number of each group of frames in Sprites.anim ("New" marks groups
-;	added in 93). Then SPAlist and one table per animation, in the order of the SPA numbers. The table format is
-;	described above SPAlist.
+;	added in 93). Then SPAlist and one table per animation, in the order of the SPA numbers. The table format
+;	is described above SPAlist.
 
 ; Sprite Frame (SPF) base indices
 SPFskatewp	=	1					;skating, stick down
@@ -55,7 +55,8 @@ SPFbglass	=	SPFinjury1+12		; 645 - New (glass bang)
 ;	Only the animation equate and table lines are commented. The .0-.7 direction labels and the .a/.b/.c/.aoff
 ;	helper symbols are assembler temporaries that step through the SPF frame numbers.
 
-SPAlist								;base of the animation tables; a SPA value is the offset of a table from here
+SPAlist								;base of the animation tables; a SPA value is the offset of a table from
+	;here
 	dc.w	0
 
 SPAgready	=	*-SPAlist			;goalie in ready position

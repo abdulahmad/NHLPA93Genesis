@@ -1,6 +1,7 @@
 ;	Stats and team screens: game stats, line editor and roster, scoring and penalty summaries, player and team
-;	stats, crowd meter and goalie selection. Each entry point is named after the title it prints. Most screens use
-;	SetupScreen and ExitStatsScreen and leave when start is pressed. ROM address range not determined here.
+;	stats, crowd meter and goalie selection. Each entry point is named after the title it prints. Most screens
+;	use SetupScreen and ExitStatsScreen and leave when start is pressed. ROM address range not determined
+;	here.
 ;
 ;	In file order (pause menu handlers):
 ;	  ShowScores            "Scores": the other games in progress (gstruct), vertically scrolled
@@ -16,7 +17,8 @@
 ;	  SetupScreen, ExitStatsScreen        common screen entry and exit (40 cell mode)
 ;	  TimeoutMenu, SelectGoalieMenu       pause menu timeout and goalie choice
 ;	  GetGoalieCount, GetForwardCount, GetPlayerCount   roster helpers for team a2
-;	Uses the shared print routines (print, printsmall, Framer, eraser, dobitmap). Several routines descend from 92.
+;	Uses the shared print routines (print, printsmall, Framer, eraser, dobitmap). Several routines descend
+;	from 92.
 
 ShowScores							;"Scores" screen: lists the other games in
 	;gstruct with both teams, scores and period. Up/down scroll, start exits.
@@ -129,7 +131,8 @@ DisplayGameInfo						;92 NewTicker3. print game d3 of gstruct (2 team rows and p
 	addq.w	#2,(printy).w
 	rts
 
-PrintGameInfo						;92 NewTicker3 .tn. print team d0's name at x 6 and score d1 (2 digits) at x $18
+PrintGameInfo						;92 NewTicker3 .tn. print team d0's name at x 6 and score d1 (2 digits) at
+	;x $18
 	movea.w	#$314,a1				;team address table
 	asl.w	#2,d0
 	movea.l	(a1,d0.w),a1
@@ -1216,7 +1219,8 @@ PenaltySummaryScreen				;"Penalty Summary": one 3 row
 	moveq	#$A,d0
 	moveq	#$19,d1
 	bsr.w	SetupScreen
-	;frame (32x6) with the big title, then the two team blocks (TeamBlockMap offsets $30 and 0, 12 cells wide each)
+	;frame (32x6) with the big title, then the two team blocks (TeamBlockMap offsets $30 and 0, 12 cells wide
+	;each)
 	bsr.w	printz
 	String	$BD,4,1,0
 	moveq	#$20,d0					;frame 32 wide, 6 high
@@ -1264,7 +1268,8 @@ PenaltySummaryScreen				;"Penalty Summary": one 3 row
 	bne.w	.set					;up held: scroll up
 	neg.w	d0						;+2
 	btst	#1,d3
-	beq.w	.scroll					;neither: keep the current PlayerScrollCtr (it is cleared at entry boundaries)
+	beq.w	.scroll					;neither: keep the current PlayerScrollCtr (it is cleared at entry
+	;boundaries)
 .set	move.w	d0,(PlayerScrollCtr).w	;store the scroll step (down held: +2)
 .scroll	bsr.w	CheckPenaltyScroll	;apply the step, if any
 	bra.s	.loop
@@ -1645,7 +1650,8 @@ DrawStatsList						;stats screen: column headers (sort column highlighted),
 	moveq	#5,d0
 .pad	st	(a3,d0.w)				;Pad with empty rows
 	dbf	d0,.pad
-	;SelectedPlayerIdx = maximum scroll = (entries - 7, at least 0) * 16 pixels (a3 is just past the $FF end mark)
+	;SelectedPlayerIdx = maximum scroll = (entries - 7, at least 0) * 16 pixels (a3 is just past the $FF end
+	;mark)
 	move.w	a3,d0
 	subi.w	#$BF30,d0				;rows past the first 7 in Satt
 	bpl.w	.8
@@ -1896,7 +1902,8 @@ StatsReport							;(was GameStatisticsScreen) "Game Statistics": both
 	bne.w	ExitStatsScreen
 	bra.s	.loop
 
-DisplayStats						;(was DisplayTeamStatsScreen) team logos, then each TeamStatTextTbl row centred with
+DisplayStats						;(was DisplayTeamStatsScreen) team logos, then each TeamStatTextTbl row
+	;centred with
 	;home value at x $22 and away at x 9
 	;team blocks (TeamBlockMap offset $30 at x 2, 0 at x $1A), both at y 9
 	bsr.w	printz
@@ -1930,7 +1937,8 @@ DisplayStats						;(was DisplayTeamStatsScreen) team logos, then each TeamStatTe
 	dbf	d6,.row
 	rts
 
-PrintStatValue						;92 DisplayStats .ss. print TeamStatTextTbl entry a0 for team a2 centred at printx:
+PrintStatValue						;92 DisplayStats .ss. print TeamStatTextTbl entry a0 for team a2 centred
+	;at printx:
 	;value (offset $A is a time), "/second" if any, " (pct%)" for passing
 	;a3 = mesarea, an empty string (length word 2) the value text is appended to
 	movea.w	#(mesarea-M68K_RAM),a3
@@ -2079,7 +2087,8 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	dc.l	$91234567,$89ABCDEF		;inline 8 byte color remap table (skipped on return, not code)
 	move.w	(smallfontchars).w,d4
 	bsr.w	AddSmallFont
-	;draw the whole ScoutMap bitmap (map at ScoutMap + its second long), size from its first two words, on map 3 at 0,0
+	;draw the whole ScoutMap bitmap (map at ScoutMap + its second long), size from its first two words, on map
+	;3 at 0,0
 	bsr.w	printz
 	String	$BD,0,0
 	movea.l	#ScoutMap,a1
@@ -2092,7 +2101,8 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	clr.w	d4
 	moveq	#0,d5					;no palette lines
 	bsr.w	dobitmap
-	;copy the rows d0 to d1 (from the caller's stack copy) of the ScoutMap bitmap, 40 wide, to map 3 at row printy+d0
+	;copy the rows d0 to d1 (from the caller's stack copy) of the ScoutMap bitmap, 40 wide, to map 3 at row
+	;printy+d0
 	bsr.w	printz
 	String	$FD,0,0					;map 3, attribute 0, x 0 y 0
 	movem.l	(sp),d0-d1/a2			;peek at the saved d0/d1/a2 without popping
@@ -2110,7 +2120,8 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	clr.w	d4
 	moveq	#$D,d5					;copy palette lines 0, 2 and 3
 	bsr.w	dobitmap
-	;load the second small font set after the bitmap tiles (dobitmap's DecompressGraphicsPlain leaves d4 = end char + 1)
+	;load the second small font set after the bitmap tiles (dobitmap's DecompressGraphicsPlain leaves d4 = end
+	;char + 1)
 	move.w	d4,(smallfont2chars).w
 	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
@@ -2268,7 +2279,8 @@ DrawGoalieSelectList				;92 Pausemode .gnum. draw the goalie list, row menuitem 
 .3	dbf	d2,.skip					;repeat d0-1 times
 	move.w	#8,(printx).w
 	bsr.w	print					;goalie name at x 8
-	;number: the first record byte as two BCD digits ('0' + nibble) in TextBuffer, printed as a 2 char string at x 5
+	;number: the first record byte as two BCD digits ('0' + nibble) in TextBuffer, printed as a 2 char string
+	;at x 5
 	move.b	(a1),d2
 	lsr.b	#4,d2
 	addi.b	#$30,d2

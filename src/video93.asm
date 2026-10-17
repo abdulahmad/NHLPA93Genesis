@@ -1,11 +1,11 @@
 ;	Game play vertical blank code. Every frame it builds the sprite list and sends it and other graphics to
 ;	video memory, and it draws the sprites for the rink, the referee, faceoffs, the zamboni and the crowd.
 ;
-;	In order: VBlank, vb2 and IRQ7 (the interrupt handlers), DumpSprites, DumpSprites2, DoDMAList and SetScroll2
-;	(the vdp transfers), setvideo (builds the sprite and dma lists, calls the rest), updatescroll, showref, checkfo,
-;	showzam, SetSframe, showcrowd, then showclock, checksso, setsortcords, setffo, uppads, QueuePadLabel,
-;	RenderSmallFontChar, addframe, addframe2, find3d, updatesound and KillCrowd. The sprite frame data and DMA
-;	list formats are described above DumpSprites. ROM address range: not determined here.
+;	In order: VBlank, vb2 and IRQ7 (the interrupt handlers), DumpSprites, DumpSprites2, DoDMAList and
+;	SetScroll2 (the vdp transfers), setvideo (builds the sprite and dma lists, calls the rest), updatescroll,
+;	showref, checkfo, showzam, SetSframe, showcrowd, then showclock, checksso, setsortcords, setffo, uppads,
+;	QueuePadLabel, RenderSmallFontChar, addframe, addframe2, find3d, updatesound and KillCrowd. The sprite
+;	frame data and DMA list formats are described above DumpSprites. ROM address range: not determined here.
 
 
 VBlank								;main vblank code for game play (vbint target, set by setupice).
@@ -124,7 +124,8 @@ setvideo							;this is not vblank code but sets up ram for vblank transfers.
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts
 
-updatescroll						;using hpos and vpos set scroll cords; queue rink map rows on the dma list (a5)
+updatescroll						;using hpos and vpos set scroll cords; queue rink map rows on the dma list
+	;(a5)
 	;when vertical scrolling needs new rows. Called from setvideo. updatescroll:
 	;rows go straight from IceRinkMap to the dma list, no tempmap
 	btst	#sfhor,(sflags).w
@@ -335,7 +336,8 @@ SetSframe							;draw one sprite frame. Called from showzam and from the screen 
 .ex	movem.l	(sp)+,d0-d5/a0			;restore registers
 	rts
 
-showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then the two crowdframe frames.
+showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then the two
+	;crowdframe frames.
 	;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter
 	movea.l	#CrowdSprites,a1
 	adda.l	4(a1),a1				;a1 = frame offset table
@@ -444,7 +446,8 @@ showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then the t
 ;	SortCords entries).
 ;	DMA list entries (a5): long source, word length in words, word vram.
 
-showclock							;put the game clock in the dma list. Called from setvideo; returns unless dfclock is set.
+showclock							;put the game clock in the dma list. Called from setvideo; returns unless
+	;dfclock is set.
 	;a5 = dma list, a6 = sprite table, d6 = link counter
 	bclr	#dfclock,(disflags).w
 	beq.w	rtss
@@ -505,7 +508,8 @@ showclock							;put the game clock in the dma list. Called from setvideo; retur
 
 horoff	equ	197						;subtracted from the screen y in the horizontal rink view (sfhor)
 
-checksso							;do graphics for sso structure: arrows for the two players when they are off screen.
+checksso							;do graphics for sso structure: arrows for the two players when they are
+	;off screen.
 	;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter.
 	;returns in sfhor mode (92 drew the scoreboard sso objects there); falls into .ca for player 2
 	btst	#sfhor,(sflags).w
@@ -592,7 +596,8 @@ setsortcords						;setup sort cord graphics: addframe for the 16 objects in OOli
 	dbf	d0,.top
 	rts
 
-setffo								;draw the 5 objects tied to icerink scrolling (pads ...). Called from setvideo.
+setffo								;draw the 5 objects tied to icerink scrolling (pads ...). Called from
+	;setvideo.
 	;when an object made sprites, 2(a3) is added to the x of its first two sprites
 	bsr.w	uppads
 	move.w	#4,d0					;ffonum-1
@@ -652,7 +657,8 @@ uppads								;update the gloves object and the 4 pad objects, and queue new pad
 	dbf	d4,.top
 	rts
 
-QueuePadLabel						;92 uppads. queue the 3 character label of a pad object (92 drew 2 digits).
+QueuePadLabel						;92 uppads. queue the 3 character label of a pad object (92 drew 2
+	;digits).
 	;Called from uppads. d1 = label code: bits 7-4 and 3-0 are digits ($F = blank), bits 10-8 index
 	;ButtonLabelCharTable. a0 = pad object, a5 = dma list. Falls into RenderSmallFontChar for the last char
 	lea	ButtonLabelCharTable(pc),a4
@@ -706,7 +712,8 @@ ButtonLabelCharTable				;third label character by bits 10-8 of the label code
 	dc.b	' DDLCRX',0
 	ENDIF
 
-addframe							;a3 = cords.l frame/oldframe VRsize VRchar. Project the object with find3d, then addframe2.
+addframe							;a3 = cords.l frame/oldframe VRsize VRchar. Project the object with
+	;find3d, then addframe2.
 	;Called from setsortcords and setffo. a5 = dma trans, a6/d6 = sprite att
 	movem.l	d0-d2,-(sp)
 	move.w	(a3),d0					;Xpos
@@ -720,7 +727,8 @@ addframe							;a3 = cords.l frame/oldframe VRsize VRchar. Project the object wi
 .exit	movem.l	(sp)+,d0-d2			;hidden or off screen: nothing drawn
 	rts
 
-addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = sprite table, d6 = link counter.
+addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 =
+	;sprite table, d6 = link counter.
 	;Also entered from checksso .ca and setupice. frame word: top 5 bits are attribute bits, low 11 the frame
 	;frames come from SpritesMap (offset table at +4) instead of a framelist. attribute is restored on exit
 	move.w	attribute(a3),-(sp)		;save attribute

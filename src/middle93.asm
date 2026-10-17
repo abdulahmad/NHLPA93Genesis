@@ -1,6 +1,6 @@
-;	Shared helpers used all over the game: palette fades, random numbers and square roots, sound requests, joypad
-;	reads, DMA and vram fills, vdp setup and bitmap drawing (dobitmap). Called from nearly every other file.
-;	ROM $00D5D2-$00DD67. decompress93.asm and print93.asm are included at the end and run on to $00E525.
+;	Shared helpers used all over the game: palette fades, random numbers and square roots, sound requests,
+;	joypad reads, DMA and vram fills, vdp setup and bitmap drawing (dobitmap). Called from nearly every other
+;	file. ROM $00D5D2-$00DD67. decompress93.asm and print93.asm are included at the end and run on to $00E525.
 ;
 ;	In order:
 ;	  UnpackNibbles, WeightedRandomSelect   nibble unpacking and weighted random pick
@@ -17,7 +17,8 @@
 ;	  setVram, setVram_0, Vmaddr            vdp register setup and vram address set
 ;	  dobitmap                              draw a map + palette + tiles (rink, EASN logo, energy bars)
 
-UnpackNibbles						;a0 = packed data, d0 = count. Unpacks d0 4-bit values (high nibble first) into words at nibblebuffer. Called from UpdateTeamNameisplay
+UnpackNibbles						;a0 = packed data, d0 = count. Unpacks d0 4-bit values (high nibble first)
+	;into words at nibblebuffer. Called from UpdateTeamNameisplay
 	movem.l	d0-d2/a0-a1,-(sp)
 	movea.w	#(nibblebuffer-M68K_RAM),a1	;a1 = output words
 	clr.w	d2						;d2 bit 0 = which nibble is next
@@ -33,7 +34,9 @@ UnpackNibbles						;a0 = packed data, d0 = count. Unpacks d0 4-bit values (high 
 	movem.l	(sp)+,d0-d2/a0-a1
 	rts
 
-WeightedRandomSelect				;92 SetScore .getscore. d0 = number of word weights at nibblebuffer. Return d0 = random index, picked with those weights. Called from SetScore_getscore and UpdateTeamNameisplay
+WeightedRandomSelect				;92 SetScore .getscore. d0 = number of word weights at nibblebuffer.
+	;Return d0 = random index, picked with those weights. Called from SetScore_getscore and
+	;UpdateTeamNameisplay
 	movem.l	d1/a1,-(sp)
 	movea.w	#(nibblebuffer-M68K_RAM),a1
 	clr.w	d1						;d1 = running total of the weights
@@ -50,7 +53,8 @@ WeightedRandomSelect				;92 SetScore .getscore. d0 = number of word weights at n
 	movem.l	(sp)+,d1/a1
 	rts
 
-remap								;a0 = data (char set), d0 = size in words, d1 = vram dest, a1 = mapping data (two color nibbles per byte, high nibble for even colors). Jumped to from DecompressGraphics
+remap								;a0 = data (char set), d0 = size in words, d1 = vram dest, a1 = mapping
+	;data (two color nibbles per byte, high nibble for even colors). Jumped to from DecompressGraphics
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	movem.l	d0-d4/a0-a2,-(sp)
@@ -94,7 +98,8 @@ forceblack							;fade all colors to black but don't upset palfadenew
 	movem.l	(sp)+,d0/a0
 	rts
 
-forcefade							;regardless of interupts/disflags fade in new palettes, don't upset anything else. Called from forceblack and setVram
+forcefade							;regardless of interupts/disflags fade in new palettes, don't upset
+	;anything else. Called from forceblack and setVram
 	move.w	sr,-(sp)				;save sr, vblank handler and disflags
 	move.l	(vbint).w,-(sp)
 	move.w	(disflags).w,-(sp)
@@ -108,7 +113,9 @@ forcefade							;regardless of interupts/disflags fade in new palettes, don't up
 	move.w	(sp)+,sr
 	rts
 
-cramfade							;fade from current color in color ram to color held in palfadenew. This should be called during vblank because palette changes punch holes in video. palcount 100 copies the palette with no fade (CopyPaletteToCRAM)
+cramfade							;fade from current color in color ram to color held in palfadenew. This
+	;should be called during vblank because palette changes punch holes in video. palcount 100 copies the
+	;palette with no fade (CopyPaletteToCRAM)
 	tst.w	(palcount).w
 	bmi.w	rtss					;negative = no fade running
 	cmpi.w	#$64,(palcount).w		;100 = copy now
@@ -165,7 +172,9 @@ cramfade							;fade from current color in color ram to color held in palfadenew
 	bne.s	.top
 	rts
 
-CopyPaletteToCRAM					;copy all 64 palfadenew colors straight to color ram and set palcount = -1. Protected from vblank. Entered from cramfade (palcount 100), called from SetupStanleyCupCelebrationScreen
+CopyPaletteToCRAM					;copy all 64 palfadenew colors straight to color ram and set palcount =
+	;-1. Protected from vblank. Entered from cramfade (palcount 100), called from
+	;SetupStanleyCupCelebrationScreen
 	movem.l	d0/a0-a1,-(sp)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
@@ -211,7 +220,8 @@ randomd0							;d0 = range. Return random number in d0 (0 <= d0 < range)
 	movem.l	(sp)+,d1-d2
 	rts
 
-sroot								;Square Root, this returns (d0.L)^.5 in d0. Large values use a binary search
+sroot								;Square Root, this returns (d0.L)^.5 in d0. Large values use a binary
+	;search
 	tst.l	d0
 	beq.w	rtss					;zero^.5 = zero
 	cmp.l	#40*40,d0
@@ -284,7 +294,8 @@ song								;play song number. One word passed on stack
 	addq.w	#2,sp
 	rts
 
-waitx								;wait d0 vblanks or until input from either joystick. Return joystick variables (d0-d3) if any. Called from ScoutingReport and SetupStanleyCupCelebrationScreen
+waitx								;wait d0 vblanks or until input from either joystick. Return joystick
+	;variables (d0-d3) if any. Called from ScoutingReport and SetupStanleyCupCelebrationScreen
 	neg.w	d0						;vcount counts up from -d0 to 0
 	move.w	d0,(vcount).w
 .wait	bsr.w	Readjoy1			;either pad with a new press ends the wait
@@ -300,7 +311,9 @@ waitx								;wait d0 vblanks or until input from either joystick. Return joysti
 	bmi.s	.wait					;still counting up to zero
 	rts
 
-waitxsr								;d0 vblanks while the zamboni crosses (zamx counts up to $708) and the crowd updates. A key on either pad (sflags bit 1 = pad 2) leaves at least 120 frames and goes to HandleMenuInput; eq from it exits with d1 bit 7 set. Called from Intermission
+waitxsr								;d0 vblanks while the zamboni crosses (zamx counts up to $708) and the
+	;crowd updates. A key on either pad (sflags bit 1 = pad 2) leaves at least 120 frames and goes to
+	;HandleMenuInput; eq from it exits with d1 bit 7 set. Called from Intermission
 	movem.l	d4-d7/a0-a3,-(sp)
 	neg.w	d0						;vcount counts up from -d0 to 0
 	move.w	d0,(vcount).w
@@ -339,7 +352,8 @@ waitxsr								;d0 vblanks while the zamboni crosses (zamx counts up to $708) an
 .ex	movem.l	(sp)+,d4-d7/a0-a3		;exit
 	rts
 
-waitjoy								;wait for either joystick input. Return d1 = new button presses. it as data (no caller found)
+waitjoy								;wait for either joystick input. Return d1 = new button presses. it as
+	;data (no caller found)
 	move.w	(vcount).w,d0
 .0	cmp.w	(vcount).w,d0			;wait one vblank
 	beq.s	.0
@@ -354,7 +368,8 @@ orjoy								;return d1 = new button presses from either joystick
 	or.w	(sp)+,d1				;combine with pad 2
 	rts
 
-nodiag								;eliminate diagonal direction presses: if held directions (d3 bits 0-3) are not one direction, clear the d1 direction bits
+nodiag								;eliminate diagonal direction presses: if held directions (d3 bits 0-3)
+	;are not one direction, clear the d1 direction bits
 	movem.l	d0/d4-d5,-(sp)
 	moveq	#3,d4					;d4 = direction bit 3..0
 	move.w	d3,d0
@@ -369,7 +384,9 @@ nodiag								;eliminate diagonal direction presses: if held directions (d3 bits
 .ok	movem.l	(sp)+,d0/d4-d5			;done
 	rts
 
-ProcessInputWithRepeat				;nodiag, then key repeat on d1-d3 from Readjoy1/2. A change (d2) resets the delay to 15 frames; while the same buttons stay held, every 4 frames return d1 = held buttons (d3). Called from Pausemode, menus and IntermissionLoop
+ProcessInputWithRepeat				;nodiag, then key repeat on d1-d3 from Readjoy1/2. A change (d2) resets
+	;the delay to 15 frames; while the same buttons stay held, every 4 frames return d1 = held buttons (d3).
+	;Called from Pausemode, menus and IntermissionLoop
 	bsr.s	nodiag
 	tst.w	d3
 	beq.w	rtss					;nothing held
@@ -383,7 +400,9 @@ ProcessInputWithRepeat				;nodiag, then key repeat on d1-d3 from Readjoy1/2. A c
 .chg	move.w	#$F,(repeatdelayframes).w	;first repeat delay
 	rts
 
-Readjoy1							;read controller 1. Return d0 = direction (bit 0-3) and new button (bit 4-7) presses, d1 = new presses (all 8 bits), d2 = changed buttons (all 8), d3 = current held buttons (all 8)
+Readjoy1							;read controller 1. Return d0 = direction (bit 0-3) and new button (bit
+	;4-7) presses, d1 = new presses (all 8 bits), d2 = changed buttons (all 8), d3 = current held buttons (all
+	;8)
 	move.l	a0,-(sp)
 	movea.l	#Joy1,a0
 	bsr.w	ReadJoy					;d1 = buttons down now
@@ -395,7 +414,9 @@ Readjoy1							;read controller 1. Return d0 = direction (bit 0-3) and new butto
 	and.w	d2,d1					;d1 = changed and now down = new presses
 	rts
 
-Readjoy2							;read controller 2. Return d0 = direction (bit 0-3) and new button (bit 4-7) presses, d1 = new presses (all 8 bits), d2 = changed buttons (all 8), d3 = current held buttons (all 8)
+Readjoy2							;read controller 2. Return d0 = direction (bit 0-3) and new button (bit
+	;4-7) presses, d1 = new presses (all 8 bits), d2 = changed buttons (all 8), d3 = current held buttons (all
+	;8)
 	move.l	a0,-(sp)
 	movea.l	#Joy2,a0
 	bsr.w	ReadJoy					;same as Readjoy1 with lj2
@@ -407,7 +428,8 @@ Readjoy2							;read controller 2. Return d0 = direction (bit 0-3) and new butto
 	and.w	d2,d1
 	rts
 
-ReadJoy								;read controller a0. Return d0 = direction (bit 0-3) and new button (bit 4-7) presses, d1 = buttons down (all 8 bits)
+ReadJoy								;read controller a0. Return d0 = direction (bit 0-3) and new button (bit
+	;4-7) presses, d1 = buttons down (all 8 bits)
 	move.w	#$100,(IO_Z80BUS).l		;turn off z80
 	move.b	#$40,6(a0)				;control port: TH as output
 	move.b	#0,(a0)					;TH low: the next read gives start and A
@@ -443,14 +465,16 @@ ReadJoy								;read controller a0. Return d0 = direction (bit 0-3) and new butt
 jdtab								;convert buttons l,r,d,u into directions 0-7,8
 	dc.b	8,0,4,8,6,7,5,8,2,1,3,8,8,8,8,8
 
-DoDMApro							;initiate dma transfer and protect from vblank interuption. d0 = words to transfer, d1 = initial vram address, a0 = address to transfer from. Jumped to from DecompressGraphics
+DoDMApro							;initiate dma transfer and protect from vblank interuption. d0 = words to
+	;transfer, d1 = initial vram address, a0 = address to transfer from. Jumped to from DecompressGraphics
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	bsr.w	DoDMA
 	move.w	(sp)+,(disflags).w
 	rts
 
-DoDMA								;initiate dma transfer (dma transfer bug is compensated for). d0 = words to transfer, d1 = destination vram address, a0 = source address
+DoDMA								;initiate dma transfer (dma transfer bug is compensated for). d0 = words
+	;to transfer, d1 = destination vram address, a0 = source address
 	movem.l	d2/a1,-(sp)
 	move.w	d0,d2
 	add.w	d2,d2					;length in bytes
@@ -504,11 +528,14 @@ DoDMA								;initiate dma transfer (dma transfer bug is compensated for). d0 = 
 	move.w	(dmaram).w,(a1)			;this write starts the dma
 
 	bsr.w	WaitDMA
-	move.w	#$8164,(a1)				;$8100+%01100100: vblank int back on, dma off (during the transfer $54 = vint off, dma on)
+	move.w	#$8164,(a1)				;$8100+%01100100: vblank int back on, dma off (during the transfer $54 =
+	;vint off, dma on)
 	movem.l	(sp)+,d2/a1
 	rts
 
-DoDMA_nd2							;vram to vram copy by dma (reg 23 = $C0), protected from vblank. d0 = length, d2 = source vram address, d1 = destination vram address. Auto inc 1 during the copy, then 2 again. Called from CopyTeamBlockMapData and ScrollDisplayUp
+DoDMA_nd2							;vram to vram copy by dma (reg 23 = $C0), protected from vblank. d0 =
+	;length, d2 = source vram address, d1 = destination vram address. Auto inc 1 during the copy, then 2
+	;again. Called from CopyTeamBlockMapData and ScrollDisplayUp
 	movem.l	d0-d3/a1,-(sp)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
@@ -531,7 +558,8 @@ DoDMA_nd2							;vram to vram copy by dma (reg 23 = $C0), protected from vblank.
 	move.w	d3,(a1)
 	move.w	#$97C0,(a1)				;dma mode: vram copy
 	clr.l	d0
-	move.w	d1,d0					;destination address -> vdp command (address bits 14-15 go to the second word)
+	move.w	d1,d0					;destination address -> vdp command (address bits 14-15 go to the second
+	;word)
 	asl.l	#2,d0
 	lsr.w	#2,d0
 	swap	d0
@@ -570,7 +598,8 @@ WaitDMA								;wait for dma completion
 	bne.s	WaitDMA
 	rts
 
-setVram								;initialize all necesary video parameters based on my variables. d0 = color to fade to. Falls into setVram_0
+setVram								;initialize all necesary video parameters based on my variables. d0 =
+	;color to fade to. Falls into setVram_0
 	movea.w	#(palfadenew-M68K_RAM),a0
 	moveq	#$3F,d1					;63
 .0	move.w	d0,(a0)+				;fill the 64 target colors with d0
@@ -578,7 +607,9 @@ setVram								;initialize all necesary video parameters based on my variables. 
 	move.w	#$18,(palcount).w		;24
 	bsr.w	forcefade				;fade the screen to that color
 
-setVram_0							;92 setVram second half. second half of setVram without the fade: clear vram and set the VDP registers from disflags, Map1col, VmMap1-3, VSPRITES and VSCRLPM. Falls in from setVram, called from SetupStanleyCupCelebrationScreen
+setVram_0							;92 setVram second half. second half of setVram without the fade: clear
+	;vram and set the VDP registers from disflags, Map1col, VmMap1-3, VSPRITES and VSCRLPM. Falls in from
+	;setVram, called from SetupStanleyCupCelebrationScreen
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	move.w	#$8F02,(Vctrl).l		;VmInc 2
@@ -652,7 +683,10 @@ Vmaddr								;set video port to address d0. d0 = vram address, returns a0 = Vda
 	rts
 
 
-dobitmap							;transfer palette data/map data/tiles data to vram. a0 = palette, a1 = map, a2 = tiles (DecompressGraphics data), d0 = start x, d1 = start y, d2 = width x, d3 = width y, d4 = start char, d5 = pal used bits (0-3) for color fam 1-4. printy is restored and the tiles go last through DecompressGraphics (returns d4 = end char)
+dobitmap							;transfer palette data/map data/tiles data to vram. a0 = palette, a1 =
+	;map, a2 = tiles (DecompressGraphics data), d0 = start x, d1 = start y, d2 = width x, d3 = width y, d4 =
+	;start char, d5 = pal used bits (0-3) for color fam 1-4. printy is restored and the tiles go last through
+	;DecompressGraphics (returns d4 = end char)
 	move.w	(printy).w,-(sp)		;keep printy
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
@@ -696,5 +730,6 @@ dobitmap							;transfer palette data/map data/tiles data to vram. a0 = palette,
 	move.w	(sp)+,(printy).w
 	rts
 
-	include decompress93.asm		;$00DD68-$00DF8D DecompressGraphicsWithCallback ... FlushOutputBuffer (new in 93)
+	include decompress93.asm		;$00DD68-$00DF8D DecompressGraphicsWithCallback ... FlushOutputBuffer (new
+	;in 93)
 	include print93.asm				;$00DF8E-$00E525 xyVmMap ... AddTeamBlock
