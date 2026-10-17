@@ -1,54 +1,78 @@
 ;	Penalty logic. This file calls penalties and the other stoppages of play, such as the
 ;	whistle, icing, offsides and goals. It sends players to the penalty box, runs power plays,
 ;	shows the referee's messages and switches the rink between its horizontal and vertical views.
+;
+;	ROM $00E526-$00F757 (follows the print helpers of print93.asm). Contents in order:
+;	  AddPenalty, AddPenalty2         queue a penalty or stoppage (goal, icing, face off, game over)
+;	                                  as a (penalty, player) pair in PenBuf; crowd song on goals
+;	  PenaltyManager                  periodic driver: updatepentime, checkfornewpen, chkprogress, UpdatePA
+;	  chkprogress, InProgress,
+;	  coinsearch                      ref sequence: switch to the horizontal rink, log the penalty
+;	                                  (PenSum, penalty box list in the team struct), count players on ice
+;	  checkfornewpen, Stop4Pen,
+;	  limitfo                         call the penalty (at once or delayed), stop the clock, whistle,
+;	                                  pick the face off spot
+;	  UpdatePA, SetPA, SetPA2,
+;	  PushRef, prefmes,
+;	  ClearPenaltyMessage             ref animation (Penaltylist frames) and the penalty message text
+;	  PenGoalStuff, ClearPenaltyBuffer,
+;	  updatepentime, ProcessPenaltyList,
+;	  RemovePlayerFromList, chkatop,
+;	  releasepl, GetLowestPen,
+;	  updatepwrplay                   penalty clocks, players leaving the box, attack time, power play display
+;	  ClrHor, SetHor                  switch between the vertical and horizontal rink graphics
+;	  The scoreboard, ticker and intermission routines follow (listed in the block header after SetHor):
+;	  printscores1 ... AdvanceStringPtr, and at the very end DoHiLights, StartHL and StartHL2
+;	  (the intermission highlights of the other games; this block sits at the end of the file).
 
 AddPenalty	;add penalty d0 (PenaltyList offset) for player a3. Ignored while the clock is stopped, when penalties are off, or offsides when offsides are off. Falls into AddPenalty2
 	btst	#gmclock,(gmode).w
-	bne.w	rtss
+	bne.w	rtss			;clock stopped: ignore
 	cmp.w	#$C,d0			;icing (92 used 8)
-	beq.w	AddPenalty2
+	beq.w	AddPenalty2		;icing is always called
 	tst.w	(OptPen).w
 	beq.w	rtss			;penalties off
 	btst	#gmoffs,(gmode).w
 	bne.w	AddPenalty2
 	cmp.w	#$10,d0			;offsides (92 used $A)
-	beq.w	rtss
+	beq.w	rtss			;offsides off: ignore
 
 AddPenalty2	;forced penalties like face off and game over. d0 = penalty number, a3 = player or player on penalized team. Penalty numbers from $E (goal) up raise the crowd and play a song
 	btst	#sfhor,(sflags).w
-	bne.w	rtss
+	bne.w	rtss			;horizontal (penalty box) mode: no new penalties
 	movem.l	d1/a0-a1,-(sp)
 	cmp.w	#$E,d0			;goal (92 used 6) and up
-	blt.w	.nosnd
+	blt.w	.nosnd			;lesser stoppages: no crowd noise or song
 	addi.w	#$C8,(crowdlevel).w	;200
 	move.w	#$C,-(sp)		;song $C for the home team
-	btst	#pfteam,pflags(a3)
+	btst	#pfteam,pflags(a3)	;which team's player
 	beq.w	.snd
 	addi.w	#$14,(CwdExciteLvl).w	;visitors: +20 excitement
 	move.w	#$B,(sp)		;song $B
-.snd	bsr.w	song
-.nosnd	movea.w	#(PenBuf-M68K_RAM),a1
+.snd	bsr.w	song			;play it (song pops its argument)
+.nosnd	movea.w	#(PenBuf-M68K_RAM),a1	;a1 = PenBuf: 2 bytes per entry (penalty, player)
 	moveq	#$1F,d1			;MaxPen-1
 .0	tst.w	(a1)+			;find free slot
 	dbeq	d1,.0
 	bne.w	.noplayer		;buffer full
-	move.b	SCnum+1(a3),-(a1)
-	move.b	d0,-(a1)
+	move.b	SCnum+1(a3),-(a1)	;store the player's sort number (second byte of the entry)
+	move.b	d0,-(a1)		;and the penalty number (first byte)
 	movea.l	#Penaltylist,a0
-	adda.w	(a0,d0.w),a0
+	adda.w	(a0,d0.w),a0		;a0 = this penalty's record
 	tst.b	1(a0)			;penalty minutes
-	beq.w	.noplayer
+	beq.w	.noplayer		;no minutes: no penalty box time, keep the entry
+	;mark the player as penalized; if the flag was already set he already has one
 	bset	#pf2pen,pflags2(a3)		;92 used bit 6
 	beq.w	.noplayer
 	clr.w	(a1)			;player already has a penalty, drop this one
-.noplayer	movem.l	(sp)+,d1/a0-a1
+.noplayer	movem.l	(sp)+,d1/a0-a1	;buffer full or done: restore and return
 	rts
 
 PenaltyManager	;called periodically. d7 = elapsed time since last call
-	bsr.w	updatepentime
-	bsr.w	checkfornewpen
-	bsr.w	chkprogress
-	bra.w	UpdatePA
+	bsr.w	updatepentime		;count down the penalty clocks (once a second)
+	bsr.w	checkfornewpen		;call any newly queued penalty
+	bsr.w	chkprogress		;step the stoppage / ref / penalty box sequence
+	bra.w	UpdatePA		;animate the ref and return
 
 chkprogress	;control progress of ref and game control thru penalty events. When the stop delay runs out and a penalty with minutes is in PenBuf, switch to the horizontal rink for the player to enter the penalty box
 	btst	#gmpen,(gmode).w
@@ -96,29 +120,30 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	tst.w	(RefCnt).w
 	bpl.w	rtss			;animation in progress
 	tst.w	(RefStep).w
-	bpl.w	rtss
+	bpl.w	rtss			;ref not idle yet
 	movem.l	d0/a0-a3,-(sp)
-.top	movea.w	#(PenBuf-M68K_RAM),a0
+.top	movea.w	#(PenBuf-M68K_RAM),a0	;process the last PenBuf entry
 	tst.w	(a0)+
-	beq.w	.exit
+	beq.w	.exit			;list empty: all done
 .0	tst.w	(a0)+			;find end of list
 	bne.s	.0
-	subq.w	#4,a0
-	bclr	#7,1(a0)		;player who is guilty
-	bne.w	.Sa
+	subq.w	#4,a0			;a0 = last entry (penalty byte, player byte)
+	bclr	#7,1(a0)		;bit 7 of the player byte = called but not yet logged (set in checkfornewpen)
+	bne.w	.Sa			;first pass: log it
+	;later pass: wait until the penalized player has left the ice (position negative), then drop the entry
 	move.l	a3,-(sp)
 	clr.w	d1
 	move.b	1(a0),d1
 	asl.w	#scsize,d1			;scsize
 	movea.w	#(SortCords-M68K_RAM),a3
-	adda.w	d1,a3
+	adda.w	d1,a3			;a3 = the player
 	tst.w	position(a3)
 	movea.l	(sp)+,a3
 	bpl.w	.ex			;still on the ice
-	clr.w	(a0)
+	clr.w	(a0)			;gone: remove the entry
 	bra.w	.ex
 
-.Sa	clr.w	d0
+.Sa	clr.w	d0			;first pass: d0 = penalty number
 	move.b	(a0),d0
 	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
@@ -127,6 +152,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	beq.w	.sa2			;no player involved
 	movem.l	d0-d1/a1-a4,-(sp)
 	bsr.w	GetPeriodTimeRemaining	;log time, penalty and player
+	;PenSum entry (4 bytes): time word, penalty byte, player byte (bit 7 = visitors)
 	movea.w	#(PenSum-M68K_RAM),a4
 	adda.w	(PenSumLength).w,a4
 	cmpi.w	#$EC,(PenSumLength).w	;log full: keep overwriting the last entry
@@ -138,17 +164,17 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	move.b	1(a0),d1
 	asl.w	#scsize,d1			;scsize
 	movea.w	#(SortCords-M68K_RAM),a3
-	adda.w	d1,a3
-	clr.w	d0
-	movea.w	#(tmstruct-M68K_RAM),a2
+	adda.w	d1,a3			;a3 = the guilty player
+	clr.w	d0			;d0 = player id (bit 15 = visitors)
+	movea.w	#(tmstruct-M68K_RAM),a2	;a2 = his team, a1 = the other team
 	lea	tmsize(a2),a1
 	btst	#pfteam,pflags(a3)
 	beq.w	.sa1
 	bset	#7,-1(a4)		;log: visitors
 	move.w	#$8000,d0
 	exg	a1,a2
-.sa1	addq.w	#1,tmPenalties(a2)
-	add.w	d2,tmPenmin(a2)
+.sa1	addq.w	#1,tmPenalties(a2)	;team penalty count
+	add.w	d2,tmPenmin(a2)		;team penalty minutes
 	move.b	pnum(a3),d0
 	move.b	d0,(a4)			;log: player
 	move.w	d0,(TempPlOffset).w
@@ -156,17 +182,17 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	addi.w	#$102,d0		;per-player penalty minutes byte at $102+pnum
 	add.b	d2,(a2,d0.w)
 	subi.w	#$102,d0
-	asl.w	#1,d0
+	asl.w	#1,d0			;d0 = roster offset (player*2) for tmpdst
 	ext.w	d2
-	mulu.w	#$3C,d2			;60
-	bset	#$D,d2
+	mulu.w	#$3C,d2			;60: minutes -> seconds
+	bset	#$D,d2			;bit 13 = just called (cleared again by coinsearch)
 	tst.w	tmpdst(a2,d0.w)
-	bmi.w	.st
+	bmi.w	.st			;on the ice/bench: plain value
 	btst	#4,tmpdst(a2,d0.w)
 	beq.w	.st
 	bset	#$C,d2			;keep bit 4 of an old penalty time as bit 12
-.st	move.w	d2,tmpdst(a2,d0.w)
-	andi.w	#$EFFF,d2
+.st	move.w	d2,tmpdst(a2,d0.w)	;store the penalty time (seconds) for this player
+	andi.w	#$EFFF,d2		;drop bit 12 for the comparison below
 	moveq	#(maxros-1)*2+2,d1			;(MaxRos-1)*2+2
 .ctop	subq.w	#2,d1			;same time on the other team
 	bmi.w	.nocoin

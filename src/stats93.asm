@@ -2061,65 +2061,71 @@ PrintCrowdDB	;print crowd level d0 as sqrt(d0*4) + 65 " dB"
 
 SetupScreen	;common start for the stats screens: blank, 40 cell mode, load
 	;framer and small font, draw the background bitmap, copy rows d0-d1 of it
-	;to the scroll plane and clear map 3
-	movem.l	d0-d1/a2,-(sp)
+	;to map 3 at row printy+d0 and clear map 2
+	movem.l	d0-d1/a2,-(sp)		;keep d0/d1 (first/last row) and a2 (team) for the caller
 	bsr.w	forceblack
-	bclr	#dfok,(disflags).w
+	bclr	#dfok,(disflags).w	;graphics not ready for transfer
+	;video mode: clear the first sprite and switch the VDP to 40 cell mode
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	move.w	(VSPRITES).w,d0
 	bsr.w	Vmaddr
 	move.l	#0,(a0)			;clear first sprite
 	move.w	#$8C81,4(a0)		;VDP reg 12: 40 cell mode
-	move.w	#6,(Map3col).w
+	move.w	#6,(Map3col).w		;map 3 is 64 cells wide in 40 cell mode
 	move.w	(sp)+,(disflags).w
-	bclr	#df32c,(disflags).w
+	bclr	#df32c,(disflags).w	;not in 32 cell mode
+	;load the frame graphics and the small font tiles
 	move.w	(Framercset).w,d4
 	movea.l	#FramerMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
-	dc.l	$91234567,$89ABCDEF
+	dc.l	$91234567,$89ABCDEF	;inline parameters read by the decompressor (not code)
 	move.w	(smallfontchars).w,d4
 	bsr.w	AddSmallFont
+	;draw the whole ScoutMap bitmap (map at ScoutMap + its second long), size from its first two words, on map 3 at 0,0
 	bsr.w	printz
 	String	$BD,0,0
 	movea.l	#ScoutMap,a1
 	adda.l	4(a1),a1
 	movea.w	#$310,a2
-	clr.w	d0
+	clr.w	d0			;start x/y 0 in the map
 	clr.w	d1
-	move.w	(a1),d2
-	move.w	2(a1),d3
+	move.w	(a1),d2			;map width
+	move.w	2(a1),d3		;map height
 	clr.w	d4
-	moveq	#0,d5
+	moveq	#0,d5			;no palette lines
 	bsr.w	dobitmap
+	;copy the rows d0 to d1 (from the caller's stack copy) of the ScoutMap bitmap, 40 wide, to map 3 at row printy+d0
 	bsr.w	printz
-	String	$FD,0,0
-	movem.l	(sp),d0-d1/a2
+	String	$FD,0,0			;map 3, attribute 0, x 0 y 0
+	movem.l	(sp),d0-d1/a2		;peek at the saved d0/d1/a2 without popping
 	add.w	d0,(printy).w
-	movea.l	#ScoutMap,a0
+	movea.l	#ScoutMap,a0		;a0 = palette (first long), a1 = map (second long)
 	movea.l	a0,a1
 	movea.l	a0,a2
 	adda.l	(a2)+,a0
 	adda.l	(a2)+,a1
 	move.w	d1,d3
-	sub.w	d0,d3
-	move.w	d0,d1
-	clr.w	d0
-	moveq	#$28,d2
+	sub.w	d0,d3			;height = last row - first row
+	move.w	d0,d1			;start y = first row
+	clr.w	d0			;start x 0
+	moveq	#$28,d2			;width 40
 	clr.w	d4
-	moveq	#$D,d5
+	moveq	#$D,d5			;copy palette lines 0, 2 and 3
 	bsr.w	dobitmap
+	;load the second small font set after the first (d4 = next free char from dobitmap)
 	move.w	d4,(smallfont2chars).w
 	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
-	dc.l	$D1234567,$89ABCDEF
+	dc.l	$D1234567,$89ABCDEF	;inline parameters read by the decompressor (not code)
+	;blank map 2 (64x32 cells of char $7FF) from 0,0
 	bsr.w	printz
-	String	$FE,0,0
+	String	$FE,0,0			;map 2, attribute 0, x 0 y 0
 	moveq	#$40,d0
 	moveq	#$20,d1
 	move.w	#$7FF,d2
 	bsr.w	eraser
-	move.w	#$18,(palcount).w
+	move.w	#$18,(palcount).w	;start a palette fade in
 	movem.l	(sp)+,d0-d1/a2
 	rts
 

@@ -3537,10 +3537,12 @@ CompLine	;find good line for comp to switch to. a2 = team, a1 = other team. Call
 	dc.w	0,1,0
 
 puckfaceoff2	;face off control logic and general setup for action
-	bclr	#pfna,pflags(a3)
+	;a3 = the puck. First call sets the whole face off up (players, puck, scoreboard box, map);
+	;later calls count temp1 down to the drop (updatefaceoff / Endfaceoff)
+	bclr	#pfna,pflags(a3)	;new assignment? (clears the flag)
 	beq.w	.nna			;not first time thru
 	movem.l	d0-d7/a0-a6,-(sp)
-	bsr.w	forceblack
+	bsr.w	forceblack		;blank the screen while setting up
 .p	btst	#dfok,(disflags).w
 	bne.s	.p			;wait for vblank
 	cmpi.w	#$258,(crowdlevel).w
@@ -3555,60 +3557,60 @@ puckfaceoff2	;face off control logic and general setup for action
 	st	(puckcross+2).w	;no goalie moes
 	st	(puckcross+6).w
 	bclr	#sf2refref,(sflags2).w
-	bset	#sf2faceoff,(sflags2).w
+	bset	#sf2faceoff,(sflags2).w	;face off in progress
 	bset	#sf2drec,(sflags2).w		;don't record yet
 	st	(passReceiverPlayerNum).w	;no pass receiver
 	bset	#dffaceoff,(disflags).w		;cleared again in updatefaceoff
 	bsr.w	ClrHor			;vertical icerink
 	clr.w	(Vpos).w		;center h/v pos
 	clr.w	(Hpos).w
-	move.w	(fox).w,(puckx).w
+	move.w	(fox).w,(puckx).w	;puck on the face off spot (fox/foy)
 	move.w	(foy).w,(pucky).w
 	st	(puckz).w		;no visible puck
 	clr.w	(puckvx).w
 	clr.w	(puckvy).w
 	clr.w	(puckvz).w
-	st	(puckc).w
+	st	(puckc).w		;nobody carries it
 	movea.w	#(SortCords+(12*SCstruct)-M68K_RAM),a0	;reposition goal nets
-	clr.w	Xvel(a0)
+	clr.w	Xvel(a0)		;net 1 (sort object 12) at x 0, y $10C
 	clr.w	Yvel(a0)
 	clr.w	(a0)			;Xpos
 	move.w	#$10C,Ypos(a0)		;268
-	adda.w	#SCstruct,a0
+	adda.w	#SCstruct,a0		;net 2 (sort object 13) at x 0, y -$10C
 	clr.w	Xvel(a0)
 	clr.w	Yvel(a0)
 	clr.w	(a0)
 	move.w	#-$10C,Ypos(a0)
-	movea.w	#(SortCords+(15*SCstruct)-M68K_RAM),a0
+	movea.w	#(SortCords+(15*SCstruct)-M68K_RAM),a0	;sort object 15: frame = SPFpuck, SPA and attribute cleared
 	move.w	#SPFpuck,frame(a0)
 	clr.w	SPA(a0)
 	clr.w	attribute(a0)
 	clr.w	(SortCords+(puckscnum*SCstruct)+attribute).w
 	bclr	#sfslock,(sflags).w		;free up scrolling
-	moveq	#$64,d4
+	moveq	#$64,d4			;run the scroll window 101 times so it settles
 .cw	bsr.w	checkwindow		;scroll to faceoff spot
 	dbf	d4,.cw
 	move.w	#$3C,(yleader).w
 	bsr.w	ResetBench
-	movea.w	#(tmstruct-M68K_RAM),a2
+	movea.w	#(tmstruct-M68K_RAM),a2	;set personnel and player data for both teams
 	bsr.w	setpersonel
 	bsr.w	forcepldata
 	adda.w	#tmsize,a2
 	bsr.w	setpersonel
 	bsr.w	forcepldata
 	bsr.w	resetplstuff
-	move.l	a3,-(sp)
+	move.l	a3,-(sp)		;keep the puck pointer
 	movea.w	#(SortCords-M68K_RAM),a3
-	moveq	#$B,d2
+	moveq	#$B,d2			;loop over the 12 players
 .l0	move.w	#-$F0,(a3)		;Xpos = -240
 	clr.w	Ypos(a3)
 	clr.w	frame(a3)
 	move.w	position(a3),d1
-	bmi.w	.next
-	beq.w	.goalie1
+	bmi.w	.next			;absent
+	beq.w	.goalie1		;goalie: no assignment change
 	move.l	#afaceoff,d0			;afaceoff
 	cmp.w	#4,d1
-	bne.w	.l1
+	bne.w	.l1			;only the center (position 4) takes the face off
 	movea.w	#(tmstruct-M68K_RAM),a2	;faceoff man resets team $18-$1C
 	btst	#pfteam,pflags(a3)
 	beq.w	.tm
@@ -3620,38 +3622,38 @@ puckfaceoff2	;face off control logic and general setup for action
 	bclr	#tmflast,tmflags(a2)		;tmflags bit 3
 	move.l	#afaceoffpl,d0			;afaceoffpl
 .l1	bsr.w	assinsert
-.goalie1	move.w	(tmstruct+tmap).w,d4
+.goalie1	move.w	(tmstruct+tmap).w,d4	;d4 = active players of this player's team
 	btst	#pfteam,pflags(a3)
 	beq.w	.t0
 	move.w	(awtmstruct+tmap).w,d4
 .t0	neg.w	d4
-	addq.w	#6,d4
-	asl.w	#3,d4
+	addq.w	#6,d4			;6 - active players
+	asl.w	#3,d4			;8 bytes per row of .apl
 	movea.l	#.apl,a1
-	adda.w	d4,a1
-	move.b	(a1,d1.w),d4
+	adda.w	d4,a1			;row for this team size ...
+	move.b	(a1,d1.w),d4		;... indexed by position: formation slot
 	asl.w	#2,d4
 	movea.l	#.ptab,a1
-	move.w	(a1,d4.w),d0
+	move.w	(a1,d4.w),d0		;d0/d1 = x/y of that slot (4 bytes per entry)
 	move.w	2(a1,d4.w),d1
 	btst	#pfgoal,pflags(a3)
 	bne.w	.f0
-	neg.w	d0
+	neg.w	d0			;mirror for the team shooting the other way
 	neg.w	d1
 .f0	tst.w	position(a3)
-	beq.w	.goalie2
+	beq.w	.goalie2		;goalie: fixed spot, no face off offset
 	cmp.w	#2*4,d4
-	bgt.w	.nodef
+	bgt.w	.nodef			;slots above 2 are not shifted by the spot
 	move.w	(fox).w,d3
 	eor.w	d0,d3
-	bpl.w	.notmid
+	bpl.w	.notmid			;fox and slot x on the same side
 	move.w	(foy).w,d3
 	asr.w	#3,d3
-	sub.w	d3,d1
+	sub.w	d3,d1			;opposite side: also pull y toward the spot
 .notmid	move.w	(fox).w,d3
 	asr.w	#2,d3
 	sub.w	d3,d0
-.nodef	add.w	(fox).w,d0
+.nodef	add.w	(fox).w,d0		;slot is relative to the face off spot
 	add.w	(foy).w,d1
 .goalie2	move.w	d0,(a3)			;Xpos
 	move.w	d1,Ypos(a3)
@@ -3661,12 +3663,12 @@ puckfaceoff2	;face off control logic and general setup for action
 	sub.w	(pucky).w,d1
 	neg.w	d0
 	neg.w	d1
-	bsr.w	vtoa
+	bsr.w	vtoa			;face the direction from the puck to the player
 	move.w	d0,facedir(a3)
 	bclr	#pf2unav,pflags2(a3)		;pf2unav
 	bclr	#pfalock,pflags(a3)
 	move.w	#SPAglide,d1
-	bsr.w	SetSPA
+	bsr.w	SetSPA			;glide animation
 .next	adda.w	#SCstruct,a3
 	dbf	d2,.l0
 	bsr.w	SprSort
