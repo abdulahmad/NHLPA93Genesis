@@ -1355,3 +1355,219 @@ AdvanceStringPtr	;like 92's string-list print, without the print. Return a1 = st
 .0	adda.w	(a1),a1
 .1	dbf	d0,.0
 	rts
+
+DoHiLights	;hilites logic: search for hilite game and show hilite (no OptPlayMode check). Called from Intermission
+	bsr.w	GetShifter
+	moveq	#gssize,d3			;gssize
+	mulu.w	d1,d3
+	movea.w	#(gstruct-M68K_RAM),a0
+	adda.w	d3,a0
+.top	btst	#gsfso,gsflags(a0)		;gsfso
+	bne.w	.next
+	bclr	#gsfhl,gsflags(a0)		;gsfhl
+	beq.w	.next
+	bsr.w	StartHL
+.next	suba.w	#gssize,a0			;gssize
+	dbf	d1,.top
+	rts
+
+StartHL	movem.l	d0-d7/a0-a6,-(sp)	;play hilite for game a0, d1 = game. Called from DoHiLights. Falls into StartHL2
+StartHL2	;play hilite for game a0. Start skips it with a random result. A tied game is replayed (beq StartHL2)
+	btst	#sf3sbut,(sflags3).w
+	bne.w	.nhl0
+	bsr.w	.sv
+	move.w	d1,d3
+	bsr.w	CheckGameTickerStatus
+	bsr.w	NewTicker3		;show score from hilight game
+	btst	#sf3sbut,(sflags3).w
+	bne.w	.nhl1
+	move.w	#4,(printx).w
+	subq.w	#6,(printy).w
+	moveq	#$18,d0			;24
+	moveq	#3,d1
+	bsr.w	Framer
+	addq.w	#1,(printx).w
+	subq.w	#2,(printy).w
+	bsr.w	printz
+	String	'Highlight from game:'
+	move.w	#$B4,d0			;180 frames
+	bsr.w	waitxsr
+	btst	#sbut,d1			;sbut
+	bne.w	.nhl1
+	st	(zamx).w
+	clr.w	(CwdExciteLvl).w
+	move.w	(a0),(HomeTeam).w	;set up teams for game in a0
+	move.w	2(a0),(VisTeam).w
+	move.l	a0,-(sp)
+	clr.w	(tmstruct+tmgoalie).w
+	clr.w	(awtmstruct+tmgoalie).w
+	jsr	(clearTeamStats).l
+	jsr	(restoreteams).w
+	st	(c1playernum).w
+	st	(c2playernum).w
+	clr.w	(cont1team).w
+	clr.w	(cont2team).w
+	moveq	#$78,d0			;120
+	bsr.w	randomd0
+	addi.w	#$3C,d0			;60
+	move.w	d0,(gameclock).w
+	movea.l	(sp),a0
+	move.w	gsper(a0),(gsp).w		;gsper
+	subq.w	#1,(gsp).w
+	move.w	gss1(a0),(tmstruct+tmscore).w	;gss1
+	move.w	gss2(a0),(awtmstruct+tmscore).w	;gss2
+	move.b	#$10,(gmode).w		;1<<gmhl
+	btst	#0,(gsp+1).w
+	beq.w	.ndi
+	bset	#gmdir,(gmode).w
+.ndi	clr.b	(sflags).w
+	move.b	#4,(sflags2).w		;1<<sf2drec
+	clr.b	(sflags3).w
+	bclr	#dffaceoff,(disflags).w
+	bset	#dfclock,(disflags).w
+	clr.w	(glovecords).w
+	clr.b	(iflags).w
+	st	(RefCnt).w
+	st	(puckcross+2).w
+	st	(puckcross+6).w
+	jsr	p_turnoff
+	bsr.w	setupice_highlight
+	bsr.w	ClrHor
+	movea.l	#Vdata,a0
+	move.w	#$9100,4(a0)		;window H position 0
+	move.w	#$9200,4(a0)		;window V position 0
+	move.w	(ExtraChars).w,d4	;ref cam chars
+	movea.l	#RefsMap+8,a2
+	bsr.w	DecompressGraphicsPlain
+	clr.w	(Vpos).w
+	clr.w	(Hpos).w
+	bsr.w	ResetBench
+	movea.w	#(tmstruct-M68K_RAM),a2
+	bsr.w	.setteam
+	adda.w	#tmsize,a2
+	bsr.w	.setteam
+	bsr.w	resetplstuff
+	moveq	#$B,d0
+	movea.l	#.postab,a0
+	movea.w	#(SortCords-M68K_RAM),a1
+.ploop	move.w	position(a1),d1
+	btst	#pfgoal,pflags(a1)
+	bne.w	.pl0
+	addq.w	#6,d1
+.pl0	asl.w	#2,d1
+	move.w	(a0,d1.w),(a1)		;Xpos
+	move.w	2(a0,d1.w),Ypos(a1)
+	clr.w	Xvel(a1)
+	clr.w	Yvel(a1)
+	adda.w	#SCstruct,a1
+	dbf	d0,.ploop
+	bsr.w	SprSort
+	move.w	#$18,(palcount).w	;24
+	move.w	(vcount).w,(oldvcount).w
+	move.w	#$B4,-(sp)		;180 frames after the clock stops
+.0	jsr	(DoGameFrame).w		;DoGameFrame waits for the vblank (92 inline)
+	btst	#gmclock,(gmode).w
+	beq.w	.1
+	subq.w	#1,(sp)
+	bmi.w	.endhl
+.1	bsr.w	orjoy
+	btst	#cbut,d1			;cbut
+	bne.w	.eh
+	btst	#sbut,d1			;sbut
+	beq.s	.0
+.eh	move.w	(tmstruct+tmscore).w,d0	;tied: random winner
+	cmp.w	(awtmstruct+tmscore).w,d0
+	bne.w	.endhl
+	move.w	(HVcount).l,d0		;hvcount
+	andi.w	#1,d0
+	add.w	d0,(tmstruct+tmscore).w
+	eori.w	#1,d0
+	add.w	d0,(awtmstruct+tmscore).w
+.endhl	addq.w	#2,sp
+	movea.l	(sp)+,a0
+	movem.l	d1/a0,-(sp)
+	jsr	KillCrowd
+	jsr	p_turnoff
+	movem.l	(sp)+,d1/a0
+	move.w	(tmstruct+tmscore).w,gss1(a0)	;gss1
+	move.w	(awtmstruct+tmscore).w,gss2(a0)	;gss2
+	bsr.w	forceblack
+	moveq	#$F,d0
+	movea.w	#(SortCords-M68K_RAM),a0
+.clr	clr.w	(a0)			;Xpos
+	adda.w	#SCstruct,a0
+	dbf	d0,.clr
+	bsr.w	.lo
+	bsr.w	setplayercolors
+	bsr.w	SetHor
+	bsr.w	setvideo
+	jsr	(SetupPauseScreen).w	;pause menu screen
+	jsr	(DrawMenuScreen).w
+	move.w	#$18,(palcount).w	;24
+	move.w	#SngEOP,-(sp)		;song $36
+	bsr.w	song
+	movem.l	(sp),d0-d7/a0-a6
+	move.w	#4,gsper(a0)		;gsper: OT
+	move.w	gss1(a0),d0		;gss1
+	cmp.w	gss2(a0),d0		;gss2
+	beq.w	StartHL2		;still tied: play another hilite
+	move.w	#5,8(a0)		;final
+	move.w	d1,d3
+	bsr.w	CheckGameTickerStatus
+	bsr.w	NewTicker3
+	move.w	#$B4,d0			;180 frames
+	bsr.w	waitxsr
+	btst	#sbut,d1			;sbut
+	bne.w	.exit2
+	bsr.w	ClearTickerArea
+	move.w	#$3C,d0			;60 frames
+	bsr.w	waitxsr
+	btst	#sbut,d1			;sbut
+	beq.w	.exit
+.exit2	bset	#sf3sbut,(sflags3).w
+.exit	movem.l	(sp)+,d0-d7/a0-a6
+	rts
+.nhl1	bsr.w	.lo
+	bsr.w	.ranres
+	bra.s	.exit2
+.nhl0	bsr.w	.ranres
+	bra.s	.exit
+
+.setteam	jsr	(reenergizeteam).l	;refill energy and set $18/$1A/$1C(a2) per team
+	bsr.w	setpersonel
+	bsr.w	forcepldata
+	st	$18(a2)
+	st	$1A(a2)
+	st	$1C(a2)
+	rts
+
+.ranres	move.w	$A(a0),d0		;random resolve of game (if tied = random score)
+	cmp.w	$C(a0),d0
+	bne.w	.rr0
+	move.w	(HVcount).l,d0		;hvcount
+	andi.w	#1,d0
+	add.w	d0,$A(a0)
+	eori.w	#1,d0
+	add.w	d0,$C(a0)
+.rr0	move.w	#5,gsper(a0)		;gsper: final
+	rts
+
+.sv	move.w	#$37E,d0		;save $37F words from gmode to ReplayStart (92 ((gstruct-gmode)/2)-1)
+	movea.w	#(gmode-M68K_RAM),a1
+	movea.l	#replaystart,a2		;ReplayStart
+.sv1	move.w	(a1)+,(a2)+
+	dbf	d0,.sv1
+	move.w	(ScoreSumbytes).w,(a2)+	;also save ScoreSumbytes
+	rts
+
+.lo	move.w	#$37E,d0		;restore what.sv saved
+	movea.w	#(gmode-M68K_RAM),a2
+	movea.l	#replaystart,a1		;ReplayStart
+.lo1	move.w	(a1)+,(a2)+
+	dbf	d0,.lo1
+	move.w	(a1)+,(ScoreSumbytes).w
+	rts
+
+.postab	;Xpos,Ypos by position (goalie, l.def, r.def, l.wing, center, r.wing), pfgoal set, then clear
+	dc.w	0,-240,-70,-140,20,-110,-100,-60,25,-40,70,-80
+	dc.w	0,240,34,90,-55,80,100,40,-10,10,-50,0
