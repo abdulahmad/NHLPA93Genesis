@@ -1669,20 +1669,22 @@ DrawStatsList	;stats screen: column headers (sort column highlighted),
 
 DrawStatsRow	;stats screen row d3 of Satt: rank, name, then either the
 	;5 stat columns or goalie saves/shots/save %
+	;a4 = Satt entry d3 (player index, $FF = empty row)
 	movea.w	#(Satt-M68K_RAM),a4
 	adda.w	d3,a4
 	bsr.w	printz
-	String	$BE,0,0
-	add.w	d3,d3
-	andi.w	#$1F,d3
+	String	$BE,0,0			;print on map 2 (scroll plane), priority on, x 0
+	add.w	d3,d3			;2 map rows per Satt row
+	andi.w	#$1F,d3			;wrap in the 32 row map
 	move.w	d3,(printy).w
-	moveq	#$28,d0
+	moveq	#$28,d0			;erase one row, 40 cells wide
 	moveq	#1,d1
 	move.w	#$7FF,d2
 	bsr.w	eraser
 	tst.b	(a4)
-	bmi.w	rtss2
-	subq.w	#1,(printy).w
+	bmi.w	rtss2			;empty (padding) row: leave it blank
+	subq.w	#1,(printy).w		;eraser moved printy down one row; back to the row
+	;rank (2 digits) at x 1
 	move.w	#1,(printx).w
 	move.w	a4,d0
 	subi.w	#$BF29,d0		;rank = Satt index + 1
@@ -1690,19 +1692,21 @@ DrawStatsRow	;stats screen row d3 of Satt: rank, name, then either the
 	move.w	#$E000,(printa).w
 	bsr.w	PushNumberWidth
 	bsr.w	print
+	;player name "NN Last" of player (a4) of team a2
 	clr.w	d0
 	move.b	(a4),d0
 	jsr	(FormatPlayerName).l
 	addq.w	#1,(printx).w
 	move.w	#$8000,(printa).w
 	bsr.w	print
-	move.w	#$11,(printx).w
+	move.w	#$11,(printx).w		;stat columns start at x $11
 	tst.w	(DispAttribCtr).w
 	bmi.w	.goalie
+	;skaters: the 5 stat columns (G A Pts SOG PIM), 4 digits each, sort column highlighted
 	clr.w	d5
 .col	clr.w	d0
 	move.b	(a4),d0
-	move.w	d5,d1
+	move.w	d5,d1			;column
 	bsr.w	GetStatColumn
 	move.w	d2,d0
 	moveq	#4,d1
@@ -1710,103 +1714,110 @@ DrawStatsRow	;stats screen row d3 of Satt: rank, name, then either the
 	move.w	#$8000,(printa).w
 	cmp.w	(DispAttribCtr).w,d5
 	bne.w	.1
-	move.w	#$C000,(printa).w
+	move.w	#$C000,(printa).w	;highlighted sort column
 .1	bsr.w	print
 	addq.w	#1,d5
 	cmp.w	#5,d5
 	bne.s	.col
 	bra.w	.x
+	;goalies: saves, shots and save % (saves*100/shots)
 .goalie	clr.w	d0			;Shots against
 	move.b	(a4),d0
-	moveq	#3,d1
+	moveq	#3,d1			;column 3 (SOG array)
 	bsr.w	ReadStatColumn
 	clr.w	d0
 	move.b	(a4),d0
 	moveq	#0,d1			;goals against
-	move.w	d2,-(sp)
+	move.w	d2,-(sp)		;keep shots
 	bsr.w	ReadStatColumn
 	move.w	(sp)+,d0
-	move.w	d0,d3
-	sub.w	d2,d0
+	move.w	d0,d3			;d3 = shots
+	sub.w	d2,d0			;saves = shots - goals against
 	bpl.w	.2
 	clr.w	d0
-.2	move.w	d0,d2
+.2	move.w	d0,d2			;d2 = saves
 	moveq	#4,d1
 	bsr.w	PushNumberWidth
 	addq.w	#1,(printx).w
-	bsr.w	print
+	bsr.w	print			;saves
 	move.w	d3,d0
 	moveq	#4,d1
 	bsr.w	PushNumberWidth
 	addq.w	#2,(printx).w
-	bsr.w	print
+	bsr.w	print			;shots
 	tst.w	d3
-	beq.w	.3
+	beq.w	.3			;no shots: percentage is just d2 (0)
 	mulu.w	#$64,d2
-	divu.w	d3,d2
+	divu.w	d3,d2			;saves * 100 / shots
 .3	move.w	d2,d0
 	moveq	#4,d1
 	bsr.w	PushNumberWidth
 	addq.w	#2,(printx).w
-	bsr.w	print
+	bsr.w	print			;save %
 	bsr.w	printz
-	String	$25
+	String	$25			;'%'
 .x	rts
 
 GetStatColumn	;d2 = stat column d1 for player d0. Goalies only have PIM
 	;(column 4, mapped to 1 via btst d1,#6)
+	;the roster lists goalies first: player index < goalie count means d0 is a goalie
 	move.w	d0,-(sp)
 	bsr.w	GetGoalieCount
 	move.w	d0,d2
 	move.w	(sp)+,d0
 	cmp.w	d2,d0
-	bge.w	ReadStatColumn
-	clr.w	d2
-	btst	d1,#6
+	bge.w	ReadStatColumn		;skater: read the column as is
+	clr.w	d2			;goalie: columns 1 and 2 (A, Pts) show column 1 (assists), the rest 0
+	btst	d1,#6			;bit d1 of %110: set for columns 1 and 2
 	beq.w	rtss2
-	moveq	#1,d1
+	moveq	#1,d1			;use the assists column
 ReadStatColumn	;d2 = stat column d1 for player d0. d7 = 0: team struct
 	;bytes (StatColumnOffsets), d7 = 1: playoff words (StatsOffsetTbl2).
 	;Second offset of a pair is added ($FFFF/0 = none)
 	tst.w	d7
-	bne.w	.stats
+	bne.w	.stats			;playoff stats
+	;game stats: byte arrays in the team struct a2, indexed by player number d0
 	lea	StatColumnOffsets(pc),a1
-	asl.w	#2,d1
+	asl.w	#2,d1			;2 words per column
 	adda.w	d1,a1
-	move.w	(a1),d1
+	move.w	(a1),d1			;first array offset
 	add.w	d0,d1
 	clr.w	d2
 	move.b	(a2,d1.w),d2
-	move.w	2(a1),d1
+	move.w	2(a1),d1		;second array offset, negative = none
 	bmi.w	rtss2
 	add.w	d0,d1
 	clr.w	d3
 	move.b	(a2,d1.w),d3
-	add.w	d3,d2
+	add.w	d3,d2			;d2 = first + second (Pts = G + A)
 	rts
-.stats	asl.w	#2,d1
+	;playoff stats: word arrays in RAM, d0 doubled to a word index
+.stats	asl.w	#2,d1			;2 words per column
 	add.w	d0,d0
 	clr.w	d2
 	bsr.w	GetStatsValue
-	addq.w	#2,d1
+	addq.w	#2,d1			;second table of the pair
 	bsr.w	GetStatsValue
-	lsr.w	#1,d0
+	lsr.w	#1,d0			;restore the player index
 	rts
 
 GetStatsValue	;d2 += word d0 of the RAM table at StatsOffsetTbl2+d1 (0 = none)
 	movea.l	#StatsOffsetTbl2,a1
 	tst.w	(a1,d1.w)
-	beq.w	rtss2
-	movea.w	(a1,d1.w),a1
-	add.w	(a1,d0.w),d2
+	beq.w	rtss2			;no table: add nothing
+	movea.w	(a1,d1.w),a1		;RAM address of the word array (sign extended)
+	add.w	(a1,d0.w),d2		;d0 = word index of the player
 	rts
 
 StatsOffsetTbl2	;playoff stat RAM tables per column (G, A, G+A, SOG, PIM)
+	;2 words per column: RAM address of the word array and an optional second one to add (0 = none)
 	dc.w	$C82A,0,$C85E,0,$C82A,$C85E,$C892,0,$C8C6,0
 StatColumnOffsets	;team struct byte arrays per column, same order
+	;2 words per column: offset in the team struct of the first array and the second one to add ($FFFF = none)
 	dc.w	$B4,$FFFF,$CE,$FFFF,$B4,$CE,$E8,$FFFF,$102,$FFFF
 
 StatColumnHeaders	;stats screen column headers (goalie header, then 5 columns)
+	;length word + text per string, the first one is skipped (adda.w (a1),a1) in skater mode
 	dc.w	$0016
 	dc.b	'Saves Shots Save %  '
 	dc.w	$0006
@@ -1837,36 +1848,40 @@ StatSortTitles	;Sort column
 DrawStatsListArrows	;stats screen up/down arrows. Saves d0-d1/a1
 	movem.l	d0-d1/a1,-(sp)
 	bsr.w	printsmallz
-	String	CC_SetMapAndPosition,4,3,2,$B,CC_SetFont,1,0
+	String	CC_SetMapAndPosition,4,3,2,$B,CC_SetFont,1,0	;attribute 4, map 3, x 2, y $B, font set 1
+	;d0 = table index: bit 0 = can scroll up (position > 0), bit 1 = can scroll down (position < max)
 	clr.w	d0
 	move.w	(VertLineScrolling).w,d1
 	tst.w	d1
 	sgt	d0
-	neg.b	d0
+	neg.b	d0			;1 if scrolled down at all
 	cmp.w	(SelectedPlayerIdx).w,d1
 	slt	d1
-	neg.b	d1
+	neg.b	d1			;1 if not at the maximum
 	add.b	d1,d0
-	add.b	d1,d0
+	add.b	d1,d0			;+2
 	lea	ScrollArrowTbl2(pc),a1
-	jsr	(Fprintsmall).l
+	jsr	(Fprintsmall).l		;print string d0 of the table
 	movem.l	(sp)+,d0-d1/a1
 	rts
 
 ScrollArrowTbl2	;none, up, down, both
-	String	$20,$FB,$FF,$FA,$C,$20,$F9
-	String	$7B,$FB,$FF,$FA,$C,$20,$F9
-	String	$20,$FB,$FF,$FA,$C,$7D,$F9
-	String	$7B,$FB,$FF,$FA,$C,$7D,$F9
+	;same layout as ScrollArrowTbl but the bottom glyph is $C rows below the top one
+	String	$20,$FB,$FF,$FA,$C,$20,$F9	;none
+	String	$7B,$FB,$FF,$FA,$C,$20,$F9	;up arrow only
+	String	$20,$FB,$FF,$FA,$C,$7D,$F9	;down arrow only
+	String	$7B,$FB,$FF,$FA,$C,$7D,$F9	;both arrows
 
 StatsReport	;(was GameStatisticsScreen) "Game Statistics": both
 	;teams' totals. Start exits
+	;common stats screen setup (d0/d1 = first row / last row of the background copied to the scroll plane)
 	moveq	#9,d0
 	moveq	#$1C,d1
 	bsr.w	SetupScreen
+	;frame (32x6) with the big title and the two team blocks (TeamBlockMap offsets $30 and 0)
 	bsr.w	printz
 	String	$BD,4,1,0
-	moveq	#$20,d0
+	moveq	#$20,d0			;frame 32 wide, 6 high
 	moveq	#6,d1
 	bsr.w	Framer
 	bsr.w	printbigz
@@ -1877,7 +1892,8 @@ StatsReport	;(was GameStatisticsScreen) "Game Statistics": both
 	addq.w	#4,(printx).w
 	clr.w	d0
 	bsr.w	PutTeamBlock
-	bsr.w	DisplayStats
+	bsr.w	DisplayStats		;the table of team totals
+	;wait for Start (d1 bit 7 = new press), then leave
 .loop	bsr.w	WaitVSyncAndReadInput
 	btst	#7,d1
 	bne.w	ExitStatsScreen
@@ -1885,6 +1901,7 @@ StatsReport	;(was GameStatisticsScreen) "Game Statistics": both
 
 DisplayStats	;(was DisplayTeamStatsScreen) team logos, then each TeamStatTextTbl row centred with
 	;home value at x $22 and away at x 9
+	;team blocks (TeamBlockMap offset $30 at x 2, 0 at x $1A), both at y 9
 	bsr.w	printz
 	String	$BE,2,9,0
 	moveq	#$30,d0
@@ -1894,64 +1911,67 @@ DisplayStats	;(was DisplayTeamStatsScreen) team logos, then each TeamStatTextTbl
 	moveq	#0,d0
 	bsr.w	PutTeamBlock
 	bsr.w	printz
-	String	$BE,0,$C,0
-	moveq	#7,d6
+	String	$BE,0,$C,0		;first table row at y $C
+	moveq	#7,d6			;8 table rows
 	lea	TeamStatTextTbl(pc),a1
-.row	move.w	(a1),d0
-	lsr.w	#1,d0
+	;a1 = table entry: label string, then the two stat offsets
+.row	move.w	(a1),d0			;label length word
+	lsr.w	#1,d0			;half the label width
 	neg.w	d0
-	addi.w	#$15,d0
+	addi.w	#$15,d0			;centre the label around x $15
 	move.w	d0,(printx).w
-	bsr.w	print
-	movea.l	a1,a0
+	bsr.w	print			;print advances a1 past the label to the stat offsets
+	movea.l	a1,a0			;a0 = stat offsets
 	move.w	#$22,(printx).w
 	movea.w	#(tmstruct-M68K_RAM),a2
-	bsr.w	PrintStatValue
+	bsr.w	PrintStatValue		;home team value, centred at x $22
 	move.w	#9,(printx).w
 	lea	tmsize(a2),a2
-	bsr.w	PrintStatValue
-	lea	4(a0),a1
-	addq.w	#2,(printy).w
+	bsr.w	PrintStatValue		;away team value, centred at x 9
+	lea	4(a0),a1		;next table entry
+	addq.w	#2,(printy).w		;2 map rows per table row
 	dbf	d6,.row
 	rts
 
 PrintStatValue	;92 DisplayStats .ss. print TeamStatTextTbl entry a0 for team a2 centred at printx:
 	;value (offset $A is a time), "/second" if any, " (pct%)" for passing
+	;a3 = mesarea, an empty string (length word 2) the value text is appended to
 	movea.w	#(mesarea-M68K_RAM),a3
 	move.w	#2,(a3)
-	move.w	(a0),d0
-	move.w	(a2,d0.w),d0
+	move.w	(a0),d0			;first stat offset
+	move.w	(a2,d0.w),d0		;value in the team struct
 	cmpi.w	#$A,(a0)
-	beq.w	.0
+	beq.w	.0			;offset $A (attack time) is formatted as a time instead
 	bsr.w	PushNumber
 .0	cmpi.w	#$A,(a0)
 	bne.w	.1
 	bsr.w	PushTime
-.1	bsr.w	appstring
-	move.w	2(a0),d0
+.1	bsr.w	appstring		;append the value text
+	move.w	2(a0),d0		;second offset, negative = none
 	bmi.w	.x
 	bsr.w	appendz
-	String	$2F
+	String	$2F			;'/'
 	move.w	(a2,d0.w),d0
 	bsr.w	PushNumber
 	bsr.w	appstring
-	cmpi.w	#$14,(a0)
+	cmpi.w	#$14,(a0)		;offset $14 (passing) also gets a percentage
 	bne.w	.x
 	bsr.w	appendz
-	String	$20,$28
+	String	$20,$28			;' ('
 	move.w	(a0),d0
 	move.w	(a2,d0.w),d0
-	mulu.w	#$64,d0
+	mulu.w	#$64,d0			;first * 100 / second
 	move.w	2(a0),d1
 	move.w	(a2,d1.w),d1
-	beq.w	.2
+	beq.w	.2			;second is 0: no divide
 	divu.w	d1,d0
 .2	bsr.w	PushNumber
 	bsr.w	appstring
 	bsr.w	appendz
-	String	$25,$29
+	String	$25,$29			;'%)'
+	;centre: printx -= half the text length, then print the string a1 (mesarea)
 .x	movea.w	a3,a1
-	move.w	(a1),d0
+	move.w	(a1),d0			;length word
 	lsr.w	#1,d0
 	sub.w	d0,(printx).w
 	bra.w	print
@@ -1959,37 +1979,39 @@ PrintStatValue	;92 DisplayStats .ss. print TeamStatTextTbl entry a0 for team a2 
 TeamStatTextTbl	;label, then team struct stat offset and second offset ($FFFF none)
 	dc.w	$0008
 	dc.b	'Score',0
-	dc.w	$C,$FFFF
+	dc.w	$C,$FFFF		;tmscore
 	dc.w	$0008
 	dc.b	'Shots',0
-	dc.w	0,$FFFF
+	dc.w	0,$FFFF			;tmshots
 	dc.w	$000C
 	dc.b	'Power Play'
-	dc.w	2,4
+	dc.w	2,4			;tmPwrGoals / tmPwrPlays
 	dc.w	$000C
 	dc.b	'Penalties',0
-	dc.w	6,8
+	dc.w	6,8			;tmPenalties / tmPenmin
 	dc.w	$000E
 	dc.b	'Faceoffs Won'
-	dc.w	$E,$FFFF
+	dc.w	$E,$FFFF		;team struct offset $E
 	dc.w	$000E
 	dc.b	'Body Checks',0
-	dc.w	$10,$FFFF
+	dc.w	$10,$FFFF		;team struct offset $10
 	dc.w	$000E
 	dc.b	'Attack Zone',0
-	dc.w	$A,$FFFF
+	dc.w	$A,$FFFF		;tmATOP, shown as a time
 	dc.w	$000A
 	dc.b	'Passing',0
-	dc.w	$14,$12
+	dc.w	$14,$12			;offsets $14 / $12, also shown as a percentage
 
 CrowdMeterScreen	;"Crowd Meter": current, average
 	;and peak crowd level in dB. Start exits
+	;common stats screen setup (d0/d1 = first row / last row of the background copied to the scroll plane)
 	moveq	#9,d0
 	moveq	#$1C,d1
 	bsr.w	SetupScreen
+	;frame (28x6) with the big title and the two team blocks (TeamBlockMap offsets $30 and 0)
 	bsr.w	printz
 	String	$BD,6,1,0
-	moveq	#$1C,d0
+	moveq	#$1C,d0			;frame 28 wide, 6 high
 	moveq	#6,d1
 	bsr.w	Framer
 	bsr.w	printbigz
@@ -2000,7 +2022,8 @@ CrowdMeterScreen	;"Crowd Meter": current, average
 	addq.w	#4,(printx).w
 	clr.w	d0
 	bsr.w	PutTeamBlock
-	bsr.w	PrintCrowdMeter
+	bsr.w	PrintCrowdMeter		;the three level rows
+	;wait for Start (d1 bit 7 = new press), then leave
 .loop	bsr.w	WaitVSyncAndReadInput
 	btst	#7,d1
 	bne.w	ExitStatsScreen
@@ -2011,24 +2034,24 @@ PrintCrowdMeter	;crowd meter rows: CwdExciteLvl, average (SumCwdExciteLvl /
 	bsr.w	printsmallz
 	dc.w	$0016
 	dc.b	$F8,4,2,4,$C,'Current Level',$FD,$1C
-	move.w	(CwdExciteLvl).w,d0
+	move.w	(CwdExciteLvl).w,d0	;row 1: current level
 	bsr.w	PrintCrowdDB
 	bsr.w	printsmallz
 	dc.w	$0016
 	dc.b	$FD,4,$FA,2,'Average Level',$FD,$1C,0
-	move.l	(SumCwdExciteLvl).w,d0
+	move.l	(SumCwdExciteLvl).w,d0	;row 2: average = sum / number of samples
 	divu.w	(NumCwdExciteLvl).w,d0
 	bsr.w	PrintCrowdDB
 	bsr.w	printsmallz
 	dc.w	$0012
 	dc.b	$FD,4,$FA,2,'Peak Level',$FD,$1C
-	move.w	(MaxCwdExciteLvl).w,d0
+	move.w	(MaxCwdExciteLvl).w,d0	;row 3: peak level, falls into PrintCrowdDB
 PrintCrowdDB	;print crowd level d0 as sqrt(d0*4) + 65 " dB"
 	ext.l	d0
-	asl.w	#2,d0
-	bsr.w	sroot
-	addi.w	#$41,d0
-	moveq	#3,d1
+	asl.w	#2,d0			;level * 4
+	bsr.w	sroot			;d0 = square root
+	addi.w	#$41,d0			;+ 65
+	moveq	#3,d1			;3 digits
 	bsr.w	PushNumberWidth
 	bsr.w	print
 	bsr.w	printz
