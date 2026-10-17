@@ -169,7 +169,7 @@ SetLCmode2	;a2 = team struct for lc. Draw the lc box with
 	bsr.w	print
 	move.w	d0,-(sp)
 	movea.l	#linelist,a1
-	bsr.w	PrintStringFromList
+	bsr.w	Fprintsmall
 	move.w	(sp)+,d0
 	bsr.w	linebar
 	subq.w	#5,(printx).w
@@ -203,7 +203,7 @@ setlccords	;set printx/y to cords for lc box on team a2
 .ex	moveq	#9,d0
 	rts
 
-getlchoice	;d0 = 0-2 (a2 = team)
+getlchoice	;92 getlchoice2 (92 getlchoice only picked a2 from a3 and called it; the callers do that here). d0 = 0-2 (a2 = team)
 	;return d0 = possible line number or -1 for none in this position
 	movem.l	d1-d2,-(sp)
 	move.w	tmsize+tmap(a2),d2	;other team's tmap
@@ -293,7 +293,7 @@ lcfound	;d2 = choice made 0-2
 	bclr	#tmflcm,tmflags(a2)
 	move.w	d0,tmline(a2)
 	jsr	setpersonel
-lcfound2	;close lc box. Also called from lineinput
+lcfound2	;92 lcfound .close. close lc box. Also called from lineinput
 	bsr.w	setlccords
 	cmpi.w	#$F,(printy).w
 	blt.w	.nollcm
@@ -332,7 +332,7 @@ holdplayer	;abut press hold. a0 = the player this one is
 	move.w	impactp(a3),d0
 	asl.w	#7,d0
 	adda.w	d0,a0
-Acheck	;start SPAHold, or SPAhook if a0 is ahead, on player a0. Also entered
+Acheck	;92 Holdplayer. start SPAHold, or SPAhook if a0 is ahead, on player a0. Also entered
 	;from check4check
 	bset	#pfalock,pflags(a3)
 	move.w	#SPAhook,d1
@@ -2456,7 +2456,7 @@ AdjustFacingDirection	;Turn facedir one step
 	move.w	d1,facedir(a3)
 	rts
 
-GoalieSaveList	;goalie save choices
+GoalieSaveList	;92 assgoalie .list. goalie save choices
 	dc.w	SPAgglover
 	dc.w	SPAgglovel
 	dc.w	SPAgstackr
@@ -3585,11 +3585,11 @@ puckfaceoff2	;face off control logic and general setup for action
 .nx	bsr.w	printsmallz
 	String	$FB,1,$FA,$FE
 	movea.l	#linelist,a1
-	bsr.w	PrintStringFromList
+	bsr.w	Fprintsmall
 	addq.w	#4,(printx).w
 	move.w	d1,d0
 	movea.l	#linelist,a1
-	bsr.w	PrintStringFromList
+	bsr.w	Fprintsmall
 .nol	move.w	#$78,d0
 	bsr.w	randomd0
 	addi.w	#$B4,d0
@@ -3627,7 +3627,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	dc.w	50,-10
 	dc.w	0,-60
 
-ResetAndSelectPlayers	;c1playernum/c2playernum = -1, then changeplayer for each human team. Called from puckfaceoff2
+ResetAndSelectPlayers	;92 puckfaceoff2 (inline). c1playernum/c2playernum = -1, then changeplayer for each human team. Called from puckfaceoff2
 	move.w	#-1,(c1playernum).w
 	move.w	#-1,(c2playernum).w
 	tst.w	(cont1team).w
@@ -3855,7 +3855,7 @@ ChkOffsides	;check for offsides penalty. a3 = puck. Flags the whole team (tmflag
 	dbf	d2,.2
 	rts
 
-ClearOffsidesIfAllPlayers	;a2 = team struct. Clears the team offsides flag (tmflags bit 4) once no skater on ice is past the blue line ($58, sign by pfgoal). Called twice from ChkOffsides
+ClearOffsidesIfAllPlayers	;92 updateplayers pf3oside clear. a2 = team struct. Clears the team offsides flag (tmflags bit 4) once no skater on ice is past the blue line ($58, sign by pfgoal). Called twice from ChkOffsides
 	btst	#tmfoside,tmflags(a2)
 	beq.w	rtss
 	movea.w	tmsort(a2),a0
@@ -4208,7 +4208,7 @@ avdgoal	;don't try to skate thru goal: if d0/d1 cords intersect thru goal then p
 	move.w	d3,(deltax).w
 	rts
 
-skatetopuckinit	;d0/d1 = puck x/y plus half the high byte of its velocity. Called from skatetopuck and assnearest
+skatetopuckinit	;92 skatetopuck head. d0/d1 = puck x/y plus half the high byte of its velocity. Called from skatetopuck and assnearest
 	move.b	(puckvx).w,d0
 	asr.b	#1,d0
 	ext.w	d0

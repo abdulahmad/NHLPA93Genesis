@@ -287,7 +287,7 @@ priolist	dc.b	0,1,2,4,3,5,6	;positions in order of importance. Used by SetPlList
 	dc.b	0
 	ENDIF
 
-PlayoffTreeSetup	;Playoff tree layout by gamelevel:
+PlayoffTreeSetup	;92 PlayoffScreen .setup. Playoff tree layout by gamelevel:
 	;one column per round. Used by PlayoffScreen
 	dc.w	.l0-PlayoffTreeSetup
 	dc.w	.l1-PlayoffTreeSetup
@@ -423,7 +423,7 @@ GAttribColumns	;goalie attribute columns, same format as PAttribColumns. Used by
 	dc.w	$2000,6			;weight
 	dc.w	-1
 
-PauseText	;pause menu item list (Pausemode)
+PauseText	;92 Pausemode .mlist. pause menu item list (Pausemode)
 	String	$FE,5
 	String	$FE,4
 	String	'   Resume Game    '
@@ -435,7 +435,7 @@ PauseText	;pause menu item list (Pausemode)
 	String	'    Edit Lines    '
 	dc.l	LineEditor
 	String	'    Game Stats    '
-	dc.l	GameStatisticsScreen
+	dc.l	StatsReport
 	String	'   Player Stats   '
 	dc.l	PlayerStatsScreen
 	String	' Scoring Summary  '
@@ -465,7 +465,7 @@ PauseText2	;pause menu item list without Timeout, used when tmflags bit 2 of the
 	String	'    Edit Lines    '
 	dc.l	LineEditor
 	String	'    Game Stats    '
-	dc.l	GameStatisticsScreen
+	dc.l	StatsReport
 	String	'   Player Stats   '
 	dc.l	PlayerStatsScreen
 	String	' Scoring Summary  '
@@ -520,7 +520,7 @@ IntermissionText	;intermission menu for gsp 1-3, season and
 	String	'   Resume Game    '
 	dc.l	rtss
 	String	'    Game Stats    '
-	dc.l	GameStatisticsScreen
+	dc.l	StatsReport
 	String	'   Player Stats   '
 	dc.l	PlayerStatsScreen
 	String	' Scoring Summary  '
@@ -545,7 +545,7 @@ ExitGameText	;intermission menu for gsp 4.
 	String	'    Exit Game     '
 	dc.l	rtss
 	String	'    Game Stats    '
-	dc.l	GameStatisticsScreen
+	dc.l	StatsReport
 	String	'   Player Stats   '
 	dc.l	PlayerStatsScreen
 	String	' Scoring Summary  '
@@ -567,7 +567,7 @@ ExitGameTextPO	;intermission menu for gsp 4 in the playoffs
 	String	'    Exit Game     '
 	dc.l	rtss
 	String	'    Game Stats    '
-	dc.l	GameStatisticsScreen
+	dc.l	StatsReport
 	String	'   Player Stats   '
 	dc.l	PlayerStatsScreen
 	String	' Scoring Summary  '
