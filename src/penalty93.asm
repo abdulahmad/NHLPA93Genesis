@@ -109,7 +109,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	move.l	a3,-(sp)
 	clr.w	d1
 	move.b	1(a0),d1
-	asl.w	#7,d1			;scsize
+	asl.w	#scsize,d1			;scsize
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d1,a3
 	tst.w	position(a3)
@@ -136,7 +136,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	move.b	(a0),(a4)+		;penalty
 	clr.w	d1
 	move.b	1(a0),d1
-	asl.w	#7,d1			;scsize
+	asl.w	#scsize,d1			;scsize
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d1,a3
 	clr.w	d0
@@ -167,7 +167,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	bset	#$C,d2			;keep bit 4 of an old penalty time as bit 12
 .st	move.w	d2,tmpdst(a2,d0.w)
 	andi.w	#$EFFF,d2
-	moveq	#$34,d1			;(MaxRos-1)*2+2
+	moveq	#(maxros-1)*2+2,d1			;(MaxRos-1)*2+2
 .ctop	subq.w	#2,d1			;same time on the other team
 	bmi.w	.nocoin
 	move.w	tmpdst(a1,d1.w),d3
@@ -211,7 +211,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 
 coinsearch	;a2 = team. Clears tmpdst bit 5, counts players kept off the ice by penalties (coincidental and bit 4 times do not count, at most 2) and sets tmap. Called twice from InProgress
 	moveq	#6,d1
-	moveq	#$32,d0			;(MaxRos-1)*2
+	moveq	#(maxros-1)*2,d0			;(MaxRos-1)*2
 .top	tst.w	tmpdst(a2,d0.w)
 	ble.w	.nap
 	bclr	#5,tmpdst(a2,d0.w)
@@ -291,7 +291,7 @@ Stop4Pen	;a0 = penaltylist penalty +2. Stop the clock, set the face off spot fro
 	movea.w	#(SortCords-M68K_RAM),a3
 	move.b	-1(a0),d1
 	ext.w	d1
-	asl.w	#7,d1			;scsize
+	asl.w	#scsize,d1			;scsize
 	adda.w	d1,a3
 	move.w	#$258,d1		;600
 	btst	#pfgoal,pflags(a3)
@@ -343,7 +343,7 @@ limitfo	;limit face off to 5-20 feet from walls of rink. Checks every player in 
 
 .lf	move.b	1(a0),d0
 	andi.w	#$7F,d0
-	asl.w	#7,d0			;scsize
+	asl.w	#scsize,d0			;scsize
 	movea.w	#(SortCords-M68K_RAM),a1
 	move.w	#$58,d1
 	btst	#pfgoal,pflags(a1,d0.w)
@@ -532,8 +532,8 @@ PenGoalStuff	;do this stuff after a goal. a1 = scored on team, a2 = scoring team
 	bsr.w	RemovePlayerFromList
 	addq.w	#1,tmap(a1)
 	addq.w	#1,tmPwrGoals(a2)
-	bset	#0,(tmstruct+tmflags).w	;tmflcc
-	bset	#0,(awtmstruct+tmflags).w	;tmflcc
+	bset	#tmflcc,(tmstruct+tmflags).w	;tmflcc
+	bset	#tmflcc,(awtmstruct+tmflags).w	;tmflcc
 .ex	movem.l	(sp)+,d0-d2/a0
 	rts
 
@@ -550,7 +550,7 @@ updatepentime	;update the time remaining on all penalized players, once a second
 	bne.w	rtss
 	sub.w	d7,(Penaltytimer).w
 	bpl.w	rtss
-	addi.w	#$18,(Penaltytimer).w	;jps
+	addi.w	#jps,(Penaltytimer).w	;jps
 	bset	#6,(sflags3).w
 	bsr.w	chkatop
 	movea.w	#(tmstruct-M68K_RAM),a2
@@ -641,8 +641,8 @@ releasepl	;player's penalty time is up so let him out (if appropriate). a2 = tea
 	lsr.w	#1,d3
 	move.w	tmap(a2),d1
 	addq.w	#1,tmap(a2)
-	bset	#0,(tmstruct+tmflags).w	;tmflcc
-	bset	#0,(awtmstruct+tmflags).w	;tmflcc
+	bset	#tmflcc,(tmstruct+tmflags).w	;tmflcc
+	bset	#tmflcc,(awtmstruct+tmflags).w	;tmflcc
 	movea.l	#priolist,a0
 	tst.w	tmgoalie(a2)			;92 cmp #2
 	bpl.w	.gin
@@ -1036,7 +1036,7 @@ ChkShotStat	;add to shot stat if a shot was taken. Also raises the crowd and cou
 	addi.w	#$64,(crowdlevel).w	;100
 	addi.w	#$A,(CwdExciteLvl).w
 	move.w	(shotplayer).w,d0
-	asl.w	#7,d0			;scsize
+	asl.w	#scsize,d0			;scsize
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d0,a3
 	bsr.w	loadTeamStruct
@@ -1080,7 +1080,7 @@ SetupTeamForIntermission	;reset the bench, then for each team refill energy and 
 	rts
 
 reenergizeteam	;set all players to max energy on team a2. Also moves players marked -3 in tmpdst to the bench (-2). Called from SetupTeamForIntermission and StartHL2 .setteam
-	moveq	#$32,d0			;(MaxRos-1)*2
+	moveq	#(maxros-1)*2,d0			;(MaxRos-1)*2
 .0	move.w	#$1000,tmpde(a2,d0.w)
 	cmpi.w	#-3,tmpdst(a2,d0.w)
 	bne.w	.nb
@@ -1118,12 +1118,12 @@ Intermission	;end of period junk (zamboni/stats). Opens the pause menu screen (i
 	bsr.w	NewTicker3
 	move.w	#$96,d0			;150 frames
 	bsr.w	waitxsr
-	btst	#7,d1			;sbut
+	btst	#sbut,d1			;sbut
 	bne.w	.clrh
 	bsr.w	ClearTickerArea
 	move.w	#$3C,d0			;60 frames
 	bsr.w	waitxsr
-	btst	#7,d1			;sbut
+	btst	#sbut,d1			;sbut
 	beq.s	.top
 .clrh	bset	#sf3sbut,(sflags3).w
 .doh	bsr.w	DoHiLights
@@ -1131,7 +1131,7 @@ Intermission	;end of period junk (zamboni/stats). Opens the pause menu screen (i
 	bne.w	.clrz
 .wait	move.w	#$1E0,d0		;480 frames
 	bsr.w	waitxsr
-	btst	#7,d1			;sbut
+	btst	#sbut,d1			;sbut
 	bne.w	.clrz
 	tst.w	(cont1team).w
 	bne.s	.wait			;keep waiting while a pad is on a team

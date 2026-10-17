@@ -23,7 +23,7 @@ VBlank	;main vblank code for game play (vbint target, set by setupice).
 	bne.w	.c
 	tst.w	(gameclock).w
 	beq.w	.c
-	subi.w	#$AAA,(gameclock+2).w	;jiffy
+	subi.w	#jiffy,(gameclock+2).w	;jiffy
 	bcc.w	.c
 	bset	#dfclock,(disflags).w
 	subq.w	#1,(gameclock).w
@@ -300,7 +300,7 @@ showzam	;zamboni. Called from setvideo.
 SetSframe	;draw one sprite frame. Called from showzam and from the screen code.
 	;a0 = framelist, d0/d1 = x/y cords, d2 = frame to setup (from 0; 92 counted from 1),
 	;d3 = start char in vram. a6 = sprite table, d6 = link counter. Also saves a0
-	cmp.w	#$40,d6			;MaxSprites
+	cmp.w	#MaxSprites,d6			;MaxSprites
 	bge.w	rtss
 	movem.l	d0-d5/a0,-(sp)
 	adda.l	4(a0),a0		;frame offset table
@@ -322,7 +322,7 @@ SetSframe	;draw one sprite frame. Called from showzam and from the screen code.
 	move.w	(a0),(a6)		;x
 	add.w	d0,(a6)+
 	addq.w	#1,d6
-	cmp.w	#$40,d6			;MaxSprites
+	cmp.w	#MaxSprites,d6			;MaxSprites
 	beq.w	.ex
 	addq.w	#8,a0
 	dbf	d4,.loop
@@ -368,7 +368,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	btst	#sfhor,(sflags).w
 	beq.w	.chk
 	addi.w	#$1F,d0			;horizontal frames are 31 later
-.chk	cmp.w	#$40,d6			;MaxSprites
+.chk	cmp.w	#MaxSprites,d6			;MaxSprites
 	bge.w	rtss
 	movem.l	d0-d5,-(sp)
 	add.w	d0,d0
@@ -409,14 +409,14 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	move.w	6(a0),d5
 	andi.w	#$F800,d5
 	add.w	4(a0),d5
-	add.w	(animchars).w,d5
+	add.w	(crowdvrcset).w,d5
 	move.w	d5,(a6)+
 	move.w	(a0),d5
 	addi.w	#$70,d5			;128-16
 	sub.w	d0,d5
 	move.w	d5,(a6)+
 	addq.w	#1,d6
-	cmp.w	#$40,d6			;MaxSprites
+	cmp.w	#MaxSprites,d6			;MaxSprites
 	beq.w	.ex
 .next	addq.w	#8,a0
 	dbf	d4,.loop
@@ -527,16 +527,16 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 .hord	clr.w	d2			;d2 = off screen directions as joystick bits
 	cmp.w	#$74,d0			;.xoff = 116
 	blt.w	.0
-	bset	#3,d2			;rbut
+	bset	#rbut,d2			;rbut
 .0	cmp.w	#-$74,d0		;-.xoff
 	bgt.w	.1
-	bset	#2,d2			;lbut
+	bset	#lbut,d2			;lbut
 .1	cmp.w	#$64,d1			;yoff = 100
 	blt.w	.2
-	bset	#0,d2			;ubut
+	bset	#ubut,d2			;ubut
 .2	cmp.w	#-$64,d1		;-.yoff
 	bgt.w	.3
-	bset	#1,d2			;dbut
+	bset	#dbut,d2			;dbut
 .3	tst.w	d2
 	beq.w	rtss			;on screen: no arrow
 	movea.l	#jdtab,a1		;Rev A operand $DA88
@@ -577,7 +577,7 @@ setsortcords	;setup sort cord graphics: addframe for the 16 objects in OOlist or
 	move.w	#$F,d0			;sortobjs-1
 .top	clr.w	d1
 	move.b	(a4)+,d1
-	asl.w	#6,d1			;scsize-1
+	asl.w	#scsize-1,d1			;scsize-1
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d1,a3
 	bsr.w	addframe
@@ -627,7 +627,7 @@ uppads	;update the gloves object and the 4 pad objects, and queue new pad labels
 	st	Zpos(a0)			;hidden
 	cmp.w	#$F,d0
 	beq.w	.next			;$F: pad hidden, label unchanged
-	asl.w	#7,d0			;scsize
+	asl.w	#scsize,d0			;scsize
 	move.w	(a2,d0.w),(a0)		;Xpos of that player
 	move.w	Ypos(a2,d0.w),Ypos(a0)
 	clr.w	Zpos(a0)			;shown
@@ -706,7 +706,7 @@ addframe	;a3 = cords.l frame/oldframe VRsize VRchar. Project the object with fin
 	move.w	Zpos(a3),d2
 	bmi.w	.exit			;hidden
 	bsr.w	find3d
-	cmp.w	#$4E20,d1		;osflag
+	cmp.w	#osflag,d1		;osflag
 	beq.w	.exit
 	bsr.w	addframe2
 .exit	movem.l	(sp)+,d0-d2
@@ -855,7 +855,7 @@ find3d	;input - d0=xfield,d1=yfield,d2=height off field
 	neg.w	d1
 	addi.w	#$F0,d1			;112+128
 	rts
-.offscr	move.w	#$4E20,d1		;osflag
+.offscr	move.w	#osflag,d1		;osflag
 	rts
 
 updatesound	;move the crowd noise volume (psg noise channel) toward crowdlevel.

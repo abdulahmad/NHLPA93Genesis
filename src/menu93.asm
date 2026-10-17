@@ -35,17 +35,17 @@ SetMenuPrintX	;printx = left edge of menu box: 5 in 32 column mode, else 9
 
 HandleMenuInput	;process one controller read (d1) for the current menu
 	;return eq = leave menu, ne = stay
-	btst	#7,d1			;sbut
+	btst	#sbut,d1			;sbut
 	bne.w	.flip			;start: Z clear, flipped to eq
-	btst	#1,d1			;dbut
+	btst	#dbut,d1			;dbut
 	beq.w	.up
 	addq.w	#1,(menuitem).w	;next lower menu item
 	bra.w	UpdateMenuSelection
-.up	btst	#0,d1			;ubut
+.up	btst	#ubut,d1			;ubut
 	beq.w	.sel
 	subq.w	#1,(menuitem).w	;next higher menu item
 	bra.w	UpdateMenuSelection
-.sel	btst	#5,d1			;cbut
+.sel	btst	#cbut,d1			;cbut
 	beq.w	.flip			;nothing: Z set, flipped to ne
 	bsr.w	seta2
 	move.w	(menuitem).w,d0	;find handler for selected item
