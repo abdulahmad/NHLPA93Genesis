@@ -119,7 +119,7 @@ StartPer	;start a period: reset stack, rink and clock, face off, run the game lo
 	movea.w	#(puckx-M68K_RAM),a3	;puck
 	clr.w	(fox).w			;face off at center ice
 	clr.w	(foy).w
-	move.l	#$1B,d0			;pfaceoff
+	move.l	#pfaceoff,d0			;pfaceoff
 	bsr.w	assreplace		;face off starts period
 	bset	#sf2drec,(sflags2).w		;don't record
 	bclr	#sfwrap,(sflags).w		;reset replay stuff
@@ -2043,7 +2043,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	movem.l	d0-d4/a0-a3,-(sp)
 	movea.w	#(puckx-M68K_RAM),a0
 	move.w	assnum(a0),d0
-	cmpi.b	#$1B,asslist(a0,d0.w)	;pfaceoff (92 same)
+	cmpi.b	#pfaceoff,asslist(a0,d0.w)	;pfaceoff (92 same)
 	beq.w	.ex
 	moveq	#$28,d0			;40 - ChkCnt
 	sub.w	(ChkCnt).w,d0
@@ -2086,7 +2086,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	exg	a2,a3
 	bsr.w	.sf
 	movea.w	#(SortCords-M68K_RAM),a3
-	move.l	#$15,d0			;afwatch (92 same), other players watch fight
+	move.l	#afwatch,d0			;afwatch (92 same), other players watch fight
 	moveq	#$B,d1
 .0	btst	#pf2fight,pflags2(a3)
 	bne.w	.next
@@ -2099,7 +2099,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	dbf	d1,.0
 	movea.w	#(puckx-M68K_RAM),a3
 	bset	#pf2fight,pflags2(a3)
-	move.l	#$1A,d0			;pnothing (92 same)
+	move.l	#pnothing,d0			;pnothing (92 same)
 	bsr.w	assinsert
 	st	(collflag).w
 	movea.l	(sp)+,a3
@@ -2111,7 +2111,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	bsr.w	AddPenalty2
 	move.w	SCnum(a3),d0
 	bsr.w	setd0player
-	move.l	#$14,d0			;afight (92 same)
+	move.l	#afight,d0			;afight (92 same)
 	bsr.w	assinsert
 	bclr	#3,attribute(a3)
 	move.w	#$FC00,d1		;Xvel -$400
@@ -2452,7 +2452,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	st	(puckcross+2).w	;puckcross+2
 	st	(puckcross+6).w	;puckcross+6
 	bset	#pfnc,pflags(a3)
-	move.w	#$1A,d0			;pnothing (92 same)
+	move.w	#pnothing,d0			;pnothing (92 same)
 	bsr.w	assreplace
 	move.l	a3,-(sp)
 	adda.w	#SCstruct,a3
@@ -3342,7 +3342,7 @@ forcepldata	;no skating on/off force players to correct data (for faceoffs only)
 	bsr.w	Setplass
 	cmpi.w	#4,position(a3)		;center
 	bne.w	.notnear
-	move.l	#$11,d0			;anearest (92 17)
+	move.l	#anearest,d0			;anearest (92 17)
 	bsr.w	assinsert
 .notnear	clr.w	d3
 	move.b	newpnum(a3),d3
@@ -3393,13 +3393,13 @@ Setplass	;set players (a3) initial assignment
 	bra.w	assreplace
 
 .alist	;asstab numbers
-	dc.b	$E			;agoalie (92 15)
-	dc.b	2			;adefd
-	dc.b	2			;adefd
-	dc.b	3			;awingd
-	dc.b	5			;acenterd
-	dc.b	3			;awingd
-	dc.b	5			;acenterd
+	dc.b	agoalie			;agoalie (92 15)
+	dc.b	adefd			;adefd
+	dc.b	adefd			;adefd
+	dc.b	awingd			;awingd
+	dc.b	acenterd			;acenterd
+	dc.b	awingd			;awingd
+	dc.b	acenterd			;acenterd
 	IF REV=0
 	dc.b	$FA			;retail pad (Rev A: 0)
 	ELSE
@@ -3419,12 +3419,12 @@ setplayer	;bring player onto the ice and set his stats
 	beq.w	.0
 	adda.w	#tmsize,a0
 .0	move.b	d3,pnum(a3)
-	move.l	#$A,d0			;aepen (92 11)
+	move.l	#aepen,d0			;aepen (92 11)
 	ext.w	d3
 	add.w	d3,d3
 	move.w	tmpdst(a0,d3.w),d1
 	bpl.w	.da			;from the penalty box
-	move.l	#9,d0			;aeben (92 10)
+	move.l	#aeben,d0			;aeben (92 10)
 	cmp.w	#$FFFE,d1		;-2 bench
 	bne.w	.nda
 .da	bsr.w	assinsert
@@ -3888,8 +3888,8 @@ defaultsprites2	;objects which are tied to screen scrolling and have velocity re
 	dc.w	0,$10C,0,SPFgoal,0,$B,$14,6,0,0		;goal net (92 used $18E)
 	dc.w	0,-$10C,0,SPFgoal+1,0,$11,$14,6,0,0
 
-	dc.w	0,0,0,SPFpuck+1,0,1,5,5,$18,1		;puck: pnorm, 1<<pfdoff
-	dc.w	0,0,0,SPFpuck,0,$11,3,3,$19,4		;puck shadow: pshad, 1<<pfnc (92 used $183, 4 chars)
+	dc.w	0,0,0,SPFpuck+1,0,1,5,5,pnorm,1		;puck: pnorm, 1<<pfdoff
+	dc.w	0,0,0,SPFpuck,0,$11,3,3,pshad,4		;puck shadow: pshad, 1<<pfnc (92 used $183, 4 chars)
 
 SprSort	;sort objects in struct SortObj and set corresponding tables for keeping them sorted later
 	movem.l	d0-d4/a0-a2,-(sp)

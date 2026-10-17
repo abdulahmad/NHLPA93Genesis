@@ -70,7 +70,7 @@ doinput	;process controller input
 
 faceoffinput	;controller processing for faceoff
 	move.w	assnum(a3),d4
-	cmpi.b	#$17,asslist(a3,d4.w)	;afaceoffpl
+	cmpi.b	#afaceoffpl,asslist(a3,d4.w)	;afaceoffpl
 	bne.w	rtss			;exit if this is not a faceoff player
 	movea.w	#(fodir1-M68K_RAM),a0	;faceoff direction of puck controll variable
 	btst	#pfgoal,pflags(a3)
@@ -472,7 +472,7 @@ passtoa0	;pass puck to player a0
 	move.w	(passspeed).w,d5	;in pix/sec
 	asr.w	#2,d5
 	exg	a0,a3			;tell pass rec to get puck
-	move.l	#$13,d0			;apassrec
+	move.l	#apassrec,d0			;apassrec
 	bsr.w	assinsert
 	exg	a0,a3
 	move.l	a0,-(sp)		;this routine uses passspeed
@@ -943,7 +943,7 @@ check4bench	;check if player a3 should go to bench. Called from assbench
 	addq.w	#4,sp
 	bset	#pf2unav,pflags2(a3)		;pf2unav
 	clr.w	temp1(a3)
-	move.l	#$B,d0			;abench
+	move.l	#abench,d0			;abench
 	bra.w	assreplace
 .samepl	addq.w	#4,sp
 	bclr	#pf2unav,pflags2(a3)
@@ -1152,7 +1152,7 @@ asspenalty	;player a3 should goto penalty box
 	move.w	#SPAwallright,d1
 	bsr.w	SetSPA
 	bclr	#pf2pen,pflags2(a3)		;pf2pen
-	move.l	#$D,d0			;adopen
+	move.l	#adopen,d0			;adopen
 	bra.w	assreplace
 .st	move.w	temp3(a3),d0
 	move.w	temp4(a3),d1
@@ -1685,7 +1685,7 @@ assdefo	;player a3 is defensive player on offense
 .nna	sub.b	d7,temp1(a3)
 	bpl.w	.nodec
 	move.b	aioff(a3),temp1(a3)
-	move.l	#2,d0			;adefd
+	move.l	#adefd,d0			;adefd
 	btst	#tmfoside,tmflags(a2)		;team flag forces defense
 	bne.w	assreplace
 	move.w	(pucky).w,d1
@@ -1755,7 +1755,7 @@ assdefd	;player a3 is defensive player on defense
 	bmi.w	.de0
 	bsr.w	chkpk
 	beq.w	.de0
-	move.l	#1,d0			;adefo
+	move.l	#adefo,d0			;adefo
 	subq.w	#6,d1
 	move.w	SCnum(a3),d2
 	subq.w	#6,d2
@@ -1847,7 +1847,7 @@ asswingd	;player a3 is wing on defense
 	move.b	aidef(a3),temp1(a3)
 	move.w	(puckc).w,d1
 	bmi.w	.nodec
-	move.l	#4,d0			;awingo
+	move.l	#awingo,d0			;awingo
 	subq.w	#6,d1
 	move.w	SCnum(a3),d2
 	subq.w	#6,d2
@@ -1922,7 +1922,7 @@ asswingo	;player a3 is winger on offense
 .nna	sub.b	d7,temp1(a3)
 	bpl.w	.nodec
 	move.b	aidef(a3),temp1(a3)
-	move.l	#3,d0			;awingd
+	move.l	#awingd,d0			;awingd
 	move.w	(puckc).w,d1
 	bmi.w	.de0
 	subq.w	#6,d1
@@ -2000,7 +2000,7 @@ asscenterd	;player a3 is center on defense
 	move.b	aidef(a3),temp1(a3)
 	move.w	(puckc).w,d1
 	bmi.w	.nodec
-	move.l	#6,d0			;acentero
+	move.l	#acentero,d0			;acentero
 	subq.w	#6,d1
 	move.w	SCnum(a3),d2
 	subq.w	#6,d2
@@ -2041,7 +2041,7 @@ asscentero	;player a3 is center on offense
 	move.b	aidef(a3),temp1(a3)
 	move.w	(puckc).w,d1
 	bmi.w	.de0
-	move.l	#5,d0			;acenterd
+	move.l	#acenterd,d0			;acenterd
 	subq.w	#6,d1
 	move.w	SCnum(a3),d2
 	subq.w	#6,d2
@@ -2717,7 +2717,7 @@ CompShoot	;player a3 shoots (computer controlled player)
 	blt.w	.lt
 	moveq	#$14,d1
 .lt	move.w	d1,temp2(a3)		;temp2 = swing time
-	move.l	#$12,d0			;ashoot
+	move.l	#ashoot,d0			;ashoot
 	bra.w	assreplace
 
 chk4pass	;player a3 looks for good pass (computer controlled)
@@ -2930,7 +2930,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	bne.w	.nopc
 	tst.w	position(a3)
 	beq.w	assgoalie
-	move.l	#$10,d0			;apuckc
+	move.l	#apuckc,d0			;apuckc
 	btst	#pfjoycon,pflags(a3)
 	beq.w	assinsert
 	rts
@@ -2958,7 +2958,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	btst	#pf2unav,pflags2(a0)		;pf2unav
 	bne.w	.next
 	move.w	assnum(a0),d0		;skip a player whose current assignment
-	cmpi.b	#$13,asslist(a0,d0.w)	;is apassrec
+	cmpi.b	#apassrec,asslist(a0,d0.w)	;is apassrec
 	beq.w	.next
 	move.l	a0,-(sp)
 	bsr.w	GetHot
@@ -2992,7 +2992,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	bne.w	.de1
 	exg	a1,a3
 	bclr	#pfdoff,pflags(a3)
-	move.l	#$11,d0			;anearest
+	move.l	#anearest,d0			;anearest
 	bsr.w	assinsert
 	exg	a1,a3
 	bra.w	assexit
@@ -3242,7 +3242,7 @@ puckfaceoff	;this is where the action starts
 	lea	tmsize(a2),a1
 	moveq	#1,d0
 	bsr.w	.sclc
-	move.w	#$1C,d0			;pfaceoff2
+	move.w	#pfaceoff2,d0			;pfaceoff2
 	bra.w	assreplace
 
 .clc	tst.w	(a3,d0.w)
@@ -3474,7 +3474,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	move.w	position(a3),d1
 	bmi.w	.next
 	beq.w	.goalie1
-	move.l	#$16,d0			;afaceoff
+	move.l	#afaceoff,d0			;afaceoff
 	cmp.w	#4,d1
 	bne.w	.l1
 	movea.w	#(tmstruct-M68K_RAM),a2	;faceoff man resets team $18-$1C
@@ -3486,7 +3486,7 @@ puckfaceoff2	;face off control logic and general setup for action
 	st	$1A(a2)
 	st	$1C(a2)
 	bclr	#tmflast,tmflags(a2)		;tmflags bit 3
-	move.l	#$17,d0			;afaceoffpl
+	move.l	#afaceoffpl,d0			;afaceoffpl
 .l1	bsr.w	assinsert
 .goalie1	move.w	(tmstruct+tmap).w,d4
 	btst	#pfteam,pflags(a3)
@@ -3725,7 +3725,7 @@ Endfaceoff	;drop the puck: pick the faceoff winner and send the puck off. Entere
 	move.w	d0,Zvel(a3)
 	clr.w	(puckz).w
 	bclr	#pfnc,pflags(a3)
-	move.l	#$18,d0			;pnorm
+	move.l	#pnorm,d0			;pnorm
 	bra.w	assreplace
 
 .ftab	dc.b	0,8,16,0,8,16
