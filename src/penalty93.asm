@@ -707,7 +707,7 @@ updatepwrplay	;show graphic and time remaining for power plays. Plays song $33 a
 	addq.w	#1,tmPwrPlays(a3)
 	cmpa.w	#(tmstruct-M68K_RAM),a3
 	bne.w	.uppt
-	move.w	#$33,-(sp)
+	move.w	#SngPowerPlay,-(sp)
 	bsr.w	song
 .uppt	bsr.w	printz
 	String	$BF,1,$19,'   ',$16,$17,$18,$19,$BF,1,$1A,'  ',0

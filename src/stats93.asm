@@ -2067,7 +2067,7 @@ TimeoutMenu	;pause menu "Timeout" for team a2: uses the
 	subq.w	#1,(menuitem).w
 	subq.w	#1,(menuitem+2).w
 	move.l	#PauseText2,(menulist).l	;pause menu without Timeout
-	bset	#2,tmflags(a2)		;timeout used
+	bset	#tmftimeout,tmflags(a2)		;timeout used
 	bsr.w	printz
 	String	$BD,5,$C
 	moveq	#$16,d0			;frame 22 wide, 6 high

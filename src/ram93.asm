@@ -77,8 +77,13 @@ HVcount	=	VDP_CNTR	;Video port
 osflag	=	20000	;flag for off screen graphic ($4E20)
 
 ;sfx / song numbers
+SngGoal	=	$30	;home goal tune (fmtune_goal)
+SngPeriodStart	=	$31	;period start tune (fmtune_periodstart)
+SngLateGame	=	$32	;late game tune, once in the 3rd period (CheckLateGameSong, fmtune_lategame)
+SngPowerPlay	=	$33	;home team power play tune (fmtune_powerplay)
+SngFaceoff	=	$34	;face off tune, once per period (fmtune_faceoff)
 SngTitle	=	$35
-SngEOG	=	$36
+SngIntermission	=	$36	;plays at every period end and the end of the game (IntermissionStart), on the playoff screen and when the highlights start (fmtune_intermission). 92 had SngEOP, SngEOG and SngPO for these
 SngScout	=	$37	;scouting report
 SFXsiren	=	$0
 SFXbeep1	=	$1
@@ -368,7 +373,8 @@ gmpen	=	2	;penalty has been called
 gmpendel	=	3	;delayed penalty has been called
 gmhl	=	4	;hilight mode
 gmoffs	=	5	;offsides on
-gmend	=	6	;game over: also ends the period. 93 only
+gmeog	=	6	;game over reached: the next face off goes to PeriodOver. 93 only (92 worked this out from gsp and the score)
+gmstars	=	7	;the Stars of the Game box was already shown (ShowThreeStars runs once). 93 only
 sflags	rs.w	1
 sfpz	=	0	;pause mode
 sfpj	=	1	;pause cont (0 for cont 1)
@@ -395,6 +401,7 @@ sf3sbut	=	3	;flag for start button
 sf3fo	=	4	;face off just ended (set by the drop): the next puck pickup wins it, with a crowd cheer. 93 only
 sf3track	=	5	;the scroll window tracks an object. 93 only
 sf3icetime	=	6	;set once a second by updatepentime: each player on the ice adds 1 to its time on ice. 93 only
+sf3fosong	=	7	;set for periods 1 and 2: play SngFaceoff once, at the first face off past half the period with 60 s or more left. 93 only
 c1playernum	rs.w	1	;player in control or neg for none
 c2playernum	rs.w	1
 cont1team	rs.w	1	;cont1 team 0=none 1=team1 2=team2
@@ -440,9 +447,12 @@ tmap	=	$24	;active players on ice 4-6. 92 $1A
 tmgoalie	=	$26	;goalie 1/2/none. 92 $1C
 tmflags	=	$30	;flags. 92 $1E
 tmflcc	=	0	;line change on
-tmflc	=	1	;team is in line change mode. 93 only
+tmflcm	=	1	;team is in line change mode (92 scanned the players for pf2lcm). 93 only
 tmflast	=	3	;next touch overwrites the last touch only. 93 only
-tmfoffside	=	4	;team is offsides. 93 only
+tmfoside	=	4	;team is offsides (92 flagged the player with pf3oside). 93 only
+tmftimeout	=	2	;timeout used (the pause menu drops Timeout from then on). The same bit is also tmfmid and tmfslide. 93 only
+tmfmid	=	tmftimeout	;nearest player always takes the in-between spot (assnearest), so a team that used its timeout does too
+tmfslide	=	tmftimeout	;roster screen: the player name is sliding out (UpdateRosterPlayer)
 tmpde	=	$32	;energy level of each roster player. 92 $20
 maxros	=	26
 tmpdst	=	tmpde+(2*maxros)	;-2=bench/-1=ice/0+=penalty box. 92 $54

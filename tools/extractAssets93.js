@@ -129,12 +129,12 @@ const assets = [
     { name: 'sfx_siren_cmdstream.bin', folder: 'Sound', start: 0x028C10, end: 0x028E38 }, // sound 0 (92 SFXsiren)
     { name: 'fmtune_goal_cmdstream.bin', folder: 'Sound', start: 0x028E38, end: 0x02910C }, // song $30: Goal
     { name: 'fmtune_periodstart_cmdstream.bin', folder: 'Sound', start: 0x02910C, end: 0x0292DC }, // song $31: StartPer
-    { name: 'fmtune_period3_cmdstream.bin', folder: 'Sound', start: 0x0292DC, end: 0x029660 }, // song $32: CheckPeriodEnd, 3rd period
+    { name: 'fmtune_lategame_cmdstream.bin', folder: 'Sound', start: 0x0292DC, end: 0x029660 }, // song $32: CheckLateGameSong, 3rd period
     { name: 'fmtune_powerplay_cmdstream.bin', folder: 'Sound', start: 0x029660, end: 0x029904 }, // song $33: updatepwrplay, home power play
     { name: 'fmtune_faceoff_cmdstream.bin', folder: 'Sound', start: 0x029904, end: 0x029BE4 }, // song $34: puckfaceoff
     { name: 'fmtune_title_cmdstream.bin', folder: 'Sound', start: 0x029BE4, end: 0x029C42 }, // song $35: TitleScreen, ExitToOpening (92 SngTitle)
     { name: 'fmtune_title_loop_cmdstream.bin', folder: 'Sound', start: 0x029C46, end: 0x02AF60 }, // song $35 loop body
-    { name: 'fmtune_eog_cmdstream.bin', folder: 'Sound', start: 0x02AF64, end: 0x02C8A6 }, // song $36: IntermissionStart, PlayoffScreen, StartHL2 (92 SngEOG / SngPO)
+    { name: 'fmtune_intermission_cmdstream.bin', folder: 'Sound', start: 0x02AF64, end: 0x02C8A6 }, // song $36: IntermissionStart, PlayoffScreen, StartHL2 (92 SngEOG / SngPO)
     { name: 'fmtune_scouting_cmdstream.bin', folder: 'Sound', start: 0x02C8AA, end: 0x02CEC4 }, // song $37: ScoutingReport
     { name: 'ScoutingReportText.bin', folder: 'Text', start: 0x02CEC8, end: 0x02E1FB }, // ScoutingReportText: scouting report paragraphs
     { name: 'GameSetUp.map.jim', folder: 'Graphics', start: 0x02E1FC, end: 0x02EFA2 }, // 92 GameSetUp.map.jim: game setup bitmap (setoptions movea.l #$2E1FC)

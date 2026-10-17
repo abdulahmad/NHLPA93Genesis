@@ -136,7 +136,7 @@ SetLCmode	;Initiate line change option if available (abut
 	tst.w	(OptLine).w
 	bne.w	rtss			;exit if line changes off
 	bsr.w	loadTeamStruct
-	bset	#tmflc,tmflags(a2)		;team already in lc mode?
+	bset	#tmflcm,tmflags(a2)		;team already in lc mode?
 	bne.w	rtss
 	bclr	#sfspdir,(sflags).w		;terminate passing by this player
 	bclr	#sfssdir,(sflags).w		;same with shooting
@@ -158,7 +158,7 @@ SetLCmode2	;a2 = team struct for lc. Draw the lc box with
 	bsr.w	getlchoice
 	tst.w	d0
 	bmi.w	.next			;no line for this button
-	btst	#tmflc,tmflags(a2)
+	btst	#tmflcm,tmflags(a2)
 	bne.w	.pr
 	cmp.w	$2E(a2),d4		;box being closed: only the chosen row
 	bne.w	.up
@@ -290,7 +290,7 @@ lcfound	;d2 = choice made 0-2
 	bclr	#pf2lcm,pflags2(a3)		;pf2lcm
 	bset	#pfjoycon,pflags(a3)
 	bsr.w	loadTeamStruct
-	bclr	#tmflc,tmflags(a2)
+	bclr	#tmflcm,tmflags(a2)
 	move.w	d0,tmline(a2)
 	jsr	setpersonel
 lcfound2	;close lc box. Also called from lineinput
@@ -1686,7 +1686,7 @@ assdefo	;player a3 is defensive player on offense
 	bpl.w	.nodec
 	move.b	aioff(a3),temp1(a3)
 	move.l	#2,d0			;adefd
-	btst	#tmfoffside,tmflags(a2)		;team flag forces defense
+	btst	#tmfoside,tmflags(a2)		;team flag forces defense
 	bne.w	assreplace
 	move.w	(pucky).w,d1
 	btst	#pfgoal,pflags(a3)
@@ -1749,7 +1749,7 @@ assdefd	;player a3 is defensive player on defense
 .v	add.w	d1,d3
 	cmp.w	#$58,d3
 	blt.w	.de0
-	btst	#tmfoffside,tmflags(a2)
+	btst	#tmfoside,tmflags(a2)
 	bne.w	.de0
 	move.w	(puckc).w,d1
 	bmi.w	.de0
@@ -1863,7 +1863,7 @@ asswingd	;player a3 is wing on defense
 	neg.w	d0
 	neg.w	d1
 	moveq	#-$4E,d2
-	btst	#tmfoffside,tmflags(a2)
+	btst	#tmfoside,tmflags(a2)
 	bne.w	.set
 	cmp.w	(pucky).w,d2
 	bgt.w	.lo
@@ -1875,7 +1875,7 @@ asswingd	;player a3 is wing on defense
 	move.w	d2,d1
 	bra.w	.go
 .up	moveq	#$4E,d2
-	btst	#tmfoffside,tmflags(a2)
+	btst	#tmfoside,tmflags(a2)
 	bne.w	.set
 	cmp.w	(pucky).w,d2
 	blt.w	.hi
@@ -1944,7 +1944,7 @@ asswingo	;player a3 is winger on offense
 	addq.w	#8,d2
 	cmp.w	#Blueline,d0		;blueline,d0
 	blt.w	.de2
-	btst	#tmfoffside,tmflags(a2)		;team flag keeps him back
+	btst	#tmfoside,tmflags(a2)		;team flag keeps him back
 	bne.w	.de2
 	addq.w	#8,d2
 	cmp.w	#Blueline+goalline,d3		;blueline+goalline,d3
@@ -2057,7 +2057,7 @@ asscentero	;player a3 is center on offense
 	addq.w	#8,d2
 	cmp.w	#Blueline,d0		;blueline,d0
 	blt.w	.de2
-	btst	#tmfoffside,tmflags(a2)
+	btst	#tmfoside,tmflags(a2)
 	bne.w	.de2
 	addq.w	#8,d2
 	cmp.w	#Blueline+goalline,d0		;blueline+goalline,d0
@@ -3023,7 +3023,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	bne.w	donothing
 	btst	#pfjoycon,pflags(a3)
 	bne.w	rtss
-	btst	#2,tmflags(a2)		;tmflags bit 2 always takes the in-between spot
+	btst	#tmfmid,tmflags(a2)		;tmflags bit 2 always takes the in-between spot
 	bne.w	.mid
 	tst.w	(puckc).w
 	bmi.w	.topuck
@@ -3042,7 +3042,7 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	asr.w	#1,d1
 	add.w	(sp)+,d0
 	add.w	(sp)+,d1
-	btst	#2,tmflags(a2)		;tmflags bit 2: clamp y to +-$44 from $53
+	btst	#tmfmid,tmflags(a2)		;tmflags bit 2: clamp y to +-$44 from $53
 	beq.w	.go
 	btst	#pfgoal,pflags(a3)
 	beq.w	.neg
@@ -3147,7 +3147,7 @@ puckfaceoff	;this is where the action starts
 	beq.w	.nna
 	tst.w	(gameclock).w
 	beq.w	PeriodOver
-	btst	#gmend,(gmode).w		;gmode bit 6 also ends the period
+	btst	#gmeog,(gmode).w		;gmode bit 6 also ends the period
 	bne.w	PeriodOver
 	cmpi.w	#3,(gsp).w
 	bne.w	.npo
@@ -3162,19 +3162,19 @@ puckfaceoff	;this is where the action starts
 	bls.w	.rg
 	cmpi.w	#$3C,(gameclock).w
 	blt.w	.rg
-	bclr	#7,(sflags3).w
+	bclr	#sf3fosong,(sflags3).w
 	beq.w	.rg
 	btst	#gmclock,(gmode).w
 	beq.w	.rg
-	move.w	#$34,-(sp)
+	move.w	#SngFaceoff,-(sp)
 	bsr.w	song
 .rg	bsr.w	ReturnGoalies
 	st	temp1(a3)
 	st	temp2(a3)
 	tst.w	(OptLine).w
 	bne.w	.nna
-	bclr	#tmflc,(tmstruct+tmflags).w	;bit 1
-	bclr	#tmflc,(awtmstruct+tmflags).w	;bit 1
+	bclr	#tmflcm,(tmstruct+tmflags).w	;bit 1
+	bclr	#tmflcm,(awtmstruct+tmflags).w	;bit 1
 	movea.w	#(SortCords-M68K_RAM),a0	;clear pf2lcm on all 12 players
 	moveq	#$B,d0
 .lcm	bclr	#pf2lcm,pflags2(a0)
@@ -3828,7 +3828,7 @@ ChkOffsides	;check for offsides penalty. a3 = puck. Flags the whole team (tmflag
 	bmi.w	.1
 	cmp.w	Ypos(a0),d0
 	bge.w	.1
-	bset	#tmfoffside,tmflags(a2)		;player past the line: team offsides
+	bset	#tmfoside,tmflags(a2)		;player past the line: team offsides
 	rts
 .1	adda.w	#SCstruct,a0
 	dbf	d2,.0
@@ -3849,14 +3849,14 @@ ChkOffsides	;check for offsides penalty. a3 = puck. Flags the whole team (tmflag
 	bmi.w	.3
 	cmp.w	Ypos(a0),d0
 	ble.w	.3
-	bset	#tmfoffside,tmflags(a2)		;team offsides
+	bset	#tmfoside,tmflags(a2)		;team offsides
 	rts
 .3	adda.w	#SCstruct,a0
 	dbf	d2,.2
 	rts
 
 ClearOffsidesIfAllPlayers	;a2 = team struct. Clears the team offsides flag (tmflags bit 4) once no skater on ice is past the blue line ($58, sign by pfgoal). Called twice from ChkOffsides
-	btst	#tmfoffside,tmflags(a2)
+	btst	#tmfoside,tmflags(a2)
 	beq.w	rtss
 	movea.w	tmsort(a2),a0
 	moveq	#5,d1
@@ -3870,7 +3870,7 @@ ClearOffsidesIfAllPlayers	;a2 = team struct. Clears the team offsides flag (tmfl
 	cmp.w	#Blueline,d0		;(blueline)
 	dbgt	d1,.top
 	bgt.w	rtss			;someone still past the line
-	bclr	#tmfoffside,tmflags(a2)
+	bclr	#tmfoside,tmflags(a2)
 	rts
 
 a2offsides	;player a2 touched the puck: offsides penalty if his team is flagged and the puck is past the blue line. Called from a2touchpuck
@@ -3886,7 +3886,7 @@ a2offsides	;player a2 touched the puck: offsides penalty if his team is flagged 
 	btst	#pfteam,pflags(a2)
 	beq.w	.1
 	adda.w	#tmsize,a0
-.1	btst	#tmfoffside,tmflags(a0)		;team offsides flag
+.1	btst	#tmfoside,tmflags(a0)		;team offsides flag
 	beq.w	rtss
 	btst	#gmhl,(gmode).w
 	bne.w	rtss
