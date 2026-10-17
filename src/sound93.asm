@@ -638,11 +638,11 @@ SoundStreamTable	;event stream of sounds 0-$37 as offsets from the table (play_s
 	dc.w	sfx_puckice4_cmdstream-SoundStreamTable	;sound $2F
 	dc.w	fmtune_goal_cmdstream-SoundStreamTable	;song $30
 	dc.w	fmtune_periodstart_cmdstream-SoundStreamTable	;song $31
-	dc.w	fmtune_period3_cmdstream-SoundStreamTable	;song $32
+	dc.w	fmtune_lategame_cmdstream-SoundStreamTable	;song $32
 	dc.w	fmtune_powerplay_cmdstream-SoundStreamTable	;song $33
 	dc.w	fmtune_faceoff_cmdstream-SoundStreamTable	;song $34
 	dc.w	fmtune_title_cmdstream-SoundStreamTable	;song $35
-	dc.w	fmtune_eog_cmdstream-SoundStreamTable	;song $36
+	dc.w	fmtune_intermission_cmdstream-SoundStreamTable	;song $36
 	dc.w	fmtune_scouting_cmdstream-SoundStreamTable	;song $37
 sfx_beep1_cmdstream
 	incbin	..\Extracted\Sound\sfx_beep1_cmdstream.bin	;sound 1 (SFXbeep1)
@@ -791,8 +791,8 @@ fmtune_goal_cmdstream
 fmtune_periodstart_cmdstream
 	incbin	..\Extracted\Sound\fmtune_periodstart_cmdstream.bin	;song $31: StartPer
 	even
-fmtune_period3_cmdstream
-	incbin	..\Extracted\Sound\fmtune_period3_cmdstream.bin	;song $32: CheckLateGameSong, 3rd period
+fmtune_lategame_cmdstream
+	incbin	..\Extracted\Sound\fmtune_lategame_cmdstream.bin	;song $32: CheckLateGameSong, 3rd period
 	even
 fmtune_powerplay_cmdstream
 	incbin	..\Extracted\Sound\fmtune_powerplay_cmdstream.bin	;song $33: updatepwrplay, home power play
@@ -808,10 +808,10 @@ fmtune_title_loop
 	incbin	..\Extracted\Sound\fmtune_title_loop_cmdstream.bin	;song $35 loop body
 	even
 	dc.l	fmtune_title_loop	;loop pointer
-fmtune_eog_cmdstream
-	incbin	..\Extracted\Sound\fmtune_eog_cmdstream.bin	;song $36: IntermissionStart, PlayoffScreen, StartHL2
+fmtune_intermission_cmdstream
+	incbin	..\Extracted\Sound\fmtune_intermission_cmdstream.bin	;song $36: IntermissionStart, PlayoffScreen, StartHL2
 	even
-	dc.l	fmtune_eog_cmdstream+4	;loop pointer (past the first event)
+	dc.l	fmtune_intermission_cmdstream+4	;loop pointer (past the first event)
 fmtune_scouting_cmdstream
 	incbin	..\Extracted\Sound\fmtune_scouting_cmdstream.bin	;song $37: ScoutingReport
 	even

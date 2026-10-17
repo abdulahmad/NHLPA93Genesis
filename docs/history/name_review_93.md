@@ -313,10 +313,10 @@ Verdicts from reading each routine body / variable usage. "ok" = name matches be
 | UploadCommandBufferToZ80 | ok |
 | command_jump_table | ok |
 | fm_instrument_patches | ok |
-| fmtune_eog_cmdstream | ok |
+| fmtune_intermission_cmdstream | ok |
 | fmtune_faceoff_cmdstream | ok |
 | fmtune_goal_cmdstream | ok |
-| fmtune_period3_cmdstream | ok |
+| fmtune_lategame_cmdstream | ok |
 | fmtune_periodstart_cmdstream | ok |
 | fmtune_powerplay_cmdstream | ok |
 | fmtune_scouting_cmdstream | ok |
