@@ -7,7 +7,7 @@
 ;	Menu item lists (InitMenuState): two printsmall control Strings, then per item a String and the handler
 ;	address (dc.l). Item 0 leaves the menu (its handler is rtss). String $FF ends the list.
 
-cd0	;$fftt = frame/time for various levels of crowd excitement.
+cd0									;$fftt = frame/time for various levels of crowd excitement.
 	;Used by updatecrowdf, indexed by crowd level and crowdstep
 	;4 blocks of 16 words, one per crowd level range ((crowdlevel/2) and $60 = byte offset 0,$20,$40,$60)
 	;each step (crowdstep 0-$1E, word index) gives the crowd frame (high byte) and its base duration (low byte)
@@ -24,7 +24,7 @@ cd0	;$fftt = frame/time for various levels of crowd excitement.
 	dc.w	$0e03,$0f03,$1003,$1103,$1203,$0b03,$0c03,$0d03
 	dc.w	$1203,$1103,$1003,$0f03,$0e03,$0d03,$0c03,$0b03
 
-asstab	;jump table of all the player logic assignments. There is no "do nothing" entry, so
+asstab								;jump table of all the player logic assignments. There is no "do nothing" entry, so
 	;assignment numbers from assscore on are one lower than in 92. Used by updateplayers
 	dc.l	rtss
 
@@ -88,7 +88,7 @@ pfaceoff	=	(*-asstab)/4		;puck object: faceoff start
 pfaceoff2	=	(*-asstab)/4		;puck object: faceoff control and setup
 	dc.l	puckfaceoff2
 
-Penaltylist	;Penalty number = word offset into this table. Used by AddPenalty, SetPA2, DisplayPenaltyEntry, ...
+Penaltylist							;Penalty number = word offset into this table. Used by AddPenalty, SetPA2, DisplayPenaltyEntry, ...
 	dc.w	$0000
 PenEOP	equ	(*-Penaltylist)			;2 period over
 	dc.w	PenDataEOP-Penaltylist
@@ -215,7 +215,7 @@ PenDataInst	dc.w	$2802			;ttmm: slow down $28, 2 minutes
 	String	'Fight Instigator'
 	dc.w	$0004,$0d01,$0e01,$0d01,$0e01,$0d01,$0e01,$0d01,$0e01,-$0101
 
-bfasciicon	;equates to find each char definition in bigfont.map.
+bfasciicon							;equates to find each char definition in bigfont.map.
 	;Indexed by ascii - $20 in printbig.dochar
 	;	 - -! " # $ % & -' * +, - -. /
 	dc.b	-76,-73,00,00,00,00,00,-71,00,00,00,00,00,00,-72,00
@@ -240,7 +240,7 @@ linelist	String	'Sc1'			;text list for line choices (PP1/PP2 are the power play 
 	String	'PK1'
 	String	'PK2'
 
-PlayerPositionText	;position names for the line slots. Used by DisplayPlayerList
+PlayerPositionText					;position names for the line slots. Used by DisplayPlayerList
 	String	'LD'
 	String	'RD'
 	String	'LW'
@@ -254,10 +254,10 @@ PerLabels	String	'1',18			;text list for periods. Used by printscores1, NewTicke
 	String	'OT'
 	String	'Final'
 
-sizetab	;sprite size code to tile count., used by addframe2
+sizetab								;sprite size code to tile count., used by addframe2
 	dc.b	1,2,3,4,2,4,6,8,3,6,9,12,4,8,12,16
 
-sublist	;substitution lists by position (goalie, LD, RD, LW, C, RW, extra attacker).
+sublist								;substitution lists by position (goalie, LD, RD, LW, C, RW, extra attacker).
 	;word offsets from sublist (92 used long pointers). Used by SetPlList
 	dc.w	.defl-sublist			;goalie
 	dc.w	.defl-sublist
@@ -290,7 +290,7 @@ priolist	dc.b	0,1,2,4,3,5,6	;positions in order of importance. Used by SetPlList
 	dc.b	0
 	ENDIF
 
-PlayoffTreeSetup	;92 PlayoffScreen .setup. Playoff tree layout by gamelevel:
+PlayoffTreeSetup					;92 PlayoffScreen .setup. Playoff tree layout by gamelevel:
 	;one column per round. Used by PlayoffScreen
 	dc.w	.l0-PlayoffTreeSetup
 	dc.w	.l1-PlayoffTreeSetup
@@ -358,7 +358,7 @@ PlayoffTreeSetup	;92 PlayoffScreen .setup. Playoff tree layout by gamelevel:
 	dc.b	0
 	ENDIF
 
-PAttribColumns	;skater attribute columns for PrintAttribHeader / DisplayPlayerList.
+PAttribColumns						;skater attribute columns for PrintAttribHeader / DisplayPlayerList.
 	;String header, then a long for GetNameandAttrib: high word = mask of rating nibbles to
 	;average, low word = attribjmp offset (0 status, 2 energy, 4 handed, 6 weight, 8 fighting,
 	;$A rating). A negative word ends the list
@@ -398,7 +398,7 @@ PAttribColumns	;skater attribute columns for PrintAttribHeader / DisplayPlayerLi
 	dc.w	$0040,8					;fighting
 	dc.w	-1
 
-GAttribColumns	;goalie attribute columns, same format as PAttribColumns. Used by
+GAttribColumns						;goalie attribute columns, same format as PAttribColumns. Used by
 	;DisplayPlayerList
 	String	'     Status    ]'
 	dc.w	$0000,0					;status
@@ -426,7 +426,7 @@ GAttribColumns	;goalie attribute columns, same format as PAttribColumns. Used by
 	dc.w	$2000,6					;weight
 	dc.w	-1
 
-PauseText	;92 Pausemode .mlist. pause menu item list (Pausemode)
+PauseText							;92 Pausemode .mlist. pause menu item list (Pausemode)
 	String	$FE,5
 	String	$FE,4
 	String	'   Resume Game    '
@@ -455,7 +455,7 @@ PauseText	;92 Pausemode .mlist. pause menu item list (Pausemode)
 	dc.l	TimeoutMenu
 	String	$FF
 
-PauseText2	;pause menu item list without Timeout, used when tmflags bit 2 of the pausing
+PauseText2							;pause menu item list without Timeout, used when tmflags bit 2 of the pausing
 	;team is set (Pausemode)
 	String	$FE,5
 	String	$FE,4
@@ -483,7 +483,7 @@ PauseText2	;pause menu item list without Timeout, used when tmflags bit 2 of the
 	dc.l	CrowdMeterScreen
 	String	$FF
 
-StartGameText	;intermission menu for gsp 0
+StartGameText						;intermission menu for gsp 0
 	String	$FE,5
 	String	$FE,4
 	String	'    Start Game    '
@@ -498,7 +498,7 @@ StartGameText	;intermission menu for gsp 0
 	dc.l	ShowScores
 	String	$FF
 
-StartGameTextPO	;intermission menu for gsp 0 in the playoffs
+StartGameTextPO						;intermission menu for gsp 0 in the playoffs
 	;adds Playoff Stats
 	String	$FE,5
 	String	$FE,4
@@ -516,7 +516,7 @@ StartGameTextPO	;intermission menu for gsp 0 in the playoffs
 	dc.l	ShowScores
 	String	$FF
 
-IntermissionText	;intermission menu for gsp 1-3, season and
+IntermissionText					;intermission menu for gsp 1-3, season and
 	;playoffs
 	String	$FE,5
 	String	$FE,4
@@ -542,7 +542,7 @@ IntermissionText	;intermission menu for gsp 1-3, season and
 	dc.l	LineEditor
 	String	$FF
 
-ExitGameText	;intermission menu for gsp 4.
+ExitGameText						;intermission menu for gsp 4.
 	String	$FE,5
 	String	$FE,4
 	String	'    Exit Game     '
@@ -563,7 +563,7 @@ ExitGameText	;intermission menu for gsp 4.
 	dc.l	CrowdMeterScreen
 	String	$FF
 
-ExitGameTextPO	;intermission menu for gsp 4 in the playoffs
+ExitGameTextPO						;intermission menu for gsp 4 in the playoffs
 	;same items as ExitGameText
 	String	$FE,5
 	String	$FE,4
@@ -585,7 +585,7 @@ ExitGameTextPO	;intermission menu for gsp 4 in the playoffs
 	dc.l	CrowdMeterScreen
 	String	$FF
 
-LineEditorMenuText	;line editor exit menu (LineEditorExit)
+LineEditorMenuText					;line editor exit menu (LineEditorExit)
 	String	$FE,6,$F9,1
 	String	$FE,4,$F9,1
 	String	'       Exit       '
@@ -598,7 +598,7 @@ LineEditorMenuText	;line editor exit menu (LineEditorExit)
 	dc.l	DecodeTeamLines
 	String	$FF
 
-LineEditorMenuNoLoad	;line editor exit menu without Load Team Line (LineEditorExit)
+LineEditorMenuNoLoad				;line editor exit menu without Load Team Line (LineEditorExit)
 	String	$FE,6,$F9,1
 	String	$FE,4,$F9,1
 	String	'       Exit       '

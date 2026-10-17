@@ -58,7 +58,7 @@
 	org     $90
 	dcb.b   112,$00					; $5E - $18 = 70 bytes
 
-ErrorStatus		;4 longs of zero (16 bytes, ends at $110); nothing in the source references it
+ErrorStatus							;4 longs of zero (16 bytes, ends at $110); nothing in the source references it
 	dc.l	0,0,0,0
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -71,7 +71,7 @@ ErrorStatus		;4 longs of zero (16 bytes, ends at $110); nothing in the source re
 	org	$100
 
 	include	sega\SegaIDTable93.asm
-Start			;reset entry point (vector 1)
+Start								;reset entry point (vector 1)
 	Include	sega\SegaInit.asm		;console init: Z80, VDP, PSG and RAM set up
 	IF CHECKSUM=1
 		jsr ValidationRoutine		;ROM checksum, hangs on a red screen if wrong

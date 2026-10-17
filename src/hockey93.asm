@@ -31,11 +31,11 @@
 ;	Startup, game loop, clock and pause screen
 ;------------------------------------------------------------
 
-VBjsr	;Vertical blank interrupt (vector $78), jumps through the vbint RAM vector
+VBjsr								;Vertical blank interrupt (vector $78), jumps through the vbint RAM vector
 	move.l	(vbint).w,-(sp)			;push handler address
 	rts								;and "return" into it
 
-Begin	;cold start, entered from Reset. Clear RAM, init menus and sound, go to title
+Begin								;cold start, entered from Reset. Clear RAM, init menus and sound, go to title
 	move	#$2700,sr				;interrupts off
 	movea.w	#(Stack-M68K_RAM),sp
 	movea.w	#(VSCRLPM-M68K_RAM),a0	;clear out ram
@@ -58,13 +58,13 @@ Begin	;cold start, entered from Reset. Clear RAM, init menus and sound, go to ti
 	jmp	(Opening).l					;goto title screen and options etc.
 ;----------------------------------------------------
 
-ChkShortPeriods	;Pad 1 = $E0 at game start forces 30 second periods
+ChkShortPeriods						;Pad 1 = $E0 at game start forces 30 second periods
 	bsr.w	Readjoy1
 	cmp.b	#$E0,d3
 	bne.w	StartGame
 	move.w	#3,(OptPerlen).w		;period length index 3 = 30
 
-StartGame	;reset game state for a new game, then start the first period
+StartGame							;reset game state for a new game, then start the first period
 	clr.b	(gmode).w
 	cmpi.w	#1,(OptPen).w
 	bne.w	.0
@@ -82,18 +82,18 @@ StartGame	;reset game state for a new game, then start the first period
 	jsr	setupice
 	jmp	(IntermissionStart).l		;on to period start
 
-ClearShotData	;clear 49 words at $FFCB0A
+ClearShotData						;clear 49 words at $FFCB0A
 	moveq	#$30,d0
 	movea.w	#(outputbuffer-M68K_RAM),a0	;retail v1.1 shot buffer (Rev A outputbuffer: $CB0E)
 .0	clr.w	(a0)+					;clear one word
 	dbf	d0,.0
 	rts
 
-restoreteams	;Put both teams' rosters on the bench
+restoreteams						;Put both teams' rosters on the bench
 	movea.w	#(tmstruct-M68K_RAM),a2	;team 1
 	bsr.w	.r
 	adda.w	#tmsize,a2				;team 2
-.r	;Reset one team struct (a2), falls in for team 2
+.r									;Reset one team struct (a2), falls in for team 2
 	move.w	#6,tmap(a2)				;no players in pen. box
 	moveq	#(maxros-1)*2,d0		;(maxros-1)*2
 .0	move.w	#$FFFE,tmpdst(a2,d0.w)	;all players on bench
@@ -101,7 +101,7 @@ restoreteams	;Put both teams' rosters on the bench
 	bpl.s	.0
 	rts
 
-ResetClock	;set period length and stop clock
+ResetClock							;set period length and stop clock
 	bsr.w	GetPeriodTime			;d0 = period length in seconds
 	cmpi.w	#3,(gsp).w				;overtime?
 	blt.w	.set
@@ -117,16 +117,16 @@ ResetClock	;set period length and stop clock
 	bset	#gmclock,(gmode).w		;stop clock
 	rts
 
-GetPeriodTime	;92 ResetClock (period length lookup). return d0 = period length in seconds for the period length option
+GetPeriodTime						;92 ResetClock (period length lookup). return d0 = period length in seconds for the period length option
 	move.w	(OptPerlen).w,d0
 	asl.w	#1,d0
 	lea	.timetab(pc),a0
 	move.w	0(a0,d0.w),d0
 	rts
-.timetab	;Period length in seconds: 5, 10, 20 min, 30 sec
+.timetab							;Period length in seconds: 5, 10, 20 min, 30 sec
 	dc.w	5*60,10*60,20*60,30
 
-StartPer	;start a period: reset stack, rink and clock, face off, run the game loop
+StartPer							;start a period: reset stack, rink and clock, face off, run the game loop
 	movea.w	#(Stack-M68K_RAM),sp
 	jsr	p_turnoff					;sound off
 	jsr	setupice
@@ -155,7 +155,7 @@ StartPer	;start a period: reset stack, rink and clock, face off, run the game lo
 	bge.w	Gameloop
 	bset	#sf3fosong,(sflags3).w	;set for periods 1 and 2 only
 
-Gameloop	;main loop for game
+Gameloop							;main loop for game
 	bsr.w	DoGameFrame
 	bsr.w	demoread				;check if demo mode
 	btst	#sfpz,(sflags).w
@@ -163,7 +163,7 @@ Gameloop	;main loop for game
 	bsr.w	Pausemode
 	bra.s	Gameloop
 
-DoGameFrame	;wait for at least one vblank, then run one frame of game logic
+DoGameFrame							;wait for at least one vblank, then run one frame of game logic
 	move.w	(vcount).w,d7
 	sub.w	(oldvcount).w,d7		;number of frames since last loop
 	beq.s	DoGameFrame
@@ -174,7 +174,7 @@ DoGameFrame	;wait for at least one vblank, then run one frame of game logic
 	bsr.w	updatereplay
 	jmp	(setvideo).l
 
-periodicevents	;called every time thru game loop with d7 = elapsed frames
+periodicevents						;called every time thru game loop with d7 = elapsed frames
 	jsr	(PenaltyManager).l
 	bsr.w	updatecrowdf
 	jsr	updatesound
@@ -191,12 +191,12 @@ periodicevents	;called every time thru game loop with d7 = elapsed frames
 	bsr.w	CheckInjury
 	jmp	(updatepwrplay).l
 
-CheckInjury	;called once per second. Count down InjCntDown, act on it at zero
+CheckInjury							;called once per second. Count down InjCntDown, act on it at zero
 	subq.w	#1,(InjCntDown).w
 	bne.w	rtss2
 	jmp	(ShowInjuryBox).l			;countdown expired
 
-RestoreBenchEnergy	;92 periodicevents tail (.notinprog). called once per second. Restore energy for players on the bench
+RestoreBenchEnergy					;92 periodicevents tail (.notinprog). called once per second. Restore energy for players on the bench
 	tst.w	(OptLine).w
 	bne.w	.x						;exit if line changes are off
 	movea.w	#(tmstruct-M68K_RAM),a2	;team 1
@@ -213,7 +213,7 @@ RestoreBenchEnergy	;92 periodicevents tail (.notinprog). called once per second.
 	bpl.s	.b0
 .x	rts								;done
 
-CheckLateGameSong	;called once per second. 3rd period: play tune $32 once at the random
+CheckLateGameSong					;called once per second. 3rd period: play tune $32 once at the random
 		;trigger time set by ResetClock
 	cmpi.w	#2,(gsp).w				;3rd period only
 	bne.w	.x
@@ -227,7 +227,7 @@ CheckLateGameSong	;called once per second. 3rd period: play tune $32 once at the
 	bsr.w	song
 .x	rts								;return
 
-UpdateCwdExcite	;called once per second. Track peak and running total of crowd
+UpdateCwdExcite						;called once per second. Track peak and running total of crowd
 		;excitement, then decay the level by 1 (floor 0)
 	move.w	(CwdExciteLvl).w,d0
 	cmp.w	(MaxCwdExciteLvl).w,d0
@@ -241,7 +241,7 @@ UpdateCwdExcite	;called once per second. Track peak and running total of crowd
 	clr.w	(CwdExciteLvl).w
 .x	rts								;return
 
-updatecrowdf	;this is called every game loop with d7 = elapsed frames
+updatecrowdf						;this is called every game loop with d7 = elapsed frames
 	;this will update the current frame of crowd animation
 	cmpi.w	#$15E,(crowdlevel).w
 	blt.w	.dec
@@ -280,7 +280,7 @@ updatecrowdf	;this is called every game loop with d7 = elapsed frames
 	move.b	d0,(crowdframe).w		;random extra frame 19-25 when crowd is loud
 	rts
 
-clockcont	;monitor period clock and initiate various clock activated events
+clockcont							;monitor period clock and initiate various clock activated events
 	btst	#gmclock,(gmode).w
 	bne.w	rtss2
 	tst.w	(gameclock).w
@@ -289,7 +289,7 @@ clockcont	;monitor period clock and initiate various clock activated events
 	move.w	#SFXhorn,-(sp)			;horn (92 used 24)
 	bsr.w	sfx
 	bsr.w	freezewindow
-clockcont_0	;92 clockcont. end of period. Also entered from puckfaceoff
+clockcont_0							;92 clockcont. end of period. Also entered from puckfaceoff
 	movea.w	#(puckx-M68K_RAM),a3	;puck
 	move.l	#$18,d0
 	bsr.w	assinsert
@@ -351,7 +351,7 @@ clockcont_0	;92 clockcont. end of period. Also entered from puckfaceoff
 .eop	move.w	#PenEOP,d0			;end of period event
 	bra.w	AddPenalty2
 
-demoread	;monitor joystick if in demo mode (called every game loop)
+demoread							;monitor joystick if in demo mode (called every game loop)
 	tst.w	(cont1team).w
 	bne.w	rtss2					;not demo
 	tst.w	(cont2team).w
@@ -365,22 +365,22 @@ demoread	;monitor joystick if in demo mode (called every game loop)
 	bne.w	startpause2
 	;falls into EndDemoOnPress with pad 2 in d1
 
-EndDemoOnPress	;92 demoread. any button on the pad just read (d1) ends the demo
+EndDemoOnPress						;92 demoread. any button on the pad just read (d1) ends the demo
 	;falls in from demoread for pad 2
 	tst.w	d1
 	beq.w	rtss2					;nothing pressed
 	jmp	(ExitToOpening).l			;exit demo
 
-startpause1	;pause intiated by cont 1
+startpause1							;pause intiated by cont 1
 	bclr	#sfpj,(sflags).w
 	bra.w	startpause
-startpause2	;pause intiated by cont 2
+startpause2							;pause intiated by cont 2
 	bset	#sfpj,(sflags).w
-startpause	;common tail: request pause
+startpause							;common tail: request pause
 	bset	#sfpz,(sflags).w
 	rts
 
-Pausemode	;game is in pause mode now
+Pausemode							;game is in pause mode now
 	jsr	p_turnoff					;shut off sound
 	move.w	(sflags).w,-(sp)
 	bsr.w	forceblack				;fade screen to black
@@ -417,7 +417,7 @@ PauseExit	equ	*					;92 PauseExit: restore graphics and return from pause mode (
 	move.w	(vcount).w,(oldvcount).w
 	rts
 
-SetupPauseScreen	;92 Pausemode .pall. draw routine for the pause menu
+SetupPauseScreen					;92 Pausemode .pall. draw routine for the pause menu
 	movea.l	#Vdata,a0
 	move.w	#$9100,4(a0)			;playfield 3 width
 	move.w	#$921C,4(a0)			;playfield 3 height
@@ -431,7 +431,7 @@ SetupPauseScreen	;92 Pausemode .pall. draw routine for the pause menu
 	move.w	#$7FF,d2
 	bra.w	eraser
 
-seta2	;Set a2 to tmstruct of pause joystick
+seta2								;Set a2 to tmstruct of pause joystick
 	;also called from HandleMenuInput
 	movea.w	#(tmstruct-M68K_RAM),a2
 	btst	#sfpj,(sflags).w
@@ -449,7 +449,7 @@ seta2	;Set a2 to tmstruct of pause joystick
 ;	Instant replay, player and animation update, scroll window
 ;------------------------------------------------------------
 
-ReplayMode	;this is instant replay play-back control and display code.
+ReplayMode							;this is instant replay play-back control and display code.
 	;Called from the pause menu. Tracking: a d-pad press picks the
 	;nearest object in that direction and the camera follows it
 	bsr.w	forceblack
@@ -637,12 +637,12 @@ ReplayMode	;this is instant replay play-back control and display code.
 	move.w	#$18,(palcount).w
 	rts								;exit replay mode
 
-getpzjoy	;read the joystick of the pad that paused
+getpzjoy							;read the joystick of the pad that paused
 	btst	#sfpj,(sflags).w
 	bne.w	Readjoy2
 	bra.w	Readjoy1
 
-suba4	;a4 = address in replay buffer of current
+suba4								;a4 = address in replay buffer of current
 	;frame. Back up 1 frame and set video parameters for display.
 	;d7 will be set to delay between frames or zero if at the end of replay
 	cmpa.l	#replaystart,a4			;replaystart
@@ -658,7 +658,7 @@ suba4	;a4 = address in replay buffer of current
 	clr.w	d7
 	rts
 
-adda4	;a4 = address in replay buffer of current
+adda4								;a4 = address in replay buffer of current
 	;frame. Step forward 1 frame and set video parameters for display.
 	;d7 will be set to delay between frames or zero if at the end of replay
 	clr.w	d7
@@ -669,19 +669,19 @@ adda4	;a4 = address in replay buffer of current
 	cmpa.l	(recbpr).w,a4
 	movea.l	(sp)+,a4
 	beq.w	rtss2
-adda42	;adda4 without the sf2drec look-ahead. Stop at the record point,
+adda42								;adda4 without the sf2drec look-ahead. Stop at the record point,
 	;else show the frame and fall into adda43
 	cmpa.l	(recbpr).w,a4
 	beq.w	rtss2
 	bsr.w	RestoreReplayFrame
-adda43	;a4 += replaysize, wrapping from replayend to replaystart
+adda43								;a4 += replaysize, wrapping from replayend to replaystart
 	adda.w	#replaysize,a4			;replaysize
 	cmpa.l	#replayend,a4
 	bne.w	rtss2
 	movea.l	#replaystart,a4			;replaystart
 	rts
 
-UpdateCameraPos	;Camera struct a5 = object a3's x/y, Hpos/Vpos =
+UpdateCameraPos						;Camera struct a5 = object a3's x/y, Hpos/Vpos =
 	;that position clamped to the scroll limits
 	movem.l	d0-d2,-(sp)
 	move.w	(a3),d0
@@ -705,7 +705,7 @@ UpdateCameraPos	;Camera struct a5 = object a3's x/y, Hpos/Vpos =
 	movem.l	(sp)+,d0-d2
 	rts
 
-RestoreReplayFrame	;92 SetRCords + nonshift in one routine. a4 = current replay frame address to convert into normal
+RestoreReplayFrame					;92 SetRCords + nonshift in one routine. a4 = current replay frame address to convert into normal
 	;cordinates, then set the other replay variables.
 	;Returns d7 = frame delay. Hpos/Vpos come from the frame unless
 	;scrolling by hand (sfscrl), then from the camera or tracked object.
@@ -805,7 +805,7 @@ nonshift	equ	*					;92 nonshift: set the other replay variables (92 SetRCords is
 .x	movem.l	(sp)+,d0-d2/a0			;return
 	rts
 
-updatereplay	;called every frame to save replay events, d7 = elapsed frames
+updatereplay						;called every frame to save replay events, d7 = elapsed frames
 	btst	#gmhl,(gmode).w			;no recording in highlight mode
 	bne.w	rtss2
 	btst	#sf2drec,(sflags2).w
@@ -875,7 +875,7 @@ updatereplay	;called every frame to save replay events, d7 = elapsed frames
 	move.w	(Vpos).w,(a0)+
 rtss2	rts							;shared rts
 
-updateplayers	;update every object in SortCords
+updateplayers						;update every object in SortCords
 	;this routine calls all collision/animation/assignment code for all the players
 	;d7 = elapse frames since last call
 	btst	#sfhor,(sflags).w
@@ -1024,7 +1024,7 @@ updateplayers	;update every object in SortCords
 	blt.w	.top					;loop for all Sort objects
 	rts
 
-updateanim	;frame switch control on struct a3. Also called from
+updateanim							;frame switch control on struct a3. Also called from
 	;UpdateRosterPlayer
 	tst.w	SPA(a3)
 	bne.w	.ia
@@ -1082,13 +1082,13 @@ updateanim	;frame switch control on struct a3. Also called from
 	move.b	#4,glitch(a3)			;/60 sec min frame switch time
 	rts
 
-freezewindow	;lock scrolling to current position
+freezewindow						;lock scrolling to current position
 	move.w	(Vpos).w,(yc1).w
 	move.w	(Hpos).w,(xc1).w
 	bset	#sfslock,(sflags).w
 	rts
 
-checkwindow	;set hpos and vpos according to how screen should follow puck
+checkwindow							;set hpos and vpos according to how screen should follow puck
 	move.w	(yc1).w,d2
 	move.w	(xc1).w,d3				;if locked, use these cordinates
 	btst	#sfslock,(sflags).w
@@ -1181,7 +1181,7 @@ checkwindow	;set hpos and vpos according to how screen should follow puck
 
 collrad	=	8						;collision radius of an object (players collide within collrad*2)
 
-checkcoll	;d2 = new x cord, d3 = new y cord, a3 = struct of object. Check wall collision (around the hot spot and the end of the stick) and player collisions, then move a3 in the OOlist sort order by its y. If a player collision set collflag, restore the old x/y instead. Does not clear Wallcos/Wallsin first (92 did). Called from updateplayers
+checkcoll							;d2 = new x cord, d3 = new y cord, a3 = struct of object. Check wall collision (around the hot spot and the end of the stick) and player collisions, then move a3 in the OOlist sort order by its y. If a player collision set collflag, restore the old x/y instead. Does not clear Wallcos/Wallsin first (92 did). Called from updateplayers
 	clr.w	(collflag).w
 	btst	#sfhor,(sflags).w
 	beq.w	.nhor1
@@ -1260,7 +1260,7 @@ checkcoll	;d2 = new x cord, d3 = new y cord, a3 = struct of object. Check wall c
 	move.w	OldYpos(a3),Ypos(a3)
 	rts
 
-checkplcoll	;d2/d3 = x/y cords, a3 = struct. Walk up and down the OOlist from a3 and call checkcx for each object within $10 in y. Called from checkcoll
+checkplcoll							;d2/d3 = x/y cords, a3 = struct. Walk up and down the OOlist from a3 and call checkcx for each object within $10 in y. Called from checkcoll
 	btst	#pf2npc,pflags2(a3)		;no player collision bit (92 used 7)
 	bne.w	.ex
 	cmpi.w	#$B,SCnum(a3)
@@ -1296,7 +1296,7 @@ checkplcoll	;d2/d3 = x/y cords, a3 = struct. Walk up and down the OOlist from a3
 	bne.s	.1
 .ex	rts								;return
 
-checkcx	;d4 = obj. # * 2 for possible coll so check x range and distance for coll. d2 = x, d5 = delta y, a3 = moving object. Opposing players add impact and run newcheck, checkint, checkcheck and checkfight; then momentum moves from a3 to a2. Called from checkplcoll
+checkcx								;d4 = obj. # * 2 for possible coll so check x range and distance for coll. d2 = x, d5 = delta y, a3 = moving object. Opposing players add impact and run newcheck, checkint, checkcheck and checkfight; then momentum moves from a3 to a2. Called from checkplcoll
 	movem.l	d0-d7/a0-a3,-(sp)
 	asl.w	#6,d4					;obj. # * 2 * $40 = * $80
 	movea.l	#SortCords,a2
@@ -1442,7 +1442,7 @@ checkcx	;d4 = obj. # * 2 for possible coll so check x range and distance for col
 .exit4	addq.w	#4,sp				;drop the saved Vx/Vy
 	bra.s	.exit
 
-newcheck	;start a new check sound: one of 4 sounds $1C-$1F (92 picked one of 5 from 18), never the last one again. Called from checkcx; FallDown branches here when the player who fell did not have the puck
+newcheck							;start a new check sound: one of 4 sounds $1C-$1F (92 picked one of 5 from 18), never the last one again. Called from checkcx; FallDown branches here when the player who fell did not have the puck
 	move.l	d0,-(sp)
 	moveq	#3,d0
 	bsr.w	randomd0
@@ -1456,7 +1456,7 @@ newcheck	;start a new check sound: one of 4 sounds $1C-$1F (92 picked one of 5 f
 	move.l	(sp)+,d0
 	rts
 
-checkint	;check for interference penalty. player a2 interferes with a3 or vice-versa; goalie is only player who cause an interference call. Called from checkcx
+checkint							;check for interference penalty. player a2 interferes with a3 or vice-versa; goalie is only player who cause an interference call. Called from checkcx
 	move.l	d0,-(sp)
 	bsr.w	.ci
 	exg	a2,a3
@@ -1492,7 +1492,7 @@ checkint	;check for interference penalty. player a2 interferes with a3 or vice-v
 	move.l	#$22,d0					;penalty $22 (92 used $1C)
 	bra.w	AddPenalty
 
-checkcheck	;player is in contact look for various contact events. Runs .cc for a3 on a2, then for a2 on a3. d4 = impact. Called from checkcx
+checkcheck							;player is in contact look for various contact events. Runs .cc for a3 on a2, then for a2 on a3. d4 = impact. Called from checkcx
 	movem.l	d0-d4/a0-a3,-(sp)
 	bsr.w	.cc
 	exg	a2,a3
@@ -1576,7 +1576,7 @@ checkcheck	;player is in contact look for various contact events. Runs .cc for a
 	dc.w	SPAhipchkl
 	dc.w	SPAshoulderchkl
 
-checkagr	;penalty roll for player a3. Range = (20 - byte $73) * 13, doubled for a joystick player, halved within $28 of the puck in x and y. Return d0 = randomd0 of that range; the callers call a penalty when it is small. Called from checkcheck .cc, holdcheck and Bcheck
+checkagr							;penalty roll for player a3. Range = (20 - byte $73) * 13, doubled for a joystick player, halved within $28 of the puck in x and y. Return d0 = randomd0 of that range; the callers call a penalty when it is small. Called from checkcheck .cc, holdcheck and Bcheck
 	moveq	#$14,d0
 	sub.b	aggress(a3),d0
 	mulu.w	#$D,d0
@@ -1598,7 +1598,7 @@ checkagr	;penalty roll for player a3. Range = (20 - byte $73) * 13, doubled for 
 	asr.w	#1,d0					;near the puck: half the range, more penalties
 .far	bra.w	randomd0			;random roll of d0
 
-holdcheck	;player a2 is in hold animation looking to hold opponent a3. Entered from checkcheck .cc for SPAHold or SPAhook. Checks facing, clears the puck carrier sflags, has a second hold anim, and rolls the penalty with checkagr
+holdcheck							;player a2 is in hold animation looking to hold opponent a3. Entered from checkcheck .cc for SPAHold or SPAhook. Checks facing, clears the puck carrier sflags, has a second hold anim, and rolls the penalty with checkagr
 	btst	#pfalock,pflags(a3)
 	bne.w	rtss
 	tst.w	position(a3)
@@ -1651,7 +1651,7 @@ holdcheck	;player a2 is in hold animation looking to hold opponent a3. Entered f
 	st	(collflag).w
 	rts
 
-Bcheck	;player a2 is in SPAsweepchk and a3 is the other player. Entered from checkcheck .cc. If OptPen is 0 and a2 is joystick controlled, a2 needs randomd0($10 + a2 checking rating - a3 legstr) >= $C. If a3 is within 1 direction of where a2 faces, a3 falls and checkagr may call penalty $20 on a2. Sets collflag to -1
+Bcheck								;player a2 is in SPAsweepchk and a3 is the other player. Entered from checkcheck .cc. If OptPen is 0 and a2 is joystick controlled, a2 needs randomd0($10 + a2 checking rating - a3 legstr) >= $C. If a3 is within 1 direction of where a2 faces, a3 falls and checkagr may call penalty $20 on a2. Sets collflag to -1
 	btst	#pfalock,pflags(a3)
 	bne.w	rtss
 	tst.w	position(a3)			;position: not on a goalie
@@ -1689,7 +1689,7 @@ Bcheck	;player a2 is in SPAsweepchk and a3 is the other player. Entered from che
 	st	(collflag).w
 	rts
 
-FallDown	;player a2 falls down, player a3 is the hitting player. Some players get SPAstumble instead of a fall; also counts check stats for the hitter, has a third fall anim (SPAflip), and injuries (setInjuryType) with a penalty. Called from checkint.ci, checkcheck.cc and Bcheck; also entered from setd0player
+FallDown							;player a2 falls down, player a3 is the hitting player. Some players get SPAstumble instead of a fall; also counts check stats for the hitter, has a third fall anim (SPAflip), and injuries (setInjuryType) with a penalty. Called from checkint.ci, checkcheck.cc and Bcheck; also entered from setd0player
 	cmpi.w	#$B,SCnum(a2)
 	bgt.w	rtss					;not a player
 	btst	#pf2fight,pflags2(a2)
@@ -1802,7 +1802,7 @@ FallDown	;player a2 falls down, player a3 is the hitting player. Some players ge
 .3	bsr.w	song					;play the crowd song
 	rts
 
-setInjuryType	;sets period injury. a2 = player injured, a3 = player checking. Marks a2 unavailable, pumps up the crowd, plays sfx $D, locks the scroll on a2, sets TempPlOffset (pnum, bit 15 set for the away team) and puts $FFFD (injured for the period) in a2's tmpdst. Called from FallDown and from chkhit.fall
+setInjuryType						;sets period injury. a2 = player injured, a3 = player checking. Marks a2 unavailable, pumps up the crowd, plays sfx $D, locks the scroll on a2, sets TempPlOffset (pnum, bit 15 set for the away team) and puts $FFFD (injured for the period) in a2's tmpdst. Called from FallDown and from chkhit.fall
 	bset	#pf2unav,pflags2(a2)	;set player unavailable (92 used 4)
 	addi.w	#$12C,(crowdlevel).w	;pump up crowd
 	addi.w	#$1E,(CwdExciteLvl).w
@@ -1846,7 +1846,7 @@ setInjuryType	;sets period injury. a2 = player injured, a3 = player checking. Ma
 ;	Team struct (tmsize $1A2): $C score (Goal adds 1), $22 first sort obj,
 ;	$11C check count per player (byte).
 
-checkfight	;look for start of fight between players a2 & a3. Called from checkcx
+checkfight							;look for start of fight between players a2 & a3. Called from checkcx
 	;Needs impact >= 10 on both, no anim lock, no penalty, no goalie, clock
 	;running, no highlight and the puck not fighting or on a faceoff. SetInst
 	;(both ways) decides, with d0 = 10 + max(0, 40 - ChkCnt)/4. If a3 then has
@@ -1960,7 +1960,7 @@ checkfight	;look for start of fight between players a2 & a3. Called from checkcx
 	move.w	#SPAfight,d1			;92 used $DE8
 	bra.w	SetSPA
 
-SetInst	;d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swapped) Returns
+SetInst								;d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swapped) Returns
 	;unless a3's fight rating ($74) >= d0, a2's >= 2 and a2's >= $10 - 2 * a2's check
 	;count ($11C in its team struct). Then sets pf2fight on a2 and a3. If a3 was not
 	;already fighting, OptPen is not 0 and HV counter & 3 is 0, calls AddPenalty2
@@ -2014,7 +2014,7 @@ SetInst	;d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swapped
 	movea.l	a4,a3
 	rts
 
-checkwallcoll	;d2/d3 = x/y to test, a3 = object, wcradiusx/wcradiusy = radius. Called from checkcoll
+checkwallcoll						;d2/d3 = x/y to test, a3 = object, wcradiusx/wcradiusy = radius. Called from checkcoll
 	;Check the corner circles, the goals and then the side and end boards.
 	;Calls wallcollb (or checkgoal) on a hit, with d0/d1 = cos/sin of the wall
 	;d4/d5 = rink half width $88 and half length $12A minus the object radius
@@ -2091,7 +2091,7 @@ checkwallcoll	;d2/d3 = x/y to test, a3 = object, wcradiusx/wcradiusy = radius. C
 	ble.w	wallcollb
 	rts
 
-checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x/y. Called from checkwallcoll
+checkgoal							;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x/y. Called from checkwallcoll
 	;Not the puck: checkgoalp. Puck inside the goal area: over the top (bounce
 	;Zvel), through the mouth (Goal), off a post (deflect) or off the side/back
 	;(wallcoll)
@@ -2204,7 +2204,7 @@ checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x
 	neg.w	d1
 	bra.w	wallcoll
 
-Goal	;puck in goal. a3 = puck. Entered from checkgoal
+Goal								;puck in goal. a3 = puck. Entered from checkgoal
 	;new song, sfx 0, score +1 for the scoring team (a2, a1 = the other
 	;team), song $30 if the home team scored, a 6 byte ScoreSum entry,
 	;goal/assist counts, PenGoalStuff, printscores1, new assignments for the
@@ -2318,7 +2318,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 	movea.l	(sp)+,a3
 	rts
 
-GetPeriodTimeRemaining	;return d0 = (gsp << 14 | PerTimeTotal) - gameclock. Called from Goal (ScoreSum entry) and InProgress
+GetPeriodTimeRemaining				;return d0 = (gsp << 14 | PerTimeTotal) - gameclock. Called from Goal (ScoreSum entry) and InProgress
 	move.w	(gsp).w,d0
 	swap	d0
 	clr.w	d0
@@ -2327,7 +2327,7 @@ GetPeriodTimeRemaining	;return d0 = (gsp << 14 | PerTimeTotal) - gameclock. Call
 	sub.w	(gameclock).w,d0
 	rts
 
-checkgoalp	;check for player a3 collision with goal/net a2. Entered from checkgoal
+checkgoalp							;check for player a3 collision with goal/net a2. Entered from checkgoal
 	;oval goal, .radiusx = 32, .radiusy = 11. Skipped for no player coll,
 	;Zpos > 10 and non players. Calls CheckBump, then wallcoll with the normal
 	btst	#pf2npc,pflags2(a3)		;no player coll (92 used 7)
@@ -2374,7 +2374,7 @@ checkgoalp	;check for player a3 collision with goal/net a2. Entered from checkgo
 .exit	movem.w	(sp)+,d2-d3			;restore d2/d3
 	rts
 
-CheckBump	;supply minimum separation velocity for coll with walls/goal/net. a2 = goal, a3 = player. Called from checkgoalp
+CheckBump							;supply minimum separation velocity for coll with walls/goal/net. a2 = goal, a3 = player. Called from checkgoalp
 	;When HV counter & $1F is 0 (92 & $F), the puck is within 40 y of the goal
 	;and a3 is faster than $2000 in x or y: a quarter of a3's velocity goes to
 	;the goal, a3 stops, and if the clock runs penalty 8. That path returns
@@ -2414,7 +2414,7 @@ CheckBump	;supply minimum separation velocity for coll with walls/goal/net. a2 =
 	move.l	#8,d0					;penalty 8 (92 used $E)
 	bra.w	AddPenalty2
 
-wallcollb	;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. Called from checkwallcoll
+wallcollb							;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. Called from checkwallcoll
 	;Not the puck: wallcoll. Zpos > 29, or Zpos > 18 with Ypos < 280, goes
 	;over: pfnc, scroll lock, frame of the next struct cleared and, if the
 	;clock runs, penalty 6 for ltplayer. Also: Ypos >= 280, Xpos 13-15 and
@@ -2462,7 +2462,7 @@ wallcollb	;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. C
 	movea.l	(sp)+,a3
 	rts
 
-wallcoll	;d0 = cosine, d1 = sine of angle of incidence with wall, a3 = object. Called from checkgoal, checkgoalp, wallcollb
+wallcoll							;d0 = cosine, d1 = sine of angle of incidence with wall, a3 = object. Called from checkgoal, checkgoalp, wallcollb
 	;Bounce a3 off the wall: the puck loses speed, flips and plays sfx $28-$2B,
 	;a player plays sfx $20 on a hard hit
 	move.w	d0,Wallcos(a3)
@@ -2543,7 +2543,7 @@ wallcoll	;d0 = cosine, d1 = sine of angle of incidence with wall, a3 = object. C
 	movem.l	(sp)+,d2-d3
 	rts
 
-checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
+checkpuckcoll						;look for puck coll with players. a3 = puck. Entered from pucknorm
 	;First clears Yvel when Ypos > 400 or Ypos <= -400. Walks up and down
 	;the OOlist from the puck and runs .ccx on each object within 22 in y:
 	;stick (puckstick), body (puckbody) or goalie (puckgoalie)
@@ -2698,7 +2698,7 @@ checkpuckcoll	;look for puck coll with players. a3 = puck. Entered from pucknorm
 ;	Comments on assignment, sound and song numbers give the role and, where
 ;	different, the 92 value.
 
-puckstick	;puck collides with stick
+puckstick							;puck collides with stick
 	;a2 = player who collided, a3 = puck, d0 = distance^2 (from checkpuckcoll .ccx)
 	;a goalie skips the steal roll, a goalie needs a loose puck within
 	;8, and the catch speed limit is 13000 + 700 * stickhand
@@ -2775,7 +2775,7 @@ puckstick	;puck collides with stick
 	move.b	#8,nopuck(a2)
 	bra.s	.stdef
 
-puckglue	;92 .glue. Player a2 takes the puck 
+puckglue							;92 .glue. Player a2 takes the puck 
 	;Global because puckgoalie .nopc also branches here. Plays song 7, or $C
 	;($B for the home team) when sflags3 bit 4 was set, and counts a pass
 	;completion when a2 is passReceiverPlayerNum. Falls into setd0player
@@ -2815,7 +2815,7 @@ puckglue	;92 .glue. Player a2 takes the puck
 	bne.w	setd0player
 	move.w	#5,temp5(a2)			;temp5 = 5 for SPAgdive
 
-setd0player	;give control of player d0 to a controller if his team is controlled
+setd0player							;give control of player d0 to a controller if his team is controlled
 	;d0 = SCnum. Also called by checkfight.sf
 	cmp.w	(c1playernum).w,d0
 	beq.w	rtss					;already on controller 1
@@ -2836,7 +2836,7 @@ setd0player	;give control of player d0 to a controller if his team is controlled
 	beq.w	setc1player
 	rts
 
-puckbody	;puck hits player a2. a3 = puck, d0 = distance^2 (from checkpuckcoll .ccx)
+puckbody							;puck hits player a2. a3 = puck, d0 = distance^2 (from checkpuckcoll .ccx)
 	;Uses the old puck speed: a fast puck above 12 knocks a2 down
 	;(FallDown), a slower one above 8 plays SPAcatch on a2
 	cmpi.w	#8,Zpos(a3)				;Zpos, 3*8/3
@@ -2879,7 +2879,7 @@ puckbody	;puck hits player a2. a3 = puck, d0 = distance^2 (from checkpuckcoll .c
 	exg	a2,a3
 rtss	rts							;shared rts
 
-puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
+puckgoalie							;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	;Save odds from the goalie's save attribute and the frame table .list2.
 	;song on a hard shot, a puck carrier loses the puck, and a slow
 	;loose puck (.nopc) is caught through puckglue
@@ -2985,7 +2985,7 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 
 .list	dc.b	0,$73,0,$6E,0,$70,0,$72	;save attribute offsets
 
-.list2	;odds for stopping puck in each quadrant for each possible goalie frame
+.list2								;odds for stopping puck in each quadrant for each possible goalie frame
 	dc.b	$55,$9D,$67,$55,$9D,$67,$55,$9D,$67,$55,$9D,$67	;ready/glover/glovel (92 pix 1111,2131,1213)
 	dc.b	$55,$9D,$67,$55,$9D,$67,$55,$9D,$67,$55,$9D,$67
 	dc.b	$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55	;goalie swing
@@ -2998,7 +2998,7 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	dc.b	$57,$57,$57,$57
 	dc.b	$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5
 
-deflect	;random puck direction on deflection puck = a3. Entered from puckstick .stdef
+deflect								;random puck direction on deflection puck = a3. Entered from puckstick .stdef
 	st	(puckc).w
 	move.w	#$1000,d0
 	bsr.w	randomd0s
@@ -3011,7 +3011,7 @@ deflect	;random puck direction on deflection puck = a3. Entered from puckstick .
 	move.w	d0,Zvel(a3)
 	bra.w	puckflip
 
-makepde	;pass d0 as value to be scaled by player a0's energy level
+makepde								;pass d0 as value to be scaled by player a0's energy level
 	;return d0 as result. Called from puckstick and (ShotMode)
 	ext.w	d0
 	move.w	d0,-(sp)
@@ -3025,7 +3025,7 @@ makepde	;pass d0 as value to be scaled by player a0's energy level
 	ext.l	d0						;d0 = d0 * energy / 4096
 	rts
 
-getpde	;get player a3's energy level into d0. Return a2 = his team struct, d1 = pnum*2
+getpde								;get player a3's energy level into d0. Return a2 = his team struct, d1 = pnum*2
 	movea.w	#(tmstruct-M68K_RAM),a2
 	btst	#pfteam,pflags(a3)
 	beq.w	.0
@@ -3036,7 +3036,7 @@ getpde	;get player a3's energy level into d0. Return a2 = his team struct, d1 = 
 	move.w	tmpde(a2,d1.w),d0
 	rts
 
-setpde	;d1 = rostnum of player * 2, a2 = team struct
+setpde								;d1 = rostnum of player * 2, a2 = team struct
 	;d0 = new energy level (no d1 range check)
 	tst.w	d0
 	bpl.w	.0
@@ -3044,7 +3044,7 @@ setpde	;d1 = rostnum of player * 2, a2 = team struct
 .0	move.w	d0,tmpde(a2,d1.w)		;store the energy level (negative becomes 0)
 	rts
 
-setpersonel	;this will set personel on team a2 according to team a2's registers
+setpersonel							;this will set personel on team a2 according to team a2's registers
 	;Asks SetPlList for the wanted players, keeps the ones already on the
 	;ice, and puts the rest in sort objs with no requested player
 	movem.l	d0-d5/a0-a4,-(sp)
@@ -3095,7 +3095,7 @@ setpersonel	;this will set personel on team a2 according to team a2's registers
 	movem.l	(sp)+,d0-d5/a0-a4
 	rts
 
-SetPlList	;create list (PlList) of players who we want on the ice now
+SetPlList							;create list (PlList) of players who we want on the ice now
 	;a2 = team struct. Reads the lines from the team struct ($16A), and
 	;falls back to every roster player when sublist has no free player
 	movea.w	#(PlList-M68K_RAM),a4
@@ -3153,7 +3153,7 @@ SetPlList	;create list (PlList) of players who we want on the ice now
 	beq.s	.try
 	bra.s	.next1
 
-TryAddPlayerToList	;92 SetPlList .s1/.s2. d0 = player number (1 based), d4 = PlList slot
+TryAddPlayerToList					;92 SetPlList .s1/.s2. d0 = player number (1 based), d4 = PlList slot
 	;a2 = team struct, a4 = PlList. Return Z clear = added, Z set (d1 = 0) = not available
 	move.w	d0,d1
 	subq.w	#1,d0
@@ -3171,7 +3171,7 @@ TryAddPlayerToList	;92 SetPlList .s1/.s2. d0 = player number (1 based), d4 = PlL
 .no	clr.w	d1						;not available: Z set, d1 = 0
 	rts
 
-forcepldata	;no skating on/off force players to correct data (for faceoffs only)
+forcepldata							;no skating on/off force players to correct data (for faceoffs only)
 	;a2 = team struct
 	movem.l	d0-d4/a0-a3,-(sp)
 	movea.w	tmsort(a2),a3
@@ -3198,7 +3198,7 @@ forcepldata	;no skating on/off force players to correct data (for faceoffs only)
 	movem.l	(sp)+,d0-d4/a0-a3
 	rts
 
-ResetBench	;remove all players from penalty box/ put all players on their own bench
+ResetBench							;remove all players from penalty box/ put all players on their own bench
 	;PBnum = players left in the box, home * 16 + visitors. Keeps -3 players
 	;and drops box players with tmpdst bit 12 set and no time left from the count
 	clr.b	(PBnum).w
@@ -3226,14 +3226,14 @@ ResetBench	;remove all players from penalty box/ put all players on their own be
 	bpl.s	.rb1
 	rts
 
-Setplass	;set players (a3) initial assignment
+Setplass							;set players (a3) initial assignment
 	move.w	position(a3),d0
 	bmi.w	rtss
 	lea	.alist(pc),a0
 	move.b	(a0,d0.w),d0
 	bra.w	assreplace
 
-.alist	;asstab numbers
+.alist								;asstab numbers
 	dc.b	agoalie					;agoalie (92 15)
 	dc.b	adefd					;adefd
 	dc.b	adefd					;adefd
@@ -3247,7 +3247,7 @@ Setplass	;set players (a3) initial assignment
 	dc.b	0
 	ENDIF
 
-setplayer	;bring player onto the ice and set his stats
+setplayer							;bring player onto the ice and set his stats
 	;d3 = player number, a3 = sortcord of player. Reads each attribute
 	;nibble from a variable-length roster record and, for skaters, adds the
 	;modifier bytes PPBonus / PKBonus (from sflags2 bit 5 and chkpk2),
@@ -3398,7 +3398,7 @@ setplayer	;bring player onto the ice and set his stats
 	andi.b	#$F,aggress(a3)
 	rts
 
-ClampNibble	;clamp byte d3 to 0-15. Called by setplayer
+ClampNibble							;clamp byte d3 to 0-15. Called by setplayer
 	tst.b	d3
 	bpl.w	.hi
 	clr.w	d3						;negative: 0
@@ -3414,7 +3414,7 @@ ClampNibble	;clamp byte d3 to 0-15. Called by setplayer
 ;	Rink and team setup, title, playoffs and options screens
 ;------------------------------------------------------------
 
-setupice	;set all variables, send non purgeable graphics, build sprite frame lists for ice rink.
+setupice							;set all variables, send non purgeable graphics, build sprite frame lists for ice rink.
 	;Called from StartGame and StartPer. 93 decompresses the tile sets with
 	;DecompressGraphicsPlain / DecompressGraphicsWithCallback
 	movem.l	d0-d7/a0-a6,-(sp)
@@ -3517,7 +3517,7 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts
 
-setupice_highlight	;Rebuild the rink sprites after a highlight replay without reloading tiles, then fade in.
+setupice_highlight					;Rebuild the rink sprites after a highlight replay without reloading tiles, then fade in.
 	;Called from StartHL2. Uses the sprite char start saved by setupice in spritechars
 	movem.l	d0-d7/a0-a6,-(sp)
 	bsr.w	forceblack
@@ -3567,7 +3567,7 @@ setupice_highlight	;Rebuild the rink sprites after a highlight replay without re
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts								;(its only xref is a constant, so no label)
 
-setupIceRinkPal	;copy the ice rink palettes (pal 0&1, 16 longs) to palfadenew.ipal.
+setupIceRinkPal						;copy the ice rink palettes (pal 0&1, 16 longs) to palfadenew.ipal.
 	;Called from setupice, setupice_highlight
 	movea.l	#IceRinkMap,a0
 	adda.l	(a0),a0					;palette offset in the map header
@@ -3577,7 +3577,7 @@ setupIceRinkPal	;copy the ice rink palettes (pal 0&1, 16 longs) to palfadenew.ip
 	dbf	d0,.ipal
 	rts
 
-setupEASNmap	;92 setupice EASN block. Decompress the easn logo tiles to vram at EASNcset. Called from setupice and setupice_highlight.
+setupEASNmap						;92 setupice EASN block. Decompress the easn logo tiles to vram at EASNcset. Called from setupice and setupice_highlight.
 	;Return d4 = next free vram char
 	move.w	(EASNcset).w,d4
 	movea.l	#EASNmap+8,a2
@@ -3585,7 +3585,7 @@ setupEASNmap	;92 setupice EASN block. Decompress the easn logo tiles to vram at 
 	dc.l	$71234567,$89ABCDEF		;remap table
 	rts
 
-setupTeamBlocksMap	;Load TeamBlocks.map tiles at d4+$30 and copy the home and visitor team blocks (24 rows each)
+setupTeamBlocksMap					;Load TeamBlocks.map tiles at d4+$30 and copy the home and visitor team blocks (24 rows each)
 	;to vram at basetileoffset and basetileoffset+$18. Called from setupice. d4 = 1st vram char; return d4 = basetileoffset+$30
 	move.w	d4,(basetileoffset).w
 	addi.w	#$30,d4					;skip the 48 chars for the two team blocks
@@ -3609,7 +3609,7 @@ setupTeamBlocksMap	;Load TeamBlocks.map tiles at d4+$30 and copy the home and vi
 	addi.w	#$30,d4
 	rts
 
-CopyTeamBlockMapData	;Copy one team's 24 block chars from the loaded tile set to vram at d1 by vram dma
+CopyTeamBlockMapData				;Copy one team's 24 block chars from the loaded tile set to vram at d1 by vram dma
 	;and store their map words at (a1)+. a0 = map data, d0 = team, d1 = vram address. Called from setupTeamBlocksMap
 	mulu.w	#$30,d0					;24 map words per team
 	lea	4(a0,d0.w),a0
@@ -3632,7 +3632,7 @@ CopyTeamBlockMapData	;Copy one team's 24 block chars from the loaded tile set to
 	dbf	d3,.row
 	rts
 
-defaultsprites	;allocate vram and assign char area for graphic structures. d4 = char area for data.
+defaultsprites						;allocate vram and assign char area for graphic structures. d4 = char area for data.
 	;Called from setupice and setupice_highlight. 93 splits off the SortCords half as defaultsprites2 (jumped to at the end)
 	movea.l	#.listsso,a2
 	movea.w	#(sso-M68K_RAM),a3
@@ -3662,18 +3662,18 @@ defaultsprites	;allocate vram and assign char area for graphic structures. d4 = 
 	dbf	d0,.ffotop
 	bra.w	defaultsprites2
 
-.listsso	;xcord,ycord,frame,attribute,vram char size
+.listsso							;xcord,ycord,frame,attribute,vram char size
 	dc.w	0,0,0,0,9
 	dc.w	0,0,0,0,9
 
-.listffo	;xcord,ycord,zpos,frame,attribute,vram char size
+.listffo							;xcord,ycord,zpos,frame,attribute,vram char size
 	dc.w	0,0,$FFFF,SPFpad+2,0,7
 	dc.w	0,0,$FFFF,SPFpad,0,7
 	dc.w	0,0,$FFFF,SPFpad+1,0,7
 	dc.w	0,0,$FFFF,SPFreplay,$8000,7	;attribute 0, 12 chars
 	dc.w	0,0,$FFFF,SPFgloves,0,5
 
-defaultsprites2	;92 defaultsprites .0 loop. objects which are tied to screen scrolling and have velocity relative to icerink
+defaultsprites2						;92 defaultsprites .0 loop. objects which are tied to screen scrolling and have velocity relative to icerink
 	;also set some variables in the structure to default settings.
 	;Jumped to from defaultsprites, also called from setoptions. d4 = vram char; ends in SprSort
 	clr.w	d6
@@ -3713,7 +3713,7 @@ defaultsprites2	;92 defaultsprites .0 loop. objects which are tied to screen scr
 	bne.s	.0
 	bra.w	SprSort
 
-.list	;xcord,ycord,zcord,frame,att,vrsize,radx,rady,asslist,pflags
+.list								;xcord,ycord,zcord,frame,att,vrsize,radx,rady,asslist,pflags
 	dc.w	$180,$C0,0,1,0,$14,8,4,0,$80	;home team, 1<<pfgoal (92 first player at -200,-120)
 	dc.w	-$C8,-$64,0,1,0,$14,8,4,0,$80
 	dc.w	-$C8,-$50,0,1,0,$14,8,4,0,$80
@@ -3734,7 +3734,7 @@ defaultsprites2	;92 defaultsprites .0 loop. objects which are tied to screen scr
 	dc.w	0,0,0,SPFpuck+1,0,1,5,5,pnorm,1	;puck: pnorm, 1<<pfdoff
 	dc.w	0,0,0,SPFpuck,0,$11,3,3,pshad,4	;puck shadow: pshad, 1<<pfnc (92 used $183, 4 chars)
 
-SprSort	;sort objects in struct SortObj and set corresponding tables for keeping them sorted later
+SprSort								;sort objects in struct SortObj and set corresponding tables for keeping them sorted later
 	movem.l	d0-d4/a0-a2,-(sp)
 	movea.l	#OOlistpos,a2
 	movea.l	#Ylist,a1
@@ -3775,7 +3775,7 @@ SprSort	;sort objects in struct SortObj and set corresponding tables for keeping
 	movem.l	(sp)+,d0-d4/a0-a2
 	rts
 
-resetplstuff	;reset team variables/and players on both teams. Called from puckfaceoff2 and StartHL2
+resetplstuff						;reset team variables/and players on both teams. Called from puckfaceoff2 and StartHL2
 	movem.l	d0-d2/a0-a3,-(sp)
 	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	.top
@@ -3799,7 +3799,7 @@ resetplstuff	;reset team variables/and players on both teams. Called from puckfa
 	dbf	d2,.loop
 	rts
 
-clearTeamStats	;92 setteams clear loop. clear both team structs (2 x tmsize) but keep
+clearTeamStats						;92 setteams clear loop. clear both team structs (2 x tmsize) but keep
 	;tmgoalie of each team, and set the byte at tmstruct+$9A of each. Falls into setteams.
 	;Called from StartGame, StartHL2 and ScoutingReport
 	move.w	(tmstruct+tmgoalie).w,-(sp)
@@ -3813,7 +3813,7 @@ clearTeamStats	;92 setteams clear loop. clear both team structs (2 x tmsize) but
 	st	(tmstruct+$9A).w
 	st	(awtmstruct+$9A).w
 
-setteams	;use hometeam/visteam to set team structures. Falls in from clearTeamStats, also called.
+setteams							;use hometeam/visteam to set team structures. Falls in from clearTeamStats, also called.
 	;93 sets tmsort as a word and leaves the team data setup to InitTeamStructure
 	movem.l	d0/a0-a2,-(sp)
 	movea.w	#(tmstruct-M68K_RAM),a2
@@ -3827,7 +3827,7 @@ setteams	;use hometeam/visteam to set team structures. Falls in from clearTeamSt
 	movem.l	(sp)+,d0/a0-a2
 	rts
 
-InitTeamStructure	;92 setteams. Set up team struct a2 for team d0: store the team number at $28, the team data address
+InitTeamStructure					;92 setteams. Set up team struct a2 for team d0: store the team number at $28, the team data address
 	;at tmdata ($1E, from the team address table at $314), and copy 14 longs of line data (team data +6
 	;offset) to tmstruct+$16A. Called from setteams
 	move.w	d0,$28(a2)
@@ -3842,7 +3842,7 @@ InitTeamStructure	;92 setteams. Set up team struct a2 for team d0: store the tea
 	dbf	d0,.copy
 	rts
 
-setplayercolors	;copy in correct color data for each team. Called from setupice, setupice_highlight
+setplayercolors						;copy in correct color data for each team. Called from setupice, setupice_highlight
 	;StartHL2
 	clr.w	d1
 	movea.w	#(tmstruct-M68K_RAM),a0
@@ -3860,7 +3860,7 @@ setplayercolors	;copy in correct color data for each team. Called from setupice,
 	dbf	d0,.5
 	rts
 
-PeriodOver	;what to do if period over. Branched to from puckfaceoff when the clock runs out.
+PeriodOver							;what to do if period over. Branched to from puckfaceoff when the clock runs out.
 	;forceblack comes after the period count; no SetVideo or palcount here
 	addq.w	#1,(gsp).w				;period number
 	bchg	#gmdir,(gmode).w
@@ -3877,7 +3877,7 @@ PeriodOver	;what to do if period over. Branched to from puckfaceoff when the clo
 	move.w	#4,(gsp).w				;game over
 .0	bsr.w	forceblack				;fade the screen to black
 
-IntermissionStart	;92 PeriodOver .sp. PeriodOver tail: reset the clock, song $36, ticker scores
+IntermissionStart					;92 PeriodOver .sp. PeriodOver tail: reset the clock, song $36, ticker scores
 	;playoff team stats at game over, then Intermission. Next period, or GameOver when gsp = 4.
 	;Also jumped to from StartGame (as _sp) for the pregame intermission
 	jsr	ResetClock
@@ -3892,7 +3892,7 @@ IntermissionStart	;92 PeriodOver .sp. PeriodOver tail: reset the clock, song $36
 	beq.w	GameOver
 	jmp	(StartPer).w
 
-GameOver	;Save the password, show the playoff stats and playoff screen in playoff
+GameOver							;Save the password, show the playoff stats and playoff screen in playoff
 	;mode, then song $35 and back to Opening2. Branched to from IntermissionStart
 	bsr.w	EncodePW
 	tst.w	(OptPlayMode).w
@@ -3901,17 +3901,17 @@ GameOver	;Save the password, show the playoff stats and playoff screen in playof
 	jsr	(PlayoffStatsScreen).w		;"Playoff Stats"
 .po	bsr.w	PlayoffScreen			;returns at once outside playoff mode
 
-ExitToOpening	;Song $35, then restart at Opening2. Falls in from GameOver
+ExitToOpening						;Song $35, then restart at Opening2. Falls in from GameOver
 	;also jumped to from EndDemoOnPress to end the demo
 	move.w	#SngTitle,-(sp)
 	bsr.w	song
 	bra.w	Opening2
 
-Opening	;title screen, then into Opening2. Jumped to from Begin
+Opening								;title screen, then into Opening2. Jumped to from Begin
 	bsr.w	KillCrowd
 	bsr.w	TitleScreen
 
-Opening2	;reset the stack and clear the variables, then options, playoff screen,
+Opening2							;reset the stack and clear the variables, then options, playoff screen,
 	;scouting report and on to a new game
 	bsr.w	KillCrowd				;stop the crowd sound
 	move.w	#$2700,sr
@@ -3927,7 +3927,7 @@ Opening3	bsr.w	PlayoffScreen	;playoff tree (returns at once outside playoff mode
 Opening4	bsr.w	ScoutingReport	;pregame scouting report
 	jmp	(ChkShortPeriods).w			;first check pad 1 for short periods
 
-PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver and Opening2.
+PlayoffScreen						;bring up playoff screen if in playoff mode. Called from GameOver and Opening2.
 	;runs its own vblank and scrolls the tree a page ($70 pixels) at a time.
 	;Returns when start is pressed (PlayoffScreenExit)
 	tst.w	(OptPlayMode).w
@@ -4069,7 +4069,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	bsr.w	HandlePlayoffInput		;page / exit input
 	bra.s	.input
 
-HandlePlayoffInput	;92 PlayoffScreen .jin. read both pads: start leaves PlayoffScreen, right/left set the scroll step, then falls into
+HandlePlayoffInput					;92 PlayoffScreen .jin. read both pads: start leaves PlayoffScreen, right/left set the scroll step, then falls into
 	;UpdatePlayoffScroll. Called from PlayoffScreen .input
 	bsr.w	Readjoy1
 	move.w	d3,-(sp)
@@ -4084,7 +4084,7 @@ HandlePlayoffInput	;92 PlayoffScreen .jin. read both pads: start leaves PlayoffS
 	beq.w	UpdatePlayoffScroll
 	move.w	#2,(PlayerScrollCtr).w	;step +2
 
-UpdatePlayoffScroll	;92 PlayoffScreen .scrup. move the tree one step (PlayerScrollCtr) and stop on a page boundary ($70). The position is limited to +/-
+UpdatePlayoffScroll					;92 PlayoffScreen .scrup. move the tree one step (PlayerScrollCtr) and stop on a page boundary ($70). The position is limited to +/-
 	;min(gamelevel,3) pages; the vblank adds it to the hscroll. Falls in from HandlePlayoffInput, also called
 	;from PlayoffScreen
 	move.w	(PlayerScrollCtr).w,d0
@@ -4117,12 +4117,12 @@ UpdatePlayoffScroll	;92 PlayoffScreen .scrup. move the tree one step (PlayerScro
 	clr.w	(PlayerScrollCtr).w		;stop
 	rts
 
-PlayoffScreenExit	;92 PlayoffScreen .exit. drop HandlePlayoffInput's return address and return from PlayoffScreen. Branched to from
+PlayoffScreenExit					;92 PlayoffScreen .exit. drop HandlePlayoffInput's return address and return from PlayoffScreen. Branched to from
 	;HandlePlayoffInput on start, so it has to be global
 	addq.w	#4,sp
 	rts
 
-waitxc1	;(was PlayoffScreen_waitvsync) each time palcount runs out, eor the color word at palbuffer+2 (palfadenew+$42) with $EE and
+waitxc1								;(was PlayoffScreen_waitvsync) each time palcount runs out, eor the color word at palbuffer+2 (palfadenew+$42) with $EE and
 	;restart palcount at $18 (a color flash), then wait for the next vblank. Called from PlayoffScreen .input
 	tst.w	(palcount).w
 	bpl.w	.wait					;palcount still counting
@@ -4134,7 +4134,7 @@ waitxc1	;(was PlayoffScreen_waitvsync) each time palcount runs out, eor the colo
 	move.w	d0,(oldvcount).w
 	rts
 
-PrintSeriesScore	;92 PlayoffScreen .doscores. print best of 7 wins "t-b" for game struct a2 at printx/printy.doscores.
+PrintSeriesScore					;92 PlayoffScreen .doscores. print best of 7 wins "t-b" for game struct a2 at printx/printy.doscores.
 	;Called from PlayoffScreen .top3
 	movea.w	#(mesarea-M68K_RAM),a1
 	move.w	#6,(a1)+				;string length
@@ -4149,7 +4149,7 @@ PrintSeriesScore	;92 PlayoffScreen .doscores. print best of 7 wins "t-b" for gam
 	movea.w	#(mesarea-M68K_RAM),a1
 	bra.w	print
 
-DrawTreeArrow	;92 PlayoffScreen .doarrow. draw tree arrow d0 from Arrows.map at printx/printy.doarrow.
+DrawTreeArrow						;92 PlayoffScreen .doarrow. draw tree arrow d0 from Arrows.map at printx/printy.doarrow.
 	;Called from PlayoffScreen .top2
 	movem.l	d0-d7/a0-a3,-(sp)
 	movea.l	#ArrowsMap,a0
@@ -4166,7 +4166,7 @@ DrawTreeArrow	;92 PlayoffScreen .doarrow. draw tree arrow d0 from Arrows.map at 
 	movem.l	(sp)+,d0-d7/a0-a3
 	rts
 
-DrawTeamBlocks	;92 PlayoffScreen .doteam. draw team block d1 (team*2) from TeamBlocks.map at printx/printy; the user's team (potree entry
+DrawTeamBlocks						;92 PlayoffScreen .doteam. draw team block d1 (team*2) from TeamBlocks.map at printx/printy; the user's team (potree entry
 	;at potreeteam) gets printa $6000.doteam. Called from PlayoffScreen .top
 	movem.l	d0-d7/a0-a3,-(sp)
 	movea.w	#(potree-M68K_RAM),a0
@@ -4188,7 +4188,7 @@ DrawTeamBlocks	;92 PlayoffScreen .doteam. draw team block d1 (team*2) from TeamB
 	movem.l	(sp)+,d0-d7/a0-a3
 	rts
 
-VBlank_Playoff	;(it undecoded): the PlayoffScreen vblank handler (vbint).
+VBlank_Playoff						;(it undecoded): the PlayoffScreen vblank handler (vbint).
 	;If dfng is clear and Sattsize is set: clear Sattsize, DoDMA the sprite table (Satt) to VSPRITES, then
 	;Vmaddr(VSCRLPM) and write $FEA0+DispAttribCtr to the hscroll, then cramfade. Always vcount+1, p_music_vblank, rte
 	movem.l	d0-d7/a0-a6,-(sp)
@@ -4211,7 +4211,7 @@ VBlank_Playoff	;(it undecoded): the PlayoffScreen vblank handler (vbint).
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
 
-PlayoffScreenText	;round titles by gamelevel, printed with printsmall. Used by PlayoffScreen .noscr
+PlayoffScreenText					;round titles by gamelevel, printed with printsmall. Used by PlayoffScreen .noscr
 	String	'Playoffs'
 	String	'Quarterfinals'
 	String	'Semifinals'
@@ -4234,7 +4234,7 @@ PlayoffScreenText	;round titles by gamelevel, printed with printsmall. Used by P
 ;	DecompressGraphicsWithCallback is followed by its 8 byte remap table.
 ;	DecompressGraphicsWithCallback is followed by its 8 byte remap table.
 
-ScoutingReport	;pregame scouting report. Called from PeriodOver.
+ScoutingReport						;pregame scouting report. Called from PeriodOver.
 	;Draws both team blocks, the Ron Barr picture and the scouting report ratings, then types out
 	;the commentary paragraphs listed in TestList. Returns on start, or when screentimer runs out ($1E0 after the text ends)
 	move.w	#SngScout,-(sp)			;song $37
@@ -4357,7 +4357,7 @@ ScoutingReport	;pregame scouting report. Called from PeriodOver.
 	bpl.s	.top
 	rts
 
-PrintScoutRatings	;print the 8 rating nibbles of the scouting report long at 4(a0), one per line, at printx.
+PrintScoutRatings					;print the 8 rating nibbles of the scouting report long at 4(a0), one per line, at printx.
 	;a0 = this team's scouting report, a2 = the other team's (for the combined line). Called from ScoutingReport
 	move.l	4(a0),d5				;bytes 4-7: shooting/skating, passing/defense, checking/fighting, goalkeeping/overall
 	moveq	#7,d6
@@ -4372,7 +4372,7 @@ PrintScoutRatings	;print the 8 rating nibbles of the scouting report long at 4(a
 .next	dbf	d6,.loop				;8 nibbles in total
 	rts
 
-PrintScoutLineRatings	;print the power play line (byte 1 low nibble of a0 + byte 1 high nibble of a2), and on the right
+PrintScoutLineRatings				;print the power play line (byte 1 low nibble of a0 + byte 1 high nibble of a2), and on the right
 	;column (printx >= $14) the home team line (byte 2 high nibble of a0 + low nibble of a2). Falls into PrintStatNumber
 	eori.w	#2,(printfontset).w
 	move.w	(a0),d0
@@ -4392,18 +4392,18 @@ PrintScoutLineRatings	;print the power play line (byte 1 low nibble of a0 + byte
 	andi.w	#$F,d1
 	add.w	d1,d0
 
-PrintStatNumber	;print d0 as a 2 digit number at printx/printy in the small font, then move down a line.
+PrintStatNumber						;print d0 as a 2 digit number at printx/printy in the small font, then move down a line.
 	;Called from PrintScoutRatings, falls in from PrintScoutLineRatings
 	moveq	#2,d1					;2 digits
 	bsr.w	PushNumberWidth
 	move.w	(printx).w,-(sp)
 	bsr.w	printsmall
 	move.w	(sp)+,(printx).w
-StatNextLine	;Next line; branched to from PrintScoutLineRatings
+StatNextLine						;Next line; branched to from PrintScoutLineRatings
 	addq.w	#1,(printy).w
 	rts
 
-ScoutRatingText	;rating names for the scouting report, centered by ScoutingReport. -1 ends the list
+ScoutRatingText						;rating names for the scouting report, centered by ScoutingReport. -1 ends the list
 	String	'Shooting'
 	String	'Skating'
 	String	'Passing'
@@ -4416,7 +4416,7 @@ ScoutRatingText	;rating names for the scouting report, centered by ScoutingRepor
 	String	'Overall'
 	dc.w	-1
 
-InitScoutingDisplay	;reset the scouting text scroller. Return a0 = TestList (paragraph list). Called from ScoutingReport
+InitScoutingDisplay					;reset the scouting text scroller. Return a0 = TestList (paragraph list). Called from ScoutingReport
 	move.w	#$FFFF,(VertLineScrolling).w	;text line -1
 	st	(PlayerScrollCtr).w			;negative: start the next paragraph
 	clr.w	(SelectedPlayerIdx).w	;TestList index
@@ -4424,7 +4424,7 @@ InitScoutingDisplay	;reset the scouting text scroller. Return a0 = TestList (par
 	movea.w	#(TestList-M68K_RAM),a0
 	rts
 
-UpdateScoutingDisplay	;called every frame by ScoutingReport. When ScoutingReportTimer runs out (at once if asv
+UpdateScoutingDisplay				;called every frame by ScoutingReport. When ScoutingReportTimer runs out (at once if asv
 	;is set), print the next word of ScoutingReportText. '_' '{' '}' '[' ']' print a team or player name.
 	;PlayerScrollCtr = offset of the next word (negative: next paragraph), DispAttribCtr = column
 	cmpi.w	#$1000,(ScoutingReportTimer).w
@@ -4533,7 +4533,7 @@ UpdateScoutingDisplay	;called every frame by ScoutingReport. When ScoutingReport
 	subq.w	#1,d1					;less the pad byte
 	bra.w	.print
 
-ScrollDisplayUp	;next text line for UpdateScoutingDisplay (column 0). After line 7, move the text box up
+ScrollDisplayUp						;next text line for UpdateScoutingDisplay (column 0). After line 7, move the text box up
 	;one row (DoDMA_nd2 copies 8 rows of $3A from VmMap1+$212, rows $80 apart) and stay on the last line
 	clr.w	(DispAttribCtr).w
 	addq.w	#1,(VertLineScrolling).w
@@ -4611,7 +4611,7 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 .ex	move	#$2700,sr				;interrupts off again before returning
 	rts
 
-UpdateStanleyCupAnimation	;one StanleyMap sprite at each StanleyCupPosTable spot, frame 1 + asv (0-7), then
+UpdateStanleyCupAnimation			;one StanleyMap sprite at each StanleyCupPosTable spot, frame 1 + asv (0-7), then
 	;close the sprite list. Called from SetupStanleyCupCelebrationScreen
 	movea.w	#(Satt-M68K_RAM),a6
 	moveq	#1,d6					;link counter
@@ -4633,7 +4633,7 @@ UpdateStanleyCupAnimation	;one StanleyMap sprite at each StanleyCupPosTable spot
 	bpl.s	.top
 	bra.w	EndSpriteList
 
-VBlank_StanleyCup	;vbint handler for the Stanley Cup screen: sprite table dma, cramfade, vcount
+VBlank_StanleyCup					;vbint handler for the Stanley Cup screen: sprite table dma, cramfade, vcount
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
 	bne.w	.x
@@ -4648,7 +4648,7 @@ VBlank_StanleyCup	;vbint handler for the Stanley Cup screen: sprite table dma, c
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
 
-StanleyCupPosTable	;column, row of the five Stanley Cup bitmaps and sprites. -1 ends
+StanleyCupPosTable					;column, row of the five Stanley Cup bitmaps and sprites. -1 ends
 	dc.w	3,1
 	dc.w	$1C,1
 	dc.w	$10,9
@@ -4656,7 +4656,7 @@ StanleyCupPosTable	;column, row of the five Stanley Cup bitmaps and sprites. -1 
 	dc.w	$1C,$12
 	dc.w	-1
 
-TitleScreen	;bring up title screen and credits. Called from PeriodOver.
+TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	;Titlemap backdrop, three Title3map sprites, Titlemap2 logo sprites, scrolling credits. Start leaves
 	move.w	#SngTitle,-(sp)			;song $35 (92 used 1)
 	bsr.w	song
@@ -4797,7 +4797,7 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 	bpl.s	.top2
 	rts
 
-.top4	;erase 6 rows below the scroll and print a1 strings centered, to -1
+.top4								;erase 6 rows below the scroll and print a1 strings centered, to -1
 	move.w	(Vscroll).w,d0
 	asr.w	#3,d0
 	addi.w	#$1C,d0
@@ -4822,7 +4822,7 @@ TitleScreen	;bring up title screen and credits. Called from PeriodOver.
 	bpl.s	.top4x
 	rts
 
-TitleAnimCallback	;CallAnimationCallback routine for the title screen (from TitleScreen_wait).
+TitleAnimCallback					;CallAnimationCallback routine for the title screen (from TitleScreen_wait).
 	;Three Title3map sprites: a running fofdata2 timer shows the sprite and counts down; a stopped one
 	;restarts at 20 when Hscroll + $1EC - TitleScrollTriggers entry is within 0-20 (mod $400)
 	movea.l	#Title3Sprites,a0
@@ -4854,15 +4854,15 @@ TitleAnimCallback	;CallAnimationCallback routine for the title screen (from Titl
 	dbf	d7,.top
 	rts
 
-TitleScrollTriggers	;Hscroll trigger points for the three TitleAnimCallback sprites
+TitleScrollTriggers					;Hscroll trigger points for the three TitleAnimCallback sprites
 	dc.w	$B2,$DA,$6C
-TitlePalettes	;four 16 color palettes for TitlePalBuffer, one picked at random by TitleScreen
+TitlePalettes						;four 16 color palettes for TitlePalBuffer, one picked at random by TitleScreen
 	dc.w	$EEA,$EEE,$CCC,$AAA,$888,$666,$444,$222,0,$66A,$46A,$446,$4A4,$484,$262,$40
 	dc.w	$EEA,$EEE,$CCC,$AAA,$888,$666,$444,$222,0,$66A,$46A,$446,$E44,$A44,$822,$400
 	dc.w	$EEA,$EEE,$CCC,$AAA,$888,$666,$444,$222,0,$66A,$46A,$446,$44A,$228,6,4
 	dc.w	$EEA,$EEE,$CCC,$AAA,$888,$666,$444,$222,0,$66A,$46A,$446,$AE,$8C,$6A,$48
 
-UpdateHorizontalScroll	;title screen line scroll, called each vblank from VBlank_TitleScreen.
+UpdateHorizontalScroll				;title screen line scroll, called each vblank from VBlank_TitleScreen.
 	;The top $AF lines scroll plane B by Hscroll, the last $31 lines and plane A stay at 0. Hscroll moves by
 	;(asv += DispAttribCtr) >> 8; beyond +-8 the direction flips, else about 1 in 40 frames picks a new speed (-$32 to $32)
 	move.w	#$DF,d0					;224 lines
@@ -4890,7 +4890,7 @@ UpdateHorizontalScroll	;title screen line scroll, called each vblank from VBlank
 .rev	neg.w	(DispAttribCtr).w	;flip the scroll direction
 .x	rts								;return
 
-TitleScreen_wait	;wait for vblank, run TitleAnimCallback through CallAnimationCallback.wait
+TitleScreen_wait					;wait for vblank, run TitleAnimCallback through CallAnimationCallback.wait
 	;if start is pressed, return to TitleScreen's caller (pops the return address). Called from TitleScreen
 	movem.l	d0-d7/a0-a6,-(sp)
 	move.w	(vcount).w,d0
@@ -4905,7 +4905,7 @@ TitleScreen_wait	;wait for vblank, run TitleAnimCallback through CallAnimationCa
 	addq.w	#4,sp					;start: leave TitleScreen
 	rts
 
-VBlank_TitleScreen	;vbint handler for the title screen: line scroll and sprite table dma, Vscroll, cramfade
+VBlank_TitleScreen					;vbint handler for the title screen: line scroll and sprite table dma, Vscroll, cramfade
 	;vcount, UpdateHorizontalScroll and the music driver
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
@@ -4930,13 +4930,13 @@ VBlank_TitleScreen	;vbint handler for the title screen: line scroll and sprite t
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
 
-CallAnimationCallback	;build a sprite list with routine a0 (a6 = Satt, d6 = link counter), add the logo
+CallAnimationCallback				;build a sprite list with routine a0 (a6 = Satt, d6 = link counter), add the logo
 	;sprites, then close the list. Called from PlayoffScreen and TitleScreen_wait
 	movea.w	#(Satt-M68K_RAM),a6
 	moveq	#1,d6					;link counter
 	jsr	(a0)
 	bsr.w	AddTitleLogoSprites
-EndSpriteList	;end of the sprite list build: close the sprite list at a6 and set Sattsize (in words).
+EndSpriteList						;end of the sprite list build: close the sprite list at a6 and set Sattsize (in words).
 	;Branched to from UpdateStanleyCupAnimation
 	cmpa.w	#(Satt-M68K_RAM),a6
 	bne.w	.n
@@ -4949,7 +4949,7 @@ EndSpriteList	;end of the sprite list build: close the sprite list at a6 and set
 	move.w	d0,(Sattsize).w
 	rts
 
-AddTitleLogoSprites	;four Titlemap2 logo sprites at playoffspritex, playoffspritey. clampcounter counts down by 2
+AddTitleLogoSprites					;four Titlemap2 logo sprites at playoffspritex, playoffspritey. clampcounter counts down by 2
 	;and the pieces drop into place from above, each 64 later than the next. Called from CallAnimationCallback
 	subq.w	#2,(clampcounter).w
 	bpl.w	.0
@@ -4971,7 +4971,7 @@ AddTitleLogoSprites	;four Titlemap2 logo sprites at playoffspritex, playoffsprit
 	dbf	d7,.top
 	rts
 
-CheckSound	;sound test, no caller found. Runs only with start+a+c held on pad 1.
+CheckSound							;sound test, no caller found. Runs only with start+a+c held on pad 1.
 	;Prints "Check Sound"; right/left change the number, c plays it with sfx, start leaves
 	bsr.w	Readjoy1
 	cmp.b	#$E0,d3					;held: sbut, abut, cbut
@@ -5022,7 +5022,7 @@ CheckSound	;sound test, no caller found. Runs only with start+a+c held on pad 1.
 ;	Maps here: map 1 = VmMap1 ($E000), map 2 = VmMap2 ($C000).
 ;	DecompressGraphicsWithCallback is followed by its 8 byte remap table.
 
-setoptions	;options screen display and input. Called from PeriodOver.
+setoptions							;options screen display and input. Called from PeriodOver.
 	;6 minute demo timeout polling both pads, animated roster players in the team blocks
 	;random teams after a demo, ends with bra maketree
 	move	#$2500,sr				;(92 Rev A order)
@@ -5164,7 +5164,7 @@ setoptions	;options screen display and input. Called from PeriodOver.
 	bsr.w	.ps						;print screen
 	bra.w	.top
 
-.IncItem	;add d2 to current item d7 (d2 = 0: just limit it)
+.IncItem							;add d2 to current item d7 (d2 = 0: just limit it)
 	movea.w	#(OptPlayMode-M68K_RAM),a2
 	movea.l	#.pslim,a3
 	clr.w	d5						;low limit
@@ -5204,7 +5204,7 @@ setoptions	;options screen display and input. Called from PeriodOver.
 	beq.w	NewPO
 	rts
 
-.iilimit	;d3 + d2, wrapped into d5 ... d4-1
+.iilimit							;d3 + d2, wrapped into d5 ... d4-1
 	add.w	d2,d3
 	cmp.w	d5,d3
 	bge.w	.iil1
@@ -5215,7 +5215,7 @@ setoptions	;options screen display and input. Called from PeriodOver.
 	move.w	d5,d3
 	rts
 
-.ps	;print choices and show team icons/colors
+.ps									;print choices and show team icons/colors
 	move.w	d7,d6
 	moveq	#-2,d7
 .pstop	addq.w	#2,d7				;next menu line (word index)
@@ -5227,7 +5227,7 @@ setoptions	;options screen display and input. Called from PeriodOver.
 	move.w	d6,d7
 	bra.w	TeamIcons
 
-.psd	;print the choice for menu line d7
+.psd								;print the choice for menu line d7
 	bsr.w	printz
 	String	$BE,$11,$D				;map 2 + priority (92 -$01,16,11)
 	add.w	d7,(printy).w			;row $D + d7 (2 rows per item)
@@ -5259,7 +5259,7 @@ setoptions	;options screen display and input. Called from PeriodOver.
 	adda.w	4(a1),a1
 	bra.w	print
 
-.nms	;next menu by d0
+.nms								;next menu by d0
 	move.w	d7,d3
 .nms0	add.w	d0,d7				;step the line by d0, clamped to 0 ... $C
 	bpl.w	.nms1
@@ -5284,7 +5284,7 @@ setoptions	;options screen display and input. Called from PeriodOver.
 	bsr.w	.setrect
 	bra.w	Framer
 
-.setrect	;set rectangle cords for framing line d3
+.setrect							;set rectangle cords for framing line d3
 	bsr.w	printz
 	String	$FF,$10,$C				;map 1
 	add.w	d3,(printy).w			;(/ cmp.b hid this and the moveq)
@@ -5324,8 +5324,8 @@ setoptions	;options screen display and input. Called from PeriodOver.
 	String	'Two - Head to Head'
 	String	'Two - Teammates'
 	String	'One'
-.pl2	;team 1 line (name comes from the team table, shares the next list)
-.pl3	;team 2 line (same)
+.pl2								;team 1 line (name comes from the team table, shares the next list)
+.pl3								;team 2 line (same)
 .pl4	String	'5 Minutes'			;period length
 	String	'10 Minutes'
 	String	'20 Minutes'
@@ -5337,7 +5337,7 @@ setoptions	;options screen display and input. Called from PeriodOver.
 .pl6	String	'On'				;line changes
 	String	'Off'
 
-.text	;static text
+.text								;static text
 	String	$FE,3,$D,'Play Mode'	;(92 -$01,2,11)
 	String	$FE,3,$F,'Players'
 	String	$FE,3,$11,'Team 1'
@@ -5347,7 +5347,7 @@ setoptions	;options screen display and input. Called from PeriodOver.
 	String	$FE,3,$19,'Line Changes'
 	dc.w	4,0						;empty string
 
-UpdatePlayoffLevel	;in new playoffs set playoffroundoffset = 7 - playofflevel. Called from setoptions .ex
+UpdatePlayoffLevel					;in new playoffs set playoffroundoffset = 7 - playofflevel. Called from setoptions .ex
 	cmpi.w	#2,(OptPlayMode).w
 	blt.w	rtss
 	moveq	#7,d0
@@ -5355,7 +5355,7 @@ UpdatePlayoffLevel	;in new playoffs set playoffroundoffset = 7 - playofflevel. C
 	move.w	d0,(pojoy).w
 	rts
 
-TeamIcons	;draw team name bars and set colors. Branched to from setoptions.ps.
+TeamIcons							;draw team name bars and set colors. Branched to from setoptions.ps.
 	;no continue playoffs exit and no setplayercolors (SetupNextPlayer loads the palettes)
 	movem.l	d0-d7/a0-a2,-(sp)
 	tst.w	(OptPlayMode).w
@@ -5375,7 +5375,7 @@ TeamIcons	;draw team name bars and set colors. Branched to from setoptions.ps.
 	movem.l	(sp)+,d0-d7/a0-a2
 	rts
 
-dotb	;draw team name bar d1 = team number at printx/printy. Called from TeamIcons and
+dotb								;draw team name bar d1 = team number at printx/printy. Called from TeamIcons and
 	;ScoutingReport
 	clr.w	d0
 	asl.w	#1,d1
@@ -5390,14 +5390,14 @@ dotb	;draw team name bar d1 = team number at printx/printy. Called from TeamIcon
 	moveq	#2,d5					;color fam 2
 	bra.w	dobitmap
 
-ClearRosterName	;erase the 12 x 2 player name area of team a2. Called from SlideOutRosterPlayer
+ClearRosterName						;erase the 12 x 2 player name area of team a2. Called from SlideOutRosterPlayer
 	bsr.w	setoptions_printpos2
 	moveq	#$C,d0
 	moveq	#2,d1
 	move.w	#$7FF,d2
 	bra.w	eraser
 
-setoptions_printpos2	;set the print position of team a2's player name: x 2 (visitor) or x $1A (home), y $A
+setoptions_printpos2				;set the print position of team a2's player name: x 2 (visitor) or x $1A (home), y $A
 	;map 1 + priority. Called from ClearRosterName and UpdateRosterPlayer
 	bsr.w	printz
 	String	$BF,2,$A
@@ -5406,7 +5406,7 @@ setoptions_printpos2	;set the print position of team a2's player name: x 2 (visi
 	move.w	#$1A,(printx).w			;home team on the right
 	rts
 
-PickStartingGoalie	;pick the goalie shown for team a2 when it changes: $26(a2) =
+PickStartingGoalie					;pick the goalie shown for team a2 when it changes: $26(a2) =
 	;weighted random roster index from the 4 nibbles at team data +$A offset (UnpackNibbles / WeightedRandomSelect).
 	;$26 stays 0 when a pad controls the team, gamelevel > 2 or OptLine is set. Called from UpdateRosterPlayer
 	movem.l	d0/a0,-(sp)
@@ -5437,7 +5437,7 @@ PickStartingGoalie	;pick the goalie shown for team a2 when it changes: $26(a2) =
 .x	movem.l	(sp)+,d0/a0				;restore registers
 	rts
 
-UpdateRosterPlayers	;run the roster player in both team blocks and build their sprite list.
+UpdateRosterPlayers					;run the roster player in both team blocks and build their sprite list.
 	;Called once per frame from setoptions .wait
 	movem.l	d0-d7/a0-a6,-(sp)
 	moveq	#1,d7
@@ -5449,7 +5449,7 @@ UpdateRosterPlayers	;run the roster player in both team blocks and build their s
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts
 
-UpdateRosterPlayer	;roster player of team a2 (sprite struct a3 = $22(a2), tmsort). When the team ($28, set
+UpdateRosterPlayer					;roster player of team a2 (sprite struct a3 = $22(a2), tmsort). When the team ($28, set
 	;by setteams) differs from the one shown ((a2)), start over. Bit 2 of $30(a2) set: slide the player out 3 per
 	;frame, then SetupNextPlayer. Else slide in 1 per frame, run updateanim, and when the animation is done step
 	;the RosterAnimScripts script (8(a2) = script, $A(a2) = offset). A negative time also prints the
@@ -5538,13 +5538,13 @@ UpdateRosterPlayer	;roster player of team a2 (sprite struct a3 = $22(a2), tmsort
 	addq.w	#1,(printy).w
 	bra.w	print					;line 2 = last name
 
-SlideOutRosterPlayer	;erase the name of team a2 and set bit 2 of $30(a2) (slide the player out).
+SlideOutRosterPlayer				;erase the name of team a2 and set bit 2 of $30(a2) (slide the player out).
 	;Called and branched to from UpdateRosterPlayer
 	bsr.w	ClearRosterName
 	bset	#tmfslide,tmflags(a2)
 	rts
 
-SetupNextPlayer	;player of team a2 slid out. Load the team palette (setplayercolors.sp), put the
+SetupNextPlayer						;player of team a2 slid out. Load the team palette (setplayercolors.sp), put the
 	;sprite at x offset -40, take the next RosterOrderTable slot (goalie slot: $26(a2)), set the sprite flag from
 	;the player data and pick his animation script from the ratings. Branched to from UpdateRosterPlayer
 	movea.l	tmdata(a2),a0
@@ -5602,7 +5602,7 @@ SetupNextPlayer	;player of team a2 slid out. Load the team palette (setplayercol
 	clr.w	$A(a2)					;start of the script
 	rts
 
-PickRosterAnim	;rating d1 against the next (minimum, script) pair at a1. If d1 >= minimum and
+PickRosterAnim						;rating d1 against the next (minimum, script) pair at a1. If d1 >= minimum and
 	;>= best d2 (and the minimum is not 0 once d2 is set), d2 = d1 and 8(a2) = script. Called from SetupNextPlayer
 	addq.w	#2,a1
 	cmp.b	-2(a1),d1
@@ -5618,7 +5618,7 @@ PickRosterAnim	;rating d1 against the next (minimum, script) pair at a1. If d1 >
 	move.b	-1(a1),9(a2)
 	rts
 
-GetRosterEntry	;a0 = roster entry d0 of team a2 (name string, then 8 bytes: number and ratings).
+GetRosterEntry						;a0 = roster entry d0 of team a2 (name string, then 8 bytes: number and ratings).
 	;Called from UpdateRosterPlayer and SetupNextPlayer
 	movea.l	tmdata(a2),a0
 	adda.w	(a0),a0					;player data
@@ -5628,11 +5628,11 @@ GetRosterEntry	;a0 = roster entry d0 of team a2 (name string, then 8 bytes: numb
 .cnt	dbf	d0,.next				;d0 entries to skip
 	rts
 
-SkaterRosterAnims	;skater (minimum rating, animation script) per rating nibble, used by SetupNextPlayer
+SkaterRosterAnims					;skater (minimum rating, animation script) per rating nibble, used by SetupNextPlayer
 	dc.b	0,1,$B,2,0,1,0,1,$B,6,$B,3,0,1,$B,7,$B,4,0,1,0,1,0,1,0,1,0,1
-GoalieRosterAnims	;goalie (minimum rating, animation script) per rating nibble
+GoalieRosterAnims					;goalie (minimum rating, animation script) per rating nibble
 	dc.b	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,$B,5,$B,5
-RosterAnimScripts	;roster player animation scripts 0-7 (offsets), each (SetSPA animation, time) pairs ending in 0.
+RosterAnimScripts					;roster player animation scripts 0-7 (offsets), each (SetSPA animation, time) pairs ending in 0.
 	;A negative time also prints the name. Used by UpdateRosterPlayer
 	dc.w	.s0-RosterAnimScripts,.s1-RosterAnimScripts,.s2-RosterAnimScripts
 	dc.w	.s3-RosterAnimScripts,.s4-RosterAnimScripts,.s5-RosterAnimScripts
@@ -5645,10 +5645,10 @@ RosterAnimScripts	;roster player animation scripts 0-7 (offsets), each (SetSPA a
 .s4	dc.w	SPAskatewp,3,SPAskatewp,3,SPAstumble,-3,SPAshotf,3,SPAglide,3,SPAglide,3,0	;skater stumble, shot
 .s6	dc.w	SPAskate,4,SPAskate,5,SPAsweepchk,-5,SPAsweepchk,5,SPAskate,5,SPAsweepchk,5,SPAglide,5,SPAglide,5,0	;skater sweep check
 .s7	dc.w	SPAskate,3,SPAskate,2,SPAfight,-2,SPAfhigh,2,SPAflow,2,SPAfhigh,2,SPAflow,2,0	;skater fight
-RosterOrderTable	;line data slots shown in turn: C, RW, LW, G, RD, LD of line 1, then lines 2 and 3; $FF ends
+RosterOrderTable					;line data slots shown in turn: C, RW, LW, G, RD, LD of line 1, then lines 2 and 3; $FF ends
 	dc.b	4,5,3,0,2,1,$C,$D,$B,$A,9,$14,$15,$13,$12,$11,$FF,0
 
-UpdateTeamSprites	;sprite list for the two roster players. a5 = DMAList, a6 = Satt.
+UpdateTeamSprites					;sprite list for the two roster players. a5 = DMAList, a6 = Satt.
 	;Sets dfok for VBlank_SetOptions. Called from UpdateRosterPlayers
 	movea.w	#(DMAList-M68K_RAM),a5
 	movea.w	#(Satt-M68K_RAM),a6
@@ -5670,7 +5670,7 @@ UpdateTeamSprites	;sprite list for the two roster players. a5 = DMAList, a6 = Sa
 	bset	#dfok,(disflags).w
 	rts
 
-AddTeamSpriteFrame	;add player a3 (x = (a3) + $1C offset, y = $14) and a GameSetupMap frame 1 sprite at
+AddTeamSpriteFrame					;add player a3 (x = (a3) + $1C offset, y = $14) and a GameSetupMap frame 1 sprite at
 	;y $80, x $80 + ($24/2 mod 48), +$C0 when $62(a3) bit 6 is clear. Called from UpdateTeamSprites
 	move.w	(a3),d0
 	add.w	$1C(a3),d0
@@ -5691,7 +5691,7 @@ AddTeamSpriteFrame	;add player a3 (x = (a3) + $1C offset, y = $14) and a GameSet
 	move.w	(crowdvrcset).w,d3
 	bra.w	SetSframe
 
-VBlank_SetOptions	;vbint handler stored by setoptions: cramfade unless dfng, plus
+VBlank_SetOptions					;vbint handler stored by setoptions: cramfade unless dfng, plus
 	;DumpSprites2 when dfok is set
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
@@ -5719,7 +5719,7 @@ VBlank_SetOptions	;vbint handler stored by setoptions: cramfade unless dfng, plu
 ;	playoffroundoffset reuses the old playoff joystick word; playofflevel
 ;	reuses the old number-of-players option slot.
 
-DefaultMenus	;set default menu choices for beginning of game. Called once from Begin (jsr abs.l).
+DefaultMenus						;set default menu choices for beginning of game. Called once from Begin (jsr abs.l).
 	st	(demoflag).w				;no demo has run yet
 	movea.l	#OptPlayMode,a0
 	movea.l	#.defom,a1
@@ -5730,7 +5730,7 @@ DefaultMenus	;set default menu choices for beginning of game. Called once from B
 .defom	dc.w	0,1,$F,3,1,0,1		;play mode, players, team 1, team 2, period length
 					;penalties, line changes (92 0,1,14,8,1,0,1)
 
-ContinuePlayoffs	;continue playoffs: read the playoff state back from the password bits, rebuild the tree.
+ContinuePlayoffs					;continue playoffs: read the playoff state back from the password bits, rebuild the tree.
 	;Called from setoptions when play mode becomes "continue playoffs".
 	movem.l	d0-d7/a0-a3,-(sp)
 	movea.w	#(pwddatabuffer-M68K_RAM),a3	;password bits
@@ -5745,7 +5745,7 @@ ContinuePlayoffs	;continue playoffs: read the playoff state back from the passwo
 .ex	movem.l	(sp)+,d0-d7/a0-a3		;restore registers
 	rts
 
-NewPO	;new playoff generates tree with same team 1.
+NewPO								;new playoff generates tree with same team 1.
 	;Called from setoptions for "new playoffs". Falls into maketree.
 	moveq	#$20,d0					;32 trees
 	bsr.w	randomd0
@@ -5779,7 +5779,7 @@ NewPO	;new playoff generates tree with same team 1.
 	dbf	d0,.cg
 ;	falls into maketree
 
-maketree	;make playoff tree from playoffseats/winbits.
+maketree							;make playoff tree from playoffseats/winbits.
 	;Called from setoptions (bra), NewPO, EncodePW; falls in from SelectRandomPlayoffTree.
 	movem.l	d0-d4/a0-a3,-(sp)
 	move.w	(postarts).w,d1
@@ -5834,7 +5834,7 @@ maketree	;make playoff tree from playoffseats/winbits.
 	move.b	(a0)+,gst2+1(a1)
 	rts
 
-FigureJoy	;set cont1team/cont2team appropriately. Called from maketree and UpdateTeamNameisplay.
+FigureJoy							;set cont1team/cont2team appropriately. Called from maketree and UpdateTeamNameisplay.
 	;after a demo (demoflag clear) fills gstruct with random matchups (InitializeGameStructures)
 	movem.l	d0-d3/a0-a1,-(sp)
 	clr.w	(cont1team).w
@@ -5897,14 +5897,14 @@ FigureJoy	;set cont1team/cont2team appropriately. Called from maketree and Updat
 .ex	movem.l	(sp)+,d0-d3/a0-a1		;restore registers
 	rts
 
-.noplist	;cont1team, cont2team per OptNOP 0-4
+.noplist							;cont1team, cont2team per OptNOP 0-4
 	dc.w	0,0
 	dc.w	1,0
 	dc.w	2,0
 	dc.w	1,1
 	dc.w	1,2
 
-InitializeGameStructures	;random team pairs for all 8 gstruct games, none of them
+InitializeGameStructures			;random team pairs for all 8 gstruct games, none of them
 	;HomeTeam or VisTeam. Called from FigureJoy (also after the regular season pad set-up).
 	st	(gamenum).w
 	clr.l	d3						;d3 = used team bits
@@ -5922,14 +5922,14 @@ InitializeGameStructures	;random team pairs for all 8 gstruct games, none of the
 	dbf	d2,.loop
 	rts
 
-GetRandomUnusedTeam	;return d0 = random team 0-23 not yet set in d3, and set its bit.
+GetRandomUnusedTeam					;return d0 = random team 0-23 not yet set in d3, and set its bit.
 	moveq	#$18,d0					;24 teams
 	bsr.w	randomd0
 	bset	d0,d3
 	bne.s	GetRandomUnusedTeam		;already used, pick again
 	rts
 
-ReadPassBits	;translate the password bits at a3 (5 words) to the playoff variables.
+ReadPassBits						;translate the password bits at a3 (5 words) to the playoff variables.
 	;Called from NewPO and EncodePW. a3 = bits buffer, kept: the 5 words are saved and restored.
 	;no password checksum (92 checked one)
 	moveq	#4,d0
@@ -5983,7 +5983,7 @@ ReadPassBits	;translate the password bits at a3 (5 words) to the playoff variabl
 	dbf	d0,.restore
 	rts
 
-EncodePW	;after playoff game compute winners and password if needed. Called from GameOver.
+EncodePW							;after playoff game compute winners and password if needed. Called from GameOver.
 	tst.w	(OptPlayMode).w
 	beq.w	rtss					;regular season
 	move.w	#1,(OptPlayMode).w		;continue season
@@ -6012,7 +6012,7 @@ EncodePW	;after playoff game compute winners and password if needed. Called from
 	move.w	#3,(OptPlayMode).w		;new playoffs best of 7
 	rts
 
-WritePassBits	;transfer game variables to the password bits at a3., without the checksum.
+WritePassBits						;transfer game variables to the password bits at a3., without the checksum.
 	;Called from EncodePW and ResolveGames.
 	bsr.w	ClrPassBits
 	move.w	(postarts).w,d0
@@ -6050,7 +6050,7 @@ WritePassBits	;transfer game variables to the password bits at a3., without the 
 	dbf	d2,.0
 	rts
 
-PushBits	;bits = bits * d1 + d0.
+PushBits							;bits = bits * d1 + d0.
 	;d1=range	2^1-2^15
 	;d0=data
 	movem.l	d0-d1,-(sp)
@@ -6062,14 +6062,14 @@ PushBits	;bits = bits * d1 + d0.
 	movem.l	(sp)+,d0-d1
 	rts
 
-ClrPassBits	;clr the 5 words of bits at a3
+ClrPassBits							;clr the 5 words of bits at a3
 	movea.w	a3,a0
 	moveq	#4,d0
 .0	clr.w	(a0)+					;5 words
 	dbf	d0,.0
 	rts
 
-SuperAdd	;1 long (d0.L) added to the 5 words at a3.
+SuperAdd							;1 long (d0.L) added to the 5 words at a3.
 	movem.l	d1/a0,-(sp)
 	lea	$A(a3),a0
 	moveq	#3,d1
@@ -6080,7 +6080,7 @@ SuperAdd	;1 long (d0.L) added to the 5 words at a3.
 	movem.l	(sp)+,d1/a0
 	rts
 
-SuperMult	;1 word (d0) multiplied by the 5 words at a3.
+SuperMult							;1 word (d0) multiplied by the 5 words at a3.
 	movem.l	d1-d4/a0,-(sp)
 	movea.w	a3,a0
 	moveq	#4,d4
@@ -6102,7 +6102,7 @@ SuperMult	;1 word (d0) multiplied by the 5 words at a3.
 	movem.l	(sp)+,d1-d4/a0
 	rts
 
-SuperDiv	;5 words at a3 divided by 1 word (d0).
+SuperDiv							;5 words at a3 divided by 1 word (d0).
 	;d0 = remainder on exit
 	movem.l	d1-d2/a0,-(sp)
 	movea.w	a3,a0
@@ -6117,7 +6117,7 @@ SuperDiv	;5 words at a3 divided by 1 word (d0).
 	movem.l	(sp)+,d1-d2/a0
 	rts
 
-GetShifter	;returns:
+GetShifter							;returns:
 	;d1 = number of games-1
 	;d2 = first bit of WinBits
 	;Called from maketree, FigureJoy, ResolveGames, and the stats, intermission and penalty screens.
@@ -6132,7 +6132,7 @@ GetShifter	;returns:
 	move.l	(sp)+,d0
 	rts
 
-AddPlayoffTeamStats	;Adds the po team's game stats to its packed playoff
+AddPlayoffTeamStats					;Adds the po team's game stats to its packed playoff
 	;totals. Called from PeriodOver at the end of a playoff game. Unpacks the totals
 	;(ReadTeamStats), adds the $68 stat bytes at team struct+$B4, then packs each total back into the
 	;bit stream below $CB68, clamped to its BitWidthTable width (8, 10, 6, 6 bits, by d0 & 3).
@@ -6184,11 +6184,11 @@ AddPlayoffTeamStats	;Adds the po team's game stats to its packed playoff
 	dbf	d0,.loop
 	rts
 
-BitWidthTable	;playoff stat bit widths, indexed by stat number & 3.
+BitWidthTable						;playoff stat bit widths, indexed by stat number & 3.
 	;Used by AddPlayoffTeamStats and ReadTeamStats.
 	dc.b	8,$A,6,6
 
-ReadTeamStats	;Unpack the $68 playoff stat totals from the bit stream below $CB68
+ReadTeamStats						;Unpack the $68 playoff stat totals from the bit stream below $CB68
 	;into statsbuffer words. Called from AddPlayoffTeamStats and PlayoffStatsScreen.
 	movea.w	#(statsbuffer-M68K_RAM),a0
 	movea.l	#BitWidthTable,a1
@@ -6231,7 +6231,7 @@ ReadTeamStats	;Unpack the $68 playoff stat totals from the bit stream below $CB6
 ;	scored, byte 3 scorer, bytes 4 and 5 assists (negative: none).
 ;	ChkCnt + ScoreSumbytes is the last entry.
 
-ResolveGames	;compute winners and losers for playoff matchups. Called from EncodePW
+ResolveGames						;compute winners and losers for playoff matchups. Called from EncodePW
 	move.w	(gamenum).w,d0
 	mulu.w	#gssize,d0
 	movea.w	#(gstruct-M68K_RAM),a0
@@ -6340,7 +6340,7 @@ ResolveGames	;compute winners and losers for playoff matchups. Called from Encod
 	addq.w	#1,(gamelevel).w
 	rts
 
-ShowThreeStars	;end of game "Stars of the Game" box. Called from UpdatePA while RefPen is
+ShowThreeStars						;end of game "Stars of the Game" box. Called from UpdatePA while RefPen is
 	;the game over penalty. Waits for RefCnt <= $40 and runs once (gmode bit 7). Frames the box, draws a bitmap
 	;from IceRinkMap, then the three best star scores (TakeTopStarScore): team data string and getname.
 	;Song $F when the home team won.
@@ -6388,7 +6388,7 @@ ShowThreeStars	;end of game "Stars of the Game" box. Called from UpdatePA while 
 .nosong	movem.l	(sp)+,d0-d5/a0-a4	;restore registers
 	rts
 
-TakeTopStarScore	;take the highest of the 52 star scores at DispAttribCtr (26 per team, home first)
+TakeTopStarScore					;take the highest of the 52 star scores at DispAttribCtr (26 per team, home first)
 	;and clear it. Returns d0 = player slot, a2 = its team struct. Called from ShowThreeStars
 	movem.l	d1-d2/a1/a4,-(sp)
 	movea.w	#(DispAttribCtr-M68K_RAM),a4
@@ -6411,7 +6411,7 @@ TakeTopStarScore	;take the highest of the 52 star scores at DispAttribCtr (26 pe
 .home	movem.l	(sp)+,d1-d2/a1/a4	;restore registers
 	rts
 
-CalcStarScores	;star score for every roster slot of both teams to DispAttribCtr (26 longs per
+CalcStarScores						;star score for every roster slot of both teams to DispAttribCtr (26 longs per
 	;team, home first). d5 = GetPeriodTime + d2, the goalie ice time needed. If gsp is 3 and the score is
 	;not tied, the scorer of the last goal gets $7FFFFFFF. Called from ShowThreeStars
 	movea.w	#(DispAttribCtr-M68K_RAM),a4
@@ -6440,7 +6440,7 @@ CalcStarScores	;star score for every roster slot of both teams to DispAttribCtr 
 	move.l	#$7FFFFFFF,0(a0,d0.w)	;game winner is the first star
 .x	rts								;return
 
-CalcTeamStarScores	;star scores of team a2 (a3 = other team) to (a4)+, one long per roster
+CalcTeamStarScores					;star scores of team a2 (a3 = other team) to (a4)+, one long per roster
 	;slot (26). Each starts at the goal difference. Skaters: goals*11000 + assists*10100 + shots*10, or in a
 	;tied game shots*1000 + frames on ice. Goalies (the first slots) on ice at least d5 with shots against:
 	;+32000 if goals against*100/shots <= 4, +75000 more for a shutout. Called from CalcStarScores
@@ -6495,7 +6495,7 @@ CalcTeamStarScores	;star scores of team a2 (a3 = other team) to (a4)+, one long 
 	dbf	d4,.loop
 	rts
 
-ShowInjuryBox	;injury box "Injury to:" player TempPlOffset (set by setInjuryType)
+ShowInjuryBox						;injury box "Injury to:" player TempPlOffset (set by setInjuryType)
 	;"Out for period", or "the game" when puckx+pflags2 bit pf2fight is set. Jumped to (jmp abs.l) from
 	;CheckInjury when InjCntDown runs out, so global
 	movem.l	d0-d2/a0-a4,-(sp)
@@ -6515,7 +6515,7 @@ ShowInjuryBox	;injury box "Injury to:" player TempPlOffset (set by setInjuryType
 .ex	movem.l	(sp)+,d0-d2/a0-a4		;restore registers
 	rts
 
-ShowGoalBox	;goal box. Closes both line change boxes, then printbig "GOAL!" (or "HAT
+ShowGoalBox							;goal box. Closes both line change boxes, then printbig "GOAL!" (or "HAT
 	;TRICK!" on the scorer's third goal), the scorer and up to two assists of the last goal entry.
 	;Called from SetPA for the goal penalty number
 	movem.l	d0-d2/a0-a4,-(sp)
@@ -6569,11 +6569,11 @@ ShowGoalBox	;goal box. Closes both line change boxes, then printbig "GOAL!" (or 
 .ex	movem.l	(sp)+,d0-d2/a0-a4		;restore registers
 	rts
 
-GoalBoxText	;printbig strings for ShowGoalBox: GOAL!, then HAT TRICK!
+GoalBoxText							;printbig strings for ShowGoalBox: GOAL!, then HAT TRICK!
 	String	$BF,$F,3,'GOAL!',$BF,$C,5
 	String	$BF,$C,3,'HAT TRICK!',$BF,$C,5
 
-box	;fill a $13 x 8 rectangle at printz position $FF,$B,2 with char $7FF (eraser).
+box									;fill a $13 x 8 rectangle at printz position $FF,$B,2 with char $7FF (eraser).
 	;Called from SetLCmode2 and banner
 	bsr.w	printz
 	String	$FF,$B,2
@@ -6582,7 +6582,7 @@ box	;fill a $13 x 8 rectangle at printz position $FF,$B,2 with char $7FF (eraser
 	move.l	#$7FF,d2
 	bra.w	eraser
 
-GetPlayerName	;a1 = mesarea "NN First Last" (getname) for player TempPlOffset (bit 15 set: away
+GetPlayerName						;a1 = mesarea "NN First Last" (getname) for player TempPlOffset (bit 15 set: away
 	;team). Called from UpdatePA
 	movem.l	d0/a2,-(sp)
 	movea.w	#(tmstruct-M68K_RAM),a2
@@ -6594,7 +6594,7 @@ GetPlayerName	;a1 = mesarea "NN First Last" (getname) for player TempPlOffset (b
 	movem.l	(sp)+,d0/a2
 	rts
 
-getname	;a1 = mesarea string "NN First Last" for player d0 of team a2. The number is the bcd byte
+getname								;a1 = mesarea string "NN First Last" for player d0 of team a2. The number is the bcd byte
 	;after the name. Called from ShowThreeStars, GetPlayerName, banner and others
 	movem.l	d0-d3/a0/a2-a3,-(sp)
 	bsr.w	GetPlayerNamePointer
@@ -6613,7 +6613,7 @@ getname	;a1 = mesarea string "NN First Last" for player d0 of team a2. The numbe
 	movem.l	(sp)+,d0-d3/a0/a2-a3
 	rts
 
-GetPlayerNumInitial	;a1 = mesarea "NN F. Last" (FormatPlayerNumInitial) for player
+GetPlayerNumInitial					;a1 = mesarea "NN F. Last" (FormatPlayerNumInitial) for player
 	;TempPlOffset (bit 15 set: away team). Called from ShowInjuryBox
 	movem.l	d0/a2,-(sp)
 	movea.w	#(tmstruct-M68K_RAM),a2
@@ -6625,7 +6625,7 @@ GetPlayerNumInitial	;a1 = mesarea "NN F. Last" (FormatPlayerNumInitial) for play
 	movem.l	(sp)+,d0/a2
 	rts
 
-FormatPlayerNumInitial	;a1 = mesarea string "NN F. Last" for player d0 of team a2, built in
+FormatPlayerNumInitial				;a1 = mesarea string "NN F. Last" for player d0 of team a2, built in
 	;TextBuffer. Called from ShowGoalBox, GetPlayerNumInitial, PrintScorerName and others
 	movem.l	d0-d3/a0/a2,-(sp)
 	bsr.w	GetPlayerNamePointer
@@ -6649,7 +6649,7 @@ FormatPlayerNumInitial	;a1 = mesarea string "NN F. Last" for player d0 of team a
 	movem.l	(sp)+,d0-d3/a0/a2
 	rts
 
-FormatPlayerName	;a1 = mesarea string "NN Last" for player d0 of team a2, built in TextBuffer.
+FormatPlayerName					;a1 = mesarea string "NN Last" for player d0 of team a2, built in TextBuffer.
 	;Called from DrawStatsRow
 	movem.l	d0-d3/a0/a2,-(sp)
 	bsr.w	GetPlayerNamePointer
@@ -6671,7 +6671,7 @@ FormatPlayerName	;a1 = mesarea string "NN Last" for player d0 of team a2, built 
 	movem.l	(sp)+,d0-d3/a0/a2
 	rts
 
-FormatPlayerNameShort	;a1 = mesarea string " Last" for player d0 of team a2, space padded to 12
+FormatPlayerNameShort				;a1 = mesarea string " Last" for player d0 of team a2, space padded to 12
 	;characters; a 0 byte also ends the name. Called from DrawLineIcon
 	movem.l	d0-d3/a0/a2,-(sp)
 	bsr.w	GetPlayerNamePointer
@@ -6694,7 +6694,7 @@ FormatPlayerNameShort	;a1 = mesarea string " Last" for player d0 of team a2, spa
 	movem.l	(sp)+,d0-d3/a0/a2
 	rts
 
-FinalizeTextBuffer	;mesarea length word = a1 - mesarea, with a 0 pad byte when odd. Returns
+FinalizeTextBuffer					;mesarea length word = a1 - mesarea, with a 0 pad byte when odd. Returns
 	;a1 = mesarea. Called from the FormatPlayerName routines
 	move.w	a1,d0
 	subi.w	#(mesarea-M68K_RAM),d0
@@ -6706,7 +6706,7 @@ FinalizeTextBuffer	;mesarea length word = a1 - mesarea, with a 0 pad byte when o
 	move.w	d0,(a1)
 	rts
 
-GetPlayerNamePointer	;a0 = name string of player d0 on team a2. From tmdata and its first offset
+GetPlayerNamePointer				;a0 = name string of player d0 on team a2. From tmdata and its first offset
 	;each record is a length word string and 8 more bytes
 	movea.l	tmdata(a2),a0
 	adda.w	(a0),a0
@@ -6716,7 +6716,7 @@ GetPlayerNamePointer	;a0 = name string of player d0 on team a2. From tmdata and 
 .cnt	dbf	d0,.next				;d0 entries to skip
 	rts
 
-ConvertByteToDigits	;92 .dispen digit code. two ascii digits of bcd byte d0 to (a1)+, a leading 0 becomes a space.
+ConvertByteToDigits					;92 .dispen digit code. two ascii digits of bcd byte d0 to (a1)+, a leading 0 becomes a space.
 	;Called from getname, the FormatPlayerName routines, pplpen and others
 	move.w	d0,-(sp)
 	lsr.b	#4,d0
@@ -6730,7 +6730,7 @@ ConvertByteToDigits	;92 .dispen digit code. two ascii digits of bcd byte d0 to (
 	move.b	d0,(a1)+
 	rts
 
-AddError	;address error vector. The bus error vector also points here
+AddError							;address error vector. The bus error vector also points here
 	move.w	#$2700,sr
 	bsr.w	printbigz
 	String	$BD,0,0,'Address Error'	;92 -$43
@@ -6738,7 +6738,7 @@ AddError	;address error vector. The bus error vector also points here
 	move.l	2(sp),d1				;access address
 	bra.w	crash
 
-Illinst	;illegal instruction vector.
+Illinst								;illegal instruction vector.
 	move.w	#$2700,sr
 	bsr.w	printbigz
 	String	$BD,0,0,'Illegal Instruction'
@@ -6746,14 +6746,14 @@ Illinst	;illegal instruction vector.
 	move.l	d0,d1
 	bra.w	crash
 
-ZeroDiv	;divide by zero vector., falls into crash
+ZeroDiv								;divide by zero vector., falls into crash
 	move.w	#$2700,sr
 	bsr.w	printbigz
 	String	$BD,0,0,'Division by zero'
 	move.l	2(sp),d0				;and the next line in the string
 	move.l	d0,d1
 
-crash	;printbig d1 then d0 as hex, set the vdp up, load a palette and hang. Copies 8 longs
+crash								;printbig d1 then d0 as hex, set the vdp up, load a palette and hang. Copies 8 longs
 	;IceRinkMap+$20 to cram $20 (92 wrote one colour $0EEE to cram 6)
 	movea.w	#(mesarea-M68K_RAM),a0
 	move.w	#2+3+8+3+8,(a0)+

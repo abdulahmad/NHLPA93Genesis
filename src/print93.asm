@@ -7,7 +7,7 @@
 ;	Build note: EA's compiler emits cmp #imm,Dn as CMP (Bxxx) but SNASM emits CMPI (0Cxx). The source has the real
 ;	cmp / exg; fixopcodes.js patches the encoding after assembly.
 
-xyVmMap	;use printx/y/m to set vram address. Returns a0 = Vdata. Saves d0-d2 and calls Vmaddr
+xyVmMap								;use printx/y/m to set vram address. Returns a0 = Vdata. Saves d0-d2 and calls Vmaddr
 	movem.l	d0-d2,-(sp)
 	move.w	(printx).w,d0
 	move.w	(printy).w,d1
@@ -22,7 +22,7 @@ xyVmMap	;use printx/y/m to set vram address. Returns a0 = Vdata. Saves d0-d2 and
 	movem.l	(sp)+,d0-d2
 	rts
 
-eraser	;fill rectangle with char. d0/d1 = x/y size of rectangle, d2 = char word to fill with, printx/y/m define top left corner to start at
+eraser								;fill rectangle with char. d0/d1 = x/y size of rectangle, d2 = char word to fill with, printx/y/m define top left corner to start at
 	movem.l	d0-d2/a0,-(sp)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
@@ -41,7 +41,7 @@ eraser	;fill rectangle with char. d0/d1 = x/y size of rectangle, d2 = char word 
 	movem.l	(sp)+,d0-d2/a0
 	rts
 
-Framer	;frame and fill (uses framer.map graphics and assums tiles are already located at framercset). d0/d1 = x/y size of rectangle, printx/y/m define top left corner to start at
+Framer								;frame and fill (uses framer.map graphics and assums tiles are already located at framercset). d0/d1 = x/y size of rectangle, printx/y/m define top left corner to start at
 	movem.l	d0-d4/a0-a1,-(sp)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
@@ -84,7 +84,7 @@ Framer	;frame and fill (uses framer.map graphics and assums tiles are already lo
 	move.w	d3,(a0)
 	rts
 
-printsmallz	;92 printz. see printsmall. String macro should follow the bsr/jsr to this routine; a1 is kept
+printsmallz							;92 printz. see printsmall. String macro should follow the bsr/jsr to this routine; a1 is kept
 	move.l	a1,-(sp)
 	movea.l	4(sp),a1				;string after the call
 	bsr.w	printsmall
@@ -92,7 +92,7 @@ printsmallz	;92 printz. see printsmall. String macro should follow the bsr/jsr t
 	movea.l	(sp)+,a1
 	rts
 
-printsmall	;92 print. print string macro a1 at printx/y/m with printa. Bytes > 0 are chars ('@' = blank char $7FF, '^' = skip a column), tile = smallfontmap entry + smallfontchars[printfontset]. Bytes <= 0 run ControlCodeJumpTable entry -byte (0 = nothing)
+printsmall							;92 print. print string macro a1 at printx/y/m with printa. Bytes > 0 are chars ('@' = blank char $7FF, '^' = skip a column), tile = smallfontmap entry + smallfontchars[printfontset]. Bytes <= 0 run ControlCodeJumpTable entry -byte (0 = nothing)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	movem.l	d0-d3/a0/a2-a3,-(sp)
@@ -137,7 +137,7 @@ printsmall	;92 print. print string macro a1 at printx/y/m with printa. Bytes > 0
 	bsr.w	xyVmMap
 	bra.s	.1
 
-ControlCodeJumpTable	;printsmall control codes, indexed by -byte
+ControlCodeJumpTable				;printsmall control codes, indexed by -byte
 	dc.l	rtss					;0: padding, no-op
 	dc.l	ControlCode_SetMap		;-1: map
 	dc.l	ControlCode_SetAttribute	;-2: palette/priority
@@ -148,13 +148,13 @@ ControlCodeJumpTable	;printsmall control codes, indexed by -byte
 	dc.l	ControlCode_SetFont		;-7: char set
 	dc.l	ControlCode_SetMapAndPosition	;-8: attribute, map, x, y
 
-ControlCode_SetMapAndPosition	;92 print negative-byte block. printsmall code -8, next 4 bytes = attribute, map, x, y
+ControlCode_SetMapAndPosition		;92 print negative-byte block. printsmall code -8, next 4 bytes = attribute, map, x, y
 	bsr.w	ControlCode_SetAttribute
 	bsr.w	ControlCode_SetMap
 	bsr.w	ControlCode_SetX
 	bra.w	ControlCode_SetY
 
-ControlCode_SetMap	;printsmall code -1, next byte = map number (1-3) -> printm
+ControlCode_SetMap					;printsmall code -1, next byte = map number (1-3) -> printm
 	move.b	(a1)+,d0
 	subq.w	#1,d3
 	andi.w	#3,d0
@@ -163,7 +163,7 @@ ControlCode_SetMap	;printsmall code -1, next byte = map number (1-3) -> printm
 	move.w	d0,(printm).w
 	bra.w	xyVmMap
 
-ControlCode_SetAttribute	;printsmall code -2, next byte = palette/priority (0-7) -> printa bits 13-15 and d2
+ControlCode_SetAttribute			;printsmall code -2, next byte = palette/priority (0-7) -> printa bits 13-15 and d2
 	move.b	(a1)+,d2
 	andi.w	#7,d2
 	subq.w	#1,d3
@@ -171,35 +171,35 @@ ControlCode_SetAttribute	;printsmall code -2, next byte = palette/priority (0-7)
 	move.w	d2,(printa).w
 	rts
 
-ControlCode_SetX	;printsmall code -3, next byte = printx
+ControlCode_SetX					;printsmall code -3, next byte = printx
 	clr.w	d0
 	move.b	(a1)+,d0
 	subq.w	#1,d3
 	move.w	d0,(printx).w
 	bra.w	xyVmMap
 
-ControlCode_SetY	;printsmall code -4, next byte = printy
+ControlCode_SetY					;printsmall code -4, next byte = printy
 	clr.w	d0
 	move.b	(a1)+,d0
 	subq.w	#1,d3
 	move.w	d0,(printy).w
 	bra.w	xyVmMap
 
-ControlCode_AddX	;printsmall code -5, add the next (signed) byte to printx
+ControlCode_AddX					;printsmall code -5, add the next (signed) byte to printx
 	move.b	(a1)+,d0
 	ext.w	d0
 	subq.w	#1,d3
 	add.w	d0,(printx).w
 	bra.w	xyVmMap
 
-ControlCode_AddY	;printsmall code -6, add the next (signed) byte to printy
+ControlCode_AddY					;printsmall code -6, add the next (signed) byte to printy
 	move.b	(a1)+,d0
 	ext.w	d0
 	subq.w	#1,d3
 	add.w	d0,(printy).w
 	bra.w	xyVmMap
 
-ControlCode_SetFont	;printsmall code -7, next byte = char set index (printfontset = index*2 into smallfontchars)
+ControlCode_SetFont					;printsmall code -7, next byte = char set index (printfontset = index*2 into smallfontchars)
 	clr.w	d0
 	move.b	(a1)+,d0
 	subq.w	#1,d3
@@ -207,7 +207,7 @@ ControlCode_SetFont	;printsmall code -7, next byte = char set index (printfontse
 	move.w	d0,(printfontset).w
 	rts
 
-printz	;see print. String macro should follow the bsr/jsr to this routine. Keeps a1 (92 popped the return into a1)
+printz								;see print. String macro should follow the bsr/jsr to this routine. Keeps a1 (92 popped the return into a1)
 	move.l	a1,-(sp)
 	movea.l	4(sp),a1				;string after the call
 	bsr.w	print
@@ -215,7 +215,7 @@ printz	;see print. String macro should follow the bsr/jsr to this routine. Keeps
 	movea.l	(sp)+,a1
 	rts
 
-print	;a1 = string macro, printx/y = x/y cordinate on map for printing, printm = map to print on, printa = attribute for characters. string \-$ab,$xx,$yy,'Sample!'\ : a = map number (1-3), b = color/priority (0-3 = color fam, prio off),(4-7 = color fam, prio on), xx/yy = x/y cord to print at. '@' = char $7FF, '^' = skip a column
+print								;a1 = string macro, printx/y = x/y cordinate on map for printing, printm = map to print on, printa = attribute for characters. string \-$ab,$xx,$yy,'Sample!'\ : a = map number (1-3), b = color/priority (0-3 = color fam, prio off),(4-7 = color fam, prio on), xx/yy = x/y cord to print at. '@' = char $7FF, '^' = skip a column
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	movem.l	d0-d3/a0/a2,-(sp)
@@ -274,7 +274,7 @@ print	;a1 = string macro, printx/y = x/y cordinate on map for printing, printm =
 	bsr.w	xyVmMap
 	bra.s	.1
 
-FormatAndPrintTime	;print a period label and time. d0 bits 14-15 = period (PeriodLabelTable entry), bits 0-13 = seconds. Called from DrawScoringRow and DisplayPenaltyEntry
+FormatAndPrintTime					;print a period label and time. d0 bits 14-15 = period (PeriodLabelTable entry), bits 0-13 = seconds. Called from DrawScoringRow and DisplayPenaltyEntry
 	swap	d0
 	clr.w	d0
 	rol.l	#2,d0					;d0.w = period
@@ -286,7 +286,7 @@ FormatAndPrintTime	;print a period label and time. d0 bits 14-15 = period (Perio
 	bsr.w	PushTime
 	bra.w	print
 
-PeriodLabelTable	;String list for FormatAndPrintTime: " 1", " 2", " 3", "OT"
+PeriodLabelTable					;String list for FormatAndPrintTime: " 1", " 2", " 3", "OT"
 	dc.w	4
 	dc.b	' 1'
 	dc.w	4
@@ -296,7 +296,7 @@ PeriodLabelTable	;String list for FormatAndPrintTime: " 1", " 2", " 3", "OT"
 	dc.w	4
 	dc.b	'OT'
 
-PushTime	;convert d0 into string format of minutes:seconds. Return a1 = string. pads the minutes to 2 places with a space
+PushTime							;convert d0 into string format of minutes:seconds. Return a1 = string. pads the minutes to 2 places with a space
 	movea.w	#(mesarea+30-M68K_RAM),a1
 	move.l	d0,-(sp)
 	move.l	a1,-(sp)
@@ -340,7 +340,7 @@ PushTime	;convert d0 into string format of minutes:seconds. Return a1 = string. 
 	move.l	(sp)+,d0
 	rts
 
-PushNumber	;convert d0 into string format of base 10 number, no leading zeros. Return a1 = string
+PushNumber							;convert d0 into string format of base 10 number, no leading zeros. Return a1 = string
 	movea.w	#(PushNumberBuf-M68K_RAM),a1
 	move.l	d0,-(sp)
 	move.l	a1,-(sp)
@@ -363,7 +363,7 @@ PushNumber	;convert d0 into string format of base 10 number, no leading zeros. R
 	move.l	(sp)+,d0
 	rts
 
-PushNumberWidth	;convert d0 into a d1 digit base 10 string, leading zeros as spaces (the last digit always shown). Return a1 = string at PushWidthBuf
+PushNumberWidth						;convert d0 into a d1 digit base 10 string, leading zeros as spaces (the last digit always shown). Return a1 = string at PushWidthBuf
 	movem.l	d0-d3,-(sp)
 	movea.w	#(PushWidthBuf+2-M68K_RAM),a1
 	moveq	#1,d2
@@ -396,12 +396,12 @@ PushNumberWidth	;convert d0 into a d1 digit base 10 string, leading zeros as spa
 	movem.l	(sp)+,d0-d3
 	rts
 
-appendz	;see appstring. String macro should follow the bsr/jsr to this routine
+appendz								;see appstring. String macro should follow the bsr/jsr to this routine
 	movea.l	(sp)+,a1
 	bsr.w	appstring
 	jmp	(a1)
 
-appstring	;append string a1 to string a3
+appstring							;append string a1 to string a3
 	movem.l	d0/a0,-(sp)
 	lea	2(a3),a0					;a0 scans a3's text for its terminating zero
 	move.w	(a3),d0					;a3 length word
@@ -427,7 +427,7 @@ appstring	;append string a1 to string a3
 .ex	movem.l	(sp)+,d0/a0				;restore registers and return
 	rts
 
-printbigz	;see print big. String macro should follow the bsr/jsr to this routine. Keeps a1 (92 popped the return into a1)
+printbigz							;see print big. String macro should follow the bsr/jsr to this routine. Keeps a1 (92 popped the return into a1)
 	move.l	a1,-(sp)
 	movea.l	4(sp),a1				;string after the call
 	bsr.w	printbig
@@ -435,7 +435,7 @@ printbigz	;see print big. String macro should follow the bsr/jsr to this routine
 	movea.l	(sp)+,a1
 	rts
 
-printbig	;same as print, only use bigfont.map graphics. a1 = string macro, printx/y = x/y cordinate on map for printing, printm = map to print on, printa = attribute for characters. string \-$ab,$xx,$yy,'Sample!'\ : a = map number (1-3), b = color/priority (0-3 = color fam, prio off),(4-7 = color fam, prio on), xx/yy = x/y cord to print at
+printbig							;same as print, only use bigfont.map graphics. a1 = string macro, printx/y = x/y cordinate on map for printing, printm = map to print on, printa = attribute for characters. string \-$ab,$xx,$yy,'Sample!'\ : a = map number (1-3), b = color/priority (0-3 = color fam, prio off),(4-7 = color fam, prio on), xx/yy = x/y cord to print at
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	movem.l	d0-d7/a0/a2,-(sp)
@@ -530,17 +530,17 @@ printbig	;same as print, only use bigfont.map graphics. a1 = string macro, print
 	movem.l	(sp)+,d1/a0
 	rts
 
-AddSmallFont	;transfer smallfont.map tiles to vram. d4 = char to start tiles at, return d4 = end of tiles + 1. Goes through DecompressGraphics
+AddSmallFont						;transfer smallfont.map tiles to vram. d4 = char to start tiles at, return d4 = end of tiles + 1. Goes through DecompressGraphics
 	move.w	d4,(smallfontchars).w
 	movea.l	#SmallFontMap+8,a2
 	bra.w	DecompressGraphicsPlain
 
-AddFramer	;transfer framer.map tiles to vram. d4 = char to start tiles at, return d4 = end of tiles + 1. Goes through DecompressGraphics
+AddFramer							;transfer framer.map tiles to vram. d4 = char to start tiles at, return d4 = end of tiles + 1. Goes through DecompressGraphics
 	movea.l	#FramerMap+8,a2
 	move.w	d4,(Framercset).w
 	bra.w	DecompressGraphicsPlain
 
-AddTeamBlock	;transfer TeamBlocks.map tiles to vram at char 2. Return d4 = end of tiles + 1. Goes through DecompressGraphics
+AddTeamBlock						;transfer TeamBlocks.map tiles to vram at char 2. Return d4 = end of tiles + 1. Goes through DecompressGraphics
 	moveq	#2,d4
 	movea.l	#Teamblocksmap+8,a2
 	bra.w	DecompressGraphicsPlain

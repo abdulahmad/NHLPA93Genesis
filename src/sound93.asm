@@ -11,7 +11,7 @@
 ;	(SFX*, Sng*). The data layout is described above p_music_vblank.
 
 
-p_turnoff	;(audio stop). Silence everything: free all slots, key off and mute every output
+p_turnoff							;(audio stop). Silence everything: free all slots, key off and mute every output
 		;channel, send the buffer and stop the PCM channel. Called from Begin, StartPer, game screens
 	movem.l	d0-d7/a0-a2,-(sp)
 	bsr.w	ClearAllTrackAndSFXSlots
@@ -26,7 +26,7 @@ p_turnoff	;(audio stop). Silence everything: free all slots, key off and mute ev
 	movem.l	(sp)+,d0-d7/a0-a2
 	rts
 
-play_sfx_or_music_track	;start sound d0 (0-$37) in a track slot. $30 and up are songs: the song already
+play_sfx_or_music_track				;start sound d0 (0-$37) in a track slot. $30 and up are songs: the song already
 			;playing is stopped first. Does the jobs of / p_initune; called from sfx and song
 	cmp.w	#$37,d0
 	bgt.w	rtss					;out of range
@@ -63,7 +63,7 @@ play_sfx_or_music_track	;start sound d0 (0-$37) in a track slot. $30 and up are 
 .ex	movem.l	(sp)+,d0-d3/a0-a2		;restore registers
 	rts
 
-stop_current_song	;stop the song in progress: free the first slot whose pointer is at or past the first song
+stop_current_song					;stop the song in progress: free the first slot whose pointer is at or past the first song
 		;($30) data and key off its channels. Called from play_sfx_or_music_track and checkgoal
 	movem.l	d0-d3/a0-a3,-(sp)
 	movea.w	#(fm_track_slots-M68K_RAM),a1
@@ -104,7 +104,7 @@ stop_current_song	;stop the song in progress: free the first slot whose pointer 
 ;	  events (4 bytes): +0 delay before this event, +1 status (bits 6-4 command, bits 3-0 channel),
 ;	    +2/+3 data. Status 0 ends the stream; a non-negative long at +2 is a loop pointer.
 
-p_music_vblank	;(vblank handler). Clear the change bits, run the 8 track slots (d7 = track 7-0)
+p_music_vblank						;(vblank handler). Clear the change bits, run the 8 track slots (d7 = track 7-0)
 		;send the buffer if anything changed and age the channels. Called every frame from the vblank
 		;handlers. Rev A runs the slots again every 6th frame while PalMode
 		;is set (music_tick_divider $CAF0); retail has no such block (22 bytes shorter)
@@ -123,7 +123,7 @@ p_music_vblank	;(vblank handler). Clear the change bits, run the 8 track slots (
 	bpl.w	.tick
 	addq.w	#6,(music_tick_divider).w
 	bra.s	.refresh
-.tick	;end of the Rev A only block
+.tick								;end of the Rev A only block
 	ENDIF
 	tst.b	(music_needs_z80_update).w
 	beq.w	.age					;nothing changed
@@ -137,12 +137,12 @@ p_music_vblank	;(vblank handler). Clear the change bits, run the 8 track slots (
 	dbf	d0,.ageloop
 	rts
 
-z80_bus_release_delay	;Z80 busy: give the bus back, wait, then falls into UploadCommandBufferToZ80 to retry
+z80_bus_release_delay				;Z80 busy: give the bus back, wait, then falls into UploadCommandBufferToZ80 to retry
 	clr.w	(IO_Z80BUS).l
 	moveq	#$64,d0
 .delay	dbf	d0,.delay				;short wait before the bus is requested again
 
-UploadCommandBufferToZ80	;copy the 33-byte command buffer to Z80 RAM $02 once the Z80 is idle
+UploadCommandBufferToZ80			;copy the 33-byte command buffer to Z80 RAM $02 once the Z80 is idle
 			;($97 = 0, $96 = $7D), and post command $D1. Called after any change
 	move.w	#$100,(IO_Z80BUS).l		;request the Z80 bus
 	movea.l	#Z80_RAM,a0
@@ -160,7 +160,7 @@ UploadCommandBufferToZ80	;copy the 33-byte command buffer to Z80 RAM $02 once th
 	clr.w	(IO_Z80BUS).l
 	rts
 
-ProcessOneMusicTrack	;count down track slot a5 (track d7) and run every event that is due. Called from p_music_vblank
+ProcessOneMusicTrack				;count down track slot a5 (track d7) and run every event that is due. Called from p_music_vblank
 	subq.w	#1,4(a5)
 	bpl.w	rtss					;not due yet
 .event	tst.w	(a5)				;run the next event of this slot
@@ -184,7 +184,7 @@ ProcessOneMusicTrack	;count down track slot a5 (track d7) and run every event th
 	jsr	(a2)
 	bra.s	ProcessOneMusicTrack	;the next event may be due now (delay 0)
 
-command_jump_table	;event handlers by status bits 6-4, as offsets from the table
+command_jump_table					;event handlers by status bits 6-4, as offsets from the table
 	dc.w	handle_command_00-command_jump_table
 	dc.w	handle_command_10-command_jump_table
 	dc.w	handle_command_skip-command_jump_table
@@ -194,7 +194,7 @@ command_jump_table	;event handlers by status bits 6-4, as offsets from the table
 	dc.w	handle_command_60-command_jump_table
 	dc.w	handle_command_skip-command_jump_table
 
-handle_command_00	;event $0x: key off note +2 on channel +1 bits 3-0 of track d7. Also entered from
+handle_command_00					;event $0x: key off note +2 on channel +1 bits 3-0 of track d7. Also entered from
 			;handle_command_10 for volume 0. Falls into ReleaseChannelAndNote
 	move.b	1(a0),d0
 	andi.w	#$F,d0
@@ -212,7 +212,7 @@ handle_command_00	;event $0x: key off note +2 on channel +1 bits 3-0 of track d7
 	dbne	d1,.find				;matched but already off: keep looking
 	beq.w	rtss
 
-ReleaseChannelAndNote	;key off channel struct a2 if it is on. The PCM patches ($60 up) stop the PCM channel
+ReleaseChannelAndNote				;key off channel struct a2 if it is on. The PCM patches ($60 up) stop the PCM channel
 			;instead. Called from stop_current_song
 	bclr	#0,5(a2)
 	beq.w	rtss					;was off
@@ -223,14 +223,14 @@ ReleaseChannelAndNote	;key off channel struct a2 if it is on. The PCM patches ($
 	st	(music_needs_z80_update).w
 	rts
 
-StopPCMChannel	;clear Z80 RAM $8E (the PCM rate byte written by UpdateChannelFrequencyAndVolume).
+StopPCMChannel						;clear Z80 RAM $8E (the PCM rate byte written by UpdateChannelFrequencyAndVolume).
 			;Called from p_turnoff and for a PCM key off
 	move.w	#$100,(IO_Z80BUS).l
 	clr.b	(Z80_RAM+$8E).l
 	clr.w	(IO_Z80BUS).l
 	rts
 
-handle_command_10	;event $1x: key on note +2 at volume +3 on channel +1 bits 3-0 of track d7 (volume 0 =
+handle_command_10					;event $1x: key on note +2 at volume +3 on channel +1 bits 3-0 of track d7 (volume 0 =
 			;key off). Patches $60 up play on the PCM channel. Falls into UpdateChannelFrequencyAndVolume
 	tst.b	3(a0)
 	beq.s	handle_command_00		;volume 0: key off
@@ -327,7 +327,7 @@ handle_command_10	;event $1x: key on note +2 at volume +3 on channel +1 bits 3-0
 	move.b	#0,$97(a1)
 	clr.w	(IO_Z80BUS).l
 
-UpdateChannelFrequencyAndVolume	;set the frequency of channel struct a2 from its note and the pitch bend of
+UpdateChannelFrequencyAndVolume		;set the frequency of channel struct a2 from its note and the pitch bend of
 			;its key (a3 = voice table). Called from handle_command_60, entered from handle_command_10
 	clr.l	d3
 	move.b	1(a2),d3				;note
@@ -378,9 +378,9 @@ UpdateChannelFrequencyAndVolume	;set the frequency of channel struct a2 from its
 	move.b	d2,(Z80_RAM+$8E).l		;PCM rate
 	clr.w	(IO_Z80BUS).l
 	rts
-.fnum	;frequency number of each note in the octave
+.fnum								;frequency number of each note in the octave
 	dc.w	$0146,$0159,$016E,$0184,$019B,$01B3,$01CD,$01E8,$0205,$0224,$0245,$0268
-.bendtab	;385 factors from $4000 to $FF13, entry $C0 = $8000 (no bend)
+.bendtab							;385 factors from $4000 to $FF13, entry $C0 = $8000 (no bend)
 	dc.w	$4000,$403B,$4076,$40B2,$40EE,$412A,$4166,$41A3,$41E0,$421D
 	dc.w	$425A,$4297,$42D5,$4313,$4351,$438F,$43CE,$440D,$444C,$448B
 	dc.w	$44CA,$450A,$454A,$458A,$45CA,$460B,$464C,$468D,$46CE,$4710
@@ -422,7 +422,7 @@ UpdateChannelFrequencyAndVolume	;set the frequency of channel struct a2 from its
 	dc.w	$F361,$F443,$F525,$F608,$F6EC,$F7D0,$F8B6,$F99C,$FA83,$FB6B
 	dc.w	$FC54,$FD3E,$FE28,$FF13,$FF13
 
-handle_command_40	;event $4x: set the patch of channel +1 bits 3-0 of track d7 to +2 (voice table +3)
+handle_command_40					;event $4x: set the patch of channel +1 bits 3-0 of track d7 to +2 (voice table +3)
 	movea.w	#(fm_voice_usage_table-M68K_RAM),a3
 	move.b	1(a0),d0
 	andi.w	#$F,d0
@@ -432,7 +432,7 @@ handle_command_40	;event $4x: set the patch of channel +1 bits 3-0 of track d7 t
 	move.b	2(a0),3(a3,d0.w)
 	rts
 
-handle_command_60	;event $6x: set the pitch bend of channel +1 bits 3-0 of track d7 to word +2 - $2000,
+handle_command_60					;event $6x: set the pitch bend of channel +1 bits 3-0 of track d7 to word +2 - $2000,
 			;then update the frequency of every channel struct playing that key
 	movea.w	#(fm_voice_usage_table-M68K_RAM),a3
 	move.b	1(a0),d0
@@ -452,10 +452,10 @@ handle_command_60	;event $6x: set the pitch bend of channel +1 bits 3-0 of track
 	dbf	d0,.loop
 	rts
 
-handle_command_skip	;events $2x, $3x, $5x and $7x: ignored
+handle_command_skip					;events $2x, $3x, $5x and $7x: ignored
 	rts
 
-p_initialZ80	;(initialization). Free all slots, load the Z80 program into Z80 RAM, build 29 tables of
+p_initialZ80						;(initialization). Free all slots, load the Z80 program into Z80 RAM, build 29 tables of
 		;256 bytes below Z80 $2000 ((i-$80)*8/d + $80 for d = 8-36, byte 0 = 0) and start the Z80.
 		;Called from Begin
 	movem.l	d0-d2/a0-a2,-(sp)
@@ -491,7 +491,7 @@ p_initialZ80	;(initialization). Free all slots, load the Z80 program into Z80 RA
 	movem.l	(sp)+,d0-d2/a0-a2
 	rts
 
-ClearAllTrackAndSFXSlots	;free the 8 track slots and reset the 6 channel structs (output channels 0, 1, 2,
+ClearAllTrackAndSFXSlots			;free the 8 track slots and reset the 6 channel structs (output channels 0, 1, 2,
 			;4, 5, 6, patch $FF, off). Called from p_turnoff and p_initialZ80
 	movea.w	#(fm_track_slots-M68K_RAM),a0
 	moveq	#7,d0
@@ -512,7 +512,7 @@ ClearAllTrackAndSFXSlots	;free the 8 track slots and reset the 6 channel structs
 	dbf	d0,.chan
 	rts
 
-Z80_Program_Code	;First byte of the Z80 program (movea.l in p_initialZ80); the rest of the
+Z80_Program_Code					;First byte of the Z80 program (movea.l in p_initialZ80); the rest of the
 		;Z80 blob from and the data after it are the incbins below
 	dc.b	$18
 	incbin	..\Extracted\Sound\z80_snd_drv93.bin	;Z80 driver after its first byte, up to the ld bc of the FM patch bank address. p_initialZ80 copies $295 bytes
@@ -524,7 +524,7 @@ Z80_Program_Code	;First byte of the Z80 program (movea.l in p_initialZ80); the r
 	ELSE
 	dc.b	0
 	ENDIF
-pcm_sample_table	;(sample address, 0) for PCM patches $60-$6E (lea in handle_command_10)
+pcm_sample_table					;(sample address, 0) for PCM patches $60-$6E (lea in handle_command_10)
 	dc.l	sfx_puckget_pcm,0		;patch $60
 	dc.l	sfx_pass_pcm,0			;patch $61
 	dc.l	sfx_shotbh_pcm,0		;patch $62
@@ -540,62 +540,62 @@ pcm_sample_table	;(sample address, 0) for PCM patches $60-$6E (lea in handle_com
 	dc.l	sfx_oooh_pcm,0			;patch $6C
 	dc.l	sfx_crowdcheer_pcm,0	;patch $6D
 	dc.l	sfx_bglass_pcm,0		;patch $6E
-sfx_shotbh_pcm	;raw PCM sample, played through the Z80 (pcm_sample_table)
+sfx_shotbh_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_shotbh_pcm.bin	;sample 2: shotbh
 	even
-sfx_pass_pcm	;raw PCM sample, played through the Z80 (pcm_sample_table)
+sfx_pass_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_pass_pcm.bin	;sample 1: pass
 	IF REV=0
 	dc.b	$7D						;pad: retail leftover byte
 	ELSE
 	dc.b	0
 	ENDIF
-sfx_oooh_pcm	;raw PCM sample, played through the Z80 (pcm_sample_table)
+sfx_oooh_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_oooh_pcm.bin	;sample 12: oooh, sfx_oooh2, sfx_bglass
 	even
-sfx_crowdboo_pcm	;raw PCM sample, played through the Z80 (pcm_sample_table)
+sfx_crowdboo_pcm					;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_crowdboo_pcm.bin	;sample 11: crowdboo
 	IF REV=0
 	dc.b	$7B						;pad: retail leftover byte
 	ELSE
 	dc.b	0
 	ENDIF
-sfx_check_pcm	;raw PCM sample, played through the Z80 (pcm_sample_table)
+sfx_check_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_check_pcm.bin	;sample 5: check1, check3
 	even
-sfx_crowdcheer_pcm	;raw PCM sample, played through the Z80 (pcm_sample_table)
+sfx_crowdcheer_pcm					;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_crowdcheer_pcm.bin	;sample 13: crowdcheer, homewin
 	even
-sfx_bglass_pcm	;raw PCM sample, played through the Z80 (pcm_sample_table)
+sfx_bglass_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_bglass_pcm.bin	;sample 14: sfx_bglass
 	IF REV=0
 	dc.b	$7D						;pad: retail leftover byte
 	ELSE
 	dc.b	0
 	ENDIF
-sfx_playerwall_pcm	;raw PCM sample, played through the Z80 (pcm_sample_table)
+sfx_playerwall_pcm					;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_playerwall_pcm.bin	;sample 6: playerwall, sfx_playerwall2-23
 	even
-sfx_check2_pcm	;raw PCM sample, played through the Z80 (pcm_sample_table)
+sfx_check2_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_check2_pcm.bin	;sample 4: check2, check4
 	IF REV=0
 	dc.b	$7A						;pad: retail leftover byte
 	ELSE
 	dc.b	0
 	ENDIF
-sfx_hithigh_pcm	;PCM samples 7 and 10: hithigh, hitlow, check1-4, songs $32 and $35-$37
+sfx_hithigh_pcm						;PCM samples 7 and 10: hithigh, hitlow, check1-4, songs $32 and $35-$37
 	incbin	..\Extracted\Sound\sfx_hithigh_pcm.bin	;samples 7 and 10: hithigh, hitlow, check1-4, songs $32 and $35-$37
 	even
-sfx_shotfh_pcm	;raw PCM sample, played through the Z80 (pcm_sample_table)
+sfx_shotfh_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_shotfh_pcm.bin	;sample 3: shotfh
 	even
-sfx_puckget_pcm	;raw PCM sample, played through the Z80 (pcm_sample_table)
+sfx_puckget_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_puckget_pcm.bin	;sample 0: puckget
 	even
-fm_instrument_patches	;32 FM patches x 32 bytes, byte $1E = pitch bend scale (UpdateChannelFrequencyAndVolume)
+fm_instrument_patches				;32 FM patches x 32 bytes, byte $1E = pitch bend scale (UpdateChannelFrequencyAndVolume)
 	incbin	..\Extracted\Sound\fm_instrument_patches.bin	;32 FM patches x 32 bytes (byte $1E = pitch bend scale)
 	even
-SoundStreamTable	;event stream of sounds 0-$37 as offsets from the table (play_sfx_or_music_track, stop_current_song)
+SoundStreamTable					;event stream of sounds 0-$37 as offsets from the table (play_sfx_or_music_track, stop_current_song)
 	dc.w	sfx_siren_cmdstream-SoundStreamTable	;sound $0
 	dc.w	sfx_beep1_cmdstream-SoundStreamTable	;sound $1
 	dc.w	sfx_beep2_cmdstream-SoundStreamTable	;sound $2
@@ -652,179 +652,179 @@ SoundStreamTable	;event stream of sounds 0-$37 as offsets from the table (play_s
 	dc.w	fmtune_title_cmdstream-SoundStreamTable	;song $35
 	dc.w	fmtune_eop_cmdstream-SoundStreamTable	;song $36
 	dc.w	fmtune_scouting_cmdstream-SoundStreamTable	;song $37
-sfx_beep1_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_beep1_cmdstream					;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_beep1_cmdstream.bin	;sound 1 (SFXbeep1)
 	even
-sfx_id_26_27_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_id_26_27_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_id_26_27_cmdstream.bin	;sounds $26 and $27: empty stream
 	even
-sfx_beep2_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_beep2_cmdstream					;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_beep2_cmdstream.bin	;sound 2 (SFXbeep2)
 	even
-sfx_horn_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_horn_cmdstream					;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_horn_cmdstream.bin	;sound 4
 	even
-sfx_stdef_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_stdef_cmdstream					;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_stdef_cmdstream.bin	;sound 6
 	even
-sfx_puckget_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_puckget_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_puckget_cmdstream.bin	;sound 7, puckglue
 	even
-sfx_puckice1_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_puckice1_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_puckice1_cmdstream.bin	;sound $2C: puck bounce by speed
 	even
-sfx_puckice2_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_puckice2_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_puckice2_cmdstream.bin	;sound $2D
 	even
-sfx_puckice3_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_puckice3_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_puckice3_cmdstream.bin	;sound $2E
 	even
-sfx_puckice4_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_puckice4_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_puckice4_cmdstream.bin	;sound $2F (SFXpuckice, Endfaceoff)
 	even
-sfx_puckbody_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_puckbody_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_puckbody_cmdstream.bin	;sound $24
 	even
-sfx_oooh_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_oooh_cmdstream					;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_oooh_cmdstream.bin	;sound 8, off the post with the clock running
 	even
-sfx_puckpost_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_puckpost_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_puckpost_cmdstream.bin	;sound $25
 	even
-sfx_playerwall_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_playerwall_cmdstream			;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_playerwall_cmdstream.bin	;sound $20
 	even
-sfx_playerwall2_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_playerwall2_cmdstream			;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_playerwall2_cmdstream.bin	;sound $21: no caller found, same patches as playerwall
 	even
-sfx_playerwall3_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_playerwall3_cmdstream			;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_playerwall3_cmdstream.bin	;sound $22: no caller found, same patches as playerwall
 	even
-sfx_playerwall4_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_playerwall4_cmdstream			;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_playerwall4_cmdstream.bin	;sound $23: no caller found, same patches as playerwall
 	even
-sfx_puckwall1_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_puckwall1_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_puckwall1_cmdstream.bin	;sound $28: puck off the wall by speed (wallcoll)
 	even
-sfx_puckwall2_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_puckwall2_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_puckwall2_cmdstream.bin	;sound $29
 	even
-sfx_puckwall3_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_puckwall3_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_puckwall3_cmdstream.bin	;sound $2A
 	even
-sfx_puckwall4_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_puckwall4_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_puckwall4_cmdstream.bin	;sound $2B
 	even
-sfx_whistle_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_whistle_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_whistle_cmdstream.bin	;sound 3
 	even
-sfx_shotwiff_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_shotwiff_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_shotwiff_cmdstream.bin	;sound 5
 	even
-sfx_check1_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_check1_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_check1_cmdstream.bin	;sound $1C: tackle sounds in turn
 	even
-sfx_check2_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_check2_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_check2_cmdstream.bin	;sound $1D
 	even
-sfx_check3_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_check3_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_check3_cmdstream.bin	;sound $1E
 	even
-sfx_check4_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_check4_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_check4_cmdstream.bin	;sound $1F
 	even
-sfx_pass1_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_pass1_cmdstream					;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_pass1_cmdstream.bin	;sound $10: pass by puck height
 	even
-sfx_pass2_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_pass2_cmdstream					;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_pass2_cmdstream.bin	;sound $11
 	even
-sfx_pass3_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_pass3_cmdstream					;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_pass3_cmdstream.bin	;sound $12
 	even
-sfx_pass4_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_pass4_cmdstream					;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_pass4_cmdstream.bin	;sound $13
 	even
-sfx_shotbh1_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_shotbh1_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_shotbh1_cmdstream.bin	;sound $14: backhand shot by speed
 	even
-sfx_shotbh2_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_shotbh2_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_shotbh2_cmdstream.bin	;sound $15
 	even
-sfx_shotbh3_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_shotbh3_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_shotbh3_cmdstream.bin	;sound $16
 	even
-sfx_shotbh4_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_shotbh4_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_shotbh4_cmdstream.bin	;sound $17
 	even
-sfx_shotfh1_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_shotfh1_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_shotfh1_cmdstream.bin	;sound $18: forehand shot by speed
 	even
-sfx_shotfh2_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_shotfh2_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_shotfh2_cmdstream.bin	;sound $19
 	even
-sfx_shotfh3_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_shotfh3_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_shotfh3_cmdstream.bin	;sound $1A
 	even
-sfx_shotfh4_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_shotfh4_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_shotfh4_cmdstream.bin	;sound $1B
 	even
-sfx_hithigh_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_hithigh_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_hithigh_cmdstream.bin	;sound 9 (SFXhithigh)
 	even
-sfx_hitlow_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_hitlow_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_hitlow_cmdstream.bin	;sound $A (SFXhitlow)
 	even
-sfx_homewin_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_homewin_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_homewin_cmdstream.bin	;sound $F: home team won (game end)
 	even
-sfx_crowdcheer_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_crowdcheer_cmdstream			;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_crowdcheer_cmdstream.bin	;sound $B (SFXcrowdcheer)
 	even
-sfx_crowdboo_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_crowdboo_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_crowdboo_cmdstream.bin	;sound $C (SFXcrowdboo)
 	even
-sfx_bglass_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_bglass_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_bglass_cmdstream.bin	;sound $E: wallcollb (puck over the wall)
 	even
-sfx_oooh2_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_oooh2_cmdstream					;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_oooh2_cmdstream.bin	;sound $D: injury (setInjuryType), visiting goalie save
 	even
-sfx_siren_cmdstream	;sound effect event stream (SoundStreamTable)
+sfx_siren_cmdstream					;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_siren_cmdstream.bin	;sound 0
 	even
-fmtune_goal_cmdstream	;song event stream (SoundStreamTable)
+fmtune_goal_cmdstream				;song event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\fmtune_goal_cmdstream.bin	;song $30: Goal
 	even
-fmtune_periodstart_cmdstream	;song event stream (SoundStreamTable)
+fmtune_periodstart_cmdstream		;song event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\fmtune_periodstart_cmdstream.bin	;song $31: StartPer
 	even
-fmtune_lategame_cmdstream	;song event stream (SoundStreamTable)
+fmtune_lategame_cmdstream			;song event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\fmtune_lategame_cmdstream.bin	;song $32: CheckLateGameSong, 3rd period
 	even
-fmtune_powerplay_cmdstream	;song event stream (SoundStreamTable)
+fmtune_powerplay_cmdstream			;song event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\fmtune_powerplay_cmdstream.bin	;song $33: updatepwrplay, home power play
 	even
-fmtune_faceoff_cmdstream	;song event stream (SoundStreamTable)
+fmtune_faceoff_cmdstream			;song event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\fmtune_faceoff_cmdstream.bin	;song $34: puckfaceoff
 	even
-fmtune_title_cmdstream	;song event stream (SoundStreamTable)
+fmtune_title_cmdstream				;song event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\fmtune_title_cmdstream.bin	;song $35: TitleScreen, ExitToOpening
 	even
 	dc.l	fmtune_title_loop		;end of the intro: loop pointer
-fmtune_title_loop	;looping body of the title song event stream
+fmtune_title_loop					;looping body of the title song event stream
 	incbin	..\Extracted\Sound\fmtune_title_loop_cmdstream.bin	;song $35 loop body
 	even
 	dc.l	fmtune_title_loop		;loop pointer
-fmtune_eop_cmdstream	;song event stream (SoundStreamTable)
+fmtune_eop_cmdstream				;song event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\fmtune_eop_cmdstream.bin	;song $36: IntermissionStart, PlayoffScreen, StartHL2
 	even
 	dc.l	fmtune_eop_cmdstream+4	;loop pointer (past the first event)
-fmtune_scouting_cmdstream	;song event stream (SoundStreamTable)
+fmtune_scouting_cmdstream			;song event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\fmtune_scouting_cmdstream.bin	;song $37: ScoutingReport
 	even
 	dc.l	fmtune_scouting_cmdstream+4	;loop pointer (past the first event)
-ScoutingReportText	;scouting report text
+ScoutingReportText					;scouting report text
 	incbin	..\Extracted\Text\ScoutingReportText.bin	;ScoutingReportText: scouting report paragraphs
 	IF REV=0
 	dc.b	$72						;pad: retail leftover byte

@@ -9,7 +9,7 @@
 
 	dc.l	$0000
 
-TeamList	;table of long pointers to the team records, indexed by team number (HomeTeam/VisTeam); the 2 all-star teams are last
+TeamList							;table of long pointers to the team records, indexed by team number (HomeTeam/VisTeam); the 2 all-star teams are last
 	dc.l	Boston
 	dc.l	Buffalo
 	dc.l	Calgary
@@ -45,15 +45,15 @@ LineSets	=	6					;record offset of the word offset to the line sets (.ls)
 ScoutReport	=	8					;record offset of the word offset to the scouting report ratings (.sr)
 ScoreOdds	=	10					;record offset of the word offset to the scoring odds (.sodds)
 
-AllStarsEast	;team record: None (None). Pointer words at .0, then palettes, lines, scout report, odds, players, name
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+AllStarsEast						;team record: None (None). Pointer words at .0, then palettes, lines, scout report, odds, players, name
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\ASEh.pal
 	incbin	..\Extracted\Graphics\Pals\ASEv.pal
 ;------------------------
@@ -77,11 +77,11 @@ AllStarsEast	;team record: None (None). Pointer words at .0, then palettes, line
 ;g - goalkeeping
 ;o - overall
 ;------------------------
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	7020,00D6,9999,9099
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	216,160
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,18,14,04,11,05,00	;line 1
 	dc.b	01,19,20,15,05,12,04,00	;line 2
 	dc.b	01,21,22,16,06,13,04,00	;line 3
@@ -109,7 +109,7 @@ AllStarsEast	;team record: None (None). Pointer words at .0, then palettes, line
 ;t - passing accuracy / consistency
 ;m - aggressiveness (PIM) / NA
 ;------------------------
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Patrick Roy',			335F,AFFF,0100,FFFF	;1
 	Player	'Mike Richter',			355D,ADDD,0100,DDDD	;2
 	Player	'Don Beaupre',			0137,AAAA,0100,AAAA	;3
@@ -133,27 +133,27 @@ AllStarsEast	;team record: None (None). Pointer words at .0, then palettes, line
 	Player	'Eric Desjardins',		287D,AADA,B2D4,F4A5	;21
 	Player	'Scott Stevens',		049D,ADFA,F7AA,F4DB	;22
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'All Stars East'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'ASE'
 
-AllStarsWest	;team record: All Stars West (ASW)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+AllStarsWest						;team record: All Stars West (ASW)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\ASWh.pal
 	incbin	..\Extracted\Graphics\Pals\ASWv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	7020,00C7,9999,9099
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	173,224
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,16,12,04,09,05,00	;line 1
 	dc.b	01,18,19,13,05,10,04,00	;line 2
 	dc.b	01,20,21,14,06,11,04,00	;line 3
@@ -161,7 +161,7 @@ AllStarsWest	;team record: All Stars West (ASW)
 	dc.b	01,19,22,13,04,11,05,00	;line 5
 	dc.b	01,17,20,14,07,15,08,00	;line 6
 	dc.b	01,22,18,15,08,14,07,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Ed Belfour',			305F,AFFF,0100,FFFF	;1
 	Player	'Kirk McLean',			016D,AFFD,0100,DDFF	;2
 	Player	'Tim Cheveldae',		325D,ADDD,0100,DADD	;3
@@ -185,27 +185,27 @@ AllStarsWest	;team record: All Stars West (ASW)
 	Player	'Larry Robinson',		19A9,6396,A396,9397	;21
 	Player	'Dave Ellett',			047B,B82E,95B5,E5B8	;22
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'All Stars West'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'ASW'
 
-Boston	;team record: Boston (BOS)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Boston								;team record: Boston (BOS)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\BOSh.pal
 	incbin	..\Extracted\Graphics\Pals\BOSv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	3311,21E6,6766,6756
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	197,34
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,19,20,16,05,14,06,00	;line 1
 	dc.b	01,21,22,17,06,11,05,00	;line 2
 	dc.b	01,23,24,15,07,12,05,00	;line 3
@@ -213,7 +213,7 @@ Boston	;team record: Boston (BOS)
 	dc.b	01,21,22,15,16,11,05,00	;line 5
 	dc.b	01,19,20,11,12,15,07,00	;line 6
 	dc.b	01,21,22,15,07,11,12,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Andy Moog',			353C,9ACC,0100,C9C9	;1
 	Player	'Daniel Berthiaume',	3116,9AA6,0100,6966	;2
 	Player	'Matt Delguidice',		3333,9AA3,0000,0300	;3
@@ -239,27 +239,27 @@ Boston	;team record: Boston (BOS)
 	Player	'Jim Wiemer',			3686,33C3,6B63,966B	;23
 	Player	'Bob Beers',			2279,9306,7230,9305	;24
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Boston'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'BOS'
 
-Buffalo	;team record: Buffalo (BUF)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Buffalo								;team record: Buffalo (BUF)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\BUFh.pal
 	incbin	..\Extracted\Graphics\Pals\BUFv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	5522,22D8,2442,3933
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	101,80
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,18,13,06,09,04,00	;line 1
 	dc.b	01,17,21,14,04,10,06,00	;line 2
 	dc.b	01,19,23,15,05,08,06,00	;line 3
@@ -267,7 +267,7 @@ Buffalo	;team record: Buffalo (BUF)
 	dc.b	01,23,21,14,04,10,06,00	;line 5
 	dc.b	01,17,21,06,08,14,05,00	;line 6
 	dc.b	01,23,20,14,05,06,08,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Daren Puppa',			3188,8AA8,0000,5588	;1
 	Player	'Clint Malarchuk',		3058,8AA8,0100,8885	;2
 	Player	'Tom Draper',			3552,8AA0,0100,2220	;3
@@ -293,27 +293,27 @@ Buffalo	;team record: Buffalo (BUF)
 	Player	'Grant Ledyard',		037B,885B,8B52,E287	;23
 	Player	'Randy Hillier',		2365,2002,5A20,2B5D	;24
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Buffalo'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'BUF'
 
-Calgary	;team record: Calgary (CGY)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Calgary								;team record: Calgary (CGY)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\CGYh.pal
 	incbin	..\Extracted\Graphics\Pals\CGYv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	6622,11D8,4334,4823
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	196,00
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,19,17,14,03,10,06,00	;line 1
 	dc.b	01,18,21,13,06,11,03,00	;line 2
 	dc.b	01,16,20,15,04,09,03,00	;line 3
@@ -321,7 +321,7 @@ Calgary	;team record: Calgary (CGY)
 	dc.b	01,18,21,06,05,11,03,00	;line 5
 	dc.b	01,17,16,04,07,13,09,00	;line 6
 	dc.b	01,19,20,13,09,04,07,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Mike Vernon',			3038,8AAB,0100,BB88	;1
 	Player	'Jeff Reese',			3535,8AA5,0100,5588	;2
 	Player	'Theoren Fleury',		142E,EB8B,C4BB,B88D	;3
@@ -346,27 +346,27 @@ Calgary	;team record: Calgary (CGY)
 	Player	'Alexnder Godynyuk',	2185,8525,9B55,222D	;22
 	Player	'Neil Sheehy',			1595,2225,8A22,282D	;23
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Calgary'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'CGY'
 
-Chicago	;team record: Chicago (CHI)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Chicago								;team record: Chicago (CHI)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\CHIh.pal
 	incbin	..\Extracted\Graphics\Pals\CHIv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	3000,21D7,7777,9888
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	164,49
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,19,14,05,09,07,00	;line 1
 	dc.b	01,20,22,16,07,11,05,00	;line 2
 	dc.b	01,21,23,13,06,10,05,00	;line 3
@@ -374,7 +374,7 @@ Chicago	;team record: Chicago (CHI)
 	dc.b	01,21,22,07,10,11,05,00	;line 5
 	dc.b	01,21,22,07,10,06,09,00	;line 6
 	dc.b	01,18,19,06,09,07,10,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Ed Belfour',			305F,AFFF,0100,FFFF	;1
 	Player	'Dominik Hasek',		313A,AAA7,0100,7AAA	;2
 	Player	'Jim Waite',			295A,AAA7,0100,77AA	;3
@@ -400,27 +400,27 @@ Chicago	;team record: Chicago (CHI)
 	Player	'Rod Buskas',			2584,4144,5A41,A44D	;23
 	Player	'Igor Kravchuk',		037D,AA4A,81D4,74A4	;24
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Chicago'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'CHI'
 
-Detroit	;team record: Detroit (DET)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Detroit								;team record: Detroit (DET)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\DETh.pal
 	incbin	..\Extracted\Graphics\Pals\DETv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	6111,00D7,8879,7878
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	226,16
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,20,13,06,08,04,00	;line 1
 	dc.b	01,18,22,14,04,07,06,00	;line 2
 	dc.b	01,19,21,15,05,09,06,00	;line 3
@@ -428,7 +428,7 @@ Detroit	;team record: Detroit (DET)
 	dc.b	01,21,18,15,05,09,06,00	;line 5
 	dc.b	01,20,18,06,07,13,04,00	;line 6
 	dc.b	01,17,19,13,04,06,07,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Tim Cheveldae',		325D,ADDD,0100,DADD	;1
 	Player	'Greg Millen',			3447,AAA4,0000,7774	;2
 	Player	'Vincent Riendeau',		375A,AAA7,0100,A77A	;3
@@ -453,27 +453,27 @@ Detroit	;team record: Detroit (DET)
 	Player	'Brad Marsh',			20A4,74D4,A547,A47A	;22
 	Player	'Bobby Dollas',			0897,A4D1,231A,7F17	;23
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Detroit'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'DET'
 
-Edmonton	;team record: Edmonton (EDM)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Edmonton							;team record: Edmonton (EDM)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\EDMh.pal
 	incbin	..\Extracted\Graphics\Pals\EDMv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	6512,11C7,6535,4534
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	214,34
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,22,17,10,07,08,15,00	;line 1
 	dc.b	01,19,20,11,15,06,07,00	;line 2
 	dc.b	01,18,21,16,05,09,07,00	;line 3
@@ -481,7 +481,7 @@ Edmonton	;team record: Edmonton (EDM)
 	dc.b	01,19,20,16,05,09,07,00	;line 5
 	dc.b	01,22,18,16,05,12,08,00	;line 6
 	dc.b	01,19,20,12,08,16,05,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Bill Ranford',			303C,9CFC,0100,CCFC	;1
 	Player	'Ron Tugnutt',			3216,9AA3,0100,3336	;2
 	Player	'Peter Ing',			0136,9AA3,0100,6969	;3
@@ -506,27 +506,27 @@ Edmonton	;team record: Edmonton (EDM)
 	Player	'Kevin Lowe',			046C,9369,A1C3,C39D	;22
 	Player	'Craig Muni',			2873,33C3,C533,6667	;23
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Edmonton'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'EDM'
 
-Hartford	;team record: Hartford (HFD)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Hartford							;team record: Hartford (HFD)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\HFDh.pal
 	incbin	..\Extracted\Graphics\Pals\HFDv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	1402,00F6,2222,1342
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	146,00
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,22,11,03,08,04,00	;line 1
 	dc.b	01,19,21,12,04,09,03,00	;line 2
 	dc.b	01,20,23,13,05,10,03,00	;line 3
@@ -534,7 +534,7 @@ Hartford	;team record: Hartford (HFD)
 	dc.b	01,20,18,12,05,09,11,00	;line 5
 	dc.b	01,18,20,13,12,04,09,00	;line 6
 	dc.b	01,19,23,04,09,12,13,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Kay Whitmore',			3545,8AA5,0100,5858	;1
 	Player	'Frank Petrangelo',		4055,8AA8,0100,5555	;2
 	Player	'John Cullen',			1158,8B28,32EB,B5BB	;3
@@ -559,27 +559,27 @@ Hartford	;team record: Hartford (HFD)
 	Player	'Adam Burt',			0668,852B,8385,B288	;22
 	Player	'Doug Houda',			2762,2255,0225,852B	;23
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Hartford'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'HFD'
 
-LosAngeles	;team record: Los Angeles (LA)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+LosAngeles							;team record: Los Angeles (LA)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\LAh.pal
 	incbin	..\Extracted\Graphics\Pals\LAv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	4410,10D8,5664,6535
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	198,16
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,19,20,11,05,10,04,00	;line 1
 	dc.b	01,18,21,12,04,09,05,00	;line 2
 	dc.b	01,17,22,13,06,08,05,00	;line 3
@@ -587,7 +587,7 @@ LosAngeles	;team record: Los Angeles (LA)
 	dc.b	01,17,18,12,04,09,05,00	;line 5
 	dc.b	01,17,18,12,06,13,04,00	;line 6
 	dc.b	01,19,20,13,04,12,06,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Kelly Hrudey',			3259,9AAC,0100,6669	;1
 	Player	'Steve Weeks',			0133,9AA3,0100,6633	;2
 	Player	'David Goverde',		4380,9AA3,0000,0330	;3
@@ -613,27 +613,27 @@ LosAngeles	;team record: Los Angeles (LA)
 	Player	'Tim Watters',			0556,6363,7360,636D	;23
 	Player	'Brent Thompson',		5643,3333,6530,633D	;24
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Los Angeles'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'LA'
 
-LongIsland	;team record: Long Island (LI)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+LongIsland							;team record: Long Island (LI)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\LIh.pal
 	incbin	..\Extracted\Graphics\Pals\LIv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	5522,01E7,5455,5234
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	102,00
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,17,13,04,12,03,00	;line 1
 	dc.b	01,18,19,14,03,11,04,00	;line 2
 	dc.b	01,21,23,15,06,10,04,00	;line 3
@@ -641,7 +641,7 @@ LongIsland	;team record: Long Island (LI)
 	dc.b	01,23,18,13,06,03,14,00	;line 5
 	dc.b	01,17,19,16,07,08,11,00	;line 6
 	dc.b	01,20,22,08,11,16,07,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Glenn Healy',			3546,9AA6,0100,3636	;1
 	Player	'Mark Fitzpatrik',		3063,9AA3,0100,3366	;2
 	Player	'Ray Ferraro',			2056,9CCC,65CF,C698	;3
@@ -666,27 +666,27 @@ LongIsland	;team record: Long Island (LI)
 	Player	'Wayne McBean',			0663,33F6,6363,6C65	;22
 	Player	'Scott Lachance',		0776,66F3,6163,6332	;23
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Long Island'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'LI'
 
-Minnesota	;team record: Minnesota (MIN)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Minnesota							;team record: Minnesota (MIN)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\MINh.pal
 	incbin	..\Extracted\Graphics\Pals\MINv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	1301,11F6,1232,1652
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	166,00
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,21,14,04,10,03,00	;line 1
 	dc.b	01,20,22,16,03,11,04,00	;line 2
 	dc.b	01,19,23,15,05,09,04,00	;line 3
@@ -694,7 +694,7 @@ Minnesota	;team record: Minnesota (MIN)
 	dc.b	01,20,18,05,04,09,03,00	;line 5
 	dc.b	01,21,18,15,04,14,07,00	;line 6
 	dc.b	01,20,23,14,07,15,04,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Jon Casey',			301B,8BA8,0100,558B	;1
 	Player	'Darcy Wakaluk',		3555,8AA8,0100,5585	;2
 	Player	'Dave Gagner',			1555,5B58,8588,B85A	;3
@@ -719,27 +719,27 @@ Minnesota	;team record: Minnesota (MIN)
 	Player	'David Shaw',			2685,5225,8452,555A	;22
 	Player	'Derian Hatcher',		2888,55B5,6558,B82D	;23
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Minnesota'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'MIN'
 
-Montreal	;team record: Montreal (MTL)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Montreal							;team record: Montreal (MTL)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\MTLh.pal
 	incbin	..\Extracted\Graphics\Pals\MTLv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	3011,22E7,7888,8499
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	210,32
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,18,14,05,13,04,00	;line 1
 	dc.b	01,21,23,16,04,10,05,00	;line 2
 	dc.b	01,19,22,15,06,11,05,00	;line 3
@@ -747,7 +747,7 @@ Montreal	;team record: Montreal (MTL)
 	dc.b	01,21,23,17,05,09,14,00	;line 5
 	dc.b	01,19,23,16,08,14,05,00	;line 6
 	dc.b	01,20,18,14,05,16,08,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Patrick Roy',			335F,AFFF,0100,FFFF	;1
 	Player	'Roland Melanson',		0157,AAA7,0100,4477	;2
 	Player	'Andre Racicot',		4031,AAA1,0100,1111	;3
@@ -773,27 +773,27 @@ Montreal	;team record: Montreal (MTL)
 	Player	'Kevin Haller',			1457,7774,8747,F478	;23
 	Player	'Patrice Brisebois',	434A,A7DA,A674,7475	;24
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Montreal'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'MTL'
 
-NewJersey	;team record: New Jersey (NJ)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+NewJersey							;team record: New Jersey (NJ)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\NJh.pal
 	incbin	..\Extracted\Graphics\Pals\NJv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	5200,11F6,8668,6467
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	165,00
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,22,23,14,03,08,04,00	;line 1
 	dc.b	01,20,21,13,04,09,03,00	;line 2
 	dc.b	01,18,19,12,05,10,03,00	;line 3
@@ -801,7 +801,7 @@ NewJersey	;team record: New Jersey (NJ)
 	dc.b	01,21,22,14,04,09,03,00	;line 5
 	dc.b	01,23,19,12,11,05,10,00	;line 6
 	dc.b	01,21,22,05,10,12,11,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Chris Terreri',		311D,AAAA,0100,AAAA	;1
 	Player	'Craig Billington',		013A,AAA4,0100,7777	;2
 	Player	'Kevin Todd',			144A,DDA7,B57D,D7A5	;3
@@ -826,27 +826,27 @@ NewJersey	;team record: New Jersey (NJ)
 	Player	'Slava Fetisov',		02AD,77DD,B5D4,F1D8	;22
 	Player	'Scott Stevens',		049D,ADFA,F7AA,F4DB	;23
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'New Jersey'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'NJ'
 
-NewYork	;team record: New York (NY)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+NewYork								;team record: New York (NY)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\NYh.pal
 	incbin	..\Extracted\Graphics\Pals\NYv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	7120,20F8,7989,7789
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	152,00
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,20,15,03,09,05,00	;line 1
 	dc.b	01,21,24,16,05,08,03,00	;line 2
 	dc.b	01,19,22,17,04,12,03,00	;line 3
@@ -854,7 +854,7 @@ NewYork	;team record: New York (NY)
 	dc.b	01,21,24,16,04,08,03,00	;line 5
 	dc.b	01,19,21,03,07,04,11,00	;line 6
 	dc.b	01,18,20,04,11,03,07,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'John Vanbiesbrk',		344A,ADAA,0100,ADAD	;1
 	Player	'Mike Richter',			355D,ADDD,0100,DDDD	;2
 	Player	'Mark Messier',			118F,DFFA,F3FD,F4F9	;3
@@ -881,27 +881,27 @@ NewYork	;team record: New York (NY)
 	Player	'Per Djoos',			4447,A7D7,8074,D176	;24
 	Player	'Normand Rochefort',	0597,7114,B171,7A49	;25
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'New York'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'NY'
 
-Ottawa	;team record: Ottawa (OTW)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Ottawa								;team record: Ottawa (OTW)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\OTWh.pal
 	incbin	..\Extracted\Graphics\Pals\OTWv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	0702,02A6,1111,1411
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	96,00
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,12,13,10,07,02,03,00	;line 1
 	dc.b	01,14,15,08,03,06,10,00	;line 2
 	dc.b	01,16,17,09,04,05,10,00	;line 3
@@ -909,7 +909,7 @@ Ottawa	;team record: Ottawa (OTW)
 	dc.b	01,17,14,07,10,02,03,00	;line 5
 	dc.b	01,12,13,10,02,08,09,00	;line 6
 	dc.b	01,17,16,08,09,10,02,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Peter Sidorkwicz',		3055,8AA5,0100,5555	;1
 	Player	'Mark Lamb',			075C,C996,9196,6397	;2
 	Player	'Mark Freer',			3756,6393,736C,6963	;3
@@ -928,27 +928,27 @@ Ottawa	;team record: Ottawa (OTW)
 	Player	'Darren Rumble',		3470,0020,2100,220A	;16
 	Player	'Brad Miller',			44A2,5255,8D22,855F	;17
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Ottawa'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'OTW'
 
-Philadelphia	;team record: Philadelphia (PHI)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Philadelphia						;team record: Philadelphia (PHI)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\PHIh.pal
 	incbin	..\Extracted\Graphics\Pals\PHIv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	2201,22E8,3443,2353
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	147,00
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,18,13,03,09,04,00	;line 1
 	dc.b	01,21,23,15,04,10,03,00	;line 2
 	dc.b	01,19,20,16,05,11,03,00	;line 3
@@ -956,7 +956,7 @@ Philadelphia	;team record: Philadelphia (PHI)
 	dc.b	01,21,18,13,03,09,04,00	;line 5
 	dc.b	01,17,23,04,09,03,05,00	;line 6
 	dc.b	01,21,20,03,05,04,09,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Ron Hextall',			2769,9AA9,0100,CC99	;1
 	Player	'Dominic Roussel',		3353,9AA3,0100,3366	;2
 	Player	'Rod Brindamour',		177C,9C6C,75CC,F9C9	;3
@@ -982,27 +982,27 @@ Philadelphia	;team record: Philadelphia (PHI)
 	Player	'Mark Howe',			0259,99FC,71C9,F3C3	;23
 	Player	'Corey Foster',			4470,0603,1133,6C36	;24
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Philadelphia'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'PHI'
 
-Pittsburgh	;team record: Pittsburgh (PIT)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Pittsburgh							;team record: Pittsburgh (PIT)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\PITh.pal
 	incbin	..\Extracted\Graphics\Pals\PITv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	7621,10E7,5566,5725
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	182,00
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,17,13,04,09,03,00	;line 1
 	dc.b	01,19,23,14,03,10,04,00	;line 2
 	dc.b	01,20,21,15,05,08,04,00	;line 3
@@ -1010,7 +1010,7 @@ Pittsburgh	;team record: Pittsburgh (PIT)
 	dc.b	01,21,18,03,10,09,04,00	;line 5
 	dc.b	01,17,22,14,03,05,08,00	;line 6
 	dc.b	01,18,20,05,08,14,03,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Tom Barrasso',			358C,9AC9,0000,99C9	;1
 	Player	'Ken Wregget',			3166,9AA6,0100,9696	;2
 	Player	'Ron Francis',			107C,9C6C,93CC,F6C3	;3
@@ -1035,27 +1035,27 @@ Pittsburgh	;team record: Pittsburgh (PIT)
 	Player	'Grant Jennings',		0376,6396,A769,663C	;22
 	Player	'Jim Paek',				0266,9393,6333,6366	;23
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Pittsburgh'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'PIT'
 
-Quebec	;team record: Quebec (QUE)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Quebec								;team record: Quebec (QUE)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\QUEh.pal
 	incbin	..\Extracted\Graphics\Pals\QUEv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	2602,22E8,3212,1321
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	84,32
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,19,17,05,10,04,00	;line 1
 	dc.b	01,18,24,14,04,08,05,00	;line 2
 	dc.b	01,21,22,16,07,09,05,00	;line 3
@@ -1063,7 +1063,7 @@ Quebec	;team record: Quebec (QUE)
 	dc.b	01,22,24,14,04,08,09,00	;line 5
 	dc.b	01,20,24,16,04,14,05,00	;line 6
 	dc.b	01,21,18,14,05,16,04,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Jacques Cloutier',		3232,8AA2,0100,2225	;1
 	Player	'Stephane Fiset',		3142,8AA0,0100,2200	;2
 	Player	'John Tanner',			3450,8AA0,0100,0000	;3
@@ -1090,27 +1090,27 @@ Quebec	;team record: Quebec (QUE)
 	Player	'Curtis Leschyshyn',	0788,B505,8355,E289	;24
 	Player	'Dan Lambert',			5042,2822,015B,5256	;25
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Quebec'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'QUE'
 
-SanJose	;team record: San Jose (SJ)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+SanJose								;team record: San Jose (SJ)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\SJh.pal
 	incbin	..\Extracted\Graphics\Pals\SJv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	0702,12E6,2111,3211
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	133,34
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,24,20,16,09,11,12,00	;line 1
 	dc.b	01,23,21,17,08,12,09,00	;line 2
 	dc.b	01,19,22,15,07,13,09,00	;line 3
@@ -1118,7 +1118,7 @@ SanJose	;team record: San Jose (SJ)
 	dc.b	01,22,23,07,12,11,09,00	;line 5
 	dc.b	01,20,23,07,12,16,09,00	;line 6
 	dc.b	01,24,21,16,09,07,12,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Jeff Hackett',			3042,8AA2,0100,2225	;1
 	Player	'Jarmo Myllys',			3525,8AA2,0100,5528	;2
 	Player	'Arturs Irbe',			3245,8AA8,0100,8855	;3
@@ -1144,27 +1144,27 @@ SanJose	;team record: San Jose (SJ)
 	Player	'Jay More',				0468,550B,8485,E28C	;23
 	Player	'Doug Wilson',			245B,880F,81B5,E5B3	;24
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'San Jose'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'SJ'
 
-StLouis	;team record: St. Louis (STL). Pointer words at .0, then palettes, lines, scout report, odds, players, name
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+StLouis								;team record: St. Louis (STL). Pointer words at .0, then palettes, lines, scout report, odds, players, name
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\STLh.pal
 	incbin	..\Extracted\Graphics\Pals\STLv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	4210,21D8,4364,4564
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	194,32
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,22,17,14,04,10,06,00	;line 1
 	dc.b	01,18,20,15,06,08,04,00	;line 2
 	dc.b	01,19,21,13,07,09,04,00	;line 3
@@ -1172,7 +1172,7 @@ StLouis	;team record: St. Louis (STL). Pointer words at .0, then palettes, lines
 	dc.b	01,21,20,07,04,09,08,00	;line 5
 	dc.b	01,22,20,07,09,13,05,00	;line 6
 	dc.b	01,21,19,13,05,07,09,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Curtis Joseph',		315C,9CCC,0100,99CC	;1
 	Player	'Guy Hebert',			4050,9AA0,0100,0000	;2
 	Player	'Pat Jablonski',		0143,9AA0,0000,3333	;3
@@ -1198,27 +1198,27 @@ StLouis	;team record: St. Louis (STL). Pointer words at .0, then palettes, lines
 	Player	'Lee Norwood',			2076,66C3,7763,636C	;23
 	Player	'Rob Robinson',			4493,6033,6160,6933	;24
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'St. Louis'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'STL'
 
-TampaBay	;team record: Tampa Bay (TBY)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+TampaBay							;team record: Tampa Bay (TBY)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\TBYh.pal
 	incbin	..\Extracted\Graphics\Pals\TBYv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	0702,02A7,2111,1411
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	48,00
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,13,12,09,02,06,03,00	;line 1
 	dc.b	01,14,15,10,03,07,02,00	;line 2
 	dc.b	01,16,17,11,04,08,02,00	;line 3
@@ -1226,7 +1226,7 @@ TampaBay	;team record: Tampa Bay (TBY)
 	dc.b	01,15,13,11,04,07,02,00	;line 5
 	dc.b	01,14,13,10,03,11,05,00	;line 6
 	dc.b	01,16,18,11,05,10,03,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Wendell Young',		0159,9AA9,0100,9699	;1
 	Player	'Anatoli Semenov',		196C,9CCC,71CC,C9C4	;2
 	Player	'Rob Dimaio',			1846,9303,1269,9F05	;3
@@ -1246,27 +1246,27 @@ TampaBay	;team record: Tampa Bay (TBY)
 	Player	'Jeff Bloemberg',		3870,0020,2000,222A	;17
 	Player	'Shawn Chambers',		2570,0000,2100,220A	;18
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Tampa Bay'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'TBY'
 
-Toronto	;team record: Toronto (TOR)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Toronto								;team record: Toronto (TOR)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\TORh.pal
 	incbin	..\Extracted\Graphics\Pals\TORv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	1411,12E8,2123,3232
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	211,00
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,19,13,03,06,05,00	;line 1
 	dc.b	01,20,21,10,05,08,03,00	;line 2
 	dc.b	01,18,22,14,04,07,03,00	;line 3
@@ -1274,7 +1274,7 @@ Toronto	;team record: Toronto (TOR)
 	dc.b	01,18,22,05,07,06,13,00	;line 5
 	dc.b	01,19,21,12,04,10,03,00	;line 6
 	dc.b	01,18,17,10,03,12,04,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Grant Fuhr',			315E,8EEE,0000,BBEE	;1
 	Player	'Rick Wamsley',			3055,8AA5,0100,5555	;2
 	Player	'Doug Gilmour',			933E,8BB8,B1BB,E2B8	;3
@@ -1300,27 +1300,27 @@ Toronto	;team record: Toronto (TOR)
 	Player	'Bob Halkidis',			3372,2222,2725,582B	;23
 	Player	'Dimitri Mironov',		1568,5208,218B,55B0	;24
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Toronto'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'TOR'
 
-Vancouver	;team record: Vancouver (VAN)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Vancouver							;team record: Vancouver (VAN)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\VANh.pal
 	incbin	..\Extracted\Graphics\Pals\VANv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	4111,10E8,6877,7577
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	211,00
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,19,13,03,09,05,00	;line 1
 	dc.b	01,17,21,12,05,11,03,00	;line 2
 	dc.b	01,20,22,16,04,10,03,00	;line 3
@@ -1328,7 +1328,7 @@ Vancouver	;team record: Vancouver (VAN)
 	dc.b	01,22,17,12,05,11,04,00	;line 5
 	dc.b	01,19,22,06,07,12,05,00	;line 6
 	dc.b	01,17,18,12,05,06,07,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Kirk McLean',			016D,AFFD,0100,DDFF	;1
 	Player	'Troy Gamble',			3567,AAA7,0100,77AA	;2
 	Player	'Cliff Ronning',		074F,FDD7,81DA,AAD4	;3
@@ -1354,27 +1354,27 @@ Vancouver	;team record: Vancouver (VAN)
 	Player	'Randy Gregg',			2494,4444,5144,744A	;23
 	Player	'Adrien Plavsic',		0667,7AD7,A374,7177	;24
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Vancouver'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'VAN'
 
-Winnipeg	;team record: Winnipeg (WPG)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Winnipeg							;team record: Winnipeg (WPG)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\WPGh.pal
 	incbin	..\Extracted\Graphics\Pals\WPGv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	2020,10E7,4555,2185
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	149,48
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,21,17,07,10,04,00	;line 1
 	dc.b	01,18,24,14,04,11,07,00	;line 2
 	dc.b	01,22,23,15,05,09,07,00	;line 3
@@ -1382,7 +1382,7 @@ Winnipeg	;team record: Winnipeg (WPG)
 	dc.b	01,22,18,14,04,12,11,00	;line 5
 	dc.b	01,20,23,15,04,14,05,00	;line 6
 	dc.b	01,22,18,14,05,15,04,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Bob Essensa',			352F,9CCF,0100,CCCC	;1
 	Player	'Steph Beauregard',		3056,9AA6,0000,3666	;2
 	Player	'Rick Tabaracci',		3156,9AA3,0100,3366	;3
@@ -1408,27 +1408,27 @@ Winnipeg	;team record: Winnipeg (WPG)
 	Player	'Shawn Cronin',			4480,0030,7D00,C60F	;23
 	Player	'Mario Marois',			3363,3333,6463,9969	;24
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Winnipeg'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'WPG'
 
-Washington	;team record: Washington (WSH)
-.0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
+Washington							;team record: Washington (WSH)
+.0									;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
 	dc.w	.pld-.0
 	dc.w	.pad-.0
 	dc.w	.tn-.0
 	dc.w	.ls-.0
 	dc.w	.sr-.0
 	dc.w	.sodds-.0
-.pad	;home then visitor palette files (Palettedata)
+.pad								;home then visitor palette files (Palettedata)
 	incbin	..\Extracted\Graphics\Pals\WSHh.pal
 	incbin	..\Extracted\Graphics\Pals\WSHv.pal
-.sr	;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
+.sr									;		uupu,uuuu,skpd,cfgo ; TODO - discover unknown attributes
 	hex2	7320,00E7,9697,8458
-.sodds	; TODO - rename this once unknowns/sodds are confirmed
+.sodds								; TODO - rename this once unknowns/sodds are confirmed
 	dc.b	164,32
-.ls	;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									;		-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,19,20,12,05,08,04,00	;line 1
 	dc.b	01,18,24,15,04,11,05,00	;line 2
 	dc.b	01,21,22,14,06,10,05,00	;line 3
@@ -1436,7 +1436,7 @@ Washington	;team record: Washington (WSH)
 	dc.b	01,21,20,06,05,08,04,00	;line 5
 	dc.b	01,21,24,12,05,06,07,00	;line 6
 	dc.b	01,18,19,06,07,12,05,00	;line 7
-.pld	;							unwl,sodp,chga,eytm
+.pld								;							unwl,sodp,chga,eytm
 	Player	'Don Beaupre',			3337,AAAA,0100,AAAA	;1
 	Player	'Mike Liut',			0167,AAA7,0100,A77A	;2
 	Player	'Jim Hrivnak',			3954,AAA4,0100,1144	;3
@@ -1462,13 +1462,13 @@ Washington	;team record: Washington (WSH)
 	Player	'Ken Sabourin',			0284,4141,1111,771B	;23
 	Player	'Brad Schlegel',		285A,7147,7071,D770	;24
 	dc.b 0,2						; TODO not sure why this is here
-.tn	;team name string (Teamname)
+.tn									;team name string (Teamname)
 	StringB	'Washington'
-.ta	;team abbreviation string
+.ta									;team abbreviation string
 	StringB	'WSH'
 
 
-playoffseats	;32 playoff trees x 16 bytes: team numbers in first round tree order (adjacent pairs meet); used by NewPO and maketree
+playoffseats						;32 playoff trees x 16 bytes: team numbers in first round tree order (adjacent pairs meet); used by NewPO and maketree
 	dc.b	15,22,11,12, 1,0,6,10, 5,8,23,21, 9,4,18,3
 	dc.b	11,22,15,12, 6,0,1,10, 23,8,5,21, 18,4,9,3
 	dc.b	15,22,7,12, 6,0,16,10, 5,8,2,21, 9,4,20,3
@@ -1509,7 +1509,7 @@ playoffseats	;32 playoff trees x 16 bytes: team numbers in first round tree orde
 	dc.b	3,18,4,19, 21,23,8,5, 10,6,0,13, 12,11,22,15
 
 
-Credits	;copyright and credits text: groups of String lines, each group ended by String -1 (printed from hockey93.asm)
+Credits								;copyright and credits text: groups of String lines, each group ended by String -1 (printed from hockey93.asm)
 	String	'$ 1992 Electronic Arts'
 	String	'Licensed by'
 	String	'Sega Enterprises Ltd.'
