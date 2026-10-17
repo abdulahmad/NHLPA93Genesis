@@ -1,7 +1,7 @@
 ;	Assembler macros used throughout the game: setting the VDP auto increment, writing print
 ;	strings with their length in front, hex digits, roster entries and pictures.
 
-VmInc MACRO ;set video auto inc. mode
+VmInc MACRO							;set video auto inc. mode
 	move	#$8f00+(\1&255),Vctrl
 	ENDM
 
@@ -11,48 +11,48 @@ String  MACRO
         ; Reserve space for length word
         dc.w    0
         ; Output the string bytes
-        dc.b    \1     ; first param
+        dc.b    \1					; first param
     IF NARG>1
-        dc.b    \2     ; second param
+        dc.b    \2					; second param
     ENDIF
     IF NARG>2
-        dc.b    \3     ; third param
+        dc.b    \3					; third param
     ENDIF
     IF NARG>3
-        dc.b    \4     ; fourth param
+        dc.b    \4					; fourth param
     ENDIF
     IF NARG>4
-        dc.b    \5     ; fifth param
+        dc.b    \5					; fifth param
     ENDIF
     IF NARG>5
-        dc.b    \6     ; sixth param
+        dc.b    \6					; sixth param
     ENDIF
     IF NARG>6
-        dc.b    \7     ; seventh param
+        dc.b    \7					; seventh param
     ENDIF
     IF NARG>7
-        dc.b    \8     ; eighth param
+        dc.b    \8					; eighth param
     ENDIF
     IF NARG>8
-        dc.b    \9     ; ninth param
+        dc.b    \9					; ninth param
     ENDIF
     IF NARG>9
-        dc.b    \10    ; tenth param
+        dc.b    \10					; tenth param
     ENDIF
     IF NARG>10
-        dc.b    \11    ; eleventh param
+        dc.b    \11					; eleventh param
     ENDIF
     IF NARG>11
-        dc.b    \12    ; twelfth param
+        dc.b    \12					; twelfth param
     ENDIF
     IF NARG>12
-        dc.b    \13    ; thirteenth param
+        dc.b    \13					; thirteenth param
     ENDIF
     IF NARG>13
-        dc.b    \14    ; fourteenth param
+        dc.b    \14					; fourteenth param
     ENDIF
     IF NARG>14
-        dc.b    \15    ; fifteenth param
+        dc.b    \15					; fifteenth param
     ENDIF
         ; Pad with zero if needed for word alignment
     IF *&1
@@ -61,7 +61,7 @@ String  MACRO
 @end1    =   *
         ; Now write the length at the reserved position
         org     @begin1
-        dc.w    @end1-@begin1  ; Total length
+        dc.w    @end1-@begin1		; Total length
         org     @end1
     ENDM
 
@@ -71,48 +71,48 @@ StringB  MACRO
         ; Reserve space for length word
         dc.w    0
         ; Output the string bytes
-        dc.b    \1     ; first param
+        dc.b    \1					; first param
     IF NARG>1
-        dc.b    \2     ; second param
+        dc.b    \2					; second param
     ENDIF
     IF NARG>2
-        dc.b    \3     ; third param
+        dc.b    \3					; third param
     ENDIF
     IF NARG>3
-        dc.b    \4     ; fourth param
+        dc.b    \4					; fourth param
     ENDIF
     IF NARG>4
-        dc.b    \5     ; fifth param
+        dc.b    \5					; fifth param
     ENDIF
     IF NARG>5
-        dc.b    \6     ; sixth param
+        dc.b    \6					; sixth param
     ENDIF
     IF NARG>6
-        dc.b    \7     ; seventh param
+        dc.b    \7					; seventh param
     ENDIF
     IF NARG>7
-        dc.b    \8     ; eighth param
+        dc.b    \8					; eighth param
     ENDIF
     IF NARG>8
-        dc.b    \9     ; ninth param
+        dc.b    \9					; ninth param
     ENDIF
     IF NARG>9
-        dc.b    \10    ; tenth param
+        dc.b    \10					; tenth param
     ENDIF
     IF NARG>10
-        dc.b    \11    ; eleventh param
+        dc.b    \11					; eleventh param
     ENDIF
     IF NARG>11
-        dc.b    \12    ; twelfth param
+        dc.b    \12					; twelfth param
     ENDIF
     IF NARG>12
-        dc.b    \13    ; thirteenth param
+        dc.b    \13					; thirteenth param
     ENDIF
     IF NARG>13
-        dc.b    \14    ; fourteenth param
+        dc.b    \14					; fourteenth param
     ENDIF
     IF NARG>14
-        dc.b    \15    ; fifteenth param
+        dc.b    \15					; fifteenth param
     ENDIF
         ; Pad with zero if needed for word alignment
     IF *&1
@@ -121,12 +121,12 @@ StringB  MACRO
 @end1    =   *
         ; Now write the length at the reserved position
         org     @begin1+1
-        dc.b    @end1-@begin1  ; Total length
+        dc.b    @end1-@begin1		; Total length
         org     @end1
     ENDM
 
-HEX2 MACRO    ; macro for hex data
-    dc.w    $\1,$\2,$\3,$\4     ; handle 4 words at a time, add $ prefix
+HEX2 MACRO							; macro for hex data
+    dc.w    $\1,$\2,$\3,$\4			; handle 4 words at a time, add $ prefix
     ENDM
 
 PLAYER MACRO
@@ -138,7 +138,7 @@ PLAYER MACRO
     dc.b \1
     ; Pad with 0x00 if name length is odd (to make name even)
     IF *&1
-        dc.b $00  ; or use $20 for space if preferred
+        dc.b $00					; or use $20 for space if preferred
     ENDIF
 @end = *
     ; Now write the length byte at the reserved position (total size: prefix 2 + name + pad)
