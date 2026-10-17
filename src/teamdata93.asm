@@ -37,13 +37,13 @@ TeamList	;table of long pointers to the team records, indexed by team number (Ho
 	dc.l	AllStarsEast
 	dc.l	AllStarsWest
 
-NumofTeams	=	(*-TeamList)/4	;number of teams in TeamList (26)
-Playerdata	=	0	;record offset of the word offset to the player data (.pld)
-Palettedata	=	2	;record offset of the word offset to the palettes (.pad)
-Teamname	=	4	;record offset of the word offset to the team name (.tn)
-LineSets	=	6	;record offset of the word offset to the line sets (.ls)
-ScoutReport	=	8	;record offset of the word offset to the scouting report ratings (.sr)
-ScoreOdds	=	10	;record offset of the word offset to the scoring odds (.sodds)
+NumofTeams	=	(*-TeamList)/4		;number of teams in TeamList (26)
+Playerdata	=	0					;record offset of the word offset to the player data (.pld)
+Palettedata	=	2					;record offset of the word offset to the palettes (.pad)
+Teamname	=	4					;record offset of the word offset to the team name (.tn)
+LineSets	=	6					;record offset of the word offset to the line sets (.ls)
+ScoutReport	=	8					;record offset of the word offset to the scouting report ratings (.sr)
+ScoreOdds	=	10					;record offset of the word offset to the scoring odds (.sodds)
 
 AllStarsEast	;team record: None (None). Pointer words at .0, then palettes, lines, scout report, odds, players, name
 .0	;record base: six word offsets follow (Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds)
@@ -132,7 +132,7 @@ AllStarsEast	;team record: None (None). Pointer words at .0, then palettes, line
 	Player	'Kevin Hatcher',		05AA,AADF,E4D7,F7D8	;20
 	Player	'Eric Desjardins',		287D,AADA,B2D4,F4A5	;21
 	Player	'Scott Stevens',		049D,ADFA,F7AA,F4DB	;22
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'All Stars East'
 .ta	;team abbreviation string
@@ -184,7 +184,7 @@ AllStarsWest	;team record: All Stars West (ASW)
 	Player	'Mark Tinordi',			2588,5828,B582,E25D	;20
 	Player	'Larry Robinson',		19A9,6396,A396,9397	;21
 	Player	'Dave Ellett',			047B,B82E,95B5,E5B8	;22
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'All Stars West'
 .ta	;team abbreviation string
@@ -238,7 +238,7 @@ Boston	;team record: Boston (BOS)
 	Player	'Gordon Murphy',		286F,C39C,CA93,F998	;22
 	Player	'Jim Wiemer',			3686,33C3,6B63,966B	;23
 	Player	'Bob Beers',			2279,9306,7230,9305	;24
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Boston'
 .ta	;team abbreviation string
@@ -292,7 +292,7 @@ Buffalo	;team record: Buffalo (BUF)
 	Player	'Randy Moller',			2488,5225,9652,555D	;22
 	Player	'Grant Ledyard',		037B,885B,8B52,E287	;23
 	Player	'Randy Hillier',		2365,2002,5A20,2B5D	;24
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Buffalo'
 .ta	;team abbreviation string
@@ -345,7 +345,7 @@ Calgary	;team record: Calgary (CGY)
 	Player	'Trent Yawney',			1868,5555,8788,B287	;21
 	Player	'Alexnder Godynyuk',	2185,8525,9B55,222D	;22
 	Player	'Neil Sheehy',			1595,2225,8A22,282D	;23
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Calgary'
 .ta	;team abbreviation string
@@ -399,7 +399,7 @@ Chicago	;team record: Chicago (CHI)
 	Player	'Keith Brown',			046D,D7D7,BAA4,FAAA	;22
 	Player	'Rod Buskas',			2584,4144,5A41,A44D	;23
 	Player	'Igor Kravchuk',		037D,AA4A,81D4,74A4	;24
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Chicago'
 .ta	;team abbreviation string
@@ -452,7 +452,7 @@ Detroit	;team record: Detroit (DET)
 	Player	'Yves Racine',			335A,A77D,B5A4,D4AA	;21
 	Player	'Brad Marsh',			20A4,74D4,A547,A47A	;22
 	Player	'Bobby Dollas',			0897,A4D1,231A,7F17	;23
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Detroit'
 .ta	;team abbreviation string
@@ -505,7 +505,7 @@ Edmonton	;team record: Edmonton (EDM)
 	Player	'Norm MacIver',			3659,9CF9,9166,C097	;21
 	Player	'Kevin Lowe',			046C,9369,A1C3,C39D	;22
 	Player	'Craig Muni',			2873,33C3,C533,6667	;23
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Edmonton'
 .ta	;team abbreviation string
@@ -558,7 +558,7 @@ Hartford	;team record: Hartford (HFD)
 	Player	'Randy Ladouceur',		29A8,2282,5552,852B	;21
 	Player	'Adam Burt',			0668,852B,8385,B288	;22
 	Player	'Doug Houda',			2762,2255,0225,852B	;23
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Hartford'
 .ta	;team abbreviation string
@@ -612,7 +612,7 @@ LosAngeles	;team record: Los Angeles (LA)
 	Player	'Charlie Huddy',		2289,6639,9393,9397	;22
 	Player	'Tim Watters',			0556,6363,7360,636D	;23
 	Player	'Brent Thompson',		5643,3333,6530,633D	;24
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Los Angeles'
 .ta	;team abbreviation string
@@ -665,7 +665,7 @@ LongIsland	;team record: Long Island (LI)
 	Player	'Jeff Norton',			0869,9996,7363,9095	;21
 	Player	'Wayne McBean',			0663,33F6,6363,6C65	;22
 	Player	'Scott Lachance',		0776,66F3,6163,6332	;23
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Long Island'
 .ta	;team abbreviation string
@@ -718,7 +718,7 @@ Minnesota	;team record: Minnesota (MIN)
 	Player	'Mark Tinordi',			2488,5828,B582,E25D	;21
 	Player	'David Shaw',			2685,5225,8452,555A	;22
 	Player	'Derian Hatcher',		2888,55B5,6558,B82D	;23
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Minnesota'
 .ta	;team abbreviation string
@@ -772,7 +772,7 @@ Montreal	;team record: Montreal (MTL)
 	Player	'Sylvain Lefebvre',		038A,A4D4,8374,A4A8	;22
 	Player	'Kevin Haller',			1457,7774,8747,F478	;23
 	Player	'Patrice Brisebois',	434A,A7DA,A674,7475	;24
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Montreal'
 .ta	;team abbreviation string
@@ -825,7 +825,7 @@ NewJersey	;team record: New Jersey (NJ)
 	Player	'Alexei Kasatonov',		079D,AADD,B5DA,F4D5	;21
 	Player	'Slava Fetisov',		02AD,77DD,B5D4,F1D8	;22
 	Player	'Scott Stevens',		049D,ADFA,F7AA,F4DB	;23
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'New Jersey'
 .ta	;team abbreviation string
@@ -880,7 +880,7 @@ NewYork	;team record: New York (NY)
 	Player	'Jay Wells',			2487,74A7,A577,717C	;23
 	Player	'Per Djoos',			4447,A7D7,8074,D176	;24
 	Player	'Normand Rochefort',	0597,7114,B171,7A49	;25
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'New York'
 .ta	;team abbreviation string
@@ -927,7 +927,7 @@ Ottawa	;team record: Ottawa (OTW)
 	Player	'Dominic Lavoie',		3880,0020,2000,220A	;15
 	Player	'Darren Rumble',		3470,0020,2100,220A	;16
 	Player	'Brad Miller',			44A2,5255,8D22,855F	;17
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Ottawa'
 .ta	;team abbreviation string
@@ -981,7 +981,7 @@ Philadelphia	;team record: Philadelphia (PHI)
 	Player	'Dan Kordic',			0680,0390,7603,693C	;22
 	Player	'Mark Howe',			0259,99FC,71C9,F3C3	;23
 	Player	'Corey Foster',			4470,0603,1133,6C36	;24
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Philadelphia'
 .ta	;team abbreviation string
@@ -1034,7 +1034,7 @@ Pittsburgh	;team record: Pittsburgh (PIT)
 	Player	'Paul Stanton',			2269,933C,9463,C6C9	;21
 	Player	'Grant Jennings',		0376,6396,A769,663C	;22
 	Player	'Jim Paek',				0266,9393,6333,6366	;23
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Pittsburgh'
 .ta	;team abbreviation string
@@ -1089,7 +1089,7 @@ Quebec	;team record: Quebec (QUE)
 	Player	'Tony Twist',			1590,0050,3D00,280C	;23
 	Player	'Curtis Leschyshyn',	0788,B505,8355,E289	;24
 	Player	'Dan Lambert',			5042,2822,015B,5256	;25
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Quebec'
 .ta	;team abbreviation string
@@ -1143,7 +1143,7 @@ SanJose	;team record: San Jose (SJ)
 	Player	'Link Gaetz',			2388,8208,BD85,288F	;22
 	Player	'Jay More',				0468,550B,8485,E28C	;23
 	Player	'Doug Wilson',			245B,880F,81B5,E5B3	;24
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'San Jose'
 .ta	;team abbreviation string
@@ -1197,7 +1197,7 @@ StLouis	;team record: St. Louis (STL). Pointer words at .0, then palettes, lines
 	Player	'Paul Cavallini',		148C,C999,95C3,F699	;22
 	Player	'Lee Norwood',			2076,66C3,7763,636C	;23
 	Player	'Rob Robinson',			4493,6033,6160,6933	;24
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'St. Louis'
 .ta	;team abbreviation string
@@ -1245,7 +1245,7 @@ TampaBay	;team record: Tampa Bay (TBY)
 	Player	'Bob McGill',			0464,411D,B274,7F4A	;16
 	Player	'Jeff Bloemberg',		3870,0020,2000,222A	;17
 	Player	'Shawn Chambers',		2570,0000,2100,220A	;18
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Tampa Bay'
 .ta	;team abbreviation string
@@ -1299,7 +1299,7 @@ Toronto	;team record: Toronto (TOR)
 	Player	'Darryl Shannon',		2868,5225,8182,B552	;22
 	Player	'Bob Halkidis',			3372,2222,2725,582B	;23
 	Player	'Dimitri Mironov',		1568,5208,218B,55B0	;24
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Toronto'
 .ta	;team abbreviation string
@@ -1353,7 +1353,7 @@ Vancouver	;team record: Vancouver (VAN)
 	Player	'Doug Lidster',			037A,AADA,B2D7,F4D4	;22
 	Player	'Randy Gregg',			2494,4444,5144,744A	;23
 	Player	'Adrien Plavsic',		0667,7AD7,A374,7177	;24
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Vancouver'
 .ta	;team abbreviation string
@@ -1407,7 +1407,7 @@ Winnipeg	;team record: Winnipeg (WPG)
 	Player	'Randy Carlyle',		0876,6396,A360,F966	;22
 	Player	'Shawn Cronin',			4480,0030,7D00,C60F	;23
 	Player	'Mario Marois',			3363,3333,6463,9969	;24
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Winnipeg'
 .ta	;team abbreviation string
@@ -1461,7 +1461,7 @@ Washington	;team record: Washington (WSH)
 	Player	'Rod Langway',			059A,74D4,A1A1,A172	;22
 	Player	'Ken Sabourin',			0284,4141,1111,771B	;23
 	Player	'Brad Schlegel',		285A,7147,7071,D770	;24
-	dc.b 0,2	; TODO not sure why this is here
+	dc.b 0,2						; TODO not sure why this is here
 .tn	;team name string (Teamname)
 	StringB	'Washington'
 .ta	;team abbreviation string
@@ -1514,7 +1514,7 @@ Credits	;copyright and credits text: groups of String lines, each group ended by
 	String	'Licensed by'
 	String	'Sega Enterprises Ltd.'
 	String	-1
-	dc.b	0,2 ;	TODO -- this is strange-- maybe something missing from the macro?
+	dc.b	0,2						;	TODO -- this is strange-- maybe something missing from the macro?
 	String  -1
 
 	String	'Design adapted by'

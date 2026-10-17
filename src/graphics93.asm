@@ -49,10 +49,10 @@ RefMap2		;the horizontal ref (PushRef)
 Sprites		;$FFFFFFFF, long offset to FrameDataOff, then tiles
 	incbin	..\Extracted\Graphics\Sprites.anim
 	even
-Spritetiles	equ	Sprites+$A	;sprite tiles
+Spritetiles	equ	Sprites+$A			;sprite tiles
 FrameDataOff	equ	Sprites+$3574A	;frame offset table (= Sprites + the long at Sprites+4)
 SprDataBytes	equ	Sprites+$35C60	;8-byte sprite entries of each frame
-HotList	equ	Sprites+$3A056	;hot spot byte pair per frame
+HotList	equ	Sprites+$3A056			;hot spot byte pair per frame
 CrowdSprites		;crowd animation sprite frames (showcrowd in video93.asm)
 	incbin	..\Extracted\Graphics\Crowd.anim
 	even
