@@ -12,13 +12,13 @@ Because the source uses labels, code and data can grow or move. Add new RAM to `
 
 | Version | Header | File | SHA-1 |
 | --- | --- | --- | --- |
-| Retail | `1992.JUL`, `GM T-50396 -00` | `nhlpa93retail.bin` | `8efc1cacb079ea223966dda065c16c49e584cac2` |
-| Rev A | `1992.OCT`, `GM T-50396 -01` | `nhlpa93retailRevA.bin` | `2ab048fc7209df28b00ef47f2f686f5b7208466e` |
+| Rev 0 (v1.0, "retail") | `1992.JUL`, `GM T-50396 -00` | `nhlpa93retail.bin` | `8efc1cacb079ea223966dda065c16c49e584cac2` |
+| Rev A (v1.1) | `1992.OCT`, `GM T-50396 -01` | `nhlpa93retailRevA.bin` | `2ab048fc7209df28b00ef47f2f686f5b7208466e` |
 
 `npm run extractassets` extracts from the retail ROM, `npm run extractassets:reva` from the Rev A ROM. The builds extract automatically when needed (`tools/prebuild.js`).
 
 ## Known Issues/Limitations
-- **Rev B**: `nhlpa93retailRevB.bin` (`1993.FEB`) is a separate later build (different rosters, graphics and about 145 code changes) and is not built.
+- **Rev B (v1.2)**: `nhlpa93retailRevB.bin` (`1993.FEB`) is a separate later build (different rosters, graphics and about 145 code changes) and is not built.
 - **Z80 sound driver**: the Z80 code is the extracted binary, not source.
 - **Asset boundaries**: graphics and sound slices start at the labels the code uses; a few files may contain more than one asset.
 - **Checksum sensitivity**: `build:retail` / `build:reva` need the exact retail ROM for the extracted files; with validation on, any change stops the game at boot.

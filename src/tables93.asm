@@ -231,7 +231,7 @@ bfasciicon							;equates to find each char definition in bigfont.map.
 	;	P  Q  R  S  T  U  V  W	X  Y  Z
 	dc.b	29,31,33,35,37,39,41,43,45,47,49
 	IF REV=0
-	dc.b	$F0						;pad, retail byte (Rev A: 0)
+	dc.b	$F0						;pad, Rev 0 byte (Rev A: 0)
 	ELSE
 	dc.b	0
 	ENDIF
@@ -292,7 +292,7 @@ sublist								;substitution lists by position (goalie, LD, RD, LW, C, RW, extra
 priolist	dc.b	0,1,2,4,3,5,6	;positions in order of importance. Used by
 	;SetPlList, releasepl and getlinee
 	IF REV=0
-	dc.b	$23						;pad, retail byte (Rev A: 0)
+	dc.b	$23						;pad, Rev 0 byte (Rev A: 0)
 	ELSE
 	dc.b	0
 	ENDIF
@@ -360,7 +360,7 @@ PlayoffTreeSetup					;92 PlayoffScreen .setup. Playoff tree layout by gamelevel:
 	dc.b	5,15,0,29,2,43,4,83,6,97,8,111,10
 	dc.b	-1						;no scores
 	IF REV=0
-	dc.b	$47						;pad, retail byte (Rev A: 0)
+	dc.b	$47						;pad, Rev 0 byte (Rev A: 0)
 	ELSE
 	dc.b	0
 	ENDIF

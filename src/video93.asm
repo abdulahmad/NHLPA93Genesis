@@ -714,7 +714,7 @@ RenderSmallFontChar					;92 uppads .pd. dma one small font tile to the object's 
 
 ButtonLabelCharTable				;third label character by bits 10-8 of the label code
 	IF REV=0
-	dc.b	' DDLCRX',$10			;retail pad $10 (Rev A: 0)
+	dc.b	' DDLCRX',$10			;Rev 0 pad $10 (Rev A: 0)
 	ELSE
 	dc.b	' DDLCRX',0
 	ENDIF

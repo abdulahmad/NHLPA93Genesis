@@ -19,7 +19,8 @@
 ;	  the title, playoff, setup and scouting screens, the Stanley Cup screen, the end of game boxes
 ;	  the name formatters and the exception handlers
 ;
-;	This is the retail 1.1 build; REV=1 gives Rev A. Differences from 92 are noted in the comments.
+;	REV selects the revision: REV=0 is Rev 0 (v1.0, the retail ROM, serial -00) and REV=1 is Rev A
+;	(v1.1, serial -01). Rev B (v1.2) is not built. Differences from 92 are noted in the comments.
 
 	include	Main93.Asm				;EA provided code for startup and EA logo
 	include	TeamData93.Asm			;$000310-$004D8D
@@ -85,7 +86,7 @@ StartGame							;reset game state for a new game, then start the first period
 
 ClearShotData						;clear 49 words at $FFCB0A
 	moveq	#$30,d0
-	movea.w	#(outputbuffer-M68K_RAM),a0	;retail v1.1 shot buffer (Rev A outputbuffer: $CB0E)
+	movea.w	#(outputbuffer-M68K_RAM),a0	;Rev 0 (v1.0) shot buffer (Rev A outputbuffer: $CB0E)
 .0	clr.w	(a0)+					;clear one word
 	dbf	d0,.0
 	rts
@@ -3296,7 +3297,7 @@ Setplass							;set players (a3) initial assignment
 	dc.b	awingd					;awingd
 	dc.b	acenterd				;acenterd
 	IF REV=0
-	dc.b	$FA						;retail pad (Rev A: 0)
+	dc.b	$FA						;Rev 0 pad (Rev A: 0)
 	ELSE
 	dc.b	0
 	ENDIF
@@ -4341,7 +4342,7 @@ ScoutingReport						;pregame scouting report. Called from PeriodOver.
 	move.w	d4,(smallfont2chars).w	;1st vram char of the 2nd small font set
 	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
-	dc.l	$0A234567,$89ABCDEF		;remap table (retail; / or.l)
+	dc.l	$0A234567,$89ABCDEF		;remap table (Rev 0; / or.l)
 	bsr.w	AddFramer
 
 	bsr.w	printz
@@ -4814,7 +4815,7 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 
 	bsr.w	printz
 	String	$FD,0,0					;Title1Map
-	movea.l	#Title1Map,a0			;whole Titlemap with palettes (retail; Rev A)
+	movea.l	#Title1Map,a0			;whole Titlemap with palettes (Rev 0; Rev A)
 	movea.l	a0,a1
 	movea.l	a0,a2
 	adda.l	(a2)+,a0
@@ -4860,7 +4861,7 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	move.w	d4,(smallfontchars).w
 	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
-	dc.l	$08F04567,$89ABCDEF		;remap table (retail; #$67 / or.l)
+	dc.l	$08F04567,$89ABCDEF		;remap table (Rev 0; #$67 / or.l)
 
 	bsr.w	printz
 	String	$FF,0,0
@@ -5161,11 +5162,11 @@ setoptions							;options screen display and input. Called from PeriodOver.
 	move.w	d4,(Framercset).w		;framer tiles loaded here
 	movea.l	#FramerMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
-	dc.l	$01234562,$89ABCDEF		;remap table (retail; / or.l)
+	dc.l	$01234562,$89ABCDEF		;remap table (Rev 0; / or.l)
 	move.w	d4,(smallfontchars).w	;small font loaded here
 	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
-	dc.l	$0FC04567,$89ABCDEF		;remap table (retail; / or.l)
+	dc.l	$0FC04567,$89ABCDEF		;remap table (Rev 0; / or.l)
 
 	bsr.w	printz
 	String	$FF,0,0					;map 1 (92 -$02,0,0)
@@ -5848,7 +5849,7 @@ VBlank_SetOptions					;vbint handler stored by setoptions: cramfade unless dfng,
 ;	source has the real cmp; fixopcodes.js patches the encoding after assembly.
 ;	The password bits are kept in a 5 word buffer at a3; there is no password
 ;	checksum (92 had one). The buffers are pwddatabuffer, tpassbits and
-;	outputbuffer (retail addresses are 4 bytes lower than Rev A).
+;	outputbuffer (Rev 0 addresses are 4 bytes lower than Rev A).
 ;	gsflags bits: 0 teams flipped, 1 highlight, 2 series over.
 ;	playoffroundoffset reuses the old playoff joystick word; playofflevel
 ;	reuses the old number-of-players option slot.
@@ -6141,7 +6142,7 @@ EncodePW							;after playoff game compute winners and password if needed. Calle
 	bsr.w	BackupRAM_Save
 	btst	#sf3alttree,(sflags3).w
 	beq.w	rtss					;(92 retail; Rev A beq MakeTree)
-	movea.w	#(tpassbits-M68K_RAM),a3	;bits before all games resolved (retail)
+	movea.w	#(tpassbits-M68K_RAM),a3	;bits before all games resolved (Rev 0)
 	bsr.w	ReadPassBits
 	bra.w	maketree
 
@@ -6440,7 +6441,7 @@ ResolveGames						;compute winners and losers for playoff matchups. Called from 
 	bra.s	.cr0
 .crn	suba.w	#gssize,a0			;previous game
 	dbf	d1,.cr0
-	movea.w	#(tpassbits-M68K_RAM),a3	;bits before advancing to next round (retail)
+	movea.w	#(tpassbits-M68K_RAM),a3	;bits before advancing to next round (Rev 0)
 	bsr.w	WritePassBits			;(92 wrote passbits and copied them to tpassbits)
 	bset	#sf3alttree,(sflags3).w
 

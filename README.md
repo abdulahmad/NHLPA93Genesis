@@ -12,10 +12,10 @@ A work-in-progress attempt at reverse engineering a bitwise perfect compilable s
 
 Built on the work that McMarkis (https://github.com/Mhopkinsinc/NHLHockey) did to get the NHL 92 source compiling, and my work to make the code bitwise perfect to the retail version. Also references chaos' disassembly work of NHL 92-94 (https://github.com/Chaos81/nhl94-disassembly).
 
-Status: all 68k code is source and both the retail and the Rev A ROM build bitwise perfect from it. The Z80 sound driver, the sound data (PCM samples, FM patches, event streams), the team palettes and the graphics are incbins of slices extracted from the retail ROM; anything in them that holds a ROM address is source, so the data follows the code.
+Status: all 68k code is source and both the Rev 0 (v1.0, the "retail" ROM) and the Rev A (v1.1) ROM build bitwise perfect from it. The Z80 sound driver, the sound data (PCM samples, FM patches, event streams), the team palettes and the graphics are incbins of slices extracted from the retail ROM; anything in them that holds a ROM address is source, so the data follows the code.
 
 ## Features of this version:
-- Retail (`1992.JUL -00`) and Rev A (`1992.OCT -01`) ROMs build bitwise perfect from the same source (`IF REV=1` blocks)
+- Rev 0 / v1.0 (`1992.JUL -00`, build mode `retail`) and Rev A / v1.1 (`1992.OCT -01`, build mode `reva`) ROMs build bitwise perfect from the same source (`IF REV=1` blocks)
 - Label-based source: RAM, ports and structure equates live in `src/ram93.asm` (laid out like NHL 92 `ram.asm`), and the code and data use labels instead of addresses
 - Script which changes opcodes to match the custom compiler EA used to build the game (`tools/fixopcodes.js`)
 - Disassembled Retail Validation Check code (`checksum93.asm`) included via the checksum env variable
@@ -34,12 +34,12 @@ Status: all 68k code is source and both the retail and the Rev A ROM build bitwi
 
     | ROM | File name | SHA-1 | Size |
     | --- | --- | --- | --- |
-    | Retail (`1992.JUL`, `GM T-50396 -00`) | `nhlpa93retail.bin` | `8efc1cacb079ea223966dda065c16c49e584cac2` | 524288 bytes |
-    | Rev A (`1992.OCT`, `GM T-50396 -01`) | `nhlpa93retailRevA.bin` | `2ab048fc7209df28b00ef47f2f686f5b7208466e` | 524288 bytes |
+    | Rev 0, v1.0 "retail" (`1992.JUL`, `GM T-50396 -00`) | `nhlpa93retail.bin` | `8efc1cacb079ea223966dda065c16c49e584cac2` | 524288 bytes |
+    | Rev A, v1.1 (`1992.OCT`, `GM T-50396 -01`) | `nhlpa93retailRevA.bin` | `2ab048fc7209df28b00ef47f2f686f5b7208466e` | 524288 bytes |
 
 4. Build one of 3 versions. Everything runs through `tools/build.js` (node; on Windows it runs the assembler directly, on Linux/macOS under wine). Each build first runs `tools/prebuild.js`, which checks the ROM by SHA-1 and size (and stops with the expected file name, SHA-1 and size if it is missing or wrong), then extracts the assets into `Extracted/` if they are missing or incomplete. It then assembles `src/hockey93.asm`, fixes the opcodes and verifies the result.
 
-    - `npm run build:retail`: the `Retail` ROM, verified byte for byte against `nhlpa93retail.bin`
+    - `npm run build:retail`: the Rev 0 (v1.0) ROM (`REV=0`), verified byte for byte against `nhlpa93retail.bin`
     - `npm run build:reva`: the `Rev A` ROM (`REV=1`), verified byte for byte against `nhlpa93retailRevA.bin`
     - `npm run build:dev`: for developing your own version. `Rev A` code without the checksum validation check (not verified against any ROM)
 
@@ -66,7 +66,7 @@ In a terminal, each step turns a spinner while it runs and is redrawn with a gre
 
 The documentation lives in [`docs/`](docs/README.md):
 
-- [Retail vs Rev A](docs/retail-vs-reva.md): what differs between the two ROM versions and what `REV` changes
+- [Rev 0 vs Rev A](docs/retail-vs-reva.md): what differs between the two ROM versions (v1.0 and v1.1) and what `REV` changes
 - [Sound system](docs/sound-system.md): the 68000 driver, sound numbers, event streams, patches and samples
 - [File formats](docs/file-formats.md): `.JIM`, `.ANIM`, `.PAL` and the team data layout
 - [Modding](docs/modding.md): developing on this build, supported ROMs, known issues, tips

@@ -116,7 +116,7 @@ p_music_vblank						;(vblank handler). Clear the change bits, run the 8 track sl
 									;send the buffer if anything changed and age the channels. Called every
 									;frame from the vblank handlers. Rev A runs the slots again every 6th
 									;frame while PalMode
-									;is set (music_tick_divider $CAF0); retail has no such block (22 bytes
+									;is set (music_tick_divider $CAF0); Rev 0 has no such block (22 bytes
 									;shorter)
 	clr.b	(music_needs_z80_update).w
 	clr.l	(Z80_command_buffer).w	;key off/on, volume, frequency bits
@@ -546,7 +546,7 @@ Z80_Program_Code					;First byte of the Z80 program (movea.l in p_initialZ80); t
 	dc.b	$09,$3E,fm_instrument_patches>>15	;Z80 add hl,bc / ld a,bank (32K bank) of the FM patches
 	incbin	..\Extracted\Sound\z80_snd_drv93_end.bin	;rest of the Z80 driver
 	IF REV=0
-	dc.b	$83						;pad: retail leftover byte
+	dc.b	$83						;pad: Rev 0 leftover byte
 	ELSE
 	dc.b	0
 	ENDIF
@@ -572,7 +572,7 @@ sfx_shotbh_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 sfx_pass_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_pass_pcm.bin	;sample 1: pass
 	IF REV=0
-	dc.b	$7D						;pad: retail leftover byte
+	dc.b	$7D						;pad: Rev 0 leftover byte
 	ELSE
 	dc.b	0
 	ENDIF
@@ -582,7 +582,7 @@ sfx_oooh_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 sfx_crowdboo_pcm					;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_crowdboo_pcm.bin	;sample 11: crowdboo
 	IF REV=0
-	dc.b	$7B						;pad: retail leftover byte
+	dc.b	$7B						;pad: Rev 0 leftover byte
 	ELSE
 	dc.b	0
 	ENDIF
@@ -595,7 +595,7 @@ sfx_crowdcheer_pcm					;raw PCM sample, played through the Z80 (pcm_sample_table
 sfx_bglass_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_bglass_pcm.bin	;sample 14: sfx_bglass
 	IF REV=0
-	dc.b	$7D						;pad: retail leftover byte
+	dc.b	$7D						;pad: Rev 0 leftover byte
 	ELSE
 	dc.b	0
 	ENDIF
@@ -605,7 +605,7 @@ sfx_playerwall_pcm					;raw PCM sample, played through the Z80 (pcm_sample_table
 sfx_check2_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_check2_pcm.bin	;sample 4: check2, check4
 	IF REV=0
-	dc.b	$7A						;pad: retail leftover byte
+	dc.b	$7A						;pad: Rev 0 leftover byte
 	ELSE
 	dc.b	0
 	ENDIF
@@ -861,7 +861,7 @@ fmtune_scouting_cmdstream			;song event stream (SoundStreamTable)
 ScoutingReportText					;scouting report text
 	incbin	..\Extracted\Text\ScoutingReportText.bin	;ScoutingReportText: scouting report paragraphs
 	IF REV=0
-	dc.b	$72						;pad: retail leftover byte
+	dc.b	$72						;pad: Rev 0 leftover byte
 	ELSE
 	dc.b	0
 	ENDIF

@@ -8,9 +8,9 @@
 const GAME = 'NHLPA Hockey 93 (Sega Genesis)';
 const EXTRACTOR = 'tools/extractAssets93.js';
 const ROMS = {
-    retail: { label: 'NHLPA Hockey 93 retail (1992.JUL, GM T-50396 -00)', file: 'nhlpa93retail.bin',
+    retail: { label: 'NHLPA Hockey 93 Rev 0 / v1.0 retail (1992.JUL, GM T-50396 -00)', file: 'nhlpa93retail.bin',
               sha1: '8efc1cacb079ea223966dda065c16c49e584cac2', size: 0x80000 },
-    reva:   { label: 'NHLPA Hockey 93 Rev A (1992.OCT, GM T-50396 -01)', file: 'nhlpa93retailRevA.bin',
+    reva:   { label: 'NHLPA Hockey 93 Rev A / v1.1 (1992.OCT, GM T-50396 -01)', file: 'nhlpa93retailRevA.bin',
               sha1: '2ab048fc7209df28b00ef47f2f686f5b7208466e', size: 0x80000 },
 };
 const TARGETS = { retail: ['retail'], reva: ['reva'], any: ['retail', 'reva'] };

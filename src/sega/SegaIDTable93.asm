@@ -1,13 +1,13 @@
 ;	Sega ID header. The console reads this at $100 to find the cartridge's name, copyright,
 ;	serial number, checksum, supported controllers and memory ranges.
 ;
-;	Rev A (REV=1) differs from retail 1.1 in the release month, the upper case title,
-;	the version number and the checksum, so each build has its own copy of the header.
+;	Rev A (v1.1, REV=1) differs from Rev 0 (v1.0, REV=0) in the release month, the upper case title,
+;	the version number and the checksum, so each has its own copy of the header. Rev B (v1.2) is not built.
 
 	org	$00000100
 
 	IF REV=1
-;	Rev A
+;	Rev A (v1.1)
 	dc.b	'SEGA GENESIS    '		;$100	system type
 	dc.b	'(C)T-50 1992.OCT'		;$110	copyright and release date (YYYY.MMM)
 	dc.b	'NHLPA HOCKEY ''93'		;$120	domestic name (48 bytes)
@@ -23,7 +23,7 @@
 	dc.w	$0000					;$18E	ROM checksum (security check disabled)
 	ENDIF
 	ELSE
-;	Retail 1.1
+;	Rev 0 (v1.0)
 	dc.b	'SEGA GENESIS    '		;$100	system type
 	dc.b	'(C)T-50 1992.JUL'		;$110	copyright and release date (YYYY.MMM)
 	dc.b	'NHLPA Hockey ''93'		;$120	domestic name (48 bytes)
