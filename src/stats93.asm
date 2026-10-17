@@ -86,7 +86,7 @@ UpdateVertScrollReg	;write VSRAM word 1 = VertLineScrolling - $30
 	move.w	(sp)+,(disflags).w
 	rts
 
-DisplayGameInfo	;print game d3 of gstruct (2 team rows and period label).
+DisplayGameInfo	;92 NewTicker3. print game d3 of gstruct (2 team rows and period label).
 	;Skips the current game and games with gsflags bit 1 or 2 set
 	cmp.w	(gamenum).w,d3
 	beq.w	rtss2			;current game
@@ -109,11 +109,11 @@ DisplayGameInfo	;print game d3 of gstruct (2 team rows and period label).
 	subq.w	#1,d0
 	movea.l	#PerLabels,a1
 	move.w	#$1C,(printx).w
-	jsr	(PrintStringFromList).l
+	jsr	(Fprintsmall).l
 	addq.w	#2,(printy).w
 	rts
 
-PrintGameInfo	;print team d0's name at x 6 and score d1 (2 digits) at x $18
+PrintGameInfo	;92 NewTicker3 .tn. print team d0's name at x 6 and score d1 (2 digits) at x $18
 	movea.w	#$314,a1		;team address table
 	asl.w	#2,d0
 	movea.l	(a1,d0.w),a1
@@ -141,7 +141,7 @@ DrawScrollArrows	;ShowScores up/down arrows. Saves d0-d1/a1
 	add.b	d1,d0
 	add.b	d1,d0			;string = up + 2*down
 	lea	ScrollArrowTable(pc),a1
-	jsr	(PrintStringFromList).l
+	jsr	(Fprintsmall).l
 	movem.l	(sp)+,d0-d1/a1
 	rts
 
@@ -393,7 +393,7 @@ DrawLineIcon	;line editor: draw line d5 (name from linelist, then its player
 	move.w	d5,d0
 	movea.l	#linelist,a1
 	move.w	#$8000,(printa).w
-	jsr	(PrintStringFromList).l
+	jsr	(Fprintsmall).l
 	bsr.w	printsmallz
 	dc.w	$0008
 	dc.b	' Line',0
@@ -930,7 +930,7 @@ AttribStatus	;Roster column: status. Player d0's word at $66(a2)
 	bra.w	.st
 .inj	moveq	#3,d0
 .st	lea	StatusTextTbl(pc),a1
-	bra.w	PrintStringFromList
+	bra.w	Fprintsmall
 .pen	btst	#$C,d0
 	bne.s	.inj
 	subq.w	#1,(printx).w
@@ -943,7 +943,7 @@ AttribStatus	;Roster column: status. Player d0's word at $66(a2)
 	beq.w	.t
 	moveq	#5,d0
 .t	lea	StatusTextTbl(pc),a1
-	bra.w	PrintStringFromList
+	bra.w	Fprintsmall
 
 StatusTextTbl	;AttribStatus strings
 	dc.w	$000A
@@ -987,7 +987,7 @@ AttribPrintPct	;Print d0 4 wide plus padding
 AttribHanded	;Roster column: handedness. Bit 0 of the sum
 	andi.w	#1,d0
 	lea	HandedTextTbl(pc),a1
-	bra.w	PrintStringFromList
+	bra.w	Fprintsmall
 
 HandedTextTbl	;AttribHanded strings
 	dc.w	$000A
@@ -1155,7 +1155,7 @@ DrawScoringRow	;print ScoreSum entry at offset d3: time, team (bit 7 of
 	lea	GoalTypeTbl(pc),a1
 	move.b	2(a0,d3.w),d0
 	andi.w	#$7F,d0
-	bsr.w	PrintStringFromList
+	bsr.w	Fprintsmall
 	move.w	#$10,(printx).w
 	move.b	3(a0,d3.w),d0
 	bsr.w	PrintScorerName
@@ -1370,7 +1370,7 @@ DrawScrollArrowsPenalty	;summary screen up/down arrows. Saves d0-d1/a1
 	add.b	d1,d0
 	add.b	d1,d0
 	lea	ScrollArrowTbl(pc),a1
-	bsr.w	PrintStringFromList
+	bsr.w	Fprintsmall
 	movem.l	(sp)+,d0-d1/a1
 	rts
 
@@ -1547,7 +1547,7 @@ DrawStatsList	;stats screen: column headers (sort column highlighted),
 	lea	StatSortTitles(pc),a1
 	moveq	#1,d0
 	add.w	(DispAttribCtr).w,d0
-	bsr.w	PrintStringFromList
+	bsr.w	Fprintsmall
 	clr.w	(printfontset).w
 	movea.w	#(Satt-M68K_RAM),a3
 	clr.l	d6
@@ -1788,7 +1788,7 @@ DrawStatsListArrows	;stats screen up/down arrows. Saves d0-d1/a1
 	add.b	d1,d0
 	add.b	d1,d0
 	lea	ScrollArrowTbl2(pc),a1
-	jsr	(PrintStringFromList).l
+	jsr	(Fprintsmall).l
 	movem.l	(sp)+,d0-d1/a1
 	rts
 
@@ -1854,7 +1854,7 @@ DisplayStats	;(was DisplayTeamStatsScreen) team logos, then each TeamStatTextTbl
 	dbf	d6,.row
 	rts
 
-PrintStatValue	;print TeamStatTextTbl entry a0 for team a2 centred at printx:
+PrintStatValue	;92 DisplayStats .ss. print TeamStatTextTbl entry a0 for team a2 centred at printx:
 	;value (offset $A is a time), "/second" if any, " (pct%)" for passing
 	movea.w	#(mesarea-M68K_RAM),a3
 	move.w	#2,(a3)
@@ -2088,7 +2088,7 @@ TimeoutMenu	;pause menu "Timeout" for team a2: uses the
 	moveq	#$78,d0
 	bra.w	waitx
 
-SelectGoalieMenu	;pick team a2's goalie from a
+SelectGoalieMenu	;92 Pausemode .go. pick team a2's goalie from a
 	;list (0 = no goalie). Start/C confirms; a change is stored in tmgoalie(a2)
 	;and setpersonel is called
 	move.w	(menuitem).w,-(sp)
@@ -2136,7 +2136,7 @@ SelectGoalieMenu	;pick team a2's goalie from a
 	move.w	(sp)+,(menuitem).w
 	rts
 
-DrawGoalieSelectList	;draw the goalie list, row menuitem highlighted,
+DrawGoalieSelectList	;92 Pausemode .gnum. draw the goalie list, row menuitem highlighted,
 	;each goalie with his two digit number
 	move.w	#$D,(printy).w
 	move.w	(menuitem+2).w,d1
@@ -2221,7 +2221,7 @@ loopthroughplayers
 	movem.l	(sp)+,a0
 	rts
 
-WaitVSyncAndReadInput	;wait for vcount to change and a new button press (d1)
+WaitVSyncAndReadInput	;92 Pausemode .rjoy. wait for vcount to change and a new button press (d1)
 	move.w	(vcount).w,d1
 .wait	cmp.w	(vcount).w,d1
 	beq.s	.wait

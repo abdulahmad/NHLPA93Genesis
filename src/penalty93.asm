@@ -557,7 +557,7 @@ updatepentime	;update the time remaining on all penalized players, once a second
 	bsr.w	ProcessPenaltyList
 	adda.w	#tmsize,a2
 
-ProcessPenaltyList	;a2 = team. Walks the penalty box list ($9A): the first two players without a coincidental penalty count down one second and the rest wait. Beeps when the first served time gets to 5 or less and releases the player at 0. Coincidental penalties count down on their own
+ProcessPenaltyList	;92 updatepentime .ut. a2 = team. Walks the penalty box list ($9A): the first two players without a coincidental penalty count down one second and the rest wait. Beeps when the first served time gets to 5 or less and releases the player at 0. Coincidental penalties count down on their own
 	lea	$9A(a2),a0
 	movea.w	#(mesarea-M68K_RAM),a1	;serving players
 	moveq	#2,d1			;two can serve at once
@@ -791,7 +791,7 @@ SetHor	;switch graphics to horizontal ice rink graphics mode. Does not remap the
 ;	AvgCline, ChkShotStat, loadTeamStruct, SetupTeamForIntermission,
 ;	reenergizeteam, Intermission, InitScores, UpdateScores, SetScore,
 ;	NewTicker, NewTicker2, CheckGameTickerStatus, NewTicker3, GameLabels,
-;	ClearTickerArea, SetTickerAreaPosition, PrintStringFromList,
+;	ClearTickerArea, SetTickerAreaPosition, Fprintsmall,
 ;	AdvanceStringPtr, DoHiLights, StartHL and StartHL2.
 ;	Bytes match nhlpa93retail.bin.
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
@@ -819,7 +819,7 @@ printscores1	;draw scoreboard. Vertical rink: period box and the score box (team
 	String	$BF,1,$18
 	move.w	(gsp).w,d0		;period name (92 .pp)
 	movea.l	#PerLabels,a1
-	bsr.w	PrintStringFromList
+	bsr.w	Fprintsmall
 	bsr.w	EASNLogo
 	btst	#sf3llcs,(sflags3).w		;lower line change box is up
 	bne.w	.ex
@@ -859,7 +859,7 @@ printscores1	;draw scoreboard. Vertical rink: period box and the score box (team
 	bsr.w	PrintTeamLogoAndScore
 	bra.s	.ex
 
-PrintTeamNameAndScore	;print the team name of team a2 at printx/printy, then its score as 2 digits at x $1C. Called twice from printscores1
+PrintTeamNameAndScore	;92 printscores1 .ps. print the team name of team a2 at printx/printy, then its score as 2 digits at x $1C. Called twice from printscores1
 	movea.l	tmdata(a2),a1
 	adda.w	4(a1),a1
 	adda.w	(a1),a1			;skip the first string to the team name
@@ -870,7 +870,7 @@ PrintTeamNameAndScore	;print the team name of team a2 at printx/printy, then its
 	bsr.w	PushNumberWidth
 	bra.w	print
 
-PrintTeamLogoAndScore	;draw the team logo map (PutTeamBlock, d0 = offset) 6 columns left of printx, then the score of team a2 in big font, centered 2 rows lower. Called twice from printscores1.sbscreen
+PrintTeamLogoAndScore	;92 printscores1 .sbscreen. draw the team logo map (PutTeamBlock, d0 = offset) 6 columns left of printx, then the score of team a2 in big font, centered 2 rows lower. Called twice from printscores1.sbscreen
 	move.w	(printx).w,-(sp)
 	subq.w	#6,(printx).w
 	jsr	(PutTeamBlock).w
@@ -970,7 +970,9 @@ linebar	;draw the energy bar of line d0 for team a2 at printx/printy (bitmap fro
 	cmp.w	#$F,d0
 	bls.w	.ok
 	moveq	#$F,d0
-.ok	moveq	#$F,d1			;in 92 this is a separate routine; here it is a branch target
+.ok
+dobar	equ	*		;92 dobar (draw energy bar for energy level d0); in 92 this is a separate routine, here it is a branch target
+	moveq	#$F,d1
 	sub.w	d0,d1			;d1 = bar frame (15 = empty)
 	clr.w	d0
 	movea.l	#EnergyBarMap,a1
@@ -1052,7 +1054,7 @@ ChkShotStat	;add to shot stat if a shot was taken. Also raises the crowd and cou
 .ex	movem.l	(sp)+,d0-d1/a1-a3
 	rts
 
-loadTeamStruct	;return a2 = team struct of player a3, a1 = the other team's struct. Called from ChkShotStat and updateplayers
+loadTeamStruct	;92 AddStat team select. return a2 = team struct of player a3, a1 = the other team's struct. Called from ChkShotStat and updateplayers
 	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
 	btst	#pfteam,pflags(a3)
@@ -1258,7 +1260,7 @@ NewTicker2	;goto next ticker. Return d3 = game, or neg if none left (no OptPlayM
 	cmp.w	(gamenum).w,d3		;don't show current game as ticker
 	beq.s	NewTicker2
 
-CheckGameTickerStatus	;d3 = game. Return a0 = its gstruct; skip to the next ticker game if a highlight is coming up or the series is over. Called from StartHL2
+CheckGameTickerStatus	;92 NewTicker3 head. d3 = game. Return a0 = its gstruct; skip to the next ticker game if a highlight is coming up or the series is over. Called from StartHL2
 	moveq	#gssize,d0			;gssize
 	mulu.w	d3,d0
 	movea.w	#(gstruct-M68K_RAM),a0
@@ -1288,7 +1290,7 @@ NewTicker3	;display ticker score for game d3 (a0 = gstruct entry), skip if d3 is
 	bne.w	.gl
 	clr.w	d0			;not playoffs: 'EASN Hockey Night'
 .gl	lea	GameLabels(pc),a1
-	bsr.w	PrintStringFromList
+	bsr.w	Fprintsmall
 	move.w	gsper(a0),d0		;gsper
 	subq.w	#1,d0
 	movea.l	#PerLabels,a1
@@ -1335,7 +1337,7 @@ ClearTickerArea	;erase the ticker box. Called from Intermission and StartHL2
 	move.w	#$7FF,d2		;blank char
 	bra.w	eraser
 
-SetTickerAreaPosition	;set printx/printy/printm for the ticker box (x 3, y $17; the $BD map in pause mode). Return d0 = $1A wide, d1 = 5 high. Called from NewTicker3 and ClearTickerArea
+SetTickerAreaPosition	;92 NewTicker3 position setup. set printx/printy/printm for the ticker box (x 3, y $17; the $BD map in pause mode). Return d0 = $1A wide, d1 = 5 high. Called from NewTicker3 and ClearTickerArea
 	bsr.w	printz
 	String	$BD,3,$17
 	btst	#sfpz,(sflags).w
@@ -1346,7 +1348,7 @@ SetTickerAreaPosition	;set printx/printy/printm for the ticker box (x 3, y $17; 
 	moveq	#5,d1
 	rts
 
-PrintStringFromList	;print string d0 of the String list a1 with printsmall
+Fprintsmall	;92 Fprint, but printing with printsmall (92 used print). Print string d0 of the String list a1
 	bsr.w	AdvanceStringPtr
 	bra.w	printsmall
 

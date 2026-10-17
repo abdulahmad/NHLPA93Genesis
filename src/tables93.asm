@@ -287,7 +287,7 @@ priolist	dc.b	0,1,2,4,3,5,6	;positions in order of importance. Used by SetPlList
 	dc.b	0
 	ENDIF
 
-PlayoffTreeSetup	;Playoff tree layout by gamelevel:
+PlayoffTreeSetup	;92 PlayoffScreen .setup. Playoff tree layout by gamelevel:
 	;one column per round. Used by PlayoffScreen
 	dc.w	.l0-PlayoffTreeSetup
 	dc.w	.l1-PlayoffTreeSetup
@@ -423,7 +423,7 @@ GAttribColumns	;goalie attribute columns, same format as PAttribColumns. Used by
 	dc.w	$2000,6			;weight
 	dc.w	-1
 
-PauseText	;pause menu item list (Pausemode)
+PauseText	;92 Pausemode .mlist. pause menu item list (Pausemode)
 	String	$FE,5
 	String	$FE,4
 	String	'   Resume Game    '
