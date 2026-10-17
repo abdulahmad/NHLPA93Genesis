@@ -1,48 +1,50 @@
-;	Sega ID header. It tells the console what the cartridge is: its name, copyright, titles,
-;	serial number, checksum, supported controllers, memory ranges and regions.
+;	Sega ID header. The console reads this at $100 to find the cartridge's name, copyright,
+;	serial number, checksum, supported controllers and memory ranges.
+;
+;	Rev A (REV=1) differs from retail 1.1 in the release month, the upper case title,
+;	the version number and the checksum, so each build has its own copy of the header.
 
 	org	$00000100
-;					Data No. Address	Description
-	dc.b	'SEGA GENESIS    '	; 01	$100	Sega Genesis ID (16 bytes)
+
 	IF REV=1
-	dc.b	'(C)T-50 1992.OCT'	; 02	$110	Rev A
+;	Rev A
+	dc.b	'SEGA GENESIS    '		;$100	system type
+	dc.b	'(C)T-50 1992.OCT'		;$110	copyright and release date (YYYY.MMM)
+	dc.b	'NHLPA HOCKEY ''93'		;$120	domestic name (48 bytes)
+	dc.b	'                '
+	dc.b	'                '
+	dc.b	'NHLPA HOCKEY ''93'		;$150	overseas name (48 bytes)
+	dc.b	'                '
+	dc.b	'                '
+	dc.b	'GM T-50396 -01'		;$180	serial number: product and version (14 bytes)
+	IF CHECKSUM=1
+	dc.w	$FA57					;$18E	ROM checksum, patched in by the checksum tool
 	ELSE
-	dc.b	'(C)T-50 1992.JUL'	; 02	$110	company ID / release date (YYYY.MMM) (16 bytes)
+	dc.w	$0000					;$18E	ROM checksum (security check disabled)
 	ENDIF
-	IF REV=1
-	dc.b	'NHLPA HOCKEY ''93'	; 03	$120	Rev A
 	ELSE
-	dc.b	'NHLPA Hockey ''93'	; 03	$120	game title for US market (32 bytes)
-	ENDIF
-	dc.b	'                '	; 		$130
-	dc.b	'                '	; 		$140
-	IF REV=1
-	dc.b	'NHLPA HOCKEY ''93'	; 04	$150	Rev A
+;	Retail 1.1
+	dc.b	'SEGA GENESIS    '		;$100	system type
+	dc.b	'(C)T-50 1992.JUL'		;$110	copyright and release date (YYYY.MMM)
+	dc.b	'NHLPA Hockey ''93'		;$120	domestic name (48 bytes)
+	dc.b	'                '
+	dc.b	'                '
+	dc.b	'NHLPA Hockey ''93'		;$150	overseas name (48 bytes)
+	dc.b	'                '
+	dc.b	'                '
+	dc.b	'GM T-50396 -00'		;$180	serial number: product and version (14 bytes)
+	IF CHECKSUM=1
+	dc.w	$2799					;$18E	ROM checksum, patched in by the checksum tool
 	ELSE
-	dc.b	'NHLPA Hockey ''93'	; 04	$150	game title for Japanese market (32 bytes)
+	dc.w	$0000					;$18E	ROM checksum (security check disabled)
 	ENDIF
-	dc.b	'                '	; 		$160
-	dc.b	'                '	; 		$170
-	IF REV=1
-	dc.b	'GM T-50396 -01'	; 05	$180	Rev A
-	ELSE
-	dc.b	'GM T-50396 -00'	; 05	$180	cartridge cat., product no., version no. (14 bytes)
 	ENDIF
-	IF CHECKSUM=1 ; Security check enabled
-		IF REV=0 ; RETAIL
-			dc.w	$2799		; 06	$18E	check sum data (installed by checsum program) (2 bytes)
-		ELSE ; REV A
-			dc.w	$FA57 		; 06	$18E	check sum data (installed by checsum program) (2 bytes)
-		ENDIF
-	ELSE ; Security check disabled
-		dc.w	$0000				; 06	$18E	check sum data (installed by checsum program) (2 bytes)
-	ENDIF
-	dc.b	'J               '	; 07	$190	I/O peripheral info. (J=Control Pad) (16 bytes)
-	dc.l	$00000000,$0007FFFF	; 08	$1A0	cartridge size (start and end address) (16 bytes)
-	dc.l	$00FF0000,$00FFFFFF	; 09	$1A8	RAM size (start and end address) (16 bytes)
-	dc.b	'            '		; 10	$1B0	external RAM info. (12 bytes)
-	dc.b	'            '		; 11	$1BC	modem info. (12 bytes)
-	dc.b	'        '			; 12	$1C8	inhibit to use (40 bytes)
-	dc.b	'                '	; 		$1D0
-	dc.b	'                '	; 		$1E0
-	dc.b	'U               '	; 13	$1F0	contry code for release (16 bytes)
+	dc.b	'J               '		;$190	supported devices: J = 3-button control pad
+	dc.l	$00000000,$0007FFFF		;$1A0	ROM start and end address
+	dc.l	$00FF0000,$00FFFFFF		;$1A8	RAM start and end address
+	dc.b	'            '			;$1B0	external RAM info (unused, 12 bytes)
+	dc.b	'            '			;$1BC	modem info (unused, 12 bytes)
+	dc.b	'        '				;$1C8	reserved (40 bytes)
+	dc.b	'                '
+	dc.b	'                '
+	dc.b	'U               '		;$1F0	region: U = USA
