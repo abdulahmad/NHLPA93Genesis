@@ -180,8 +180,8 @@ Opcode_CopyBackwardExtended2		;opcode B, count = 7 bits (low nibble and top 3 bi
 	addq.w	#1,d2
 	bra.s	CopyBackwardRun
 
-Opcode_CopyBackwardReverseShort		;opcodes C-D, copy (bits 0-1)+2 bytes backwards through the source,
-	;distance (bits 2-4)+1
+Opcode_CopyBackwardReverseShort		;opcodes C-D, copy (bits 0-1)+2 bytes backwards through the
+	;source, distance (bits 2-4)+1
 	move.b	-1(a0),d0
 	andi.w	#3,d0
 	addq.w	#1,d0

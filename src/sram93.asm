@@ -40,8 +40,8 @@ BackupRAM_Start						;start condition: data falls while the clock is high, then 
 	nop
 	rts
 
-BackupRAM_Stop						;stop condition: data rises while the clock is high, then clock low with
-	;data released.
+BackupRAM_Stop						;stop condition: data rises while the clock is high, then
+	;clock low with data released.
 	;the first instruction as dc.b + ori.b (its BackupRAM_InitSequence label is inside it). Code, not data
 	move.w	#0,(BackupRAM_Port).l	;data low, clock low
 	nop
@@ -66,8 +66,8 @@ BackupRAM_Stop						;stop condition: data rises while the clock is high, then cl
 	nop
 	rts
 
-BackupRAM_WriteBit					;send d0 bit 15 on the data line and pulse the clock. d0 is shifted left
-	;one bit, d1 = port image
+BackupRAM_WriteBit					;send d0 bit 15 on the data line and pulse the clock. d0 is shifted
+	;left one bit, d1 = port image
 	lsl.w	#1,d0
 	roxr.b	#1,d1					;bit into d1 bit 7 (data line)
 	bclr	#6,d1					;clock low
@@ -86,8 +86,8 @@ BackupRAM_WriteBit					;send d0 bit 15 on the data line and pulse the clock. d0 
 	move.w	d1,(BackupRAM_Port).l
 	rts
 
-BackupRAM_ReadBit					;release the data line, pulse the clock and shift the data bit into d0 bit
-	;0. d1 = port read
+BackupRAM_ReadBit					;release the data line, pulse the clock and shift the data bit
+	;into d0 bit 0. d1 = port read
 	move.w	#$80,(BackupRAM_Port).l	;data released, clock low
 	nop
 	nop
@@ -249,8 +249,8 @@ BackupRAM_ReadBlock					;reads: d1 bytes from backup RAM address d0 into a0 (seq
 .fail	move.w	#$FFFF,(errorflag).w	;= -1, failed
 	bra.s	.ex
 
-BackupRAM_WriteBlock				;writes: byte (a0) to backup RAM address d0, waits, reads it back with
-	;BackupRAM_ReadBlock.
+BackupRAM_WriteBlock				;writes: byte (a0) to backup RAM address d0, waits, reads it back
+	;with BackupRAM_ReadBlock.
 	;Retries as BackupRAM_ReadBlock does. Return a0, d0, d1 as passed, errorflag -1 when it failed.
 	;Called from BackupRAM_Read and BackupRAM_Save, once per byte
 	move.w	#0,(errorflag).w
@@ -415,8 +415,8 @@ BackupRAM_Read						;load the saved block into databuffer at power on. Called on
 	movem.l	(sp)+,d0-d1
 	rts
 
-BackupRAM_Save						;save databuffer to backup RAM (92 made the password text from passbits
-	;here).
+BackupRAM_Save						;save databuffer to backup RAM (92 made the password
+	;text from passbits here).
 	;Sets byte 127 = sum of bytes 0-125 and byte 126 = not sum, then writes the 128 bytes one at a time.
 	;Called from EncodePW and EncodeTeamLines. d0-d1/a0 kept, errorflag2 = -1 when it failed
 	movem.l	d0-d1/a0,-(sp)
@@ -441,8 +441,8 @@ BackupRAM_Save						;save databuffer to backup RAM (92 made the password text fr
 .ex	movem.l	(sp)+,d0-d1/a0			;restore registers
 	rts
 
-BackupRAM_Load						;read the 128-byte block into databuffer and check bytes 126-127 (not sum,
-	;sum of bytes 0-125).
+BackupRAM_Load						;read the 128-byte block into databuffer and check bytes 126-127 (not
+	;sum, sum of bytes 0-125).
 	;Unlabeled in, no caller found. d0-d1/a0 kept, errorflag2 = -1 on a read error or a bad checksum
 	movem.l	d0-d1/a0,-(sp)
 	clr.w	(errorflag2).w
@@ -466,10 +466,9 @@ BackupRAM_Load						;read the 128-byte block into databuffer and check bytes 126
 .ex	movem.l	(sp)+,d0-d1/a0			;restore registers
 	rts
 
-ClearRAMBuffer						;backup RAM status screen. Interrupts off, display off, backdrop colour 0
-	;= d0
-	;clears $4000 bytes of VRAM, display on, then loops forever. Jumped to from BackupRAM_Read (d0 = $F red,
-	;$F0 green)
+ClearRAMBuffer						;backup RAM status screen. Interrupts off, display off, backdrop
+	;colour 0 = d0 clears $4000 bytes of VRAM, display on, then loops forever. Jumped to from
+	;BackupRAM_Read (d0 = $F red, $F0 green)
 	move.w	#$2700,sr				;interrupts off
 	movea.l	#Vctrl,a0
 	move.w	#$8004,(a0)

@@ -7,8 +7,8 @@
 ;	Build note: EA's compiler emits cmp #imm,Dn as CMP (Bxxx) but SNASM emits CMPI (0Cxx). The source has the
 ;	real cmp / exg; fixopcodes.js patches the encoding after assembly.
 
-xyVmMap								;use printx/y/m to set vram address. Returns a0 = Vdata. Saves d0-d2 and
-	;calls Vmaddr
+xyVmMap								;use printx/y/m to set vram address. Returns a0 = Vdata.
+	;Saves d0-d2 and calls Vmaddr
 	movem.l	d0-d2,-(sp)
 	move.w	(printx).w,d0
 	move.w	(printy).w,d1
@@ -87,8 +87,8 @@ Framer								;frame and fill (uses framer.map graphics and assums tiles are alr
 	move.w	d3,(a0)
 	rts
 
-printsmallz							;92 printz. see printsmall. String macro should follow the bsr/jsr to this
-	;routine; a1 is kept
+printsmallz							;92 printz. see printsmall. String macro should follow the bsr/jsr
+	;to this routine; a1 is kept
 	move.l	a1,-(sp)
 	movea.l	4(sp),a1				;string after the call
 	bsr.w	printsmall
@@ -154,8 +154,8 @@ ControlCodeJumpTable				;printsmall control codes, indexed by -byte
 	dc.l	ControlCode_SetFont		;-7: char set
 	dc.l	ControlCode_SetMapAndPosition	;-8: attribute, map, x, y
 
-ControlCode_SetMapAndPosition		;92 print negative-byte block. printsmall code -8, next 4 bytes =
-	;attribute, map, x, y
+ControlCode_SetMapAndPosition		;92 print negative-byte block. printsmall code -8, next 4
+	;bytes = attribute, map, x, y
 	bsr.w	ControlCode_SetAttribute
 	bsr.w	ControlCode_SetMap
 	bsr.w	ControlCode_SetX
@@ -170,8 +170,8 @@ ControlCode_SetMap					;printsmall code -1, next byte = map number (1-3) -> prin
 	move.w	d0,(printm).w
 	bra.w	xyVmMap
 
-ControlCode_SetAttribute			;printsmall code -2, next byte = palette/priority (0-7) -> printa bits
-	;13-15 and d2
+ControlCode_SetAttribute			;printsmall code -2, next byte = palette/priority (0-7)
+	;-> printa bits 13-15 and d2
 	move.b	(a1)+,d2
 	andi.w	#7,d2
 	subq.w	#1,d3
@@ -207,8 +207,8 @@ ControlCode_AddY					;printsmall code -6, add the next (signed) byte to printy
 	add.w	d0,(printy).w
 	bra.w	xyVmMap
 
-ControlCode_SetFont					;printsmall code -7, next byte = char set index (printfontset = index*2
-	;into smallfontchars)
+ControlCode_SetFont					;printsmall code -7, next byte = char set index (printfontset =
+	;index*2 into smallfontchars)
 	clr.w	d0
 	move.b	(a1)+,d0
 	subq.w	#1,d3
@@ -355,8 +355,8 @@ PushTime							;convert d0 into string format of minutes:seconds. Return a1 = st
 	move.l	(sp)+,d0
 	rts
 
-PushNumber							;convert d0 into string format of base 10 number, no leading zeros. Return
-	;a1 = string
+PushNumber							;convert d0 into string format of base 10 number, no leading
+	;zeros. Return a1 = string
 	movea.w	#(PushNumberBuf-M68K_RAM),a1
 	move.l	d0,-(sp)
 	move.l	a1,-(sp)

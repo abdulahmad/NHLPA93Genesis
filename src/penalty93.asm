@@ -127,8 +127,8 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 .0	tst.w	(a0)+					;find end of list
 	bne.s	.0
 	subq.w	#4,a0					;a0 = last entry (penalty byte, player byte)
-	bclr	#7,1(a0)				;bit 7 of the player byte = called but not yet logged (set in
-	;checkfornewpen)
+	bclr	#7,1(a0)				;bit 7 of the player byte = called but not yet
+	;logged (set in checkfornewpen)
 	bne.w	.Sa						;first pass: log it
 	;later pass: wait until the penalized player has left the ice (position negative), then drop the entry
 	move.l	a3,-(sp)
@@ -368,8 +368,8 @@ Stop4Pen							;a0 = penaltylist penalty +2. Stop the clock, set the face off sp
 	move.w	#$A,d0					;whistle (92 used $26)
 	bra.w	SetPA
 
-limitfo								;limit face off to 5-20 feet from walls of rink. Checks every player in
-	;PenBuf
+limitfo								;limit face off to 5-20 feet from walls of rink.
+	;Checks every player in PenBuf
 	movem.l	d0-d1/a0-a1,-(sp)
 	movea.w	#(PenBuf-M68K_RAM),a0
 .loop	bsr.w	.lf					;adjust for this entry's player
@@ -583,8 +583,8 @@ PenGoalStuff						;do this stuff after a goal. a1 = scored on team, a2 = scoring
 .ex	movem.l	(sp)+,d0-d2/a0			;restore and return
 	rts
 
-ClearPenaltyBuffer					;clear PenBuf (92 inlined this in PenGoalStuff). Also called from
-	;clockcont
+ClearPenaltyBuffer					;clear PenBuf (92 inlined this in PenGoalStuff).
+	;Also called from clockcont
 	moveq	#$1F,d0					;MaxPen-1
 	movea.w	#(PenBuf-M68K_RAM),a0
 .0	clr.w	(a0)+					;clear every entry
@@ -666,8 +666,8 @@ RemovePlayerFromList				;remove the entry before a0 from a penalty box list by s
 	subq.w	#1,a0					;a0 = the slot that was removed
 	rts
 
-chkatop								;attack time of possession stat update. Called once a second from
-	;updatepentime
+chkatop								;attack time of possession stat update. Called once a
+	;second from updatepentime
 	moveq	#0,d1					;d1 = struct offset of the team credited
 	move.w	(pucky).w,d0
 	cmp.w	#$58,d0
@@ -768,8 +768,8 @@ updatepwrplay						;show graphic and time remaining for power plays. Plays song 
 	bne.w	.uppt
 	move.w	#SngPowerPlay,-(sp)		;song only when team 1 (home) is on the power play
 	bsr.w	song
-.uppt	bsr.w	printz				;power play marker string at x 1, y $19, then the time left and the team
-	;name
+.uppt	bsr.w	printz				;power play marker string at x 1, y $19, then the
+	;time left and the team name
 	String	$BF,1,$19,'   ',$16,$17,$18,$19,$BF,1,$1A,'  ',0
 	bsr.w	GetLowestPen			;d0 = time left
 	bsr.w	PushTime				;a1 = m:ss string
@@ -790,8 +790,8 @@ updatepwrplay						;show graphic and time remaining for power plays. Plays song 
 	beq.w	rtss					;none was shown
 	bra.w	EASNLogo				;put the EASN logo back
 
-ClrHor								;revert the graphics back to vertical ice rink mode. Does not remap the
-	;fonts
+ClrHor								;revert the graphics back to vertical ice rink
+	;mode. Does not remap the fonts
 	movem.l	d0-d7/a0-a6,-(sp)
 	bclr	#sfhor,(sflags).w
 	move.w	#$3E8,(Oldrow).w		;1000 (not a real row, probably so the map is redrawn)
@@ -810,8 +810,8 @@ ClrHor								;revert the graphics back to vertical ice rink mode. Does not rema
 .0	movem.l	(sp)+,d0-d7/a0-a6		;restore and return
 	rts
 
-SetHor								;switch graphics to horizontal ice rink graphics mode. Does not remap the
-	;fonts
+SetHor								;switch graphics to horizontal ice rink graphics
+	;mode. Does not remap the fonts
 	movem.l	d0-d7/a0-a6,-(sp)
 	bset	#sfhor,(sflags).w
 
@@ -951,15 +951,15 @@ PrintTeamLogoAndScore				;92 printscores1 .sbscreen. draw the team logo map (Put
 	sub.w	d0,(printx).w
 	bra.w	printbig				;big font score and return
 
-EASNLogo							;Draw easn.map at x 1, y $19 on the vertical ice rink if no power play.
-	;Falls into DrawEASNMap
+EASNLogo							;Draw easn.map at x 1, y $19 on the vertical ice rink if no power
+	;play. Falls into DrawEASNMap
 	btst	#sf2pwrplay,(sflags2).w
 	bne.w	rtss
 	bsr.w	printz
 	String	$BF,1,$19
 
-DrawEASNMap							;Draw the EASN logo map at the current printx/printy. Also called from
-	;ShowScores
+DrawEASNMap							;Draw the EASN logo map at the current printx/printy.
+	;Also called from ShowScores
 	movea.l	#EASNmap,a1
 	adda.l	4(a1),a1
 	movea.w	#$310,a2				;tile pointer $310 (as in SetHor)
@@ -1228,8 +1228,8 @@ Intermission						;end of period junk (zamboni/stats). Opens the pause menu scre
 	dc.l	StartGameText,IntermissionText,IntermissionText,IntermissionText,ExitGameText
 	dc.l	StartGameTextPO,IntermissionText,IntermissionText,IntermissionText,ExitGameTextPO
 
-InitScores							;initialize other games scores/period in playoffs (no OptPlayMode check).
-	;Called from StartGame
+InitScores							;initialize other games scores/period in playoffs (no OptPlayMode
+	;check). Called from StartGame
 	cmpi.w	#1,(gamelevel).w
 	bgt.w	rtss					;gamelevel above 1: no other games to simulate
 	bsr.w	GetShifter				;d1 = highest game index
@@ -1439,13 +1439,13 @@ SetTickerAreaPosition				;92 NewTicker3 position setup. set printx/printy/printm
 	moveq	#5,d1
 	rts
 
-Fprintsmall							;92 Fprint, but printing with printsmall (92 used print). Print string d0
-	;of the String list a1
+Fprintsmall							;92 Fprint, but printing with printsmall (92 used print). Print
+	;string d0 of the String list a1
 	bsr.w	AdvanceStringPtr
 	bra.w	printsmall
 
-AdvanceStringPtr					;like 92's string-list print, without the print. Return a1 = string d0 of
-	;the String list a1
+AdvanceStringPtr					;like 92's string-list print, without the print. Return a1 =
+	;string d0 of the String list a1
 	bra.w	.1
 .0	adda.w	(a1),a1					;skip one string (first word = its length)
 .1	dbf	d0,.0						;d0 strings to skip
@@ -1467,8 +1467,8 @@ DoHiLights							;hilites logic: search for hilite game and show hilite (no OptP
 	dbf	d1,.top
 	rts
 
-StartHL	movem.l	d0-d7/a0-a6,-(sp)	;play hilite for game a0, d1 = game. Called from DoHiLights. Falls into
-	;StartHL2
+StartHL	movem.l	d0-d7/a0-a6,-(sp)	;play hilite for game a0, d1 = game. Called from
+	;DoHiLights. Falls into StartHL2
 StartHL2							;play hilite for game a0. Start skips it with a random result. A tied game
 	;is replayed (beq StartHL2)
 	btst	#sf3sbut,(sflags3).w
@@ -1658,7 +1658,7 @@ StartHL2							;play hilite for game a0. Start skips it with a random result. A 
 	move.w	(ScoreSumbytes).w,(a2)+	;also save ScoreSumbytes
 	rts
 
-.lo	move.w	#$37E,d0				;restore what.sv saved
+.lo	move.w	#$37E,d0				;restore what .sv saved
 	movea.w	#(gmode-M68K_RAM),a2
 	movea.l	#replaystart,a1			;ReplayStart
 .lo1	move.w	(a1)+,(a2)+			;copy the saved words back
@@ -1666,7 +1666,7 @@ StartHL2							;play hilite for game a0. Start skips it with a random result. A 
 	move.w	(a1)+,(ScoreSumbytes).w
 	rts
 
-.postab								;Xpos,Ypos by position (goalie, l.def, r.def, l.wing, center, r.wing),
-	;pfgoal set, then clear
+.postab								;Xpos,Ypos by position (goalie, l.def, r.def, l.wing, center,
+	;r.wing), pfgoal set, then clear
 	dc.w	0,-240,-70,-140,20,-110,-100,-60,25,-40,70,-80
 	dc.w	0,240,34,90,-55,80,100,40,-10,10,-50,0

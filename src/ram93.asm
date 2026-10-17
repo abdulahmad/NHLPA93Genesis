@@ -44,8 +44,8 @@ osflag	=	20000					;flag for off screen graphic ($4E20)
 ;sfx / song numbers
 SngGoal	=	$30						;home goal tune (fmtune_goal)
 SngPeriodStart	=	$31				;period start tune (fmtune_periodstart)
-SngLateGame	=	$32					;late game tune, once in the 3rd period (CheckLateGameSong,
-	;fmtune_lategame)
+SngLateGame	=	$32					;late game tune, once in the 3rd period
+	;(CheckLateGameSong, fmtune_lategame)
 SngPowerPlay	=	$33				;home team power play tune (fmtune_powerplay)
 SngFaceoff	=	$34					;face off tune, once per period (fmtune_faceoff)
 SngTitle	=	$35					;title screen song (92 SngTitle)
@@ -54,8 +54,8 @@ SngEOP	=	$36						;plays at every period end and the end of the game (Intermissi
 SngScout	=	$37					;scouting report
 SFXsiren	=	$0					;goal siren (92 SFXsiren)
 SFXbeep1	=	$1					;short beep (92 SFXbeep1)
-SFXbeep2	=	$2					;short beep, also the last minute warning when the clock reaches 60 (92
-	;SFXbeep2)
+SFXbeep2	=	$2					;short beep, also the last minute warning when the
+	;clock reaches 60 (92 SFXbeep2)
 SFXwhistle	=	$3					;referee whistle (92 SFXwhistle)
 SFXhorn	=	$4						;horn at the end of a period (92 SFXhorn)
 SFXshotwiff	=	$5					;whiff, a miss on a slap shot (92 SFXshotwiff)
@@ -67,26 +67,26 @@ SFXhitlow	=	$A					;fight punch at a different rate (92 SFXhitlow)
 SFXcrowdcheer	=	$B				;crowd cheer (92 SFXcrowdcheer)
 SFXcrowdboo	=	$C					;crowd boo (92 SFXcrowdboo)
 SFXoooh2	=	$D					;second, lower crowd oooh: an injury, the visiting goalie making a save
-SFXbglass	=	$E					;puck hits the glass over the wall (wallcollb): glass bang with a crowd
-	;oooh
-SFXhomewin	=	$F					;home team won: crowd roar with a short tune (song $F, played from
-	;ShowThreeStars)
+SFXbglass	=	$E					;puck hits the glass over the wall (wallcollb):
+	;glass bang with a crowd oooh
+SFXhomewin	=	$F					;home team won: crowd roar with a short tune (song $F,
+	;played from ShowThreeStars)
 SFXpass	=	$10						;pass, 4 variants $10-$13 picked by puck height (92 SFXpass)
 SFXshotbh	=	$14					;backhand shot, 4 variants $14-$17 (92 SFXshotbh)
 SFXshotfh	=	$18					;forehand/slap shot, 4 variants $18-$1B (92 SFXshotfh)
 SFXcheck	=	$1C					;body check, 4 variants $1C-$1F, never the same one twice in a row (92
 	;SFXcheck; 92 had a second group, SFXcheck2)
 SFXplayerwall	=	$20				;player hits the boards (92 SFXplayerwall)
-SFXplayerwall2	=	$21				;player hits the boards, quieter (never played; same patches as
-	;SFXplayerwall)
+SFXplayerwall2	=	$21				;player hits the boards, quieter (never played; same
+	;patches as SFXplayerwall)
 SFXplayerwall3	=	$22				;quieter again (never played)
 SFXplayerwall4	=	$23				;quietest (never played)
 SFXpuckbody	=	$24					;puck hits a player (92 SFXpuckbody)
 SFXpuckpost	=	$25					;puck hits the goal post (92 SFXpuckpost)
 SFX26	=	$26						;empty 4-byte stream, no sound (never played)
 SFX27	=	$27						;same empty stream as SFX26 (never played)
-SFXpuckwall1	=	$28				;puck hits the boards, loud (92 SFXpuckwall1, hitboard2). $28-$2B are one
-	;sound at 4 volumes
+SFXpuckwall1	=	$28				;puck hits the boards, loud (92 SFXpuckwall1, hitboard2). $28-$2B
+	;are one sound at 4 volumes
 SFXpuckwall2	=	$29				;medium (92 SFXpuckwall2, hitboard2volm)
 SFXpuckwall3	=	$2A				;soft (92 SFXpuckwall3, hitboard2vols)
 SFXpuckwall4	=	$2B				;softest (new in 93)
@@ -121,15 +121,15 @@ Map3col	rs.w	1					;2 to this power = width in char of playfield 3
 BigFontChars	rs.w	1			;vram tiles for BigFont.map
 smallfontchars	rs.w	1			;vram tiles for SmallFont.map
 smallfont2chars	rs.w	1			;vram tiles for the 2nd small font set.
-energybarchars	rs.w	1			;vram tiles for the energy bar (also logo / cup sprites on the title
-	;screens).
+energybarchars	rs.w	1			;vram tiles for the energy bar (also logo / cup
+	;sprites on the title screens).
 rinkvrcset	rs.w	1				;vram tiles for IceRink.map
 crowdvrcset	rs.w	1				;vram tiles for the crowd animation (also the Title3map sprites)
 faceoffvrcset	rs.w	1			;vram tiles for FaceOff graphics
 Framercset	rs.w	1				;vram tiles for framer.map
 EASNcset	rs.w	1				;vram tiles for EASN.map
-basetileoffset	rs.w	1			;vram char of the home team block tiles; the visitor block is at +$18
-	;(setupTeamBlocksMap)
+basetileoffset	rs.w	1			;vram char of the home team block tiles; the visitor block is at
+	;+$18 (setupTeamBlocksMap)
 spritechars	rs.w	1				;vram tiles for the sprites.
 ExtraChars	rs.w	1				;vram tiles for extra graphics
 printx	rs.w	1					;x cordinate for printing
@@ -196,8 +196,8 @@ SPAcnt	=	$5C						;count down to next frame of animation
 nopuck	=	$5E						;no puck coll until zero
 newpos	=	$60						;requested next position of this player
 newpnum	=	$61						;requested next player (from roster) for this player
-pflags	=	$62						;player flags (pfdoff, pfna, pfnc, pfjoycon, pfrev, pfalock, pfteam,
-	;pfgoal)
+pflags	=	$62						;player flags (pfdoff, pfna, pfnc, pfjoycon,
+	;pfrev, pfalock, pfteam, pfgoal)
 pfdoff	=	0						;bit0-deceleration off
 pfna	=	1						;bit1-new assignment
 pfnc	=	2						;bit2-no collision mode
@@ -206,8 +206,8 @@ pfrev	=	4						;skating backwards
 pfalock	=	5						;lock out until anim is done
 pfteam	=	6						;0-home(sprite0-5)/1-visitors(sprite6-11)
 pfgoal	=	7						;0=bottom, 1=top (to shoot at)
-pflags2	=	$63						;player flags 2 (pf2fight, pf2aip, pf2unav, pf2lcm, pf2pen, pf2npc,
-	;pf2inj)
+pflags2	=	$63						;player flags 2 (pf2fight, pf2aip, pf2unav,
+	;pf2lcm, pf2pen, pf2npc, pf2inj)
 pf2fight	=	0					;player is fighting
 pf2aip	=	1						;animation in progress wait
 pf2unav	=	2						;player is unavailable (going to/from bench/penalty). 92 bit 4
@@ -233,8 +233,8 @@ stickhand	=	$71					;stick handling (puck control and steal odds; goalies: 92 GG
 endurance	=	$72					;endurance (how fast the energy runs out; goalies: 92 GSSright)
 aggress	=	$73						;and offset
 handed	=	$76						;bit0 set is left handed. 92 $74
-SortCords	rs.b	Sortobjs*SCstruct	;the sort objects: 12 players, the puck and its shadow, 2 spare
-	;(SCstruct bytes each)
+SortCords	rs.b	Sortobjs*SCstruct	;the sort objects: 12 players, the puck and its shadow, 2
+	;spare (SCstruct bytes each)
 puckscnum	=	14					;puck is sort obj number 14
 ;$FFFFB066 is SortCords+$1C
 ;$FFFFB366 is SortCords+$31C
@@ -290,8 +290,8 @@ fofdata	rs.l	1					;data for frame/att of big face off sprites
 pads	rs.w	42					;face off objects tied to the rink scroll: the 3 pads and the centre ice
 	;logo (ffo, ffosize bytes each; 92 pads = ffo)
 ffosize	=	OldXpos					;field objects tied to icerink scrolling, OldXpos bytes each
-CameraPosStruct	rs.w	11			;scroll camera: tracked object, target and the lead on the scroll
-	;(UpdateCameraPos)
+CameraPosStruct	rs.w	11			;scroll camera: tracked object, target and the lead on
+	;the scroll (UpdateCameraPos)
 replayactive	rs.w	3			;set by ReplayMode.
 glovestruct	rs.w	14				;gloves object, pads+(4*ffosize).
 PadControlBits	rs.w	1			;pad assignment bits: $FFFF = no pad assignments (set at game setup); the
@@ -301,8 +301,8 @@ ffonum	=	5						;5 objects tied to icerink scrolling (3 pads + centre ice logo +
 ssonum	=	2						;2 objects not tied to icerink scrolling (the 2 arrows for off screen
 	;players; 92 had 4, with 2 scoreboard logos)
 ssosize	=	Ypos					;bytes per sso object
-Xcord	=	0						;x and y words at the start of an sso object (the defaultsprites sso
-	;lists)
+Xcord	=	0						;x and y words at the start of an sso object (the
+	;defaultsprites sso lists)
 Ycord	=	2						;y word of an sso object
 sso	rs.w	20						;screen objects not tied to the rink scroll: 2 arrows for off screen
 	;players (92 had 4, with 2 scoreboard logos)
@@ -310,8 +310,8 @@ shotplayer	rs.w	1				;player who shot last
 lastplayer	rs.w	1				;last player who touched puck
 passdir	rs.w	1					;direction for pass/shot
 passspeed	rs.w	1				;speed of pass/shot
-passReceiverPlayerNum	rs.w	1	;SCnum of the intended receiver of the last pass, -1 = none (counts a
-	;completed pass)
+passReceiverPlayerNum	rs.w	1	;SCnum of the intended receiver of the last pass, -1 = none
+	;(counts a completed pass)
 glovecords	rs.w	1				;cordinates of glove/sticks (fighting)
 threat	rs.w	1					;direction of threat on puck handler
 puckcross	rs.w	4				;xcord/frames top to bottom (for goalies to react to)
@@ -330,8 +330,8 @@ iflags	rs.b	1					;icing
 ifcgl	=	0						;crossed goalline
 ifdir	=	1						;1=must cross top line
 ifok	=	2						;iflags: icing possible
-icingPlayer	rs.b	5				;icing: the SCnum+1 of the last player to touch the puck (iflags+1), then
-	;4 more bytes
+icingPlayer	rs.b	5				;icing: the SCnum+1 of the last player to touch the puck
+	;(iflags+1), then 4 more bytes
 jps	=	24							;jiffys per second
 jiffy	=	$10000/jps				;one jiffy as a fraction of a second ($10000/jps)
 clockram	rs.w	3				;ram for dma transfer of clock digits
@@ -366,10 +366,10 @@ gmhl	=	4						;hilight mode
 gmoffs	=	5						;offsides on
 gmeog	=	6						;game over reached: the next face off goes to PeriodOver. 93 only (92
 	;worked this out from gsp and the score)
-gmstars	=	7						;the Stars of the Game box was already shown (ShowThreeStars runs once).
-	;93 only
-sflags	rs.w	1					;game state flags (sfpz, sfpj, sfspdir, sfssdir, sfwrap, sfscrl, sfslock,
-	;sfhor)
+gmstars	=	7						;the Stars of the Game box was already shown
+	;(ShowThreeStars runs once). 93 only
+sflags	rs.w	1					;game state flags (sfpz, sfpj, sfspdir, sfssdir,
+	;sfwrap, sfscrl, sfslock, sfhor)
 sfpz	=	0						;pause mode
 sfpj	=	1						;pause cont (0 for cont 1)
 sfspdir	=	2						;set pass dir mode
@@ -394,11 +394,11 @@ sf3llcs	=	0						;lower line change sel.
 sf3rmplay	=	1					;play mode on for replay
 sf3alttree	=	2					;alt. tree
 sf3sbut	=	3						;flag for start button
-sf3fo	=	4						;face off just ended (set by the drop): the next puck pickup wins it, with
-	;a crowd cheer. 93 only
+sf3fo	=	4						;face off just ended (set by the drop): the next puck pickup wins it,
+	;with a crowd cheer. 93 only
 sf3track	=	5					;the scroll window tracks an object. 93 only
-sf3icetime	=	6					;set once a second by updatepentime: each player on the ice adds 1 to its
-	;time on ice. 93 only
+sf3icetime	=	6					;set once a second by updatepentime: each player on the ice adds 1
+	;to its time on ice. 93 only
 sf3fosong	=	7					;set for periods 1 and 2: play SngFaceoff once, at the first face off past
 	;half the period with 60 s or more left. 93 only
 c1playernum	rs.w	1				;player in control or neg for none
@@ -413,8 +413,8 @@ PenaltyBufferEnd	rs.w	1		;the word before PenBuf: the end of the scoring summary
 MaxPen	=	32						;penalties kept in PenBuf
 
 PenBuf	rs.w	MaxPen+1			;upto x penalties saved
-Pencntdwn	rs.w	1				;frames until the penalty or stoppage message ends (fights 60, an injury
-	;180)
+Pencntdwn	rs.w	1				;frames until the penalty or stoppage message ends
+	;(fights 60, an injury 180)
 Penaltytimer	rs.w	1			;counts down the second for the penalty clocks (jps frames)
 PBnum	rs.w	1					;$HV00 h=home players in pb
 InjCntDown	rs.w	1				;frames until the injury box is shown after an injury
@@ -425,12 +425,12 @@ RefPen	rs.w	1					;penalty number the ref is calling (4 = game over)
 RefRamMap	rs.w	refwidth*refheight	;ref cam map words (refwidth x refheight)
 gsp	rs.w	1						;game period
 gameclock	rs.l	1				;game clock
-PerTimeTotal	rs.w	1			;length of the period in seconds; the face off tune and the late game tune
-	;key off it
-ChkCnt	rs.w	1					;check counter for the player check stat (+1 per check, +3 if byte $74 of
-	;the checker is 0)
-TempPlOffset	rs.w	1			;roster offset of the player to print (bit 15 = visiting team) for
-	;GetPlayerName
+PerTimeTotal	rs.w	1			;length of the period in seconds; the face off tune and the
+	;late game tune key off it
+ChkCnt	rs.w	1					;check counter for the player check stat (+1 per check, +3 if
+	;byte $74 of the checker is 0)
+TempPlOffset	rs.w	1			;roster offset of the player to print (bit 15 =
+	;visiting team) for GetPlayerName
 ScoreSumbytes	rs.w	1			;bytes used in ScoreSum (6 per goal)
 ScoreSum	rs.w	90				;scoring summary: 6 bytes per goal (scorer, assists, time)
 PenSumLength	rs.w	1			;bytes used in PenSum (4 per penalty).
@@ -477,8 +477,8 @@ AwayTeamRosterPtr	=	awtmstruct+tmdata	;visiting team roster address (tmdata of t
 ;$FFFFC6AE is awtmstruct+tmgoalie
 ;$FFFFC6B8 is awtmstruct+tmflags
 ;$FFFFC722 is awtmstruct+$9A
-statsbuffer	rs.w	104				;playoff team stat totals: $68 words summed from the stat bytes of the
-	;team struct (+$B4)
+statsbuffer	rs.w	104				;playoff team stat totals: $68 words summed from the stat bytes
+	;of the team struct (+$B4)
 
 ;game structure variables (one per playoff matchup)
 gst1	=	$0						;team 1
@@ -506,28 +506,28 @@ PlList	rs.b	12					;list of players used differently
 menuitem	rs.l	1				;menu state: selected item, then (+2) first item shown.
 menulist	rs.l	1				;menu item list.
 menudraw	rs.l	1				;menu screen draw routine.
-TickerNum	rs.w	1				;intermission ticker: index of the game being shown, negative = no more
-	;ticker games
+TickerNum	rs.w	1				;intermission ticker: index of the game being shown,
+	;negative = no more ticker games
 PPBonus	rs.b	1					;check bonuses, cleared together by clr.l.
 PKBonus	rs.b	1					;penalty kill bonus
-ThirdPBonus	rs.b	1				;third period bonus (2 when tied or trailing with half or more of the
-	;period left)
+ThirdPBonus	rs.b	1				;third period bonus (2 when tied or trailing with half
+	;or more of the period left)
 HmAwBonus	rs.b	1				;home / visitor bonus
 callbackPtr	rs.l	1				;remap table for DecompressGraphicsWithCallback; 0 = plain DMA
 DispAttribCtr	rs.w	1			;scouting report: scroll position (RAM shared with the stats screens)
-VertLineScrolling	rs.w	1		;scouting report: text line being drawn, -1 = none (RAM shared with the
-	;stats screens)
-PlayerScrollCtr	rs.w	1			;scouting report: scroll step per frame (RAM shared with the stats
-	;screens)
+VertLineScrolling	rs.w	1		;scouting report: text line being drawn, -1 = none (RAM
+	;shared with the stats screens)
+PlayerScrollCtr	rs.w	1			;scouting report: scroll step per frame (RAM
+	;shared with the stats screens)
 SelectedPlayerIdx	rs.w	1		;scouting report: index into TestList (RAM shared with the stats screens)
 ScoutingReportTimer	rs.w	1		;scouting report: frames elapsed; the screen ends at $1000
 screentimer	rs.w	1				;frames left on a screen (ScoutingReport); last cursor row.
-TestList	rs.w	122				;scouting report: list of the lines to show (also the line editor cursor
-	;and slots)
+TestList	rs.w	122				;scouting report: list of the lines to show (also the
+	;line editor cursor and slots)
 nibblebuffer	rs.w	6			;UnpackNibbles words, WeightedRandomSelect weights.
 ;$FFFFCACE is nibblebuffer+4
-varend	=	nibblebuffer+8			;end of the variables cleared by Opening2 ($FFFFCAD2). 92 had a varend
-	;label after TickerNum
+varend	=	nibblebuffer+8			;end of the variables cleared by Opening2 ($FFFFCAD2). 92 had a
+	;varend label after TickerNum
 OptPlayMode	rs.w	1				;play mode
 OptNOP	rs.w	1					;number of players (92 OptNOP)
 Opt1team	rs.w	1				;team 1 (92 Opt1team)

@@ -18,7 +18,7 @@
 ;	  dobitmap                              draw a map + palette + tiles (rink, EASN logo, energy bars)
 
 UnpackNibbles						;a0 = packed data, d0 = count. Unpacks d0 4-bit values (high nibble first)
-	;into words at nibblebuffer. Called from UpdateTeamNameisplay
+	;into words at nibblebuffer. Called from PickStartingGoalie
 	movem.l	d0-d2/a0-a1,-(sp)
 	movea.w	#(nibblebuffer-M68K_RAM),a1	;a1 = output words
 	clr.w	d2						;d2 bit 0 = which nibble is next
@@ -36,7 +36,7 @@ UnpackNibbles						;a0 = packed data, d0 = count. Unpacks d0 4-bit values (high 
 
 WeightedRandomSelect				;92 SetScore .getscore. d0 = number of word weights at nibblebuffer.
 	;Return d0 = random index, picked with those weights. Called from SetScore_getscore and
-	;UpdateTeamNameisplay
+	;PickStartingGoalie
 	movem.l	d1/a1,-(sp)
 	movea.w	#(nibblebuffer-M68K_RAM),a1
 	clr.w	d1						;d1 = running total of the weights
@@ -220,8 +220,8 @@ randomd0							;d0 = range. Return random number in d0 (0 <= d0 < range)
 	movem.l	(sp)+,d1-d2
 	rts
 
-sroot								;Square Root, this returns (d0.L)^.5 in d0. Large values use a binary
-	;search
+sroot								;Square Root, this returns (d0.L)^.5 in d0. Large
+	;values use a binary search
 	tst.l	d0
 	beq.w	rtss					;zero^.5 = zero
 	cmp.l	#40*40,d0
@@ -352,8 +352,8 @@ waitxsr								;d0 vblanks while the zamboni crosses (zamx counts up to $708) an
 .ex	movem.l	(sp)+,d4-d7/a0-a3		;exit
 	rts
 
-waitjoy								;wait for either joystick input. Return d1 = new button presses. it as
-	;data (no caller found)
+waitjoy								;wait for either joystick input. Return d1 = new button presses. it
+	;as data (no caller found)
 	move.w	(vcount).w,d0
 .0	cmp.w	(vcount).w,d0			;wait one vblank
 	beq.s	.0
@@ -528,8 +528,8 @@ DoDMA								;initiate dma transfer (dma transfer bug is compensated for). d0 = 
 	move.w	(dmaram).w,(a1)			;this write starts the dma
 
 	bsr.w	WaitDMA
-	move.w	#$8164,(a1)				;$8100+%01100100: vblank int back on, dma off (during the transfer $54 =
-	;vint off, dma on)
+	move.w	#$8164,(a1)				;$8100+%01100100: vblank int back on, dma off (during the
+	;transfer $54 = vint off, dma on)
 	movem.l	(sp)+,d2/a1
 	rts
 
@@ -558,8 +558,8 @@ DoDMA_nd2							;vram to vram copy by dma (reg 23 = $C0), protected from vblank.
 	move.w	d3,(a1)
 	move.w	#$97C0,(a1)				;dma mode: vram copy
 	clr.l	d0
-	move.w	d1,d0					;destination address -> vdp command (address bits 14-15 go to the second
-	;word)
+	move.w	d1,d0					;destination address -> vdp command (address bits
+	;14-15 go to the second word)
 	asl.l	#2,d0
 	lsr.w	#2,d0
 	swap	d0
@@ -730,6 +730,6 @@ dobitmap							;transfer palette data/map data/tiles data to vram. a0 = palette,
 	move.w	(sp)+,(printy).w
 	rts
 
-	include decompress93.asm		;$00DD68-$00DF8D DecompressGraphicsWithCallback ... FlushOutputBuffer (new
-	;in 93)
+	include decompress93.asm		;$00DD68-$00DF8D DecompressGraphicsWithCallback ...
+	;FlushOutputBuffer (new in 93)
 	include print93.asm				;$00DF8E-$00E525 xyVmMap ... AddTeamBlock

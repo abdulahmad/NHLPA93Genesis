@@ -25,8 +25,7 @@ cd0									;$fftt = frame/time for various levels of crowd excitement.
 	dc.w	$1203,$1103,$1003,$0f03,$0e03,$0d03,$0c03,$0b03
 
 asstab								;jump table of all the player logic assignments. There is no "do nothing"
-	;entry, so
-	;assignment numbers from assscore on are one lower than in 92. Used by updateplayers
+	;entry, so assignment numbers from assscore on are one lower than in 92. Used by updateplayers
 	dc.l	rtss
 
 adefo	=	(*-asstab)/4			;entry 1: defensive player on offense (assdefo)
@@ -89,8 +88,8 @@ pfaceoff	=	(*-asstab)/4		;puck object: faceoff start
 pfaceoff2	=	(*-asstab)/4		;puck object: faceoff control and setup
 	dc.l	puckfaceoff2
 
-Penaltylist							;Penalty number = word offset into this table. Used by AddPenalty, SetPA2,
-	;DisplayPenaltyEntry, ...
+Penaltylist							;Penalty number = word offset into this table. Used by AddPenalty,
+	;SetPA2, DisplayPenaltyEntry, ...
 	dc.w	$0000
 PenEOP	equ	(*-Penaltylist)			;2 period over
 	dc.w	PenDataEOP-Penaltylist
@@ -142,8 +141,8 @@ PenDelay	equ	(*-Penaltylist)		;$2C delay
 ;	String  'penalty text' dc.w     $ffdd,$ffdd,$ffdd,... ;ff =
 ;	frame,dd=delay (neg for end)
 
-PenDataEOP	dc.w	$0100			;ttmm: slow down 1 half sec, 0 minutes; then the text and frame/delay
-	;words
+PenDataEOP	dc.w	$0100			;ttmm: slow down 1 half sec, 0 minutes; then the
+	;text and frame/delay words
 	String	'Period Over'
 	dc.w	-$0510
 PenDataEOG	dc.w	$0100			;ttmm: slow down 1, 0 minutes
@@ -250,8 +249,8 @@ PlayerPositionText					;position names for the line slots. Used by DisplayPlayer
 	String	'C'
 	String	'RW'
 
-PerLabels	String	'1',18			;text list for periods. Used by printscores1, NewTicker3 and
-	;DisplayGameInfo
+PerLabels	String	'1',18			;text list for periods. Used by printscores1,
+	;NewTicker3 and DisplayGameInfo
 	String	'2',19
 	String	'3',20
 	String	'OT'
@@ -260,8 +259,8 @@ PerLabels	String	'1',18			;text list for periods. Used by printscores1, NewTicke
 sizetab								;sprite size code to tile count., used by addframe2
 	dc.b	1,2,3,4,2,4,6,8,3,6,9,12,4,8,12,16
 
-sublist								;substitution lists by position (goalie, LD, RD, LW, C, RW, extra
-	;attacker).
+sublist								;substitution lists by position (goalie, LD, RD,
+	;LW, C, RW, extra attacker).
 	;word offsets from sublist (92 used long pointers). Used by SetPlList
 	dc.w	.defl-sublist			;goalie
 	dc.w	.defl-sublist
@@ -281,14 +280,14 @@ sublist								;substitution lists by position (goalie, LD, RD, LW, C, RW, extra
 .wingr	dc.b	0+5,8+5,16+5,24+5,32+5,40+5,48+5	;right wing slots, then left wing, then center
 	dc.b	0+3,8+3,16+3,24+3,32+3,40+3,48+3
 	dc.b	0+4,8+4,16+4,24+4,32+4,40+4,48+4
-.center	dc.b	0+4,8+4,16+4,24+4,32+4,40+4,48+4	;center slots, then left wing, then right wing; -1 ends
-	;the table
+.center	dc.b	0+4,8+4,16+4,24+4,32+4,40+4,48+4	;center slots, then left wing, then
+	;right wing; -1 ends the table
 	dc.b	0+3,8+3,16+3,24+3,32+3,40+3,48+3
 	dc.b	0+5,8+5,16+5,24+5,32+5,40+5,48+5
 	dc.b	-1
 
-priolist	dc.b	0,1,2,4,3,5,6	;positions in order of importance. Used by SetPlList,
-	;releasepl and getlinee
+priolist	dc.b	0,1,2,4,3,5,6	;positions in order of importance. Used by
+	;SetPlList, releasepl and getlinee
 	IF REV=0
 	dc.b	$23						;pad, retail byte (Rev A: 0)
 	ELSE
@@ -403,8 +402,8 @@ PAttribColumns						;skater attribute columns for PrintAttribHeader / DisplayPla
 	dc.w	$0040,8					;fighting
 	dc.w	-1
 
-GAttribColumns						;goalie attribute columns, same format as PAttribColumns. Used by
-	;DisplayPlayerList
+GAttribColumns						;goalie attribute columns, same format as PAttribColumns.
+	;Used by DisplayPlayerList
 	String	'     Status    ]'
 	dc.w	$0000,0					;status
 	String	'[   Overall    ]'
@@ -461,8 +460,7 @@ PauseText							;92 Pausemode .mlist. pause menu item list (Pausemode)
 	String	$FF
 
 PauseText2							;pause menu item list without Timeout, used when tmflags bit 2 of the
-	;pausing
-	;team is set (Pausemode)
+	;pausing team is set (Pausemode)
 	String	$FE,5
 	String	$FE,4
 	String	'   Resume Game    '

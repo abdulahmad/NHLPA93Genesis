@@ -2,14 +2,13 @@
 ;	game if the sum is wrong. The fill that pads the ROM out to its full size follows it.
 
 	IF REV=0
-SecurityCheck						;Retail only: the $FFFF word before ValidationRoutine (Rev A has no word
-	;here). Data, not code
+SecurityCheck						;Retail only: the $FFFF word before ValidationRoutine (Rev A has no
+	;word here). Data, not code
 	dc.w	$FFFF
 	ENDIF
 
 ValidationRoutine					;Called once at power on from Start (jsr). Adds every ROM long from 0 up
-	;to
-	;this routine, skipping the header long at $18C. Returns if the sum is right, else turns the screen red
+	;to this routine, skipping the header long at $18C. Returns if the sum is right, else turns the screen red
 	;and hangs. Uses d0-d1/a0/a4 d0 = running sum, a0 = read pointer, d1 = longs left
 	moveq	#0,d0					;sum
 	suba.l	a0,a0					;a0 = ROM address 0

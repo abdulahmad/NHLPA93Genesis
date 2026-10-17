@@ -11,8 +11,8 @@
 ;	are in ram93.asm (SFX*, Sng*). The data layout is described above p_music_vblank.
 
 
-p_turnoff							;(audio stop). Silence everything: free all slots, key off and mute every
-	;output
+p_turnoff							;(audio stop). Silence everything: free all slots, key
+	;off and mute every output
 		;channel, send the buffer and stop the PCM channel. Called from Begin, StartPer, game screens
 	movem.l	d0-d7/a0-a2,-(sp)
 	bsr.w	ClearAllTrackAndSFXSlots
@@ -27,8 +27,8 @@ p_turnoff							;(audio stop). Silence everything: free all slots, key off and m
 	movem.l	(sp)+,d0-d7/a0-a2
 	rts
 
-play_sfx_or_music_track				;start sound d0 (0-$37) in a track slot. $30 and up are songs: the song
-	;already
+play_sfx_or_music_track				;start sound d0 (0-$37) in a track slot. $30 and up
+	;are songs: the song already
 			;playing is stopped first. Does the jobs of / p_initune; called from sfx and song
 	cmp.w	#$37,d0
 	bgt.w	rtss					;out of range
@@ -36,8 +36,8 @@ play_sfx_or_music_track				;start sound d0 (0-$37) in a track slot. $30 and up a
 	cmp.w	#$30,d0
 	blt.w	.slot					;sound effect
 	bsr.w	stop_current_song		;song: stop the current song
-.slot	movea.w	#(fm_track_slots-M68K_RAM),a1	;scan the 8 track slots for the lowest pointer (free slots are
-	;negative)
+.slot	movea.w	#(fm_track_slots-M68K_RAM),a1	;scan the 8 track slots for the lowest pointer
+	;(free slots are negative)
 	moveq	#7,d3
 .new	move.l	(a1),d1				;new lowest pointer
 	move.w	d3,d2					;its track number
@@ -66,8 +66,8 @@ play_sfx_or_music_track				;start sound d0 (0-$37) in a track slot. $30 and up a
 .ex	movem.l	(sp)+,d0-d3/a0-a2		;restore registers
 	rts
 
-stop_current_song					;stop the song in progress: free the first slot whose pointer is at or
-	;past the first song
+stop_current_song					;stop the song in progress: free the first slot whose pointer is
+	;at or past the first song
 		;($30) data and key off its channels. Called from play_sfx_or_music_track and checkgoal
 	movem.l	d0-d3/a0-a3,-(sp)
 	movea.w	#(fm_track_slots-M68K_RAM),a1
@@ -108,8 +108,8 @@ stop_current_song					;stop the song in progress: free the first slot whose poin
 ;	  events (4 bytes): +0 delay before this event, +1 status (bits 6-4 command, bits 3-0 channel),
 ;	    +2/+3 data. Status 0 ends the stream; a non-negative long at +2 is a loop pointer.
 
-p_music_vblank						;(vblank handler). Clear the change bits, run the 8 track slots (d7 =
-	;track 7-0)
+p_music_vblank						;(vblank handler). Clear the change bits, run the 8
+	;track slots (d7 = track 7-0)
 		;send the buffer if anything changed and age the channels. Called every frame from the vblank
 		;handlers. Rev A runs the slots again every 6th frame while PalMode
 		;is set (music_tick_divider $CAF0); retail has no such block (22 bytes shorter)
@@ -201,8 +201,8 @@ command_jump_table					;event handlers by status bits 6-4, as offsets from the t
 	dc.w	handle_command_60-command_jump_table
 	dc.w	handle_command_skip-command_jump_table
 
-handle_command_00					;event $0x: key off note +2 on channel +1 bits 3-0 of track d7. Also
-	;entered from
+handle_command_00					;event $0x: key off note +2 on channel +1 bits 3-0 of
+	;track d7. Also entered from
 			;handle_command_10 for volume 0. Falls into ReleaseChannelAndNote
 	move.b	1(a0),d0
 	andi.w	#$F,d0
@@ -220,8 +220,8 @@ handle_command_00					;event $0x: key off note +2 on channel +1 bits 3-0 of trac
 	dbne	d1,.find				;matched but already off: keep looking
 	beq.w	rtss
 
-ReleaseChannelAndNote				;key off channel struct a2 if it is on. The PCM patches ($60 up) stop the
-	;PCM channel
+ReleaseChannelAndNote				;key off channel struct a2 if it is on. The PCM patches
+	;($60 up) stop the PCM channel
 			;instead. Called from stop_current_song
 	bclr	#0,5(a2)
 	beq.w	rtss					;was off
@@ -240,8 +240,8 @@ StopPCMChannel						;clear Z80 RAM $8E (the PCM rate byte written by
 	clr.w	(IO_Z80BUS).l
 	rts
 
-handle_command_10					;event $1x: key on note +2 at volume +3 on channel +1 bits 3-0 of track d7
-	;(volume 0 =
+handle_command_10					;event $1x: key on note +2 at volume +3 on channel +1 bits
+	;3-0 of track d7 (volume 0 =
 			;key off). Patches $60 up play on the PCM channel. Falls into UpdateChannelFrequencyAndVolume
 	tst.b	3(a0)
 	beq.s	handle_command_00		;volume 0: key off
@@ -338,8 +338,8 @@ handle_command_10					;event $1x: key on note +2 at volume +3 on channel +1 bits
 	move.b	#0,$97(a1)
 	clr.w	(IO_Z80BUS).l
 
-UpdateChannelFrequencyAndVolume		;set the frequency of channel struct a2 from its note and the pitch bend
-	;of
+UpdateChannelFrequencyAndVolume		;set the frequency of channel struct a2 from its
+	;note and the pitch bend of
 			;its key (a3 = voice table). Called from handle_command_60, entered from handle_command_10
 	clr.l	d3
 	move.b	1(a2),d3				;note
@@ -434,8 +434,8 @@ UpdateChannelFrequencyAndVolume		;set the frequency of channel struct a2 from it
 	dc.w	$F361,$F443,$F525,$F608,$F6EC,$F7D0,$F8B6,$F99C,$FA83,$FB6B
 	dc.w	$FC54,$FD3E,$FE28,$FF13,$FF13
 
-handle_command_40					;event $4x: set the patch of channel +1 bits 3-0 of track d7 to +2 (voice
-	;table +3)
+handle_command_40					;event $4x: set the patch of channel +1 bits 3-0 of track
+	;d7 to +2 (voice table +3)
 	movea.w	#(fm_voice_usage_table-M68K_RAM),a3
 	move.b	1(a0),d0
 	andi.w	#$F,d0
@@ -445,8 +445,8 @@ handle_command_40					;event $4x: set the patch of channel +1 bits 3-0 of track 
 	move.b	2(a0),3(a3,d0.w)
 	rts
 
-handle_command_60					;event $6x: set the pitch bend of channel +1 bits 3-0 of track d7 to word
-	;+2 - $2000,
+handle_command_60					;event $6x: set the pitch bend of channel +1 bits 3-0 of
+	;track d7 to word +2 - $2000,
 			;then update the frequency of every channel struct playing that key
 	movea.w	#(fm_voice_usage_table-M68K_RAM),a3
 	move.b	1(a0),d0
@@ -469,8 +469,8 @@ handle_command_60					;event $6x: set the pitch bend of channel +1 bits 3-0 of t
 handle_command_skip					;events $2x, $3x, $5x and $7x: ignored
 	rts
 
-p_initialZ80						;(initialization). Free all slots, load the Z80 program into Z80 RAM,
-	;build 29 tables of
+p_initialZ80						;(initialization). Free all slots, load the Z80 program into
+	;Z80 RAM, build 29 tables of
 		;256 bytes below Z80 $2000 ((i-$80)*8/d + $80 for d = 8-36, byte 0 = 0) and start the Z80.
 		;Called from Begin
 	movem.l	d0-d2/a0-a2,-(sp)
@@ -506,8 +506,8 @@ p_initialZ80						;(initialization). Free all slots, load the Z80 program into Z
 	movem.l	(sp)+,d0-d2/a0-a2
 	rts
 
-ClearAllTrackAndSFXSlots			;free the 8 track slots and reset the 6 channel structs (output channels
-	;0, 1, 2,
+ClearAllTrackAndSFXSlots			;free the 8 track slots and reset the 6 channel structs
+	;(output channels 0, 1, 2,
 			;4, 5, 6, patch $FF, off). Called from p_turnoff and p_initialZ80
 	movea.w	#(fm_track_slots-M68K_RAM),a0
 	moveq	#7,d0
@@ -602,8 +602,8 @@ sfx_check2_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	dc.b	0
 	ENDIF
 sfx_hithigh_pcm						;PCM samples 7 and 10: hithigh, hitlow, check1-4, songs $32 and $35-$37
-	incbin	..\Extracted\Sound\sfx_hithigh_pcm.bin	;samples 7 and 10: hithigh, hitlow, check1-4, songs $32
-	;and $35-$37
+	incbin	..\Extracted\Sound\sfx_hithigh_pcm.bin	;samples 7 and 10: hithigh, hitlow,
+	;check1-4, songs $32 and $35-$37
 	even
 sfx_shotfh_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_shotfh_pcm.bin	;sample 3: shotfh
@@ -613,8 +613,8 @@ sfx_puckget_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	even
 fm_instrument_patches				;32 FM patches x 32 bytes, byte $1E = pitch bend scale
 	;(UpdateChannelFrequencyAndVolume)
-	incbin	..\Extracted\Sound\fm_instrument_patches.bin	;32 FM patches x 32 bytes (byte $1E = pitch bend
-	;scale)
+	incbin	..\Extracted\Sound\fm_instrument_patches.bin	;32 FM patches x 32 bytes
+	;(byte $1E = pitch bend scale)
 	even
 SoundStreamTable					;event stream of sounds 0-$37 as offsets from the table
 	;(play_sfx_or_music_track, stop_current_song)
@@ -717,16 +717,16 @@ sfx_playerwall_cmdstream			;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_playerwall_cmdstream.bin	;sound $20
 	even
 sfx_playerwall2_cmdstream			;sound effect event stream (SoundStreamTable)
-	incbin	..\Extracted\Sound\sfx_playerwall2_cmdstream.bin	;sound $21: no caller found, same patches as
-	;playerwall
+	incbin	..\Extracted\Sound\sfx_playerwall2_cmdstream.bin	;sound $21: no caller found,
+	;same patches as playerwall
 	even
 sfx_playerwall3_cmdstream			;sound effect event stream (SoundStreamTable)
-	incbin	..\Extracted\Sound\sfx_playerwall3_cmdstream.bin	;sound $22: no caller found, same patches as
-	;playerwall
+	incbin	..\Extracted\Sound\sfx_playerwall3_cmdstream.bin	;sound $22: no caller found,
+	;same patches as playerwall
 	even
 sfx_playerwall4_cmdstream			;sound effect event stream (SoundStreamTable)
-	incbin	..\Extracted\Sound\sfx_playerwall4_cmdstream.bin	;sound $23: no caller found, same patches as
-	;playerwall
+	incbin	..\Extracted\Sound\sfx_playerwall4_cmdstream.bin	;sound $23: no caller found,
+	;same patches as playerwall
 	even
 sfx_puckwall1_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_puckwall1_cmdstream.bin	;sound $28: puck off the wall by speed (wallcoll)
@@ -813,8 +813,8 @@ sfx_bglass_cmdstream				;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_bglass_cmdstream.bin	;sound $E: wallcollb (puck over the wall)
 	even
 sfx_oooh2_cmdstream					;sound effect event stream (SoundStreamTable)
-	incbin	..\Extracted\Sound\sfx_oooh2_cmdstream.bin	;sound $D: injury (setInjuryType), visiting goalie
-	;save
+	incbin	..\Extracted\Sound\sfx_oooh2_cmdstream.bin	;sound $D: injury
+	;(setInjuryType), visiting goalie save
 	even
 sfx_siren_cmdstream					;sound effect event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\sfx_siren_cmdstream.bin	;sound 0

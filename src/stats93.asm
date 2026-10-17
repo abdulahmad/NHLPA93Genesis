@@ -131,8 +131,8 @@ DisplayGameInfo						;92 NewTicker3. print game d3 of gstruct (2 team rows and p
 	addq.w	#2,(printy).w
 	rts
 
-PrintGameInfo						;92 NewTicker3 .tn. print team d0's name at x 6 and score d1 (2 digits) at
-	;x $18
+PrintGameInfo						;92 NewTicker3 .tn. print team d0's name at x 6 and
+	;score d1 (2 digits) at x $18
 	movea.w	#$314,a1				;team address table
 	asl.w	#2,d0
 	movea.l	(a1,d0.w),a1
@@ -1191,8 +1191,8 @@ DrawScoringRow						;print ScoreSum entry at offset d3: time, team (bit 7 of
 	bsr.w	PrintScorerName			;first assist
 	move.w	#$12,(printx).w
 	move.b	5(a0,d3.w),d0			;second assist, falls into PrintScorerName
-PrintScorerName						;print player d0 (byte, negative = none) and go down a row.
-	;it prints a player not a time
+PrintScorerName						;print player d0 (byte, negative = none) and go down a row. it
+	;prints a player not a time
 	ext.w	d0						;sign extend: $FF = no player
 	bmi.w	.0						;nothing to print, just advance the row
 	jsr	(FormatPlayerNumInitial).l	;a1 = "NN F. Last" for player d0 of team a2
@@ -1268,8 +1268,8 @@ PenaltySummaryScreen				;"Penalty Summary": one 3 row
 	bne.w	.set					;up held: scroll up
 	neg.w	d0						;+2
 	btst	#1,d3
-	beq.w	.scroll					;neither: keep the current PlayerScrollCtr (it is cleared at entry
-	;boundaries)
+	beq.w	.scroll					;neither: keep the current PlayerScrollCtr (it is
+	;cleared at entry boundaries)
 .set	move.w	d0,(PlayerScrollCtr).w	;store the scroll step (down held: +2)
 .scroll	bsr.w	CheckPenaltyScroll	;apply the step, if any
 	bra.s	.loop
@@ -1902,10 +1902,9 @@ StatsReport							;(was GameStatisticsScreen) "Game Statistics": both
 	bne.w	ExitStatsScreen
 	bra.s	.loop
 
-DisplayStats						;(was DisplayTeamStatsScreen) team logos, then each TeamStatTextTbl row
-	;centred with
-	;home value at x $22 and away at x 9
-	;team blocks (TeamBlockMap offset $30 at x 2, 0 at x $1A), both at y 9
+DisplayStats						;(was DisplayTeamStatsScreen) team logos, then each
+	;TeamStatTextTbl row centred with home value at x $22 and away at x 9 team blocks (TeamBlockMap
+	;offset $30 at x 2, 0 at x $1A), both at y 9
 	bsr.w	printz
 	String	$BE,2,9,0
 	moveq	#$30,d0
@@ -1937,8 +1936,8 @@ DisplayStats						;(was DisplayTeamStatsScreen) team logos, then each TeamStatTe
 	dbf	d6,.row
 	rts
 
-PrintStatValue						;92 DisplayStats .ss. print TeamStatTextTbl entry a0 for team a2 centred
-	;at printx:
+PrintStatValue						;92 DisplayStats .ss. print TeamStatTextTbl entry a0 for
+	;team a2 centred at printx:
 	;value (offset $A is a time), "/second" if any, " (pct%)" for passing
 	;a3 = mesarea, an empty string (length word 2) the value text is appended to
 	movea.w	#(mesarea-M68K_RAM),a3
@@ -2298,8 +2297,7 @@ DrawGoalieSelectList				;92 Pausemode .gnum. draw the goalie list, row menuitem 
 	dbf	d1,.row
 	rts
 
-GetGoalieCount						;d0 = goalies on team a2 (nibbles in the team data word
-	;at offset $A)
+GetGoalieCount						;d0 = goalies on team a2 (nibbles in the team data word at offset $A)
 	movem.l	d1/a0,-(sp)
 	movea.l	tmdata(a2),a0
 	adda.w	$A(a0),a0
@@ -2311,8 +2309,8 @@ GetGoalieCount						;d0 = goalies on team a2 (nibbles in the team data word
 	movem.l	(sp)+,d1/a0
 	rts
 
-GetForwardCount						;d0 = forwards on team a2 (high nibble of team data byte 3 at
-	;the offset in word 8)
+GetForwardCount						;d0 = forwards on team a2 (high nibble of team data byte
+	;3 at the offset in word 8)
 	movem.l	a0,-(sp)
 	movea.l	tmdata(a2),a0
 	adda.w	8(a0),a0
