@@ -363,10 +363,10 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	bls.w	.pb0
 	moveq	#3,d2			;max 3
 .pb0	bra.w	.nextpb
-.pbt	move.w	d3,d0
+.pbt	move.w	d3,d0			;frame = first frame + counter
 	add.w	d2,d0
 	bsr.w	.sc
-.nextpb	dbf	d2,.pbt
+.nextpb	dbf	d2,.pbt			;frames d3+count .. d3+0
 	rts
 
 .sc	ext.w	d0			;d0 = frame, 0 = none
@@ -375,7 +375,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	beq.w	.chk
 	addi.w	#$1F,d0			;horizontal frames are 31 later
 .chk	cmp.w	#MaxSprites,d6			;MaxSprites
-	bge.w	rtss
+	bge.w	rtss			;sprite table full
 	movem.l	d0-d5,-(sp)
 	add.w	d0,d0
 	movea.l	a1,a0
@@ -398,7 +398,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	addi.w	#$70,d3			;112
 
 	move.w	(sp)+,d4
-.loop	cmp.w	2(a0),d2		;skip sprites off screen
+.loop	cmp.w	2(a0),d2		;per sprite: skip it if outside the window d0-d3
 	bgt.w	.next
 	cmp.w	2(a0),d3
 	blt.w	.next
@@ -424,7 +424,7 @@ showcrowd	;draw crowd sprites: up to 3 frames per PBnum nibble, then the two cro
 	addq.w	#1,d6
 	cmp.w	#MaxSprites,d6			;MaxSprites
 	beq.w	.ex
-.next	addq.w	#8,a0
+.next	addq.w	#8,a0			;next sprite of the frame
 	dbf	d4,.loop
 .ex	movem.l	(sp)+,d0-d5
 	rts
@@ -469,7 +469,7 @@ showclock	;put the game clock in the dma list. Called from setvideo; returns unl
 	divu.w	#$A,d0
 	bsr.w	.char			;minutes ones
 	swap	d0
-	tst.l	d0
+	tst.l	d0			;minutes tens digit (high word) and remainder zero?
 	bne.w	.0
 	moveq	#-$10,d0		;' '-'0': blank leading zero
 	swap	d0
@@ -485,7 +485,7 @@ showclock	;put the game clock in the dma list. Called from setvideo; returns unl
 	movea.w	#(VmMap2-M68K_RAM),a1
 	moveq	#4,d0			;.clocky2 = 4
 	moveq	#$D,d2			;.clockx2 = 13
-.cv	move.w	2(a1),d1		;map width shift
+.cv	move.w	2(a1),d1		;map width shift (d0 = y, d2 = x of the clock)
 	asl.w	d1,d0
 	add.w	d2,d0
 	asl.w	#1,d0
@@ -520,16 +520,16 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 
 .ca	tst.w	Zpos(a0)			;a0 = object, a3 = sso, d3 = first arrow frame
 	bmi.w	rtss			;not on the ice
-	st	frame(a3)
+	st	frame(a3)		;frame = -1: no arrow unless set below
 	move.w	(a0),d0			;Xpos
 	move.w	Ypos(a0),d1
 	btst	#sfhor,(sflags).w
 	beq.w	.nhor
-	exg	d0,d1
+	exg	d0,d1			;horizontal view: swap axes
 	neg.w	d0
 	subi.w	#horoff,d1
 	bra.w	.hord
-.nhor	sub.w	(Hpos).w,d0
+.nhor	sub.w	(Hpos).w,d0		;position relative to the scroll
 	sub.w	(Vpos).w,d1
 
 .hord	clr.w	d2			;d2 = off screen directions as joystick bits
@@ -545,7 +545,7 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 .2	cmp.w	#-$64,d1		;-.yoff
 	bgt.w	.3
 	bset	#dbut,d2			;dbut
-.3	tst.w	d2
+.3	tst.w	d2			;test: any direction off screen?
 	beq.w	rtss			;on screen: no arrow
 	movea.l	#jdtab,a1		;Rev A operand $DA88
 	move.b	(a1,d2.w),d2		;direction 0-7
@@ -555,13 +555,13 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 	move.w	(a1,d2.w),d4		;x spot, 0 = keep player x
 	beq.w	.4
 	move.w	d4,d0
-.4	addi.w	#$100,d0		;128+128
+.4	addi.w	#$100,d0		;128+128 (sprite coords)
 	move.w	d0,(a3)			;Xcord
 
 	move.w	2(a1,d2.w),d4		;y spot, 0 = keep player y
 	beq.w	.5
 	move.w	d4,d1
-.5	neg.w	d1
+.5	neg.w	d1			;y up is negative on screen
 	addi.w	#$F0,d1			;112+128
 	move.w	d1,2(a3)		;Ycord
 
@@ -583,7 +583,7 @@ setsortcords	;setup sort cord graphics: addframe for the 16 objects in OOlist or
 	;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter
 	movea.w	#(OOlist-M68K_RAM),a4
 	move.w	#$F,d0			;sortobjs-1
-.top	clr.w	d1
+.top	clr.w	d1			;next object number from OOlist
 	move.b	(a4)+,d1
 	asl.w	#scsize-1,d1			;scsize-1
 	movea.w	#(SortCords-M68K_RAM),a3

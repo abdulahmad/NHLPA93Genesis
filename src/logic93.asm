@@ -2902,13 +2902,13 @@ checkob	;bring up little warning ref if a player on your team is over blue line.
 	bgt.w	.ob			;this player is over the line
 .bn	adda.w	#SCstruct,a0		;next player
 	dbf	d0,.bottom
-.nob	moveq	#$40,d0			;no one offside: d0 = argument for PushRef
+.nob	moveq	#$40,d0			;no one offside: d0 = $40 = clear the ref window (PushRef)
 	bclr	#sf2offsig,(sflags2).w	;clear the offsides ref flag
 	bne.w	.dref			;it was on: update the ref
 .ex	movem.l	(sp)+,d0-d1/a0
 	rts
 
-.ob	moveq	#6,d0			;(92 moveq #32,d0)
+.ob	moveq	#6,d0			;ref frame 6 for PushRef (92 moveq #32,d0)
 	bset	#sf2offsig,(sflags2).w	;someone is offsides: show the little ref
 	bne.s	.ex			;already shown
 .dref	tst.w	(RefCnt).w		;only when the ref queue is idle (negative)

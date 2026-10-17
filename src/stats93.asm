@@ -990,21 +990,21 @@ AttribEnergy	;Roster column: energy. $32(a2) word / 40, max 100
 
 AttribFighting	;Roster column: fighting. Bit 0 of the nibble is
 	;handedness, so only bits 1-3 count
-	andi.w	#$E,d0
-	subq.w	#1,d1
+	andi.w	#$E,d0			;drop the handedness bit from the sum
+	subq.w	#1,d1			;and one point from the maximum
 AttribRating	;sum d0 of d1/15 ratings as a percentage
-	mulu.w	#$64,d0
+	mulu.w	#$64,d0			;d0 = sum * 100 / max
 	divu.w	d1,d0
 AttribPrintPct	;Print d0 4 wide plus padding
-	moveq	#4,d1
+	moveq	#4,d1			;field width 4
 	bsr.w	PushNumberWidth
 	bsr.w	print
-	bsr.w	printz
+	bsr.w	printz			;trailing spaces clear the old text
 	String	$20,$20,$20,$20
 	rts
 
 AttribHanded	;Roster column: handedness. Bit 0 of the sum
-	andi.w	#1,d0
+	andi.w	#1,d0			;0 = Righty, 1 = Lefty
 	lea	HandedTextTbl(pc),a1
 	bra.w	Fprintsmall
 
@@ -1027,12 +1027,12 @@ AttribWeight	;Roster column: Weight. 140 + 8 * rating lb
 ScoringSummaryScreen	;"Scoring Summary": one 4 row
 	;entry per goal in ScoreSum (6 bytes each). Scrolls to the end first,
 	;then up/down scroll, start exits
-	moveq	#$A,d0
+	moveq	#$A,d0			;SetupScreen d0/d1: row offset / height
 	moveq	#$1A,d1
 	bsr.w	SetupScreen
 	bsr.w	printz
 	String	$BD,4,1,0
-	moveq	#$20,d0
+	moveq	#$20,d0			;title frame 32 wide, 6 high
 	moveq	#6,d1
 	bsr.w	Framer
 	bsr.w	printbigz
@@ -1054,23 +1054,23 @@ ScoringSummaryScreen	;"Scoring Summary": one 4 row
 	subi.w	#$80,d0			;4 entries fit on screen
 	bpl.w	.0
 	clr.w	d0
-.0	move.w	d0,(SelectedPlayerIdx).w
-	move.w	(VertLineScrolling).w,d0
-.toend	bsr.w	MenuWaitVblank
+.0	move.w	d0,(SelectedPlayerIdx).w	;max scroll = end of list - 4 entries
+	move.w	(VertLineScrolling).w,d0	;d0 = end position
+.toend	bsr.w	MenuWaitVblank		;scroll down from 0 one step a frame until the end
 	bsr.w	UpdateScoringScroll
 	move.w	(VertLineScrolling).w,d0
 	subq.w	#2,d0
 	cmp.w	(SelectedPlayerIdx).w,d0
 	bge.s	.toend
 	clr.w	(PlayerScrollCtr).w
-.loop	bsr.w	MenuWaitVblank
+.loop	bsr.w	MenuWaitVblank		;per frame: d3 = buttons held
 	bsr.w	getpzjoy
-	btst	#7,d3
+	btst	#7,d3			;start: leave
 	bne.w	ExitStatsScreen
-	moveq	#-2,d0
+	moveq	#-2,d0			;up: -2 pixels
 	btst	#0,d3
 	bne.w	.set
-	neg.w	d0
+	neg.w	d0			;down: +2
 	btst	#1,d3
 	beq.w	.scroll
 .set	move.w	d0,(PlayerScrollCtr).w
@@ -1449,58 +1449,62 @@ PlayerStatsScreen	;"Player Stats" (d7 = 0, game
 PlayerStatsList	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	;Left/right picks the sort column (-1 goalie saves, 0-4 G A Pts SOG PIM),
 	;up/down scrolls the sorted player list
+	;common stats screen setup (d0/d1 = first row / last row of the background copied to the scroll plane)
 	moveq	#$D,d0
 	moveq	#$16,d1
 	bsr.w	SetupScreen
-	clr.w	(DispAttribCtr).w
-	clr.w	(VertLineScrolling).w
+	clr.w	(DispAttribCtr).w	;sort column: -1 goalie saves, 0-4 G A Pts SOG PIM; start with goals
+	clr.w	(VertLineScrolling).w	;list scrolled to the top
+	;(re)draw the whole screen for team a2: frame, title, team logo, list and arrows
 .redraw	clr.w	(PlayerScrollCtr).w
 	bsr.w	printz
 	String	$BD,5,1,0
-	moveq	#$1E,d0
+	moveq	#$1E,d0			;frame 30 wide, 6 high
 	moveq	#6,d1
 	bsr.w	Framer
 	tst.w	d7
-	beq.w	.title
-	bsr.w	printbigz
+	beq.w	.title			;game stats
+	bsr.w	printbigz		;playoff stats title, no "switch teams" hint
 	dc.w	$0016
 	dc.b	$BD,7,4,'Playoff  Stats',$BD,$E,1
 	bra.w	.team
-.title	bsr.w	printsmallz
+.title	bsr.w	printsmallz		;"A - Switch Teams" hint
 	dc.w	$001C
 	dc.b	$F8,6,3,$C,$1A,$F9,1,'A^-^Switch^Teams',$F9,0,0
 	bsr.w	printbigz
 	dc.w	$0016
 	dc.b	$BD,8,4,'Player  Stats',$BD,$E,1,0
-.team	clr.w	d0
+.team	clr.w	d0			;team logo block: 0 = home block, $30 = away block (as a2)
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.home
 	moveq	#$30,d0
 .home	bsr.w	PutTeamBlock
 	bsr.w	DrawStatsList
 	bsr.w	DrawStatsListArrows
+	;main loop per frame: Start leaves, A switches team, left/right changes the column, up/down scrolls
 .loop	bsr.w	MenuWaitVblank
-	bsr.w	getpzjoy
+	bsr.w	getpzjoy		;d1 = new presses, d3 = held
 	btst	#7,d3
-	bne.w	ExitStatsScreen
+	bne.w	ExitStatsScreen		;Start
 	btst	#6,d1
-	bne.w	.switch
-	bsr.w	nodiag
+	bne.w	.switch			;A pressed
+	bsr.w	nodiag			;ignore diagonals
 	moveq	#1,d0
 	btst	#3,d1
-	bne.w	.col
+	bne.w	.col			;right pressed: column +1
 	neg.w	d0
 	btst	#2,d1
-	bne.w	.col
+	bne.w	.col			;left pressed: column -1
 	moveq	#-2,d0
 	btst	#0,d3
-	bne.w	.set
+	bne.w	.set			;up held: scroll step -2
 	neg.w	d0
 	btst	#1,d3
-	beq.w	.scroll
-.set	move.w	d0,(PlayerScrollCtr).w
+	beq.w	.scroll			;nothing held: keep the current scroll step
+.set	move.w	d0,(PlayerScrollCtr).w	;down held: scroll step +2
 .scroll	bsr.w	UpdateStatsListScroll
 	bra.s	.loop
+	;change the sort column, limited to -1..4 (-1 = goalie saves), then redraw the list
 .col	add.w	(DispAttribCtr).w,d0
 	cmp.w	#-1,d0
 	blt.s	.scroll
@@ -1510,12 +1514,13 @@ PlayerStatsList	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	bsr.w	DrawStatsList
 	bsr.w	DrawStatsListArrows
 	bra.s	.scroll
+	;A: toggle between the home and away team struct and redraw the screen
 .switch	tst.w	d7			;No team switch in playoff stats
 	bne.s	.scroll
 	lea	tmsize(a2),a2
 	cmpa.w	#(awtmstruct-M68K_RAM),a2
-	beq.w	.redraw
-	movea.w	#(tmstruct-M68K_RAM),a2
+	beq.w	.redraw			;was home, now away
+	movea.w	#(tmstruct-M68K_RAM),a2	;was away, back to home
 	bra.w	.redraw
 
 UpdateStatsListScroll	;stats screen per frame: scroll 0..SelectedPlayerIdx, stop

@@ -567,8 +567,8 @@ DoFill	;fill vram. d0 = words to fill, d1 = vram address, d2 = data to fill with
 	rts
 
 WaitDMA	;wait for dma completion
-	move.w	(Vctrl).l,-(sp)
-	btst	#1,1(sp)
+	move.w	(Vctrl).l,-(sp)		;read the vdp status
+	btst	#1,1(sp)		;status bit 1 = dma busy
 	addq.w	#2,sp
 	bne.s	WaitDMA
 	rts
@@ -576,71 +576,71 @@ WaitDMA	;wait for dma completion
 setVram	;initialize all necesary video parameters based on my variables. d0 = color to fade to. Falls into setVram_0
 	movea.w	#(palfadenew-M68K_RAM),a0
 	moveq	#$3F,d1			;63
-.0	move.w	d0,(a0)+
+.0	move.w	d0,(a0)+		;fill the 64 target colors with d0
 	dbf	d1,.0
 	move.w	#$18,(palcount).w	;24
-	bsr.w	forcefade
+	bsr.w	forcefade		;fade the screen to that color
 
 setVram_0	;92 setVram second half. second half of setVram without the fade: clear vram and set the VDP registers from disflags, Map1col, VmMap1-3, VSPRITES and VSCRLPM. Falls in from setVram, called from SetupStanleyCupCelebrationScreen
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	move.w	#$8F02,(Vctrl).l	;VmInc 2
 	clr.w	d0
-	bsr.w	Vmaddr
-	move.w	#$3FFF,d0
+	bsr.w	Vmaddr			;vram address 0, a0 = Vdata
+	move.w	#$3FFF,d0		;$4000 longs = all 64k of vram
 	clr.l	d1
-.9	move.l	d1,(a0)
+.9	move.l	d1,(a0)			;clear vram
 	dbf	d0,.9
 
 	move.w	#$8C00,d0		;8 for shadow mode
 	btst	#df32c,(disflags).w
-	bne.w	.i32
+	bne.w	.i32			;32 column flag set: leave bits 0 and 7 clear
 	ori.w	#$81,d0			;%10000001
-.i32	move.w	d0,4(a0)		;40 column mode, no interlace, normal brightness
+.i32	move.w	d0,4(a0)		;reg 12: 40 column mode (unless df32c), no interlace, normal brightness
 
 	move.w	#$8004,4(a0)		;512 color palette enable
 	move.w	#$8164,4(a0)		;$8100+%01100100
 
 	move.w	#$9001,d0		;Playfield is 64x32
 	cmpi.w	#6,(Map1col).w
-	beq.w	.i64
-	move.w	#$9003,d0
-.i64	move.w	d0,4(a0)
+	beq.w	.i64			;Map1col 6 = 64 columns wide
+	move.w	#$9003,d0		;otherwise 128x32
+.i64	move.w	d0,4(a0)		;reg 16: scroll plane size
 
 	move.w	#$8200,d0
 	move.b	(VmMap1).w,d0
 	lsr.b	#2,d0
 	andi.b	#%00111000,d0
-	move.w	d0,4(a0)
+	move.w	d0,4(a0)		;reg 2: plane A name table address from VmMap1
 
 	move.w	#$8400,d0
 	move.b	(VmMap2).w,d0
 	lsr.b	#5,d0
-	move.w	d0,4(a0)
+	move.w	d0,4(a0)		;reg 4: plane B name table address from VmMap2
 
 	move.w	#$8300,d0
 	move.b	(VmMap3).w,d0
 	lsr.b	#2,d0
 	andi.b	#%00111110,d0
-	move.w	d0,4(a0)
+	move.w	d0,4(a0)		;reg 3: window name table address from VmMap3
 
 	move.w	#$8500,d0
 	move.b	(VSPRITES).w,d0
 	lsr.b	#1,d0
-	move.w	d0,4(a0)
+	move.w	d0,4(a0)		;reg 5: sprite attribute table address
 
 	move.w	#$8D00,d0
 	move.b	(VSCRLPM).w,d0
 	lsr.b	#2,d0
-	move.w	d0,4(a0)
+	move.w	d0,4(a0)		;reg 13: horizontal scroll table address
 
 	move.w	#$9100,4(a0)		;disable plane 3 graphics
 	move.w	#$9200,4(a0)		;disable plane 3 graphics
 	move.w	#$8700,4(a0)		;Palette # 0 is border/transparent.
 	move.w	#$8B00,4(a0)		;Scroll mode. (entire scroll)
 
-	move.l	#$40000010,4(a0)	;vsram
-	move.l	#0,(a0)			;playfield 1/2
+	move.l	#$40000010,4(a0)	;vsram write 0
+	move.l	#0,(a0)			;vertical scroll 0 for playfield 1/2
 	move.w	(sp)+,(disflags).w
 	rts
 

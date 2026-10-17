@@ -1,5 +1,10 @@
 ;	RAM map. This file names the work RAM variables, the hardware ports and the offsets inside
 ;	the game's structures. It holds equates only and adds nothing to the ROM.
+;	Order: hardware ports, screen and sound constants, button bits, sound effect and song numbers,
+;	rink distances, then the work RAM map from $FFFF0000 (replay frame buffer up to varstart
+;	$FFFFB000), the variables allocated with rs from varstart (video and print state, the sort
+;	object structure and flag bits, crowd, DMA list, flags, team and game structures, playoff,
+;	menu, options, sound driver state, backup RAM state). Rev A adds PalMode/music_tick_divider.
 
 ;video and sound ports
 Asound	=	$c00011	;analog sound (PSG)
@@ -94,7 +99,7 @@ Sortobjs	=	16	;number of sorted graphics objects- these are arranged so sprites 
 scsize	=	7	;2 to this power indicates ram needed for each sortobj
 SCstruct	=	1<<scsize	;ram for each sortobj
 RAMSTART = varstart	;start of the variables, the same as varstart (92)
-	RSSET	varstart
+	RSSET	varstart	;variables from here on are allocated upwards from varstart with rs
 VSCRLPM	rs.w	1	;location in vram of scroll parameters
 VSPRITES	rs.w	1	;location in vram of sprite attributes
 VmMap1	rs.w	1	;location in vram of playfield 1
@@ -275,7 +280,7 @@ ffonum	=	5		;5 objects tied to icerink scrolling (3 pads + centre ice logo + glo
 ssonum	=	2		;2 objects not tied to icerink scrolling (the 2 arrows for off screen players; 92 had 4, with 2 scoreboard logos)
 ssosize	=	Ypos		;bytes per sso object
 Xcord	=	0		;x and y words at the start of an sso object (the defaultsprites sso lists)
-Ycord	=	2
+Ycord	=	2	;y word of an sso object
 sso	rs.w	20	;screen objects not tied to the rink scroll: 2 arrows for off screen players (92 had 4, with 2 scoreboard logos)
 shotplayer	rs.w	1	;player who shot last
 lastplayer	rs.w	1	;last player who touched puck

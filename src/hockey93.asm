@@ -4101,7 +4101,7 @@ UpdatePlayoffScroll	;92 PlayoffScreen .scrup. move the tree one step (PlayerScro
 	cmp.w	#3,d1
 	bls.w	.lim
 	moveq	#3,d1			;at most 3 pages each way
-.lim	mulu.w	#$70,d1
+.lim	mulu.w	#$70,d1			;limit = pages * $70 pixels
 	cmp.w	d1,d0
 	bgt.w	rtss
 	neg.w	d1
@@ -4116,7 +4116,7 @@ UpdatePlayoffScroll	;92 PlayoffScreen .scrup. move the tree one step (PlayerScro
 	cmp.w	#$200,d1
 	bgt.w	.nox
 	move.w	d1,(playoffspritex).w
-.nox	ext.l	d0
+.nox	ext.l	d0			;is the new position on a page boundary?
 	divs.w	#$70,d0
 	swap	d0			;remainder
 	tst.w	d0
@@ -4135,7 +4135,7 @@ waitxc1	;(was PlayoffScreen_waitvsync) each time palcount runs out, eor the colo
 	bpl.w	.wait			;palcount still counting
 	eori.w	#$EE,(palfadenew+$42).w
 	move.w	#$18,(palcount).w
-.wait	move.w	(vcount).w,d0
+.wait	move.w	(vcount).w,d0		;wait until the vblank handler bumps vcount
 	cmp.w	(oldvcount).w,d0
 	beq.s	.wait
 	move.w	d0,(oldvcount).w
@@ -4183,7 +4183,7 @@ DrawTeamBlocks	;92 PlayoffScreen .doteam. draw team block d1 (team*2) from TeamB
 	cmp.b	d0,d1
 	bne.w	.nohi
 	move.w	#$6000,(printa).w	;palette 3
-.nohi	movea.l	#TeamBlocksmap,a1
+.nohi	movea.l	#TeamBlocksmap,a1	;a1 = map header of the team blocks
 	adda.l	4(a1),a1
 	movea.w	#$310,a2		;no tiles
 	clr.w	d0
@@ -4212,8 +4212,8 @@ VBlank_Playoff	;(it undecoded): the PlayoffScreen vblank handler (vbint).
 	move.w	#$FEA0,d0
 	add.w	(DispAttribCtr).w,d0
 	move.w	d0,(a0)
-.nosat	bsr.w	cramfade
-.nograph	addq.w	#1,(vcount).w
+.nosat	bsr.w	cramfade		;step the palette fade
+.nograph	addq.w	#1,(vcount).w		;frame counter
 	jsr	(p_music_vblank).l
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
@@ -4309,7 +4309,7 @@ ScoutingReport	;pregame scouting report. Called from PeriodOver.
 	bsr.w	printsmallz
 	String	CC_SetMapAndPosition,0,1,$15,$F,CC_SetFont,1	;attribute 0, map 1, x $15, y $F, char set 1
 	lea	ScoutRatingText(pc),a1	;rating names
-.pl	move.w	(a1),d0
+.pl	move.w	(a1),d0			;string length: half of it centers the name
 	asr.w	#1,d0
 	neg.w	d0
 	addi.w	#$15,d0			;center on column 21
@@ -4346,20 +4346,20 @@ ScoutingReport	;pregame scouting report. Called from PeriodOver.
 	cmp.w	(VisTeam).w,d0
 	beq.w	.same			;same team, one paragraph
 	move.w	(VisTeam).w,(a0)+	;visiting team paragraph
-.same	move.w	#$1D,(a0)+
+.same	move.w	#$1D,(a0)+		;closing paragraphs $1D, $1C
 	move.w	#$1C,(a0)+
 	move.w	#$FFFF,(a0)		;end of list
 	clr.w	(asv).w			;fast text flag
 	move.w	#$7FFF,(screentimer).w	;frames left on the screen
 
-.top	moveq	#0,d0
+.top	moveq	#0,d0			;main loop, once per frame: read pads
 	bsr.w	waitx			;d1 = new presses
 	btst	#sbut,d1			;sbut
 	bne.w	rtss			;start leaves
 	btst	#dbut,d1			;dbut
 	beq.w	.upd
 	st	(asv).w			;down: type the rest without delays
-.upd	bsr.w	UpdateScoutingDisplay
+.upd	bsr.w	UpdateScoutingDisplay	;type the next word if the timer allows
 	subq.w	#1,(screentimer).w
 	bpl.s	.top
 	rts
@@ -4376,7 +4376,7 @@ PrintScoutRatings	;print the 8 rating nibbles of the scouting report long at 4(a
 	cmp.w	#1,d6
 	bne.w	.next
 	bsr.w	PrintScoutLineRatings	;after goalkeeping: power play and home team lines
-.next	dbf	d6,.loop
+.next	dbf	d6,.loop		;8 nibbles in total
 	rts
 
 PrintScoutLineRatings	;print the power play line (byte 1 low nibble of a0 + byte 1 high nibble of a2), and on the right
@@ -4440,7 +4440,7 @@ UpdateScoutingDisplay	;called every frame by ScoutingReport. When ScoutingReport
 	bmi.w	.go			;fast: no delay
 	subq.w	#1,(ScoutingReportTimer).w
 	bpl.w	rtss
-.go	movea.l	#ScoutingReportText,a1
+.go	movea.l	#ScoutingReportText,a1	;time to print: a1 = text base
 	move.w	(PlayerScrollCtr).w,d0
 	bpl.w	.cont			;in a paragraph
 	clr.w	(DispAttribCtr).w	;column 0
@@ -4457,10 +4457,10 @@ UpdateScoutingDisplay	;called every frame by ScoutingReport. When ScoutingReport
 	bra.w	.cnt
 .find	cmpi.b	#$D,(a2)+		;skip one $D ended paragraph
 	bne.s	.find
-.cnt	dbf	d0,.find
+.cnt	dbf	d0,.find		;skip d0 paragraphs
 	suba.l	a1,a2
 	move.w	a2,d0			;d0 = paragraph offset
-.cont	lea	(a1,d0.w),a2
+.cont	lea	(a1,d0.w),a2		;a2 = next word to print
 	move.w	#$A,(ScoutingReportTimer).w	;10 frames per word
 	move.w	(DispAttribCtr).w,d0
 	cmpi.b	#$5F,(a2)		;'_'
@@ -4476,7 +4476,7 @@ UpdateScoutingDisplay	;called every frame by ScoutingReport. When ScoutingReport
 	st	(PlayerScrollCtr).w	;assume end of paragraph
 	movea.w	#(TextBuffer-M68K_RAM),a0
 	clr.w	d1			;word length
-.word	cmpi.b	#$D,(a2)
+.word	cmpi.b	#$D,(a2)		;copy one word into TextBuffer (d1 = length, d0 = column)
 	beq.w	.eol			;end of paragraph
 	addq.w	#1,d0
 .copy	move.b	(a2),(a0)+		;copy the word and its trailing spaces
@@ -4486,7 +4486,7 @@ UpdateScoutingDisplay	;called every frame by ScoutingReport. When ScoutingReport
 	cmpi.b	#$2E,(a2)		;'.'
 	bne.w	.nopause
 .pause	addi.w	#$28,(ScoutingReportTimer).w	;40 more frames after punctuation
-.nopause	cmpi.b	#$20,(a2)+
+.nopause	cmpi.b	#$20,(a2)+		;stop the word at a space
 	bne.s	.word
 	cmpi.b	#$20,(a2)
 	beq.s	.copy
@@ -4499,11 +4499,11 @@ UpdateScoutingDisplay	;called every frame by ScoutingReport. When ScoutingReport
 	beq.w	.even
 	clr.b	(a0)			;pad
 	addq.w	#1,(mesarea).w
-.even	movea.w	#(mesarea-M68K_RAM),a1
+.even	movea.w	#(mesarea-M68K_RAM),a1	;a1 = the string to print
 .print	cmp.w	#$1D,d0			;past column 29?
 	ble.w	.noscr
 	bsr.w	ScrollDisplayUp		;wrap to a new line
-.noscr	bsr.w	printz
+.noscr	bsr.w	printz			;position the word: x 9 + column, y 4 + line
 	String	$FF,9,4
 	move.w	(DispAttribCtr).w,d0
 	add.w	d0,(printx).w		;x 9 + column
@@ -4512,9 +4512,9 @@ UpdateScoutingDisplay	;called every frame by ScoutingReport. When ScoutingReport
 	bsr.w	print
 	add.w	d1,(DispAttribCtr).w
 	rts
-.awtm	movea.w	#(awtmstruct-M68K_RAM),a1
+.awtm	movea.w	#(awtmstruct-M68K_RAM),a1	;away player name
 	bra.w	.team
-.hmtm	movea.w	#(tmstruct-M68K_RAM),a1
+.hmtm	movea.w	#(tmstruct-M68K_RAM),a1	;home player name
 .team	move.w	tmgoalie(a1),d1		;goalie's roster index
 	movea.l	tmdata(a1),a1
 	adda.w	(a1),a1			;player data
