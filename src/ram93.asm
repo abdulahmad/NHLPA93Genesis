@@ -231,6 +231,7 @@ pf2unav	=	2	;player is unavailable (going to/from bench/penalty). 92 bit 4
 pf2lcm	=	3	;line change mode. 92 bit 5
 pf2pen	=	4	;player has caused a penalty. 92 bit 6
 pf2npc	=	5	;no player collision. 92 bit 7
+pf2inj	=	6	;player is injured (SPAfinjury animation, max speed 1/8). 93 only
 pflags3	=	$64
 pf3oside	=	0	;player is offsides (offsides is now flagged per team in tmflags bit 4)
 glitch	=	$65	;counter to eliminate quick frame changes (de-glitch graphics)
@@ -326,6 +327,7 @@ dfok	=	0	;graphics are ready for transfer
 df32c	=	1	;32 column mode on
 dfng	=	2	;don't int graphics
 dfclock	=	3	;clock needs update
+dffaceoff	=	4	;face off sprites on (92 tested sf2faceoff). 93 only
 ltplayer	rs.w	1	;last touch player
 ltx	rs.w	1	;last touch x cord
 lty	rs.w	1	;last touch y cord
@@ -366,6 +368,7 @@ gmpen	=	2	;penalty has been called
 gmpendel	=	3	;delayed penalty has been called
 gmhl	=	4	;hilight mode
 gmoffs	=	5	;offsides on
+gmend	=	6	;game over: also ends the period. 93 only
 sflags	rs.w	1
 sfpz	=	0	;pause mode
 sfpj	=	1	;pause cont (0 for cont 1)
@@ -389,6 +392,9 @@ sf3llcs	=	0	;lower line change sel.
 sf3rmplay	=	1	;play mode on for replay
 sf3alttree	=	2	;alt. tree
 sf3sbut	=	3	;flag for start button
+sf3fodrop	=	4	;the face off drop was flagged. 93 only
+sf3track	=	5	;the scroll window tracks an object. 93 only
+sf3pentick	=	6	;set once a second when the penalty times were updated. 93 only
 c1playernum	rs.w	1	;player in control or neg for none
 c2playernum	rs.w	1
 cont1team	rs.w	1	;cont1 team 0=none 1=team1 2=team2
@@ -434,6 +440,9 @@ tmap	=	$24	;active players on ice 4-6. 92 $1A
 tmgoalie	=	$26	;goalie 1/2/none. 92 $1C
 tmflags	=	$30	;flags. 92 $1E
 tmflcc	=	0	;line change on
+tmflc	=	1	;team is in line change mode. 93 only
+tmflast	=	3	;next touch overwrites the last touch only. 93 only
+tmfoffside	=	4	;team is offsides. 93 only
 tmpde	=	$32	;energy level of each roster player. 92 $20
 maxros	=	26
 tmpdst	=	tmpde+(2*maxros)	;-2=bench/-1=ice/0+=penalty box. 92 $54

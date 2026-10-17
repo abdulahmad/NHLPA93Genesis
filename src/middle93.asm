@@ -290,12 +290,12 @@ waitxsr	;d0 vblanks while the zamboni crosses (zamx counts up to $708) and the c
 	addq.w	#1,(zamx).w
 .nz	moveq	#1,d7			;one elapsed frame
 	bsr.w	updatecrowdf
-	bclr	#1,(sflags).w		;pad 1
+	bclr	#sfpj,(sflags).w		;pad 1
 	bsr.w	Readjoy1
 	bsr.w	ProcessInputWithRepeat
 	tst.w	d1
 	bne.w	.key
-	bset	#1,(sflags).w		;pad 2
+	bset	#sfpj,(sflags).w		;pad 2
 	bsr.w	Readjoy2
 	bsr.w	ProcessInputWithRepeat
 	tst.w	d1

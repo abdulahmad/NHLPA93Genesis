@@ -90,11 +90,11 @@ DisplayGameInfo	;print game d3 of gstruct (2 team rows and period label).
 	;Skips the current game and games with gsflags bit 1 or 2 set
 	cmp.w	(gamenum).w,d3
 	beq.w	rtss2			;current game
-	moveq	#$10,d0			;gssize
+	moveq	#gssize,d0			;gssize
 	mulu.w	d3,d0
 	movea.w	#(gstruct-M68K_RAM),a0
 	adda.w	d0,a0
-	btst	#1,$E(a0)		;gsflags(a0)
+	btst	#gsfhl,gsflags(a0)		;gsflags(a0)
 	bne.w	rtss2
 	btst	#2,$E(a0)
 	bne.w	rtss2
@@ -154,7 +154,7 @@ ScrollArrowTable	;DrawScrollArrows strings: none, up, down. Only 3 entries (the
 LineEditor	;"Line Editor" screen for team a2.
 	;Pick a line slot, then a player to put there. Pause menu item
 	;handler
-	bset	#0,tmflags(a2)		;set on entry to the line editor
+	bset	#tmflcc,tmflags(a2)		;set on entry to the line editor
 	moveq	#0,d0
 	moveq	#$1C,d1
 	bsr.w	SetupScreen
@@ -749,7 +749,7 @@ UpdatePlayerListScroll	;set VertLineScrolling = d0. Stop on a page boundary. Whe
 	bne.w	.2
 	bsr.w	DisplayPlayerListDown
 .2	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w
+	bset	#dfng,(disflags).w
 	movea.l	#VDP_DATA,a0
 	move.l	#$40020010,4(a0)
 	move.w	#$FF90,d0
@@ -1088,7 +1088,7 @@ UpdateScoringScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	bne.w	.2
 	bsr.w	DrawScoringRowDown
 .2	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w
+	bset	#dfng,(disflags).w
 	movea.l	#VDP_DATA,a0
 	move.l	#$40020010,4(a0)
 	moveq	#-$50,d0
@@ -1272,7 +1272,7 @@ UpdatePenaltyScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	bne.w	.2
 	bsr.w	DisplayPenaltyLineDown
 .2	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w
+	bset	#dfng,(disflags).w
 	movea.l	#VDP_DATA,a0
 	move.l	#$40020010,4(a0)
 	move.w	#$FFB0,d0
@@ -1497,7 +1497,7 @@ UpdateStatsListScroll	;stats screen per frame: scroll 0..SelectedPlayerIdx, stop
 	bsr.w	DrawStatsRowDown
 SetStatsListScrollReg	;VSRAM = VertLineScrolling - $68
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w
+	bset	#dfng,(disflags).w
 	movea.l	#VDP_DATA,a0
 	move.l	#$40020010,4(a0)
 	move.w	#$FF98,d0
@@ -1980,16 +1980,16 @@ SetupScreen	;common start for the stats screens: blank, 40 cell mode, load
 	;to the scroll plane and clear map 3
 	movem.l	d0-d1/a2,-(sp)
 	bsr.w	forceblack
-	bclr	#0,(disflags).w
+	bclr	#dfok,(disflags).w
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w
+	bset	#dfng,(disflags).w
 	move.w	(VSPRITES).w,d0
 	bsr.w	Vmaddr
 	move.l	#0,(a0)			;clear first sprite
 	move.w	#$8C81,4(a0)		;VDP reg 12: 40 cell mode
 	move.w	#6,(Map3col).w
 	move.w	(sp)+,(disflags).w
-	bclr	#1,(disflags).w
+	bclr	#df32c,(disflags).w
 	move.w	(Framercset).w,d4
 	movea.l	#FramerMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
@@ -2043,12 +2043,12 @@ ExitStatsScreen	;leave a stats screen: back to 32 cell mode, reload the
 	;rink, font and framer graphics, rebuild the rink map and player colours
 	bsr.w	forceblack
 	move.w	(disflags).w,-(sp)
-	bset	#2,(disflags).w
+	bset	#dfng,(disflags).w
 	movea.l	#VDP_DATA,a0
 	move.w	#$8C00,4(a0)		;VDP reg 12: 32 cell mode
 	move.w	#5,(Map3col).w
 	move.w	(sp)+,(disflags).w
-	bset	#1,(disflags).w
+	bset	#df32c,(disflags).w
 	move.w	(rinkvrcset).w,d4
 	movea.l	#IceRinkMap+8,a2
 	bsr.w	DecompressGraphicsPlain

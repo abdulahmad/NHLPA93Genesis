@@ -445,7 +445,7 @@ PushRef	;tell vblank what to display. d0 = ref frame, $40 clears the window. The
 	bset	#sf2refref,(sflags2).w
 	bra.w	.ex
 
-.clearit	btst	#7,(sflags).w		;horizontal mode only clears the line
+.clearit	btst	#sfhor,(sflags).w		;horizontal mode only clears the line
 	bne.w	.cl
 	movea.w	#(RefRamMap-M68K_RAM),a1
 	moveq	#$37,d0			;(refheight*refwidth)-1
@@ -545,13 +545,13 @@ ClearPenaltyBuffer	;clear PenBuf (92 inlined this in PenGoalStuff). Also called 
 	rts
 
 updatepentime	;update the time remaining on all penalized players, once a second. Sets sflags3 bit 6 on that tick. Falls into ProcessPenaltyList for team 2
-	bclr	#6,(sflags3).w
+	bclr	#sf3pentick,(sflags3).w
 	btst	#gmclock,(gmode).w
 	bne.w	rtss
 	sub.w	d7,(Penaltytimer).w
 	bpl.w	rtss
 	addi.w	#jps,(Penaltytimer).w	;jps
-	bset	#6,(sflags3).w
+	bset	#sf3pentick,(sflags3).w
 	bsr.w	chkatop
 	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	ProcessPenaltyList
@@ -592,7 +592,7 @@ ProcessPenaltyList	;a2 = team. Walks the penalty box list ($9A): the first two p
 	tst.w	tmpdst(a2,d0.w)
 	bne.w	.snd
 	bsr.w	releasepl
-	move.w	#2,(sp)			;SFXbeep2
+	move.w	#SFXbeep2,(sp)		;SFXbeep2
 .snd	bsr.w	sfx
 	rts
 
@@ -1149,20 +1149,20 @@ InitScores	;initialize other games scores/period in playoffs (no OptPlayMode che
 	bgt.w	rtss
 	bsr.w	GetShifter
 	movea.w	#(gstruct-M68K_RAM),a0
-	moveq	#$10,d0			;gssize
+	moveq	#gssize,d0			;gssize
 	mulu.w	d1,d0
 	adda.w	d0,a0
 .top	cmp.w	(gamenum).w,d1
 	beq.w	.next
 	btst	#2,$E(a0)		;gsfso
 	bne.w	.next
-	clr.w	8(a0)			;gsper
+	clr.w	gsper(a0)			;gsper
 	moveq	#3,d0
 	bsr.w	randomd0
 	bra.w	.1
 .0	bsr.w	SetScore
 .1	dbf	d0,.0
-.next	suba.w	#$10,a0			;gssize
+.next	suba.w	#gssize,a0			;gssize
 	dbf	d1,.top
 	rts
 
@@ -1170,7 +1170,7 @@ UpdateScores	;update ticker score values. Called from PeriodOver
 	bsr.w	GetShifter
 	move.w	d1,(TickerNum).w
 	movea.w	#(gstruct-M68K_RAM),a0
-	moveq	#$10,d0			;gssize
+	moveq	#gssize,d0			;gssize
 	mulu.w	d1,d0
 	adda.w	d0,a0
 .top	cmp.w	(gamenum).w,d1
@@ -1179,19 +1179,19 @@ UpdateScores	;update ticker score values. Called from PeriodOver
 	btst	#2,$E(a0)		;gsfso
 	bne.w	.next
 	bsr.w	SetScore
-.next	suba.w	#$10,a0			;gssize
+.next	suba.w	#gssize,a0			;gssize
 	dbf	d1,.top
 	rts
 
 SetScore	;add to score for game in a0. After period 3 a game within one goal goes to OT (gsper 3) and asks for a highlight
-	cmpi.w	#4,8(a0)		;gsper
+	cmpi.w	#4,gsper(a0)		;gsper
 	bge.w	rtss
 	movem.l	d0-d1/a0-a1,-(sp)
 	cmpi.w	#3,8(a0)
 	bne.w	.0
 	move.w	#5,8(a0)		;final
-	move.w	$A(a0),d0		;gss1
-	sub.w	$C(a0),d0		;gss2
+	move.w	gss1(a0),d0		;gss1
+	sub.w	gss2(a0),d0		;gss2
 	cmp.w	#1,d0
 	bgt.w	.ex
 	cmp.w	#-1,d0
@@ -1203,11 +1203,11 @@ SetScore	;add to score for game in a0. After period 3 a game within one goal goe
 	move.w	(a0),d0			;gst1
 	move.w	2(a0),d1		;gst2
 	bsr.w	.getscore
-	add.w	d0,$A(a0)		;gss1
+	add.w	d0,gss1(a0)		;gss1
 	move.w	2(a0),d0
 	move.w	(a0),d1
 	bsr.w	.getscore
-	add.w	d0,$C(a0)		;gss2
+	add.w	d0,gss2(a0)		;gss2
 .ex	movem.l	(sp)+,d0-d1/a0-a1
 	rts
 
@@ -1259,7 +1259,7 @@ NewTicker2	;goto next ticker. Return d3 = game, or neg if none left (no OptPlayM
 	beq.s	NewTicker2
 
 CheckGameTickerStatus	;d3 = game. Return a0 = its gstruct; skip to the next ticker game if a highlight is coming up or the series is over. Called from StartHL2
-	moveq	#$10,d0			;gssize
+	moveq	#gssize,d0			;gssize
 	mulu.w	d3,d0
 	movea.w	#(gstruct-M68K_RAM),a0
 	adda.w	d0,a0
@@ -1289,7 +1289,7 @@ NewTicker3	;display ticker score for game d3 (a0 = gstruct entry), skip if d3 is
 	clr.w	d0			;not playoffs: 'EASN Hockey Night'
 .gl	lea	GameLabels(pc),a1
 	bsr.w	PrintStringFromList
-	move.w	8(a0),d0		;gsper
+	move.w	gsper(a0),d0		;gsper
 	subq.w	#1,d0
 	movea.l	#PerLabels,a1
 	bsr.w	AdvanceStringPtr
@@ -1302,10 +1302,10 @@ NewTicker3	;display ticker score for game d3 (a0 = gstruct entry), skip if d3 is
 	bsr.w	print
 	move.w	#$8000,(printa).w
 	move.w	2(a0),d0		;gst2
-	move.w	$C(a0),d1		;gss2
+	move.w	gss2(a0),d1		;gss2
 	bsr.w	.tn
 	move.w	(a0),d0			;gst1
-	move.w	$A(a0),d1		;gss1
+	move.w	gss1(a0),d1		;gss1
 	bsr.w	.tn
 	addq.w	#2,sp
 	rts
