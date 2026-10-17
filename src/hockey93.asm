@@ -199,7 +199,7 @@ CheckLateGameSong	;called once per second. 3rd period: play tune $32 once at the
 		;trigger time set by ResetClock
 	cmpi.w	#2,(gsp).w		;3rd period only
 	bne.w	.x
-	btst	#4,(gmode).w
+	btst	#gmhl,(gmode).w
 	bne.w	.x
 	move.w	(gameclock).w,d0
 	cmp.w	(periodendtime).w,d0
@@ -285,19 +285,19 @@ clockcont_0	;end of period. Also entered from puckfaceoff
 	beq.w	.sc			;bosgames 7 skips the series check
 
 	;Stanley Cup if the winning team already has 3 series wins
-	moveq	#$10,d3			;gssize
+	moveq	#gssize,d3			;gssize
 	mulu.w	(gamenum).w,d3
 	movea.w	#(gstruct-M68K_RAM),a0
 	adda.w	d3,a0
 	clr.w	d3
-	btst	#0,$E(a0)		;gsftf, gsflags(a0)
+	btst	#gsftf,gsflags(a0)		;gsftf, gsflags(a0)
 	beq.w	.nf
 	eori.w	#2,d3			;gspobwins-gspotwins
 .nf	move.w	(tmstruct+tmscore).w,d1
 	sub.w	(awtmstruct+tmscore).w,d1
 	bpl.w	.ns1
 	eori.w	#2,d3			;gspobwins-gspotwins
-.ns1	cmpi.w	#3,4(a0,d3.w)		;gspotwins(a0,d3)
+.ns1	cmpi.w	#3,gspotwins(a0,d3.w)		;gspotwins(a0,d3)
 	bne.w	.t3
 
 .sc	move.l	#8,d0			;stanley cup assignment (92 used 9)
@@ -322,7 +322,7 @@ clockcont_0	;end of period. Also entered from puckfaceoff
 	addi.w	#$3E8,(crowdlevel).w	;1000
 	addi.w	#$28,(CwdExciteLvl).w
 	bset	#gmclock,(gmode).w
-	bset	#6,(gmode).w		;set at end of game
+	bset	#gmend,(gmode).w		;set at end of game
 	move.w	#4,d0			;PenEOG
 	bra.w	AddPenalty2
 
@@ -454,7 +454,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	movea.w	#$310,a2
 	bsr.w	dobitmap		;display replay icon
 	bclr	#sfscrl,(sflags).w		;manual scroll is off
-	bclr	#5,(sflags3).w		;no tracked object
+	bclr	#sf3track,(sflags3).w		;no tracked object
 	st	(replayactive).w
 	movea.l	(recbpr).w,a4	;record buffer pointer (current frame)
 .rwd	bsr.w	suba4			;Rewind to first frame
@@ -473,7 +473,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	moveq	#1,d7
 	bsr.w	getpzjoy
 	movea.w	#(CameraPosStruct-M68K_RAM),a5
-	btst	#5,(sflags3).w		;tracking an object?
+	btst	#sf3track,(sflags3).w		;tracking an object?
 	beq.w	.dir
 	move.w	d1,d5
 	andi.w	#$F,d5			;new d-pad press?
@@ -489,7 +489,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	eori.w	#4,d5
 	movea.w	#(SortCords-M68K_RAM),a1
 	st	d3			;no object to skip
-	bclr	#5,(sflags3).w
+	bclr	#sf3track,(sflags3).w
 	beq.w	.find
 	move.w	$16(a5),d3		;skip the object tracked now
 .find	move.w	(a5),d0
@@ -522,11 +522,11 @@ ReplayMode	;this is instant replay play-back control and display code.
 	bhi.w	.skip			;not nearer
 	move.l	d0,d4
 	move.w	SCnum(a1),$16(a5)		;new target
-	bset	#5,(sflags3).w
+	bset	#sf3track,(sflags3).w
 .skip	adda.w	#SCstruct,a1
 	dbf	d2,.obj
 	addq.w	#4,sp
-	btst	#5,(sflags3).w
+	btst	#sf3track,(sflags3).w
 	beq.w	.scrl			;nothing found: scroll by hand
 	move.w	$16(a5),d0
 	asl.w	#7,d0
@@ -537,7 +537,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	bsr.w	UpdateCameraPos
 	jsr	(setvideo).l
 	bra.w	.top
-.scrl	bset	#5,(sflags).w
+.scrl	bset	#sfscrl,(sflags).w
 	eori.w	#4,d5
 	asl.w	#2,d5
 	lea	.stab(pc),a0
@@ -577,19 +577,19 @@ ReplayMode	;this is instant replay play-back control and display code.
 	jsr	SprSort
 	jsr	(setvideo).l
 	moveq	#1,d7
-	bclr	#1,(sflags3).w		;turn off play mode
+	bclr	#sf3rmplay,(sflags3).w		;turn off play mode
 .0	btst	#bbut,d3			;bbut
 	beq.w	.1
 	btst	#abut,d3			;abut
 	beq.w	.f1
-	bclr	#5,(sflags3).w
-	bclr	#5,(sflags).w		;a+b but = manual scroll off (hidden feature)
+	bclr	#sf3track,(sflags3).w
+	bclr	#sfscrl,(sflags).w		;a+b but = manual scroll off (hidden feature)
 	bra.w	.top
 .f1	bsr.w	adda4			;Advance 1 frame
 	jsr	SprSort
 	jsr	(setvideo).l
 	asl.w	#1,d7			;double delay time between frames = 1/2 speed slow motion
-	bclr	#1,(sflags3).w		;turn off play mode
+	bclr	#sf3rmplay,(sflags3).w		;turn off play mode
 .1	btst	#sf3rmplay,(sflags3).w
 	beq.w	.noplay
 	st	(lastsfx).w		;play mode is on = advance one frame at original speed
@@ -602,7 +602,7 @@ ReplayMode	;this is instant replay play-back control and display code.
 	beq.w	.top			;no exit yet
 	bsr.w	forceblack
 	ori.w	#$F000,(PadControlBits).w
-	bclr	#5,(sflags).w
+	bclr	#sfscrl,(sflags).w
 	movea.l	(recbpr).w,a4	;back to the current frame
 	bsr.w	RestoreReplayFrame
 	jsr	SprSort
@@ -629,7 +629,7 @@ suba4	;a4 = address in replay buffer of current
 .1	suba.w	#replaysize,a4			;replaysize
 	cmpa.l	(recbpr).w,a4
 	bne.w	RestoreReplayFrame
-	adda.w	#$62,a4			;reached the record point
+	adda.w	#replaysize,a4		;reached the record point
 .end	bsr.w	RestoreReplayFrame
 	clr.w	d7
 	rts
@@ -762,7 +762,7 @@ RestoreReplayFrame	;a4 = current replay frame address to convert into normal
 	btst	#sfscrl,(sflags).w
 	beq.w	.pos
 	movea.w	a5,a3
-	btst	#5,(sflags3).w		;tracking an object?
+	btst	#sf3track,(sflags3).w		;tracking an object?
 	beq.w	.cam
 	clr.w	$18(a5)
 	move.w	$16(a5),d0
@@ -863,7 +863,7 @@ updateplayers
 .np	sub.b	d7,$5F(a3)
 	bpl.w	.np2
 	clr.b	$5F(a3)
-.np2	btst	#6,(sflags3).w		;Check line change mode
+.np2	btst	#sf3icetime,(sflags3).w		;once a second: count time on ice
 	beq.w	.vel
 	clr.w	d0
 	move.b	pnum(a3),d0
@@ -1021,7 +1021,7 @@ updateanim	;frame switch control on struct a3. Also called from
 	bpl.w	.1
 	clr.w	d0
 	clr.w	SPAnum(a3)
-	bclr	#5,pflags(a3)
+	bclr	#pfalock,pflags(a3)
 	bclr	#pf2aip,pflags2(a3)
 	btst	#0,d1
 	bne.w	.1			;looper
@@ -1131,16 +1131,16 @@ checkwindow	;set hpos and vpos according to how screen should follow puck
 
 DoHiLights	;hilites logic: search for hilite game and show hilite (no OptPlayMode check). Called from Intermission
 	bsr.w	GetShifter
-	moveq	#$10,d3			;gssize
+	moveq	#gssize,d3			;gssize
 	mulu.w	d1,d3
 	movea.w	#(gstruct-M68K_RAM),a0
 	adda.w	d3,a0
-.top	btst	#2,$E(a0)		;gsfso
+.top	btst	#gsfso,gsflags(a0)		;gsfso
 	bne.w	.next
-	bclr	#1,$E(a0)		;gsfhl
+	bclr	#gsfhl,gsflags(a0)		;gsfhl
 	beq.w	.next
 	bsr.w	StartHL
-.next	suba.w	#$10,a0			;gssize
+.next	suba.w	#gssize,a0			;gssize
 	dbf	d1,.top
 	rts
 
@@ -1185,10 +1185,10 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	addi.w	#$3C,d0			;60
 	move.w	d0,(gameclock).w
 	movea.l	(sp),a0
-	move.w	8(a0),(gsp).w		;gsper
+	move.w	gsper(a0),(gsp).w		;gsper
 	subq.w	#1,(gsp).w
-	move.w	$A(a0),(tmstruct+tmscore).w	;gss1
-	move.w	$C(a0),(awtmstruct+tmscore).w	;gss2
+	move.w	gss1(a0),(tmstruct+tmscore).w	;gss1
+	move.w	gss2(a0),(awtmstruct+tmscore).w	;gss2
 	move.b	#$10,(gmode).w		;1<<gmhl
 	btst	#0,(gsp+1).w
 	beq.w	.ndi
@@ -1196,7 +1196,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 .ndi	clr.b	(sflags).w
 	move.b	#4,(sflags2).w		;1<<sf2drec
 	clr.b	(sflags3).w
-	bclr	#4,(disflags).w
+	bclr	#dffaceoff,(disflags).w
 	bset	#dfclock,(disflags).w
 	clr.w	(glovecords).w
 	clr.b	(iflags).w
@@ -1262,8 +1262,8 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	jsr	KillCrowd
 	jsr	p_turnoff
 	movem.l	(sp)+,d1/a0
-	move.w	(tmstruct+tmscore).w,$A(a0)	;gss1
-	move.w	(awtmstruct+tmscore).w,$C(a0)	;gss2
+	move.w	(tmstruct+tmscore).w,gss1(a0)	;gss1
+	move.w	(awtmstruct+tmscore).w,gss2(a0)	;gss2
 	bsr.w	forceblack
 	moveq	#$F,d0
 	movea.w	#(SortCords-M68K_RAM),a0
@@ -1280,9 +1280,9 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	move.w	#SngEOG,-(sp)		;song $36
 	bsr.w	song
 	movem.l	(sp),d0-d7/a0-a6
-	move.w	#4,8(a0)		;gsper: OT
-	move.w	$A(a0),d0		;gss1
-	cmp.w	$C(a0),d0		;gss2
+	move.w	#4,gsper(a0)		;gsper: OT
+	move.w	gss1(a0),d0		;gss1
+	cmp.w	gss2(a0),d0		;gss2
 	beq.w	StartHL2		;still tied: play another hilite
 	move.w	#5,8(a0)		;final
 	move.w	d1,d3
@@ -1322,7 +1322,7 @@ StartHL2	;play hilite for game a0. Start skips it with a random result. A tied g
 	add.w	d0,$A(a0)
 	eori.w	#1,d0
 	add.w	d0,$C(a0)
-.rr0	move.w	#5,8(a0)		;gsper: final
+.rr0	move.w	#5,gsper(a0)		;gsper: final
 	rts
 
 .sv	move.w	#$37E,d0		;save $37F words from gmode to ReplayStart (92 ((gstruct-gmode)/2)-1)
@@ -1800,7 +1800,7 @@ holdcheck	;player a2 is in hold animation looking to hold opponent a3. Entered f
 	move.w	#SPAflail,d1
 	bsr.w	SetSPA
 	exg	a2,a3
-	bset	#5,pflags(a3)
+	bset	#pfalock,pflags(a3)
 	move.w	#SPAHold2,d1
 	cmpi.w	#SPAHold,SPA(a3)
 	beq.w	.h2
@@ -2261,7 +2261,7 @@ checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x
 	;(wallcoll)
 	cmpi.w	#$D,Zpos(a3)		;.zside = 13, height of goal. Zpos
 	bgt.w	rtss			;over goal
-	cmpi.w	#$E,SCnum(a3)		;puckSCnum
+	cmpi.w	#puckscnum,SCnum(a3)		;puckSCnum
 	bne.w	checkgoalp		;coll with player not puck
 	sub.w	(a2),d2			;Xpos
 	moveq	#$10,d4			;.xside = 16, width of goal/2
@@ -2339,7 +2339,7 @@ checkgoal	;look for coll with goal/net. a2 = goal struct, a3 = object, d2/d3 = x
 	move.w	#$25,-(sp)		;sfx $25 when the clock is stopped (92 used 9)
 	btst	#gmclock,(gmode).w
 	bne.w	.snd
-	move.w	#8,(sp)			;sfx 8 (92 used 31) and crowd
+	move.w	#SFXoooh,(sp)			;sfx 8 (92 used 31) and crowd
 	addi.w	#$12C,(crowdlevel).w	;add 300
 	addi.w	#$28,(CwdExciteLvl).w
 .snd	bsr.w	sfx
@@ -2579,7 +2579,7 @@ wallcollb	;check for puck over wall. a3 = object, d0/d1 = cos/sin of the wall. C
 	;clock runs, penalty 6 for ltplayer. Also: Ypos >= 280, Xpos 13-15 and
 	;Yvel >= $FA0 halves Yvel, starts SPAbglass on the next struct with sfx $E
 	;and crowd, then goes over
-	cmpi.w	#$E,SCnum(a3)		;puckSCnum
+	cmpi.w	#puckscnum,SCnum(a3)		;puckSCnum
 	bne.w	wallcoll		;not puck so wall coll
 	cmpi.w	#$1D,Zpos(a3)		;Zpos (92 12*8/3 = 32)
 	bgt.w	.0
@@ -2640,7 +2640,7 @@ wallcoll	;d0 = cosine, d1 = sine of angle of incidence with wall, a3 = object. C
 	asr.l	#8,d0
 	move.w	d0,d3			;v1t
 	neg.w	d2
-	cmpi.w	#$E,SCnum(a3)		;puckSCnum
+	cmpi.w	#puckscnum,SCnum(a3)		;puckSCnum
 	bne.w	.player
 	bclr	#sf2shot,(sflags2).w
 	tst.w	d2
@@ -2908,7 +2908,7 @@ puckstick	;puck collides with stick
 	move.w	SCnum(a0),(lastplayer).w
 	bclr	#sfspdir,(sflags).w
 	bclr	#sfssdir,(sflags).w
-.stdef	move.w	#6,-(sp)		;stick deflect sound (92 used 5)
+.stdef	move.w	#SFXstdef,-(sp)		;stick deflect sound (92 used 5)
 	bsr.w	sfx
 	bsr.w	a2touchpuck
 	bra.w	deflect
@@ -2923,7 +2923,7 @@ puckstick	;puck collides with stick
 	muls.w	d1,d1
 	add.l	d1,d0			;puck speed^2 (92 scaled each by 1/64)
 	clr.w	d1
-	btst	#4,(sflags2).w
+	btst	#sf2shot,(sflags2).w
 	bne.w	.nohand			;sflags2 bit 4 set: no stickhand bonus
 	move.b	stickhand(a2),d1
 	mulu.w	#$2BC,d1		;* 700
@@ -2948,8 +2948,8 @@ puckglue	;Player a2 takes the puck
 	exg	a0,a1
 .tm	st	$1A(a0)			;a0 = other team, a1 = a2's team
 	st	$1C(a0)
-	bset	#3,tmflags(a0)		;tmflags bit 3
-	bclr	#4,(sflags3).w
+	bset	#tmflast,tmflags(a0)		;tmflags bit 3
+	bclr	#sf3fo,(sflags3).w
 	beq.w	.snd			;sflags3 bit 4 was clear
 	addq.w	#1,$E(a1)		;team word $E + 1
 	addi.w	#$C8,(crowdlevel).w	;+200
@@ -3095,7 +3095,7 @@ puckgoalie	;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y
 	beq.w	.song
 	move.w	#$D,(sp)		;song $D (visiting goalie)
 .song	bsr.w	song
-.nosong	move.w	#$24,-(sp)		;puck body sound (92 used 5)
+.nosong	move.w	#SFXpuckbody,-(sp)		;puck body sound (92 used 5)
 	bsr.w	sfx
 	move.w	(puckc).w,d2
 	bmi.w	.nopc			;loose puck
@@ -3413,7 +3413,7 @@ setplayer	;bring player onto the ice and set his stats
 	;HmAwBonus (home bonus / visitor penalty) and ThirdPBonus (2 when tied or trailing with at
 	;least half of the 3rd period left, or after the 3rd period), clamped to
 	;0-15 by ClampNibble
-	bclr	#6,pflags2(a3)		;pflags2 bit 6
+	bclr	#pf2inj,pflags2(a3)		;pflags2 bit 6
 	movea.w	#(tmstruct-M68K_RAM),a0
 	btst	#pfteam,pflags(a3)
 	beq.w	.0
@@ -3438,7 +3438,7 @@ setplayer	;bring player onto the ice and set his stats
 	clr.l	(PPBonus).w	;all four bonus bytes
 	tst.w	position(a3)
 	beq.w	.nomod			;goalie: no modifiers
-	btst	#5,(sflags2).w
+	btst	#sf2pwrplay,(sflags2).w
 	beq.w	.nda3
 	bsr.w	chkpk2
 	beq.w	.nda2
@@ -3657,9 +3657,9 @@ setupice	;set all variables, send non purgeable graphics, build sprite frame lis
 	clr.w	d0
 	clr.w	d1
 	bsr.w	addframe2
-	adda.w	#$1C,a3			;ffosize
+	adda.w	#ffosize,a3			;ffosize
 	bsr.w	addframe2
-	adda.w	#$1C,a3			;ffosize
+	adda.w	#ffosize,a3			;ffosize
 	bsr.w	addframe2
 	move.l	a5,(DMAListend).w
 	bsr.w	DoDMAList
@@ -3709,9 +3709,9 @@ setupice_highlight	;Rebuild the rink sprites after a highlight replay without re
 	clr.w	d0
 	clr.w	d1
 	bsr.w	addframe2
-	adda.w	#$1C,a3			;ffosize
+	adda.w	#ffosize,a3			;ffosize
 	bsr.w	addframe2
-	adda.w	#$1C,a3			;ffosize
+	adda.w	#ffosize,a3			;ffosize
 	bsr.w	addframe2
 	move.l	a5,(DMAListend).w
 	bsr.w	DoDMAList
@@ -3815,7 +3815,7 @@ defaultsprites	;allocate vram and assign char area for graphic structures. d4 = 
 	move.w	(a2)+,attribute(a3)
 	move.w	d4,VRchar(a3)
 	add.w	(a2)+,d4		;vram char size
-	adda.w	#$1C,a3			;ffosize
+	adda.w	#ffosize,a3			;ffosize
 	dbf	d0,.ffotop
 	bra.w	defaultsprites2
 
@@ -3866,7 +3866,7 @@ defaultsprites2	;objects which are tied to screen scrolling and have velocity re
 	lsr.w	#1,d6
 	move.w	d6,(a4)+		;OOlistpos
 	addq.w	#1,d6
-	cmp.w	#$10,d6			;Sortobjs
+	cmp.w	#Sortobjs,d6			;Sortobjs
 	bne.s	.0
 	bra.w	SprSort
 
@@ -3941,7 +3941,7 @@ resetplstuff	;reset team variables/and players on both teams. Called from puckfa
 	movem.l	(sp)+,d0-d2/a0-a3
 	rts
 
-.top	bclr	#4,tmflags(a2)		;clear team flag bit 4
+.top	bclr	#tmfoffside,tmflags(a2)		;clear team flag bit 4
 	moveq	#5,d2
 	movea.w	tmsort(a2),a3
 .loop	clr.b	pflags2(a3)			;pflags2 (92 also cleared pflags3)
@@ -4194,7 +4194,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 .top3	move.b	(a0)+,(printx+1).w
 	move.b	(a0)+,(printy+1).w
 	bsr.w	PrintSeriesScore		;series scores
-	adda.w	#$10,a2			;gssize
+	adda.w	#gssize,a2			;gssize
 	dbf	d4,.top3
 
 .noscr	bsr.w	printsmallz		;round title
@@ -4295,11 +4295,11 @@ PrintSeriesScore	;print best of 7 wins "t-b" for game struct a2 at printx/printy
 	;Called from PlayoffScreen .top3
 	movea.w	#(mesarea-M68K_RAM),a1
 	move.w	#6,(a1)+		;string length
-	move.w	4(a2),d0		;gspotwins
+	move.w	gspotwins(a2),d0		;gspotwins
 	addi.w	#$30,d0			;'0'
 	move.b	d0,(a1)+
 	move.b	#$2D,(a1)+		;'-'
-	move.w	6(a2),d0		;gspobwins
+	move.w	gspobwins(a2),d0		;gspobwins
 	addi.w	#$30,d0			;'0'
 	move.b	d0,(a1)+
 	clr.b	(a1)+
@@ -5839,7 +5839,7 @@ AddTeamSpriteFrame	;add player a3 (x = (a3) + $1C offset, y = $14) and a GameSet
 	divu.w	#$30,d0
 	swap	d0			;remainder
 	addi.w	#$80,d0
-	btst	#6,pflags(a3)
+	btst	#pfteam,pflags(a3)
 	bne.w	.x
 	addi.w	#$C0,d0
 .x	move.w	#$80,d1

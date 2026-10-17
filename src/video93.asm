@@ -199,7 +199,7 @@ showref	;draw ref graphics. Called from setvideo.
 	add.w	(a1),d0
 	moveq	#7,d2			;refheight-1
 .0	move.l	a0,(a5)+
-	move.w	#7,(a5)+		;refwidth
+	move.w	#refwidth,(a5)+		;refwidth
 	move.w	d0,(a5)+
 	adda.w	#$E,a0			;refwidth*2
 	add.w	d1,d0
@@ -209,7 +209,7 @@ showref	;draw ref graphics. Called from setvideo.
 checkfo	;check for face off sprites. Called from setvideo. Falls into checkfo2
 	btst	#sfpz,(sflags).w
 	bne.w	rtss
-	btst	#4,(disflags).w		;faceoff flag (92 tested an sflags2 bit)
+	btst	#dffaceoff,(disflags).w		;faceoff flag (92 tested an sflags2 bit)
 	beq.w	rtss
 	movea.w	#(fofdata2-M68K_RAM),a3
 	moveq	#2,d0
@@ -506,7 +506,7 @@ checksso	;do graphics for sso structure: arrows for the two players when they ar
 	movea.w	#(sso-M68K_RAM),a3
 	move.w	#SPFarrow,d3		;frame numbers are 6 higher than 92
 	bsr.w	.ca
-	adda.w	#$1C,a0			;ffosize
+	adda.w	#ffosize,a0			;ffosize
 	adda.w	#$14,a3			;ssosize
 	move.w	#SPFarrow+3,d3
 
@@ -596,7 +596,7 @@ setffo	;draw the 5 objects tied to icerink scrolling (pads ...). Called from set
 	move.w	2(a3),d1		;x offset (set by QueuePadLabel)
 	add.w	d1,6(a0)		;sprite 1 x
 	add.w	d1,$E(a0)		;sprite 2 x
-.next	adda.w	#$1C,a3			;ffosize
+.next	adda.w	#ffosize,a3			;ffosize
 	dbf	d0,.top
 	rts
 
@@ -639,7 +639,7 @@ uppads	;update the gloves object and the 4 pad objects, and queue new pad labels
 	move.w	d1,(a1)
 	bsr.w	QueuePadLabel
 .next	lsr.w	#4,d3			;next nibble
-	adda.w	#$1C,a0			;ffosize
+	adda.w	#ffosize,a0			;ffosize
 	addq.w	#2,a1
 	dbf	d4,.top
 	rts
