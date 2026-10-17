@@ -29,7 +29,7 @@ Verdicts from reading each routine body / variable usage. "ok" = name matches be
 | DisplayPlayerList | ok |
 | DisplayPlayerListDown | ok |
 | DisplayPlayerListUp | ok |
-| DisplayTeamStatsScreen | ok |
+| DisplayStats | ok |
 | DrawGoalieSelectList | ok |
 | DrawLineIcon | ok |
 | DrawLineIcons | ok |
@@ -46,7 +46,7 @@ Verdicts from reading each routine body / variable usage. "ok" = name matches be
 | DrawTeamScreen | ok |
 | EncodeTeamLines | ok |
 | ExitStatsScreen | ok |
-| GameStatisticsScreen | ok |
+| StatsReport | ok |
 | GetForwardCount | ok |
 | GetGoalieCount | ok |
 | GetNameandAttrib | ok |
@@ -472,7 +472,7 @@ Verdicts from reading each routine body / variable usage. "ok" = name matches be
 | PlayerPositionText | ok |
 | PlayoffScreenExit | ok |
 | PlayoffScreenText | ok |
-| PlayoffScreen_waitvsync | ok |
+| waitxc1 | ok |
 | PlayoffTreeSetup | ok |
 | PrintScoutLineRatings | ok |
 | PrintScoutRatings | ok |

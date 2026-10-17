@@ -1798,7 +1798,7 @@ ScrollArrowTbl2	;none, up, down, both
 	String	$20,$FB,$FF,$FA,$C,$7D,$F9
 	String	$7B,$FB,$FF,$FA,$C,$7D,$F9
 
-GameStatisticsScreen	;"Game Statistics": both
+StatsReport	;(was GameStatisticsScreen) "Game Statistics": both
 	;teams' totals. Start exits
 	moveq	#9,d0
 	moveq	#$1C,d1
@@ -1816,13 +1816,13 @@ GameStatisticsScreen	;"Game Statistics": both
 	addq.w	#4,(printx).w
 	clr.w	d0
 	bsr.w	PutTeamBlock
-	bsr.w	DisplayTeamStatsScreen
+	bsr.w	DisplayStats
 .loop	bsr.w	WaitVSyncAndReadInput
 	btst	#7,d1
 	bne.w	ExitStatsScreen
 	bra.s	.loop
 
-DisplayTeamStatsScreen	;team logos, then each TeamStatTextTbl row centred with
+DisplayStats	;(was DisplayTeamStatsScreen) team logos, then each TeamStatTextTbl row centred with
 	;home value at x $22 and away at x 9
 	bsr.w	printz
 	String	$BE,2,9,0

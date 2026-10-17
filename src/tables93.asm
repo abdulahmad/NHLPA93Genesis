@@ -435,7 +435,7 @@ PauseText	;pause menu item list (Pausemode)
 	String	'    Edit Lines    '
 	dc.l	LineEditor
 	String	'    Game Stats    '
-	dc.l	GameStatisticsScreen
+	dc.l	StatsReport
 	String	'   Player Stats   '
 	dc.l	PlayerStatsScreen
 	String	' Scoring Summary  '
@@ -465,7 +465,7 @@ PauseText2	;pause menu item list without Timeout, used when tmflags bit 2 of the
 	String	'    Edit Lines    '
 	dc.l	LineEditor
 	String	'    Game Stats    '
-	dc.l	GameStatisticsScreen
+	dc.l	StatsReport
 	String	'   Player Stats   '
 	dc.l	PlayerStatsScreen
 	String	' Scoring Summary  '
@@ -520,7 +520,7 @@ IntermissionText	;intermission menu for gsp 1-3, season and
 	String	'   Resume Game    '
 	dc.l	rtss
 	String	'    Game Stats    '
-	dc.l	GameStatisticsScreen
+	dc.l	StatsReport
 	String	'   Player Stats   '
 	dc.l	PlayerStatsScreen
 	String	' Scoring Summary  '
@@ -545,7 +545,7 @@ ExitGameText	;intermission menu for gsp 4.
 	String	'    Exit Game     '
 	dc.l	rtss
 	String	'    Game Stats    '
-	dc.l	GameStatisticsScreen
+	dc.l	StatsReport
 	String	'   Player Stats   '
 	dc.l	PlayerStatsScreen
 	String	' Scoring Summary  '
@@ -567,7 +567,7 @@ ExitGameTextPO	;intermission menu for gsp 4 in the playoffs
 	String	'    Exit Game     '
 	dc.l	rtss
 	String	'    Game Stats    '
-	dc.l	GameStatisticsScreen
+	dc.l	StatsReport
 	String	'   Player Stats   '
 	dc.l	PlayerStatsScreen
 	String	' Scoring Summary  '

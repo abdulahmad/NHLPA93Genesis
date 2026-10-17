@@ -4006,7 +4006,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	move.w	#1,(DispAttribCtr).w	;scroll position
 	bsr.w	UpdatePlayoffScroll
 
-.input	bsr.w	PlayoffScreen_waitvsync
+.input	bsr.w	waitxc1
 	movea.l	#rtss,a0		;no animation callback
 	bsr.w	CallAnimationCallback
 	bsr.w	HandlePlayoffInput	;page / exit input
@@ -4065,7 +4065,7 @@ PlayoffScreenExit	;drop HandlePlayoffInput's return address and return from Play
 	addq.w	#4,sp
 	rts
 
-PlayoffScreen_waitvsync	;each time palcount runs out, eor the color word at palbuffer+2 (palfadenew+$42) with $EE and
+waitxc1	;(was PlayoffScreen_waitvsync) each time palcount runs out, eor the color word at palbuffer+2 (palfadenew+$42) with $EE and
 	;restart palcount at $18 (a color flash), then wait for the next vblank. Called from PlayoffScreen .input
 	tst.w	(palcount).w
 	bpl.w	.wait			;palcount still counting
