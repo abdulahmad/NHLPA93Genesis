@@ -79,7 +79,7 @@ chkprogress	;control progress of ref and game control thru penalty events. When 
 	bsr.w	NewTicker3
 	st	(puckc).w
 	movea.w	#(puckx-M68K_RAM),a3
-	move.l	#$1A,d0			;pnothing
+	move.l	#pnothing,d0			;pnothing
 	bsr.w	assinsert
 	move.w	#$1C20,temp1(a3)		;temp1 = 120*60
 
@@ -185,7 +185,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	st	(a0)
 	movem.l	(sp)+,a0
 
-	move.w	#$C,d0			;apenalty
+	move.w	#apenalty,d0			;apenalty
 	bsr.w	assreplace
 	movem.l	(sp)+,d0-d1/a1-a4
 	bsr.w	SetPA
@@ -204,7 +204,7 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	
 	bclr	#gmpen,(gmode).w
 	movea.w	#(puckx-M68K_RAM),a3
-	move.w	#$1B,d0			;pfaceoff
+	move.w	#pfaceoff,d0			;pfaceoff
 	bsr.w	assreplace
 .ex	movem.l	(sp)+,d0/a0-a3
 	rts

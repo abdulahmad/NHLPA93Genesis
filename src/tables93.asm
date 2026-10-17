@@ -23,35 +23,67 @@ cd0	;$fftt = frame/time for various levels of crowd excitement.
 
 asstab	;jump table of all the player logic assignments. There is no "do nothing" entry, so
 	;assignment numbers from assscore on are one lower than in 92. Used by updateplayers
-	dc.l	rtss			;0
-	dc.l	assdefo			;1 adefo
-	dc.l	assdefd			;2 adefd
-	dc.l	asswingd		;3 awingd
-	dc.l	asswingo		;4 awingo
-	dc.l	asscenterd		;5 acenterd
-	dc.l	asscentero		;6 acentero
-	dc.l	assscore		;7 ascore
-	dc.l	assstanley		;8 astanley
-	dc.l	asseben			;9 aeben
-	dc.l	assepen			;$A aepen
-	dc.l	assbench		;$B abench
-	dc.l	asspenalty		;$C apenalty
-	dc.l	assdopen		;$D adopen
-	dc.l	assgoalie		;$E agoalie
-	dc.l	assgoalietopuck		;$F
-	dc.l	asspuckc		;$10 apuckc
-	dc.l	assnearest		;$11 anearest
-	dc.l	assshoot		;$12 ashoot
-	dc.l	asspassrec		;$13 apassrec
-	dc.l	assfight		;$14 afight
-	dc.l	assfwatch		;$15
-	dc.l	assfaceoff		;$16
-	dc.l	assfaceoffpl		;$17
-	dc.l	pucknorm		;$18 puck logic
-	dc.l	puckshadow		;$19
-	dc.l	pucknothing		;$1A
-	dc.l	puckfaceoff		;$1B
-	dc.l	puckfaceoff2		;$1C
+	dc.l	rtss
+
+adefo	=	(*-asstab)/4
+	dc.l	assdefo
+adefd	=	(*-asstab)/4
+	dc.l	assdefd
+awingd	=	(*-asstab)/4
+	dc.l	asswingd
+awingo	=	(*-asstab)/4
+	dc.l	asswingo
+acenterd	=	(*-asstab)/4
+	dc.l	asscenterd
+acentero	=	(*-asstab)/4
+	dc.l	asscentero
+
+ascore	=	(*-asstab)/4
+	dc.l	assscore
+astanley	=	(*-asstab)/4
+	dc.l	assstanley
+aeben	=	(*-asstab)/4
+	dc.l	asseben
+aepen	=	(*-asstab)/4
+	dc.l	assepen
+abench	=	(*-asstab)/4
+	dc.l	assbench
+apenalty	=	(*-asstab)/4
+	dc.l	asspenalty
+adopen	=	(*-asstab)/4
+	dc.l	assdopen
+
+agoalie	=	(*-asstab)/4
+	dc.l	assgoalie
+agoalietopuck	=	(*-asstab)/4
+	dc.l	assgoalietopuck
+apuckc	=	(*-asstab)/4
+	dc.l	asspuckc
+anearest	=	(*-asstab)/4
+	dc.l	assnearest
+ashoot	=	(*-asstab)/4
+	dc.l	assshoot
+apassrec	=	(*-asstab)/4
+	dc.l	asspassrec
+afight	=	(*-asstab)/4
+	dc.l	assfight
+afwatch	=	(*-asstab)/4
+	dc.l	assfwatch
+afaceoff	=	(*-asstab)/4
+	dc.l	assfaceoff
+afaceoffpl	=	(*-asstab)/4
+	dc.l	assfaceoffpl
+
+pnorm	=	(*-asstab)/4
+	dc.l	pucknorm
+pshad	=	(*-asstab)/4
+	dc.l	puckshadow
+pnothing	=	(*-asstab)/4
+	dc.l	pucknothing
+pfaceoff	=	(*-asstab)/4
+	dc.l	puckfaceoff
+pfaceoff2	=	(*-asstab)/4
+	dc.l	puckfaceoff2
 
 Penaltylist	;Penalty number = word offset into this table
 	;and has 3 more entries. Used by AddPenalty, SetPA2, DisplayPenaltyEntry, ...
