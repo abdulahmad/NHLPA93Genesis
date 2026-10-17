@@ -3412,7 +3412,7 @@ ClampNibble	;clamp byte d3 to 0-15. Called by setplayer
 .hi	cmp.b	#$F,d3			;above 15: clamp to 15
 	ble.w	.x
 	moveq	#$F,d3
-.x	rts
+.x	rts				;return d3 clamped to 0-15
 
 
 	include video93.asm		;$011802-$0122A7 VBlank ... KillCrowd
@@ -4521,14 +4521,14 @@ UpdateScoutingDisplay	;called every frame by ScoutingReport. When ScoutingReport
 	bra.w	.pn
 .pl	adda.w	(a1),a1			;skip name and 8 bytes of ratings
 	addq.w	#8,a1
-.pn	dbf	d1,.pl
+.pn	dbf	d1,.pl			;step through d1 roster records
 	bra.w	.name
-.away	movea.l	(AwayTeamRosterPtr).w,a1
+.away	movea.l	(AwayTeamRosterPtr).w,a1	;away team name
 	bra.w	.tname
 .under	movea.l	#Montreal,a1		;team block
 	cmpi.w	#$18,(tmstruct+tmgoalie+2).w
 	bge.w	.tname			;used when >= $18
-.home	movea.l	(HomeTeamRosterPtr).w,a1
+.home	movea.l	(HomeTeamRosterPtr).w,a1	;home team name
 .tname	adda.w	4(a1),a1		;team name
 .name	addq.w	#1,(PlayerScrollCtr).w	;step past the escape char
 	add.w	(a1),d0
@@ -4551,7 +4551,7 @@ ScrollDisplayUp	;next text line for UpdateScoutingDisplay (column 0). After line
 	move.l	#7,d3
 	move.w	(VmMap1).w,d1
 	addi.w	#$212,d1		;text box top left
-.loop	move.l	#$3A,d0
+.loop	move.l	#$3A,d0			;copy 8 rows of the text box up by one row
 	move.w	d1,d2
 	addi.w	#$80,d2			;from the row below
 	bsr.w	DoDMA_nd2		;vram copy d2 -> d1
@@ -4582,7 +4582,7 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 	bsr.w	printz
 	String	$FE,0,0			;(the lea in this string)
 	lea	StanleyCupPosTable(pc),a4
-.top	move.w	(a4)+,(printx).w
+.top	move.w	(a4)+,(printx).w	;each StanleyCupPosTable entry: column, row of one EASN bitmap
 	move.w	(a4)+,(printy).w
 	movea.l	#EASNmap2,a0
 	movea.l	a0,a1
@@ -4608,14 +4608,14 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 	move.w	#$18,(palcount).w	;24
 	move	#$2500,sr
 	move.w	#$50,(seed).w
-.wait	moveq	#4,d0
+.wait	moveq	#4,d0			;animate for $50 steps: waitx, then check buttons
 	bsr.w	waitx
 	tst.w	d1
 	bne.w	.ex			;any button
 	bsr.w	UpdateStanleyCupAnimation
 	subq.w	#1,(seed).w
 	bpl.s	.wait
-.ex	move	#$2700,sr
+.ex	move	#$2700,sr		;interrupts off again before returning
 	rts
 
 UpdateStanleyCupAnimation	;one StanleyMap sprite at each StanleyCupPosTable spot, frame 1 + asv (0-7), then
@@ -4627,7 +4627,7 @@ UpdateStanleyCupAnimation	;one StanleyMap sprite at each StanleyCupPosTable spot
 	movea.l	#StanleyMap,a0
 	lea	StanleyCupPosTable(pc),a4
 	move.w	(energybarchars).w,d3
-.top	move.w	(a4)+,d0
+.top	move.w	(a4)+,d0		;each table entry: column in d0, row in d1
 	asl.w	#3,d0
 	addi.w	#$58,d0			;x = column * 8 + $58
 	move.w	(a4)+,d1
@@ -4650,8 +4650,8 @@ VBlank_StanleyCup	;vbint handler for the Stanley Cup screen: sprite table dma, c
 	move.w	(VSPRITES).w,d1
 	movea.w	#(Satt-M68K_RAM),a0
 	bsr.w	DoDMA
-.nos	bsr.w	cramfade
-.x	addq.w	#1,(vcount).w
+.nos	bsr.w	cramfade		;step the palette fade
+.x	addq.w	#1,(vcount).w		;frame counter
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
 

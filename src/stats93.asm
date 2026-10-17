@@ -1038,7 +1038,7 @@ ScoringSummaryScreen	;"Scoring Summary": one 4 row
 	bsr.w	printbigz
 	dc.w	$0018
 	dc.b	$BD,6,4,'Scoring Summary',$BD,6,1,0
-	moveq	#$30,d0
+	moveq	#$30,d0			;away logo, then home logo
 	bsr.w	PutTeamBlock
 	addq.w	#4,(printx).w
 	clr.w	d0
@@ -1055,8 +1055,8 @@ ScoringSummaryScreen	;"Scoring Summary": one 4 row
 	bpl.w	.0
 	clr.w	d0
 .0	move.w	d0,(SelectedPlayerIdx).w	;max scroll = end of list - 4 entries
-	move.w	(VertLineScrolling).w,d0	;d0 = end position
-.toend	bsr.w	MenuWaitVblank		;scroll down from 0 one step a frame until the end
+	move.w	(VertLineScrolling).w,d0	;d0 = end position (the last goal)
+.toend	bsr.w	MenuWaitVblank		;d0 = new position: first jump to the end, then -2 a frame
 	bsr.w	UpdateScoringScroll
 	move.w	(VertLineScrolling).w,d0
 	subq.w	#2,d0
@@ -1079,34 +1079,34 @@ ScoringSummaryScreen	;"Scoring Summary": one 4 row
 
 CheckScoringScroll	;ScoringSummaryScreen per frame: add PlayerScrollCtr to
 	;VertLineScrolling (0..SelectedPlayerIdx)
-	move.w	(PlayerScrollCtr).w,d0
+	move.w	(PlayerScrollCtr).w,d0	;0 = not scrolling
 	beq.w	rtss2
-	add.w	(VertLineScrolling).w,d0
+	add.w	(VertLineScrolling).w,d0	;new position, must stay in 0..max
 	bmi.w	rtss2
 	cmp.w	(SelectedPlayerIdx).w,d0
 	bgt.w	rtss2
 UpdateScoringScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	;draw the entry coming into view, VSRAM = VertLineScrolling - $50
-	move.w	(VertLineScrolling).w,d1
+	move.w	(VertLineScrolling).w,d1	;d1 = old position
 	move.w	d0,(VertLineScrolling).w
 	ext.l	d0
-	divs.w	#$20,d0
+	divs.w	#$20,d0			;32 pixels per entry; remainder in the low word after swap
 	swap	d0
 	tst.w	d0
 	bne.w	.0
-	bsr.w	DrawScrollArrowsPenalty
+	bsr.w	DrawScrollArrowsPenalty	;on an entry boundary: update arrows and stop
 	clr.w	(PlayerScrollCtr).w
-.0	andi.w	#$1F,d1
+.0	andi.w	#$1F,d1			;was the old position on a boundary?
 	bne.w	.2
 	move.l	d0,-(sp)
-	cmp.w	#$1E,d0
+	cmp.w	#$1E,d0			;moved back 2: draw the entry above
 	bne.w	.1
 	bsr.w	DrawScoringRowUp
 .1	move.l	(sp)+,d0
-	cmp.w	#2,d0
+	cmp.w	#2,d0			;moved on 2: draw the entry below
 	bne.w	.2
 	bsr.w	DrawScoringRowDown
-.2	move.w	(disflags).w,-(sp)
+.2	move.w	(disflags).w,-(sp)	;set the VSRAM scroll value, as in UpdateVertScrollReg
 	bset	#dfng,(disflags).w
 	movea.l	#Vdata,a0
 	move.l	#$40020010,4(a0)
@@ -1118,14 +1118,14 @@ UpdateScoringScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 
 DrawScoringRowUp	;draw goal entry (d0 high word) at the top of the window
 	move.l	d0,-(sp)
-	swap	d0
+	swap	d0			;d0 = entry number (quotient)
 	moveq	#6,d3
-	mulu.w	d0,d3
+	mulu.w	d0,d3			;d3 = byte offset into ScoreSum
 	bsr.w	printz
 	String	$BE,0,0
 	move.w	(VertLineScrolling).w,d0
-	lsr.w	#3,d0
-	subq.w	#3,d0
+	lsr.w	#3,d0			;scroll position in 8 pixel rows
+	subq.w	#3,d0			;row just above the window, wrapped to 32 map rows
 	andi.w	#$1F,d0
 	move.w	d0,(printy).w
 	bsr.w	DrawScoringRow
@@ -1135,14 +1135,14 @@ DrawScoringRowUp	;draw goal entry (d0 high word) at the top of the window
 DrawScoringRowDown	;draw goal entry (d0 high word) + 4 at the bottom
 	move.l	d0,-(sp)
 	swap	d0
-	addq.w	#4,d0
+	addq.w	#4,d0			;entry 4 below the top one
 	moveq	#6,d3
-	mulu.w	d0,d3
+	mulu.w	d0,d3			;d3 = byte offset into ScoreSum
 	bsr.w	printz
 	String	$BE,0,0
 	move.w	(VertLineScrolling).w,d0
-	lsr.w	#3,d0
-	addi.w	#$10,d0
+	lsr.w	#3,d0			;scroll position in 8 pixel rows
+	addi.w	#$10,d0			;16 rows below the top, wrapped to 32 map rows
 	andi.w	#$1F,d0
 	move.w	d0,(printy).w
 	bsr.w	DrawScoringRow
@@ -1219,7 +1219,7 @@ PenaltySummaryScreen	;"Penalty Summary": one 3 row
 	moveq	#$A,d0
 	moveq	#$19,d1
 	bsr.w	SetupScreen
-	;frame (32x6) with the big title, then the two team logo blocks (home at $30, away at 0)
+	;frame (32x6) with the big title, then the two team blocks (TeamBlockMap offsets $30 and 0, 12 cells wide each)
 	bsr.w	printz
 	String	$BD,4,1,0
 	moveq	#$20,d0			;frame 32 wide, 6 high
@@ -1474,7 +1474,7 @@ PlayerStatsList	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	bsr.w	printbigz
 	dc.w	$0016
 	dc.b	$BD,8,4,'Player  Stats',$BD,$E,1,0
-.team	clr.w	d0			;team logo block: 0 = home block, $30 = away block (as a2)
+.team	clr.w	d0			;TeamBlockMap offset: 0 for the home struct, $30 for the away struct
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.home
 	moveq	#$30,d0
@@ -1525,34 +1525,36 @@ PlayerStatsList	;stats screen for team a2, d7 = 0 game / 1 playoff.
 
 UpdateStatsListScroll	;stats screen per frame: scroll 0..SelectedPlayerIdx, stop
 	;every 16 pixels (one row), draw the row coming into view
-	move.w	(PlayerScrollCtr).w,d0
+	move.w	(PlayerScrollCtr).w,d0	;scroll step, 0 = not scrolling
 	beq.w	rtss2
-	add.w	(VertLineScrolling).w,d0
-	bmi.w	rtss2
+	add.w	(VertLineScrolling).w,d0	;new position
+	bmi.w	rtss2			;above the top
 	cmp.w	(SelectedPlayerIdx).w,d0
-	bgt.w	rtss2
-	move.w	(VertLineScrolling).w,d1
+	bgt.w	rtss2			;past the maximum scroll
+	move.w	(VertLineScrolling).w,d1	;d1 = old position
 	move.w	d0,(VertLineScrolling).w
-	andi.w	#$F,d0
+	andi.w	#$F,d0			;pixels into the current 16 pixel row
 	bne.w	.0
-	bsr.w	DrawStatsListArrows
+	bsr.w	DrawStatsListArrows	;landed on a row boundary: refresh arrows and stop scrolling
 	clr.w	(PlayerScrollCtr).w
+	;only when the old position was on a row boundary does a new row start to appear
 .0	andi.w	#$F,d1
 	bne.w	SetStatsListScrollReg
 	move.w	d0,-(sp)
-	cmp.w	#$E,d0
+	cmp.w	#$E,d0			;14 pixels in: moved up, draw the row above
 	bne.w	.1
 	bsr.w	DrawStatsRowUp
 .1	move.w	(sp)+,d0
-	cmp.w	#2,d0
+	cmp.w	#2,d0			;2 pixels in: moved down, draw the row below
 	bne.w	SetStatsListScrollReg
-	bsr.w	DrawStatsRowDown
+	bsr.w	DrawStatsRowDown	;falls into the scroll register write
+	;write the vertical scroll value (VertLineScrolling - $68) to VSRAM address 2
 SetStatsListScrollReg	;VSRAM = VertLineScrolling - $68
 	move.w	(disflags).w,-(sp)
-	bset	#dfng,(disflags).w
+	bset	#dfng,(disflags).w	;don't int graphics while the VDP is being addressed
 	movea.l	#Vdata,a0
-	move.l	#$40020010,4(a0)
-	move.w	#$FF98,d0
+	move.l	#$40020010,4(a0)	;VDP command: VSRAM write, address 2
+	move.w	#$FF98,d0		;-$68
 	add.w	(VertLineScrolling).w,d0
 	move.w	d0,(a0)
 	move.w	(sp)+,(disflags).w
@@ -1560,13 +1562,13 @@ SetStatsListScrollReg	;VSRAM = VertLineScrolling - $68
 
 DrawStatsRowUp	;draw the top row of the window
 	move.w	(VertLineScrolling).w,d3
-	lsr.w	#4,d3
+	lsr.w	#4,d3			;d3 = first visible Satt row (16 pixels per row)
 	bra.w	DrawStatsRow
 
 DrawStatsRowDown	;draw the row below the window
 	move.w	(VertLineScrolling).w,d3
-	lsr.w	#4,d3
-	addq.w	#6,d3
+	lsr.w	#4,d3			;first visible Satt row
+	addq.w	#6,d3			;6 rows further down
 	bra.w	DrawStatsRow
 
 DrawStatsList	;stats screen: column headers (sort column highlighted),

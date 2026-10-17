@@ -2927,7 +2927,8 @@ checkob	;bring up little warning ref if a player on your team is over blue line.
 	bra.s	.nob
 
 assnearest	;this is a special assignment used for the player who is nearest the puck but doesn't have it. Assignment anearest ($11)
-	bclr	#pfna,pflags(a3)
+	;a2 = a3's team struct, d7 = elapsed frames. temp1 = re-evaluation timer, temp3 = hold timer
+	bclr	#pfna,pflags(a3)	;new assignment? (clears the flag)
 	beq.w	.nna
 	clr.w	temp3(a3)
 	move.w	#8,temp2(a3)
@@ -2935,31 +2936,31 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 .nna	move.w	SCnum(a3),d1
 	cmp.w	(puckc).w,d1
 	bne.w	.nopc
-	tst.w	position(a3)
-	beq.w	assgoalie
+	tst.w	position(a3)		;a3 has the puck
+	beq.w	assgoalie		;goalie: use the goalie assignment
 	move.l	#apuckc,d0			;apuckc
 	btst	#pfjoycon,pflags(a3)
-	beq.w	assinsert
-	rts
-.nopc	sub.b	d7,temp1(a3)
+	beq.w	assinsert		;computer skater: become the puck carrier
+	rts				;human controlled: leave as is
+.nopc	sub.b	d7,temp1(a3)		;timer expired?
 	bpl.w	.nodec
-	move.b	aioff(a3),temp1(a3)
+	move.b	aioff(a3),temp1(a3)	;reload timer from the offensive rating
 	clr.l	$2A(a2)			;team long, set to best distance below
 	move.w	(puckc).w,d1
-	bmi.w	.np
+	bmi.w	.np			;puck is loose
 	asl.w	#scsize,d1			;scsize
 	movea.w	#(SortCords-M68K_RAM),a1
-	adda.w	d1,a1
+	adda.w	d1,a1			;a1 = carrier's sort object
 	move.b	pflags(a1),d0
 	move.b	pflags(a3),d1
 	eor.b	d0,d1
 	btst	#pfteam,d1
 	beq.w	.switch			;our team has the puck
-.np	moveq	#-1,d2
-	moveq	#5,d4
+.np	moveq	#-1,d2			;d2 = best (smallest) squared distance so far, unsigned max
+	moveq	#5,d4			;loop over the 6 players of the team
 	movea.w	tmsort(a2),a0		;tmsort: first player of the team (92 from SCnum)
 .de0	tst.w	position(a0)
-	ble.w	.next
+	ble.w	.next			;skip goalies and absent players
 	tst.b	nopuck(a0)
 	bne.w	.next
 	btst	#pf2unav,pflags2(a0)		;pf2unav
@@ -2967,12 +2968,12 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	move.w	assnum(a0),d0		;skip a player whose current assignment
 	cmpi.b	#apassrec,asslist(a0,d0.w)	;is apassrec
 	beq.w	.next
-	move.l	a0,-(sp)
-	bsr.w	GetHot
+	move.l	a0,-(sp)		;GetHot takes the structure address on the stack
+	bsr.w	GetHot			;d0/d1 = hot spot x/y of this player
 	add.w	(a0),d0
 	sub.w	(puckx).w,d0
 	add.w	Ypos(a0),d1
-	sub.w	(pucky).w,d1
+	sub.w	(pucky).w,d1		;d0/d1 = player (plus hot spot) minus puck
 	move.w	(puckvx).w,d3		;always lead the puck (if carried)
 	asr.w	#6,d3
 	sub.w	d3,d0
@@ -2981,18 +2982,18 @@ assnearest	;this is a special assignment used for the player who is nearest the 
 	sub.w	d3,d1
 	muls.w	d0,d0
 	muls.w	d1,d1
-	add.l	d1,d0
+	add.l	d1,d0			;d0 = squared distance
 	cmp.l	d2,d0
-	bhi.w	.next
+	bhi.w	.next			;not better than the best
 	move.l	d0,d2
-	movea.w	a0,a1
+	movea.w	a0,a1			;a1 = nearest player so far
 .next	adda.w	#SCstruct,a0
 	dbf	d4,.de0
 	tst.l	d2
-	bmi.w	.de1
+	bmi.w	.de1			;nobody qualified
 	move.l	d2,$2A(a2)		;nearest distance^2
-.switch	cmpa.w	a1,a3
-	beq.w	.de1
+.switch	cmpa.w	a1,a3			;a1 = the player who should chase the puck
+	beq.w	.de1			;that is me
 	btst	#gmclock,(gmode).w
 	bne.w	.de1
 	btst	#pf2unav,pflags2(a1)		;pf2unav

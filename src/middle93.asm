@@ -42,7 +42,7 @@ WeightedRandomSelect	;92 SetScore .getscore. d0 = number of word weights at nibb
 	clr.w	d1			;d1 = running total of the weights
 	bra.w	.next
 .sum	add.w	(a1)+,d1		;add the next weight
-.next	dbf	d0,.sum
+.next	dbf	d0,.sum			;loop over the weights
 	move.w	d1,d0			;d0 = total weight
 	bsr.w	randomd0		;d0 = random 0 <= d0 < total
 .find	sub.w	-(a1),d0		;walk back from the last weight
@@ -153,7 +153,7 @@ cramfade	;fade from current color in color ram to color held in palfadenew. This
 	beq.w	.next			;component already at target
 	blt.w	.nn			;below target: step up
 	neg.w	d2			;above target: step down
-.nn	add.w	d2,d0
+.nn	add.w	d2,d0			;apply the step to the component
 	and.w	d4,d7
 	or.w	d0,d7			;merge the new component into the color
 
@@ -221,7 +221,7 @@ sroot	;Square Root, this returns (d0.L)^.5 in d0. Large values use a binary sear
 	bhi.w	.m2			;large value: Newton iteration / binary search below
 	move.l	d1,-(sp)		;find square root of d0
 	moveq	#-1,d1			;small value: subtract successive odd numbers (1,3,5,..)
-.0	addq.w	#2,d1
+.0	addq.w	#2,d1			;next odd number
 	sub.w	d1,d0
 	bcc.s	.0
 	lsr.w	#1,d1			;d1 = 2*root+1 -> root
@@ -244,7 +244,7 @@ sroot	;Square Root, this returns (d0.L)^.5 in d0. Large values use a binary sear
 	lsr.w	#1,d1
 	cmp.w	d1,d2			;stop when the guess stops changing, or after 10 steps
 	dbeq	d3,.top
-.done	move.w	d1,d0
+.done	move.w	d1,d0			;d1 = root (shared exit of both methods)
 	movem.l	(sp)+,d1-d4
 	rts
 
@@ -261,7 +261,7 @@ sroot	;Square Root, this returns (d0.L)^.5 in d0. Large values use a binary sear
 	bcc.w	.lo			;d0 >= mid^2: raise low
 	move.w	d4,d2			;else lower high
 	bra.s	.bs
-.lo	move.w	d4,d1
+.lo	move.w	d4,d1			;low = mid
 	bra.s	.bs
 
 sfx	;play sound effect number. One word passed on stack
@@ -271,7 +271,7 @@ sfx	;play sound effect number. One word passed on stack
 	bmi.w	.none			;negative = no sound
 	move.w	d0,(lastsfx).w		;remember the last effect
 	jsr	(play_sfx_or_music_track).l
-.none	movem.l	(sp)+,d0-d7/a0-a6
+.none	movem.l	(sp)+,d0-d7/a0-a6	;restore registers
 	move.l	(sp),2(sp)		;slide the return address over the argument word
 	addq.w	#2,sp			;(callee pops its own argument)
 	rts
@@ -282,7 +282,7 @@ song	;play song number. One word passed on stack
 	move.w	$40(sp),d0		;16*4(a7)
 	bmi.w	.none			;negative = no song
 	jsr	(play_sfx_or_music_track).l	;same call as sfx, without lastsfx
-.none	movem.l	(sp)+,d0-d7/a0-a6
+.none	movem.l	(sp)+,d0-d7/a0-a6	;restore registers
 	move.l	(sp),2(sp)		;drop the argument word, as in sfx
 	addq.w	#2,sp
 	rts
@@ -322,7 +322,7 @@ waitxsr	;d0 vblanks while the zamboni crosses (zamx counts up to $708) and the c
 	bsr.w	ProcessInputWithRepeat
 	tst.w	d1
 	beq.w	.vid			;no key on either pad
-.key	move.w	(vcount).w,d0
+.key	move.w	(vcount).w,d0		;a key was pressed: d0 = frames left (negative)
 	cmp.w	#-120,d0
 	blt.w	.menu			;more than 120 frames left: keep them
 	moveq	#-$78,d0		;else wait 120 more
@@ -332,14 +332,14 @@ waitxsr	;d0 vblanks while the zamboni crosses (zamx counts up to $708) and the c
 	addq.w	#2,sp
 	bset	#7,d1			;tell the caller the menu ended it
 	bra.w	.ex
-.resume	move.w	(sp)+,(vcount).w
+.resume	move.w	(sp)+,(vcount).w	;restore the frame count
 .vid	bsr.w	setvideo		;update video for this frame
 	move.w	(vcount).w,d0
 .0	cmp.w	(vcount).w,d0		;wait for the next vblank
 	beq.s	.0
 	tst.w	d0
 	bmi.s	.wait
-.ex	movem.l	(sp)+,d4-d7/a0-a3
+.ex	movem.l	(sp)+,d4-d7/a0-a3	;exit
 	rts
 
 waitjoy	;wait for either joystick input. Return d1 = new button presses. it as data (no caller found)
@@ -369,7 +369,7 @@ nodiag	;eliminate diagonal direction presses: if held directions (d3 bits 0-3) a
 	dbeq	d4,.0
 	beq.w	.ok			;exactly one direction held
 	andi.w	#$FFF0,d1		;diagonal: drop the direction presses
-.ok	movem.l	(sp)+,d0/d4-d5
+.ok	movem.l	(sp)+,d0/d4-d5		;done
 	rts
 
 ProcessInputWithRepeat	;nodiag, then key repeat on d1-d3 from Readjoy1/2. A change (d2) resets the delay to 15 frames; while the same buttons stay held, every 4 frames return d1 = held buttons (d3). Called from Pausemode, menus and IntermissionLoop
@@ -425,7 +425,7 @@ ReadJoy	;read controller a0. Return d0 = direction (bit 0-3) and new button (bit
 	asl.b	#2,d0			;start/A up to bits 7-6
 	andi.b	#%11000000,d0
 	move.w	#10,d1
-.zz	dbf	d1,.zz
+.zz	dbf	d1,.zz			;settle delay
 	move.w	#$100,(IO_Z80BUS).l	;turn off z80
 	move.b	(a0),d1			;TH high read: bits 0-3 up/down/left/right, bit 4 = B, bit 5 = C
 	move.w	#0,(IO_Z80BUS).l	;turn on z80
@@ -646,12 +646,12 @@ setVram_0	;92 setVram second half. second half of setVram without the fade: clea
 
 Vmaddr	;set video port to address d0. d0 = vram address, returns a0 = Vdata!!!
 	movea.l	#Vdata,a0
-	asl.l	#2,d0
+	asl.l	#2,d0			;split the address: bits 0-13 in the first word, 14-15 in the second
 	lsr.w	#2,d0
-	ori.w	#$4000,d0
+	ori.w	#$4000,d0		;vram write command
 	swap	d0
 	andi.w	#3,d0
-	move.l	d0,4(a0)
+	move.l	d0,4(a0)		;write to the control port
 	rts
 
 
@@ -661,36 +661,36 @@ dobitmap	;transfer palette data/map data/tiles data to vram. a0 = palette, a1 = 
 	bset	#dfng,(disflags).w
 	movem.l	d0-d3/d5-d6/a0-a3,-(sp)
 	move.w	d1,d6			;y start in d6 (92 used 6(a7))
-	movea.w	#(palfadenew-M68K_RAM),a3
+	movea.w	#(palfadenew-M68K_RAM),a3	;a3 = target palette, a0 = palette data
 	bra.w	.00
-.01	move.b	(a0,d0.w),(a3,d0.w)
+.01	move.b	(a0,d0.w),(a3,d0.w)	;copy one 32 byte palette line backwards
 	dbf	d0,.01
-.02	adda.w	#$20,a0
+.02	adda.w	#$20,a0			;next palette line (source and target)
 	adda.w	#$20,a3
 .00	moveq	#$1F,d0			;31
-	lsr.w	#1,d5
+	lsr.w	#1,d5			;d5 bit n = copy palette line n; stop when no bits left
 	bcs.s	.01
 	bne.s	.02
 
-	move.w	(printa).w,d5
+	move.w	(printa).w,d5		;d5 = tile attribute bits (priority/palette/flip) from printa
 	andi.w	#$F800,d5
 	move.w	$E(sp),d2		;width y
 	subq.w	#1,d2
 
-.loop2	bsr.w	xyVmMap
+.loop2	bsr.w	xyVmMap			;set vram address from printx/printy/printm, a0 = Vdata
 	move.w	d6,d0			;y start
 	mulu.w	(a1),d0			;map width
 	add.w	2(sp),d0		;x start
-	asl.w	#1,d0
+	asl.w	#1,d0			;d0 = byte offset of the first map word wanted
 	move.w	$A(sp),d1		;width x
 	subq.w	#1,d1
-.loop1	move.w	4(a1,d0.w),d3
-	add.w	d4,d3
-	eor.w	d5,d3
-	move.w	d3,(a0)
+.loop1	move.w	4(a1,d0.w),d3		;map word (map data starts 4 bytes in)
+	add.w	d4,d3			;add the start char
+	eor.w	d5,d3			;xor the attribute bits
+	move.w	d3,(a0)			;write the name table entry
 	addq.w	#2,d0
 	dbf	d1,.loop1
-	addq.w	#1,(printy).w
+	addq.w	#1,(printy).w		;next row
 	addq.w	#1,d6
 	dbf	d2,.loop2
 	bsr.w	DecompressGraphicsPlain	;tiles a2 to char d4

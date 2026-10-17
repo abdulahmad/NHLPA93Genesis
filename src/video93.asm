@@ -469,7 +469,7 @@ showclock	;put the game clock in the dma list. Called from setvideo; returns unl
 	divu.w	#$A,d0
 	bsr.w	.char			;minutes ones
 	swap	d0
-	tst.l	d0			;minutes tens digit (high word) and remainder zero?
+	tst.l	d0			;minutes tens is zero?
 	bne.w	.0
 	moveq	#-$10,d0		;' '-'0': blank leading zero
 	swap	d0
@@ -597,14 +597,14 @@ setffo	;draw the 5 objects tied to icerink scrolling (pads ...). Called from set
 	bsr.w	uppads
 	move.w	#4,d0			;ffonum-1
 	movea.w	#(pads-M68K_RAM),a3
-.top	movea.w	a6,a0			;a0 = first sprite this object writes
+.top	movea.w	a6,a0			;per object: a0 = first sprite this object writes
 	bsr.w	addframe
 	cmpa.w	a6,a0
 	beq.w	.next			;no sprites added
 	move.w	2(a3),d1		;x offset (set by QueuePadLabel)
 	add.w	d1,6(a0)		;sprite 1 x
 	add.w	d1,$E(a0)		;sprite 2 x
-.next	adda.w	#ffosize,a3			;ffosize
+.next	adda.w	#ffosize,a3			;ffosize: next object
 	dbf	d0,.top
 	rts
 
@@ -622,12 +622,12 @@ uppads	;update the gloves object and the 4 pad objects, and queue new pad labels
 	asl.w	#2,d1
 	move.w	d1,Ypos(a0)
 	clr.w	Zpos(a0)			;shown
-.nogloves	moveq	#3,d4		;4 pads (92 3)
+.nogloves	moveq	#3,d4		;4 pads (92 3); d4 = pads left-1
 	movea.w	#(pads-M68K_RAM),a0
 	movea.w	#(padcont-M68K_RAM),a1	;last label code per pad
 	movea.w	#(SortCords-M68K_RAM),a2
 	move.w	(PadControlBits).w,d3
-.top	move.w	d3,d0
+.top	move.w	d3,d0			;per pad: d3 holds the remaining nibbles
 	andi.w	#$F,d0			;this pad's nibble: player number, $E or $F
 	move.w	#$F,d1			;label code for $E
 	cmp.w	#$E,d0
@@ -642,11 +642,11 @@ uppads	;update the gloves object and the 4 pad objects, and queue new pad labels
 	move.b	position+1(a2,d0.w),d1	;label code = position << 8 | rostnum
 	asl.w	#8,d1
 	move.b	rostnum(a2,d0.w),d1
-.chg	cmp.w	(a1),d1
+.chg	cmp.w	(a1),d1			;new label code vs the last one for this pad
 	beq.w	.next			;same label as last time
 	move.w	d1,(a1)
 	bsr.w	QueuePadLabel
-.next	lsr.w	#4,d3			;next nibble
+.next	lsr.w	#4,d3			;next nibble (next pad)
 	adda.w	#ffosize,a0			;ffosize
 	addq.w	#2,a1
 	dbf	d4,.top
@@ -663,7 +663,7 @@ QueuePadLabel	;92 uppads. queue the 3 character label of a pad object (92 drew 2
 	bne.w	.hi
 	move.w	#-$10,d2		;' '-'0': blank leading zero
 	subq.w	#4,2(a0)		;and move the label 4 left
-.hi	addi.w	#$30,d2			;'0'
+.hi	addi.w	#$30,d2			;'0' (tens digit of the label, or blank)
 	clr.w	d0			;char slot 0
 	bsr.w	RenderSmallFontChar
 	move.w	d1,d2
@@ -671,7 +671,7 @@ QueuePadLabel	;92 uppads. queue the 3 character label of a pad object (92 drew 2
 	cmp.w	#$F,d2
 	bne.w	.lo
 	move.w	#-$10,d2		;$F: blank
-.lo	addi.w	#$30,d2			;'0'
+.lo	addi.w	#$30,d2			;'0' (ones digit of the label, or blank)
 	moveq	#1,d0			;char slot 1
 	bsr.w	RenderSmallFontChar
 	move.w	d1,d2
@@ -679,7 +679,7 @@ QueuePadLabel	;92 uppads. queue the 3 character label of a pad object (92 drew 2
 	andi.w	#7,d2
 	bne.w	.btn
 	addq.w	#4,2(a0)		;index 0 (' '): move the label 4 right
-.btn	move.b	(a4,d2.w),d2
+.btn	move.b	(a4,d2.w),d2		;third char from ButtonLabelCharTable
 	moveq	#2,d0			;char slot 2
 
 RenderSmallFontChar	;92 uppads .pd. dma one small font tile to the object's chars.
@@ -717,7 +717,7 @@ addframe	;a3 = cords.l frame/oldframe VRsize VRchar. Project the object with fin
 	cmp.w	#osflag,d1		;osflag
 	beq.w	.exit
 	bsr.w	addframe2
-.exit	movem.l	(sp)+,d0-d2
+.exit	movem.l	(sp)+,d0-d2		;hidden or off screen: nothing drawn
 	rts
 
 addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = sprite table, d6 = link counter.
@@ -744,7 +744,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	adda.w	(a2,d4.w),a2
 	clr.w	d3
 	clr.w	d4
-.sloop	move.w	d0,-(sp)
+.sloop	move.w	d0,-(sp)		;per sprite of the frame; d0 = x for now, saved
 	move.w	frame(a3),d0
 	andi.w	#$7FF,d0
 	cmp.w	oldframe(a3),d0
@@ -753,7 +753,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	tst.w	d5
 	bne.w	.nn
 	move.w	d0,oldframe(a3)		;last sprite: oldframe = frame
-.nn	movem.w	d0-d4,-(sp)
+.nn	movem.w	d0-d4,-(sp)		;work out whether this sprite's tiles overlap the previous one's
 	move.w	4(a2),d2		;tile pointer (kept whole)
 	clr.w	d4
 	move.b	7(a2),d4		;size byte
@@ -772,11 +772,11 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	addq.w	#6,sp
 	bra.w	.dup
 
-.nodup	add.w	8(sp),d3
+.nodup	add.w	8(sp),d3		;d3 = vram char offset after the previous sprite's tiles
 	movem.w	(sp)+,d0-d1
 	addq.w	#6,sp
 
-	movem.w	d0-d4,-(sp)
+	movem.w	d0-d4,-(sp)		;queue a dma of this sprite's new tiles
 	add.w	VRchar(a3),d3
 	ext.l	d2
 	asl.l	#5,d2
@@ -787,8 +787,8 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	move.w	d4,(a5)+		;words to transfer
 	move.w	d3,(a5)+		;vram destination
 	movem.w	(sp)+,d0-d4
-.dup	move.b	d3,VRoffs(a3,d5.w)
-.noref	move.w	(sp)+,d0
+.dup	move.b	d3,VRoffs(a3,d5.w)	;remember this sprite's char offset in the object
+.noref	move.w	(sp)+,d0		;restore x
 	movem.w	d0-d2,-(sp)		;write sprite att
 	move.w	2(a2),d2		;y global (+2; 92 used +0)
 	btst	#4,attribute(a3)		;y flip
@@ -799,7 +799,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	asl.w	#3,d2
 	neg.w	d2
 	sub.w	2(a2),d2
-.noyflip	add.w	d2,d1
+.noyflip	add.w	d2,d1		;screen y + sprite y
 	move.w	d1,(a6)
 
 	move.w	(a2),d2			;x global (+0; 92 used +6)
@@ -811,7 +811,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	asl.w	#1,d2
 	neg.w	d2
 	sub.w	(a2),d2
-.noxflip	add.w	d2,d0
+.noxflip	add.w	d2,d0		;screen x + sprite x
 	move.w	d0,6(a6)
 	move.b	7(a2),2(a6)		;size
 	move.b	d6,3(a6)		;link
@@ -824,7 +824,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	btst	#$E,d2
 	beq.w	.nospec
 	bset	#$D,d2			;team 2 color
-.nospec	or.b	VRoffs(a3,d5.w),d2
+.nospec	or.b	VRoffs(a3,d5.w),d2	;char offset of this sprite
 	add.w	VRchar(a3),d2
 	move.w	d2,4(a6)
 	movem.w	(sp)+,d0-d2
@@ -833,7 +833,7 @@ addframe2	;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 = s
 	addq.w	#8,a6
 	addq.w	#8,a2
 	dbf	d5,.sloop
-.exit	movem.l	(sp)+,d0-d5/a0-a2
+.exit	movem.l	(sp)+,d0-d5/a0-a2	;also reached when frame is 0, negative or past the table
 	move.w	(sp)+,attribute(a3)		;restore attribute
 	rts
 
@@ -846,7 +846,7 @@ find3d	;input - d0=xfield,d1=yfield,d2=height off field
 	subi.w	#horoff,d1
 	bra.w	.crange
 
-.nhor	sub.w	(Hpos).w,d0
+.nhor	sub.w	(Hpos).w,d0		;position relative to the scroll
 	sub.w	(Vpos).w,d1
 .crange	cmp.w	#$90,d0			;128+16
 	bgt.w	.offscr
@@ -863,7 +863,7 @@ find3d	;input - d0=xfield,d1=yfield,d2=height off field
 	neg.w	d1
 	addi.w	#$F0,d1			;112+128
 	rts
-.offscr	move.w	#osflag,d1		;osflag
+.offscr	move.w	#osflag,d1		;osflag: caller skips the object
 	rts
 
 updatesound	;move the crowd noise volume (psg noise channel) toward crowdlevel.
@@ -875,17 +875,17 @@ updatesound	;move the crowd noise volume (psg noise channel) toward crowdlevel.
 	bls.w	.ip
 	move.w	#$EFF,d0
 
-.ip	moveq	#$28,d2			;max step 40
+.ip	moveq	#$28,d2			;max step 40 (d0 = target level, asv = current)
 	sub.w	(asv).w,d0
 	cmp.w	d2,d0
 	bgt.w	.iasv
 	neg.w	d2
 	cmp.w	d2,d0
 	bge.w	.non			;within 40: no change
-.iasv	add.w	d2,(asv).w
+.iasv	add.w	d2,(asv).w		;step asv toward the target
 	bpl.w	.non
 	clr.w	(asv).w
-.non	move.b	#$C8,(Asound).l
+.non	move.b	#$C8,(Asound).l		;psg: noise channel setup, then attenuation below
 	move.b	#1,(Asound).l
 	move.b	(asv).w,d0
 	eori.b	#$F,d0
