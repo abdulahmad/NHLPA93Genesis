@@ -131,11 +131,11 @@ StartPer	;start a period: reset stack, rink and clock, face off, run the game lo
 	move.w	(gamelevel).w,d0
 	asl.w	#4,d0
 	move.w	d0,(CwdExciteLvl).w	;starting excitement = gamelevel*16
-	move.w	#$31,-(sp)		;period start tune
+	move.w	#SngPeriodStart,-(sp)		;period start tune
 	bsr.w	song
 	cmpi.w	#2,(gsp).w
 	bge.w	Gameloop
-	bset	#7,(sflags3).w		;set for periods 1 and 2 only
+	bset	#sf3fosong,(sflags3).w		;set for periods 1 and 2 only
 
 Gameloop	;main loop for game
 	bsr.w	DoGameFrame
@@ -205,7 +205,7 @@ CheckLateGameSong	;called once per second. 3rd period: play tune $32 once at the
 	cmp.w	(periodendtime).w,d0
 	bgt.w	.x			;not there yet
 	st	(periodendtime).w		;high byte $FF: trigger goes negative, fires once
-	move.w	#$32,-(sp)
+	move.w	#SngPeriod3,-(sp)
 	bsr.w	song
 .x	rts
 
@@ -322,7 +322,7 @@ clockcont_0	;end of period. Also entered from puckfaceoff
 	addi.w	#$3E8,(crowdlevel).w	;1000
 	addi.w	#$28,(CwdExciteLvl).w
 	bset	#gmclock,(gmode).w
-	bset	#gmend,(gmode).w		;set at end of game
+	bset	#gmeog,(gmode).w		;set at end of game
 	move.w	#4,d0			;PenEOG
 	bra.w	AddPenalty2
 
@@ -369,7 +369,7 @@ Pausemode	;game is in pause mode now
 	bsr.w	seta2			;a2 = team of pausing controller
 	movea.l	#PauseText,a0		;menu item list
 	lea	SetupPauseScreen(pc),a1	;screen draw routine
-	btst	#2,tmflags(a2)
+	btst	#tmftimeout,tmflags(a2)
 	beq.w	.0
 	movea.l	#PauseText2,a0		;alternate item list
 .0	bsr.w	InitMenuState
@@ -2392,7 +2392,7 @@ Goal	;puck in goal. a3 = puck. Entered from checkgoal
 .g1	addq.w	#1,tmscore(a2)
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	bne.w	.nocheer
-	move.w	#$30,-(sp)		;song $30
+	move.w	#SngGoal,-(sp)		;song $30
 	bsr.w	song
 .nocheer	cmpi.w	#$B4,(ScoreSumbytes).w	;30 entries of 6 bytes full?
 	bne.w	.sum
@@ -3941,7 +3941,7 @@ resetplstuff	;reset team variables/and players on both teams. Called from puckfa
 	movem.l	(sp)+,d0-d2/a0-a3
 	rts
 
-.top	bclr	#tmfoffside,tmflags(a2)		;clear team flag bit 4
+.top	bclr	#tmfoside,tmflags(a2)		;clear team flag bit 4
 	moveq	#5,d2
 	movea.w	tmsort(a2),a3
 .loop	clr.b	pflags2(a3)			;pflags2 (92 also cleared pflags3)
@@ -4211,7 +4211,7 @@ PlayoffScreen	;bring up playoff screen if in playoff mode. Called from GameOver 
 	bsr.w	printz
 	String	$CD,$A,1,'Press [ or ] to page'
 .nopage	move.w	#$18,(palcount).w	;24 frames per color flash
-	move.w	#SngEOG,-(sp)		;song $36 (92 used 4)
+	move.w	#SngPO,-(sp)		;song $36 (92 used 4)
 	bsr.w	song
 
 	clr.w	d0
@@ -5618,7 +5618,7 @@ UpdateRosterPlayer	;roster player of team a2 (sprite struct a3 = $22(a2), tmsort
 	clr.w	2(a2)			;first RosterOrderTable entry
 	bsr.w	SlideOutRosterPlayer
 .same	movea.w	tmsort(a2),a3
-	btst	#2,tmflags(a2)
+	btst	#tmfslide,tmflags(a2)
 	beq.w	.in
 	addq.w	#3,$24(a3)		;sliding out
 	addq.w	#3,$1C(a3)		;x offset
@@ -5697,7 +5697,7 @@ UpdateRosterPlayer	;roster player of team a2 (sprite struct a3 = $22(a2), tmsort
 SlideOutRosterPlayer	;erase the name of team a2 and set bit 2 of $30(a2) (slide the player out).
 	;Called and branched to from UpdateRosterPlayer
 	bsr.w	ClearRosterName
-	bset	#2,tmflags(a2)
+	bset	#tmfslide,tmflags(a2)
 	rts
 
 SetupNextPlayer	;player of team a2 slid out. Load the team palette (setplayercolors.sp), put the
@@ -5714,7 +5714,7 @@ SetupNextPlayer	;player of team a2 slid out. Load the team palette (setplayercol
 .pal	move.l	(a0)+,(a1)+
 	dbf	d0,.pal
 	move.w	#$18,(palcount).w	;24
-	bclr	#2,tmflags(a2)
+	bclr	#tmfslide,tmflags(a2)
 	movea.w	tmsort(a2),a3
 	move.w	#$FFD8,$1C(a3)		;x offset -40
 	clr.w	$58(a3)
@@ -6502,7 +6502,7 @@ ShowThreeStars	;end of game "Stars of the Game" box. Called from UpdatePA while 
 	;Song $F when the home team won.
 	cmpi.w	#$40,(RefCnt).w
 	bgt.w	rtss			;ref animation not far enough yet
-	bset	#7,(gmode).w
+	bset	#gmstars,(gmode).w
 	bne.w	rtss			;already shown
 	movem.l	d0-d5/a0-a4,-(sp)
 	bsr.w	printz
