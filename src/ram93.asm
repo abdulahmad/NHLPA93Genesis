@@ -1,59 +1,17 @@
 ;	RAM map. This file names the work RAM variables, the hardware ports and the offsets inside
 ;	the game's structures. It holds equates only and adds nothing to the ROM.
 
-;Variables
-Asound	=	$c00011	;analog sound (VDP_PSG)
-Vdata	=	$c00000	;video ports (VDP_DATA)
-Vctrl	=	Vdata+4
-
 ;hardware
-IO_CT1_CTRL	=	$A10008
-IO_CT1_DATA	=	$A10002
-IO_CT1_RX	=	$A1000E
-IO_CT1_SMODE	=	$A10012
-IO_CT1_TX	=	$A10010
-IO_CT2_CTRL	=	$A1000A
-IO_CT2_DATA	=	$A10004
-IO_CT2_RX	=	$A10014
-IO_CT2_SMODE	=	$A10018
-IO_CT2_TX	=	$A10016
-IO_EXT_CTRL	=	$A1000C
-IO_EXT_DATA	=	$A10006
-IO_EXT_RX	=	$A1001A
-IO_EXT_SMODE	=	$A1001E
-IO_EXT_TX	=	$A1001C
-IO_FDC	=	$A12000
-IO_PCBVER	=	$A10000
-IO_RAMMODE	=	$A11000
-IO_TIME	=	$A13000
-IO_TMSS	=	$A14000
 IO_Z80BUS	=	$A11100
 IO_Z80RES	=	$A11200
 VDP_CNTR	=	$C00008
 VDP_CTRL	=	$C00004
 VDP_DATA	=	$C00000
 VDP_PSG	=	$C00011
-VDP__CNTR	=	$C0000A
-VDP__CTRL	=	$C00006
-VDP__DATA	=	$C00002
-VDP___CNTR	=	$C0000C
-VDP____CNTR	=	$C0000E
 Z80_RAM	=	$A00000	;Z80 RAM as seen from the 68000 (Z80_RAM+$8E is the PCM rate byte)
 BackupRAM_Port	=	$200000	;serial backup RAM port: low byte bit 7 data, bit 6 clock
 Joy1	=	$a10003	;controller ports
 Joy2	=	$a10005
-
-;VDP status register bits
-PAL_MODE	=	0
-DMA_IN_PROGRESS	=	1
-HBLANKING	=	2
-VBLANKING	=	3
-ODD_FRAME	=	4
-SPRITE_COLLISION	=	5
-SPRITE_OVERFLOW	=	6
-VBLANK_PENDING	=	7
-FIFO_FULL	=	8
-FIFO_EMPTY	=	9
 
 MaxSprites	=	64	;max sprites during game (64 because 32 col mode)
 
@@ -179,15 +137,12 @@ lldisp	rs.w	1	;line level disp update counter
 periodendtime	rs.w	1	;CheckLateGameSong trigger time.
 
 ;the following are equates for the sort object structure (SCstruct bytes each)
-Xcord	=	0
-Ycord	=	2
 
 Xpos	=	$0
 attribute	=	$4	;frame attribute switch bits
 frame	=	$6	;alice frame number
 oldframe	=	$8	;last frame
 VRoffs	=	$A	;offsets to find each sprites start char. (max of 6 sprites / frame)
-VRsize	=	VRoffs+6	;vram size in chars allocated for this graphic (92 stored it here; 93 does not)
 VRchar	=	$12	;vram char for graphic
 Ypos	=	$14
 Zpos	=	$18
@@ -248,15 +203,11 @@ aioff	=	$6A
 aidef	=	$6B
 shotspd	=	$6C
 shotacc	=	$6D
-GGSright	=	shotacc
 passacc	=	$6E
 rostnum	=	$6F
 spodds	=	$70
-GSSleft	=	spodds
 stickhand	=	$71
-GGSleft	=	stickhand
 endurance	=	$72
-GSSright	=	endurance
 aggress	=	$73	;and offset
 handed	=	$76	;bit0 set is left handed. 92 $74
 SortCords	rs.b	Sortobjs*SCstruct
@@ -515,9 +466,7 @@ TestList	rs.w	122
 nibblebuffer	rs.w	6	;UnpackNibbles words, WeightedRandomSelect weights.
 ;$FFFFCACE is nibblebuffer+4
 varend	=	nibblebuffer+8	;end of the variables cleared by Opening2 ($FFFFCAD2). 92 had a varend label after TickerNum
-menuitems	=	7	;number of menu items
 OptPlayMode	rs.w	1	;play mode
-optionsmenu	=	OptPlayMode
 OptNOP	rs.w	1
 Opt1team	rs.w	1
 Opt2team	rs.w	1
