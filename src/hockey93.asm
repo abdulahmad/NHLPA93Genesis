@@ -1134,6 +1134,8 @@ checkwindow	;set hpos and vpos according to how screen should follow puck
 ;	Collisions, checking, falls and injuries
 ;------------------------------------------------------------
 
+collrad	=	8		;collision radius of an object (players collide within collrad*2)
+
 checkcoll	;d2 = new x cord, d3 = new y cord, a3 = struct of object. Check wall collision (around the hot spot and the end of the stick) and player collisions, then move a3 in the OOlist sort order by its y. If a player collision set collflag, restore the old x/y instead. Does not clear Wallcos/Wallsin first (92 did). Called from updateplayers
 	clr.w	(collflag).w
 	btst	#sfhor,(sflags).w
@@ -1229,7 +1231,7 @@ checkplcoll	;d2/d3 = x/y cords, a3 = struct. Walk up and down the OOlist from a3
 	move.b	1(a1,d1.w),d4		;next higher object number
 	move.w	(a2,d4.w),d5		;y pos of next higher object
 	sub.w	d3,d5
-	cmp.w	#$10,d5			;collrad*2
+	cmp.w	#collrad*2,d5
 	bgt.w	.cl			;no higher sprite coll
 	bsr.w	checkcx
 	addq.w	#1,d1
@@ -1241,7 +1243,7 @@ checkplcoll	;d2/d3 = x/y cords, a3 = struct. Walk up and down the OOlist from a3
 	move.b	-1(a1,d1.w),d4		;next lower object number
 	move.w	d3,d5
 	sub.w	(a2,d4.w),d5		;y pos of next lower object
-	cmp.w	#$10,d5			;collrad*2
+	cmp.w	#collrad*2,d5
 	bgt.w	.ex
 	bsr.w	checkcx
 	subq.w	#1,d1
@@ -1266,14 +1268,14 @@ checkcx	;d4 = obj. # * 2 for possible coll so check x range and distance for col
 	beq.w	.nhor
 	move.w	Ypos(a2),d0
 .nhor	sub.w	d2,d0			;delta x
-	cmp.w	#-$10,d0		;-collrad*2
+	cmp.w	#-collrad*2,d0
 	blt.w	.exit
-	cmp.w	#$10,d0			;collrad*2
+	cmp.w	#collrad*2,d0
 	bgt.w	.exit
 	muls.w	d5,d5			;delta y^2
 	muls.w	d0,d0			;delta x^2
 	add.l	d5,d0
-	cmp.l	#$100,d0		;(collrad*2)*(collrad*2)
+	cmp.l	#(collrad*2)*(collrad*2),d0
 	bgt.w	.exit			;outside of radius
 
 	move.w	#0,(evalue).w
@@ -3577,20 +3579,20 @@ defaultsprites	;allocate vram and assign char area for graphic structures. d4 = 
 	;Called from setupice and setupice_highlight. 93 splits off the SortCords half as defaultsprites2 (jumped to at the end)
 	movea.l	#.listsso,a2
 	movea.w	#(sso-M68K_RAM),a3
-	moveq	#1,d0			;2 sso objects (92 used 4: 2 arrows + 2 scoreboard logos)
+	moveq	#ssonum-1,d0		;92 used 4 sso objects: 2 arrows + 2 scoreboard logos
 .ssotop	move.w	#$FFFF,oldframe(a3)		;screen objects not locked to scroll of screen
-	move.w	(a2)+,(a3)		;Xcord
-	move.w	(a2)+,2(a3)		;Ycord
+	move.w	(a2)+,Xcord(a3)
+	move.w	(a2)+,Ycord(a3)
 	move.w	(a2)+,frame(a3)
 	move.w	(a2)+,attribute(a3)
 	move.w	d4,VRchar(a3)
 	add.w	(a2)+,d4		;vram char size (92 also kept it in VRsize)
-	adda.w	#$14,a3			;ssosize
+	adda.w	#ssosize,a3
 	dbf	d0,.ssotop
 
 	movea.l	#.listffo,a2
 	movea.l	#pads,a3		;ffo (first ffo is the pads)
-	moveq	#4,d0			;ffonum-1
+	moveq	#ffonum-1,d0
 .ffotop	st	oldframe(a3)			;objects tied to screen scrolling (not players/net/puck)
 	move.w	(a2)+,(a3)		;Xpos
 	move.w	(a2)+,Ypos(a3)
