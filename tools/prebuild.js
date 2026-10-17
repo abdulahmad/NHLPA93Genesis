@@ -1,14 +1,12 @@
-// prebuild.js: run before every build (npm run build:*, seg:*, build93.bat, buildseg.bat).
+// prebuild.js: run before every build (tools/build.js, npm run build:*, assets).
 // Usage: node tools/prebuild.js [retail|reva|any]
 //   retail / reva: the ROM that build is verified against must be present (and the right version).
 //   any: either ROM (build:dev, not verified).
 // Then makes sure Extracted/ is complete, and runs the extractor if it is not. If the ROM is
 // missing or wrong, stops with the path, file name, SHA-1 and size it must have.
-// The batch files skip this step when NHL_PREBUILD_DONE is set (the npm scripts set it after
-// running it; tools/verify_all.sh runs it with Linux node, since there is no node under wine).
 
 const GAME = 'NHLPA Hockey 93 (Sega Genesis)';
-const EXTRACTOR = 'tools/extractAssets93-1.1.js';
+const EXTRACTOR = 'tools/extractAssets93.js';
 const ROMS = {
     retail: { label: 'NHLPA Hockey 93 retail (1992.JUL, GM T-50396 -00)', file: 'nhlpa93retail.bin',
               sha1: '8efc1cacb079ea223966dda065c16c49e584cac2', size: 0x80000 },

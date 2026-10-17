@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 // NHLPA 93 asset extractor: writes the retail ROM slices that the source incbins (team palettes in
 // teamdata93.asm, sound and Z80 data in sound93.asm, graphics in graphics93.asm) into Extracted/.
-// Run by npm run extractassets (and by every build:* / seg:* script). Slices are [start, end) retail addresses.
+// Run by npm run extractassets (and by every build). Slices are [start, end) retail addresses.
 const assets = [
     { name: 'ASEh.pal', folder: 'Graphics/Pals', start: 0x388, end: 0x3A8 }, // ASE
     { name: 'ASEv.pal', folder: 'Graphics/Pals', start: 0x3A8, end: 0x3C8 },
@@ -59,7 +59,7 @@ const assets = [
     { name: 'WSHh.pal', folder: 'Graphics/Pals', start: 0x4666, end: 0x4686 },
     { name: 'WSHv.pal', folder: 'Graphics/Pals', start: 0x4686, end: 0x46A6 },
     // Sound and graphics data: contiguous retail slices (end is exclusive) for the incbins in src/sound93.asm
-    // ($16E53-$2EFA1) and src/graphics93.asm ($2EFA2-$7FB75). Names follow the NHL 92 extractor where 93 has the
+    // ($16E53-$2E1FB) and src/graphics93.asm ($2E1FC-$7FB75). Names follow the NHL 92 extractor where 93 has the
     // same asset (z80_snd_drv, sfx_*_pcm, sfx_*_cmdstream, <name>.map.jim for bitmaps, <name>.anim for sprite frames).
     // Sound boundaries come from the tables the 68k driver reads (pcm_sample_table, fm_instrument_patches,
     // MusicTrackPointerTable; each event stream runs to the next one). Sound names are from the sfx / song call sites.
@@ -138,7 +138,7 @@ const assets = [
     { name: 'fmtune_scouting_cmdstream.bin', folder: 'Sound', start: 0x02C8AA, end: 0x02CEC4 }, // song $37: ScoutingReport
     { name: 'ScoutingReportText.bin', folder: 'Text', start: 0x02CEC8, end: 0x02E1FB }, // ScoutingReportText: scouting report paragraphs
     { name: 'GameSetUp.map.jim', folder: 'Graphics', start: 0x02E1FC, end: 0x02EFA2 }, // 92 GameSetUp.map.jim: game setup bitmap (setoptions movea.l #$2E1FC)
-    { name: 'GameSetup.anim', folder: 'Graphics', start: 0x02EFA2, end: 0x02F0B0 }, // GameSetupSprites: game setup roster sprites (AddTeamSpriteFrame SetSframe, tiles from +8). The 92 GameSetUpMap bitmap is $2E1FC, in sound93
+    { name: 'GameSetup.anim', folder: 'Graphics', start: 0x02EFA2, end: 0x02F0B0 }, // GameSetupSprites: game setup roster sprites (AddTeamSpriteFrame SetSframe, tiles from +8).
     { name: 'Title1.map.jim', folder: 'Graphics', start: 0x02F0B0, end: 0x031288 }, // Title1Map: 92 Title1Map: TitleScreen backdrop
     { name: 'Title2.map.jim', folder: 'Graphics', start: 0x031288, end: 0x031F10 }, // Title2Map: 92 Title2Map: second TitleScreen bitmap (loaded by TitleScreen)
     { name: 'Title3.anim', folder: 'Graphics', start: 0x031F10, end: 0x0322CE }, // Title3Sprites: the three TitleAnimCallback sprites (SetSframe)
@@ -292,7 +292,7 @@ NHL 93 Asset Extractor
 
 This script extracts assets from NHLPA Hockey 93 ROM files.
 
-Usage: node tools/extractAssets93-1.1.js [options] <rom_file_path>
+Usage: node tools/extractAssets93.js [options] <rom_file_path>
 
 Options:
   -h, --help              Display this help message
@@ -304,8 +304,8 @@ Notes:
     both give the same files. Any other ROM is refused
 
 Examples:
-  node tools/extractAssets93-1.1.js nhlpa93retail.bin
-  node tools/extractAssets93-1.1.js --verbose --output NHL93Assets nhlpa93retail.bin
+  node tools/extractAssets93.js nhlpa93retail.bin
+  node tools/extractAssets93.js --verbose --output NHL93Assets nhlpa93retail.bin
     `);
 }
 
