@@ -15,8 +15,8 @@ GameSetUpMap						;game setup bitmap (setoptions)
 	incbin	..\Extracted\Graphics\GameSetUp.map.jim	;game setup bitmap
 	even
 
-GameSetupSprites					;game setup roster sprites drawn with SetSframe by
-	;AddTeamSpriteFrame, tiles from +8
+GameSetupSprites					;game setup roster sprites drawn with SetSframe by AddTeamSpriteFrame,
+									;tiles from +8
 	incbin	..\Extracted\Graphics\GameSetup.anim
 	even
 Title1Map							;TitleScreen backdrop
@@ -28,12 +28,12 @@ Title2Map							;second TitleScreen bitmap
 Title3Sprites						;the three TitleAnimCallback sprites
 	incbin	..\Extracted\Graphics\Title3.anim
 	even
-TitleLogoSprites					;the four title logo sprites (AddTitleLogoSprites SetSframe);
-	;palette reused by PlayoffScreen
+TitleLogoSprites					;the four title logo sprites (AddTitleLogoSprites SetSframe); palette
+									;reused by PlayoffScreen
 	incbin	..\Extracted\Graphics\TitleLogo.anim
 	even
 ScoutMap							;ScoutingReport background, also PlayoffScreen,
-	;SetupScreen, DrawTeamScreen
+									;SetupScreen, DrawTeamScreen
 	incbin	..\Extracted\Graphics\Scouting.map.jim
 	even
 FramerMap							;Framer tiles and map (AddFramer, print93.asm, hockey93.asm, stats93.asm)
@@ -92,7 +92,7 @@ ScoresMap							;bitmap under the title on the ShowScores "Scores" screen
 	incbin	..\Extracted\Graphics\Scores.map.jim
 	even
 Stanleymap							;Stanley Cup sprites, drawn with SetSframe by
-	;UpdateStanleyCupAnimation (92 used a bitmap)
+									;UpdateStanleyCupAnimation (92 used a bitmap)
 	incbin	..\Extracted\Graphics\Stanley.anim
 	even
 EASNmap2							;the five EASN bitmaps on the Stanley Cup screen

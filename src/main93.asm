@@ -59,8 +59,8 @@
 	org     $90
 	dcb.b   112,$00					; $5E - $18 = 70 bytes
 
-ErrorStatus							;4 longs of zero (16 bytes, ends at $110); nothing
-	;in the source references it
+ErrorStatus							;4 longs of zero (16 bytes, ends at $110); nothing in the source
+									;references it
 	dc.l	0,0,0,0
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

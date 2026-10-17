@@ -9,19 +9,21 @@
 ;	real cmp / exg; fixopcodes.js patches the encoding after assembly.
 
 DecompressGraphicsWithCallback		;DecompressGraphics through remap. The 8 bytes after the bsr are the remap
-	;color table (callbackPtr = their address); returns past them. a2 = tile data, d4 = start char
+									;color table (callbackPtr = their address); returns past them. a2 = tile
+									;data, d4 = start char
 	move.l	(sp),(callbackPtr).w
 	bsr.w	DecompressGraphics
 	addq.l	#8,(sp)					;skip the inline remap table
 	rts
 
 DecompressGraphicsPlain				;clear callbackPtr (plain DMA, no remap) and fall into DecompressGraphics.
-	;a2 = tile data, d4 = start char
+									;a2 = tile data, d4 = start char
 	clr.l	(callbackPtr).w
 
 DecompressGraphics					;send tiles to vram. a2 = data: word count of tiles (0 = none, bit 15 set
-	;= compressed by DecompressBytecode), then the tiles. d4 = start char, returns d4 = end char + 1. Uses
-	;remap with callbackPtr when it is set, else DoDMApro
+									;= compressed by DecompressBytecode), then the tiles. d4 = start char,
+									;returns d4 = end char + 1. Uses remap with callbackPtr when it is set,
+									;else DoDMApro
 	movem.l	d0-d1/a0-a6,-(sp)
 	movea.l	a2,a0					;a0 = compressed data
 	move.w	d4,d1
@@ -44,8 +46,9 @@ DecompressGraphics					;send tiles to vram. a2 = data: word count of tiles (0 = 
 	rts
 
 DecompressBytecode					;unpack a0 into the 256 byte ring buffer at DispAttribCtr and flush each
-	;full buffer to vram d3 (FlushOutputBuffer). The high nibble of each opcode byte picks a handler from
-	;jump_table. Ends on a CopyBackwardReverseMedium code with distance 0. d1 = vram address
+									;full buffer to vram d3 (FlushOutputBuffer). The high nibble of each
+									;opcode byte picks a handler from jump_table. Ends on a
+									;CopyBackwardReverseMedium code with distance 0. d1 = vram address
 	movea.w	#(DispAttribCtr-M68K_RAM),a1	;output buffer
 	movea.w	#(DispAttribCtr-M68K_RAM),a3
 	movea.w	#(callbackPtr-M68K_RAM),a4
@@ -123,7 +126,7 @@ Opcode_CopyBackwardShort			;opcodes 4-7, copy (bits 0-2)+2 bytes from (bits 3-5)
 	addq.w	#1,d2					;distance
 
 CopyBackwardRun						;shared copy loop, d0 = count-1, d2 = distance back. Entered from the
-	;CopyBackward Medium/Long/Extended handlers
+									;CopyBackward Medium/Long/Extended handlers
 	neg.b	d2
 	add.b	d1,d2					;source offset in the ring buffer
 .loop	move.b	(a1,d2.w),(a1,d1.w)	;copy one byte from the earlier output (source walks up)
@@ -142,7 +145,7 @@ Opcode_CopyBackwardMedium			;opcode 8, copy (low 4 bits)+3 bytes, distance = nex
 	bra.s	CopyBackwardRun
 
 Opcode_CopyBackwardLong				;opcode 9, count = 5 bits (low nibble and bit 7 of the next byte)+3,
-	;distance = (next byte bits 0-6)+1
+									;distance = (next byte bits 0-6)+1
 	move.b	(a0),d0
 	asl.b	#1,d0					;x = bit 7 of the next byte
 	move.b	-1(a0),d0
@@ -155,7 +158,7 @@ Opcode_CopyBackwardLong				;opcode 9, count = 5 bits (low nibble and bit 7 of th
 	bra.s	CopyBackwardRun
 
 Opcode_CopyBackwardExtended1		;opcode A, count = 6 bits (low nibble and top 2 bits of the next byte)+3,
-	;distance = (next byte bits 0-5)+1
+									;distance = (next byte bits 0-5)+1
 	move.b	-1(a0),d0
 	asl.w	#8,d0
 	move.b	(a0),d0
@@ -168,7 +171,7 @@ Opcode_CopyBackwardExtended1		;opcode A, count = 6 bits (low nibble and top 2 bi
 	bra.s	CopyBackwardRun
 
 Opcode_CopyBackwardExtended2		;opcode B, count = 7 bits (low nibble and top 3 bits of the next byte)+3,
-	;distance = (next byte bits 0-4)+1
+									;distance = (next byte bits 0-4)+1
 	move.b	-1(a0),d0
 	asl.w	#8,d0
 	move.b	(a0),d0
@@ -180,8 +183,8 @@ Opcode_CopyBackwardExtended2		;opcode B, count = 7 bits (low nibble and top 3 bi
 	addq.w	#1,d2
 	bra.s	CopyBackwardRun
 
-Opcode_CopyBackwardReverseShort		;opcodes C-D, copy (bits 0-1)+2 bytes backwards through the
-	;source, distance (bits 2-4)+1
+Opcode_CopyBackwardReverseShort		;opcodes C-D, copy (bits 0-1)+2 bytes backwards through the source,
+									;distance (bits 2-4)+1
 	move.b	-1(a0),d0
 	andi.w	#3,d0
 	addq.w	#1,d0
@@ -191,7 +194,7 @@ Opcode_CopyBackwardReverseShort		;opcodes C-D, copy (bits 0-1)+2 bytes backwards
 	addq.w	#1,d2
 
 CopyBackwardReverseRun				;shared reverse copy loop (source moves down), d0 = count-1, d2 = distance
-	;back. Entered from the CopyBackwardReverse Medium/Long handlers
+									;back. Entered from the CopyBackwardReverse Medium/Long handlers
 	neg.b	d2
 	add.b	d1,d2
 .loop	move.b	(a1,d2.w),(a1,d1.w)	;copy one byte from the earlier output (source walks down)
@@ -203,7 +206,8 @@ CopyBackwardReverseRun				;shared reverse copy loop (source moves down), d0 = co
 	rts
 
 Opcode_CopyBackwardReverseMedium	;opcode E, reverse copy (low 4 bits)+3 bytes, distance = next data byte.
-	;Distance 0 is the end code: flush what is left and return from DecompressBytecode
+									;Distance 0 is the end code: flush what is left and return from
+									;DecompressBytecode
 	move.b	-1(a0),d0
 	andi.w	#$F,d0
 	addq.w	#2,d0
@@ -229,7 +233,8 @@ Opcode_CopyBackwardReverseLong		;opcode F, reverse copy, count and distance as O
 	bra.s	CopyBackwardReverseRun
 
 FlushOutputBuffer					;send d1 bytes (0 = 256) of the ring buffer a1 to vram d3 and advance d3.
-	;(a4) = callbackPtr: set = remap with that table (jsr (a5)), clear = DoDMApro (jsr (a6))
+									;(a4) = callbackPtr: set = remap with that table (jsr (a5)), clear =
+									;DoDMApro (jsr (a6))
 	movem.l	d0-d1/a0-a1,-(sp)
 	move.w	d1,d0
 	bne.w	.size

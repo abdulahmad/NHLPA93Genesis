@@ -9,7 +9,7 @@
 
 
 VBlank								;main vblank code for game play (vbint target, set by setupice).
-	;Not VBjsr: that is the level 6 vector stub
+									;Not VBjsr: that is the level 6 vector stub
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
 	bne.w	.nograph				;don't screw with vchip cause I'm using it
@@ -39,8 +39,8 @@ VBlank								;main vblank code for game play (vbint target, set by setupice).
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
 
-vb2									;vblank used for palfades only no dmas (vbint target). no
-	;rte here: falls into IRQ7
+vb2									;vblank used for palfades only no dmas (vbint target). no rte here: falls
+									;into IRQ7
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
 	bne.w	.nograph
@@ -51,7 +51,7 @@ vb2									;vblank used for palfades only no dmas (vbint target). no
 	movem.l	(sp)+,d0-d7/a0-a6
 
 IRQ7								;rte only. vb2 falls in; the vector table ($60, $64, ...) points here.
-	;92 also counted Vcount here
+									;92 also counted Vcount here
 	rte
 
 ;------------------------------------
@@ -61,11 +61,11 @@ IRQ7								;rte only. vb2 falls in; the vector table ($60, $64, ...) points her
 ;	DMA list entries (a5): long source, word length in words, word vram.
 
 DumpSprites							;transfer (by dma) scroll stuff, sprite table, vram data in dmalist.
-	;Called from VBlank when dfok was set. Falls into DumpSprites2
+									;Called from VBlank when dfok was set. Falls into DumpSprites2
 	bsr.w	SetScroll2
 
 DumpSprites2						;transfer sprite table, then the dma list. Falls into DoDMAList.
-	;Also called from 00014404
+									;Also called from 00014404
 	movea.w	#(Satt-M68K_RAM),a0		;transfer sprite table
 	move.w	(Sattsize).w,d0
 	move.w	(VSPRITES).w,d1
@@ -84,7 +84,7 @@ DoDMAList							;transfer data from dmalist. Also called from setupice
 	rts
 
 SetScroll2							;write Hscroll / Vscroll to the vdp. Called from DumpSprites.
-	;No tempmap column transfers (92 had them)
+									;No tempmap column transfers (92 had them)
 	move.w	(VSCRLPM).w,d0
 	addq.w	#2,d0
 	bsr.w	Vmaddr
@@ -94,7 +94,7 @@ SetScroll2							;write Hscroll / Vscroll to the vdp. Called from DumpSprites.
 	rts
 
 setvideo							;this is not vblank code but sets up ram for vblank transfers.
-	;Called once per game frame (DoGameFrame, Pausemode, ...)
+									;Called once per game frame (DoGameFrame, Pausemode, ...)
 	movem.l	d0-d7/a0-a6,-(sp)
 .p	btst	#dfok,(disflags).w		;wait for vblank to take the last frame
 	bne.s	.p						;(VBlank clears dfok after DumpSprites)
@@ -125,8 +125,9 @@ setvideo							;this is not vblank code but sets up ram for vblank transfers.
 	rts
 
 updatescroll						;using hpos and vpos set scroll cords; queue rink map rows on the dma list
-	;(a5) when vertical scrolling needs new rows. Called from setvideo. updatescroll:
-	;rows go straight from IceRinkMap to the dma list, no tempmap
+									;(a5) when vertical scrolling needs new rows. Called from setvideo.
+									;updatescroll:
+									;rows go straight from IceRinkMap to the dma list, no tempmap
 	btst	#sfhor,(sflags).w
 	bne.w	rtss
 	moveq	#-$40,d0				;-192+128
@@ -184,7 +185,7 @@ updatescroll						;using hpos and vpos set scroll cords; queue rink map rows on 
 	rts
 
 showref								;draw ref graphics. Called from setvideo.
-	;a5 = dma list, a6 = sprite table, d6 = link counter
+									;a5 = dma list, a6 = sprite table, d6 = link counter
 	bclr	#sf2refref,(sflags2).w
 	beq.w	rtss
 	movea.w	#(RefRamMap-M68K_RAM),a0
@@ -219,8 +220,8 @@ checkfo								;check for face off sprites. Called from setvideo. Falls into che
 	beq.w	rtss
 	movea.w	#(fofdata2-M68K_RAM),a3
 	moveq	#2,d0
-checkfo2							;face off graphics. a3 = face off data (word frame, word flags),
-	;d0 = count-1. a5 = dma list, a6 = sprite table, d6 = link counter
+checkfo2							;face off graphics. a3 = face off data (word frame, word flags), d0 =
+									;count-1. a5 = dma list, a6 = sprite table, d6 = link counter
 .top	move.w	(a3),d4				;frame of this faceoff object
 	bmi.w	.next
 	beq.w	.next					;no frame
@@ -268,8 +269,9 @@ checkfo2							;face off graphics. a3 = face off data (word frame, word flags),
 	rts
 
 showzam								;zamboni. Called from setvideo.
-	;a5 = dma list, a6 = sprite table, d6 = link counter.
-	;draws frame 1, frame 2-4 picked by x, then frame 5 (home score not ahead) or a .ftab frame
+									;a5 = dma list, a6 = sprite table, d6 = link counter.
+									;draws frame 1, frame 2-4 picked by x, then frame 5 (home score not ahead)
+									;or a .ftab frame
 	move.w	(zamx).w,d0
 	bmi.w	rtss					;no zamboni
 	movea.l	#ZamSprites,a0
@@ -304,8 +306,9 @@ showzam								;zamboni. Called from setvideo.
 .ftab	dc.w	5,6,7,8,7,8,7,8,7,8,7,6,5	;frame by (x-$DA)/4
 
 SetSframe							;draw one sprite frame. Called from showzam and from the screen code.
-	;a0 = framelist, d0/d1 = x/y cords, d2 = frame to setup (from 0; 92 counted from 1),
-	;d3 = start char in vram. a6 = sprite table, d6 = link counter. Also saves a0
+									;a0 = framelist, d0/d1 = x/y cords, d2 = frame to setup (from 0; 92
+									;counted from 1), d3 = start char in vram. a6 = sprite table, d6 = link
+									;counter. Also saves a0
 	cmp.w	#MaxSprites,d6			;MaxSprites
 	bge.w	rtss
 	movem.l	d0-d5/a0,-(sp)
@@ -335,9 +338,9 @@ SetSframe							;draw one sprite frame. Called from showzam and from the screen 
 .ex	movem.l	(sp)+,d0-d5/a0			;restore registers
 	rts
 
-showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then
-	;the two crowdframe frames.
-	;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter
+showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then the two
+									;crowdframe frames.
+									;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter
 	movea.l	#CrowdSprites,a1
 	adda.l	4(a1),a1				;a1 = frame offset table
 	move.w	(Hpos).w,d4
@@ -445,9 +448,9 @@ showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then
 ;	SortCords entries).
 ;	DMA list entries (a5): long source, word length in words, word vram.
 
-showclock							;put the game clock in the dma list. Called from setvideo;
-	;returns unless dfclock is set.
-	;a5 = dma list, a6 = sprite table, d6 = link counter
+showclock							;put the game clock in the dma list. Called from setvideo; returns unless
+									;dfclock is set.
+									;a5 = dma list, a6 = sprite table, d6 = link counter
 	bclr	#dfclock,(disflags).w
 	beq.w	rtss
 	cmpi.w	#4,(gsp).w				;no clock update when gsp = 4
@@ -507,10 +510,12 @@ showclock							;put the game clock in the dma list. Called from setvideo;
 
 horoff	equ	197						;subtracted from the screen y in the horizontal rink view (sfhor)
 
-checksso							;do graphics for sso structure: arrows for the two players
-	;when they are off screen.
-	;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter.
-	;returns in sfhor mode (92 drew the scoreboard sso objects there); falls into .ca for player 2
+checksso							;do graphics for sso structure: arrows for the two players when they are
+									;off screen.
+									;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link
+									;counter.
+									;returns in sfhor mode (92 drew the scoreboard sso objects there); falls
+									;into .ca for player 2
 	btst	#sfhor,(sflags).w
 	bne.w	rtss
 	movea.w	#(pads+ffosize-M68K_RAM),a0	;+ffosize
@@ -583,7 +588,7 @@ checksso							;do graphics for sso structure: arrows for the two players
 	dc.w	-$74,$64,1,$0800
 
 setsortcords						;setup sort cord graphics: addframe for the 16 objects in OOlist order.
-	;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter
+									;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter
 	movea.w	#(OOlist-M68K_RAM),a4
 	move.w	#$F,d0					;sortobjs-1
 .top	clr.w	d1					;next object number from OOlist
@@ -595,9 +600,10 @@ setsortcords						;setup sort cord graphics: addframe for the 16 objects in OOli
 	dbf	d0,.top
 	rts
 
-setffo								;draw the 5 objects tied to icerink scrolling (pads
-	;...). Called from setvideo.
-	;when an object made sprites, 2(a3) is added to the x of its first two sprites
+setffo								;draw the 5 objects tied to icerink scrolling (pads ...). Called from
+									;setvideo.
+									;when an object made sprites, 2(a3) is added to the x of its first two
+									;sprites
 	bsr.w	uppads
 	move.w	#4,d0					;ffonum-1
 	movea.w	#(pads-M68K_RAM),a3
@@ -613,7 +619,8 @@ setffo								;draw the 5 objects tied to icerink scrolling (pads
 	rts
 
 uppads								;update the gloves object and the 4 pad objects, and queue new pad labels.
-	;Called from setffo. a5 = dma list. Reads one PadControlBits nibble per pad
+									;Called from setffo. a5 = dma list. Reads one PadControlBits nibble per
+									;pad
 	movea.w	#(glovestruct-M68K_RAM),a0	;pads+(4*ffosize): gloves
 	st	Zpos(a0)					;hidden
 	move.b	(glovecords).w,d0
@@ -656,10 +663,11 @@ uppads								;update the gloves object and the 4 pad objects, and queue new pad
 	dbf	d4,.top
 	rts
 
-QueuePadLabel						;92 uppads. queue the 3 character label of a pad
-	;object (92 drew 2 digits).
-	;Called from uppads. d1 = label code: bits 7-4 and 3-0 are digits ($F = blank), bits 10-8 index
-	;ButtonLabelCharTable. a0 = pad object, a5 = dma list. Falls into RenderSmallFontChar for the last char
+QueuePadLabel						;92 uppads. queue the 3 character label of a pad object (92 drew 2
+									;digits).
+									;Called from uppads. d1 = label code: bits 7-4 and 3-0 are digits ($F =
+									;blank), bits 10-8 index ButtonLabelCharTable. a0 = pad object, a5 = dma
+									;list. Falls into RenderSmallFontChar for the last char
 	lea	ButtonLabelCharTable(pc),a4
 	clr.w	2(a0)					;x offset (setffo adds it to the sprites)
 	move.w	d1,d2
@@ -688,7 +696,7 @@ QueuePadLabel						;92 uppads. queue the 3 character label of a pad
 	moveq	#2,d0					;char slot 2
 
 RenderSmallFontChar					;92 uppads .pd. dma one small font tile to the object's chars.
-	;d2 = ascii char, d0 = char slot, a0 = object (VRchar), a5 = dma list
+									;d2 = ascii char, d0 = char slot, a0 = object (VRchar), a5 = dma list
 	movea.l	#smallfontmap,a3
 	adda.l	4(a3),a3
 	add.w	d2,d2
@@ -711,9 +719,9 @@ ButtonLabelCharTable				;third label character by bits 10-8 of the label code
 	dc.b	' DDLCRX',0
 	ENDIF
 
-addframe							;a3 = cords.l frame/oldframe VRsize VRchar. Project the object
-	;with find3d, then addframe2.
-	;Called from setsortcords and setffo. a5 = dma trans, a6/d6 = sprite att
+addframe							;a3 = cords.l frame/oldframe VRsize VRchar. Project the object with
+									;find3d, then addframe2.
+									;Called from setsortcords and setffo. a5 = dma trans, a6/d6 = sprite att
 	movem.l	d0-d2,-(sp)
 	move.w	(a3),d0					;Xpos
 	move.w	Ypos(a3),d1
@@ -727,9 +735,10 @@ addframe							;a3 = cords.l frame/oldframe VRsize VRchar. Project the object
 	rts
 
 addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 =
-	;sprite table, d6 = link counter.
-	;Also entered from checksso .ca and setupice. frame word: top 5 bits are attribute bits, low 11 the frame
-	;frames come from SpritesMap (offset table at +4) instead of a framelist. attribute is restored on exit
+									;sprite table, d6 = link counter.
+									;Also entered from checksso .ca and setupice. frame word: top 5 bits are
+									;attribute bits, low 11 the frame frames come from SpritesMap (offset
+									;table at +4) instead of a framelist. attribute is restored on exit
 	move.w	attribute(a3),-(sp)		;save attribute
 	movem.l	d0-d5/a0-a2,-(sp)
 	move.w	frame(a3),d4
@@ -844,8 +853,9 @@ addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, 
 	move.w	(sp)+,attribute(a3)		;restore attribute
 	rts
 
-find3d								;input - d0=xfield,d1=yfield,d2=height off field
-	;output - d0=xscreen,d1=yscreen (osflag $4E20 when off screen). Called from addframe
+find3d								;input - d0=xfield,d1=yfield,d2=height off field output -
+									;d0=xscreen,d1=yscreen (osflag $4E20 when off screen). Called from
+									;addframe
 	btst	#sfhor,(sflags).w
 	beq.w	.nhor
 	exg	d0,d1
@@ -874,7 +884,7 @@ find3d								;input - d0=xfield,d1=yfield,d2=height off field
 	rts
 
 updatesound							;move the crowd noise volume (psg noise channel) toward crowdlevel.
-	;Called from periodicevents
+									;Called from periodicevents
 	move.w	(crowdlevel).w,d0
 	asl.w	#3,d0
 	addi.w	#$400,d0
