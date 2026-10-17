@@ -423,13 +423,13 @@ dopass	;pass the puck in passdir, to the best teammate there if any.
 	muls.w	(passspeed).w,d1
 	moveq	#$A,d2
 	asl.l	d2,d1
-	divs.w	#$BB8,d1		;runspeed*15
+	divs.w	#runspeed*15,d1
 	add.w	Yvel(a3),d1
 	move.w	d1,(puckvy).w
 	move.w	(a0,d0.w),d1		;x inc
 	muls.w	(passspeed).w,d1
 	asl.l	d2,d1
-	divs.w	#$BB8,d1
+	divs.w	#runspeed*15,d1
 	add.w	Xvel(a3),d1
 	move.w	d1,(puckvx).w
 	move.w	#$1000,d0
@@ -4688,12 +4688,14 @@ StopNA	;slow player a3 by 150 on each axis, no animation change. Falls in from d
 	clr.w	Yvel(a3)
 	rts
 
+runspeed	equ	200	;acc speed equate for table below
+
 dirtab	;x,y speed for each direction 0-7
-	dc.w	0,200
-	dc.w	141,141
-	dc.w	200,0
-	dc.w	141,-141
-	dc.w	0,-200
-	dc.w	-141,-141
-	dc.w	-200,0
-	dc.w	-141,141
+	dc.w	0,runspeed
+	dc.w	runspeed*1000/1414,runspeed*1000/1414
+	dc.w	runspeed,0
+	dc.w	runspeed*1000/1414,-runspeed*1000/1414
+	dc.w	0,-runspeed
+	dc.w	-runspeed*1000/1414,-runspeed*1000/1414
+	dc.w	-runspeed,0
+	dc.w	-runspeed*1000/1414,runspeed*1000/1414
