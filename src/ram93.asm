@@ -1,8 +1,12 @@
 ;	RAM map. This file names the work RAM variables, the hardware ports and the offsets inside
 ;	the game's structures. It holds equates only and adds nothing to the ROM.
 
-;hardware
+;Variables
 Asound	=	$c00011	;analog sound (VDP_PSG)
+Vdata	=	$c00000	;video ports (VDP_DATA)
+Vctrl	=	Vdata+4
+
+;hardware
 IO_CT1_CTRL	=	$A10008
 IO_CT1_DATA	=	$A10002
 IO_CT1_RX	=	$A1000E
@@ -54,18 +58,50 @@ FIFO_EMPTY	=	9
 refwidth	=	7	;width of ref.map frames
 refheight	=	8	;height of ref.map frames
 
-M68K_RAM	=	$FFFF0000	;start of RAM, also the start of the replay frames
-replayend	=	$FFFFAF54	;end of replay ram (92 computed replaystart+(replaynum*replaysize))
-GoalieStruct	=	$FFFFAFCA	;below varstart
-varstart	=	$FFFFB000	;start of variable space (end of replay)
 Stack	=	$FFFFFFFE	;game stack (Begin, StartPer, Opening2). 92 $fffffdf0
 InitialSP	=	$FFFFF6	;reset vector 0. ($FFFFFFF6, the 32-bit form)
 ;$FFFFFFFF: not used
 
+;sfx / song numbers
+SngTitle	=	$35
+SngEOG	=	$36
+SngScout	=	$37	;scouting report
+SFXsiren	=	$0
+SFXbeep1	=	$1
+SFXbeep2	=	$2
+SFXwhistle	=	$3
+SFXhorn	=	$4
+SFXshotwiff	=	$5
+SFXstdef	=	$6
+SFXpuckget	=	$7
+SFXoooh	=	$8
+SFXhithigh	=	$9
+SFXhitlow	=	$A
+SFXcrowdcheer	=	$B
+SFXcrowdboo	=	$C
+SFX0D	=	$D
+SFX0E	=	$E
+SFXhomewin	=	$F
+SFXpass	=	$10
+SFXshotbh	=	$14
+SFXshotfh	=	$18
+SFXcheck	=	$1C
+SFXplayerwall	=	$20
+SFX21	=	$21
+SFX22	=	$22
+SFX23	=	$23
+SFXpuckbody	=	$24
+SFXpuckpost	=	$25
+SFX26	=	$26
+SFX27	=	$27
+SFXpuckwall1	=	$28
+SFXpuckice	=	$2C
+M68K_RAM	=	$FFFF0000	;start of RAM, also the start of the replay frames
+replayend	=	$FFFFAF54	;end of replay ram (92 computed replaystart+(replaynum*replaysize))
+GoalieStruct	=	$FFFFAFCA	;below varstart
+varstart	=	$FFFFB000	;start of variable space (end of replay)
 Sortobjs	=	16	;number of sorted graphics objects- these are arranged so sprites lower on the screen are of higher priority
 SCstruct	=	$80	;ram for each sortobj
-MaxPen	=	32
-
 	RSSET	varstart
 VSCRLPM	rs.w	1	;location in vram of scroll parameters
 VSPRITES	rs.w	1	;location in vram of sprite attributes
@@ -92,6 +128,15 @@ printy	rs.w	1	;y cordinate for printing
 printa	rs.w	1	;attribute for print characters
 printm	rs.w	1	;map to use (0 = map 1, 4 = map 2, 8 = map 3)
 printfontset	rs.w	1	;printsmall char set (index*2 into smallfontchars).
+;printsmall control codes (byte value = -(ControlCodeJumpTable entry); names match the ControlCode_* routines)
+CC_SetMap	=	$FF	;-1: next byte = map number -> printm
+CC_SetAttribute	=	$FE	;-2: next byte = palette/priority -> printa
+CC_SetX	=	$FD	;-3: next byte = printx
+CC_SetY	=	$FC	;-4: next byte = printy
+CC_AddX	=	$FB	;-5: add next signed byte to printx
+CC_AddY	=	$FA	;-6: add next signed byte to printy
+CC_SetFont	=	$F9	;-7: next byte = char set index
+CC_SetMapAndPosition	=	$F8	;-8: next 4 bytes = attribute, map, x, y
 fodropx	rs.w	1	;face off drop spot x/y
 fodropy	rs.w	1
 recbpr	rs.l	1
@@ -157,6 +202,8 @@ pf2unav	=	2	;player is unavailable (going to/from bench/penalty). 92 bit 4
 pf2lcm	=	3	;line change mode. 92 bit 5
 pf2pen	=	4	;player has caused a penalty. 92 bit 6
 pf2npc	=	5	;no player collision. 92 bit 7
+pflags3	=	$64
+pf3oside	=	0	;player is offsides (offsides is now flagged per team in tmflags bit 4)
 glitch	=	$65	;counter to eliminate quick frame changes (de-glitch graphics)
 pnum	=	$66	;player's team location number 0-22
 weight	=	$67
@@ -171,57 +218,8 @@ rostnum	=	$6F
 spodds	=	$70
 stickhand	=	$71
 endurance	=	$72
-handed	=	$76	;bit0 set is left handed. 92 $74
-pflags3	=	$64
-pf3oside	=	0	;player is offsides (offsides is now flagged per team in tmflags bit 4)
 aggress	=	$73	;and offset
-;sfx / song numbers
-SFXsiren	=	$0
-SFXbeep1	=	$1
-SFXbeep2	=	$2
-SFXwhistle	=	$3
-SFXhorn	=	$4
-SFXshotwiff	=	$5
-SFXstdef	=	$6
-SFXpuckget	=	$7
-SFXoooh	=	$8
-SFXhithigh	=	$9
-SFXhitlow	=	$A
-SFXcrowdcheer	=	$B
-SFXcrowdboo	=	$C
-SFX0D	=	$D
-SFX0E	=	$E
-SFXhomewin	=	$F
-SFXpass	=	$10
-SFXshotbh	=	$14
-SFXshotfh	=	$18
-SFXcheck	=	$1C
-SFXplayerwall	=	$20
-SFX21	=	$21
-SFX22	=	$22
-SFX23	=	$23
-SFXpuckbody	=	$24
-SFXpuckpost	=	$25
-SFX26	=	$26
-SFX27	=	$27
-SFXpuckwall1	=	$28
-SFXpuckice	=	$2C
-SngTitle	=	$35
-SngEOG	=	$36
-SngScout	=	$37	;scouting report
-
-;printsmall control codes (byte value = -(ControlCodeJumpTable entry); names match the ControlCode_* routines)
-CC_SetMap	=	$FF	;-1: next byte = map number -> printm
-CC_SetAttribute	=	$FE	;-2: next byte = palette/priority -> printa
-CC_SetX	=	$FD	;-3: next byte = printx
-CC_SetY	=	$FC	;-4: next byte = printy
-CC_AddX	=	$FB	;-5: add next signed byte to printx
-CC_AddY	=	$FA	;-6: add next signed byte to printy
-CC_SetFont	=	$F9	;-7: next byte = char set index
-CC_SetMapAndPosition	=	$F8	;-8: next 4 bytes = attribute, map, x, y
-Vdata	=	VDP_DATA	;video ports
-Vctrl	=	Vdata+4
-
+handed	=	$76	;bit0 set is left handed. 92 $74
 SortCords	rs.b	Sortobjs*SCstruct
 puckscnum	=	14	;puck is sort obj number 14
 ;$FFFFB066 is SortCords+$1C
@@ -229,13 +227,13 @@ puckscnum	=	14	;puck is sort obj number 14
 ;$FFFFB6CA is SortCords+(13*SCstruct)
 puckx	=	SortCords+(puckscnum*SCstruct)+Xpos
 ;$FFFFB74E is SortCords+(puckscnum*SCstruct)+attribute
-pucky	=	SortCords+(puckscnum*SCstruct)+Ypos
-puckz	=	SortCords+(puckscnum*SCstruct)+Zpos
 puckvx	=	SortCords+(puckscnum*SCstruct)+Xvel
+pucky	=	SortCords+(puckscnum*SCstruct)+Ypos
 puckvy	=	SortCords+(puckscnum*SCstruct)+Yvel
-puckvz	=	SortCords+(puckscnum*SCstruct)+Zvel
+puckz	=	SortCords+(puckscnum*SCstruct)+Zpos
 ;$FFFFB78A is puckx+temp1
 ;$FFFFB7A8 is puckx+nopuck
+puckvz	=	SortCords+(puckscnum*SCstruct)+Zvel
 puckc	=	SortCords+(puckscnum*SCstruct)+newpos
 ;$FFFFB7AD is puckx+pflags2
 Ylist	rs.w	Sortobjs	;list of y cords for each sortobj
@@ -361,6 +359,8 @@ HomeTeam	rs.w	1	;number 0-24
 VisTeam	rs.w	1
 TeamBlockMap	rs.w	47	;map word buffer for CopyTeamBlockMapData and PutTeamBlock.
 PenaltyBufferEnd	rs.w	1
+MaxPen	=	32
+
 PenBuf	rs.w	MaxPen+1	;upto x penalties saved
 Pencntdwn	rs.w	1
 Penaltytimer	rs.w	1
@@ -388,10 +388,10 @@ tmPwrPlays	=	$4	;power plays stat
 tmPenalties	=	$6	;penalties stat
 tmPenmin	=	$8	;penalty min. stat
 tmATOP	=	$A	;attack time of possesion stat. 92 $C
-tmscore	=	$C	;score. 92 $16
-tmline	=	$16	;current line. 92 $18
 tmdata	=	$1E	;team data address. 92 $E
 tmsort	=	$22	;address of first sort obj. 92 $12 (long in 92)
+tmscore	=	$C	;score. 92 $16
+tmline	=	$16	;current line. 92 $18
 tmap	=	$24	;active players on ice 4-6. 92 $1A
 tmgoalie	=	$26	;goalie 1/2/none. 92 $1C
 tmflags	=	$30	;flags. 92 $1E
