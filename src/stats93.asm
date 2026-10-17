@@ -1250,7 +1250,7 @@ PenaltySummaryScreen	;"Penalty Summary": one 3 row
 .0	move.w	d0,(SelectedPlayerIdx).w	;maximum scroll position
 	move.w	(VertLineScrolling).w,d0
 	;intro: scroll back 2 pixels per frame from the end of the list down to the maximum scroll position
-.toend	bsr.w	MenuWaitVblank
+.toend	bsr.w	MenuWaitVblank		;intro scroll loop, once per frame
 	bsr.w	UpdatePenaltyScroll	;set scroll to d0, drawing entries as they come into view
 	move.w	(VertLineScrolling).w,d0
 	subq.w	#2,d0
@@ -1258,7 +1258,7 @@ PenaltySummaryScreen	;"Penalty Summary": one 3 row
 	bge.s	.toend			;not there yet
 	clr.w	(PlayerScrollCtr).w
 	;main loop: Start leaves, up/down held set the scroll speed (-2 up, +2 down pixels per frame)
-.loop	bsr.w	MenuWaitVblank
+.loop	bsr.w	MenuWaitVblank		;main loop, once per frame
 	bsr.w	getpzjoy		;d3 = held buttons of the pad that paused
 	btst	#7,d3
 	bne.w	ExitStatsScreen		;Start
@@ -1268,8 +1268,8 @@ PenaltySummaryScreen	;"Penalty Summary": one 3 row
 	neg.w	d0			;+2
 	btst	#1,d3
 	beq.w	.scroll			;neither: keep the current PlayerScrollCtr (it is cleared at entry boundaries)
-.set	move.w	d0,(PlayerScrollCtr).w
-.scroll	bsr.w	CheckPenaltyScroll
+.set	move.w	d0,(PlayerScrollCtr).w	;store the scroll step (down held: +2)
+.scroll	bsr.w	CheckPenaltyScroll	;apply the step, if any
 	bra.s	.loop
 
 CheckPenaltyScroll	;PenaltySummaryScreen per frame: add PlayerScrollCtr to
@@ -1293,7 +1293,7 @@ UpdatePenaltyScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	bsr.w	DrawScrollArrowsPenalty	;landed on an entry boundary: refresh arrows and stop scrolling
 	clr.w	(PlayerScrollCtr).w
 	;only when the old position was on a boundary does a new entry start to appear
-.0	ext.l	d1
+.0	ext.l	d1			;d1 = old position / 24, remainder in the low word
 	divs.w	#$18,d1
 	swap	d1
 	tst.w	d1
@@ -1302,12 +1302,12 @@ UpdatePenaltyScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	cmp.w	#$16,d0			;22 pixels in: moved up, the entry above is coming into view
 	bne.w	.1
 	bsr.w	DisplayPenaltyLineUp
-.1	move.l	(sp)+,d0
+.1	move.l	(sp)+,d0		;restore the new position quotient/remainder
 	cmp.w	#2,d0			;2 pixels in: moved down, the entry below is coming into view
 	bne.w	.2
 	bsr.w	DisplayPenaltyLineDown
 	;write the vertical scroll value (VertLineScrolling - $50) to VSRAM address 2 with graphics int disabled
-.2	move.w	(disflags).w,-(sp)
+.2	move.w	(disflags).w,-(sp)	;set the vertical scroll (VSRAM)
 	bset	#dfng,(disflags).w	;don't int graphics while the VDP is being addressed
 	movea.l	#Vdata,a0
 	move.l	#$40020010,4(a0)	;VDP command: VSRAM write, address 2
@@ -1456,7 +1456,7 @@ PlayerStatsList	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	clr.w	(DispAttribCtr).w	;sort column: -1 goalie saves, 0-4 G A Pts SOG PIM; start with goals
 	clr.w	(VertLineScrolling).w	;list scrolled to the top
 	;(re)draw the whole screen for team a2: frame, title, team logo, list and arrows
-.redraw	clr.w	(PlayerScrollCtr).w
+.redraw	clr.w	(PlayerScrollCtr).w	;redraw entry: stop any scrolling
 	bsr.w	printz
 	String	$BD,5,1,0
 	moveq	#$1E,d0			;frame 30 wide, 6 high
@@ -1478,11 +1478,11 @@ PlayerStatsList	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.home
 	moveq	#$30,d0
-.home	bsr.w	PutTeamBlock
+.home	bsr.w	PutTeamBlock		;draw the team block, then the list
 	bsr.w	DrawStatsList
 	bsr.w	DrawStatsListArrows
 	;main loop per frame: Start leaves, A switches team, left/right changes the column, up/down scrolls
-.loop	bsr.w	MenuWaitVblank
+.loop	bsr.w	MenuWaitVblank		;input loop, once per frame
 	bsr.w	getpzjoy		;d1 = new presses, d3 = held
 	btst	#7,d3
 	bne.w	ExitStatsScreen		;Start
@@ -1502,10 +1502,10 @@ PlayerStatsList	;stats screen for team a2, d7 = 0 game / 1 playoff.
 	btst	#1,d3
 	beq.w	.scroll			;nothing held: keep the current scroll step
 .set	move.w	d0,(PlayerScrollCtr).w	;down held: scroll step +2
-.scroll	bsr.w	UpdateStatsListScroll
+.scroll	bsr.w	UpdateStatsListScroll	;apply the scroll step, if any
 	bra.s	.loop
 	;change the sort column, limited to -1..4 (-1 = goalie saves), then redraw the list
-.col	add.w	(DispAttribCtr).w,d0
+.col	add.w	(DispAttribCtr).w,d0	;new sort column = old +/- 1
 	cmp.w	#-1,d0
 	blt.s	.scroll
 	cmp.w	#4,d0
@@ -1538,13 +1538,13 @@ UpdateStatsListScroll	;stats screen per frame: scroll 0..SelectedPlayerIdx, stop
 	bsr.w	DrawStatsListArrows	;landed on a row boundary: refresh arrows and stop scrolling
 	clr.w	(PlayerScrollCtr).w
 	;only when the old position was on a row boundary does a new row start to appear
-.0	andi.w	#$F,d1
+.0	andi.w	#$F,d1			;old position within its row
 	bne.w	SetStatsListScrollReg
 	move.w	d0,-(sp)
 	cmp.w	#$E,d0			;14 pixels in: moved up, draw the row above
 	bne.w	.1
 	bsr.w	DrawStatsRowUp
-.1	move.w	(sp)+,d0
+.1	move.w	(sp)+,d0		;restore the pixels into the row
 	cmp.w	#2,d0			;2 pixels in: moved down, draw the row below
 	bne.w	SetStatsListScrollReg
 	bsr.w	DrawStatsRowDown	;falls into the scroll register write
@@ -1584,7 +1584,7 @@ DrawStatsList	;stats screen: column headers (sort column highlighted),
 	bmi.w	.head
 	adda.w	(a1),a1			;skip the goalie header string, a1 = " G" string
 	clr.w	d3			;d3 = column 0-4
-.head	move.w	#$8000,(printa).w
+.head	move.w	#$8000,(printa).w	;next column header, normal attribute
 	cmp.w	(DispAttribCtr).w,d3
 	bne.w	.1
 	move.w	#$C000,(printa).w	;highlight the sort column
@@ -1620,19 +1620,19 @@ DrawStatsList	;stats screen: column headers (sort column highlighted),
 	st	d5			;d5 = $FF: none found
 	bsr.w	GetPlayerCount		;d0 = number of players, loop counts d0 down from count-1
 	bra.w	.next
-.player	btst	d0,d6
+.player	btst	d0,d6			;candidate player d0
 	bne.w	.next			;already used (or filtered out)
 	clr.w	d2
 	move.w	(DispAttribCtr).w,d1
 	bmi.w	.4			;goalie column: key is just the tie-break byte
 	bsr.w	GetStatColumn		;d2 = stat for player d0
-.4	ext.l	d2
+.4	ext.l	d2			;d2 = stat value
 	asl.l	#8,d2			;key = stat * 256 ...
 	movea.l	tmdata(a2),a1		;walk the player records to record d0
 	adda.w	(a1),a1
 	move.w	d0,d1
 	subq.w	#8,a1
-.skip	addq.w	#8,a1
+.skip	addq.w	#8,a1			;next player record
 	adda.w	(a1),a1
 	dbf	d1,.skip
 	move.b	#$FF,d2
@@ -1641,7 +1641,7 @@ DrawStatsList	;stats screen: column headers (sort column highlighted),
 	ble.w	.next			;not better than the best so far
 	move.l	d2,d4
 	move.w	d0,d5
-.next	dbf	d0,.player
+.next	dbf	d0,.player		;next candidate
 	bset	d5,d6			;used
 	move.b	d5,(a3)+		;append the best player to the sorted list
 	bpl.s	.sort			;until none left ($FF)
@@ -1659,8 +1659,8 @@ DrawStatsList	;stats screen: column headers (sort column highlighted),
 	bcc.w	.9
 	move.w	d0,(VertLineScrolling).w	;clamp the current scroll to the new maximum
 	;draw the 6 visible rows starting at the current scroll position
-.9	moveq	#5,d4
-.ent	move.w	(VertLineScrolling).w,d3
+.9	moveq	#5,d4			;6 rows
+.ent	move.w	(VertLineScrolling).w,d3	;draw loop, d4 = row offset 5 to 0
 	lsr.w	#4,d3
 	add.w	d4,d3			;Satt row d3
 	bsr.w	DrawStatsRow
@@ -1704,7 +1704,7 @@ DrawStatsRow	;stats screen row d3 of Satt: rank, name, then either the
 	bmi.w	.goalie
 	;skaters: the 5 stat columns (G A Pts SOG PIM), 4 digits each, sort column highlighted
 	clr.w	d5
-.col	clr.w	d0
+.col	clr.w	d0			;next stat column d5
 	move.b	(a4),d0
 	move.w	d5,d1			;column
 	bsr.w	GetStatColumn
@@ -1715,7 +1715,7 @@ DrawStatsRow	;stats screen row d3 of Satt: rank, name, then either the
 	cmp.w	(DispAttribCtr).w,d5
 	bne.w	.1
 	move.w	#$C000,(printa).w	;highlighted sort column
-.1	bsr.w	print
+.1	bsr.w	print			;print the number
 	addq.w	#1,d5
 	cmp.w	#5,d5
 	bne.s	.col
@@ -1749,14 +1749,14 @@ DrawStatsRow	;stats screen row d3 of Satt: rank, name, then either the
 	beq.w	.3			;no shots: percentage is just d2 (0)
 	mulu.w	#$64,d2
 	divu.w	d3,d2			;saves * 100 / shots
-.3	move.w	d2,d0
+.3	move.w	d2,d0			;d2 = save % (or 0)
 	moveq	#4,d1
 	bsr.w	PushNumberWidth
 	addq.w	#2,(printx).w
 	bsr.w	print			;save %
 	bsr.w	printz
 	String	$25			;'%'
-.x	rts
+.x	rts				;done
 
 GetStatColumn	;d2 = stat column d1 for player d0. Goalies only have PIM
 	;(column 4, mapped to 1 via btst d1,#6)
@@ -1894,7 +1894,7 @@ StatsReport	;(was GameStatisticsScreen) "Game Statistics": both
 	bsr.w	PutTeamBlock
 	bsr.w	DisplayStats		;the table of team totals
 	;wait for Start (d1 bit 7 = new press), then leave
-.loop	bsr.w	WaitVSyncAndReadInput
+.loop	bsr.w	WaitVSyncAndReadInput	;wait for a new button press
 	btst	#7,d1
 	bne.w	ExitStatsScreen
 	bra.s	.loop
@@ -1943,7 +1943,7 @@ PrintStatValue	;92 DisplayStats .ss. print TeamStatTextTbl entry a0 for team a2 
 	cmpi.w	#$A,(a0)
 	beq.w	.0			;offset $A (attack time) is formatted as a time instead
 	bsr.w	PushNumber
-.0	cmpi.w	#$A,(a0)
+.0	cmpi.w	#$A,(a0)		;attack time: format d0 as minutes:seconds
 	bne.w	.1
 	bsr.w	PushTime
 .1	bsr.w	appstring		;append the value text
@@ -1965,12 +1965,12 @@ PrintStatValue	;92 DisplayStats .ss. print TeamStatTextTbl entry a0 for team a2 
 	move.w	(a2,d1.w),d1
 	beq.w	.2			;second is 0: no divide
 	divu.w	d1,d0
-.2	bsr.w	PushNumber
+.2	bsr.w	PushNumber		;percentage text
 	bsr.w	appstring
 	bsr.w	appendz
 	String	$25,$29			;'%)'
 	;centre: printx -= half the text length, then print the string a1 (mesarea)
-.x	movea.w	a3,a1
+.x	movea.w	a3,a1			;a1 = the built string (mesarea)
 	move.w	(a1),d0			;length word
 	lsr.w	#1,d0
 	sub.w	d0,(printx).w
@@ -2024,7 +2024,7 @@ CrowdMeterScreen	;"Crowd Meter": current, average
 	bsr.w	PutTeamBlock
 	bsr.w	PrintCrowdMeter		;the three level rows
 	;wait for Start (d1 bit 7 = new press), then leave
-.loop	bsr.w	WaitVSyncAndReadInput
+.loop	bsr.w	WaitVSyncAndReadInput	;wait for a new button press
 	btst	#7,d1
 	bne.w	ExitStatsScreen
 	bra.s	.loop
@@ -2079,7 +2079,7 @@ SetupScreen	;common start for the stats screens: blank, 40 cell mode, load
 	move.w	(Framercset).w,d4
 	movea.l	#FramerMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
-	dc.l	$91234567,$89ABCDEF	;inline parameters read by the decompressor (not code)
+	dc.l	$91234567,$89ABCDEF	;inline 8 byte color remap table (skipped on return, not code)
 	move.w	(smallfontchars).w,d4
 	bsr.w	AddSmallFont
 	;draw the whole ScoutMap bitmap (map at ScoutMap + its second long), size from its first two words, on map 3 at 0,0
@@ -2113,11 +2113,11 @@ SetupScreen	;common start for the stats screens: blank, 40 cell mode, load
 	clr.w	d4
 	moveq	#$D,d5			;copy palette lines 0, 2 and 3
 	bsr.w	dobitmap
-	;load the second small font set after the first (d4 = next free char from dobitmap)
+	;load the second small font set after the bitmap tiles (dobitmap's DecompressGraphicsPlain leaves d4 = end char + 1)
 	move.w	d4,(smallfont2chars).w
 	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
-	dc.l	$D1234567,$89ABCDEF	;inline parameters read by the decompressor (not code)
+	dc.l	$D1234567,$89ABCDEF	;inline 8 byte color remap table (skipped on return, not code)
 	;blank map 2 (64x32 cells of char $7FF) from 0,0
 	bsr.w	printz
 	String	$FE,0,0			;map 2, attribute 0, x 0 y 0
@@ -2132,32 +2132,37 @@ SetupScreen	;common start for the stats screens: blank, 40 cell mode, load
 ExitStatsScreen	;leave a stats screen: back to 32 cell mode, reload the
 	;rink, font and framer graphics, rebuild the rink map and player colours
 	bsr.w	forceblack
+	;video mode: back to 32 cell mode (undoes SetupScreen)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	movea.l	#Vdata,a0
 	move.w	#$8C00,4(a0)		;VDP reg 12: 32 cell mode
-	move.w	#5,(Map3col).w
+	move.w	#5,(Map3col).w		;map 3 is 32 cells wide again
 	move.w	(sp)+,(disflags).w
-	bset	#df32c,(disflags).w
+	bset	#df32c,(disflags).w	;32 cell mode on
+	;reload the tiles the stats screen overwrote: rink, small font (with its own remap) and framer
 	move.w	(rinkvrcset).w,d4
 	movea.l	#IceRinkMap+8,a2
 	bsr.w	DecompressGraphicsPlain
 	move.w	(smallfontchars).w,d4
 	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
-	dc.l	$43434567,$89ABCDEF
+	dc.l	$43434567,$89ABCDEF	;inline 8 byte color remap table (skipped on return, not code)
 	move.w	(Framercset).w,d4
 	bsr.w	AddFramer
+	;restore the palettes; setplayercolors returns to the caller
 	jsr	(setupIceRinkPal).l
 	jmp	(setplayercolors).l
 
 TimeoutMenu	;pause menu "Timeout" for team a2: uses the
 	;team's timeout (tmflags bit 2, so Pausemode shows PauseText2 from now on), prints "Timeout" in a frame
 	;with the team name, re-energizes both teams and waits $78 frames
+	;the Timeout item is going away: both menu state words (menuitem, menuitem+2) are decremented
 	subq.w	#1,(menuitem).w
 	subq.w	#1,(menuitem+2).w
 	move.l	#PauseText2,(menulist).l	;pause menu without Timeout
 	bset	#tmftimeout,tmflags(a2)		;timeout used
+	;frame at x 5, y $C, then "Timeout" and the team name (centred at x $11) inside it
 	bsr.w	printz
 	String	$BD,5,$C
 	moveq	#$16,d0			;frame 22 wide, 6 high
@@ -2171,72 +2176,81 @@ TimeoutMenu	;pause menu "Timeout" for team a2: uses the
 	lsr.w	#1,d0
 	sub.w	d0,(printx).w
 	bsr.w	print
+	;both teams get full energy
 	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	reenergizeteam
 	adda.w	#tmsize,a2
 	bsr.w	reenergizeteam
-	moveq	#$78,d0
+	moveq	#$78,d0			;wait $78 vblanks or until a button press; waitx returns to the caller
 	bra.w	waitx
 
 SelectGoalieMenu	;92 Pausemode .go. pick team a2's goalie from a
 	;list (0 = no goalie). Start/C confirms; a change is stored in tmgoalie(a2)
 	;and setpersonel is called
+	;save the pause menu state; menuitem = selected row (0 = "no goalie", n = goalie n-1),
+	;menuitem+2 = number of goalies (last row) while this list is up
 	move.w	(menuitem).w,-(sp)
 	move.w	(menuitem+2).w,-(sp)
 	bsr.w	GetGoalieCount
 	move.w	d0,(menuitem+2).w
+	;frame at x 4, y $C: 24 wide, 3 + goalie count rows high
 	bsr.w	printz
 	String	$BD,4,$C,0
 	moveq	#$18,d0
 	moveq	#3,d1
 	add.w	(menuitem+2).w,d1
 	bsr.w	Framer
+	;start on the team's current goalie (tmgoalie + 1, a negative tmgoalie gives row 0)
 	move.w	tmgoalie(a2),d0
 	bpl.w	.0
 	moveq	#-1,d0
-.0	addq.w	#1,d0
+.0	addq.w	#1,d0			;row = goalie index + 1 (0 = no goalie)
 	move.w	d0,(menuitem).w
-.loop	bsr.w	DrawGoalieSelectList
+	;menu loop: redraw, wait for a new press (d1)
+.loop	bsr.w	DrawGoalieSelectList	;menu loop: redraw the list
 	bsr.w	WaitVSyncAndReadInput
 	btst	#7,d1
-	bne.w	.done
+	bne.w	.done			;Start confirms
 	btst	#5,d1
-	bne.w	.done
+	bne.w	.done			;C confirms
 	btst	#1,d1
-	beq.w	.up
+	beq.w	.up			;down not pressed
 	move.w	(menuitem).w,d0
 	addq.w	#1,d0
 	cmp.w	(menuitem+2).w,d0
-	bgt.s	.loop
+	bgt.s	.loop			;already on the last row
 	move.w	d0,(menuitem).w
-.up	btst	#0,d1
+.up	btst	#0,d1			;up pressed: move the selection up
 	beq.s	.loop
 	subq.w	#1,(menuitem).w
 	bpl.s	.loop
-	clr.w	(menuitem).w
+	clr.w	(menuitem).w		;stop at the first row
 	bra.s	.loop
-.done	move.w	(menuitem).w,d0
+	;confirm: d0 = chosen goalie index (row - 1, -1 = no goalie)
+.done	move.w	(menuitem).w,d0		;confirmed
 	subq.w	#1,d0
 	bpl.w	.set
 	cmpi.w	#-1,tmgoalie(a2)
-	blt.w	.x
-.set	move.w	d0,tmgoalie(a2)
-	jsr	setpersonel
-.x	move.w	(sp)+,(menuitem+2).w
+	blt.w	.x			;"no goalie" chosen and tmgoalie is already below -1: no change
+.set	move.w	d0,tmgoalie(a2)		;store the chosen goalie
+	jsr	setpersonel		;set the players on ice of team a2 according to its registers
+.x	move.w	(sp)+,(menuitem+2).w	;restore the pause menu state
 	move.w	(sp)+,(menuitem).w
 	rts
 
 DrawGoalieSelectList	;92 Pausemode .gnum. draw the goalie list, row menuitem highlighted,
 	;each goalie with his two digit number
+	;rows from y $D, d0 = row 0..count (row 0 = "no goalie"), d1 = loop counter (menuitem+2 + 1 rows)
 	move.w	#$D,(printy).w
 	move.w	(menuitem+2).w,d1
 	moveq	#0,d0
-.row	move.w	#5,(printx).w
+.row	move.w	#5,(printx).w		;next list row d0
 	move.w	#$A000,(printa).w
 	cmp.w	(menuitem).w,d0
 	bne.w	.1
-	move.w	#$8000,(printa).w
-.1	bsr.w	printz
+	move.w	#$8000,(printa).w	;selected row uses attribute $8000
+	;clear the row with 22 spaces
+.1	bsr.w	printz			;blank the row with the chosen attribute
 	dc.w	$0018
 	dc.b	'                      '
 	tst.w	d0
@@ -2246,29 +2260,31 @@ DrawGoalieSelectList	;92 Pausemode .gnum. draw the goalie list, row menuitem hig
 	dc.w	$000C
 	dc.b	'no goalie',0
 	bra.w	.next
-.player	movea.l	tmdata(a2),a1
+	;goalie row: a1 = player record number d0-1 of team a2 (records are a length word + 8 bytes each)
+.player	movea.l	tmdata(a2),a1		;goalie row: find the player record
 	adda.w	(a1),a1
 	move.w	d0,d2
 	subq.w	#1,d2
 	bra.w	.3
-.skip	adda.w	(a1),a1
+.skip	adda.w	(a1),a1			;next player record
 	addq.w	#8,a1
-.3	dbf	d2,.skip
+.3	dbf	d2,.skip		;repeat d0-1 times
 	move.w	#8,(printx).w
-	bsr.w	print
+	bsr.w	print			;goalie name at x 8
+	;number: the first record byte as two BCD digits ('0' + nibble) in TextBuffer, printed as a 2 char string at x 5
 	move.b	(a1),d2
 	lsr.b	#4,d2
 	addi.b	#$30,d2
-	move.b	d2,(TextBuffer).w
+	move.b	d2,(TextBuffer).w	;high nibble
 	move.b	(a1),d2
 	andi.b	#$F,d2
 	addi.b	#$30,d2
-	move.b	d2,(TextBuffer+1).w
+	move.b	d2,(TextBuffer+1).w	;low nibble
 	movea.w	#(mesarea-M68K_RAM),a1
-	move.w	#4,(a1)
+	move.w	#4,(a1)			;string length word (2 chars + 2)
 	move.w	#5,(printx).w
 	bsr.w	print
-.next	addq.w	#1,(printy).w
+.next	addq.w	#1,(printy).w		;next map row and list row
 	addq.w	#1,d0
 	dbf	d1,.row
 	rts
@@ -2278,9 +2294,9 @@ GetGoalieCount	;d0 = goalies on team a2 (nibbles in the team data word
 	movem.l	d1/a0,-(sp)
 	movea.l	tmdata(a2),a0
 	adda.w	$A(a0),a0
-	move.w	(a0),d1
+	move.w	(a0),d1			;word with one nibble per goalie slot
 	clr.w	d0
-.count	addq.w	#1,d0
+.count	addq.w	#1,d0			;count nibbles by shifting 4 bits out until the word is 0
 	asl.w	#4,d1
 	bne.s	.count
 	movem.l	(sp)+,d1/a0
@@ -2292,7 +2308,7 @@ GetForwardCount	;d0 = forwards on team a2 (high nibble of team data byte 3 at
 	movea.l	tmdata(a2),a0
 	adda.w	8(a0),a0
 	move.b	3(a0),d0
-	lsr.w	#4,d0
+	lsr.w	#4,d0			;high nibble = forward count
 	andi.w	#$F,d0
 	movem.l	(sp)+,a0
 	rts
@@ -2300,23 +2316,23 @@ GetForwardCount	;d0 = forwards on team a2 (high nibble of team data byte 3 at
 GetPlayerCount	;d0 = players on team a2 (records until a length word of 2)
 	movem.l	a0,-(sp)
 	movea.l	tmdata(a2),a0
-	adda.w	(a0),a0
+	adda.w	(a0),a0			;a0 = first player record
 	clr.w	d0
-loopthroughplayers
+loopthroughplayers	;one pass per record: advance by the record's length word plus 8 bytes
 	addq.w	#1,d0
 	adda.w	(a0),a0
 	addq.w	#8,a0
-	cmpi.w	#2,(a0)
+	cmpi.w	#2,(a0)			;a length word of 2 marks the end (no more records)
 	bne.s	loopthroughplayers
 	movem.l	(sp)+,a0
 	rts
 
 WaitVSyncAndReadInput	;92 Pausemode .rjoy. wait for vcount to change and a new button press (d1)
 	move.w	(vcount).w,d1
-.wait	cmp.w	(vcount).w,d1
-	beq.s	.wait
-	bsr.w	getpzjoy
-	bsr.w	nodiag
+.wait	cmp.w	(vcount).w,d1		;has vcount changed?
+	beq.s	.wait			;spin until the vblank counter changes
+	bsr.w	getpzjoy		;d1 = new presses, d3 = held
+	bsr.w	nodiag			;drop diagonal presses
 	tst.b	d1
-	beq.s	WaitVSyncAndReadInput
+	beq.s	WaitVSyncAndReadInput	;nothing new pressed: wait again
 	rts

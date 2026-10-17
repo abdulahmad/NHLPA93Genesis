@@ -3675,32 +3675,32 @@ puckfaceoff2	;face off control logic and general setup for action
 	movea.l	(sp)+,a3
 	bsr.w	ResetAndSelectPlayers
 	bsr.w	printz
-	String	$FF,0,0
+	String	$FF,0,0			;inline string data: print the face off box (control codes)
 	moveq	#$36,d0			;8+46
 	tst.w	(fox).w
 	bpl.w	.fok
 	move.w	#$BE,d0			;(18*8)+46
-.fok	move.w	d0,(fodropx).w
+.fok	move.w	d0,(fodropx).w		;drop box x: left or right depending on the sign of fox
 	subi.w	#$2E,d0
 	asr.w	#3,d0
-	move.w	d0,(printx).w
+	move.w	d0,(printx).w		;print column = (x - 46) / 8
 	moveq	#$5C,d0			;(3*8)+68
 	move.w	d0,(fodropy).w
 	subi.w	#$44,d0
 	asr.w	#3,d0
-	move.w	d0,(printy).w
+	move.w	d0,(printy).w		;print row = (y - 68) / 8
 	move.w	(ExtraChars).w,d4	;space for faceoff map
-	movea.l	#FaceOffMap,a0
+	movea.l	#FaceOffMap,a0		;a0/a1 = the two bitmaps found via the offsets at the start
 	movea.l	a0,a1
 	movea.l	a0,a2
 	adda.l	(a2)+,a0
 	adda.l	(a2)+,a1
-	clr.w	d0
+	clr.w	d0			;d0/d1 = 0, d2/d3 = $C/$A (dobitmap size arguments)
 	clr.w	d1
 	moveq	#$C,d2
 	moveq	#$A,d3
 	moveq	#0,d5
-	bsr.w	dobitmap
+	bsr.w	dobitmap		;draw the face off map
 	move.w	d4,(faceoffvrcset).w	;space for faceoff sprites
 	movea.l	#FaceOffSprites+8,a2	;replaces /DoDMA
 	bsr.w	DecompressGraphicsPlain
@@ -3708,28 +3708,28 @@ puckfaceoff2	;face off control logic and general setup for action
 	bne.w	.nol
 	bsr.w	printsmallz
 	String	CC_AddY,$A,CC_SetAttribute,4
-	moveq	#$C,d0
+	moveq	#$C,d0			;frame the line names box (Framer args d0 = $C, d1 = 3)
 	moveq	#3,d1
 	bsr.w	Framer
-	move.w	(tmstruct+tmline).w,d0
+	move.w	(tmstruct+tmline).w,d0	;d0/d1 = current lines of home / visitors
 	move.w	(awtmstruct+tmline).w,d1
-	btst	#gmdir,(gmode).w
+	btst	#gmdir,(gmode).w	;order them like the screen (gmdir: home team goes up)
 	bne.w	.nx
 	exg	d0,d1
 .nx	bsr.w	printsmallz
 	String	$FB,1,$FA,$FE
 	movea.l	#linelist,a1
-	bsr.w	Fprintsmall
+	bsr.w	Fprintsmall		;first line name (d0)
 	addq.w	#4,(printx).w
 	move.w	d1,d0
 	movea.l	#linelist,a1
-	bsr.w	Fprintsmall
+	bsr.w	Fprintsmall		;second line name (d1)
 .nol	move.w	#$78,d0
-	bsr.w	randomd0
-	addi.w	#$B4,d0
+	bsr.w	randomd0		;0-$77
+	addi.w	#$B4,d0			;$B4-$12B frames until the drop
 	move.w	d0,temp1(a3)		;time for puck drop
 	move.w	#$18,(palcount).w
-	movea.l	#fofdata2,a0
+	movea.l	#fofdata2,a0		;second half of the big face off sprite data
 	move.w	#1,(a0)
 	move.w	#$8000,2(a0)
 	move.w	#4,4(a0)
@@ -3738,21 +3738,22 @@ puckfaceoff2	;face off control logic and general setup for action
 	move.w	#$8000,$A(a0)
 	btst	#gmdir,(gmode).w
 	bne.w	.nfl
-	eori.w	#$800,2(a0)
+	eori.w	#$800,2(a0)		;flip attribute bit $800 (two of the sprites) when gmdir is clear
 	eori.w	#$800,6(a0)
-.nfl	move.w	#-1,(fodir1).w
+.nfl	move.w	#-1,(fodir1).w		;no pull directions yet
 	move.w	#-1,(fodir2).w
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts
 .nna	subq.w	#1,temp1(a3)		;(92 sub d7)
-	bpl.w	updatefaceoff
-	bra.w	Endfaceoff
+	bpl.w	updatefaceoff		;still counting down: update the drop animation
+	bra.w	Endfaceoff		;temp1 expired: drop the puck
 
-.apl
+.apl	;formation: 3 rows (8 bytes each) selected by 6 - active players (6, 5, 4 skaters on ice);
+	;each byte = .ptab slot, indexed by position (0 goalie, 1-2 defense, 3/5 wings, 4 center)
 	dc.b	0,1,2,3,4,5,6,0
 	dc.b	0,1,5,3,4,2,0,0
 	dc.b	0,3,5,1,4,0,0,0
-.ptab
+.ptab	;x,y of each formation slot, relative to the face off spot (mirrored for the other end)
 	dc.w	0,-250
 	dc.w	-35,-50
 	dc.w	35,-50
@@ -3762,42 +3763,42 @@ puckfaceoff2	;face off control logic and general setup for action
 	dc.w	0,-60
 
 ResetAndSelectPlayers	;92 puckfaceoff2 (inline). c1playernum/c2playernum = -1, then changeplayer for each human team. Called from puckfaceoff2
-	move.w	#-1,(c1playernum).w
+	move.w	#-1,(c1playernum).w	;nobody controlled yet
 	move.w	#-1,(c2playernum).w
 	tst.w	(cont1team).w
-	beq.w	.nt1
-	clr.w	d4
+	beq.w	.nt1			;controller 1 not in use
+	clr.w	d4			;d4 = controller 0 (0/2 for changeplayer)
 	bsr.w	changeplayer
 .nt1	tst.w	(cont2team).w
-	beq.w	.nt2
-	moveq	#2,d4
+	beq.w	.nt2			;controller 2 not in use
+	moveq	#2,d4			;d4 = 2: second controller
 	bsr.w	changeplayer
 .nt2	rts
 
 updatefaceoff	;a3 = puck. Drop animation frame from temp1; at 0 erases the faceoff box (92 did that in Endfaceoff). Entered from puckfaceoff2
-	move.w	temp1(a3),d0
-	beq.w	.erase
+	move.w	temp1(a3),d0		;frames left until the drop
+	beq.w	.erase			;0: remove the face off box
 	addq.w	#6,d0
-	lsr.w	#3,d0
+	lsr.w	#3,d0			;(temp1 + 6) / 8
 	cmp.w	#2,d0
-	bgt.w	rtss
+	bgt.w	rtss			;more than ~2 steps from the drop: keep the current frame
 	neg.w	d0
-	addi.w	#$A,d0
+	addi.w	#$A,d0			;frame $A - d0 (8 to 10) as the drop approaches
 	move.w	d0,(fofdata).w		;+8
 	rts
-.erase	bclr	#dffaceoff,(disflags).w
+.erase	bclr	#dffaceoff,(disflags).w	;face off display off
 	bsr.w	printz
 	String	$BF,0,0
 	move.w	(fodropx).w,d0
 	subi.w	#$2E,d0
 	asr.w	#3,d0
-	move.w	d0,(printx).w
+	move.w	d0,(printx).w		;same print column as in puckfaceoff2
 	moveq	#$64,d0			;(4*8)+68, overwritten (as in 92)
 	move.w	(fodropy).w,d0
 	subi.w	#$44,d0
 	asr.w	#3,d0
 	move.w	d0,(printy).w
-	moveq	#$C,d0
+	moveq	#$C,d0			;eraser: d0/d1 = x/y size, d2 = fill char word
 	moveq	#$D,d1			;(92 10)
 	move.w	#$7FF,d2		;(92 moveq #1,d2)
 	bra.w	eraser
@@ -3805,118 +3806,118 @@ updatefaceoff	;a3 = puck. Drop animation frame from temp1; at 0 erases the faceo
 Endfaceoff	;drop the puck: pick the faceoff winner and send the puck off. Entered from puckfaceoff2
 	move.w	#SFXpuckice+3,-(sp)		;SFXpuckice
 	bsr.w	sfx
-	bclr	#sf2faceoff,(sflags2).w
+	bclr	#sf2faceoff,(sflags2).w	;face off over
 	move.w	(ExtraChars).w,d4
 	movea.l	#RefsMap+8,a2
 	bsr.w	DecompressGraphicsPlain	;ref cam chars
-	bclr	#sf2drec,(sflags2).w
-	bclr	#gmclock,(gmode).w
+	bclr	#sf2drec,(sflags2).w	;replay recording may start
+	bclr	#gmclock,(gmode).w	;start the game clock
 	bclr	#pf2fight,pflags2(a3)
 	bset	#sf3fo,(sflags3).w		;flag the faceoff drop
 	move.w	(fodir1).w,d3		;figure out who won face off
-	move.w	#$800,d4
+	move.w	#$800,d4		;d4 = y velocity added to the puck: +$800 ...
 	movea.l	#.ftab,a0
-	movea.w	#(fofdata2-M68K_RAM),a1
+	movea.w	#(fofdata2-M68K_RAM),a1	;a1 = the two face off sprite records
 	moveq	#$10,d2
-	move.w	(a1),d1
-	sub.b	-1(a0,d1.w),d2
+	move.w	(a1),d1			;first record's word 0 (index into .ftab, 1-based)
+	sub.b	-1(a0,d1.w),d2		;d2 = $10 - .ftab[first] ...
 	move.w	4(a1),d1
-	add.b	-1(a0,d1.w),d2
+	add.b	-1(a0,d1.w),d2		;... + .ftab[second]
 	moveq	#$21,d0
-	bsr.w	randomd0
+	bsr.w	randomd0		;random 0-$20
 	cmp.b	d0,d2
-	bls.w	.p1won
-	addq.w	#4,a1
-.p1won	btst	#3,2(a1)
+	bls.w	.p1won			;d2 <= random: stay with the first record
+	addq.w	#4,a1			;else use the second record
+.p1won	btst	#3,2(a1)		;bit 3 of the winner's attribute word ($800 flips)
 	beq.w	.pos
-	move.w	(fodir2).w,d3
-	neg.w	d4
-.pos	move.w	d3,d0
+	move.w	(fodir2).w,d3		;visiting player won: use his pull direction ...
+	neg.w	d4			;... and push the puck the other way (-$800)
+.pos	move.w	d3,d0			;d0 = winner's pull direction; bit 3 set = no joystick
 	btst	#3,d0
 	bne.w	.nojoy
 	andi.w	#7,d0
 	move.w	(HVcount).l,d1		;hvcount
 	andi.w	#3,d1
-	bne.w	.nj2
-.nojoy	moveq	#5,d0
+	bne.w	.nj2			;3 in 4: use his direction as is
+.nojoy	moveq	#5,d0			;no direction (or 1 in 4): random 0-4 ...
 	bsr.w	randomd0
 	subq.w	#2,d0
-	andi.w	#7,d0
+	andi.w	#7,d0			;... minus 2, wrapped to 0-7
 	tst.w	d4
 	bmi.w	.nj2
-	eori.w	#4,d0
-.nj2	asl.w	#2,d0
+	eori.w	#4,d0			;home won: turn the direction around
+.nj2	asl.w	#2,d0			;4 bytes per dirtab entry
 	movea.l	#dirtab,a0
 	move.w	(a0,d0.w),d1
 	asl.w	#5,d1
-	move.w	d1,Xvel(a3)
+	move.w	d1,Xvel(a3)		;puck x velocity = dirtab x * 32
 	move.w	2(a0,d0.w),d1
 	asl.w	#5,d1
 	add.w	d4,d1
-	move.w	d1,Yvel(a3)
+	move.w	d1,Yvel(a3)		;puck y velocity = dirtab y * 32 +- $800
 	move.w	#$800,d0
 	bsr.w	randomd0
-	move.w	d0,Zvel(a3)
-	clr.w	(puckz).w
-	bclr	#pfnc,pflags(a3)
+	move.w	d0,Zvel(a3)		;random upward velocity 0-$7FF
+	clr.w	(puckz).w		;puck now at ice level (visible)
+	bclr	#pfnc,pflags(a3)	;collisions on
 	move.l	#pnorm,d0			;pnorm
 	bra.w	assreplace
 
-.ftab	dc.b	0,8,16,0,8,16
+.ftab	dc.b	0,8,16,0,8,16		;1-based lookup (-1(a0,d1)) by the sprite records' frame word
 
 pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames since last call
-	bclr	#pfna,pflags(a3)
+	bclr	#pfna,pflags(a3)	;new assignment? (clears the flag)
 	beq.w	.nna
-	clr.w	temp1(a3)
+	clr.w	temp1(a3)		;findpc timer: run at once
 	move.w	#$78,temp2(a3)		;temp2 = still puck timer
 .nna	movea.w	#(puckcross-M68K_RAM),a1	;table for puck crossing lines
 	sub.w	d7,2(a1)		;sub elapse frames from time til crossing
 	sub.w	d7,6(a1)
-	sub.w	d7,temp1(a3)
+	sub.w	d7,temp1(a3)		;every ~5 frames recompute the crossings
 	bpl.w	.0
 	addq.w	#5,temp1(a3)
 	bsr.w	findpc
 .0	move.w	(puckc).w,d0
-	bmi.w	.nothandled
+	bmi.w	.nothandled		;loose puck
 	asl.w	#scsize,d0			;scsize
 	movea.w	#(SortCords-M68K_RAM),a2
-	adda.w	d0,a2
+	adda.w	d0,a2			;a2 = the puck carrier
 	bsr.w	a2touchpuck
-	move.l	a2,-(sp)
-	bsr.w	GetHot
+	move.l	a2,-(sp)		;GetHot takes the structure address on the stack
+	bsr.w	GetHot			;d0/d1 = hot spot of the carrier
 	add.w	(a2),d0			;bunjy the puck towards the hot spot on player a2
 	sub.w	(a3),d0
-	asr.w	#2,d0
+	asr.w	#2,d0			;move a quarter of the distance per call
 	add.w	d0,(a3)
 	add.w	Ypos(a2),d1
 	sub.w	Ypos(a3),d1
 	asr.w	#2,d1
 	add.w	d1,Ypos(a3)
-	move.w	Xvel(a2),Xvel(a3)
+	move.w	Xvel(a2),Xvel(a3)	;puck takes the carrier's velocity
 	move.w	Yvel(a2),Yvel(a3)
-.nothandled	bsr.w	puckIChk
-	bsr.w	ChkOffsides
+.nothandled	bsr.w	puckIChk		;icing check
+	bsr.w	ChkOffsides		;offsides check
 	btst	#gmclock,(gmode).w		;loose puck that has not moved
 	bne.w	.z			;(Xpos = $1C, Ypos = $20) for 120 calls
 	tst.w	(puckc).w		;calls AddPenalty2 with d0 = 6
-	bpl.w	.mv
+	bpl.w	.mv			;carried: reset the timer
 	move.w	(a3),d0
 	cmp.w	OldXpos(a3),d0
-	bne.w	.mv
+	bne.w	.mv			;moved in x
 	move.w	Ypos(a3),d0
 	cmp.w	OldYpos(a3),d0
-	bne.w	.mv
-	move.l	#6,d0
+	bne.w	.mv			;moved in y
+	move.l	#6,d0			;argument for AddPenalty2
 	subq.w	#1,temp2(a3)
-	bpl.w	.np
-	bsr.w	AddPenalty2
+	bpl.w	.np			;timer still running
+	bsr.w	AddPenalty2		;puck lay still too long
 .np	bra.w	.z
 .mv	move.w	#$78,temp2(a3)		;reset still puck timer
-.z	tst.b	Zvel(a3)
+.z	tst.b	Zvel(a3)		;puck in the air or moving up/down?
 	bne.w	checkpuckcoll
 	tst.w	Zpos(a3)
 	bne.w	checkpuckcoll
-	bsr.w	puckunflip
+	bsr.w	puckunflip		;on the ice and not rising: stop the spin
 	bra.w	checkpuckcoll
 
 ;======================================================================
@@ -3940,91 +3941,91 @@ pucknorm	;assignment for puck most of the time. a3 = puck, d7 = elapse frames si
 ;	iflags: ifcgl 0, ifdir 1, ifok 2; icingPlayer = +1.
 
 ChkOffsides	;check for offsides penalty. a3 = puck. Flags the whole team (tmflags bit 4; 92 flagged each player). Called from pucknorm
-	btst	#gmoffs,(gmode).w
+	btst	#gmoffs,(gmode).w	;offsides rule on?
 	beq.w	rtss
 	movea.w	#(tmstruct-M68K_RAM),a1
 	lea	tmsize(a1),a2		;team 2 (tmsize)
-	bsr.w	ClearOffsidesIfAllPlayers
+	bsr.w	ClearOffsidesIfAllPlayers	;first drop the flag of any team with no one over the line
 	exg	a1,a2
 	bsr.w	ClearOffsidesIfAllPlayers
 	move.w	#Blueline-4,d0			;blueline-4 (92 move blueline,d0 / sub #4,d0)
 	cmp.w	Ypos(a3),d0
-	bgt.w	.neg
+	bgt.w	.neg			;puck y < Blueline-4: go to the bottom line test
 	cmp.w	OldYpos(a3),d0		;OldYpos: puck crossed the top line this frame?
-	ble.w	rtss
-	addi.w	#$A,d0
-	btst	#gmdir,(gmode).w
+	ble.w	rtss			;no crossing
+	addi.w	#$A,d0			;d0 = Blueline+6: players must be past this
+	btst	#gmdir,(gmode).w	;pick which team is attacking this end
 	beq.w	.t0
 	exg	a2,a1
-.t0	moveq	#5,d2
+.t0	moveq	#5,d2			;loop over the 6 players of team a2
 	movea.w	tmsort(a2),a0		;tmsort: first player of the team
 .0	tst.w	position(a0)			;position: skip off ice
 	bmi.w	.1
 	cmp.w	Ypos(a0),d0
-	bge.w	.1
+	bge.w	.1			;not past the line
 	bset	#tmfoside,tmflags(a2)		;player past the line: team offsides
 	rts
-.1	adda.w	#SCstruct,a0
+.1	adda.w	#SCstruct,a0		;next player
 	dbf	d2,.0
 	rts
 
-.neg	neg.w	d0
+.neg	neg.w	d0			;mirrored test for the bottom blue line (d0 = -(Blueline-4))
 	cmp.w	Ypos(a3),d0
 	blt.w	rtss
 	cmp.w	OldYpos(a3),d0		;OldYpos: puck crossed the bottom line this frame?
-	bge.w	rtss
+	bge.w	rtss			;no crossing
 	subi.w	#$A,d0
 	btst	#gmdir,(gmode).w
 	bne.w	.t1
 	exg	a2,a1
-.t1	moveq	#5,d2
+.t1	moveq	#5,d2			;loop over the 6 players of team a2
 	movea.w	tmsort(a2),a0
 .2	tst.w	position(a0)
 	bmi.w	.3
 	cmp.w	Ypos(a0),d0
-	ble.w	.3
+	ble.w	.3			;not past the line
 	bset	#tmfoside,tmflags(a2)		;team offsides
 	rts
-.3	adda.w	#SCstruct,a0
+.3	adda.w	#SCstruct,a0		;next player
 	dbf	d2,.2
 	rts
 
 ClearOffsidesIfAllPlayers	;92 updateplayers pf3oside clear. a2 = team struct. Clears the team offsides flag (tmflags bit 4) once no skater on ice is past the blue line ($58, sign by pfgoal). Called twice from ChkOffsides
 	btst	#tmfoside,tmflags(a2)
-	beq.w	rtss
+	beq.w	rtss			;team is not flagged: nothing to clear
 	movea.w	tmsort(a2),a0
-	moveq	#5,d1
+	moveq	#5,d1			;loop over the 6 players
 .top	tst.w	position(a0)			;position: off ice keeps the last d0
 	bmi.w	.next
-	move.w	Ypos(a0),d0
+	move.w	Ypos(a0),d0		;d0 = y toward the goal this player shoots at
 	btst	#pfgoal,pflags(a0)
 	bne.w	.next
 	neg.w	d0
 .next	adda.w	#SCstruct,a0
 	cmp.w	#Blueline,d0		;(blueline)
-	dbgt	d1,.top
+	dbgt	d1,.top			;stop at the first player past the blue line
 	bgt.w	rtss			;someone still past the line
-	bclr	#tmfoside,tmflags(a2)
+	bclr	#tmfoside,tmflags(a2)	;all clear: remove the team offsides flag
 	rts
 
 a2offsides	;player a2 touched the puck: offsides penalty if his team is flagged and the puck is past the blue line. Called from a2touchpuck
-	btst	#gmoffs,(gmode).w
+	btst	#gmoffs,(gmode).w	;offsides rule on?
 	beq.w	rtss
-	move.w	(pucky).w,d0
+	move.w	(pucky).w,d0		;puck y toward the goal a2 shoots at
 	btst	#pfgoal,pflags(a2)
 	bne.w	.0
 	neg.w	d0
 .0	cmp.w	#Blueline,d0		;(92 cmp blueline,d0)
-	blt.w	rtss
-	movea.w	#(tmstruct-M68K_RAM),a0
+	blt.w	rtss			;puck not in the attack zone
+	movea.w	#(tmstruct-M68K_RAM),a0	;a0 = a2's team struct
 	btst	#pfteam,pflags(a2)
 	beq.w	.1
 	adda.w	#tmsize,a0
 .1	btst	#tmfoside,tmflags(a0)		;team offsides flag
 	beq.w	rtss
-	btst	#gmhl,(gmode).w
+	btst	#gmhl,(gmode).w		;hilight (replay) mode: no penalty
 	bne.w	rtss
-	exg	a2,a3
+	exg	a2,a3			;AddPenalty works on a3
 	move.l	#PenOffsides,d0
 	bsr.w	AddPenalty
 	exg	a2,a3
@@ -4032,32 +4033,32 @@ a2offsides	;player a2 touched the puck: offsides penalty if his team is flagged 
 
 a2touchpuck	;player a2 touches puck. Look for penalties/offsides/other junk. Called from pucknorm, puckstick and others
 	move.w	(a2),(ltx).w		;Xpos
-	move.w	Ypos(a2),(lty).w
+	move.w	Ypos(a2),(lty).w	;remember where and by whom the puck was last touched
 	move.w	SCnum(a2),(ltplayer).w
 	movea.w	#(tmstruct-M68K_RAM),a0	;keep the last three touches per team
 	btst	#pfteam,pflags(a2)
 	beq.w	.t
-	lea	tmsize(a0),a0
+	lea	tmsize(a0),a0		;a0 = a2's team struct
 .t	clr.w	d0
-	move.b	pnum(a2),d0
+	move.b	pnum(a2),d0		;d0 = player number
 	cmp.w	$18(a0),d0		;same player as the last touch: no change
 	beq.w	.same
 	bclr	#tmflast,tmflags(a0)		;tmflags bit 3 set: overwrite the last touch only
 	bne.w	.st
 	move.w	$1A(a0),$1C(a0)		;shift the touch list down
 	move.w	$18(a0),$1A(a0)
-.st	move.w	d0,$18(a0)
+.st	move.w	d0,$18(a0)		;newest touch
 	cmp.w	$1C(a0),d0
 	bne.w	.same
 	st	$1C(a0)			;player was also the third touch: drop it
-.same	bclr	#sf2shot,(sflags2).w
+.same	bclr	#sf2shot,(sflags2).w	;a touch ends the "shot was taken" state
 	bsr.w	a2offsides
 	btst	#ifok,(iflags).w		;ifok
-	beq.w	.notice
+	beq.w	.notice			;no icing possible: only update the icing state
 	btst	#ifcgl,(iflags).w		;ifcgl
-	beq.w	.notice
+	beq.w	.notice			;puck has not crossed the goal line
 	tst.w	position(a2)
-	beq.w	.notice
+	beq.w	.notice			;a goalie touch: no icing call (state is reset below)
 	btst	#ifdir,(iflags).w		;ifdir
 	bne.w	.up
 	btst	#pfgoal,pflags(a2)
@@ -4067,48 +4068,48 @@ a2touchpuck	;player a2 touches puck. Look for penalties/offsides/other junk. Cal
 	asl.w	#scsize,d0			;scsize
 	move.l	a3,-(sp)
 	movea.w	#(SortCords-M68K_RAM),a3
-	adda.w	d0,a3
+	adda.w	d0,a3			;a3 = the player who iced the puck
 	move.w	#PenIcing,d0
 	bsr.w	AddPenalty
 	movea.l	(sp)+,a3
 	rts
 .up	btst	#pfgoal,pflags(a2)
 	beq.s	.icing
-.notice	clr.b	(iflags).w
-	move.b	SCnum+1(a2),(icingPlayer).w
+.notice	clr.b	(iflags).w		;start over: clear the icing state
+	move.b	SCnum+1(a2),(icingPlayer).w	;remember who touched it last
 	move.w	(pucky).w,d0
 	btst	#pfgoal,pflags(a2)
 	beq.w	.0
 	bset	#ifdir,(iflags).w		;ifdir
 	neg.w	d0
-.0	bmi.w	rtss
+.0	bmi.w	rtss			;puck y negative in a2's frame (probably his own half): not ifok
 	move.w	(tmstruct+tmap).w,d0
-	sub.w	(awtmstruct+tmap).w,d0
+	sub.w	(awtmstruct+tmap).w,d0	;d0 = home active players - visitors
 	btst	#pfteam,pflags(a2)
 	beq.w	.1
 	neg.w	d0
-.1	bmi.w	rtss
+.1	bmi.w	rtss			;a2's team is short handed: no icing
 	bset	#ifok,(iflags).w		;ifok
 	rts
 
 puckIChk	;check for icing of puck penalty. Called from pucknorm
 	btst	#ifok,(iflags).w		;ifok
-	beq.w	rtss
+	beq.w	rtss			;icing not possible
 	btst	#ifcgl,(iflags).w		;ifcgl
-	bne.w	rtss
+	bne.w	rtss			;already crossed the goal line
 	tst.w	(puckc).w
-	bpl.w	rtss
+	bpl.w	rtss			;someone has the puck
 	move.w	#Blueline+goalline,d0		;blueline+goalline
 	btst	#ifdir,(iflags).w		;ifdir
 	bne.w	.0
-	neg.w	d0
+	neg.w	d0			;other direction: d0 = -(goal line y)
 	cmp.w	(pucky).w,d0
-	bgt.w	.chkx
+	bgt.w	.chkx			;puck y reached the goal line
 	rts
 .0	cmp.w	(pucky).w,d0
-	bgt.w	rtss
+	bgt.w	rtss			;goal line not reached yet
 .chkx	cmpi.w	#$2C,(puckx).w		;|puckx| <= $2C at the goal line
-	bgt.w	.set
+	bgt.w	.set			;outside the goal mouth: crossed the line
 	cmpi.w	#-$2C,(puckx).w
 	blt.w	.set
 	bclr	#ifok,(iflags).w		;ifok cleared: no icing
@@ -4121,88 +4122,89 @@ puckunflip	;stop spinning puck. a3 = puck. Entered from pucknothing, called from
 	blt.w	.k
 	cmpi.w	#$18,SPAnum(a3)		;6*4
 	bge.w	.k
-	eori.w	#2,facedir(a3)
-.k	ori.w	#4,facedir(a3)
+	eori.w	#2,facedir(a3)		;SPAnum 8..$17: flip bit 1 of facedir before leveling
+.k	ori.w	#4,facedir(a3)		;facedir bit 2 set
 	clr.w	SPAnum(a3)
 	st	SPAcnt(a3)
 	rts
 
 puckflip	;start puck spinning. a3 = puck, d0 bit 0 = flip. Called from checkgoal, wallcoll and others
 	andi.w	#1,d0
-	eor.w	d0,facedir(a3)
-	andi.w	#3,facedir(a3)
+	eor.w	d0,facedir(a3)		;toggle facedir bit 0 when d0 bit 0 is set
+	andi.w	#3,facedir(a3)		;keep 0-3
 	st	SPAcnt(a3)
 	move.w	#SPApflip,d1
-	bra.w	SetSPA
+	bra.w	SetSPA			;start the puck flip animation
 
 puckshadow	;assignment for puck shadow. a3 = puck shadow (struct after the puck)
 	cmpi.w	#SPFpuck,frame(a3)
 	bne.w	.siren			;shadow turns into siren on goals
-	move.w	Xpos-SCstruct(a3),(a3)
+	move.w	Xpos-SCstruct(a3),(a3)	;copy the puck's x/y (the object just before this one)
 	move.w	Ypos-SCstruct(a3),Ypos(a3)
-	clr.w	Zpos(a3)
+	clr.w	Zpos(a3)		;shadow lies on the ice
 	moveq	#Ypos,d0
 	btst	#sfhor,(sflags).w
 	beq.w	.nhor
-	moveq	#Xpos,d0
-.nhor	addq.w	#1,(a3,d0.w)
+	moveq	#Xpos,d0		;horizontal screen: offset along x instead of y
+.nhor	addq.w	#1,(a3,d0.w)		;shadow is drawn 1 unit off the puck
 	rts
 
 .siren	tst.w	frame(a3)
-	beq.w	rtss
+	beq.w	rtss			;no frame: nothing to show
 	clr.w	(a3)			;Xpos
 	move.w	#$12C,Ypos(a3)		;Ypos 300
 	move.w	#$E,Zpos(a3)		;Zpos 14
 	tst.w	Ypos-SCstruct(a3)
-	bpl.w	.s0
-	move.w	#$8000,attribute(a3)
+	bpl.w	.s0			;puck y >= 0: siren at the top, as set
+	move.w	#$8000,attribute(a3)	;puck y < 0: siren at y -300, attribute $8000 (flipped)
 	neg.w	Ypos(a3)
 	subq.w	#1,Zpos(a3)
 .s0	rts
 
 findpc	;find puck crossing lines: calculate when puck will cross goalline (if at all). Called from pucknorm
+	;fills puckcross (2 entries of x word, time word): top goal line first, then bottom
 	movem.l	d0-d4/a1-a2,-(sp)
 	movea.w	#(puckcross-M68K_RAM),a1
 	move.w	#Sideline,d1			;sideline
 	move.w	#Blueline+goalline,d4		;blueline+goalline
-	bsr.w	.calc
+	bsr.w	.calc			;top goal line (y = d4)
 	neg.w	d4
-	bsr.w	.calc
+	bsr.w	.calc			;bottom goal line (y = -d4)
 	movem.l	(sp)+,d0-d4/a1-a2
 	rts
-.calc	move.w	d4,d0
-	sub.w	(pucky).w,d0
+.calc	move.w	d4,d0			;in: d4 = goal line y, d1 = sideline x, a1 = entry
+	sub.w	(pucky).w,d0		;d0 = distance in y to the goal line
 	tst.w	(puckvy).w
-	beq.w	.nocross
+	beq.w	.nocross		;no y velocity: never crosses
 	move.w	d0,d2
 	swap	d2
 	clr.w	d2
-	asr.l	#4,d2
-	divs.w	(puckvy).w,d2
-	bmi.w	.nocross
+	asr.l	#4,d2			;d2 = distance << 12 (32 bit)
+	divs.w	(puckvy).w,d2		;d2 = time = distance / y velocity
+	bmi.w	.nocross		;moving away from that line
 	move.w	d2,2(a1)		;time until crossing in frames
 	muls.w	(puckvx).w,d0
-	divs.w	(puckvy).w,d0
+	divs.w	(puckvy).w,d0		;d0 = x travelled by then = distance * vx / vy
 	bvs.w	.nocross
-	add.w	(puckx).w,d0
+	add.w	(puckx).w,d0		;d0 = predicted x at the goal line
 	cmp.w	d1,d0
 	blt.w	.o1
-	neg.w	d0
+	neg.w	d0			;x >= sideline: fold it back (d0 = 3*sideline - d0)
 	add.w	d1,d0
 	add.w	d1,d0
 	add.w	d1,d0
 .o1	neg.w	d1
 	cmp.w	d1,d0
 	bgt.w	.o2
-	neg.w	d0
+	neg.w	d0			;x <= -sideline: same fold with d1 = -sideline
 	add.w	d1,d0
 	add.w	d1,d0
 	add.w	d1,d0
-.o2	neg.w	d1
-	move.w	d0,(a1)
+.o2	neg.w	d1			;restore d1 = +sideline
+	move.w	d0,(a1)			;predicted x
 	bra.w	.next
-.nocross	move.w	#-1,2(a1)
-.next	addq.w	#4,a1
+.nocross	move.w	#-1,2(a1)		;time -1 = no crossing
+.next	addq.w	#4,a1			;next entry
 	rts
 
 skateto	;a0 = extra routine for collision avoidance, d0/d1 = x/y cord to skate to, d7 = elapse frames

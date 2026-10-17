@@ -76,44 +76,45 @@ PenaltyManager	;called periodically. d7 = elapsed time since last call
 
 chkprogress	;control progress of ref and game control thru penalty events. When the stop delay runs out and a penalty with minutes is in PenBuf, switch to the horizontal rink for the player to enter the penalty box
 	btst	#gmpen,(gmode).w
-	beq.w	rtss
+	beq.w	rtss			;no penalty stoppage in progress
 	tst.w	(Pencntdwn).w
-	bmi.w	InProgress
+	bmi.w	InProgress		;countdown finished earlier: run the ref sequence
 	sub.w	d7,(Pencntdwn).w
-	bpl.w	rtss
-	bclr	#gmpendel,(gmode).w
+	bpl.w	rtss			;still waiting out the stop delay
+	bclr	#gmpendel,(gmode).w	;delayed call (if any) is over
 	movea.w	#(PenBuf-M68K_RAM),a0
-.find	tst.w	(a0)+			;look for any penalty with minutes
-	beq.w	rtss
+.find	tst.w	(a0)+			;look for any penalty with minutes (next PenBuf entry; 0 = end)
+	beq.w	rtss			;end of list: no penalty with minutes, stay in the vertical view
 	clr.w	d0
-	move.b	-2(a0),d0
+	move.b	-2(a0),d0		;d0 = penalty number
 	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
 	tst.b	1(a1)			;penalty minutes
 	beq.s	.find
+	;a penalty with minutes: show the horizontal view so the player can enter the penalty box
 	bset	#sf2drec,(sflags2).w		;switch to horizontal mode for player to enter penalty box
-	move.w	(vcount).w,-(sp)
+	move.w	(vcount).w,-(sp)	;keep vcount across the fade to black
 	bsr.w	forceblack
 	move.w	(sp)+,(vcount).w
-	bsr.w	SetHor
+	bsr.w	SetHor			;horizontal rink graphics
 	move.w	(ExtraChars).w,d4	;load horizontal ref tiles
 	movea.l	#RefMap2+8,a2
 	bsr.w	DecompressGraphicsPlain
-	bsr.w	NewTicker
+	bsr.w	NewTicker		;ticker score of another game, if the clock allows
 	bsr.w	NewTicker3
-	st	(puckc).w
-	movea.w	#(puckx-M68K_RAM),a3
+	st	(puckc).w		;puck carrier = none
+	movea.w	#(puckx-M68K_RAM),a3	;a3 = puck object
 	move.l	#pnothing,d0			;pnothing
-	bsr.w	assinsert
+	bsr.w	assinsert		;puck does nothing during the sequence
 	move.w	#$1C20,temp1(a3)		;temp1 = 120*60
 
-	st	(RefStep).w
+	st	(RefStep).w		;ref idle until the first frame is pushed
 	clr.w	(RefCnt).w
 	bsr.w	UpdatePA
 	move.w	#$32,(RefCnt).w		;50
 	clr.w	d0
 	bsr.w	PushRef			;ref frame 0
-	move.w	#$18,(palcount).w	;24
+	move.w	#$18,(palcount).w	;24, fade in
 	rts
 
 InProgress	;ref in progress-- update graphics and stats and penalty information. Takes the last PenBuf entry: the first pass logs a penalty with minutes and sends the player to the box, later passes wait until he is off the ice and drop the entry. When PenBuf is empty, recount players and go to the face off. Entered from chkprogress
@@ -200,75 +201,77 @@ InProgress	;ref in progress-- update graphics and stats and penalty information.
 	andi.w	#$EFFF,d3
 	cmp.w	d3,d2
 	bne.s	.ctop
-	bset	#6,tmpdst(a1,d1.w)		;coincidental
+	bset	#6,tmpdst(a1,d1.w)		;coincidental (both players)
 	bset	#6,tmpdst(a2,d0.w)
 .nocoin	movem.l	a0,-(sp)		;add player to penalty box list
 	lea	$9A(a2),a0
 	moveq	#$18,d1
 .pl	tst.b	(a0)+			;find end of list
 	dbmi	d1,.pl
-	move.b	d0,-1(a0)
-	st	(a0)
+	move.b	d0,-1(a0)		;append the roster offset
+	st	(a0)			;and a new -1 terminator
 	movem.l	(sp)+,a0
 
 	move.w	#apenalty,d0			;apenalty
-	bsr.w	assreplace
+	bsr.w	assreplace		;a3 = the player: send him to the penalty box
 	movem.l	(sp)+,d0-d1/a1-a4
-	bsr.w	SetPA
-	bsr.w	USBoard
+	bsr.w	SetPA			;ref animation and message for this penalty
+	bsr.w	USBoard			;update the penalty box lines on the score board
 	bra.w	.ex
-.sa2	clr.w	(a0)
+.sa2	clr.w	(a0)			;no player involved: drop the entry
 	btst	#sfhor,(sflags).w
-	bne.w	.top
+	bne.w	.top			;horizontal mode: go on with the next entry
 	bsr.w	SetPA
 	bra.w	.ex
 
-.exit	movea.w	#(tmstruct-M68K_RAM),a2
+.exit	movea.w	#(tmstruct-M68K_RAM),a2	;PenBuf empty: recount the players on ice for both teams
 	bsr.w	coinsearch
 	adda.w	#tmsize,a2
 	bsr.w	coinsearch
 	
-	bclr	#gmpen,(gmode).w
-	movea.w	#(puckx-M68K_RAM),a3
+	bclr	#gmpen,(gmode).w	;penalty stoppage is over
+	movea.w	#(puckx-M68K_RAM),a3	;a3 = puck object
 	move.w	#pfaceoff,d0			;pfaceoff
-	bsr.w	assreplace
-.ex	movem.l	(sp)+,d0/a0-a3
+	bsr.w	assreplace		;go to the face off
+.ex	movem.l	(sp)+,d0/a0-a3		;restore and return
 	rts
 
 coinsearch	;a2 = team. Clears tmpdst bit 5, counts players kept off the ice by penalties (coincidental and bit 4 times do not count, at most 2) and sets tmap. Called twice from InProgress
-	moveq	#6,d1
+	moveq	#6,d1			;d1 = players on ice, starts at 6
 	moveq	#(maxros-1)*2,d0			;(MaxRos-1)*2
-.top	tst.w	tmpdst(a2,d0.w)
-	ble.w	.nap
-	bclr	#5,tmpdst(a2,d0.w)
+.top	tst.w	tmpdst(a2,d0.w)		;loop over the roster (d0 = player*2, counting down)
+	ble.w	.nap			;not in the penalty box
+	bclr	#5,tmpdst(a2,d0.w)	;clear the "just called" bit
 	btst	#6,tmpdst(a2,d0.w)		;coincidental
 	bne.w	.nap
 	btst	#4,tmpdst(a2,d0.w)
 	bne.w	.nap
 	cmp.w	#4,d1			;never below 4 players
 	beq.w	.nap
-	subq.w	#1,d1
-.nap	subq.w	#2,d0
+	subq.w	#1,d1			;this player keeps the team one man short
+.nap	subq.w	#2,d0			;next player
 	bpl.s	.top
-	move.w	d1,tmap(a2)
+	move.w	d1,tmap(a2)		;players on ice
 	rts
 
-checkfornewpen	;look for new penalty (entered thru addpenalty(2)). Stops play at once for penalties without minutes or when the guilty team does not have the puck, otherwise starts a delayed penalty call
+checkfornewpen	;look for new penalty (entered thru addpenalty(2)). Stops play at once for penalties without minutes or when the guilty player's team has the puck, otherwise (other team or loose puck) starts a delayed penalty call
 	btst	#sfhor,(sflags).w
-	bne.w	rtss
+	bne.w	rtss			;horizontal mode: nothing to call
 	movea.w	#(PenBuf-M68K_RAM),a0
-.next	tst.w	(a0)+
+.next	tst.w	(a0)+			;next PenBuf entry (0 = end)
 	beq.w	rtss
 	btst	#gmpen,(gmode).w
-	bne.w	.iscalled
+	bne.w	.iscalled		;stoppage already running: just mark it called
 	clr.w	d0
-	move.b	-2(a0),d0
+	move.b	-2(a0),d0		;d0 = penalty number
 	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
 	tst.b	1(a1)			;time for penalty
-	beq.w	.callit
+	beq.w	.callit			;no minutes (whistle, goal, icing ...): stop play now
+	;penalty with minutes: puckc and the player number are both compared as (number - 6), so
+	;the sign tells the team; different teams (or a loose puck) = delayed call, play goes on
 	move.w	(puckc).w,d0
-	bmi.w	.dc
+	bmi.w	.dc			;loose puck
 	subq.w	#6,d0
 	move.b	-1(a0),d1		;player penalized
 	ext.w	d1
@@ -276,31 +279,33 @@ checkfornewpen	;look for new penalty (entered thru addpenalty(2)). Stops play at
 	eor.w	d1,d0
 	bmi.w	.dc			;delayed penalty call
 
-.callit	bsr.w	Stop4Pen
+.callit	bsr.w	Stop4Pen		;stop the clock and blow the whistle
 
-.iscalled	bset	#7,-1(a0)
-	bne.s	.next
+.iscalled	bset	#7,-1(a0)	;mark the entry as called (InProgress logs it)
+	bne.s	.next			;was already marked: next entry
 	clr.w	d0
 	move.b	-2(a0),d0		;penalty called
 	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
 	clr.w	d1
 	move.b	(a1),d1			;delay for stopping action
-	asl.w	#5,d1
+	asl.w	#5,d1			;delay * 32 frames
 	cmp.w	(Pencntdwn).w,d1
 	ble.s	.next
-	move.w	d1,(Pencntdwn).w
+	move.w	d1,(Pencntdwn).w	;keep the longest delay of the called penalties
 	bra.s	.next
 
-.dc	bset	#gmpendel,(gmode).w
-	bne.s	.next
+.dc	bset	#gmpendel,(gmode).w	;delayed penalty: remember it
+	bne.s	.next			;already signalled
 	move.w	#$2C,d0			;delayed penalty (92 used $24)
 	bsr.w	SetPA
 	bra.s	.next
 
 Stop4Pen	;a0 = penaltylist penalty +2. Stop the clock, set the face off spot from the penalty type, blow the whistle. Also entered from puckfaceoff+38
-	bset	#gmclock,(gmode).w
-	bne.w	.skipfo
+	bset	#gmclock,(gmode).w	;stop the clock
+	bne.w	.skipfo			;already stopped: keep the face off spot
+	;d0/d1 = face off spot x/y (puck coordinates): center ice for a goal, last touch for 6 (OOP),
+	;the puck for other stoppages, and for icing the puck x with y = +-600 (clamped below)
 	clr.w	d0
 	clr.w	d1
 	cmpi.b	#$E,-2(a0)		;goal (92 used 6): center ice
@@ -313,18 +318,20 @@ Stop4Pen	;a0 = penaltylist penalty +2. Stop the clock, set the face off spot fro
 	move.w	(pucky).w,d1
 	cmpi.b	#$C,-2(a0)		;icing (92 used 8)
 	bne.w	.noticing
-	move.l	a3,-(sp)
+	move.l	a3,-(sp)		;icing: the sign of y depends on the pfgoal flag of the icing player
 	movea.w	#(SortCords-M68K_RAM),a3
 	move.b	-1(a0),d1
 	ext.w	d1
 	asl.w	#scsize,d1			;scsize
-	adda.w	d1,a3
+	adda.w	d1,a3			;a3 = the icing player
 	move.w	#$258,d1		;600
-	btst	#pfgoal,pflags(a3)
+	btst	#pfgoal,pflags(a3)	;which end he shoots at
 	movea.l	(sp)+,a3
 	beq.w	.noticing
 	neg.w	d1
-.noticing	movem.w	d0-d1,-(sp)
+	;clamp the spot to the face off dots: |x| <= 70; if y is within 40 of the end line
+	;(beyond +-166) use the end zone dot at y +-206 and x +-70
+.noticing	movem.w	d0-d1,-(sp)		;keep the unclamped x/y (x sign is tested below)
 	cmp.w	#$46,d0			;.xspot = 70
 	blt.w	.0
 	move.w	#$46,d0
@@ -345,13 +352,13 @@ Stop4Pen	;a0 = penaltylist penalty +2. Stop the clock, set the face off spot fro
 	tst.w	(sp)
 	bpl.w	.3
 	neg.w	d0
-.3	move.w	d0,(fox).w
+.3	move.w	d0,(fox).w		;store the face off spot
 	move.w	d1,(foy).w
 	addq.w	#4,sp
-	bsr.w	limitfo
+	bsr.w	limitfo			;pull it away from walls near any penalized player's end
 
 .skipfo	clr.w	(Pencntdwn).w
-	bset	#gmpen,(gmode).w
+	bset	#gmpen,(gmode).w	;penalty stoppage
 	move.w	#SFXwhistle,-(sp)		;whistle (92 used 10)
 	bsr.w	sfx
 	move.w	#$A,d0			;whistle (92 used $26)
@@ -360,23 +367,23 @@ Stop4Pen	;a0 = penaltylist penalty +2. Stop the clock, set the face off spot fro
 limitfo	;limit face off to 5-20 feet from walls of rink. Checks every player in PenBuf
 	movem.l	d0-d1/a0-a1,-(sp)
 	movea.w	#(PenBuf-M68K_RAM),a0
-.loop	bsr.w	.lf
-	addq.w	#2,a0
+.loop	bsr.w	.lf			;adjust for this entry's player
+	addq.w	#2,a0			;next entry
 	tst.w	(a0)
 	bne.s	.loop
 	movem.l	(sp)+,d0-d1/a0-a1
 	rts
 
-.lf	move.b	1(a0),d0
+.lf	move.b	1(a0),d0		;player of this entry (bit 7 = called flag masked off)
 	andi.w	#$7F,d0
 	asl.w	#scsize,d0			;scsize
 	movea.w	#(SortCords-M68K_RAM),a1
-	move.w	#$58,d1
+	move.w	#$58,d1			;limit +-88 on foy, by the player's pfgoal side
 	btst	#pfgoal,pflags(a1,d0.w)
 	bne.w	.0
 	neg.w	d1
 	cmp.w	(foy).w,d1
-	blt.w	rtss
+	blt.w	rtss			;foy inside the limit: leave it
 	move.w	#$FFBF,(foy).w		;-.nuy = -65
 	bra.w	.sx
 .0	cmp.w	(foy).w,d1
@@ -385,23 +392,23 @@ limitfo	;limit face off to 5-20 feet from walls of rink. Checks every player in 
 .sx	move.w	#$46,d0			;nux = 70
 	tst.w	(fox).w
 	bpl.w	.1
-	neg.w	d0
+	neg.w	d0			;keep the sign of fox
 .1	move.w	d0,(fox).w
 	rts
 
 UpdatePA	;animate ref in ref window. Also runs ShowThreeStars for game over and reprints the horizontal penalty message line when penmsgtimer runs out
 	tst.w	(RefCnt).w
-	bmi.w	rtss
+	bmi.w	rtss			;ref animation idle
 	sub.w	d7,(RefCnt).w
-	bpl.w	.0
-	bsr.w	SetPA2
+	bpl.w	.0			;frame delay not over
+	bsr.w	SetPA2			;next frame
 .0	cmpi.w	#4,(RefPen).l		;game over (92 used 4)
 	bne.w	.1
 	bsr.w	ShowThreeStars
-.1	sub.w	d7,(penmsgtimer).w
+.1	sub.w	d7,(penmsgtimer).w	;message line timer
 	bpl.w	rtss
-	move.w	#$7FFF,(penmsgtimer).w
-	bsr.w	ClearPenaltyMessage
+	move.w	#$7FFF,(penmsgtimer).w	;timer ran out (horizontal mode): reprint the line again
+	bsr.w	ClearPenaltyMessage	;with the penalized player's name (TempPlOffset) at x $11, row $B
 	bsr.w	printz
 	String	$BF,$11,$B
 	bsr.w	GetPlayerName
@@ -411,13 +418,13 @@ UpdatePA	;animate ref in ref window. Also runs ShowThreeStars for game over and 
 	bra.w	print
 
 SetPA	;start ref animation. d0 = animation (penalty number). goal also calls ShowGoalBox, and penmsgtimer is set to 60 in horizontal mode. Falls into SetPA2
-	move.w	d0,(RefPen).w
-	clr.w	(RefStep).w
-	bsr.w	prefmes
+	move.w	d0,(RefPen).w		;penalty number the ref is calling
+	clr.w	(RefStep).w		;start the animation list from the beginning
+	bsr.w	prefmes			;print its message
 	cmp.w	#$E,d0			;goal (92 used 6)
 	bne.w	.0
 	bsr.w	ShowGoalBox
-.0	move.w	#$7FFF,(penmsgtimer).w
+.0	move.w	#$7FFF,(penmsgtimer).w	;vertical mode: never reprint
 	btst	#sfhor,(sflags).w
 	beq.w	SetPA2
 	move.w	#$3C,(penmsgtimer).w	;60
@@ -426,23 +433,23 @@ SetPA2	;update animation for ref. Next frame/delay pair from the PenaltyList ani
 	movem.l	d0-d2/a0-a1,-(sp)
 	moveq	#$40,d0			;clear ref window
 	tst.w	(RefStep).w
-	bmi.w	.pr
-	move.w	(RefStep).w,d0
+	bmi.w	.pr			;idle: clear the window
+	move.w	(RefStep).w,d0		;d0 = offset into the animation list
 	addq.w	#2,(RefStep).w
 	move.w	(RefPen).w,d1
 	movea.l	#Penaltylist,a0
-	adda.w	(a0,d1.w),a0
-	addq.w	#2,a0
-	adda.w	(a0),a0
-	move.w	(a0,d0.w),d0
+	adda.w	(a0,d1.w),a0		;a0 = penalty record
+	addq.w	#2,a0			;+2 = message string (its length word)
+	adda.w	(a0),a0			;skip the string: the animation list follows
+	move.w	(a0,d0.w),d0		;list word: frame number << 8 | delay
 	bpl.w	.0
 	neg.w	d0			;negative = last frame
-	st	(RefStep).w
+	st	(RefStep).w		;ref idle after this frame
 .0	clr.w	d1
-	move.b	d0,d1
-	asl.w	#3,d1
+	move.b	d0,d1			;delay
+	asl.w	#3,d1			;delay * 8 = frames to show this ref frame
 	move.w	d1,(RefCnt).w
-	lsr.w	#8,d0
+	lsr.w	#8,d0			;d0 = ref frame
 .pr	bsr.w	PushRef
 	movem.l	(sp)+,d0-d2/a0-a1
 	rts
@@ -452,23 +459,23 @@ PushRef	;tell vblank what to display. d0 = ref frame, $40 clears the window. The
 	cmp.w	#$40,d0
 	beq.w	.clearit
 	mulu.w	#$70,d0			;refwidth*refheight*2
-	movea.l	#RefsMap,a0
+	movea.l	#RefsMap,a0		;vertical ref map
 	btst	#sfhor,(sflags).w
 	beq.w	.m1
-	movea.l	#RefMap2,a0
-.m1	adda.l	4(a0),a0
+	movea.l	#RefMap2,a0		;horizontal ref map
+.m1	adda.l	4(a0),a0		;skip to the map data (offset in the header)
 	addq.w	#4,a0
-	adda.w	d0,a0
-	movea.w	#(RefRamMap-M68K_RAM),a1
-	move.w	(ExtraChars).w,d2
+	adda.w	d0,a0			;+ frame offset
+	movea.w	#(RefRamMap-M68K_RAM),a1	;a1 = ram copy of the ref map that vblank sends to vram
+	move.w	(ExtraChars).w,d2	;d2 = start char of the ref tiles
 	btst	#sfhor,(sflags).w
 	bne.w	.4
 	ori.w	#$8000,d2		;priority
 .4	moveq	#$37,d0			;(refheight*refwidth)-1
-.1	move.w	(a0)+,(a1)
+.1	move.w	(a0)+,(a1)		;map word + start char/attributes
 	add.w	d2,(a1)+
 	dbf	d0,.1
-	bset	#sf2refref,(sflags2).w
+	bset	#sf2refref,(sflags2).w	;ref needs refresh
 	bra.w	.ex
 
 .clearit	btst	#sfhor,(sflags).w		;horizontal mode only clears the line
@@ -479,7 +486,7 @@ PushRef	;tell vblank what to display. d0 = ref frame, $40 clears the window. The
 	dbf	d0,.2
 	bset	#sf2refref,(sflags2).w
 .cl	moveq	#-1,d0			;clear line
-	bsr.w	prefmes
+	bsr.w	prefmes			;negative = clear the message
 
 .ex	movem.l	(sp)+,d0-d2/a0-a1
 	rts
@@ -490,7 +497,7 @@ prefmes	;print message for penalty d0 (negative clears it). Vertical mode: frame
 	bne.w	.hor
 	tst.w	d0
 	bpl.w	.noblank
-	bsr.w	printz
+	bsr.w	printz			;negative d0: erase the 13x3 message area at x 0, y $A
 	String	$BF,0,$A
 	moveq	#$D,d0
 	moveq	#3,d1
@@ -498,25 +505,25 @@ prefmes	;print message for penalty d0 (negative clears it). Vertical mode: frame
 	bsr.w	eraser
 	bra.w	.ex
 
-.noblank	bsr.w	printz
+.noblank	bsr.w	printz		;print the framed message for penalty d0
 	String	$BF,5,$A		;x 5 (92 6)
 	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
-	addq.w	#2,a1
+	addq.w	#2,a1			;a1 = message string (length word first)
 	move.w	(a1),d0
 	subq.w	#2,d0			;empty string (92 cmp #4 / bls)
 	beq.w	.ex
 	lsr.w	#1,d0
-	sub.w	d0,(printx).w
+	sub.w	d0,(printx).w		;center: back up by half the text length
 	bpl.w	.nb0
 	clr.w	(printx).w
-.nb0	move.w	(a1),d0
+.nb0	move.w	(a1),d0			;d0 = frame width from the string length
 	tst.b	-1(a1,d0.w)
 	bne.w	.nb1
-	subq.w	#1,d0
-.nb1	moveq	#3,d1
+	subq.w	#1,d0			;one less when the last string byte is 0 (padding)
+.nb1	moveq	#3,d1			;frame height 3
 	bsr.w	Framer
-	subq.w	#2,(printy).w
+	subq.w	#2,(printy).w		;back inside the frame
 	addq.w	#1,(printx).w
 	bsr.w	print
 	bra.w	.ex
@@ -524,7 +531,7 @@ prefmes	;print message for penalty d0 (negative clears it). Vertical mode: frame
 .hor	bsr.w	ClearPenaltyMessage	;clears the line first
 	tst.w	d0
 	bmi.w	.ex
-	bsr.w	printz
+	bsr.w	printz			;print the message centered on x $11, row $B
 	String	$BF,$11,$B
 	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
@@ -533,7 +540,7 @@ prefmes	;print message for penalty d0 (negative clears it). Vertical mode: frame
 	lsr.w	#1,d0
 	sub.w	d0,(printx).w
 	bsr.w	print
-.ex	movem.l	(sp)+,d0-d2/a1
+.ex	movem.l	(sp)+,d0-d2/a1		;restore and return
 	rts
 
 ClearPenaltyMessage	;blank the horizontal mode penalty message line (22 spaces at x 5, y $B). Called from UpdatePA and prefmes
