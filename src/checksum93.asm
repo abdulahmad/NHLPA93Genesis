@@ -25,13 +25,13 @@ ContinueValidation	subq.l	#1,d1
 	ENDIF
 	bne.s	VDPErrorSetup			;wrong sum: red screen
 	rts
-VDPErrorSetup	movea.l	#VDP_CTRL,a4
+VDPErrorSetup	movea.l	#Vctrl,a4
 	move.w	#$8F02,(a4)		;auto increment 2
 	move.w	#$8004,(a4)		;mode 1: h interrupt off
 	move.w	#$8700,(a4)		;backdrop = colour 0
 	move.w	#$8144,(a4)		;mode 2: display on, v interrupt off, dma off
 	move.w	#$C000,(a4)		;cram write, colour 0 (first command word only)
 	move.w	#$3F,d1			;64 colours
-VRAMWriteLoop	move.w	#$E,(VDP_DATA).l	;colour = $00E, full red
+VRAMWriteLoop	move.w	#$E,(Vdata).l	;colour = $00E, full red
 	dbf	d1,VRAMWriteLoop
 Halt	bra.s	Halt			;hang

@@ -877,18 +877,18 @@ updatesound	;move the crowd noise volume (psg noise channel) toward crowdlevel.
 .iasv	add.w	d2,(asv).w
 	bpl.w	.non
 	clr.w	(asv).w
-.non	move.b	#$C8,(VDP_PSG).l
-	move.b	#1,(VDP_PSG).l
+.non	move.b	#$C8,(Asound).l
+	move.b	#1,(Asound).l
 	move.b	(asv).w,d0
 	eori.b	#$F,d0
 	ori.b	#$F0,d0			;noise channel attenuation
-	move.b	d0,(VDP_PSG).l
+	move.b	d0,(Asound).l
 	rts
 
 KillCrowd	;silence the crowd noise (psg). Called from Reset, SetupPauseScreen, ...
-	move.b	#$E7,(VDP_PSG).l
-	move.b	#$DF,(VDP_PSG).l
-	move.b	#$C8,(VDP_PSG).l
-	move.b	#1,(VDP_PSG).l
-	move.b	#$FF,(VDP_PSG).l	;noise channel off
+	move.b	#$E7,(Asound).l
+	move.b	#$DF,(Asound).l
+	move.b	#$C8,(Asound).l
+	move.b	#1,(Asound).l
+	move.b	#$FF,(Asound).l	;noise channel off
 	rts

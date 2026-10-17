@@ -78,7 +78,7 @@ UpdateVertScrollReg	;write VSRAM word 1 = VertLineScrolling - $30
 	;(playfield B vertical scroll). Saves disflags
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w		;don't int graphics
-	movea.l	#VDP_DATA,a0
+	movea.l	#Vdata,a0
 	move.l	#$40020010,4(a0)	;VSRAM write, address 2
 	move.w	#$FFD0,d0
 	add.w	(VertLineScrolling).w,d0
@@ -750,7 +750,7 @@ UpdatePlayerListScroll	;set VertLineScrolling = d0. Stop on a page boundary. Whe
 	bsr.w	DisplayPlayerListDown
 .2	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
-	movea.l	#VDP_DATA,a0
+	movea.l	#Vdata,a0
 	move.l	#$40020010,4(a0)
 	move.w	#$FF90,d0
 	add.w	(VertLineScrolling).w,d0
@@ -1089,7 +1089,7 @@ UpdateScoringScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	bsr.w	DrawScoringRowDown
 .2	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
-	movea.l	#VDP_DATA,a0
+	movea.l	#Vdata,a0
 	move.l	#$40020010,4(a0)
 	moveq	#-$50,d0
 	add.w	(VertLineScrolling).w,d0
@@ -1273,7 +1273,7 @@ UpdatePenaltyScroll	;set VertLineScrolling = d0. Stop on an entry boundary,
 	bsr.w	DisplayPenaltyLineDown
 .2	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
-	movea.l	#VDP_DATA,a0
+	movea.l	#Vdata,a0
 	move.l	#$40020010,4(a0)
 	move.w	#$FFB0,d0
 	add.w	(VertLineScrolling).w,d0
@@ -1498,7 +1498,7 @@ UpdateStatsListScroll	;stats screen per frame: scroll 0..SelectedPlayerIdx, stop
 SetStatsListScrollReg	;VSRAM = VertLineScrolling - $68
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
-	movea.l	#VDP_DATA,a0
+	movea.l	#Vdata,a0
 	move.l	#$40020010,4(a0)
 	move.w	#$FF98,d0
 	add.w	(VertLineScrolling).w,d0
@@ -2044,7 +2044,7 @@ ExitStatsScreen	;leave a stats screen: back to 32 cell mode, reload the
 	bsr.w	forceblack
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
-	movea.l	#VDP_DATA,a0
+	movea.l	#Vdata,a0
 	move.w	#$8C00,4(a0)		;VDP reg 12: 32 cell mode
 	move.w	#5,(Map3col).w
 	move.w	(sp)+,(disflags).w
