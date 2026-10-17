@@ -3678,7 +3678,7 @@ Endfaceoff	;drop the puck: pick the faceoff winner and send the puck off. Entere
 	bclr	#sf2drec,(sflags2).w
 	bclr	#gmclock,(gmode).w
 	bclr	#pf2fight,pflags2(a3)
-	bset	#sf3fodrop,(sflags3).w		;flag the faceoff drop
+	bset	#sf3fo,(sflags3).w		;flag the faceoff drop
 	move.w	(fodir1).w,d3		;figure out who won face off
 	move.w	#$800,d4
 	movea.l	#.ftab,a0

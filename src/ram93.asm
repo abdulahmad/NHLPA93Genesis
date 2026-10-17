@@ -392,9 +392,9 @@ sf3llcs	=	0	;lower line change sel.
 sf3rmplay	=	1	;play mode on for replay
 sf3alttree	=	2	;alt. tree
 sf3sbut	=	3	;flag for start button
-sf3fodrop	=	4	;the face off drop was flagged. 93 only
+sf3fo	=	4	;face off just ended (set by the drop): the next puck pickup wins it, with a crowd cheer. 93 only
 sf3track	=	5	;the scroll window tracks an object. 93 only
-sf3pentick	=	6	;set once a second when the penalty times were updated. 93 only
+sf3icetime	=	6	;set once a second by updatepentime: each player on the ice adds 1 to its time on ice. 93 only
 c1playernum	rs.w	1	;player in control or neg for none
 c2playernum	rs.w	1
 cont1team	rs.w	1	;cont1 team 0=none 1=team1 2=team2

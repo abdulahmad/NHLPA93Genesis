@@ -545,13 +545,13 @@ ClearPenaltyBuffer	;clear PenBuf (92 inlined this in PenGoalStuff). Also called 
 	rts
 
 updatepentime	;update the time remaining on all penalized players, once a second. Sets sflags3 bit 6 on that tick. Falls into ProcessPenaltyList for team 2
-	bclr	#sf3pentick,(sflags3).w
+	bclr	#sf3icetime,(sflags3).w
 	btst	#gmclock,(gmode).w
 	bne.w	rtss
 	sub.w	d7,(Penaltytimer).w
 	bpl.w	rtss
 	addi.w	#jps,(Penaltytimer).w	;jps
-	bset	#sf3pentick,(sflags3).w
+	bset	#sf3icetime,(sflags3).w
 	bsr.w	chkatop
 	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	ProcessPenaltyList
@@ -1154,7 +1154,7 @@ InitScores	;initialize other games scores/period in playoffs (no OptPlayMode che
 	adda.w	d0,a0
 .top	cmp.w	(gamenum).w,d1
 	beq.w	.next
-	btst	#2,$E(a0)		;gsfso
+	btst	#gsfso,gsflags(a0)		;gsfso
 	bne.w	.next
 	clr.w	gsper(a0)			;gsper
 	moveq	#3,d0
@@ -1175,8 +1175,8 @@ UpdateScores	;update ticker score values. Called from PeriodOver
 	adda.w	d0,a0
 .top	cmp.w	(gamenum).w,d1
 	beq.w	.next
-	bclr	#1,$E(a0)		;gsfhl
-	btst	#2,$E(a0)		;gsfso
+	bclr	#gsfhl,gsflags(a0)		;gsfhl
+	btst	#gsfso,gsflags(a0)		;gsfso
 	bne.w	.next
 	bsr.w	SetScore
 .next	suba.w	#gssize,a0			;gssize
@@ -1197,7 +1197,7 @@ SetScore	;add to score for game in a0. After period 3 a game within one goal goe
 	cmp.w	#-1,d0
 	blt.w	.ex
 	move.w	#3,8(a0)		;close game: overtime
-	bset	#1,$E(a0)		;gsfhl
+	bset	#gsfhl,gsflags(a0)		;gsfhl
 	bra.w	.ex
 .0	addq.w	#1,8(a0)
 	move.w	(a0),d0			;gst1
@@ -1263,9 +1263,9 @@ CheckGameTickerStatus	;d3 = game. Return a0 = its gstruct; skip to the next tick
 	mulu.w	d3,d0
 	movea.w	#(gstruct-M68K_RAM),a0
 	adda.w	d0,a0
-	btst	#1,$E(a0)		;gsfhl
+	btst	#gsfhl,gsflags(a0)		;gsfhl
 	bne.s	NewTicker2		;don't show if hilite coming up
-	btst	#2,$E(a0)		;gsfso
+	btst	#gsfso,gsflags(a0)		;gsfso
 	bne.s	NewTicker2		;don't show if the series is over for this game
 	rts
 

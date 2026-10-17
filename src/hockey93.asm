@@ -863,7 +863,7 @@ updateplayers
 .np	sub.b	d7,$5F(a3)
 	bpl.w	.np2
 	clr.b	$5F(a3)
-.np2	btst	#sf3pentick,(sflags3).w		;Check line change mode
+.np2	btst	#sf3icetime,(sflags3).w		;once a second: count time on ice
 	beq.w	.vel
 	clr.w	d0
 	move.b	pnum(a3),d0
@@ -1135,9 +1135,9 @@ DoHiLights	;hilites logic: search for hilite game and show hilite (no OptPlayMod
 	mulu.w	d1,d3
 	movea.w	#(gstruct-M68K_RAM),a0
 	adda.w	d3,a0
-.top	btst	#2,$E(a0)		;gsfso
+.top	btst	#gsfso,gsflags(a0)		;gsfso
 	bne.w	.next
-	bclr	#1,$E(a0)		;gsfhl
+	bclr	#gsfhl,gsflags(a0)		;gsfhl
 	beq.w	.next
 	bsr.w	StartHL
 .next	suba.w	#gssize,a0			;gssize
@@ -2949,7 +2949,7 @@ puckglue	;Player a2 takes the puck
 .tm	st	$1A(a0)			;a0 = other team, a1 = a2's team
 	st	$1C(a0)
 	bset	#tmflast,tmflags(a0)		;tmflags bit 3
-	bclr	#sf3fodrop,(sflags3).w
+	bclr	#sf3fo,(sflags3).w
 	beq.w	.snd			;sflags3 bit 4 was clear
 	addq.w	#1,$E(a1)		;team word $E + 1
 	addi.w	#$C8,(crowdlevel).w	;+200
