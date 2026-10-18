@@ -1,26 +1,12 @@
 ;	Main game source and top level of the ROM build. It includes the other modules in ROM order and holds the
-;	core game code: startup and the game loop, pause, instant replay, players, collisions, and the title,
-;	playoff, scouting and setup screens.
-;
-;	Modules included here (ROM ranges where known):
-;	  main93, teamdata93 [$000310-$004D8D], frames93, ram93 (equates only)
-;	  menu93 [$006A00-$006C09], stats93 [$006C0A-$008AC3]
-;	  logic93 [$00946E-$00D5D1], middle93 [$00D5D2-$00E525], penalty93 [$00E526-$00F757]
-;	  video93 [$011802-$0122A7]
-;	  tables93, sram93 [$015FE6-$0165D7], sound93 [$0165D8-$02E1FB]
-;	  graphics93 [$02E1FC-$07FB75], checksum93 [$07FB76-$07FBC7]
-;
-;	Code in this file, in order:
-;	  startup and the game loop: VBjsr, Begin, StartGame, StartPer, Gameloop, DoGameFrame, clockcont
-;	  the pause screen (demoread, Pausemode) and instant replay (ReplayMode, record and playback)
-;	  updateplayers (velocity, friction, gravity, input, assignments), updateanim and the scroll window
-;	  collisions and checking, walls, goals and nets, Goal scoring, puck collisions
-;	  the player roster code (makepde ... setplayer), rink and team setup
-;	  the title, playoff, setup and scouting screens, the Stanley Cup screen, the end of game boxes
-;	  the name formatters and the exception handlers
+;	core game code: startup, the game loop, pause and replay, players, collisions, and the title, playoff,
+;	scouting and setup screens.
 ;
 ;	REV selects the revision: REV=0 is Rev 0 (v1.0, the retail ROM, serial -00) and REV=1 is Rev A
 ;	(v1.1, serial -01). Rev B (v1.2) is not built. Differences from 92 are noted in the comments.
+;
+;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx) but SNASM emits CMPI (0Cxx). The source has the real cmp,
+;	and fixopcodes.js patches the encoding after assembly.
 
 	include	Main93.Asm				;EA provided code for startup and EA logo
 	include	TeamData93.Asm			;$000310-$004D8D
@@ -1866,25 +1852,8 @@ setInjuryType						;sets period injury. a2 = player injured, a3 = player checkin
 
 ;======================================================================
 ;======================================================================
-;	checkfight, SetInst, checkwallcoll, checkgoal, Goal,
-;	GetPeriodTimeRemaining, checkgoalp, CheckBump, wallcollb, wallcoll and
-;	checkpuckcoll. Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
-;	The source has the real cmp; fixopcodes.js patches the encoding after
-;	assembly, and also the exg a2,a1 encoding.
-;	SortCords offsets ($80 per object): Xpos 0, attribute 4, frame 6,
-;	Ypos $14, Zpos $18, OldXpos $1C, OldYpos $20, OldZpos $24, Xvel $28,
-;	Yvel $2A, Zvel $2C, impactp $2E, impact $32, position $34, assnum $36,
-;	asslist $38, Wallcos $4E, Wallsin $50, SCnum $52, facedir $54,
-;	nopuck $5E (byte), pflags $62, pflags2 $63, pnum $66 (byte).
-;	$74 is a byte fight rating.
-;	pflags bits: 2 pfnc, 5 pfalock, 6 pfteam, 7 pfgoal. pflags2: 0 pf2fight,
-;	1 pf2aip, 2 unavailable (92 used 4), 4 caused a penalty (92 used 6),
-;	5 no player collision (92 used 7).
-;	Comments on SPA, penalty and sound numbers give the role and, where
-;	different, the 92 value.
-;	Team struct (tmsize $1A2): $C score (Goal adds 1), $22 first sort obj,
-;	$11C check count per player (byte).
+;	Collisions and checking: checkfight, SetInst, wall, goal and net collisions, Goal scoring, CheckBump and
+;	puck collisions (checkpuckcoll). Field and flag names are in ram93.asm; 92 values are in the comments.
 
 checkfight							;look for start of fight between players a2 & a3. Called from checkcx
 									;Needs impact >= 10 on both, no anim lock, no penalty, no goalie, clock
@@ -2723,30 +2692,12 @@ checkpuckcoll						;look for puck coll with players. a3 = puck. Entered from puc
 
 ;======================================================================
 ;======================================================================
-;	Puck collisions (puckstick, setd0player, puckbody, puckgoalie, deflect),
-;	then the player roster code (makepde ... setplayer) with
-;	TryAddPlayerToList and ClampNibble.
-;	Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
-;	The source has the real cmp; fixopcodes.js patches the encoding after
-;	assembly.
-;	SortCords offsets ($80 per object): Xpos 0, attribute 4, frame 6,
-;	Ypos $14, Zpos $18, Xvel $28, Yvel $2A, Zvel $2C, position $34,
-;	temp4 $46, temp5 $48, SCnum $52, facedir $54, SPA $58, nopuck $5E (byte),
-;	newpos $60, newpnum $61, pflags $62, pflags2 $63, pnum $66.
-;	Player attributes written by setplayer: weight $67, legstr $68, legspd
-;	$69, aioff $6A, aidef $6B, shotspd $6C, shotacc $6D, passacc $6E,
-;	rostnum $6F, spodds $70, stickhand $71, endurance $72, aggress $73,
-;	$74 (4(a0) & $E, read as the fight rating), $75 (checking rating),
-;	handed $76 (bit 0 set is left handed).
-;	pflags bits: 0 pfdoff, 5 pfalock, 6 pfteam. pflags2 bit 2 = unavailable
-;	(92 used 4).
-;	Team struct (tmsize $1A2, home at hmtmstruct): $C score, $16 tmline,
-;	$1E tmdata (long), $22 tmsort (word), $24 tmap, $26 tmgoalie (negative =
-;	no goalie), $30 tmflags, $32 tmpde, $66 tmpdst (-3 out for the period,
-;	-2 bench, -1 ice, >0 penalty box), $16A line sets.
-;	Comments on assignment, sound and song numbers give the role and, where
-;	different, the 92 value.
+;	Puck collisions (puckstick, setd0player, puckbody, puckgoalie, deflect), then the player roster code
+;	(makepde ... setplayer, TryAddPlayerToList, ClampNibble).
+;
+;	setplayer writes the attribute bytes from the roster record: weight, legstr, legspd, aioff, aidef,
+;	shotspd, shotacc, passacc, rostnum, spodds, stickhand, endurance, aggress, the fight and checking ratings
+;	and handed.
 
 puckstick							;puck collides with stick
 									;a2 = player who collided, a3 = puck, d0 = distance^2 (from checkpuckcoll
@@ -4309,19 +4260,12 @@ PlayoffScreenText					;round titles by gamelevel, printed with printsmall.
 
 ;======================================================================
 ;======================================================================
-;	ScoutingReport (team ratings and a typed commentary), the Stanley Cup
-;	celebration screen, TitleScreen with its credits scroller and vblank, the
-;	sprite list helpers CallAnimationCallback / EndSpriteList /
-;	AddTitleLogoSprites, and an unreferenced sound test (CheckSound).
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
-;	The source has the real cmp; fixopcodes.js patches the encoding after
-;	assembly.
-;	disflags bits: 1 df32c, 2 dfng. Pad bits: dbut 1, lbut 2, rbut 3, cbut 5,
-;	abut 6, sbut 7.
-;	printz strings: first byte -$ab = map/attribute code ($FF = map 1), then
-;	x, y. printsmallz codes: $F8 attribute,map,x,y; $F9 char set; $FC y; $FD x.
-;	DecompressGraphicsWithCallback is followed by its 8 byte remap table.
-;	DecompressGraphicsWithCallback is followed by its 8 byte remap table.
+;	ScoutingReport (team ratings and a typed commentary), the Stanley Cup celebration screen, TitleScreen with
+;	its credits scroller and vblank, the sprite list helpers, and an unreferenced sound test (CheckSound).
+;
+;	printz strings: first byte -$ab = map/attribute code ($FF = map 1), then x, y. printsmallz codes: $F8
+;	attribute,map,x,y; $F9 char set; $FC y; $FD x. DecompressGraphicsWithCallback is followed by its remap
+;	table.
 
 ScoutingReport						;pregame scouting report. Called from PeriodOver.
 									;Draws both team blocks, the Ron Barr picture and the scouting report
@@ -5125,17 +5069,11 @@ CheckSound							;sound test, no caller found. Runs only with start+a+c held on 
 	bsr.w	print
 	bra.s	.top
 
-;	The game setup screen (setoptions) with the two team blocks and their
-;	animated roster players (UpdateRosterPlayers ... AddTeamSpriteFrame)
-;	and its own vblank handler (VBlank_SetOptions).
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The
-;	source has the real cmp; fixopcodes.js patches the encoding after assembly.
-;	disflags bits: 0 dfok, 1 df32c, 2 dfng. Pad bits: ubut 0, dbut 1, lbut 2,
-;	rbut 3, sbut 7.
-;	printz strings: first byte c, -c = $ab: map = b&3, printa = (-c<<9)&$F800.
-;	$FF map 1, $FE map 2, $BF map 1 + priority, $BE map 2 + priority. Then x, y.
-;	Maps here: map 1 = VmMap1 ($E000), map 2 = VmMap2 ($C000).
-;	DecompressGraphicsWithCallback is followed by its 8 byte remap table.
+;	The game setup screen (setoptions) with the two team blocks and their animated roster players
+;	(UpdateRosterPlayers ... AddTeamSpriteFrame), and its own vblank handler (VBlank_SetOptions).
+;
+;	printz strings: first byte c, with -c = $ab: map = b&3, printa = (-c<<9)&$F800; then x, y. $FF is map 1,
+;	$FE map 2, $BF map 1 + priority, $BE map 2 + priority. Map 1 = VmMap1 ($E000), map 2 = VmMap2 ($C000).
 
 setoptions							;options screen display and input. Called from PeriodOver.
 									;6 minute demo timeout polling both pads, animated roster players in the
@@ -5842,17 +5780,14 @@ VBlank_SetOptions					;vbint handler stored by setoptions: cramfade unless dfng,
 
 ;======================================================================
 ;======================================================================
-;	DefaultMenus, NewPO, MakeTree, FigureJoy and the playoff password code
-;	(ReadPassBits ... SuperDiv, GetShifter), then the playoff stat packing
-;	(AddPlayoffTeamStats, ReadTeamStats).
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The
-;	source has the real cmp; fixopcodes.js patches the encoding after assembly.
-;	The password bits are kept in a 5 word buffer at a3; there is no password
-;	checksum (92 had one). The buffers are pwddatabuffer, tpassbits and
-;	outputbuffer (Rev 0 addresses are 4 bytes lower than Rev A).
-;	gsflags bits: 0 teams flipped, 1 highlight, 2 series over.
-;	playoffroundoffset reuses the old playoff joystick word; playofflevel
-;	reuses the old number-of-players option slot.
+;	DefaultMenus, NewPO, MakeTree, FigureJoy and the playoff password code (ReadPassBits ... SuperDiv,
+;	GetShifter), then the playoff stat packing (AddPlayoffTeamStats, ReadTeamStats).
+;
+;	The password bits are kept in a 5 word buffer at a3 and there is no password checksum (92 had one). The
+;	buffers are pwddatabuffer, tpassbits and outputbuffer (Rev 0 addresses are 4 bytes lower than Rev A).
+;
+;	playoffroundoffset reuses the old playoff joystick word and playofflevel reuses the old number-of-players
+;	option slot.
 
 DefaultMenus						;set default menu choices for beginning of game. Called once from Begin
 									;(jsr abs.l).
@@ -6364,19 +6299,14 @@ ReadTeamStats						;Unpack the $68 playoff stat totals from the bit stream below
 
 ;======================================================================
 ;======================================================================
-;	ResolveGames, the end of game "Stars of the Game" box (ShowThreeStars,
-;	TakeTopStarScore, CalcStarScores/Values), the injury and goal
-;	boxes, box, the player name formatters (getname ... ConvertByteToDigits)
-;	and the exception handlers AddError, Illinst, ZeroDiv and crash.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx). The
-;	source has the real cmp; fixopcodes.js patches the encoding after assembly.
-;	The saved password bits are tpassbits. gsflags bit 0 = teams flipped.
-;	Team struct bytes per roster slot (26): $B4 goals (goals against for a
-;	goalie), $CE assists, $E8 shots (shots against for a goalie); word $136
-;	frames on ice.
-;	A goal entry (ScoreSum, 6 bytes): word period/time, byte 2 bit 7 away team
-;	scored, byte 3 scorer, bytes 4 and 5 assists (negative: none).
-;	ChkCnt + ScoreSumbytes is the last entry.
+;	ResolveGames, the end of game "Stars of the Game" box (ShowThreeStars ... CalcTeamStarScores), the injury
+;	and goal boxes, the player name formatters (getname ... ConvertByteToDigits) and the exception handlers.
+;
+;	A goal entry (ScoreSum, 6 bytes): word period/time, byte 2 bit 7 away team scored, byte 3 scorer, bytes 4
+;	and 5 assists (negative: none). ChkCnt + ScoreSumbytes is the last entry.
+;
+;	Per roster slot (26 slots) the team struct keeps goals ($B4, goals against for a goalie), assists ($CE),
+;	shots ($E8, shots against for a goalie) and frames on ice (word $136).
 
 ResolveGames						;compute winners and losers for playoff matchups. Called from EncodePW
 	move.w	(gamenum).w,d0

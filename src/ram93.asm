@@ -1,11 +1,9 @@
 ;	RAM map. Names the work RAM variables, the hardware ports and the offsets inside the game's structures.
-;	Equates only: it adds nothing to the ROM.
+;	Equates only: it adds nothing to the ROM. Rev A adds PalMode/music_tick_divider.
 ;
-;	In order: hardware ports, screen and sound constants, button bits, sound effect and song numbers, rink
-;	distances. Then the work RAM map from $FFFF0000 (replay frame buffer up to varstart $FFFFB000) and the
-;	variables allocated with rs from varstart: video and print state, the sort object structure and flag bits,
-;	crowd, DMA list, flags, team and game structures, playoff, menu, options, sound driver and backup RAM
-;	state. Rev A adds PalMode/music_tick_divider.
+;	Hardware ports, screen and sound constants, button bits and rink distances come first. Then the work RAM
+;	map from $FFFF0000 (replay frame buffer up to varstart $FFFFB000), then the variables allocated with rs
+;	from varstart: video and print state, sort objects, flags, team and game structures, menu and sound state.
 
 ;video and sound ports
 Asound	=	$c00011					;analog sound (PSG)

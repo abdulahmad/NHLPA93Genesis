@@ -1,8 +1,6 @@
-;	Data tables, included from hockey93.asm after the game code.
-;	In order: the crowd frame table (cd0, used by updatecrowdf), the player logic assignment table asstab,
-;	PenaltyList and its PenData records, bfasciicon, linelist, PlayerPositionText, PerLabels, sizetab,
-;	sublist, priolist, the playoff tree layout, the line editor and roster attribute column lists, and the
-;	menu item lists. Code addresses in these tables are routine labels, so Rev A shifts them.
+;	Data tables, included from hockey93.asm after the game code: the crowd frame table, the player logic
+;	assignment table (asstab), PenaltyList and its records, the playoff tree layout, the line editor and
+;	roster attribute column lists, the menu item lists and other small tables. Code addresses here are labels.
 ;
 ;	Menu item lists (InitMenuState): two printsmall control Strings, then per item a String and the handler
 ;	address (dc.l). Item 0 leaves the menu (its handler is rtss). String $FF ends the list.

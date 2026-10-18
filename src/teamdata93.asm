@@ -2,12 +2,11 @@
 ;	players, colors, name, lines, scouting report and scoring odds. The playoff seeds and the credits follow.
 ;
 ;	Record layout (the all-star records come first in the file, then the 24 teams): six word offsets from .0
-;	(Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds), then the home and visitor palettes
-;	(.pad), the scouting ratings (.sr), scoring odds (.sodds), the line sets (.ls, 7 lines of 8 bytes), the
-;	players (.pld), the team name (.tn) and abbreviation (.ta). After the records: playoffseats (the 32
-;	playoff tree layouts) and Credits.
+;	(Playerdata, Palettedata, Teamname, LineSets, ScoutReport, ScoreOdds), then the palettes, scouting
+;	ratings, scoring odds, line sets (7 lines of 8 bytes), players, team name and abbreviation.
 
-null								;92 null: a zero long at $310, used as the tile pointer when there is nothing to draw (no tiles)
+null								;92 null: a zero long at $310, used as the tile pointer when there is
+	;nothing to draw (no tiles)
 	dc.l	$0000
 
 TeamList							;table of long pointers to the team records, indexed by team number

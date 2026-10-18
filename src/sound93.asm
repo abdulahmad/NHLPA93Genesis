@@ -1,14 +1,10 @@
 ;	Sound driver, 68000 side. Starts the Z80, plays songs and sound effects frame by frame and turns the sound
 ;	off. The Z80 program and the sound data the driver plays follow the code.
 ;
-;	In order: p_turnoff, play_sfx_or_music_track, stop_current_song, p_music_vblank (per frame),
-;	UploadCommandBufferToZ80, ProcessOneMusicTrack and its command handlers, UpdateChannelFrequencyAndVolume,
-;	p_initialZ80, ClearAllTrackAndSFXSlots. Then the data: the Z80 program, PCM samples, FM instrument
-;	patches, the sound effect and song event streams, and ScoutingReportText.
-;
 ;	92's sound.asm has p_turnoff, p_music_vblank, p_initialZ80 and p_initune as a branch table to _fn
-;	routines. 93 has the first three directly and starts sounds with play_sfx_or_music_track. Sound numbers
-;	are in ram93.asm (SFX*, Sng*). The data layout is described above p_music_vblank.
+;	routines. 93 has the first three directly and starts sounds with play_sfx_or_music_track.
+;
+;	Sound numbers are in ram93.asm (SFX*, Sng*). The data layout is described above p_music_vblank.
 
 
 p_turnoff							;(audio stop). Silence everything: free all slots, key off and mute every
@@ -100,14 +96,19 @@ stop_current_song					;stop the song in progress: free the first slot whose poin
 	rts
 
 ;	Data layout:
+;
 ;	  track slots (8 x 6 bytes): +0 long event pointer (negative = free or ended), +4 word delay count
 ;	    (+5 = the delay byte read from the stream). Slot n is track 7-n.
+;
 ;	  channel structs (6 x 6 bytes, the 6th is the PCM channel): +0 key (midi channel*8 + track), +1 note,
 ;	    +2 patch, +3 output channel (0,1,2,4,5,6), +4 age (+1 each frame), +5 bit 0 on.
+;
 ;	  voice table (8 bytes per key): +0 word pitch bend (value - $2000), +3 patch.
+;
 ;	  command buffer (33 bytes, copied to Z80 RAM $02-$22): +0 key off bits, +1 key on bits, +2 volume bits,
 ;	    +3 frequency bits, +4 patch bits (one bit per output channel), then 7 volume bytes, 7 frequency
 ;	    words, 7 patch bytes.
+;
 ;	  events (4 bytes): +0 delay before this event, +1 status (bits 6-4 command, bits 3-0 channel),
 ;	    +2/+3 data. Status 0 ends the stream; a non-negative long at +2 is a loop pointer.
 
