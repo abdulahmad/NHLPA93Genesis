@@ -2,8 +2,8 @@
 ;	serial number, checksum, supported controllers and memory ranges.
 ;
 ;	Rev A (v1.1, REV=1) differs from Rev 0 (v1.0, REV=0) in the release month, the upper case title,
-;	the version number and the checksum, so each has its own copy of the header. Rev B (v1.2, REV=2) is 1993.FEB,
-;	the mixed case title again, version -00 and country code UEJ.
+;	the version number and the checksum, so each has its own copy of the header. Rev B (v1.2, REV=2) is
+;	1993.FEB, with the mixed case title again, version -00 and country code UEJ.
 
 	org	$00000100
 ;					Data No. Address	Description
