@@ -43,7 +43,7 @@ def check(path):
         code, cm = split(l)
         if cm is None:
             continue
-        if vis(l) > WIDTH and not code.strip().lower().startswith(('dc.', 'db ', 'dw ', 'dl ')):
+        if vis(l) > WIDTH and not re.match(r'^(dc\.\w+|db|dw|dl|dd)\b', code.strip().lower()):
             out.append((n, f'line is {vis(l)} columns wide (max {WIDTH})'))
         if code.strip():
             w = vis(code.rstrip())
@@ -86,7 +86,10 @@ def main(argv):
         for n, msg in check(p):
             total += 1
             if not quiet:
-                print(f'{p}:{n}: {msg}')
+                try:
+                    print(f'{p}:{n}: {msg}')
+                except BrokenPipeError:
+                    return 1
     print(f'{total} comment layout problem(s)' if total else 'comment layout OK')
     return 1 if total else 0
 
