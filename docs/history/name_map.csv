@@ -196,3 +196,8 @@ gamesetuptilesetindex,animchars,behavior (body/usage read)
 #$C1A,SPAhipchkl,frames93 offset
 #$180,SPFarrow,frames93 frame index
 #$183,SPFarrow+3,frames93 frame index
+GameStatisticsScreen,StatsReport,92G
+DisplayTeamStatsScreen,DisplayStats,92G
+PlayoffScreen_waitvsync,waitxc1,92G
+PrintStringFromList,Fprintsmall,92G
+InitialSP,Stack,92G

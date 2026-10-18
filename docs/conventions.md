@@ -1,5 +1,7 @@
 # Conventions
 
+The full rules are in [CONTRIBUTING.md](../CONTRIBUTING.md); this file keeps the naming lineage, local label style and the records.
+
 How names, comments and commits are kept in this repo. The rule for every change: code, data and bytes do not change, so every build must still MATCH the retail and Rev A ROMs (`tools/verify_all.sh`).
 
 ## Naming lineage
@@ -11,7 +13,7 @@ How names, comments and commits are kept in this repo. The rule for every change
 - Teams: 93 (unlicensed) uses city names only; 94/95 use NYIslanders/NYRangers (NYI/NYR) style names.
 
 ## Comment rules
-No other games' names or "X name" notes, no source-file/segment names, no IDA references (IDA, loc_, sub_, unk_),
+No other games' names or "X name" notes (the `92 <name>` equivalents are allowed), no source-file/segment names, no IDA references (IDA, loc_, sub_, unk_),
 no "(was: X)" history, no hardcoded ROM addresses (keep VRAM/RAM values, include address maps, RAM equate address
 comments), no "only in 9x" tags ("New in 94/95:" allowed in file/section headers). Keep real explanations and
 value-difference notes like "(94 $58)" / "92 used bit 6". Every routine has a header comment. Concise.

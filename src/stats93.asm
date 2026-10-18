@@ -1,8 +1,8 @@
 ;	Stats and team screens: game stats, line editor and roster, scoring and penalty summaries, player and
 ;	team stats, crowd meter and goalie selection. Each entry point is named after the title it prints.
 ;
-;	Most screens use SetupScreen and ExitStatsScreen and leave when start is pressed. ROM address range not
-;	determined here. Several routines descend from 92.
+;	Most screens use SetupScreen and ExitStatsScreen and leave when start is pressed. Several routines
+;	descend from 92.
 
 ShowScores							;"Scores" screen: lists the other games in
 									;gstruct with both teams, scores and period. Up/down scroll, start exits.
@@ -118,7 +118,7 @@ DisplayGameInfo						;92 NewTicker3. print game d3 of gstruct (2 team rows and p
 
 PrintGameInfo						;92 NewTicker3 .tn. print team d0's name at x 6 and score d1 (2 digits) at
 									;x $18
-	movea.w	#TeamList,a1				;team address table
+	movea.w	#TeamList,a1			;team address table
 	asl.w	#2,d0
 	movea.l	(a1,d0.w),a1
 	adda.w	4(a1),a1				;team name
@@ -1872,7 +1872,7 @@ ScrollArrowTbl2						;none, up, down, both
 	String	$20,$FB,$FF,$FA,$C,$7D,$F9	;down arrow only
 	String	$7B,$FB,$FF,$FA,$C,$7D,$F9	;both arrows
 
-StatsReport							;(was GameStatisticsScreen) "Game Statistics": both teams' totals. Start
+StatsReport							;"Game Statistics": both teams' totals. Start
 									;exits
 									;common stats screen setup (d0/d1 = first row / last row of the background
 									;copied to the scroll plane)
@@ -1900,7 +1900,7 @@ StatsReport							;(was GameStatisticsScreen) "Game Statistics": both teams' tot
 	bne.w	ExitStatsScreen
 	bra.s	.loop
 
-DisplayStats						;(was DisplayTeamStatsScreen) team logos, then each TeamStatTextTbl row
+DisplayStats						;team logos, then each TeamStatTextTbl row
 									;centred with home value at x $22 and away at x 9 team blocks
 									;(TeamBlockMap offset $30 at x 2, 0 at x $1A), both at y 9
 	bsr.w	printz

@@ -3,7 +3,7 @@
 ;
 ;	The interrupt handlers (VBlank, vb2, IRQ7) and the vdp transfers (DumpSprites, DoDMAList, SetScroll2) come
 ;	first, then setvideo, which builds the sprite and dma lists and calls the drawing routines. The sprite
-;	frame data and DMA list formats are described above DumpSprites. ROM address range: not determined here.
+;	frame data and DMA list formats are described above DumpSprites.
 
 
 VBlank								;main vblank code for game play (vbint target, set by setupice).

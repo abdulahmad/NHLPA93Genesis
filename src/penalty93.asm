@@ -1,6 +1,6 @@
 ;	Penalty logic. Calls penalties and the other stoppages of play (whistle, icing, offsides, goals), sends
 ;	players to the penalty box, runs power plays, shows the referee's messages and switches the rink between
-;	its horizontal and vertical views. ROM $00E526-$00F757.
+;	its horizontal and vertical views.
 ;
 ;	After the penalty code come the scoreboard, ticker and intermission routines (printscores1 onward) and,
 ;	at the very end of the file, the intermission highlights (DoHiLights, StartHL, StartHL2).
@@ -1285,7 +1285,7 @@ SetScore							;add to score for game in a0. After period 3 a game within one go
 .getscore	asl.w	#2,d0			;d0 = scoring team, d1 = other team. Adds the scoring team's (bits 4-6)
 									;and the other team's (bits 0-2) .sctab rows as weights. Return d0 = goals
 									;0-3
-	movea.w	#TeamList,a1				;team address table
+	movea.w	#TeamList,a1			;team address table
 	movea.l	(a1,d0.w),a1
 	adda.w	8(a1),a1
 	move.b	(a1),d0
@@ -1390,7 +1390,7 @@ NewTicker3							;display ticker score for game d3 (a0 = gstruct entry), skip if
 
 .tn	move.w	4(sp),(printx).w		;print team d0 name and score d1 on the next row
 	addq.w	#1,(printy).w
-	movea.w	#TeamList,a1				;team address table
+	movea.w	#TeamList,a1			;team address table
 	asl.w	#2,d0
 	movea.l	(a1,d0.w),a1
 	adda.w	4(a1),a1				;TeamName

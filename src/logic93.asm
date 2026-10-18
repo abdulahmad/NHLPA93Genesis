@@ -1,6 +1,6 @@
 ;	Player logic. Turns controller input into skater actions (passing, shooting, checking, line changes) and
 ;	runs the computer players, with an assignment per position and for the goalie, fights, bench and penalty
-;	box. Also the puck at faceoffs, offsides and icing. ROM $00946E-$00D5D1.
+;	box. Also the puck at faceoffs, offsides and icing.
 ;
 ;	Conventions: a3 = the object being processed (a SortCords entry, player or puck), d7 = frames elapsed,
 ;	a2 = team struct (tmstruct, +tmsize for the visitors). Most routines exit through rtss. Field and flag
