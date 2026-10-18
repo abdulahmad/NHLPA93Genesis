@@ -2997,24 +2997,92 @@ puckgoalie							;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y Save
 	clr.w	Zvel(a3)
 	bra.w	puckglue				;goalie holds the puck
 
-.list	dc.b	0,$73,0,$6E,0,$70,0,$72	;save attribute offsets
+.list	dc.w	aggress,passacc		;save attribute offsets (92 had stickhand,shotacc)
+	dc.w	spodds,endurance
 
 .list2								;odds for stopping puck in each quadrant for each possible goalie frame
-	dc.b	$55,$9D,$67,$55,$9D,$67,$55,$9D,$67,$55,$9D,$67	;ready/glover/glovel (92 pix 1111,2131,1213)
-	dc.b	$55,$9D,$67,$55,$9D,$67,$55,$9D,$67,$55,$9D,$67
-	dc.b	$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55	;goalie swing
-	dc.b	$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0	;goalie stack right
+	pix	1111,2131,1213				;ready/glover/glovel
+	pix	1111,2131,1213
+	pix	1111,2131,1213
+	pix	1111,2131,1213
+	pix	1111,2131,1213
+	pix	1111,2131,1213
+	pix	1111,2131,1213
+	pix	1111,2131,1213
+	pix	1111,1111					;goalie swing
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,3300					;goalie stack right
+	pix	1111,3300
+	pix	1111,3300
+	pix	1111,3300
+	pix	1111,3300
+	pix	1111,3300
+	pix	1111,3300
+	pix	1111,3300
 	IF REV=2
-	dc.b	$55,$F0,$55,$F0,$55,$F0,$55,$F0	;goalie stack left (Rev B has 3 frames fewer)
+	pix	1111,3300					;goalie stack left (Rev B: 6 fewer, see below)
+	pix	1111,3300
+	pix	1111,3300
+	pix	1111,3300
 	ELSE
-	dc.b	$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0	;goalie stack left
+	pix	1111,3300					;goalie stack left
+	pix	1111,3300
+	pix	1111,3300
+	pix	1111,3300
+	pix	1111,3300
+	pix	1111,3300
+	pix	1111,3300
 	ENDIF
-	dc.b	$D5,$75,$D5,$75,$D5,$75,$D5,$75,$D5,$75,$D5,$75,$D5,$75,$D5,$75	;goalie stick right/left
-	dc.b	$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55	;from here
-	dc.b	$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55
-	dc.b	$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
-	dc.b	$57,$57,$57,$57
-	dc.b	$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5
+	;Rev B drops 6 stack left entries so the stick entries start at frame +64, where the stick save frames are
+	;(SPAgstickr). Rev 0/A read them from +70, so those frames got stack odds.
+	pix	3111,1311					;goalie stick right/left
+	pix	3111,1311
+	pix	3111,1311
+	pix	3111,1311
+	pix	3111,1311
+	pix	3111,1311
+	pix	3111,1311
+	pix	3111,1311
+	pix	1111,1111					;from here
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	1111,1111
+	pix	3300,3300
+	pix	3300,3300
+	pix	3300,3300
+	pix	3300,3300
+	pix	3300,3300
+	pix	3300,3300
+	pix	3300,3300
+	pix	3300,3300
+	pix	1113,1113
+	pix	1113,1113
+	pix	2211,2211
+	pix	2211,2211
+	pix	2211,2211
+	pix	2211,2211
+	pix	2211,2211
+	pix	2211,2211
+	pix	2211,2211
+	pix	2211,2211
 
 deflect								;random puck direction on deflection puck = a3.
 									;Entered from puckstick .stdef
