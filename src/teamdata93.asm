@@ -58,8 +58,8 @@ AllStarsEast						;team record: All Stars East (ASE)
 	incbin	..\Extracted\Graphics\Pals\ASEh.pal
 	incbin	..\Extracted\Graphics\Pals\ASEv.pal
 ;------------------------
-;x - not read
-;x - not read
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
 ;e - penalty kill deficit (negated while killing a penalty)
 ;b - power play bonus
 
@@ -79,7 +79,7 @@ AllStarsEast						;team record: All Stars East (ASE)
 ;o - overall
 ;------------------------
 .sr
-;		xxeb,hvxx,skpd,cfgo
+;		qreb,hvxx,skpd,cfgo
 	hex2	7020,00D6,9999,9099
 .godds								;starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	216,160
