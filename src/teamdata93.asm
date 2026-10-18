@@ -78,18 +78,20 @@ AllStarsEast						;team record: All Stars East (ASE)
 ;g - goalkeeping
 ;o - overall
 ;------------------------
-.sr									;xxeb,hvxx,skpd,cfgo
+.sr
+;		xxeb,hvxx,skpd,cfgo
 	hex2	7020,00D6,9999,9099
 .godds								;starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	216,160
-.ls									;7 lines, 8 roster numbers each: -G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,17,18,14,04,11,05,00
-	dc.b	01,19,20,15,05,12,04,00
-	dc.b	01,21,22,16,06,13,04,00
-	dc.b	01,17,18,14,04,11,05,00
-	dc.b	01,19,20,16,05,12,04,00
-	dc.b	01,21,22,16,08,15,07,00
-	dc.b	01,20,17,15,07,16,08,00
+.ls									;7 lines of 8 roster numbers, by position
+;		-G,LD,RD,LW,-C,RW,XA,00
+	dc.b	01,17,18,14,04,11,05,00	;line 1
+	dc.b	01,19,20,15,05,12,04,00	;line 2
+	dc.b	01,21,22,16,06,13,04,00	;line 3
+	dc.b	01,17,18,14,04,11,05,00	;line 4, power play 1
+	dc.b	01,19,20,16,05,12,04,00	;line 5, power play 2
+	dc.b	01,21,22,16,08,15,07,00	;line 6, penalty kill 1
+	dc.b	01,20,17,15,07,16,08,00	;line 7, penalty kill 2
 ;------------------------
 ;u - uniform # x10
 ;n - uniform # x1
@@ -110,7 +112,8 @@ AllStarsEast						;team record: All Stars East (ASE)
 ;t - passing accuracy / consistency
 ;m - aggressiveness (PIM) / NA
 ;------------------------
-.pld								;unwl,sodp,chga,eytm (roster ends with an empty record, length 2)
+.pld								;roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Patrick Roy',			335F,AFFF,0100,FFFF
 	Player	'Mike Richter',			355D,ADDD,0100,DDDD
 	Player	'Don Beaupre',			0137,AAAA,0100,AAAA
