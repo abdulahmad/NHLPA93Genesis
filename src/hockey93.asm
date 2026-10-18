@@ -474,7 +474,7 @@ ReplayMode							;this is instant replay play-back control and display code.
 	move.w	#0,d5
 	movea.l	#IceRinkMap,a1
 	adda.l	4(a1),a1
-	movea.w	#$310,a2
+	movea.w	#null,a2
 	bsr.w	dobitmap				;display replay icon
 	bclr	#sfscrl,(sflags).w		;manual scroll is off
 	bclr	#sf3track,(sflags3).w	;no tracked object
@@ -3903,7 +3903,7 @@ InitTeamStructure					;92 setteams. Set up team struct a2 for team d0: store the
 									;$314), and copy 14 longs of line data (team data +6 offset) to
 									;tmstruct+$16A. Called from setteams
 	move.w	d0,$28(a2)
-	movea.w	#$314,a0				;team address table
+	movea.w	#TeamList,a0				;team address table
 	asl.w	#2,d0
 	move.l	(a0,d0.w),tmdata(a2)
 	moveq	#$D,d0					;14 longs
@@ -4240,7 +4240,7 @@ DrawTreeArrow						;92 PlayoffScreen .doarrow. draw tree arrow d0 from Arrows.ma
 	movea.l	a0,a1
 	adda.l	(a0),a0
 	adda.l	4(a1),a1
-	movea.w	#$310,a2				;no tiles
+	movea.w	#null,a2				;no tiles
 	clr.w	d1
 	moveq	#2,d2
 	moveq	#$17,d3					;23
@@ -4263,7 +4263,7 @@ DrawTeamBlocks						;92 PlayoffScreen .doteam. draw team block d1 (team*2) from 
 	move.w	#$6000,(printa).w		;palette 3
 .nohi	movea.l	#TeamBlocksmap,a1	;a1 = map header of the team blocks
 	adda.l	4(a1),a1
-	movea.w	#$310,a2				;no tiles
+	movea.w	#null,a2				;no tiles
 	clr.w	d0
 	move.w	(a1),d2					;(92 moveq #13,d2)
 	moveq	#2,d3
@@ -4681,7 +4681,7 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 	movea.l	a0,a1
 	adda.l	(a0),a0					;palette
 	adda.l	4(a1),a1				;map header
-	movea.w	#$310,a2				;a zero word: no tiles
+	movea.w	#null,a2				;a zero word: no tiles
 	clr.w	d0
 	clr.w	d1
 	move.w	(a1),d2
@@ -4803,7 +4803,7 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	String	$FE,0,$16
 	movea.l	#Title1Map,a1			;rows $16 down of Titlemap, map only
 	adda.l	4(a1),a1
-	movea.w	#$310,a2				;a zero word: no tiles
+	movea.w	#null,a2				;a zero word: no tiles
 	clr.w	d0
 	moveq	#$16,d1
 	move.w	(a1),d2
@@ -5366,7 +5366,7 @@ setoptions							;options screen display and input. Called from PeriodOver.
 
 .psdtp	movea.l	#OptPlayMode,a1		;team line: print the team name from the team address table
 	move.w	(a1,d7.w),d3
-	movea.w	#$314,a1				;team address table
+	movea.w	#TeamList,a1				;team address table
 	asl.w	#2,d3
 	movea.l	(a1,d3.w),a1
 	lsr.w	#2,d3
@@ -5500,7 +5500,7 @@ dotb								;draw team name bar d1 = team number at printx/printy.
 	movea.l	a0,a1
 	adda.l	(a0),a0
 	adda.l	4(a1),a1
-	movea.w	#$310,a2				;tile data: word 0 at $310 = no tiles
+	movea.w	#null,a2				;tile data: word 0 at $310 = no tiles
 	move.w	(a1),d2					;width from the map header (92 13)
 	moveq	#2,d3
 	moveq	#2,d4					;(92 $8002)
@@ -5545,7 +5545,7 @@ PickStartingGoalie					;pick the goalie shown for team a2 when it changes: $26(a
 	bgt.w	.set
 	tst.w	(OptLine).w
 	bne.w	.set					;line changes off
-	movea.w	#$314,a0				;team address table
+	movea.w	#TeamList,a0				;team address table
 	move.w	(a2),d0					;team shown
 	asl.w	#2,d0
 	movea.l	(a0,d0.w),a0
@@ -6504,7 +6504,7 @@ ShowThreeStars						;end of game "Stars of the Game" box. Called from UpdatePA w
 	bsr.w	printz
 	String	$BF,9,$10,'Stars of the Game',$BF,3,$F
 	movea.l	#IceRinkMap,a1			;in the string. map at IceRinkMap offset 4
-	movea.w	#$310,a2
+	movea.w	#null,a2
 	adda.l	4(a1),a1
 	moveq	#$D,d0					;dobitmap d0-d5
 	moveq	#$5B,d1

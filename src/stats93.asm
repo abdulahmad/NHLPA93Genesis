@@ -134,7 +134,7 @@ DisplayGameInfo						;92 NewTicker3. print game d3 of gstruct (2 team rows and p
 
 PrintGameInfo						;92 NewTicker3 .tn. print team d0's name at x 6 and score d1 (2 digits) at
 									;x $18
-	movea.w	#$314,a1				;team address table
+	movea.w	#TeamList,a1				;team address table
 	asl.w	#2,d0
 	movea.l	(a1,d0.w),a1
 	adda.w	4(a1),a1				;team name
@@ -469,7 +469,7 @@ DrawTeamScreen						;line editor background: bitmap, frame, "Line Editor" title 
 	String	$FD,0,0
 	movea.l	#ScoutMap,a1			;background bitmap (map header + offset to data)
 	adda.l	4(a1),a1
-	movea.w	#$310,a2				;a2 saved/restored around this block
+	movea.w	#null,a2				;a2 saved/restored around this block
 	clr.w	d0
 	clr.w	d1
 	move.w	(a1),d2
@@ -2108,7 +2108,7 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	String	$BD,0,0
 	movea.l	#ScoutMap,a1
 	adda.l	4(a1),a1
-	movea.w	#$310,a2
+	movea.w	#null,a2
 	clr.w	d0						;start x/y 0 in the map
 	clr.w	d1
 	move.w	(a1),d2					;map width
