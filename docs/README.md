@@ -4,7 +4,7 @@ Start with the [main README](../README.md) for what this project is and how to b
 
 ## About this build
 
-- [Retail vs Rev A](retail-vs-reva.md): how the two ROM versions differ and what the `REV` flag changes in the source
+- [Rev 0 vs Rev A](retail-vs-reva.md): how the two ROM versions (v1.0 and v1.1) differ and what the `REV` flag changes in the source
 - [Modding](modding.md): developing on this build, supported ROMs, known issues, tips
 - [Conventions](conventions.md): naming lineage, comment rules, local labels, commits
 

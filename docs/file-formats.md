@@ -13,7 +13,7 @@ Documentation for the NHLPA93 .ANIM file format and tool to export from .ANIM fo
 
 ## Team data
 
-Team data layout of the retail ROM (all values big endian).
+Team data layout of the Rev 0 ROM (all values big endian).
 
 Start of the team table: `0x314-0x37B` team addresses, `0x37C-0x387` team 0 offsets (the 6th offset tracks something different in 93 than in 92), `0x388-0x3C7` home and away palettes.
 

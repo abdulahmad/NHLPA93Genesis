@@ -48,9 +48,9 @@ let n = 0;
 // In a colour terminal the step line shows a spinner and a yellow step name while it runs, and is
 // redrawn with a green check or a red cross when it ends (cut to the terminal width so it never
 // wraps). Otherwise both lines are printed once, after the step.
-const ROMNAME = { retail: 'retail', reva: 'Rev A', dev: 'retail or Rev A' }[modeName];
+const ROMNAME = { retail: 'Rev 0 (v1.0, retail)', reva: 'Rev A (v1.1)', dev: 'Rev 0 or Rev A' }[modeName];
 const ABOUT = {
-    prebuild: `check the ${modeName === 'dev' ? 'retail or Rev A' : ROMNAME} ROM and extract graphics/sound assets into Extracted/`,
+    prebuild: `check the ${modeName === 'dev' ? 'Rev 0 or Rev A' : ROMNAME} ROM and extract graphics/sound assets into Extracted/`,
     assemble: 'SNASM68k turns src/hockey93.asm into a raw ROM image',
     fixopcodes: "patch the instructions where SNASM picks a different encoding than EA's original assembler",
     verify: modeName === 'dev' ? 'compare byte-for-byte with a retail ROM (only retail and reva builds)' : `compare byte-for-byte with the ${ROMNAME} ROM`,

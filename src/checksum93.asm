@@ -2,7 +2,7 @@
 ;	game if the sum is wrong. The fill that pads the ROM out to its full size follows it.
 
 	IF REV=0
-SecurityCheck						;Retail only: the $FFFF word before ValidationRoutine (Rev A has no word
+SecurityCheck						;Rev 0 only: the $FFFF word before ValidationRoutine (Rev A has no word
 									;here). Data, not code
 	dc.w	$FFFF
 	ENDIF
@@ -25,7 +25,7 @@ ContinueValidation	subq.l	#1,d1	;loop back until d1 longs have been counted
 	IF REV=1
 	cmpi.l	#$C62A6024,d0			;Rev A sum. Real CMPI (0C80), not EA cmp
 	ELSE
-	cmpi.l	#$EB689746,d0			;retail sum. Real CMPI (0C80), not EA cmp
+	cmpi.l	#$EB689746,d0			;Rev 0 sum. Real CMPI (0C80), not EA cmp
 	ENDIF
 	bne.s	VDPErrorSetup			;wrong sum: red screen
 	rts
