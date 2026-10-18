@@ -7,6 +7,7 @@
 ;	players (.pld), the team name (.tn) and abbreviation (.ta). After the records: playoffseats (the 32
 ;	playoff tree layouts) and Credits.
 
+null								;92 null: a zero long at $310, used as the tile pointer when there is nothing to draw (no tiles)
 	dc.l	$0000
 
 TeamList							;table of long pointers to the team records, indexed by team number

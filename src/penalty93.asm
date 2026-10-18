@@ -832,7 +832,7 @@ SetHor								;switch graphics to horizontal ice rink graphics mode. Does not re
 	String	$FE,0,0
 	movea.l	#IceRinkMap,a1			;draw the horizontal rink map with dobitmap
 	adda.l	4(a1),a1
-	movea.w	#$310,a2				;tile pointer $310 (a fixed address, probably nothing to decompress)
+	movea.w	#null,a2				;tile pointer null: a zero word, so nothing to decompress
 	clr.w	d0						;start x 0
 	moveq	#$55,d1					;85: start y in the map
 	moveq	#$20,d2					;32 wide
@@ -968,7 +968,7 @@ DrawEASNMap							;Draw the EASN logo map at the current printx/printy.
 									;Also called from ShowScores
 	movea.l	#EASNmap,a1
 	adda.l	4(a1),a1
-	movea.w	#$310,a2				;tile pointer $310 (as in SetHor)
+	movea.w	#null,a2				;tile pointer null (as in SetHor)
 	clr.w	d0						;start x/y 0
 	clr.w	d1
 	move.w	(a1),d2					;width and height from the map header (92: 7, 2)
@@ -1058,7 +1058,7 @@ dobar	equ	*						;92 dobar (draw energy bar for energy level d0); in 92 this is 
 	clr.w	d0
 	movea.l	#EnergyBarMap,a1
 	adda.l	4(a1),a1
-	movea.w	#$310,a2				;tile pointer $310 (as in SetHor)
+	movea.w	#null,a2				;tile pointer null (as in SetHor)
 	move.w	(a1),d2					;map width
 	moveq	#1,d3					;1 row high
 	move.w	(energybarchars).w,d4
@@ -1308,7 +1308,7 @@ SetScore							;add to score for game in a0. After period 3 a game within one go
 .getscore	asl.w	#2,d0			;d0 = scoring team, d1 = other team. Adds the scoring team's (bits 4-6)
 									;and the other team's (bits 0-2) .sctab rows as weights. Return d0 = goals
 									;0-3
-	movea.w	#$314,a1				;team address table
+	movea.w	#TeamList,a1				;team address table
 	movea.l	(a1,d0.w),a1
 	adda.w	8(a1),a1
 	move.b	(a1),d0
@@ -1318,7 +1318,7 @@ SetScore							;add to score for game in a0. After period 3 a game within one go
 	move.l	(a1,d0.w),(nibblebuffer).w
 	move.l	4(a1,d0.w),(nibblebuffer+4).w
 	asl.w	#2,d1
-	movea.w	#$314,a1
+	movea.w	#TeamList,a1
 	movea.l	(a1,d1.w),a1
 	adda.w	8(a1),a1
 	move.b	(a1),d0
@@ -1413,7 +1413,7 @@ NewTicker3							;display ticker score for game d3 (a0 = gstruct entry), skip if
 
 .tn	move.w	4(sp),(printx).w		;print team d0 name and score d1 on the next row
 	addq.w	#1,(printy).w
-	movea.w	#$314,a1				;team address table
+	movea.w	#TeamList,a1				;team address table
 	asl.w	#2,d0
 	movea.l	(a1,d0.w),a1
 	adda.w	4(a1),a1				;TeamName
