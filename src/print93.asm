@@ -10,7 +10,7 @@ xyVmMap								;use printx/y/m to set vram address. Returns a0 = Vdata.
 	movem.l	d0-d2,-(sp)
 	move.w	(printx).w,d0
 	move.w	(printy).w,d1
-	movea.w	#(VmMap1-M68K_RAM),a0
+	movea.w	#(VmMAP1-M68K_RAM),a0
 	adda.w	(printm).w,a0
 	move.w	2(a0),d2				;map width shift
 	asl.w	d2,d1
@@ -49,7 +49,7 @@ Framer								;frame and fill (uses framer.map graphics and assums tiles are alr
 	bset	#dfng,(disflags).w
 	movem.w	d0-d1,-(sp)
 	move.w	(printa).w,d2
-	add.w	(Framercset).w,d2
+	add.w	(framercset).w,d2
 	movea.l	#Framermap,a1
 	adda.l	4(a1),a1
 	addq.w	#4,a1
@@ -466,7 +466,7 @@ printbig							;same as print, only use bigfont.map graphics. a1 = string macro,
 	move.w	(printx).w,d4
 	move.w	(printy).w,d5
 	move.w	(printa).w,d6
-	add.w	(BigFontChars).w,d6
+	add.w	(BigFontchars).w,d6
 
 	move.w	(a1)+,d3
 	subq.w	#2,d3
@@ -482,7 +482,7 @@ printbig							;same as print, only use bigfont.map graphics. a1 = string macro,
 	asl.w	#1,d6
 	andi.w	#$F800,d6				;b -> palette/priority bits
 	move.w	d6,(printa).w
-	add.w	(BigFontChars).w,d6		;d6 = attribute + big font char base
+	add.w	(BigFontchars).w,d6		;d6 = attribute + big font char base
 
 	andi.w	#3,d0					;a = map number
 	asl.w	#2,d0
@@ -542,7 +542,7 @@ printbig							;same as print, only use bigfont.map graphics. a1 = string macro,
 .dump	add.w	d6,d3				;write tile d3 (+ attribute/char base d6) at d4/d5 of map printm
 	movem.l	d1/a0,-(sp)
 	move.w	d5,d0
-	movea.l	#VmMap1,a0				;$FFFFB004
+	movea.l	#VmMAP1,a0				;$FFFFB004
 	adda.w	(printm).w,a0
 	move.w	2(a0),d1
 	asl.w	d1,d0
@@ -563,7 +563,7 @@ AddSmallFont						;transfer smallfont.map tiles to vram. d4 = char to start tile
 AddFramer							;transfer framer.map tiles to vram. d4 = char to start tiles at, return d4
 									;= end of tiles + 1. Goes through DecompressGraphics
 	movea.l	#FramerMap+8,a2
-	move.w	d4,(Framercset).w
+	move.w	d4,(framercset).w
 	bra.w	DecompressGraphicsPlain
 
 AddTeamBlock						;transfer TeamBlocks.map tiles to vram at char 2. Return d4 = end of tiles

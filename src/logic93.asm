@@ -43,7 +43,7 @@ doinput								;process controller input
 	beq.w	.ispc					;player is puck carrier
 	;not the carrier: abut = hold/hook, bbut = switch player, cbut = burst/check, else just skate
 	btst	#abut,d1				;abut
-	bne.w	holdplayer				;hold button
+	bne.w	Holdplayer				;hold button
 	btst	#bbut,d1				;bbut, is not puck c
 	bne.w	changeplayer			;switch players
 	tst.w	position(a3)
@@ -102,7 +102,7 @@ faceoffinput						;controller processing for faceoff
 fightinput							;controller processing for fighting
 	tst.w	temp3(a3)
 	bmi.w	rtss					;exit if fight is over
-	tst.w	(Pencntdwn).w
+	tst.w	(PenCntDwn).w
 	bmi.w	rtss					;exit if fight is over
 	cmpi.w	#SPAfight,SPA(a3)
 	beq.w	rtss					;exit if this player is not in ready position
@@ -352,7 +352,7 @@ burst								;cbut press check/speed. Also entered from check4check burst costs 
 	move.w	#SPAburst,d1
 	bra.w	SetSPA
 
-holdplayer							;abut press hold. a0 = the player this one is
+Holdplayer							;abut press hold. a0 = the player this one is
 									;assigned to, falls into Acheck
 	bset	#pfalock,pflags(a3)
 	move.w	#SPAhook,d1
@@ -554,7 +554,7 @@ passtoa0							;pass puck to player a0
 	move.w	d4,d0
 	muls.w	d0,d0
 	sub.l	d3,d0
-	bsr.w	sroot
+	bsr.w	Sroot
 	moveq	#1,d3					;limit inf. loop
 	asr.w	#2,d5
 	bne.w	.0
@@ -818,7 +818,7 @@ doshot								;stick is at puck so launch puck toward goal
 	muls.w	d0,d0
 	muls.w	d1,d1
 	add.l	d1,d0
-	bsr.w	sroot
+	bsr.w	Sroot
 	tst.w	d0						;distance in pix to goal
 	bne.w	.1
 	addq.w	#1,d0
@@ -925,7 +925,7 @@ shotdiradj							;If the opposing goalie
 	muls.w	d1,d1
 	add.l	d1,d0
 	addq.l	#1,d0
-	bsr.w	sroot
+	bsr.w	Sroot
 	move.w	d0,d2					;distance to goalie
 	movem.w	(sp)+,d0-d1
 	moveq	#$12,d3					;post x
@@ -1333,7 +1333,7 @@ assfight							;fighting logic
 									;a3 = player
 	btst	#pfalock,pflags(a3)		;check if animation lock
 	bne.w	rtss					;exit if so
-	tst.w	(Pencntdwn).w			;fight over?
+	tst.w	(PenCntDwn).w			;fight over?
 	bmi.w	donothing
 	bclr	#pfna,pflags(a3)		;clear new assignment
 	beq.w	.nna					;not first time through
@@ -1508,7 +1508,7 @@ chkhit								;part of fight to see if player is hit
 	bra.w	.ex
 .cwd								;Crowd reacts to a punch; push the hit player (a3) back by the puncher's
 									;(a0) strength
-	addi.w	#$50,(crowdlevel).w
+	addi.w	#$50,(Crowdlevel).w
 	addi.w	#$A,(CwdExciteLvl).w
 	moveq	#5,d0
 	add.w	temp3(a0),d0
@@ -1532,15 +1532,15 @@ chkhit								;part of fight to see if player is hit
 	bne.s	.loop					;find the penalty of the a0 player
 	move.b	#PenFighting2,(a1)		;penalty becomes PenFighting2
 	movem.l	(sp)+,a1
-	move.w	#$3C,(Pencntdwn).w		;60
+	move.w	#$3C,(PenCntDwn).w		;60
 	move.w	#$FFFF,temp3(a0)		;temp3 = -1
-	addi.w	#$258,(crowdlevel).w	;600
+	addi.w	#$258,(Crowdlevel).w	;600
 	addi.w	#$1E,(CwdExciteLvl).w
 	moveq	#$3C,d0
 	bsr.w	randomd0
 	cmp.b	$75(a0),d0				;checking value
 	bgt.w	.noinj					;skip injury
-	move.w	#$B4,(Pencntdwn).w		;180: player is injured
+	move.w	#$B4,(PenCntDwn).w		;180: player is injured
 	bset	#pf2inj,pflags2(a3)
 	move.w	#SPAfinjury,d1
 	bsr.w	SetSPA
@@ -1664,7 +1664,7 @@ assfwatch							;for player who is watching fight
 	muls.w	d0,d0
 	muls.w	d1,d1
 	add.l	d1,d0
-	bsr.w	sroot
+	bsr.w	Sroot
 	move.w	d0,d2
 	bne.w	.d
 	moveq	#1,d2
@@ -2312,7 +2312,7 @@ assgoalie							;Player a3 is goalie. Also entered from assnearest
 	move.w	#SPAgdive,d1
 	bsr.w	SetSPA
 	bset	#pf2aip,pflags2(a3)
-	addi.w	#$96,(crowdlevel).w		;150
+	addi.w	#$96,(Crowdlevel).w		;150
 	addi.w	#$A,(CwdExciteLvl).w
 	rts
 .de1	movea.w	#(puckcross-M68K_RAM),a0	;a0 = puckcross for this goal, d3 = goal line y
@@ -2366,7 +2366,7 @@ assgoalie							;Player a3 is goalie. Also entered from assnearest
 	bhi.w	.far
 	movem.w	(sp)+,d0-d1
 	bra.w	.de4
-.far	bsr.w	sroot				;Scale to an 18 (26 if shooting) pixel arc
+.far	bsr.w	Sroot				;Scale to an 18 (26 if shooting) pixel arc
 	moveq	#1,d2
 	add.w	d0,d2
 	moveq	#$12,d4
@@ -2433,7 +2433,7 @@ assgoalie							;Player a3 is goalie. Also entered from assnearest
 	blt.w	.set
 	move.w	#SPAgglovel2,d1
 .set	bsr.w	SetSPA				;start save, crowd reacts
-	addi.w	#$96,(crowdlevel).w
+	addi.w	#$96,(Crowdlevel).w
 	addi.w	#$A,(CwdExciteLvl).w
 .de8	move.w	(a0),d0				;target x = crossing x, or hug the post when the puck is wide
 	cmpi.w	#$FC,(pucky).w
@@ -2472,7 +2472,7 @@ assgoalie							;Player a3 is goalie. Also entered from assnearest
 	ext.w	d2
 	cmp.w	#7,d2
 	ble.w	playeracc
-	bra.w	StopNA
+	bra.w	stopna
 	;rush a loose puck only when stats and puck motion say so
 .rush	tst.w	(puckc).w			;rush a loose puck when
 	bpl.s	.de5					;the score/time stats say so
@@ -3518,9 +3518,9 @@ puckfaceoff2						;face off control logic and general setup for action a3 = the 
 	bsr.w	forceblack				;blank the screen while setting up
 .p	btst	#dfok,(disflags).w		;wait for vblank (dfok clear)
 	bne.s	.p						;wait for vblank
-	cmpi.w	#$258,(crowdlevel).w
+	cmpi.w	#$258,(Crowdlevel).w
 	bls.w	.ntm
-	move.w	#$258,(crowdlevel).w	;limit crowd level
+	move.w	#$258,(Crowdlevel).w	;limit crowd level
 .ntm	bset	#dfclock,(disflags).w	;stop clock
 	bclr	#sfpz,(sflags).w		;no pause
 	bclr	#sf3llcs,(sflags3).w	;no line changes
@@ -3875,7 +3875,7 @@ pucknorm							;assignment for puck most of the time. a3 = puck, d7 = elapse fra
 	add.w	d1,Ypos(a3)
 	move.w	Xvel(a2),Xvel(a3)		;puck takes the carrier's velocity
 	move.w	Yvel(a2),Yvel(a3)
-.nothandled	bsr.w	puckIChk		;icing check
+.nothandled	bsr.w	PuckIChk		;icing check
 	bsr.w	ChkOffsides				;offsides check
 	btst	#gmclock,(gmode).w		;loose puck that has not moved
 	bne.w	.z						;(Xpos = $1C, Ypos = $20) for 120 calls
@@ -4064,7 +4064,7 @@ a2touchpuck							;player a2 touches puck. Look for penalties/offsides/other jun
 	bset	#ifok,(iflags).w		;ifok
 	rts
 
-puckIChk							;check for icing of puck penalty. Called from pucknorm
+PuckIChk							;check for icing of puck penalty. Called from pucknorm
 	btst	#ifok,(iflags).w		;ifok
 	beq.w	rtss					;icing not possible
 	btst	#ifcgl,(iflags).w		;ifcgl
@@ -4616,7 +4616,7 @@ goalieacc							;goalie gets acc. in direction d0. Turns facedir one step toward
 	bne.w	.cgl					;8 = no direction
 	move.w	Xvel(a3),d0				;9 = stop
 	or.w	Yvel(a3),d0
-	bne.w	StopNA					;still moving: slow down
+	bne.w	stopna					;still moving: slow down
 .cgl	btst	#pf2aip,pflags2(a3)	;animation in progress: leave it
 	beq.w	SetSPA
 	rts
@@ -4788,14 +4788,14 @@ dostop								;player a3 stops. Entered from doplayeracc and noturn0
 	bgt.w	.set
 	cmpi.w	#-$1000,Yvel(a3)
 	blt.w	.set
-	bra.w	StopNA					;stop with no anim
+	bra.w	stopna					;stop with no anim
 .set	move.w	#SPAglide,d1		;backwards: plain glide animation, no skid
 	btst	#pfrev,pflags(a3)
 	bne.w	.0
 	bset	#pf2aip,pflags2(a3)		;forward: animation in progress ...
 	move.w	#SPAstop,d1				;... the skid stop
-.0	bsr.w	SetSPA					;then fall into StopNA to slow down
-StopNA								;slow player a3 by 150 on each axis, no animation change. Falls in from
+.0	bsr.w	SetSPA					;then fall into stopna to slow down
+stopna								;slow player a3 by 150 on each axis, no animation change. Falls in from
 									;dostop, also entered from goalieacc and others
 	tst.w	Xvel(a3)				;x axis: move toward zero by 150, clamp at zero
 	bpl.w	.xp

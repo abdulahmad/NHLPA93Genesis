@@ -24,8 +24,8 @@ SPFsweep	=	SPFshoulderr+8		; 257 (sweep check)
 SPFfallback	=	SPFsweep+16			; 273 (falling backward)
 SPFfallfwd	=	SPFfallback+32		; 305 (falling forward)
 SPFduck	=	SPFfallfwd+32			; 337 (ducking)
-SPFhold	=	SPFduck+8				; 345 (holding)
-SPFgloves	=	SPFhold+8			; 353 (gloves on the ice (fights))
+SPFHold	=	SPFduck+8				; 345 (holding)
+SPFgloves	=	SPFHold+8			; 353 (gloves on the ice (fights))
 SPFfight	=	SPFgloves+1			; 354 (fighting)
 SPFfinjury	=	SPFfight+17			; 371 - New (fight injury)
 SPFPen	=	SPFfinjury+6			; 377 (frames used by the wall jump animations)
@@ -1042,7 +1042,7 @@ SPAHold_table:						;table of the animation above: direction offsets, flags, fra
 	dc.w	.7-.t					; 0x002e
 	dc.w	0
 
-.a	=	SPFhold
+.a	=	SPFHold
 .aoff	=	1
 
 .0	dc.w	.a,-30
@@ -1074,7 +1074,7 @@ SPAHold2_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	.7-.t					; 0x002e
 	dc.w	0
 
-.a	=	SPFhold
+.a	=	SPFHold
 .aoff	=	1
 
 .0	dc.w	.a,-30

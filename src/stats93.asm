@@ -2053,7 +2053,7 @@ PrintCrowdMeter						;crowd meter rows: CwdExciteLvl, average (SumCwdExciteLvl /
 PrintCrowdDB						;print crowd level d0 as sqrt(d0*4) + 65 " dB"
 	ext.l	d0
 	asl.w	#2,d0					;level * 4
-	bsr.w	sroot					;d0 = square root
+	bsr.w	Sroot					;d0 = square root
 	addi.w	#$41,d0					;+ 65
 	moveq	#3,d1					;3 digits
 	bsr.w	PushNumberWidth
@@ -2080,7 +2080,7 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	move.w	(sp)+,(disflags).w
 	bclr	#df32c,(disflags).w		;not in 32 cell mode
 	;load the frame graphics and the small font tiles
-	move.w	(Framercset).w,d4
+	move.w	(framercset).w,d4
 	movea.l	#FramerMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$91234567,$89ABCDEF		;inline 8 byte color remap table (skipped on return, not code)
@@ -2155,7 +2155,7 @@ ExitStatsScreen						;leave a stats screen: back to 32 cell mode, reload the rin
 	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$43434567,$89ABCDEF		;inline 8 byte color remap table (skipped on return, not code)
-	move.w	(Framercset).w,d4
+	move.w	(framercset).w,d4
 	bsr.w	AddFramer
 	;restore the palettes; setplayercolors returns to the caller
 	jsr	(setupIceRinkPal).l
@@ -2339,9 +2339,9 @@ loopthroughplayers					;one pass per record: advance by the record's length word
 	movem.l	(sp)+,a0
 	rts
 
-WaitVSyncAndReadInput				;92 Pausemode .rjoy. wait for vcount to change and a new button press (d1)
-	move.w	(vcount).w,d1
-.wait	cmp.w	(vcount).w,d1		;has vcount changed?
+WaitVSyncAndReadInput				;92 Pausemode .rjoy. wait for Vcount to change and a new button press (d1)
+	move.w	(Vcount).w,d1
+.wait	cmp.w	(Vcount).w,d1		;has Vcount changed?
 	beq.s	.wait					;spin until the vblank counter changes
 	bsr.w	getpzjoy				;d1 = new presses, d3 = held
 	bsr.w	nodiag					;drop diagonal presses
