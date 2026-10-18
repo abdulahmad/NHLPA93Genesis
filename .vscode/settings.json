@@ -1,0 +1,16 @@
+{
+  "files.associations": {
+    "*.asm": "nhl-m68k",
+    "*.inc": "nhl-m68k",
+    "*.mac": "nhl-m68k"
+  },
+  "[nhl-m68k]": {
+    "editor.colorDecorators": false
+  },
+  "colorHighlight.languages": [],
+  "editor.colorDecorators": false,
+  "editor.insertSpaces": false,
+  "editor.tabSize": 4,
+  "editor.detectIndentation": false,
+  "files.insertFinalNewline": true
+}
