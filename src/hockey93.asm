@@ -5895,7 +5895,7 @@ VBlank_SetOptions					;VBint handler stored by setoptions: cramfade unless dfng,
 ;	GetShifter), then the playoff stat packing (AddPlayoffTeamStats, ReadTeamStats).
 ;
 ;	The password bits are kept in a 5 word buffer at a3 and there is no password checksum (92 had one). The
-;	buffers are pwddatabuffer, tpassbits and outputbuffer (Rev 0 addresses are 4 bytes lower than Rev A).
+;	buffers are passbits, tpassbits and outputbuffer (Rev 0 addresses are 4 bytes lower than Rev A).
 ;
 ;	playoffroundoffset reuses the old playoff joystick word and playofflevel reuses the old number-of-players
 ;	option slot.
@@ -5916,7 +5916,7 @@ ContinuePlayoffs					;continue playoffs: read the playoff state back from the pa
 									;rebuild the tree.
 									;Called from setoptions when play mode becomes "continue playoffs".
 	movem.l	d0-d7/a0-a3,-(sp)
-	movea.w	#(pwddatabuffer-M68K_RAM),a3	;password bits
+	movea.w	#(passbits-M68K_RAM),a3	;password bits
 	bsr.w	ReadPassBits
 	move.w	(gamelevel).w,d0
 	or.w	(bosgames).w,d0
@@ -6183,7 +6183,7 @@ EncodePW							;after playoff game compute winners and password if needed. Calle
 	beq.w	.userwon				;finished playoffs
 	tst.w	(gamenum).w
 	bmi.w	.userwon				;po team out, same as a win
-	movea.w	#(pwddatabuffer-M68K_RAM),a3	;password bits
+	movea.w	#(passbits-M68K_RAM),a3	;password bits
 	bsr.w	WritePassBits
 	bsr.w	BackupRAM_Save
 	btst	#sf3alttree,(sflags3).w
@@ -6192,7 +6192,7 @@ EncodePW							;after playoff game compute winners and password if needed. Calle
 	bsr.w	ReadPassBits
 	bra.w	MakeTree
 
-.userwon	movea.w	#(pwddatabuffer-M68K_RAM),a3	;password bits
+.userwon	movea.w	#(passbits-M68K_RAM),a3	;password bits
 	bsr.w	ClrPassBits
 	bsr.w	BackupRAM_Save
 	move.w	#2,(OptPlayMode).w		;new playoffs

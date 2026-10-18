@@ -669,7 +669,7 @@ Verdicts from reading each routine body / variable usage. "ok" = name matches be
 | playoffspritex | ok |
 | playoffspritey | ok |
 | printfontset | ok |
-| pwddatabuffer | ok |
+| passbits | ok |
 | redrawicons | ok |
 | repeatdelayframes | ok |
 | replayactive | ok |
