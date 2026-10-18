@@ -136,24 +136,24 @@ printa			rs.w	1			;attribute for print characters
 printm			rs.w	1			;map to use (0 = map 1, 4 = map 2, 8 = map 3)
 printfontset	rs.w	1			;printsmall char set (index*2 into smallfontchars).
 ;printsmall control codes (byte value = -(ControlCodeJumpTable entry); names match the ControlCode_* routines)
-CC_SetMap				=	$FF		;-1: next byte = map number -> printm
-CC_SetAttribute			=	$FE		;-2: next byte = palette/priority -> printa
-CC_SetX					=	$FD		;-3: next byte = printx
-CC_SetY					=	$FC		;-4: next byte = printy
-CC_AddX					=	$FB		;-5: add next signed byte to printx
-CC_AddY					=	$FA		;-6: add next signed byte to printy
-CC_SetFont				=	$F9		;-7: next byte = char set index
+CC_SetMap			=	$FF			;-1: next byte = map number -> printm
+CC_SetAttribute		=	$FE			;-2: next byte = palette/priority -> printa
+CC_SetX				=	$FD			;-3: next byte = printx
+CC_SetY				=	$FC			;-4: next byte = printy
+CC_AddX				=	$FB			;-5: add next signed byte to printx
+CC_AddY				=	$FA			;-6: add next signed byte to printy
+CC_SetFont			=	$F9			;-7: next byte = char set index
 CC_SetMapAndPosition	=	$F8		;-8: next 4 bytes = attribute, map, x, y
-fodropx					rs.w	1	;face off drop spot x/y
-fodropy					rs.w	1	;face off drop spot y (see fodropx)
-recbpr					rs.l	1	;replay record buffer pointer: the frame being recorded (92 recbpr)
-VBint					rs.l	1	;address of vblank interupt code
-Vcount					rs.w	1	;counter for vblank
-OldVcount				rs.w	1	;Vcount at the last game frame: the frame loop waits d7 frames from it
-repeatdelayframes		rs.w	1	;frames until the menu cursor repeats (first delay $F, then 4)
-asv						rs.w	1	;analog sound volume (crowd noise)
-lldisp					rs.w	1	;line level disp update counter
-periodendtime			rs.w	1	;CheckLateGameSong trigger time.
+fodropx				rs.w	1		;face off drop spot x/y
+fodropy				rs.w	1		;face off drop spot y (see fodropx)
+recbpr				rs.l	1		;replay record buffer pointer: the frame being recorded (92 recbpr)
+VBint				rs.l	1		;address of vblank interupt code
+Vcount				rs.w	1		;counter for vblank
+OldVcount			rs.w	1		;Vcount at the last game frame: the frame loop waits d7 frames from it
+repeatdelayframes	rs.w	1		;frames until the menu cursor repeats (first delay $F, then 4)
+asv					rs.w	1		;analog sound volume (crowd noise)
+lldisp				rs.w	1		;line level disp update counter
+periodendtime		rs.w	1		;CheckLateGameSong trigger time.
 
 ;the following are equates for the sort object structure (SCstruct bytes each)
 
@@ -284,68 +284,68 @@ palbuffer		rs.w	32			;to palfadenew+$80
 fofdata2	rs.l	2				;title screen: TitleAnimCallback timers; also the 2nd half of the face off
 									;frame/attribute data (see fofdata)
 ;$FFFFBDAC is fofdata2+4
-fofdata					rs.l	1	;data for frame/att of big face off sprites
-pads					rs.w	42	;face off objects tied to the rink scroll: the 3 pads and the centre ice
+fofdata				rs.l	1		;data for frame/att of big face off sprites
+pads				rs.w	42		;face off objects tied to the rink scroll: the 3 pads and the centre ice
 									;logo (ffo, ffosize bytes each; 92 pads = ffo)
-ffosize					=	OldXpos	;field objects tied to icerink scrolling, OldXpos bytes each
-CameraPosStruct			rs.w	11	;scroll camera: tracked object, target and the lead on the scroll
+ffosize				=	OldXpos		;field objects tied to icerink scrolling, OldXpos bytes each
+CameraPosStruct		rs.w	11		;scroll camera: tracked object, target and the lead on the scroll
 									;(UpdateCameraPos)
-replayactive			rs.w	3	;set by ReplayMode.
-glovestruct				rs.w	14	;gloves object, pads+(4*ffosize).
-PadControlBits			rs.w	1	;pad assignment bits: $FFFF = no pad assignments (set at game setup); the
+replayactive		rs.w	3		;set by ReplayMode.
+glovestruct			rs.w	14		;gloves object, pads+(4*ffosize).
+PadControlBits		rs.w	1		;pad assignment bits: $FFFF = no pad assignments (set at game setup); the
 									;top 4 bits are masked and set around the camera and start-up code
-padcont					rs.w	4	;pad assignment data (4 words), cleared together with PadControlBits
-ffonum					=	5		;5 objects tied to icerink scrolling (3 pads + centre ice logo + gloves)
-ssonum					=	2		;2 objects not tied to icerink scrolling (the 2 arrows for off screen
+padcont				rs.w	4		;pad assignment data (4 words), cleared together with PadControlBits
+ffonum				=	5			;5 objects tied to icerink scrolling (3 pads + centre ice logo + gloves)
+ssonum				=	2			;2 objects not tied to icerink scrolling (the 2 arrows for off screen
 									;players; 92 had 4, with 2 scoreboard logos)
-ssosize					=	Ypos	;bytes per sso object
-Xcord					=	0		;x and y words at the start of an sso object (the defaultsprites sso
+ssosize				=	Ypos		;bytes per sso object
+Xcord				=	0			;x and y words at the start of an sso object (the defaultsprites sso
 									;lists)
-Ycord					=	2		;y word of an sso object
-sso						rs.w	20	;screen objects not tied to the rink scroll: 2 arrows for off screen
+Ycord				=	2			;y word of an sso object
+sso					rs.w	20		;screen objects not tied to the rink scroll: 2 arrows for off screen
 									;players (92 had 4, with 2 scoreboard logos)
-shotplayer				rs.w	1	;player who shot last
-lastplayer				rs.w	1	;last player who touched puck
-passdir					rs.w	1	;direction for pass/shot
-passspeed				rs.w	1	;speed of pass/shot
+shotplayer			rs.w	1		;player who shot last
+lastplayer			rs.w	1		;last player who touched puck
+passdir				rs.w	1		;direction for pass/shot
+passspeed			rs.w	1		;speed of pass/shot
 passReceiverPlayerNum	rs.w	1	;SCnum of the intended receiver of the last pass, -1 = none (counts a
 									;completed pass)
-glovecords				rs.w	1	;cordinates of glove/sticks (fighting)
-threat					rs.w	1	;direction of threat on puck handler
-puckcross				rs.w	4	;xcord/frames top to bottom (for goalies to react to)
-lj1						rs.w	1	;used in joystick debounce
-lj2						rs.w	1	;joystick debounce for pad 2 (see lj1)
-disflags				rs.w	1	;display flags
-dfok					=	0		;graphics are ready for transfer
-df32c					=	1		;32 column mode on
-dfng					=	2		;don't int graphics
-dfclock					=	3		;clock needs update
-dffaceoff				=	4		;face off sprites on (92 tested sf2faceoff). 93 only
-ltplayer				rs.w	1	;last touch player
-ltx						rs.w	1	;last touch x cord
-lty						rs.w	1	;last touch y cord
-iflags					rs.b	1	;icing
-ifcgl					=	0		;crossed goalline
-ifdir					=	1		;1=must cross top line
-ifok					=	2		;iflags: icing possible
-icingPlayer				rs.b	5	;icing: the SCnum+1 of the last player to touch the puck (iflags+1), then
+glovecords			rs.w	1		;cordinates of glove/sticks (fighting)
+threat				rs.w	1		;direction of threat on puck handler
+puckcross			rs.w	4		;xcord/frames top to bottom (for goalies to react to)
+lj1					rs.w	1		;used in joystick debounce
+lj2					rs.w	1		;joystick debounce for pad 2 (see lj1)
+disflags			rs.w	1		;display flags
+dfok				=	0			;graphics are ready for transfer
+df32c				=	1			;32 column mode on
+dfng				=	2			;don't int graphics
+dfclock				=	3			;clock needs update
+dffaceoff			=	4			;face off sprites on (92 tested sf2faceoff). 93 only
+ltplayer			rs.w	1		;last touch player
+ltx					rs.w	1		;last touch x cord
+lty					rs.w	1		;last touch y cord
+iflags				rs.b	1		;icing
+ifcgl				=	0			;crossed goalline
+ifdir				=	1			;1=must cross top line
+ifok				=	2			;iflags: icing possible
+icingPlayer			rs.b	5		;icing: the SCnum+1 of the last player to touch the puck (iflags+1), then
 									;4 more bytes
-jps						=	24		;jiffys per second
-jiffy					=	$10000/jps	;one jiffy as a fraction of a second ($10000/jps)
-clockram				rs.w	3	;ram for dma transfer of clock digits
-xc1						rs.w	1	;scroll lock x cord
-yc1						rs.w	1	;scroll lock y cord
-yleader					rs.w	1	;lead distance on scrolling
-fox						rs.w	1	;faceoff spot x/y
-foy						rs.w	1	;face off spot y (see fox)
-fodir1					rs.w	1	;pull directions for each player on face off
-fodir2					rs.w	1	;pull direction for the visiting player on the face off (see fodir1)
-deltax					rs.w	1	;used lots of places for x/y stuff
-deltay					rs.w	1	;y difference, used in many places (see deltax)
-collflag				rs.w	1	;collision has occured
-evalue					rs.w	1	;elasticity value (parameter of collisions)
-mesarea					rs.w	1	;temp area for mes chars
-TextBuffer				rs.w	49	;to mesarea+100
+jps					=	24			;jiffys per second
+jiffy				=	$10000/jps	;one jiffy as a fraction of a second ($10000/jps)
+clockram			rs.w	3		;ram for dma transfer of clock digits
+xc1					rs.w	1		;scroll lock x cord
+yc1					rs.w	1		;scroll lock y cord
+yleader				rs.w	1		;lead distance on scrolling
+fox					rs.w	1		;faceoff spot x/y
+foy					rs.w	1		;face off spot y (see fox)
+fodir1				rs.w	1		;pull directions for each player on face off
+fodir2				rs.w	1		;pull direction for the visiting player on the face off (see fodir1)
+deltax				rs.w	1		;used lots of places for x/y stuff
+deltay				rs.w	1		;y difference, used in many places (see deltax)
+collflag			rs.w	1		;collision has occured
+evalue				rs.w	1		;elasticity value (parameter of collisions)
+mesarea				rs.w	1		;temp area for mes chars
+TextBuffer			rs.w	49		;to mesarea+100
 ;$FFFFBED4 is mesarea+30
 PushWidthBuf	rs.w	4			;PushNumberWidth string: length word, then digits.
 ;$FFFFBF1C is PushWidthBuf+2
@@ -541,28 +541,28 @@ PalMode				rs.w	1		;Rev A only: VDP PAL bit (Begin). Set = 50 Hz: faster skating
 									;(updateplayers) and music (p_music_vblank)
 music_tick_divider	rs.w	1		;Rev A only: p_music_vblank runs the track slots again every 6th frame
 	ENDIF
-databuffer				rs.w	9	;the saved block, 128 bytes (data + checksum; marker is its checksum byte)
-pwddatabuffer			rs.w	5	;playoff password bits (5 words; no checksum in 93)
-outputbuffer			rs.w	49	;work buffer, also the shot data kept between games
-marker					rs.w	1	;databuffer+126: not(sum) of the saved block
-tpassbits				rs.w	5	;temporary storage of passbits.
+databuffer			rs.w	9		;the saved block, 128 bytes (data + checksum; marker is its checksum byte)
+pwddatabuffer		rs.w	5		;playoff password bits (5 words; no checksum in 93)
+outputbuffer		rs.w	49		;work buffer, also the shot data kept between games
+marker				rs.w	1		;databuffer+126: not(sum) of the saved block
+tpassbits			rs.w	5		;temporary storage of passbits.
 music_needs_z80_update	rs.w	1	;nonzero when the Z80 must be sent the channel changes
-Z80_command_buffer		rs.b	5	;key off/on, volume, frequency and patch bits for the Z80 (5 bytes)
+Z80_command_buffer	rs.b	5		;key off/on, volume, frequency and patch bits for the Z80 (5 bytes)
 per_channel_attenuation_table	rs.b	7	;FM channel attenuation (7 bytes, 6 FM + the DAC)
 per_channel_frequency_table	rs.w	7	;FM channel frequency values (7 words)
 per_channel_patch_table	rs.w	4	;FM channel patch numbers (4 words)
 fm_voice_usage_table	rs.w	256	;which track slot uses each FM voice (256 words)
-fm_channel_structs		rs.w	15	;FM channel state (15 words)
-pcm_channel_struct		rs.w	3	;PCM (DAC) channel state (3 words)
-fm_track_slots			rs.w	25	;track slots that play the sounds and songs (25 words)
-retrycount				rs.w	1	;backup RAM retries left (10 at InitBackupRAM)
-errorflag				rs.w	1	;backup RAM error count / flag (cleared at InitBackupRAM)
-sramdataptr				rs.l	1	;pointer to the data being read or written in backup RAM
-address					rs.l	1	;backup RAM address being accessed
-byecount				rs.l	1	;backup RAM byte counter (long)
-bytecount				rs.w	1	;backup RAM byte counter
-command					rs.w	1	;backup RAM command byte being sent
-bufferptr				rs.l	1	;backup RAM buffer pointer
-address2				rs.l	1	;backup RAM second address
-errorflag2				rs.w	1	;backup RAM second error flag
+fm_channel_structs	rs.w	15		;FM channel state (15 words)
+pcm_channel_struct	rs.w	3		;PCM (DAC) channel state (3 words)
+fm_track_slots		rs.w	25		;track slots that play the sounds and songs (25 words)
+retrycount			rs.w	1		;backup RAM retries left (10 at InitBackupRAM)
+errorflag			rs.w	1		;backup RAM error count / flag (cleared at InitBackupRAM)
+sramdataptr			rs.l	1		;pointer to the data being read or written in backup RAM
+address				rs.l	1		;backup RAM address being accessed
+byecount			rs.l	1		;backup RAM byte counter (long)
+bytecount			rs.w	1		;backup RAM byte counter
+command				rs.w	1		;backup RAM command byte being sent
+bufferptr			rs.l	1		;backup RAM buffer pointer
+address2			rs.l	1		;backup RAM second address
+errorflag2			rs.w	1		;backup RAM second error flag
 
