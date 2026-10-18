@@ -234,21 +234,14 @@ handed		=	$76					;bit0 set is left handed. 92 $74
 SortCords	rs.b	Sortobjs*SCstruct	;the sort objects: 12 players, the puck and its shadow, 2 spare
 										;(SCstruct bytes each)
 puckscnum	=	14					;puck is sort obj number 14
-;$FFFFB066 is SortCords+$1C
-;$FFFFB366 is SortCords+$31C
-;$FFFFB6CA is SortCords+(13*SCstruct)
 puckx	=	SortCords+(puckscnum*SCstruct)+Xpos	;puck x position in its sort object
-;$FFFFB74E is SortCords+(puckscnum*SCstruct)+attribute
 puckvx	=	SortCords+(puckscnum*SCstruct)+Xvel	;puck x velocity
 pucky	=	SortCords+(puckscnum*SCstruct)+Ypos	;puck y position
 puckvy	=	SortCords+(puckscnum*SCstruct)+Yvel	;puck y velocity
 puckz	=	SortCords+(puckscnum*SCstruct)+Zpos	;puck height above the ice
-;$FFFFB78A is puckx+temp1
-;$FFFFB7A8 is puckx+nopuck
 puckvz	=	SortCords+(puckscnum*SCstruct)+Zvel	;puck z velocity
 puckc	=	SortCords+(puckscnum*SCstruct)+newpos	;puck carrier: SCnum of the player with the puck (newpos
 													;slot of the puck object), negative = loose
-;$FFFFB7AD is puckx+pflags2
 Ylist			rs.w	Sortobjs	;list of y cords for each sortobj
 OOlistpos		rs.w	Sortobjs	;objects pos in OOlist
 OOlist			rs.b	Sortobjs	;object order list for sort objs
@@ -278,12 +271,8 @@ palcount		rs.w	1			;counter for fading in color palettes
 palfadenew		rs.w	16			;palettes to fade into
 TitlePalBuffer	rs.w	16			;title screen: palette fade buffer (16 colours)
 palbuffer		rs.w	32			;to palfadenew+$80
-;$FFFFBD6A is palfadenew+$42
-;$FFFFBD82 is palfadenew+$5A
-;$FFFFBDA2 is palfadenew+$7A
 fofdata2	rs.l	2				;title screen: TitleAnimCallback timers; also the 2nd half of the face off
 									;frame/attribute data (see fofdata)
-;$FFFFBDAC is fofdata2+4
 fofdata				rs.l	1		;data for frame/att of big face off sprites
 pads				rs.w	42		;face off objects tied to the rink scroll: the 3 pads and the centre ice
 									;logo (ffo, ffosize bytes each; 92 pads = ffo)
@@ -346,9 +335,7 @@ collflag			rs.w	1		;collision has occured
 evalue				rs.w	1		;elasticity value (parameter of collisions)
 mesarea				rs.w	1		;temp area for mes chars
 TextBuffer			rs.w	49		;to mesarea+100
-;$FFFFBED4 is mesarea+30
 PushWidthBuf	rs.w	4			;PushNumberWidth string: length word, then digits.
-;$FFFFBF1C is PushWidthBuf+2
 PushNumberBuf		rs.w	1		;PushNumber builds its string down from here.
 redrawicons			rs.w	1		;DrawLineIcons: last icon group drawn ($FF = redraw).
 ltack				rs.w	1		;last tackle sound.
@@ -462,19 +449,9 @@ maxros		=	26					;roster slots per team
 tmpdst		=	tmpde+(2*maxros)	;-2=bench/-1=ice/0+=penalty box. 92 $54
 tmsize		=	$1A2				;92 $88
 tmstruct	rs.b	tmsize			;home team structure (tmsize bytes)
-;$FFFFC4FC is hmtmstruct+tmline
 HomeTeamRosterPtr	=	tmstruct+tmdata	;home team roster address (tmdata of the home team)
-;$FFFFC50C is hmtmstruct+tmgoalie
-;$FFFFC50E is hmtmstruct+tmgoalie+2
-;$FFFFC516 is hmtmstruct+tmflags
-;$FFFFC580 is hmtmstruct+$9A
-;$FFFFC602 is hmtmstruct+$11C
 awtmstruct	rs.b	tmsize			;visiting team structure (tmstruct+tmsize)
-;$FFFFC69E is awtmstruct+tmline
 AwayTeamRosterPtr	=	awtmstruct+tmdata	;visiting team roster address (tmdata of the visiting team)
-;$FFFFC6AE is awtmstruct+tmgoalie
-;$FFFFC6B8 is awtmstruct+tmflags
-;$FFFFC722 is awtmstruct+$9A
 statsbuffer	rs.w	104				;playoff team stat totals: $68 words summed from the stat bytes of the
 									;team struct (+$B4)
 
@@ -523,7 +500,6 @@ screentimer			rs.w	1		;frames left on a screen (ScoutingReport); last cursor row
 TestList			rs.w	122		;scouting report: list of the lines to show (also the line editor cursor
 									;and slots)
 nibblebuffer		rs.w	6		;UnpackNibbles words, WeightedRandomSelect weights.
-;$FFFFCACE is nibblebuffer+4
 varend		=	nibblebuffer+8		;end of the variables cleared by Opening2 ($FFFFCAD2). 92 had a varend
 									;label after TickerNum
 OptPlayMode	rs.w	1				;play mode
