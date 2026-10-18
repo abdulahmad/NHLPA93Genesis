@@ -3997,7 +3997,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	bsr.w	DecompressGraphicsPlain	;arrow tiles at ExtraChars
 
 	bsr.w	printz
-	String	$CE,0,0					;(92 -$01,60,4 before the StanleyMap bitmap)
+	String	$CE,0,0					;(92 -$01,60,4 before the Stanleymap bitmap)
 	movea.l	#ScoutMap,a0			;bitmap map data
 	movea.l	a0,a1
 	movea.l	a0,a2
@@ -4598,7 +4598,7 @@ ScrollDisplayUp						;next text line for UpdateScoutingDisplay (column 0). After
 	rts
 
 SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at StanleyCupPosTable with
-									;StanleyMap sprites over them, $50 x 4 frames or until a button. Called
+									;SpinningEASN sprites over them, $50 x 4 frames or until a button. Called
 									;from Begin
 	move.l	#VBlank_StanleyCup,(VBint).l
 	bclr	#df32c,(disflags).w
@@ -4639,7 +4639,7 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 	movea.l	#EASNmap2+8,a2
 	clr.w	d4						;tiles at vram char 0
 	bsr.w	DecompressGraphicsPlain
-	movea.l	#Stanleymap+8,a2
+	movea.l	#SpinningEASN+8,a2
 	move.w	d4,(energybarchars).w	;1st vram char of the cup sprites
 	bsr.w	DecompressGraphicsPlain
 	bsr.w	UpdateStanleyCupAnimation
@@ -4656,14 +4656,14 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 .ex	move	#$2700,sr				;interrupts off again before returning
 	rts
 
-UpdateStanleyCupAnimation			;one StanleyMap sprite at each StanleyCupPosTable spot, frame 1 + asv
+UpdateStanleyCupAnimation			;one SpinningEASN sprite at each StanleyCupPosTable spot, frame 1 + asv
 									;(0-7), then close the sprite list. Called from
 									;SetupStanleyCupCelebrationScreen
 	movea.w	#(Satt-M68K_RAM),a6
 	moveq	#1,d6					;link counter
 	addq.w	#1,(asv).w
 	andi.w	#7,(asv).w
-	movea.l	#StanleyMap,a0
+	movea.l	#SpinningEASN,a0
 	lea	StanleyCupPosTable(pc),a4
 	move.w	(energybarchars).w,d3
 .top	move.w	(a4)+,d0			;each table entry: column in d0, row in d1

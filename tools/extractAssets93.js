@@ -161,7 +161,7 @@ const assets = [
     { name: 'EASN.map.jim', folder: 'Graphics', start: 0x07C7AA, end: 0x07C946 }, // EASNmap: 92 EASNmap
     { name: 'RonBarr.map.jim', folder: 'Graphics', start: 0x07C946, end: 0x07CF1E }, // RonBarrMap: Ron Barr picture on the ScoutingReport (93 only)
     { name: 'Scores.map.jim', folder: 'Graphics', start: 0x07CF1E, end: 0x07D304 }, // ScoresMap: bitmap under the title on the ShowScores "Scores" screen (93 only)
-    { name: 'Stanley.anim', folder: 'Graphics', start: 0x07D304, end: 0x07F4F6 }, // Stanleymap: 92 Stanleymap. 92 Stanley.map.jim was a bitmap; 93 draws the cup as sprites (UpdateStanleyCupAnimation SetSframe)
+    { name: 'EASN.anim', folder: 'Graphics', start: 0x07D304, end: 0x07F4F6 }, // SpinningEASN: 92 Stanleymap. 92 Stanley.map.jim was a bitmap; 93 draws the cup as sprites (UpdateStanleyCupAnimation SetSframe)
     { name: 'EASN2.map.jim', folder: 'Graphics', start: 0x07F4F6, end: 0x07FB76 }, // EASNmap2: the five EASN bitmaps on the Stanley Cup screen (93 only)
 ];
 

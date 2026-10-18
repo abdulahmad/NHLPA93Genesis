@@ -201,3 +201,4 @@ DisplayTeamStatsScreen,DisplayStats,92G
 PlayoffScreen_waitvsync,waitxc1,92G
 PrintStringFromList,Fprintsmall,92G
 InitialSP,Stack,92G
+Stanleymap,SpinningEASN,92G
