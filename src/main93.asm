@@ -26,7 +26,8 @@ RAMStart = $FF0000					;start of work RAM
 ;
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-Stack = $FFFFF6						;reset vector 0. ($FFFFFFF6, the 32-bit form). ram93.asm redefines Stack as the game stack
+Stack = $FFFFF6						;reset vector 0. ($FFFFFFF6, the 32-bit form). ram93.asm redefines Stack as
+									;the game stack
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;

@@ -86,9 +86,9 @@ RonBarrMap							;Ron Barr picture on the ScoutingReport
 ScoresMap							;bitmap under the title on the ShowScores "Scores" screen
 	incbin	..\Extracted\Graphics\Scores.map.jim
 	even
-Stanleymap							;Stanley Cup sprites, drawn with SetSframe by
-									;UpdateStanleyCupAnimation (92 used a bitmap)
-	incbin	..\Extracted\Graphics\Stanley.anim
+SpinningEASN						;the spinning EASN logo sprites of the Stanley Cup screen, drawn with
+									;SetSframe by UpdateStanleyCupAnimation (92 Stanleymap was a bitmap)
+	incbin	..\Extracted\Graphics\EASN.anim
 	even
 EASNmap2							;the five EASN bitmaps on the Stanley Cup screen
 	incbin	..\Extracted\Graphics\EASN2.map.jim
