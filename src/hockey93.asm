@@ -2,8 +2,8 @@
 ;	core game code: startup, the game loop, pause and replay, players, collisions, and the title, playoff,
 ;	scouting and setup screens.
 ;
-;	REV selects the revision: REV=0 is Rev 0 (v1.0, the retail ROM, serial -00) and REV=1 is Rev A
-;	(v1.1, serial -01). Rev B (v1.2) is not built. Differences from 92 are noted in the comments.
+;	REV selects the revision: REV=0 is Rev 0 (v1.0, the retail ROM, serial -00), REV=1 is Rev A (v1.1,
+;	serial -01) and REV=2 is Rev B (v1.2, 1993.FEB). Differences from 92 are noted in the comments.
 ;
 ;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx) but SNASM emits CMPI (0Cxx). The source has the real cmp,
 ;	and fixopcodes.js patches the encoding after assembly.
@@ -30,12 +30,23 @@ Begin								;cold start, entered from Reset. Clear RAM, init menus and sound, g
 .0	clr.l	(a0)+					;clear 4 bytes of ram per pass
 	cmpa.w	#(fm_track_slots+(8*6)-M68K_RAM),a0	;clear to the end of the track slots
 	blt.s	.0
-	IF REV=1
+	IF REV>=1
 	move.w	(Vctrl).l,d0			;Rev A: VDP status bit 0 = PAL (50 Hz)
 	andi.w	#1,d0
 	move.w	d0,(PalMode).w
 	ENDIF
 
+	IF REV=2
+	jsr	p_initialZ80				;sound stuff (Rev B does the sound set up first and calls KillCrowd here)
+	jsr	p_turnoff
+	jsr	p_music_vblank
+	jsr	KillCrowd
+	jsr	(SetupStanleyCupCelebrationScreen).l
+	jsr	(BackupRAM_Read).l
+	jsr	DefaultMenus				;set initial menu choices
+	jsr	orjoy						;clear any previous button presses
+	jmp	(Opening).l					;goto title screen and options etc.
+	ELSE
 	jsr	(SetupStanleyCupCelebrationScreen).l
 	jsr	(BackupRAM_Read).l
 	jsr	DefaultMenus				;set initial menu choices
@@ -44,6 +55,7 @@ Begin								;cold start, entered from Reset. Clear RAM, init menus and sound, g
 	jsr	p_turnoff					;sound stuff
 	jsr	p_music_vblank				;sound stuff
 	jmp	(Opening).l					;goto title screen and options etc.
+	ENDIF
 ;----------------------------------------------------
 
 ChkShortPeriods						;Pad 1 = $E0 at game start forces 30 second periods
@@ -903,7 +915,7 @@ updateplayers						;update every object in SortCords
 .vel	cmpi.w	#SPAinjury1,SPA(a3)	;skip movement and bounce
 	beq.w	.done
 ;----------------------------------	now update velocity
-	IF REV=1
+	IF REV>=1
 	moveq	#$10,d4					;Rev A: 16 per frame, 20 at 50 Hz (PalMode set)
 	tst.w	(PalMode).w
 	beq.w	.ntsc
@@ -2992,7 +3004,11 @@ puckgoalie							;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y Save
 	dc.b	$55,$9D,$67,$55,$9D,$67,$55,$9D,$67,$55,$9D,$67
 	dc.b	$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55	;goalie swing
 	dc.b	$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0	;goalie stack right
+	IF REV=2
+	dc.b	$55,$F0,$55,$F0,$55,$F0,$55,$F0	;goalie stack left (Rev B has 3 frames fewer)
+	ELSE
 	dc.b	$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0,$55,$F0	;goalie stack left
+	ENDIF
 	dc.b	$D5,$75,$D5,$75,$D5,$75,$D5,$75,$D5,$75,$D5,$75,$D5,$75,$D5,$75	;goalie stick right/left
 	dc.b	$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55	;from here
 	dc.b	$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55
@@ -3250,7 +3266,7 @@ Setplass							;set players (a3) initial assignment
 	IF REV=0
 	dc.b	$FA						;Rev 0 pad (Rev A: 0)
 	ELSE
-	dc.b	0
+	dc.b	PadByte
 	ENDIF
 
 setplayer							;bring player onto the ice and set his stats
@@ -4599,8 +4615,12 @@ ScrollDisplayUp						;next text line for UpdateScoutingDisplay (column 0). After
 
 SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at StanleyCupPosTable with
 									;SpinningEASN sprites over them, $50 x 4 frames or until a button. Called
-									;from Begin
+									;from Begin. Rev B shows one EA Sports picture instead
+	IF REV=2
+	move.l	#vb2,(VBint).w
+	ELSE
 	move.l	#VBlank_StanleyCup,(VBint).l
+	ENDIF
 	bclr	#df32c,(disflags).w
 	move.w	#5,(Map3col).w
 	move.w	#$A000,(VmMAP2).w
@@ -4619,6 +4639,31 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 
 	bsr.w	printz
 	String	$FE,0,0					;(the lea in this string)
+	IF REV=2
+	movea.l	#EASportsMap2,a2
+	movea.l	a2,a0					;a0 = palette (first long), a1 = map header (second long), a2 = tiles
+	movea.l	a2,a1
+	adda.l	(a2)+,a0
+	adda.l	(a2)+,a1
+	clr.w	d0
+	clr.w	d1
+	move.w	(a1),d2
+	move.w	2(a1),d3
+	clr.w	d4
+	moveq	#$F,d5					;color fam 1-4
+	bsr.w	dobitmap
+	move.w	#$18,(palcount).w		;24
+	move	#$2500,sr
+	move.w	#$50,(seed).w
+.wait	moveq	#4,d0				;wait for $50 steps or a button
+	bsr.w	waitx
+	tst.w	d1
+	bne.w	.ex						;any button
+	subq.w	#1,(seed).w
+	bpl.s	.wait
+.ex	move	#$2700,sr				;interrupts off again before returning
+	rts
+	ELSE
 	lea	StanleyCupPosTable(pc),a4
 .top	move.w	(a4)+,(printx).w	;each StanleyCupPosTable entry: column, row of one EASN bitmap
 	move.w	(a4)+,(printy).w
@@ -4655,6 +4700,8 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 	bpl.s	.wait
 .ex	move	#$2700,sr				;interrupts off again before returning
 	rts
+	ENDIF
+	IF REV<2
 
 UpdateStanleyCupAnimation			;one SpinningEASN sprite at each StanleyCupPosTable spot, frame 1 + asv
 									;(0-7), then close the sprite list. Called from
@@ -4702,6 +4749,7 @@ StanleyCupPosTable					;column, row of the five Stanley Cup bitmaps and sprites.
 	dc.w	3,$12
 	dc.w	$1C,$12
 	dc.w	-1
+	ENDIF
 
 TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 									;Titlemap backdrop, three Title3map sprites, Titlemap2 logo sprites,
@@ -5718,7 +5766,7 @@ RosterAnimScripts					;roster player animation scripts 0-7 (offsets), each (SetS
 .s7	dc.w	SPAskate,3,SPAskate,2,SPAfight,-2,SPAfhigh,2,SPAflow,2,SPAfhigh,2,SPAflow,2,0	;skater fight
 RosterOrderTable					;line data slots shown in turn: C, RW, LW, G, RD, LD of line 1, then lines
 									;2 and 3; $FF ends
-	dc.b	4,5,3,0,2,1,$C,$D,$B,$A,9,$14,$15,$13,$12,$11,$FF,0
+	dc.b	4,5,3,0,2,1,$C,$D,$B,$A,9,$14,$15,$13,$12,$11,$FF,PadByte
 
 UpdateTeamSprites					;sprite list for the two roster players. a5 = DMAList, a6 = Satt.
 									;Sets dfok for VBlank_SetOptions. Called from UpdateRosterPlayers
@@ -6775,7 +6823,7 @@ FormatPlayerNameShort				;a1 = mesarea string " Last" for player d0 of team a2, 
 	bne.s	.copy
 	bra.w	.chk
 .pad	move.b	#$20,(a1)+			;pad with spaces
-.chk	cmpa.w	#$BEC4,a1			;TextBuffer+12
+.chk	cmpa.w	#(TextBuffer+12-M68K_RAM),a1	;TextBuffer+12
 	blt.s	.pad
 	bsr.w	FinalizeTextBuffer
 	movem.l	(sp)+,d0-d3/a0/a2

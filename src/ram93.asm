@@ -304,6 +304,10 @@ threat				rs.w	1		;direction of threat on puck handler
 puckcross			rs.w	4		;xcord/frames top to bottom (for goalies to react to)
 lj1					rs.w	1		;used in joystick debounce
 lj2					rs.w	1		;joystick debounce for pad 2 (see lj1)
+	IF REV=2
+PadRaw1				rs.b	1		;Rev B: controller 1 as read by ReadPads in the vblank (active low)
+PadRaw2				rs.b	1		;Rev B: controller 2 (ReadJoy1/ReadJoy2 only translate these)
+	ENDIF
 disflags			rs.w	1		;display flags
 dfok				=	0			;graphics are ready for transfer
 df32c				=	1			;32 column mode on
@@ -512,7 +516,7 @@ OptLine		rs.w	1				;line changes 0 for on
 demoflag	rs.w	1				;demo flag
 seed		rs.l	1				;seed for the random number generator (92 seed)
 dmaram		rs.l	1				;dma ram area.
-	IF REV=1
+	IF REV>=1
 PalMode				rs.w	1		;Rev A only: VDP PAL bit (Begin). Set = 50 Hz: faster skating
 									;(updateplayers) and music (p_music_vblank)
 music_tick_divider	rs.w	1		;Rev A only: p_music_vblank runs the track slots again every 6th frame

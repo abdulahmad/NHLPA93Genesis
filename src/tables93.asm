@@ -83,7 +83,11 @@ pnorm	=	(*-asstab)/4			;puck object: normal movement (pucknorm)
 pshad	=	(*-asstab)/4			;puck object: puck shadow
 	dc.l	puckshadow
 pnothing	=	(*-asstab)/4		;puck object: just slides along
+	IF REV=2
+	dc.l	puckunflip				;Rev B: no pucknothing thunk
+	ELSE
 	dc.l	pucknothing
+	ENDIF
 pfaceoff	=	(*-asstab)/4		;puck object: faceoff start
 	dc.l	puckfaceoff
 pfaceoff2	=	(*-asstab)/4		;puck object: faceoff control and setup
@@ -231,7 +235,7 @@ bfasciicon							;equates to find each char definition in bigfont.map.
 	IF REV=0
 	dc.b	$F0						;pad, Rev 0 byte (Rev A: 0)
 	ELSE
-	dc.b	0
+	dc.b	PadByte
 	ENDIF
 
 linelist	String	'Sc1'			;text list for line choices (PP1/PP2 are the power play lines).
@@ -292,7 +296,7 @@ priolist	dc.b	0,1,2,4,3,5,6	;positions in order of importance. Used by
 	IF REV=0
 	dc.b	$23						;pad, Rev 0 byte (Rev A: 0)
 	ELSE
-	dc.b	0
+	dc.b	PadByte
 	ENDIF
 
 PlayoffTreeSetup					;92 PlayoffScreen .setup. Playoff tree layout by gamelevel:
@@ -360,7 +364,7 @@ PlayoffTreeSetup					;92 PlayoffScreen .setup. Playoff tree layout by gamelevel:
 	IF REV=0
 	dc.b	$47						;pad, Rev 0 byte (Rev A: 0)
 	ELSE
-	dc.b	0
+	dc.b	PadByte
 	ENDIF
 
 PAttribColumns						;skater attribute columns for PrintAttribHeader / DisplayPlayerList.

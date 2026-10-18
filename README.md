@@ -69,6 +69,7 @@ In a terminal, each step turns a spinner while it runs and is redrawn with a gre
 The documentation lives in [`docs/`](docs/README.md):
 
 - [Rev 0 vs Rev A](docs/retail-vs-reva.md): what differs between the two ROM versions (v1.0 and v1.1) and what `REV` changes
+- [Rev B](docs/rev-b.md): what changed in the third version (v1.2, EA Sports branding) and how `REV=2` builds it
 - [Sound system](docs/sound-system.md): the 68000 driver, sound numbers, event streams, patches and samples
 - [File formats](docs/file-formats.md): `.JIM`, `.ANIM`, `.PAL` and the team data layout
 - [Modding](docs/modding.md): developing on this build, supported ROMs, known issues, tips

@@ -5,6 +5,7 @@ Start with the [main README](../README.md) for what this project is and how to b
 ## About this build
 
 - [Rev 0 vs Rev A](retail-vs-reva.md): how the two ROM versions (v1.0 and v1.1) differ and what the `REV` flag changes in the source
+- [Rev B](rev-b.md): the third ROM version (v1.2): EA Sports branding, controller polling in the vblank, DMA and sound driver fixes
 - [Modding](modding.md): developing on this build, supported ROMs, known issues, tips
 - [Conventions](conventions.md): naming lineage, comment rules, local labels, commits
 

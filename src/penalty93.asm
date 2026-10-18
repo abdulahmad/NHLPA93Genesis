@@ -782,8 +782,13 @@ updatepwrplay						;show graphic and time remaining for power plays. Plays song 
 	bra.w	print
 
 .clrpwrplay	bclr	#sf2pwrplay,(sflags2).w	;no power play (or display changing)
+	IF REV=2
+	bne.w	EASNLogo				;put the logo back (Rev B shows the EA Sports one)
+	rts
+	ELSE
 	beq.w	rtss					;none was shown
 	bra.w	EASNLogo				;put the EASN logo back
+	ENDIF
 
 ClrHor								;revert the graphics back to vertical ice rink
 									;mode. Does not remap the fonts
@@ -1403,7 +1408,11 @@ NewTicker3							;display ticker score for game d3 (a0 = gstruct entry), skip if
 	bra.w	print
 
 GameLabels							;ticker titles, by OptPlayMode and gamelevel
+	IF REV=2
+	String	'EA Hockey Night'		;Rev B: the EASN branding is gone
+	ELSE
 	String	'EASN Hockey Night'
+	ENDIF
 	String	'EA Cup Qualifier'
 	String	'EA Quarterfinal'
 	String	'EA Cup Semifinal'

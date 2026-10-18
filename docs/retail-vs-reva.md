@@ -2,7 +2,7 @@
 
 How the two shipped versions of the ROM differ, and what the `REV` build flag changes in the source.
 
-Both build from the same source (`IF REV=1` blocks). The revisions are numbered `REV=0` = Rev 0 = v1.0, `REV=1` = Rev A = v1.1 and `REV=2` = Rev B = v1.2 (not built). Rev 0 is the ROM called "retail" in the file and build mode names (`nhlpa93retail.bin`, `build:retail`); it is `1992.JUL` version `-00`. Rev A is `1992.OCT` version `-01`.
+Both build from the same source (`IF REV=1` blocks). The revisions are numbered `REV=0` = Rev 0 = v1.0, `REV=1` = Rev A = v1.1 and `REV=2` = Rev B = v1.2 (built as `node tools/build.js revb`, see [rev-b.md](rev-b.md)). Rev 0 is the ROM called "retail" in the file and build mode names (`nhlpa93retail.bin`, `build:retail`); it is `1992.JUL` version `-00`. Rev A is `1992.OCT` version `-01`.
 
 ## Overall Differences Between Rev 0 (REV=0) and Rev A (REV=1)
 - Rev A supports 50 Hz: `Begin` stores the VDP PAL bit in `music_global_tick_counter`. When it is set, `updateplayers` moves skaters 20 units per frame instead of 16, and `p_music_vblank` runs the music track slots a second time every 6th frame.
