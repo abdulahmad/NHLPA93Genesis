@@ -1,7 +1,7 @@
 ;	Shared helpers used all over the game: palette fades, random numbers and square roots, sound requests,
 ;	joypad reads, DMA and vram fills, vdp setup and bitmap drawing (dobitmap).
 ;
-;	ROM $00D5D2-$00DD67. decompress93.asm and print93.asm are included at the end and run on to $00E525.
+;	decompress93.asm and print93.asm are included at the end of this file.
 
 UnpackNibbles						;a0 = packed data, d0 = count. Unpacks d0 4-bit values (high nibble first)
 									;into words at nibblebuffer. Called from PickStartingGoalie

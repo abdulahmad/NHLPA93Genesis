@@ -3855,7 +3855,7 @@ InitTeamStructure					;92 setteams. Set up team struct a2 for team d0: store the
 									;$314), and copy 14 longs of line data (team data +6 offset) to
 									;tmstruct+$16A. Called from setteams
 	move.w	d0,$28(a2)
-	movea.w	#TeamList,a0				;team address table
+	movea.w	#TeamList,a0			;team address table
 	asl.w	#2,d0
 	move.l	(a0,d0.w),tmdata(a2)
 	moveq	#$D,d0					;14 longs
@@ -4154,7 +4154,7 @@ PlayoffScreenExit					;92 PlayoffScreen .exit. drop HandlePlayoffInput's return 
 	addq.w	#4,sp
 	rts
 
-waitxc1								;(was PlayoffScreen_waitvsync) each time palcount runs out, eor the color
+waitxc1								;each time palcount runs out, eor the color
 									;word at palbuffer+2 (palfadenew+$42) with $EE and
 									;restart palcount at $18 (a color flash), then wait for the next vblank.
 									;Called from PlayoffScreen .input
@@ -5305,7 +5305,7 @@ setoptions							;options screen display and input. Called from PeriodOver.
 
 .psdtp	movea.l	#OptPlayMode,a1		;team line: print the team name from the team address table
 	move.w	(a1,d7.w),d3
-	movea.w	#TeamList,a1				;team address table
+	movea.w	#TeamList,a1			;team address table
 	asl.w	#2,d3
 	movea.l	(a1,d3.w),a1
 	lsr.w	#2,d3
@@ -5484,7 +5484,7 @@ PickStartingGoalie					;pick the goalie shown for team a2 when it changes: $26(a
 	bgt.w	.set
 	tst.w	(OptLine).w
 	bne.w	.set					;line changes off
-	movea.w	#TeamList,a0				;team address table
+	movea.w	#TeamList,a0			;team address table
 	move.w	(a2),d0					;team shown
 	asl.w	#2,d0
 	movea.l	(a0,d0.w),a0
