@@ -1,15 +1,10 @@
 ;	Graphics data: the rink, sprites, fonts, screen maps and pictures, all incbin files from the extraction
-;	step. The equates below name the tables inside the sprite data. The code that uses each block is named in
-;	its label comment.
+;	step. The equates below name the tables inside the sprite data. Each block's label comment names the code
+;	that uses it.
 ;
-;	In order: the setup, title and scouting screens (GameSetUpMap ... ScoutMap), the framer, faceoff, rink and
-;	referee maps, the main Sprites block with its equates, then the crowd, faceoff and zamboni sprite files,
-;	the two fonts, energy bar, team blocks, arrows, EASN logo, Ron Barr, Scores maps, Stanley Cup sprites and
-;	the five EASN bitmaps.
-;
-;	Files named .map.jim are tile maps: the longs at +0 and +4 are offsets to map data (used as adda.l (a0),a0
-;	and adda.l 4(a1),a1) and the compressed tiles start at +8 (DecompressGraphics*). Files named .anim are
-;	sprite frame sets (see the Sprites entry below and the note in video93.asm). Each incbin is word aligned.
+;	Files named .map.jim are tile maps: the longs at +0 and +4 are offsets to map data and the compressed
+;	tiles start at +8 (DecompressGraphics*). Files named .anim are sprite frame sets (see video93.asm).
+;	Each incbin is word aligned.
 
 GameSetUpMap						;game setup bitmap (setoptions)
 	incbin	..\Extracted\Graphics\GameSetUp.map.jim	;game setup bitmap

@@ -2,8 +2,7 @@
 ;
 ;	In order from ROM address 0: the 93 macros (genesis93.mac), the vector table ($0-$FF), ErrorStatus, the
 ;	Sega ID header (sega\SegaIDTable93.asm at $100), then Start. Start runs the console init (SegaInit.asm)
-;	and the optional ROM checksum (checksum93.asm), silences the crowd (KillCrowd, video93.asm) and branches
-;	to Begin (hockey93.asm).
+;	and the optional ROM checksum, silences the crowd (KillCrowd) and branches to Begin (hockey93.asm).
 
 	include	macros\genesis93.mac
 

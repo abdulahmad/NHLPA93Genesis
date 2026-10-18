@@ -1,22 +1,10 @@
 ;	Player logic. Turns controller input into skater actions (passing, shooting, checking, line changes) and
-;	runs the computer players. Each player has an assignment for his position, and the goalie, fights, bench
-;	and penalty box have their own. Also the puck at faceoffs, offsides and icing. ROM $00946E-$00D5D1.
+;	runs the computer players, with an assignment per position and for the goalie, fights, bench and penalty
+;	box. Also the puck at faceoffs, offsides and icing. ROM $00946E-$00D5D1.
 ;
-;	In order:
-;	  input: doinput, the line change box (SetLCmode ... lcfound2, getlchoice), burst, hold and hook, passing
-;	    (passmode, dopass, passtoa0), switching players (changeplayer), shooting (ShotMode, doshot)
-;	  bench and penalty box moves: setpads, check4bench, assbench ... assepen
-;	  faceoff and fight assignments: assfaceoff, assfight, banner
-;	  computer players: positioning by role (assdefo ... asscentero), assgoalie, assgoalietopuck, asspuckc,
-;	    chk4lc, chk4shot, chk4pass, EvadePC, assnearest, check4check, asspassrec, assshoot
-;	  the puck: puckfaceoff ... Endfaceoff, pucknorm, ChkOffsides, puckIChk (icing), puckshadow, findpc
-;	  goalie pull and line choice: ChkGoalies, ReturnGoalies, CPgoalie, CompLine
-;	  movement: skateto, skatetopuck, the assignment stack (assexit, assinsert, assreplace), vtoa, GetHot,
-;	    SetSPA, acceleration (doplayeracc ... StopNA), MaxSpeed, dirtab
-;
-;	Conventions: a3 = the object being processed (a SortCords entry, player or puck), d7 = frames elapsed, a2
-;	= team struct (tmstruct, +tmsize for the visitors), SPA = sprite animation. Most routines exit through
-;	rtss. Flag and field names (pf*, sf*, tm*, temp1-5, SPA*) are in ram93.asm.
+;	Conventions: a3 = the object being processed (a SortCords entry, player or puck), d7 = frames elapsed,
+;	a2 = team struct (tmstruct, +tmsize for the visitors). Most routines exit through rtss. Field and flag
+;	names (pf*, sf*, tm*, temp1-5, SPA*) are in ram93.asm.
 
 doinput								;process controller input
 									;d0 = dpad
@@ -1034,19 +1022,8 @@ check4bench							;check if player a3 should go to bench. Called from assbench (
 
 ;======================================================================
 ;======================================================================
-;	Player assignments assbench ...
-;	asswingd, with the fight code (assfight, chkhit, banner). Bytes match
-;	nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
-;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	SortCords offsets in comments: Xpos 0, frame 6, oldframe 8
-;	Xvel $28, Yvel $2A, impactp $2E, position $34, temp1 $40, temp2 $42,
-;	temp3 $44, temp4 $46, wallcos $4E, wallsin $50, SCnum $52, facedir $54,
-;	SPA $58, SPAnum $5A, nopuck $5E, newpos $60, newpnum $61, pflags $62
-;	(pfna 1, pfnc 2, pfjoycon 3, pfalock 5, pfteam 6, pfgoal 7), pflags2 $63
-;	(pf2aip 1, pf2unav 2, pf2pen 4, pf2npc 5), pnum $66, aioff $6A,
-;	aidef $6B, aggress $74, checking $75, handed $76.
-;	Every assignment starts with "btst #pfalock / bne rtss".
+;	Player assignments from assbench to asswingd, with the fight code (assfight, chkhit, banner). Every
+;	assignment starts with "btst #pfalock / bne rtss". Field and flag names are in ram93.asm.
 
 assbench							;player a3 should goto bench
 	btst	#pfalock,pflags(a3)
@@ -2011,17 +1988,8 @@ asswingd							;player a3 is wing on defense
 
 ;======================================================================
 ;======================================================================
-;	asswingo ... asspuckc, chk4lc, chkpk,
-;	chk4shot, CompShoot, chk4pass, EvadePC. Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
-;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	SortCords offsets in comments: Xpos 0, attribute 4
-;	Ypos $14, Xvel $28, Yvel $2A, position $34, temp1 $40, temp2 $42,
-;	temp3 $44, temp4 $46, temp5 $48, SCnum $52, facedir $54, nopuck $5E,
-;	pflags $62 (pfalock 5, pfjoycon 3, pfteam 6, pfgoal 7), pflags2 $63
-;	(pf2aip 1, pf2unav 2, pf2lcm 3), aioff $6A, aidef $6B, spodds $70.
-;	Team struct: tmflags $30, $2A = long stat. blueline = $58,
-;	goalline+blueline = $108.
+;	Player assignments from asswingo to asspuckc, then chk4lc, chkpk, chk4shot, CompShoot, chk4pass and
+;	EvadePC.
 
 asswingo							;player a3 is winger on offense
 	btst	#pfalock,pflags(a3)
@@ -2992,22 +2960,8 @@ EvadePC								;player a3 should avoid the puck carrier if he's on my team out: 
 
 ;======================================================================
 ;======================================================================
-;	checkob, assnearest, check4check,
-;	asspassrec, assshoot, pucknothing, puckfaceoff, ChkGoalies,
-;	ReturnGoalies, CPgoalie, CompLine, puckfaceoff2, updatefaceoff,
-;	Endfaceoff, pucknorm. Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
-;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	SortCords offsets in comments: Xpos 0, attribute 4
-;	frame 6, Ypos $14, Zpos $18, Xvel $28, Yvel $2A, Zvel $2C,
-;	position $34, assnum $36, asslist $38, temp1 $40, temp2 $42,
-;	temp3 $44, temp4 $46, SCnum $52, facedir $54, SPA $58, nopuck $5E,
-;	pflags $62 (pfdoff 0, pfna 1, pfnc 2, pfjoycon 3, pfalock 5,
-;	pfteam 6, pfgoal 7), pflags2 $63 (pf2fight 0, pf2unav 2, pf2lcm 3),
-;	aioff $6A, aggress $75.
-;	Team struct (hmtmstruct, tmsize $1A2): tmscore $C, tmline $16,
-;	tmsort $22 (word), tmap $24, tmgoalie $26, $2A = long,
-;	tmflags $30.
+;	checkob, assnearest, check4check, asspassrec, assshoot, then the puck object: pucknothing, puckfaceoff and
+;	its goalie and line helpers, puckfaceoff2, updatefaceoff, Endfaceoff and pucknorm.
 
 checkob								;bring up little warning ref if a player on your team is over blue line.
 									;Called from doinput and asspuckc
@@ -3948,23 +3902,10 @@ pucknorm							;assignment for puck most of the time. a3 = puck, d7 = elapse fra
 
 ;======================================================================
 ;======================================================================
-;	ChkOffsides, a2offsides, a2touchpuck,
-;	PuckIChk, puckunflip, puckflip, puckshadow, findpc, skateto, avdgoal,
-;	skatetopuck, assexit, assinsert, assreplace, vtoa, GetHot, SetSPA,
-;	doplayeracc, goalieacc, noturn0, noturn, playeracc, MaxSpeed, dostop,
-;	stopna and dirtab. Bytes
-;	match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
-;	The source has the real cmp / exg; fixopcodes.js patches the encoding after assembly.
-;	SortCords offsets in comments: Xpos 0, attribute 4
-;	frame 6, Ypos $14, Zpos $18, OldYpos $20, Xvel $28, Yvel $2A,
-;	position $34, assnum $36, asslist $38, temp2 $42, wallcos $4E,
-;	wallsin $50, SCnum $52, facedir $54, SPA $58, SPAnum $5A, SPAcnt $5C,
-;	pflags $62 (pfna 1, pfrev 4, pfteam 6, pfgoal 7), pflags2 $63
-;	(pf2fight 0, pf2aip 1), pnum $66, weight $67, legstr $68, legspd $69.
-;	Team struct (hmtmstruct, tmsize $1A2): $18/$1A/$1C last touches,
-;	tmsort $22, tmap $24, tmflags $30 (bit 4 = team offsides).
-;	iflags: ifcgl 0, ifdir 1, ifok 2; icingPlayer = +1.
+;	The puck's offsides and icing checks (ChkOffsides ... puckflip), puckshadow and findpc, then movement:
+;	skateto, skatetopuck, the assignment stack, vtoa, GetHot, SetSPA, the acceleration routines and dirtab.
+;
+;	icing flags (iflags): ifcgl 0, ifdir 1, ifok 2; icingPlayer = +1.
 
 ChkOffsides							;check for offsides penalty. a3 = puck. Flags the whole team (tmflags bit
 									;4; 92 flagged each player). Called from pucknorm

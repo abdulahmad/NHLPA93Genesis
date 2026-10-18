@@ -1,10 +1,8 @@
 ;	Game play vertical blank code. Every frame it builds the sprite list and sends it and other graphics to
 ;	video memory, and it draws the sprites for the rink, the referee, faceoffs, the zamboni and the crowd.
 ;
-;	In order: VBlank, vb2 and IRQ7 (the interrupt handlers), DumpSprites, DumpSprites2, DoDMAList and
-;	SetScroll2 (the vdp transfers), setvideo (builds the sprite and dma lists, calls the rest), updatescroll,
-;	showref, checkfo, showzam, SetSframe, showcrowd, then showclock, checksso, setsortcords, setffo, uppads,
-;	QueuePadLabel, RenderSmallFontChar, addframe, addframe2, find3d, updatesound and KillCrowd. The sprite
+;	The interrupt handlers (VBlank, vb2, IRQ7) and the vdp transfers (DumpSprites, DoDMAList, SetScroll2) come
+;	first, then setvideo, which builds the sprite and dma lists and calls the drawing routines. The sprite
 ;	frame data and DMA list formats are described above DumpSprites. ROM address range: not determined here.
 
 
@@ -58,6 +56,7 @@ IRQ7								;rte only. vb2 falls in; the vector table ($60, $64, ...) points her
 ;	Sprite frame data (FaceOffSprites, ZamSprites, CrowdSprites): the long at +4 is the offset to a word
 ;	table of frame offsets. Frame n's sprites run from word n to word n+1, 8 bytes each: x 0, y 2, char 4,
 ;	flags 6 (top 5 bits used), size byte 7.
+;
 ;	DMA list entries (a5): long source, word length in words, word vram.
 
 DumpSprites							;transfer (by dma) scroll stuff, sprite table, vram data in dmalist.
@@ -435,18 +434,11 @@ showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then the t
 
 ;======================================================================
 ;======================================================================
-;	showclock, checksso, setsortcords, setffo, uppads, addframe, addframe2,
-;	find3d, updatesound and KillCrowd, plus the pad label code
-;	(QueuePadLabel, RenderSmallFontChar).
-;	Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
-;	The source has the real cmp; fixopcodes.js patches the encoding after
-;	assembly.
-;	Bits: disflags 3 dfclock; sflags 7 sfhor; ubut 0, dbut 1, lbut 2, rbut 3.
-;	Object offsets: Xpos 0, attribute 4, frame 6, oldframe 8, VRoffs $A,
-;	VRchar $12, Ypos $14, Zpos $18. ssosize = $14, scsize = 7 (128 byte
-;	SortCords entries).
-;	DMA list entries (a5): long source, word length in words, word vram.
+;	showclock, checksso, setsortcords, setffo, uppads, addframe, addframe2, find3d, updatesound and KillCrowd,
+;	plus the pad label code (QueuePadLabel, RenderSmallFontChar).
+;
+;	ssosize = $14 (an sso object) and scsize = 7 (128 byte SortCords entries). DMA list entries (a5): long
+;	source, word length in words, word vram.
 
 showclock							;put the game clock in the dma list. Called from setvideo; returns unless
 									;dfclock is set.

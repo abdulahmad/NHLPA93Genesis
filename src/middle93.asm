@@ -1,21 +1,7 @@
 ;	Shared helpers used all over the game: palette fades, random numbers and square roots, sound requests,
-;	joypad reads, DMA and vram fills, vdp setup and bitmap drawing (dobitmap). Called from nearly every other
-;	file. ROM $00D5D2-$00DD67. decompress93.asm and print93.asm are included at the end and run on to $00E525.
+;	joypad reads, DMA and vram fills, vdp setup and bitmap drawing (dobitmap).
 ;
-;	In order:
-;	  UnpackNibbles, WeightedRandomSelect   nibble unpacking and weighted random pick
-;	  remap                                 recolor 4bpp tile data through a nibble map
-;	  forceblack, forcefade, cramfade,
-;	  CopyPaletteToCRAM                     palette fades and direct color ram copy
-;	  randomd0s, randomd0, sroot            random numbers and square root
-;	  sfx, song                             sound requests (one word argument on the stack)
-;	  waitx, waitxsr, waitjoy, orjoy,
-;	  nodiag, ProcessInputWithRepeat,
-;	  Readjoy1, Readjoy2, ReadJoy, jdtab    waiting for and reading the joypads (d1 = new presses)
-;	  DoDMApro, DoDMA, DoDMA_nd2, DoFill,
-;	  WaitDMA                               vdp dma, vram copy and fill
-;	  setVram, setVram_0, Vmaddr            vdp register setup and vram address set
-;	  dobitmap                              draw a map + palette + tiles (rink, EASN logo, energy bars)
+;	ROM $00D5D2-$00DD67. decompress93.asm and print93.asm are included at the end and run on to $00E525.
 
 UnpackNibbles						;a0 = packed data, d0 = count. Unpacks d0 4-bit values (high nibble first)
 									;into words at nibblebuffer. Called from PickStartingGoalie

@@ -1,17 +1,17 @@
 ;	Battery backup. Drives the save chip on the cartridge, saves and loads the game's save block (with a
 ;	checksum), shows the screen for clearing saved data, and reads the first pad.
 ;
-;	In order: the bit-level serial protocol (BackupRAM_Start ... ReadAck), InitBackupRAM and WaitReady, block
-;	transfers with retries (ReadBlock, WriteBlock), BackupRAM_Read (power on load), Save, Load, ClearRAMBuffer
-;	and ClearVRAM (the status screen), and ReadPad1Held. The saved bytes feed the password and team line code
-;	(EncodePW, EncodeTeamLines). The device protocol is described above BackupRAM_Start.
+;	The bit-level serial protocol comes first, then block transfers with retries, the power on load and save
+;	routines, and the status screen. The saved bytes feed the password and team line code. The device protocol
+;	is described above BackupRAM_Start.
 
 
 ;	Serial device. It is a word port (BackupRAM_Port). Low byte bit 7 is the data line (SDA, read back in bit
-;	7) and bit 6 the clock (SCL): $C0 = both high, $80 = data high clock low, $40 = data low clock high. The
-;	control byte sent after a start is address<<1 + 1 to read (sequential read from that address) or
-;	address<<1 to write one byte. Addresses are 0-127.
+;	7) and bit 6 the clock (SCL): $C0 = both high, $80 = data high clock low, $40 = data low clock high.
+;	The control byte after a start is address<<1 + 1 to read (sequential) or address<<1 to write one byte.
+;
 ;	Saved block (databuffer, 128 bytes): bytes 0-125 data, byte 126 = not(sum of 0-125), byte 127 = sum.
+;	Addresses are 0-127.
 
 BackupRAM_Start						;start condition: data falls while the clock is high, then clock low.
 									;Called before every control byte

@@ -1,20 +1,9 @@
 ;	Penalty logic. Calls penalties and the other stoppages of play (whistle, icing, offsides, goals), sends
 ;	players to the penalty box, runs power plays, shows the referee's messages and switches the rink between
-;	its horizontal and vertical views. ROM $00E526-$00F757, followed by the scoreboard code and the highlights
-;	block.
+;	its horizontal and vertical views. ROM $00E526-$00F757.
 ;
-;	In order:
-;	  AddPenalty, AddPenalty2           queue a penalty or stoppage as a (penalty, player) pair in PenBuf
-;	  PenaltyManager                    periodic driver: updatepentime, checkfornewpen, chkprogress, UpdatePA
-;	  chkprogress, InProgress,
-;	  coinsearch                        the ref sequence: log the penalty, count players on the ice
-;	  checkfornewpen, Stop4Pen, limitfo call the penalty, stop the clock, whistle, pick the face off spot
-;	  UpdatePA, SetPA, SetPA2, PushRef,
-;	  prefmes, ClearPenaltyMessage      the ref animation and the penalty message text
-;	  PenGoalStuff ... updatepwrplay    penalty clocks, players leaving the box, attack time, power plays
-;	  ClrHor, SetHor                    switch between the vertical and horizontal rink graphics
-;	  printscores1 ... AdvanceStringPtr scoreboard, ticker and intermission code
-;	  DoHiLights, StartHL, StartHL2     intermission highlights, at the very end of the file
+;	After the penalty code come the scoreboard, ticker and intermission routines (printscores1 onward) and,
+;	at the very end of the file, the intermission highlights (DoHiLights, StartHL, StartHL2).
 
 AddPenalty							;add penalty d0 (PenaltyList offset) for player a3. Ignored while the
 									;clock is stopped, when penalties are off, or offsides when offsides are
@@ -854,24 +843,12 @@ SetHor								;switch graphics to horizontal ice rink graphics mode. Does not re
 
 ;======================================================================
 ;======================================================================
-;	printscores1, PrintTeamNameAndScore, PrintTeamLogoAndScore, EASNLogo
-;	(with the DrawEASNMap entry), USBoard, pplpen, linebar, getlinee,
-;	AvgCline, ChkShotStat, loadTeamStruct, SetupTeamForIntermission,
-;	reenergizeteam, Intermission, InitScores, UpdateScores, SetScore,
-;	NewTicker, NewTicker2, CheckGameTickerStatus, NewTicker3, GameLabels,
-;	ClearTickerArea, SetTickerAreaPosition, Fprintsmall,
-;	AdvanceStringPtr, DoHiLights, StartHL and StartHL2.
-;	Bytes match nhlpa93retail.bin.
-;	EA's compiler emits cmp #imm,Dn as CMP (Bxxx), SNASM emits CMPI (0Cxx).
-;	The source has the real cmp; fixopcodes.js patches the encoding after assembly.
-;	printz String control bytes $BF/$BE/$BD (-$41/-$42/-$43), then x, y.
-;	Team struct (tmsize $1A2, 92 used $88): 0 tmshots, $C tmscore, $16 tmline,
-;	$1E tmdata, $22 tmsort, $24 tmap, $26 tmgoalie, $32 tmpde, $66 tmpdst,
-;	$9A penalty box list (bytes, -1 end), $E8 per-player shot bytes,
-;	$16A line sets. Sort struct ($80 each): 0 Xpos, $14 Ypos, $28 Xvel,
-;	$2A Yvel, $34 position, $62 pflags, $66 pnum.
-;	Game struct (gstruct): 0 gst1, 2 gst2, 8 gsper
-;	$A gss1, $C gss2, $E gsflags (bit 1 gsfhl, bit 2 gsfso).
+;	Scoreboard, ticker and intermission code: printscores1 and the team name and logo score displays, USBoard,
+;	pplpen, linebar, the line and shot stat helpers, Intermission, the score and ticker updates and their
+;	labels, then Fprintsmall, AdvanceStringPtr and the highlights (DoHiLights, StartHL, StartHL2).
+;
+;	printz String control bytes $BF/$BE/$BD (-$41/-$42/-$43), then x, y. Game struct (gstruct): 0 gst1, 2
+;	gst2, 8 gsper, $A gss1, $C gss2, $E gsflags (bit 1 gsfhl, bit 2 gsfso).
 
 printscores1						;draw scoreboard. Vertical rink: period box and the score box (team names
 									;and scores). Horizontal rink (.sbscreen): period and both team logos with
