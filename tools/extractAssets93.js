@@ -81,7 +81,7 @@ const assets = [
     { name: 'sfx_puckget_pcm.bin', folder: 'Sound', start: 0x0280AA, end: 0x02830A }, // sample 0: puckget
     { name: 'fm_instrument_patches.bin', folder: 'Sound', start: 0x02830A, end: 0x02870A }, // 32 FM patches x 32 bytes (byte $1E = pitch bend scale)
     { name: 'sfx_beep1_cmdstream.bin', folder: 'Sound', start: 0x02877A, end: 0x028786 }, // sound 1 (SFXbeep1)
-    { name: 'sfx_id_26_27_cmdstream.bin', folder: 'Sound', start: 0x028786, end: 0x02878A }, // sounds $26 and $27: empty stream
+    { name: 'sfx_empty_cmdstream.bin', folder: 'Sound', start: 0x028786, end: 0x02878A }, // sounds $26 and $27: empty stream
     { name: 'sfx_beep2_cmdstream.bin', folder: 'Sound', start: 0x02878A, end: 0x02879A }, // sound 2 (SFXbeep2)
     { name: 'sfx_horn_cmdstream.bin', folder: 'Sound', start: 0x02879A, end: 0x028816 }, // sound 4 (92 SFXhorn)
     { name: 'sfx_stdef_cmdstream.bin', folder: 'Sound', start: 0x028816, end: 0x028832 }, // sound 6 (92 SFXstdef)
@@ -237,7 +237,7 @@ const REVB_SLICES = {
     'sfx_puckget_pcm.bin': [0x02809E, 0x0282FE],
     'fm_instrument_patches.bin': [0x0282FE, 0x0286FE],
     'sfx_beep1_cmdstream.bin': [0x02876E, 0x02877A],
-    'sfx_id_26_27_cmdstream.bin': [0x02877A, 0x02877E],
+    'sfx_empty_cmdstream.bin': [0x02877A, 0x02877E],
     'sfx_beep2_cmdstream.bin': [0x02877E, 0x02878E],
     'sfx_horn_cmdstream.bin': [0x02878E, 0x02880A],
     'sfx_stdef_cmdstream.bin': [0x02880A, 0x028826],
