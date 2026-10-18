@@ -272,7 +272,7 @@ getlchoice							;92 getlchoice2 (92 getlchoice only picked a2 from a3 and calle
 	dc.b	5,6,-1					;line 4
 	dc.b	5,6,-1					;line 5
 	dc.b	6,5,-1					;line 6
-	dc.b	0						;pad (92 retail $01)
+	dc.b	PadByte					;pad (92 retail $01, Rev B $FF)
 
 lineinput							;process input for line changes
 									;d1 = new button presses
@@ -1013,12 +1013,16 @@ check4bench							;check if player a3 should go to bench. Called from assbench (
 	st	newpnum(a3)
 	st	newpos(a3)
 	move.w	position(a3),d0
+	IF REV=2
+	bra.w	Setplass				;Rev B: newpos was just set to -1, so the test below was dead code
+	ELSE
 	tst.b	newpos(a3)
 	bmi.w	Setplass
 	move.b	newpos(a3),d0
 	ext.w	d0
 	move.w	d0,position(a3)
 	bra.w	Setplass
+	ENDIF
 
 ;======================================================================
 ;======================================================================
@@ -3237,8 +3241,10 @@ assshoot							;assignment for computer shooting. Assignment ashoot ($12)
 	bset	#cbut,d2				;cbut
 	bra.w	ShotMode				;swing time over: press the shot button (cbut)
 
+	IF REV<2
 pucknothing							;puck just slides along
 	bra.w	puckunflip
+	ENDIF							;Rev B has no pucknothing thunk: the puck table points at puckunflip
 
 puckfaceoff							;this is where the action starts
 									;a3 = the face off controller; first call (pfna set) checks for end of
@@ -3424,7 +3430,9 @@ CPgoalie							;see if computer should pull his goalie. d1 = puck/faceoff y. Fal
 	bne.w	rtss					;exit if not 3rd per.
 	move.w	tmscore(a1),d0
 	sub.w	tmscore(a2),d0			;d0 = other team's goals - mine
+	IF REV<2
 	bmi.w	rtss					;exit if leading the game
+	ENDIF							;(Rev B: a lead of 3 or more falls through to the next test)
 	cmp.w	#2,d0
 	bne.w	rtss					;exit unless behind by 2
 	cmpi.w	#$3C,(gameclock).w

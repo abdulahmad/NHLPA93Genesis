@@ -16,7 +16,11 @@ ShowScores							;"Scores" screen: lists the other games in
 	moveq	#6,d1
 	bsr.w	Framer
 	bsr.w	printbigz
+	IF REV=2
+	String	$BD,$E,3,'Scores',$BD,$B,1
+	ELSE
 	String	$BD,$E,3,'Scores',$BD,$F,1
+	ENDIF
 	movea.l	#ScoresMap,a1
 	lea	8(a1),a2
 	adda.l	4(a1),a1
@@ -26,8 +30,10 @@ ShowScores							;"Scores" screen: lists the other games in
 	move.w	2(a1),d3
 	clr.w	d5
 	bsr.w	dobitmap
+	IF REV<2
 	subq.w	#8,(printx).w
 	jsr	(DrawEASNMap).l
+	ENDIF							;Rev B draws no EASN logo on this screen
 	bsr.w	printsmallz
 	String	CC_SetMapAndPosition,4,2,4,0,0
 	clr.w	(VertLineScrolling).w
@@ -179,7 +185,11 @@ LineEditorMenu						;Slot cursor loop. Also entered from
 									;SelectLinePlayer when it is done
 	bsr.w	DrawTeamScreen
 	bsr.w	DrawLineIcons
-.loop	bsr.w	MenuWaitVblankWrapper	;per frame: d1 = pressed buttons with auto repeat
+.loop	IF REV=2
+	bsr.w	MenuWaitVblank			;per frame: d1 = pressed buttons with auto repeat (Rev B has no wrapper)
+	ELSE
+	bsr.w	MenuWaitVblankWrapper	;per frame: d1 = pressed buttons with auto repeat
+	ENDIF
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
 	btst	#7,d1					;start: exit menu
@@ -210,8 +220,10 @@ LineEditorMenu						;Slot cursor loop. Also entered from
 	bsr.w	DrawLineIcons
 	bra.s	.loop
 
-MenuWaitVblankWrapper				;thunk to MenuWaitVblank
+	IF REV<2
+MenuWaitVblankWrapper				;thunk to MenuWaitVblank (Rev B calls MenuWaitVblank directly)
 	bra.w	MenuWaitVblank
+	ENDIF
 
 SelectLinePlayer					;line editor: C pressed on slot TestList. Build the list of players that
 									;can go in the slot in Satt (roster order is goalies, forwards, defense)
@@ -257,7 +269,11 @@ SelectLinePlayer					;line editor: C pressed on slot TestList. Build the list of
 	dc.b	$F8,4,2,2,1,'{Select  Player}',0
 	clr.w	d0						;draw the list without moving the cursor
 	bra.w	.vert
-.loop	bsr.w	MenuWaitVblankWrapper	;picker input loop
+.loop	IF REV=2
+	bsr.w	MenuWaitVblank			;picker input loop
+	ELSE
+	bsr.w	MenuWaitVblankWrapper	;picker input loop
+	ENDIF
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
 	btst	#7,d1					;start: back to slot cursor
@@ -458,7 +474,11 @@ DrawTeamScreen						;line editor background: bitmap, frame, "Line Editor" title 
 	clr.w	d1
 	move.w	(a1),d2
 	move.w	2(a1),d3
+	IF REV=2
+	moveq	#1,d4					;Rev B starts the tiles at char 1
+	ELSE
 	clr.w	d4
+	ENDIF
 	moveq	#0,d5
 	bsr.w	dobitmap
 	movem.l	(sp)+,d0-d5/a0-a2
@@ -1646,7 +1666,7 @@ DrawStatsList						;stats screen: column headers (sort column highlighted), titl
 	;SelectedPlayerIdx = maximum scroll = (entries - 7, at least 0) * 16 pixels (a3 is just past the $FF end
 	;mark)
 	move.w	a3,d0
-	subi.w	#$BF30,d0				;rows past the first 7 in Satt
+	subi.w	#(Satt+6-M68K_RAM),d0	;rows past the first 7 in Satt
 	bpl.w	.8
 	clr.w	d0
 .8	asl.w	#4,d0					;16 pixels per row
@@ -1682,7 +1702,7 @@ DrawStatsRow						;stats screen row d3 of Satt: rank, name, then either the 5 st
 	subq.w	#1,(printy).w			;eraser moved printy down one row; back to the row rank (2 digits) at x 1
 	move.w	#1,(printx).w
 	move.w	a4,d0
-	subi.w	#$BF29,d0				;rank = Satt index + 1
+	subi.w	#(Satt-1-M68K_RAM),d0	;rank = Satt index + 1
 	moveq	#2,d1
 	move.w	#$E000,(printa).w
 	bsr.w	PushNumberWidth
@@ -1808,7 +1828,8 @@ GetStatsValue						;d2 += word d0 of the RAM table at StatsOffsetTbl2+d1 (0 = no
 StatsOffsetTbl2						;playoff stat RAM tables per column (G, A, G+A, SOG, PIM) 2 words per
 									;column: RAM address of the word array and an optional second one to add
 									;(0 = none)
-	dc.w	$C82A,0,$C85E,0,$C82A,$C85E,$C892,0,$C8C6,0
+	dc.w	(statsbuffer-M68K_RAM),0,(statsbuffer+$34-M68K_RAM),0,(statsbuffer-M68K_RAM),(statsbuffer+$34-M68K_RAM)
+	dc.w	(statsbuffer+$68-M68K_RAM),0,(statsbuffer+$9C-M68K_RAM),0
 StatColumnOffsets					;team struct byte arrays per column, same order
 									;2 words per column: offset in the team struct of the first array and the
 									;second one to add ($FFFF = none)
@@ -2077,6 +2098,12 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	move.l	#0,(a0)					;clear first sprite
 	move.w	#$8C81,4(a0)			;VDP reg 12: 40 cell mode
 	move.w	#6,(Map3col).w			;map 3 is 64 cells wide in 40 cell mode
+	IF REV=2
+	move.w	#$8D00,4(a0)			;Rev B: VDP reg 13 = 0 (horizontal scroll table at VRAM 0)
+	clr.w	d0
+	bsr.w	Vmaddr
+	move.l	#0,(a0)
+	ENDIF
 	move.w	(sp)+,(disflags).w
 	bclr	#df32c,(disflags).w		;not in 32 cell mode
 	;load the frame graphics and the small font tiles
@@ -2097,7 +2124,11 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	clr.w	d1
 	move.w	(a1),d2					;map width
 	move.w	2(a1),d3				;map height
+	IF REV=2
+	moveq	#1,d4					;Rev B starts the tiles at char 1
+	ELSE
 	clr.w	d4
+	ENDIF
 	moveq	#0,d5					;no palette lines
 	bsr.w	dobitmap
 	;copy the rows d0 to d1 (from the caller's stack copy) of the ScoutMap bitmap, 40 wide, to map 3 at row
@@ -2116,7 +2147,9 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	move.w	d0,d1					;start y = first row
 	clr.w	d0						;start x 0
 	moveq	#$28,d2					;width 40
+	IF REV<2
 	clr.w	d4
+	ENDIF							;Rev B leaves d4 as it is
 	moveq	#$D,d5					;copy palette lines 0, 2 and 3
 	bsr.w	dobitmap
 	;load the second small font set after the bitmap tiles (dobitmap's DecompressGraphicsPlain leaves d4 = end
@@ -2142,7 +2175,17 @@ ExitStatsScreen						;leave a stats screen: back to 32 cell mode, reload the rin
 	;video mode: back to 32 cell mode (undoes SetupScreen)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
+	IF REV=2
+	move.w	(VSCRLPM).w,d0			;Rev B: clear the first sprite and set VDP reg 13 (horizontal scroll
+	bsr.w	Vmaddr					;table) from VSCRLPM before going back to 32 cell mode
+	move.l	#0,(a0)
+	move.w	#$8D00,d0
+	move.b	(VSCRLPM).w,d0
+	lsr.b	#2,d0
+	move.w	d0,4(a0)
+	ELSE
 	movea.l	#Vdata,a0
+	ENDIF
 	move.w	#$8C00,4(a0)			;VDP reg 12: 32 cell mode
 	move.w	#5,(Map3col).w			;map 3 is 32 cells wide again
 	move.w	(sp)+,(disflags).w

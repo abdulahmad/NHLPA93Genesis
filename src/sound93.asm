@@ -112,6 +112,38 @@ stop_current_song					;stop the song in progress: free the first slot whose poin
 ;	  events (4 bytes): +0 delay before this event, +1 status (bits 6-4 command, bits 3-0 channel),
 ;	    +2/+3 data. Status 0 ends the stream; a non-negative long at +2 is a loop pointer.
 
+	IF REV=2
+ReadPads							;Rev B: read both controllers once a frame, from the vblank, with the Z80
+									;bus held. The raw bytes go to PadRaw1/PadRaw2 for ReadJoy1/ReadJoy2
+	move.w	#$100,(IO_Z80BUS).l		;turn off z80
+.wait	btst	#0,(IO_Z80BUS).l
+	bne.b	.wait
+	lea	(Joy1).l,a0
+	bsr.w	ReadPadByte
+	move.b	d0,(PadRaw1).w
+	lea	(Joy2).l,a0
+	bsr.w	ReadPadByte
+	clr.w	(IO_Z80BUS).l			;turn on z80
+	move.b	d0,(PadRaw2).w
+	rts
+
+ReadPadByte							;read the pad at a0. Return d0 = the 8 button bits, active low
+	move.b	#$40,6(a0)				;control port: TH as output
+	move.b	#0,(a0)					;TH low: the next read gives start and A
+	move.w	#10,d1
+.z	dbf	d1,.z						;let the pad settle
+	move.b	(a0),d0					;TH low read: bit 5 = start, bit 4 = A
+	move.b	#$40,(a0)				;TH high for the next read
+	asl.b	#2,d0					;start/A up to bits 7-6
+	andi.b	#%11000000,d0
+	move.w	#10,d1
+.zz	dbf	d1,.zz						;settle delay
+	move.b	(a0),d1					;TH high read: bits 0-3 up/down/left/right, bit 4 = B, bit 5 = C
+	andi.b	#%00111111,d1
+	or.b	d1,d0					;d0 = 8 button bits, active low
+	rts
+	ENDIF
+
 p_music_vblank						;(vblank handler). Clear the change bits, run the 8 track slots (d7 =
 									;track 7-0)
 									;send the buffer if anything changed and age the channels. Called every
@@ -119,6 +151,9 @@ p_music_vblank						;(vblank handler). Clear the change bits, run the 8 track sl
 									;frame while PalMode
 									;is set (music_tick_divider $CAF0); Rev 0 has no such block (22 bytes
 									;shorter)
+	IF REV=2
+	bsr.b	ReadPads				;Rev B: poll the controllers first
+	ENDIF
 	clr.b	(music_needs_z80_update).w
 	clr.l	(Z80_command_buffer).w	;key off/on, volume, frequency bits
 	clr.b	(Z80_command_buffer+4).w	;patch bits
@@ -127,7 +162,7 @@ p_music_vblank						;(vblank handler). Clear the change bits, run the 8 track sl
 .slot	bsr.w	ProcessOneMusicTrack	;process track slot a5, track d7
 	addq.w	#6,a5
 	dbf	d7,.slot
-	IF REV=1
+	IF REV>=1
 	tst.w	(PalMode).w				;Rev A: at 50 Hz run the slots again every 6th frame
 	beq.w	.tick
 	subq.w	#1,(music_tick_divider).w
@@ -157,6 +192,10 @@ z80_bus_release_delay				;Z80 busy: give the bus back, wait, then falls into
 UploadCommandBufferToZ80			;copy the 33-byte command buffer to Z80 RAM $02 once the Z80 is idle ($97
 									;= 0, $96 = $7D), and post command $D1. Called after any change
 	move.w	#$100,(IO_Z80BUS).l		;request the Z80 bus
+	IF REV=2
+.zb1	btst	#0,(IO_Z80BUS).l	;Rev B waits for the Z80 to grant the bus
+	bne.b	.zb1
+	ENDIF
 	movea.l	#Z80_RAM,a0
 	cmpi.b	#0,$97(a0)
 	bne.s	z80_bus_release_delay	;busy
@@ -242,6 +281,10 @@ StopPCMChannel						;clear Z80 RAM $8E (the PCM rate byte written by
 									;UpdateChannelFrequencyAndVolume).
 									;Called from p_turnoff and for a PCM key off
 	move.w	#$100,(IO_Z80BUS).l
+	IF REV=2
+.zb2	btst	#0,(IO_Z80BUS).l	;Rev B waits for the Z80 to grant the bus
+	bne.b	.zb2
+	ENDIF
 	clr.b	(Z80_RAM+$8E).l
 	clr.w	(IO_Z80BUS).l
 	rts
@@ -324,6 +367,10 @@ handle_command_10					;event $1x: key on note +2 at volume +3 on channel +1 bits
 	move.l	4(a1,d0.w),d1
 	move.l	(a1,d0.w),d0
 	move.w	#$100,(IO_Z80BUS).l
+	IF REV=2
+.zb3	btst	#0,(IO_Z80BUS).l	;Rev B waits for the Z80 to grant the bus
+	bne.b	.zb3
+	ENDIF
 	movea.l	#Z80_RAM,a1
 	move.b	d0,$25(a1)				;first long to Z80 $23-$25, high byte first
 	lsr.w	#8,d0
@@ -392,6 +439,10 @@ UpdateChannelFrequencyAndVolume		;set the frequency of channel struct a2 from it
 	st	(music_needs_z80_update).w
 	rts
 .pcm	move.w	#$100,(IO_Z80BUS).l	;PCM patch: set the sample rate in Z80 RAM
+	IF REV=2
+.zb4	btst	#0,(IO_Z80BUS).l	;Rev B waits for the Z80 to grant the bus
+	bne.b	.zb4
+	ENDIF
 	neg.w	d3
 	addq.w	#8,d3
 	lsr.w	d3,d2					;frequency number >> (8 - octave)
@@ -486,6 +537,10 @@ p_initialZ80						;(initialization). Free all slots, load the Z80 program into Z
 	bsr.w	ClearAllTrackAndSFXSlots
 	move.w	#$100,(IO_Z80RES).l
 	move.w	#$100,(IO_Z80BUS).l		;request the Z80 bus
+	IF REV=2
+.zb5	btst	#0,(IO_Z80BUS).l	;Rev B waits for the Z80 to grant the bus
+	bne.b	.zb5
+	ENDIF
 	movea.l	#Z80_Program_Code,a1
 	movea.l	#Z80_RAM,a2
 	move.w	#$294,d0				;$295 bytes
@@ -549,7 +604,7 @@ Z80_Program_Code					;First byte of the Z80 program (movea.l in p_initialZ80); t
 	IF REV=0
 	dc.b	$83						;pad: Rev 0 leftover byte
 	ELSE
-	dc.b	0
+	dc.b	PadByte
 	ENDIF
 pcm_sample_table					;(sample address, 0) for PCM patches $60-$6E (lea in handle_command_10)
 	dc.l	sfx_puckget_pcm,0		;patch $60
@@ -575,7 +630,7 @@ sfx_pass_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	IF REV=0
 	dc.b	$7D						;pad: Rev 0 leftover byte
 	ELSE
-	dc.b	0
+	dc.b	PadByte
 	ENDIF
 sfx_oooh_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_oooh_pcm.bin	;sample 12: oooh, sfx_oooh2, sfx_bglass
@@ -585,7 +640,7 @@ sfx_crowdboo_pcm					;raw PCM sample, played through the Z80 (pcm_sample_table)
 	IF REV=0
 	dc.b	$7B						;pad: Rev 0 leftover byte
 	ELSE
-	dc.b	0
+	dc.b	PadByte
 	ENDIF
 sfx_check_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_check_pcm.bin	;sample 5: check1, check3
@@ -598,7 +653,7 @@ sfx_bglass_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	IF REV=0
 	dc.b	$7D						;pad: Rev 0 leftover byte
 	ELSE
-	dc.b	0
+	dc.b	PadByte
 	ENDIF
 sfx_playerwall_pcm					;raw PCM sample, played through the Z80 (pcm_sample_table)
 	incbin	..\Extracted\Sound\sfx_playerwall_pcm.bin	;sample 6: playerwall, sfx_playerwall2-23
@@ -608,7 +663,7 @@ sfx_check2_pcm						;raw PCM sample, played through the Z80 (pcm_sample_table)
 	IF REV=0
 	dc.b	$7A						;pad: Rev 0 leftover byte
 	ELSE
-	dc.b	0
+	dc.b	PadByte
 	ENDIF
 sfx_hithigh_pcm						;PCM samples 7 and 10: hithigh, hitlow, check1-4, songs $32 and $35-$37
 	incbin	..\Extracted\Sound\sfx_hithigh_pcm.bin	;samples 7 and 10: hithigh, hitlow, check1-4, songs $32
@@ -864,5 +919,9 @@ ScoutingReportText					;scouting report text
 	IF REV=0
 	dc.b	$72						;pad: Rev 0 leftover byte
 	ELSE
+	IF REV=2
+	dc.b	$0D						;pad: Rev B byte
+	ELSE
 	dc.b	0
+	ENDIF
 	ENDIF

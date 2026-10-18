@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // build.js: the whole NHLPA 93 build, one line per step, on Windows and on Linux/macOS (wine). Replaces build93.bat
 // and the Windows-only npm scripts (same tool as NHL92Genesis tools/build.js).
-//   node tools/build.js [retail|reva|dev] [--verbose]   full ROM -> output/<mode>/nhl93.bin
+//   node tools/build.js [retail|reva|revb|dev] [--verbose]   full ROM -> output/<mode>/nhl93.bin
 //   node tools/build.js --clean                         delete output/ and Extracted/
 // --no-color (or NO_COLOR) turns the colors off; they are also off when the output is not a terminal.
 // retail: REV=0 CHECKSUM=1, verified against nhlpa93retail.bin. reva: REV=1 CHECKSUM=1, verified against
-// nhlpa93retailRevA.bin. dev: REV=1 CHECKSUM=0 (no validation routine), not verified.
+// nhlpa93retailRevA.bin. revb: REV=2 CHECKSUM=1, verified against nhlpa93retailRevB.bin. dev: REV=1 CHECKSUM=0 (no validation routine), not verified.
 // Each mode has its own folder: output/<mode>/nhl93.bin is the ROM, output/<mode>/obj/ holds the intermediates
 // (the assembler's raw binary and listing, its log, the opcode-fixed binary before it is moved up).
 const fs = require('fs');
@@ -18,6 +18,7 @@ const EXE = path.join(ROOT, 'assembler', 'Assembler.exe');
 const MODES = {
     retail: { rev: 0, checksum: 1, prebuild: 'retail', ref: 'nhlpa93retail.bin' },
     reva: { rev: 1, checksum: 1, prebuild: 'reva', ref: 'nhlpa93retailRevA.bin' },
+    revb: { rev: 2, checksum: 1, prebuild: 'revb', ref: 'nhlpa93retailRevB.bin' },
     dev: { rev: 1, checksum: 0, prebuild: 'any', ref: null },
 };
 
@@ -48,7 +49,7 @@ let n = 0;
 // In a colour terminal the step line shows a spinner and a yellow step name while it runs, and is
 // redrawn with a green check or a red cross when it ends (cut to the terminal width so it never
 // wraps). Otherwise both lines are printed once, after the step.
-const ROMNAME = { retail: 'Rev 0 (v1.0, retail)', reva: 'Rev A (v1.1)', dev: 'Rev 0 or Rev A' }[modeName];
+const ROMNAME = { retail: 'Rev 0 (v1.0, retail)', reva: 'Rev A (v1.1)', revb: 'Rev B (v1.2)', dev: 'Rev 0 or Rev A' }[modeName];
 const ABOUT = {
     prebuild: `check the ${modeName === 'dev' ? 'Rev 0 or Rev A' : ROMNAME} ROM and extract graphics/sound assets into Extracted/`,
     assemble: 'SNASM68k turns src/hockey93.asm into a raw ROM image',

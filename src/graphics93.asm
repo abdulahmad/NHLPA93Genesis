@@ -52,7 +52,11 @@ Sprites								;$FFFFFFFF, long offset to FrameDataOff, then tiles
 Spritetiles	equ	Sprites+$A			;sprite tiles
 FrameDataOff	equ	Sprites+$3574A	;frame offset table (= Sprites + the long at Sprites+4)
 SprDataBytes	equ	Sprites+$35C60	;8-byte sprite entries of each frame
+	IF REV=2
+HotList	equ	Sprites+$3A054			;hot spot byte pair per frame (Rev B: sheet is 2 bytes shorter)
+	ELSE
 HotList	equ	Sprites+$3A056			;hot spot byte pair per frame
+	ENDIF
 CrowdSprites						;crowd animation sprite frames (showcrowd in video93.asm)
 	incbin	..\Extracted\Graphics\Crowd.anim
 	even
@@ -74,18 +78,33 @@ EnergyBarMap						;line energy bar frames drawn by linebar
 Teamblocksmap						;team block tiles and map (AddTeamBlock, hockey93.asm, print93.asm)
 	incbin	..\Extracted\Graphics\TeamBlocks.map.jim
 	even
+	IF REV=2
+EASportsMap							;EA Sports logo tiles and map (setupEASNmap, DrawEASNMap). Rev B
+									;replaced the EASN logo (EASNmap) with this one, before the arrows
+	incbin	..\Extracted\Graphics\EASports.map.jim
+	even
+EASNmap	equ	EASportsMap
+	ENDIF
 Arrowsmap							;playoff tree arrow tiles (DrawTreeArrow in hockey93.asm)
 	incbin	..\Extracted\Graphics\Arrows.map.jim
 	even
+	IF REV<2
 EASNmap								;EASN logo tiles and map (setupEASNmap, DrawEASNMap)
 	incbin	..\Extracted\Graphics\EASN.map.jim
 	even
+	ENDIF
 RonBarrMap							;Ron Barr picture on the ScoutingReport
 	incbin	..\Extracted\Graphics\RonBarr.map.jim
 	even
 ScoresMap							;bitmap under the title on the ShowScores "Scores" screen
 	incbin	..\Extracted\Graphics\Scores.map.jim
 	even
+	IF REV=2
+EASportsMap2						;the EA Sports picture of the Stanley Cup screen. Rev B has no five
+									;EASN bitmaps and no spinning EASN animation
+	incbin	..\Extracted\Graphics\EASports2.map.jim
+	even
+	ELSE
 SpinningEASN						;the spinning EASN logo sprites of the Stanley Cup screen, drawn with
 									;SetSframe by UpdateStanleyCupAnimation (92 Stanleymap was a bitmap)
 	incbin	..\Extracted\Graphics\EASN.anim
@@ -93,3 +112,4 @@ SpinningEASN						;the spinning EASN logo sprites of the Stanley Cup screen, dra
 EASNmap2							;the five EASN bitmaps on the Stanley Cup screen
 	incbin	..\Extracted\Graphics\EASN2.map.jim
 	even
+	ENDIF

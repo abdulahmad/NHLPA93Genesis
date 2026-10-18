@@ -227,11 +227,19 @@ checkfo2							;face off graphics. a3 = face off data (word frame, word flags), 
 	movea.l	#FaceOffSprites,a2
 	adda.l	4(a2),a2				;frame offset table
 	add.w	d4,d4
+	IF REV=2
+	move.w	(a2,d4.w),d5
+	sub.w	-2(a2,d4.w),d5
+	lsr.w	#3,d5
+	subq.w	#1,d5					;number of sprites in frame
+	adda.w	-2(a2,d4.w),a2
+	ELSE
 	move.w	2(a2,d4.w),d5
 	sub.w	(a2,d4.w),d5
 	lsr.w	#3,d5
 	subq.w	#1,d5					;number of sprites in frame
 	adda.w	(a2,d4.w),a2
+	ENDIF
 .sloop	move.w	2(a2),d2			;one sprite of the frame: y
 	addi.w	#$80,d2					;sprite coordinates start at 128
 	add.w	(fodropy).w,d2
@@ -299,7 +307,11 @@ showzam								;zamboni. Called from setvideo.
 	cmp.w	#$1A,d2
 	blt.w	.get
 	move.l	#$18,d2					;clamp to the last entry
-.get	movea.l	#.ftab,a1			;d2 = table offset
+.get	IF REV=2
+	lea	(.ftab).l,a1				;d2 = table offset
+	ELSE
+	movea.l	#.ftab,a1				;d2 = table offset
+	ENDIF
 	move.w	(a1,d2.w),d2			;frame from the table
 	bra.w	SetSframe
 .ftab	dc.w	5,6,7,8,7,8,7,8,7,8,7,6,5	;frame by (x-$DA)/4
@@ -313,11 +325,19 @@ SetSframe							;draw one sprite frame. Called from showzam and from the screen 
 	movem.l	d0-d5/a0,-(sp)
 	adda.l	4(a0),a0				;frame offset table
 	add.w	d2,d2
+	IF REV=2
+	move.w	(a0,d2.w),d4
+	sub.w	-2(a0,d2.w),d4
+	lsr.w	#3,d4
+	subq.w	#1,d4					;number of sprites in frame
+	adda.w	-2(a0,d2.w),a0
+	ELSE
 	move.w	2(a0,d2.w),d4
 	sub.w	(a0,d2.w),d4
 	lsr.w	#3,d4
 	subq.w	#1,d4					;number of sprites in frame
 	adda.w	(a0,d2.w),a0
+	ENDIF
 .loop	move.w	2(a0),(a6)			;per sprite: y (+ d1)
 	add.w	d1,(a6)+
 	move.b	7(a0),(a6)+				;size
@@ -382,12 +402,21 @@ showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then the t
 	movem.l	d0-d5,-(sp)
 	add.w	d0,d0
 	movea.l	a1,a0
+	IF REV=2
+	move.w	(a0,d0.w),d1
+	sub.w	-2(a0,d0.w),d1
+	lsr.w	#3,d1
+	subq.w	#1,d1
+	move.w	d1,-(sp)				;number of sprites in frame
+	adda.w	-2(a0,d0.w),a0
+	ELSE
 	move.w	2(a0,d0.w),d1
 	sub.w	(a0,d0.w),d1
 	lsr.w	#3,d1
 	subq.w	#1,d1
 	move.w	d1,-(sp)				;number of sprites in frame
 	adda.w	(a0,d0.w),a0
+	ENDIF
 
 	move.w	d4,d0					;x window d0-d1
 	addi.w	#$C0,d0
@@ -708,7 +737,7 @@ ButtonLabelCharTable				;third label character by bits 10-8 of the label code
 	IF REV=0
 	dc.b	' DDLCRX',$10			;Rev 0 pad $10 (Rev A: 0)
 	ELSE
-	dc.b	' DDLCRX',0
+	dc.b	' DDLCRX',PadByte
 	ENDIF
 
 addframe							;a3 = cords.l frame/oldframe VRsize VRchar. Project the object with
@@ -742,6 +771,16 @@ addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, 
 	andi.w	#$7FF,d4
 	movea.l	#Sprites,a2
 	adda.l	4(a2),a2				;frame offset table
+	IF REV=2
+	add.w	d4,d4					;Rev B: the offset table has no entry for frame 0, so index one word lower
+	cmp.w	(a2),d4					;first offset = table size
+	bge.w	.exit					;frame past the table
+	move.w	(a2,d4.w),d5
+	sub.w	-2(a2,d4.w),d5
+	lsr.w	#3,d5
+	subq.w	#1,d5					;number of sprites in frame-1
+	adda.w	-2(a2,d4.w),a2
+	ELSE
 	asl.w	#1,d4
 	cmp.w	2(a2),d4				;first offset = table size
 	bge.w	.exit					;frame past the table
@@ -750,6 +789,7 @@ addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, 
 	lsr.w	#3,d5
 	subq.w	#1,d5					;number of sprites in frame-1
 	adda.w	(a2,d4.w),a2
+	ENDIF
 	clr.w	d3
 	clr.w	d4
 .sloop	move.w	d0,-(sp)			;per sprite of the frame; d0 = x for now, saved

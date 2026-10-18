@@ -165,6 +165,161 @@ const assets = [
     { name: 'EASN2.map.jim', folder: 'Graphics', start: 0x07F4F6, end: 0x07FB76 }, // EASNmap2: the five EASN bitmaps on the Stanley Cup screen (93 only)
 ];
 
+// Rev B (v1.2, 1993.FEB) slices, in ROM addresses of that ROM. Where a slice is unchanged from Rev 0 it only moved.
+// EA changed the EASN branding to EA Sports in this revision: the EASN pictures are EASports ones, and the spinning
+// EASN animation (EASN.anim) and EASN2 are gone (one EASports2 picture replaces them on the Stanley Cup screen).
+const REVB_SLICES = {
+    'ASEh.pal': [0x000382, 0x0003A2],
+    'ASEv.pal': [0x0003A2, 0x0003C2],
+    'ASWh.pal': [0x00061E, 0x00063E],
+    'ASWv.pal': [0x00063E, 0x00065E],
+    'BOSh.pal': [0x0008BE, 0x0008DE],
+    'BOSv.pal': [0x0008DE, 0x0008FE],
+    'BUFh.pal': [0x000B76, 0x000B96],
+    'BUFv.pal': [0x000B96, 0x000BB6],
+    'CGYh.pal': [0x000E38, 0x000E58],
+    'CGYv.pal': [0x000E58, 0x000E78],
+    'CHIh.pal': [0x0010DE, 0x0010FE],
+    'CHIv.pal': [0x0010FE, 0x00111E],
+    'DETh.pal': [0x00139E, 0x0013BE],
+    'DETv.pal': [0x0013BE, 0x0013DE],
+    'EDMh.pal': [0x001656, 0x001676],
+    'EDMv.pal': [0x001676, 0x001696],
+    'HFDh.pal': [0x001904, 0x001924],
+    'HFDv.pal': [0x001924, 0x001944],
+    'LAh.pal': [0x001BB8, 0x001BD8],
+    'LAv.pal': [0x001BD8, 0x001BF8],
+    'LIh.pal': [0x001E82, 0x001EA2],
+    'LIv.pal': [0x001EA2, 0x001EC2],
+    'MINh.pal': [0x00212E, 0x00214E],
+    'MINv.pal': [0x00214E, 0x00216E],
+    'MTLh.pal': [0x0023D0, 0x0023F0],
+    'MTLv.pal': [0x0023F0, 0x002410],
+    'NJh.pal': [0x0026A8, 0x0026C8],
+    'NJv.pal': [0x0026C8, 0x0026E8],
+    'NYh.pal': [0x002960, 0x002980],
+    'NYv.pal': [0x002980, 0x0029A0],
+    'OTWh.pal': [0x002C28, 0x002C48],
+    'OTWv.pal': [0x002C48, 0x002C68],
+    'PHIh.pal': [0x002E46, 0x002E66],
+    'PHIv.pal': [0x002E66, 0x002E86],
+    'PITh.pal': [0x003102, 0x003122],
+    'PITv.pal': [0x003122, 0x003142],
+    'QUEh.pal': [0x0033A6, 0x0033C6],
+    'QUEv.pal': [0x0033C6, 0x0033E6],
+    'SJh.pal': [0x003680, 0x0036A0],
+    'SJv.pal': [0x0036A0, 0x0036C0],
+    'STLh.pal': [0x00393A, 0x00395A],
+    'STLv.pal': [0x00395A, 0x00397A],
+    'TBYh.pal': [0x003BF0, 0x003C10],
+    'TBYv.pal': [0x003C10, 0x003C30],
+    'TORh.pal': [0x003E2E, 0x003E4E],
+    'TORv.pal': [0x003E4E, 0x003E6E],
+    'VANh.pal': [0x0040E8, 0x004108],
+    'VANv.pal': [0x004108, 0x004128],
+    'WPGh.pal': [0x0043A2, 0x0043C2],
+    'WPGv.pal': [0x0043C2, 0x0043E2],
+    'WSHh.pal': [0x004660, 0x004680],
+    'WSHv.pal': [0x004680, 0x0046A0],
+    'z80_snd_drv93.bin': [0x016E47, 0x0170BE],
+    'z80_snd_drv93_end.bin': [0x0170C3, 0x0170D1],
+    'sfx_shotbh_pcm.bin': [0x01714A, 0x01733E],
+    'sfx_pass_pcm.bin': [0x01733E, 0x01806B],
+    'sfx_oooh_pcm.bin': [0x01806C, 0x01B2B0],
+    'sfx_crowdboo_pcm.bin': [0x01B2B0, 0x01D7FD],
+    'sfx_check_pcm.bin': [0x01D7FE, 0x01F750],
+    'sfx_crowdcheer_pcm.bin': [0x01F750, 0x022630],
+    'sfx_bglass_pcm.bin': [0x022630, 0x0260AF],
+    'sfx_playerwall_pcm.bin': [0x0260B0, 0x026560],
+    'sfx_check2_pcm.bin': [0x026560, 0x026F8F],
+    'sfx_hithigh_pcm.bin': [0x026F90, 0x0274E6],
+    'sfx_shotfh_pcm.bin': [0x0274E6, 0x02809E],
+    'sfx_puckget_pcm.bin': [0x02809E, 0x0282FE],
+    'fm_instrument_patches.bin': [0x0282FE, 0x0286FE],
+    'sfx_beep1_cmdstream.bin': [0x02876E, 0x02877A],
+    'sfx_id_26_27_cmdstream.bin': [0x02877A, 0x02877E],
+    'sfx_beep2_cmdstream.bin': [0x02877E, 0x02878E],
+    'sfx_horn_cmdstream.bin': [0x02878E, 0x02880A],
+    'sfx_stdef_cmdstream.bin': [0x02880A, 0x028826],
+    'sfx_puckget_cmdstream.bin': [0x028826, 0x028842],
+    'sfx_puckice1_cmdstream.bin': [0x028842, 0x028852],
+    'sfx_puckice2_cmdstream.bin': [0x028852, 0x028862],
+    'sfx_puckice3_cmdstream.bin': [0x028862, 0x028872],
+    'sfx_puckice4_cmdstream.bin': [0x028872, 0x028882],
+    'sfx_puckbody_cmdstream.bin': [0x028882, 0x02889E],
+    'sfx_oooh_cmdstream.bin': [0x02889E, 0x0288BA],
+    'sfx_puckpost_cmdstream.bin': [0x0288BA, 0x0288CA],
+    'sfx_playerwall_cmdstream.bin': [0x0288CA, 0x0288E6],
+    'sfx_playerwall2_cmdstream.bin': [0x0288E6, 0x028902],
+    'sfx_playerwall3_cmdstream.bin': [0x028902, 0x02891E],
+    'sfx_playerwall4_cmdstream.bin': [0x02891E, 0x02893A],
+    'sfx_puckwall1_cmdstream.bin': [0x02893A, 0x02894A],
+    'sfx_puckwall2_cmdstream.bin': [0x02894A, 0x02895A],
+    'sfx_puckwall3_cmdstream.bin': [0x02895A, 0x02896A],
+    'sfx_puckwall4_cmdstream.bin': [0x02896A, 0x02897A],
+    'sfx_whistle_cmdstream.bin': [0x02897A, 0x028A18],
+    'sfx_shotwiff_cmdstream.bin': [0x028A18, 0x028A28],
+    'sfx_check1_cmdstream.bin': [0x028A28, 0x028A44],
+    'sfx_check2_cmdstream.bin': [0x028A44, 0x028A60],
+    'sfx_check3_cmdstream.bin': [0x028A60, 0x028A7C],
+    'sfx_check4_cmdstream.bin': [0x028A7C, 0x028AA0],
+    'sfx_pass1_cmdstream.bin': [0x028AA0, 0x028AB0],
+    'sfx_pass2_cmdstream.bin': [0x028AB0, 0x028AC0],
+    'sfx_pass3_cmdstream.bin': [0x028AC0, 0x028AD0],
+    'sfx_pass4_cmdstream.bin': [0x028AD0, 0x028AE0],
+    'sfx_shotbh1_cmdstream.bin': [0x028AE0, 0x028AF0],
+    'sfx_shotbh2_cmdstream.bin': [0x028AF0, 0x028B00],
+    'sfx_shotbh3_cmdstream.bin': [0x028B00, 0x028B10],
+    'sfx_shotbh4_cmdstream.bin': [0x028B10, 0x028B20],
+    'sfx_shotfh1_cmdstream.bin': [0x028B20, 0x028B30],
+    'sfx_shotfh2_cmdstream.bin': [0x028B30, 0x028B40],
+    'sfx_shotfh3_cmdstream.bin': [0x028B40, 0x028B50],
+    'sfx_shotfh4_cmdstream.bin': [0x028B50, 0x028B60],
+    'sfx_hithigh_cmdstream.bin': [0x028B60, 0x028B70],
+    'sfx_hitlow_cmdstream.bin': [0x028B70, 0x028B80],
+    'sfx_homewin_cmdstream.bin': [0x028B80, 0x028BB8],
+    'sfx_crowdcheer_cmdstream.bin': [0x028BB8, 0x028BC8],
+    'sfx_crowdboo_cmdstream.bin': [0x028BC8, 0x028BD8],
+    'sfx_bglass_cmdstream.bin': [0x028BD8, 0x028BF4],
+    'sfx_oooh2_cmdstream.bin': [0x028BF4, 0x028C04],
+    'sfx_siren_cmdstream.bin': [0x028C04, 0x028E2C],
+    'fmtune_goal_cmdstream.bin': [0x028E2C, 0x029100],
+    'fmtune_periodstart_cmdstream.bin': [0x029100, 0x0292D0],
+    'fmtune_lategame_cmdstream.bin': [0x0292D0, 0x029654],
+    'fmtune_powerplay_cmdstream.bin': [0x029654, 0x0298F8],
+    'fmtune_faceoff_cmdstream.bin': [0x0298F8, 0x029BD8],
+    'fmtune_title_cmdstream.bin': [0x029BD8, 0x029C36],
+    'fmtune_title_loop_cmdstream.bin': [0x029C3A, 0x02AF54],
+    'fmtune_eop_cmdstream.bin': [0x02AF58, 0x02C89A],
+    'fmtune_scouting_cmdstream.bin': [0x02C89E, 0x02CEB8],
+    'ScoutingReportText.bin': [0x02CEBC, 0x02E1F3],
+    'GameSetUp.map.jim': [0x02E1F4, 0x02EF9A],
+    'GameSetup.anim': [0x02EF9A, 0x02F0A6],
+    'Title1.map.jim': [0x02F0A6, 0x03127E],
+    'Title2.map.jim': [0x03127E, 0x031F06],
+    'Title3.anim': [0x031F06, 0x0322C2],
+    'TitleLogo.anim': [0x0322C2, 0x032852],
+    'Scouting.map.jim': [0x032852, 0x0335AC],
+    'Framer.map.jim': [0x0335AC, 0x033624],
+    'FaceOff.map.jim': [0x033624, 0x033A88],
+    'IceRink.map.jim': [0x033A88, 0x038A90],
+    'Refs.map.jim': [0x038A90, 0x0395EC],
+    'Refs2.map.jim': [0x0395EC, 0x03A502],
+    'Sprites.anim': [0x03A502, 0x074A6A],
+    'Crowd.anim': [0x074A6A, 0x0772F6],
+    'FaceOff.anim': [0x0772F6, 0x078368],
+    'Zam.anim': [0x078368, 0x078E52],
+    'BigFont.map.jim': [0x078E52, 0x079708],
+    'SmallFont.map.jim': [0x079708, 0x07A3D6],
+    'EnergyBar.map.jim': [0x07A3D6, 0x07A4CA],
+    'TeamBlocks.map.jim': [0x07A4CA, 0x07C6A2],
+    'Arrows.map.jim': [0x07C7B2, 0x07CA0E],
+    'EASports.map.jim': [0x07C6A2, 0x07C7B2],
+    'RonBarr.map.jim': [0x07CA0E, 0x07CFE6],
+    'Scores.map.jim': [0x07CFE6, 0x07D3CC],
+    'EASports2.map.jim': [0x07D3CC, 0x07E2F4],
+};
+
 // Known retail ROMs. Slices are listed at retail addresses; each version maps a retail address to
 // its own (Rev A: every slice from the Z80 driver at $16E53 on sits $2E bytes higher). The bytes of
 // every slice are the same in both, so either ROM gives the same Extracted/ files.
@@ -175,6 +330,8 @@ const VERSIONS = [
     { id: 'reva', label: 'NHLPA Hockey 93 Rev A / v1.1 (1992.OCT, GM T-50396 -01)', file: 'nhlpa93retailRevA.bin',
       sha1: '2ab048fc7209df28b00ef47f2f686f5b7208466e', size: 0x80000, date: '1992.OCT', serial: 'GM T-50396 -01',
       map: (a) => (a >= 0x16E53 ? a + 0x2E : a) },
+    { id: 'revb', label: 'NHLPA Hockey 93 Rev B / v1.2 (1993.FEB, GM T-50396 -00)', file: 'nhlpa93retailRevB.bin',
+      sha1: '76c0f3d4665ffcd53adfffaa27fc4dded694f8f7', size: 0x80000, date: '1993.FEB', serial: 'GM T-50396 -00', slices: REVB_SLICES },
 ];
 
 // Find the version of a ROM by SHA-1. Size and header are only used to explain a refusal.
@@ -216,14 +373,20 @@ async function extractAssets(romPath, options = {}) {
         await fs.rm(markerPath, { force: true });
         const written = [];
 
-        // Extract each asset
-        for (const asset of assets) {
+        // Extract each asset (Rev B has its own slice list, see REVB_SLICES)
+        const list = version.slices
+            ? Object.keys(version.slices).map((name) => {
+                const retail = assets.find((a) => a.name === name || (name.startsWith('EASports') && a.name.startsWith('EASN') && a.name.endsWith('.map.jim')));
+                return { name, folder: (retail || { folder: 'Graphics' }).folder, start: version.slices[name][0], end: version.slices[name][1] };
+            })
+            : assets;
+        for (const asset of list) {
             // Create output directory
             const outputDir = path.join(baseDir, asset.folder);
             await fs.mkdir(outputDir, { recursive: true });
 
             // Extract data
-            const start = version.map(asset.start), end = version.map(asset.end - 1) + 1;
+            const start = version.slices ? asset.start : version.map(asset.start), end = version.slices ? asset.end : version.map(asset.end - 1) + 1;
             const assetData = romData.slice(start, end);
 
             // Write to file
@@ -244,7 +407,7 @@ async function extractAssets(romPath, options = {}) {
         await fs.writeFile(markerPath, JSON.stringify({ rom: version.id, romSha1: sha1, extractor: path.basename(__filename),
             extractorSha1, files: written }, null, 1) + '\n');
         console.log('Extraction completed successfully.');
-        console.log(`Extracted ${assets.length} assets from NHLPA 93 ROM.`);
+        console.log(`Extracted ${list.length} assets from NHLPA 93 ROM.`);
     } catch (error) {
         console.error(`Error during extraction: ${error.message}`);
         process.exitCode = 1;

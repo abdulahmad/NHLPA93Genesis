@@ -391,6 +391,44 @@ ProcessInputWithRepeat				;nodiag, then key repeat on d1-d3 from ReadJoy1/2. A c
 .chg	move.w	#$F,(repeatdelayframes).w	;first repeat delay
 	rts
 
+	IF REV=2
+ReadJoy1							;read controller 1 from the byte ReadPads left in PadRaw1. Return d0 =
+									;direction (bit 0-3) and new button (bit 4-7) presses, d1 = new presses
+									;(all 8 bits), d2 = changed buttons (all 8), d3 = held buttons (all 8)
+	move.b	(PadRaw1).w,d0
+	bsr.w	ReadJoy					;d1 = buttons down now
+	move.w	(lj1).w,d2				;last frame's buttons
+	move.w	d1,(lj1).w
+	move.w	d1,d3					;d3 = held
+	eor.w	d1,d2					;d2 = changed
+	and.w	d2,d1					;d1 = changed and now down = new presses
+	rts
+
+ReadJoy2							;read controller 2 from PadRaw2 (same as ReadJoy1 with lj2)
+	move.b	(PadRaw2).w,d0
+	bsr.w	ReadJoy
+	move.w	(lj2).w,d2
+	move.w	d1,(lj2).w
+	move.w	d1,d3
+	eor.w	d1,d2
+	and.w	d2,d1
+	rts
+
+ReadJoy								;translate a raw controller byte d0 (active low). Return d0 = direction
+									;(bit 0-3) and new button (bit 4-7) presses, d1 = buttons down (all 8)
+	not.b	d0						;now active high
+	clr.w	d1
+	move.b	d0,d1
+	move.w	d1,-(sp)				;keep all buttons for d1
+	andi.w	#$F0,d0					;d0 = button bits (4-7)
+	andi.w	#$F,d1					;d1 = direction bits
+	lea	(jdtab).l,a0
+	move.b	(a0,d1.w),d1			;translate to direction 0-7 (8 = none)
+	or.w	d1,d0					;d0 = buttons + direction code
+	move.w	(sp)+,d1
+	rts
+
+	ELSE
 ReadJoy1							;read controller 1. Return d0 = direction (bit 0-3) and new button (bit
 									;4-7) presses, d1 = new presses (all 8 bits), d2 = changed buttons (all
 									;8), d3 = current held buttons (all 8)
@@ -453,6 +491,8 @@ ReadJoy								;read controller a0. Return d0 = direction (bit 0-3) and new butt
 	move.w	(sp)+,d1
 	rts
 
+	ENDIF
+
 jdtab								;convert buttons l,r,d,u into directions 0-7,8
 	dc.b	8,0,4,8,6,7,5,8,2,1,3,8,8,8,8,8
 
@@ -467,7 +507,11 @@ DoDMApro							;initiate dma transfer and protect from vblank interuption. d0 = 
 
 DoDMA								;initiate dma transfer (dma transfer bug is compensated for). d0 = words
 									;to transfer, d1 = destination vram address, a0 = source address
+	IF REV=2
+	movem.l	d2-d3/a1,-(sp)
+	ELSE
 	movem.l	d2/a1,-(sp)
+	ENDIF
 	move.w	d0,d2
 	add.w	d2,d2					;length in bytes
 	add.w	a0,d2					;carry out = source+length crosses a 64k boundary
@@ -483,7 +527,11 @@ DoDMA								;initiate dma transfer (dma transfer bug is compensated for). d0 = 
 	adda.w	d0,a0
 	move.w	d2,d0					;second part: the rest, falls into .nd
 	bra.w	.nd
-.dd	movem.l	d2/a1,-(sp)				;entry for the first part (so its rts pops the same registers)
+.dd	IF REV=2
+	movem.l	d2-d3/a1,-(sp)			;entry for the first part (so its rts pops the same registers)
+	ELSE
+	movem.l	d2/a1,-(sp)				;entry for the first part (so its rts pops the same registers)
+	ENDIF
 .nd	lea	(Vctrl).l,a1				;set d0 = num of words
 	move.w	#$8154,(a1)				;$8100+%01010100
 	move.w	#$8F02,(a1)				;d1 = video address
@@ -513,6 +561,31 @@ DoDMA								;initiate dma transfer (dma transfer bug is compensated for). d0 = 
 	move.w	d1,d0					;build the vdp command long for a vram write with dma
 	asl.l	#2,d0
 	lsr.w	#2,d0
+	IF REV=2
+	move.l	d0,d3					;Rev B: keep the plain address for the ram source fix below
+	ori.l	#$804000,d0				;low word: vram write command + address, high word: dma bit ($0080)
+	move.l	d0,(dmaram).w			;the last command word is written from ram (dma bug workaround)
+	move.w	sr,-(sp)
+	move.w	#$2700,sr				;no interrupt while the Z80 is off the bus
+	move.w	#$100,(IO_Z80BUS).l		;turn off z80
+.zw	btst	#0,(IO_Z80BUS).l
+	bne.b	.zw
+	move.w	(dmaram+2).w,(a1)
+	move.w	(dmaram).w,(a1)			;this write starts the dma
+	bsr.w	WaitDMA
+	move.w	#$8164,(a1)				;$8100+%01100100: vblank int back on, dma off
+	clr.w	(IO_Z80BUS).l			;turn on z80
+	cmpa.w	#0,a0
+	bge.w	.ok						;a source in ram: the first word is lost, so write it again by hand
+	ori.w	#$4000,d3
+	swap	d3
+	andi.w	#3,d3
+	move.l	d3,(a1)					;vram write command, no dma
+	move.w	(a0),-4(a1)
+.ok	move.w	(sp)+,sr
+	movem.l	(sp)+,d2-d3/a1
+	rts
+	ELSE
 	ori.l	#$804000,d0				;low word: vram write command + address, high word: dma bit ($0080)
 
 	move.l	d0,(dmaram).w			;the last command word is written from ram (dma bug workaround)
@@ -524,6 +597,7 @@ DoDMA								;initiate dma transfer (dma transfer bug is compensated for). d0 = 
 									;vint off, dma on)
 	movem.l	(sp)+,d2/a1
 	rts
+	ENDIF
 
 DoDMA_nd2							;vram to vram copy by dma (reg 23 = $C0), protected from vblank. d0 =
 									;length, d2 = source vram address, d1 = destination vram address. Auto inc
@@ -557,10 +631,23 @@ DoDMA_nd2							;vram to vram copy by dma (reg 23 = $C0), protected from vblank.
 	lsr.w	#2,d0
 	swap	d0
 	ori.w	#$C0,d0					;vram copy command
+	IF REV=2
+	move.l	d0,(dmaram).w
+	move.w	#$100,(IO_Z80BUS).l		;turn off z80
+.zw	btst	#0,(IO_Z80BUS).l
+	bne.b	.zw
+	move.w	(dmaram).w,(a1)
+	move.w	(dmaram+2).w,(a1)
+	bsr.w	WaitDMA
+	move.w	#$8164,(a1)
+	move.w	#$8F02,(a1)
+	clr.w	(IO_Z80BUS).l			;turn on z80
+	ELSE
 	move.l	d0,(a1)
 	bsr.w	WaitDMA
 	move.w	#$8164,(a1)				;$8100+%01100100
 	move.w	#$8F02,(a1)				;auto inc 2
+	ENDIF
 	move.w	(sp)+,(disflags).w
 	movem.l	(sp)+,d0-d3/a1
 	rts
@@ -579,7 +666,13 @@ DoFill								;fill vram. d0 = words to fill, d1 = vram address, d2 = data to fi
 	move.w	d2,d3					;d3 = fill word twice, for long writes
 	lsr.w	#1,d0					;words -> longs
 	subq.w	#1,d0
-.0	move.l	d3,(a1)					;two words per write
+.0	IF REV=2
+	move.l	d3,(dmaram).w			;Rev B writes the long from ram, as DoDMA does
+	move.w	(dmaram).w,(a1)
+	move.w	(dmaram+2).w,(a1)
+	ELSE
+	move.l	d3,(a1)					;two words per write
+	ENDIF
 	dbf	d0,.0
 	movem.l	(sp)+,d3/a1
 	rts

@@ -28,6 +28,11 @@ RAMStart = $FF0000					;start of work RAM
 
 Stack = $FFFFF6						;reset vector 0. ($FFFFFFF6, the 32-bit form). ram93.asm redefines Stack
 									;as the game stack
+	IF REV=2
+PadByte	=	$FF						;pad bytes: Rev B has $FF, Rev A has 0 (Rev 0 has leftover values)
+	ELSE
+PadByte	=	0
+	ENDIF
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;
@@ -44,9 +49,13 @@ Stack = $FFFFF6						;reset vector 0. ($FFFFFFF6, the 32-bit form). ram93.asm re
 	dc.l	Illinst					; $10 illegal instruction
 	dc.l	Zerodiv					; $14 divide by zero
 
-	;$18-$5F: remaining exception vectors, left zero
+	;$18-$5F: remaining exception vectors, left zero (Rev B fills them with $FFFFFFFF)
 	org     $18
-	dcb.b   72,$00					; $5E - $18 = 70 bytes
+	IF REV=2
+	dcb.l   18,$FFFFFFFF
+	ELSE
+	dcb.b   72,$00
+	ENDIF							; $5E - $18 = 70 bytes
 	
 	org	$60
 	dc.l	IRQ7					; level 0-3 interrupts are not implemented.
@@ -58,9 +67,13 @@ Stack = $FFFFF6						;reset vector 0. ($FFFFFFF6, the 32-bit form). ram93.asm re
 	dc.l	VBjsr					; level 6: vertical retrace. VBjsr is in hockey93.asm
 	dc.l	IRQ7					; level 7 (IRQ7, an rte)
 
-	;$90-$FF: remaining vectors (trap 0-15, ...), left zero
+	;$90-$FF: remaining vectors (trap 0-15, ...), left zero (Rev B fills them with $FFFFFFFF)
 	org     $90
-	dcb.b   112,$00					; $5E - $18 = 70 bytes
+	IF REV=2
+	dcb.l   28,$FFFFFFFF
+	ELSE
+	dcb.b   112,$00
+	ENDIF							; $5E - $18 = 70 bytes
 
 ErrorStatus							;4 longs of zero (16 bytes, ends at $110); nothing in the source
 									;references it
@@ -86,7 +99,9 @@ Start								;reset entry point (vector 1)
 		nop 
 	ENDIF
 
+	IF REV<2
 	jsr KillCrowd					;silence the crowd noise before the game starts
+	ENDIF							;Rev B does not call KillCrowd here
 	
 ; 	incbin ..\output\modified_EALogo.bin
 

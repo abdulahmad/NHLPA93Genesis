@@ -1,6 +1,6 @@
 // prebuild.js: run before every build (tools/build.js, npm run build:*, assets).
-// Usage: node tools/prebuild.js [retail|reva|any]
-//   retail / reva: the ROM that build is verified against must be present (and the right version).
+// Usage: node tools/prebuild.js [retail|reva|revb|any]
+//   retail / reva / revb: the ROM that build is verified against must be present (and the right version).
 //   any: either ROM (build:dev, not verified).
 // Then makes sure Extracted/ is complete, and runs the extractor if it is not. If the ROM is
 // missing or wrong, stops with the path, file name, SHA-1 and size it must have.
@@ -12,8 +12,10 @@ const ROMS = {
               sha1: '8efc1cacb079ea223966dda065c16c49e584cac2', size: 0x80000 },
     reva:   { label: 'NHLPA Hockey 93 Rev A / v1.1 (1992.OCT, GM T-50396 -01)', file: 'nhlpa93retailRevA.bin',
               sha1: '2ab048fc7209df28b00ef47f2f686f5b7208466e', size: 0x80000 },
+    revb:   { label: 'NHLPA Hockey 93 Rev B / v1.2 (1993.FEB, GM T-50396 -00)', file: 'nhlpa93retailRevB.bin',
+              sha1: '76c0f3d4665ffcd53adfffaa27fc4dded694f8f7', size: 0x80000 },
 };
-const TARGETS = { retail: ['retail'], reva: ['reva'], any: ['retail', 'reva'] };
+const TARGETS = { retail: ['retail'], reva: ['reva'], revb: ['revb'], any: ['retail', 'reva'] };
 // ---------------------------------------------------------------------------------------------
 const fs = require('fs');
 const path = require('path');
@@ -61,14 +63,16 @@ function stop(lines) {
 
 // Is Extracted/ complete? The extractor writes the marker last, listing every file it wrote, the
 // ROM it read and its own SHA-1. Any missing or resized file, an unknown ROM or a changed extractor
-// means the folder has to be extracted again.
-function extractedState() {
+// means the folder has to be extracted again. Rev B has pictures and sound data of its own, so Rev 0 and Rev A
+// (identical slices) share Extracted/ but Rev B needs it extracted from its own ROM, and the other way round.
+function extractedState(wantRevB) {
     if (!fs.existsSync(EXTRACTED)) return 'Extracted/ is missing';
     if (!fs.existsSync(MARKER)) return 'Extracted/ is incomplete (no .extract-complete.json marker)';
     let m;
     try { m = JSON.parse(fs.readFileSync(MARKER, 'utf8')); } catch (e) { return 'the Extracted/ marker is unreadable'; }
     if (m.extractorSha1 !== sha1Of(fs.readFileSync(path.join(ROOT, EXTRACTOR)))) return `${EXTRACTOR} changed since the last extraction`;
     if (!Object.values(ROMS).some((r) => r.sha1 === m.romSha1)) return 'Extracted/ came from an unknown ROM';
+    if ((m.romSha1 === ROMS.revb.sha1) !== wantRevB) return wantRevB ? 'Extracted/ came from another revision than Rev B' : 'Extracted/ came from Rev B';
     if (!Array.isArray(m.files) || m.files.length === 0) return 'the Extracted/ marker lists no files';
     for (const f of m.files) {
         const p = path.join(EXTRACTED, f.path);
@@ -109,7 +113,8 @@ if (!romPath) {
 }
 
 // 2. Extracted/ assets: extract again if missing or incomplete.
-const why = extractedState();
+const wantRevB = target === 'revb';
+const why = extractedState(wantRevB);
 if (!why) {
     console.log('prebuild: ROM OK, Extracted/ assets complete.');
     process.exit(0);
@@ -117,7 +122,7 @@ if (!why) {
 console.log(`prebuild: ${why}; extracting assets from ${path.relative(ROOT, romPath)} ...`);
 const res = spawnSync(process.execPath, [path.join(ROOT, EXTRACTOR), romPath], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const out = (res.stdout || '') + (res.stderr || '');
-const after = res.status === 0 ? extractedState() : 'the extractor failed';
+const after = res.status === 0 ? extractedState(wantRevB) : 'the extractor failed';
 if (after) {
     console.error(out);
     console.error(`*** BUILD STOPPED: asset extraction failed (${after}) ***`);
