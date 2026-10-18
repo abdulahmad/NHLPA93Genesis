@@ -1,12 +1,12 @@
 ;	Game play vertical blank code. Every frame it builds the sprite list and sends it and other graphics to
 ;	video memory, and it draws the sprites for the rink, the referee, faceoffs, the zamboni and the crowd.
 ;
-;	The interrupt handlers (VBlank, vb2, IRQ7) and the vdp transfers (DumpSprites, DoDMAList, SetScroll2) come
+;	The interrupt handlers (VBlank, vb2, IRQ7) and the vdp transfers (DumpSprites, dodmalist, SetScroll2) come
 ;	first, then setvideo, which builds the sprite and dma lists and calls the drawing routines. The sprite
 ;	frame data and DMA list formats are described above DumpSprites. ROM address range: not determined here.
 
 
-VBlank								;main vblank code for game play (vbint target, set by setupice).
+VBlank								;main vblank code for game play (VBint target, set by setupice).
 									;Not VBjsr: that is the level 6 vector stub
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
@@ -32,19 +32,19 @@ VBlank								;main vblank code for game play (vbint target, set by setupice).
 	blt.w	.c
 	move.w	#SFXbeep2,-(sp)			;SFXbeep2 (92 = 2), played when gameclock reaches 60
 	bsr.w	sfx
-.c	addq.w	#1,(vcount).w			;frame counter other code waits on
+.c	addq.w	#1,(Vcount).w			;frame counter other code waits on
 	jsr	p_music_vblank				;sound driver tick
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
 
-vb2									;vblank used for palfades only no dmas (vbint target). no rte here: falls
+vb2									;vblank used for palfades only no dmas (VBint target). no rte here: falls
 									;into IRQ7
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
 	bne.w	.nograph
 	bsr.w	cramfade
 .nograph							;no sprite or dma work in this vblank
-	addq.w	#1,(vcount).w
+	addq.w	#1,(Vcount).w
 	jsr	p_music_vblank
 	movem.l	(sp)+,d0-d7/a0-a6
 
@@ -63,18 +63,18 @@ DumpSprites							;transfer (by dma) scroll stuff, sprite table, vram data in dm
 									;Called from VBlank when dfok was set. Falls into DumpSprites2
 	bsr.w	SetScroll2
 
-DumpSprites2						;transfer sprite table, then the dma list. Falls into DoDMAList.
+DumpSprites2						;transfer sprite table, then the dma list. Falls into dodmalist.
 									;Also called from 00014404
 	movea.w	#(Satt-M68K_RAM),a0		;transfer sprite table
 	move.w	(Sattsize).w,d0
 	move.w	(VSPRITES).w,d1
 	bsr.w	DoDMA
 
-DoDMAList							;transfer data from dmalist. Also called from setupice
-	movea.l	(DMAListend).w,a6
+dodmalist							;transfer data from dmalist. Also called from setupice
+	movea.l	(DMAlistend).w,a6
 	cmpa.l	#DMAList,a6
 	beq.w	rtss					;list empty
-.0	move.w	-(a6),d1				;vram address (list is read backwards from DMAListend)
+.0	move.w	-(a6),d1				;vram address (list is read backwards from DMAlistend)
 	move.w	-(a6),d0				;words
 	movea.l	-(a6),a0				;source
 	bsr.w	DoDMA
@@ -118,7 +118,7 @@ setvideo							;this is not vblank code but sets up ram for vblank transfers.
 	subi.l	#Satt,d0
 	lsr.w	#1,d0					;halved (92 stored the byte count)
 	move.w	d0,(Sattsize).w
-	move.l	a5,(DMAListend).w
+	move.l	a5,(DMAlistend).w
 	bset	#dfok,(disflags).w
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts
@@ -149,7 +149,7 @@ updatescroll						;using hpos and vpos set scroll cords; queue rink map rows on 
 	addi.w	#$1E,d0
 	andi.w	#$1F,d0
 	asl.w	#7,d0					;chars per row screen format
-	add.w	(VmMap2).w,d0
+	add.w	(VmMAP2).w,d0
 	move.w	d0,6(a5)				;vram address
 	move.w	#$1E,d0					;60-30
 	sub.w	d1,d0
@@ -168,7 +168,7 @@ updatescroll						;using hpos and vpos set scroll cords; queue rink map rows on 
 	addi.w	#$1D,d0
 	andi.w	#$1F,d0
 	asl.w	#7,d0
-	add.w	(VmMap2).w,d0
+	add.w	(VmMAP2).w,d0
 	move.w	d0,6(a5)
 	move.w	#$3D,d0
 	sub.w	d1,d0
@@ -188,7 +188,7 @@ showref								;draw ref graphics. Called from setvideo.
 	bclr	#sf2refref,(sflags2).w
 	beq.w	rtss
 	movea.w	#(RefRamMap-M68K_RAM),a0
-	movea.w	#(VmMap1-M68K_RAM),a1
+	movea.w	#(VmMAP1-M68K_RAM),a1
 	move.w	2(a1),d2
 	moveq	#2,d0					;refy
 	btst	#sfhor,(sflags).w
@@ -271,7 +271,7 @@ showzam								;zamboni. Called from setvideo.
 									;a5 = dma list, a6 = sprite table, d6 = link counter.
 									;draws frame 1, frame 2-4 picked by x, then frame 5 (home score not ahead)
 									;or a .ftab frame
-	move.w	(zamx).w,d0
+	move.w	(Zamx).w,d0
 	bmi.w	rtss					;no zamboni
 	movea.l	#ZamSprites,a0
 	lsr.w	#2,d0
@@ -338,7 +338,7 @@ SetSframe							;draw one sprite frame. Called from showzam and from the screen 
 	rts
 
 showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then the two
-									;crowdframe frames.
+									;Crowdframe frames.
 									;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter
 	movea.l	#CrowdSprites,a1
 	adda.l	4(a1),a1				;a1 = frame offset table
@@ -356,9 +356,9 @@ showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then the t
 	lsr.w	#4,d2					;high nibble
 	moveq	#$1D,d3					;frames 29+
 	bsr.w	.pb
-	move.b	(crowdframe).w,d0
+	move.b	(Crowdframe).w,d0
 	bsr.w	.sc
-	move.b	(crowdframe+1).w,d0
+	move.b	(Crowdframe+1).w,d0
 	bra.w	.sc
 
 .pb	andi.w	#$F,d2					;d2 = count, d3 = first frame
@@ -474,12 +474,12 @@ showclock							;put the game clock in the dma list. Called from setvideo; retur
 	move.l	a0,(a5)+
 	move.w	#5,(a5)+				;words to transfer
 
-	movea.w	#(VmMap1-M68K_RAM),a1
+	movea.w	#(VmMAP1-M68K_RAM),a1
 	moveq	#$18,d0					;.clocky = 24
 	moveq	#3,d2					;.clockx = 3
 	btst	#sfhor,(sflags).w
 	beq.w	.cv
-	movea.w	#(VmMap2-M68K_RAM),a1
+	movea.w	#(VmMAP2-M68K_RAM),a1
 	moveq	#4,d0					;.clocky2 = 4
 	moveq	#$D,d2					;.clockx2 = 13
 .cv	move.w	2(a1),d1				;map width shift (d0 = y, d2 = x of the clock)
@@ -875,9 +875,9 @@ find3d								;input - d0=xfield,d1=yfield,d2=height off field output -
 .offscr	move.w	#osflag,d1			;osflag: caller skips the object
 	rts
 
-updatesound							;move the crowd noise volume (psg noise channel) toward crowdlevel.
+updatesound							;move the crowd noise volume (psg noise channel) toward Crowdlevel.
 									;Called from periodicevents
-	move.w	(crowdlevel).w,d0
+	move.w	(Crowdlevel).w,d0
 	asl.w	#3,d0
 	addi.w	#$400,d0
 	cmp.w	#$EFF,d0

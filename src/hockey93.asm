@@ -18,8 +18,8 @@
 ;	Startup, game loop, clock and pause screen
 ;------------------------------------------------------------
 
-VBjsr								;Vertical blank interrupt (vector $78), jumps through the vbint RAM vector
-	move.l	(vbint).w,-(sp)			;push handler address
+VBjsr								;Vertical blank interrupt (vector $78), jumps through the VBint RAM vector
+	move.l	(VBint).w,-(sp)			;push handler address
 	rts								;and "return" into it
 
 Begin								;cold start, entered from Reset. Clear RAM, init menus and sound, go to
@@ -47,10 +47,10 @@ Begin								;cold start, entered from Reset. Clear RAM, init menus and sound, g
 ;----------------------------------------------------
 
 ChkShortPeriods						;Pad 1 = $E0 at game start forces 30 second periods
-	bsr.w	Readjoy1
+	bsr.w	ReadJoy1
 	cmp.b	#$E0,d3
 	bne.w	StartGame
-	move.w	#3,(OptPerlen).w		;period length index 3 = 30
+	move.w	#3,(Optperlen).w		;period length index 3 = 30
 
 StartGame							;reset game state for a new game, then start the first period
 	clr.b	(gmode).w
@@ -107,7 +107,7 @@ ResetClock							;set period length and stop clock
 
 GetPeriodTime						;92 ResetClock (period length lookup). return d0 = period length in
 									;seconds for the period length option
-	move.w	(OptPerlen).w,d0
+	move.w	(Optperlen).w,d0
 	asl.w	#1,d0
 	lea	.timetab(pc),a0
 	move.w	0(a0,d0.w),d0
@@ -132,7 +132,7 @@ StartPer							;start a period: reset stack, rink and clock, face off, run the g
 	bclr	#sfwrap,(sflags).w		;reset replay stuff
 	move.w	#$FFFF,(lastsfx).w
 	move.l	#M68K_RAM,(recbpr).w
-	move.w	(vcount).w,(oldvcount).w
+	move.w	(Vcount).w,(OldVcount).w
 	bsr.w	DoGameFrame				;run two frames before the loop
 	bsr.w	DoGameFrame
 	move.w	(gamelevel).w,d0
@@ -153,10 +153,10 @@ Gameloop							;main loop for game
 	bra.s	Gameloop
 
 DoGameFrame							;wait for at least one vblank, then run one frame of game logic
-	move.w	(vcount).w,d7
-	sub.w	(oldvcount).w,d7		;number of frames since last loop
+	move.w	(Vcount).w,d7
+	sub.w	(OldVcount).w,d7		;number of frames since last loop
 	beq.s	DoGameFrame
-	move.w	(vcount).w,(oldvcount).w
+	move.w	(Vcount).w,(OldVcount).w
 	bsr.w	periodicevents
 	bsr.w	updateplayers			;apply velocity and check collisions
 	bsr.w	checkwindow
@@ -233,33 +233,33 @@ UpdateCwdExcite						;called once per second. Track peak and running total of cr
 
 updatecrowdf						;this is called every game loop with d7 = elapsed frames this will update
 									;the current frame of crowd animation
-	cmpi.w	#$15E,(crowdlevel).w
+	cmpi.w	#$15E,(Crowdlevel).w
 	blt.w	.dec
-	subq.w	#3,(crowdlevel).w		;loud crowd calms down faster
-.dec	sub.w	d7,(crowdlevel).w	;crowd level decays by the elapsed frames
+	subq.w	#3,(Crowdlevel).w		;loud crowd calms down faster
+.dec	sub.w	d7,(Crowdlevel).w	;crowd level decays by the elapsed frames
 	bpl.w	.0
-	clr.w	(crowdlevel).w
-.0	sub.w	d7,(crowdcnt).w			;count down to the next crowd animation step
+	clr.w	(Crowdlevel).w
+.0	sub.w	d7,(Crowdcnt).w			;count down to the next crowd animation step
 	bpl.w	.cf
-	move.w	(crowdlevel).w,d0
+	move.w	(Crowdlevel).w,d0
 	lsr.w	#1,d0
 	cmp.w	#127,d0
 	bls.w	.1
 	moveq	#$7F,d0
 .1	andi.w	#$60,d0					;%01100000
-	addq.w	#2,(crowdstep).w
-	andi.w	#$1E,(crowdstep).w		;%00011110
-	add.w	(crowdstep).w,d0
+	addq.w	#2,(Crowdstep).w
+	andi.w	#$1E,(Crowdstep).w		;%00011110
+	add.w	(Crowdstep).w,d0
 	movea.l	#cd0,a0					;$fftt frame/time table
-	move.b	0(a0,d0.w),(crowdframe+1).w
+	move.b	0(a0,d0.w),(Crowdframe+1).w
 	clr.w	d1
 	move.b	1(a0,d0.w),d1
 	move.w	(HVcount).l,d2			;HVcount
 	and.w	d1,d2					;random 0..time
 	add.w	d2,d1
-	move.w	d1,(crowdcnt).w			;time + random
-.cf	clr.b	(crowdframe).w			;no extra frame unless the crowd is loud
-	cmpi.w	#$118,(crowdlevel).w	;280
+	move.w	d1,(Crowdcnt).w			;time + random
+.cf	clr.b	(Crowdframe).w			;no extra frame unless the crowd is loud
+	cmpi.w	#$118,(Crowdlevel).w	;280
 	bls.w	rtss2
 	move.w	(HVcount).l,d0			;HVcount
 	andi.w	#$7F,d0
@@ -267,7 +267,7 @@ updatecrowdf						;this is called every game loop with d7 = elapsed frames this 
 	blt.w	rtss2
 	cmp.w	#25,d0
 	bgt.w	rtss2
-	move.b	d0,(crowdframe).w		;random extra frame 19-25 when crowd is loud
+	move.b	d0,(Crowdframe).w		;random extra frame 19-25 when crowd is loud
 	rts
 
 clockcont							;monitor period clock and initiate various clock activated events
@@ -327,7 +327,7 @@ clockcont_0							;92 clockcont. end of period. Also entered from puckfaceoff
 .n2	adda.w	#SCstruct,a3			;next player
 	dbf	d2,.t2
 .eog	jsr	(ClearPenaltyBuffer).l	;End of game
-	addi.w	#$3E8,(crowdlevel).w	;1000
+	addi.w	#$3E8,(Crowdlevel).w	;1000
 	addi.w	#$28,(CwdExciteLvl).w
 	bset	#gmclock,(gmode).w
 	bset	#gmeog,(gmode).w		;set at end of game
@@ -346,11 +346,11 @@ demoread							;monitor joystick if in demo mode (called every game loop)
 	bne.w	rtss2					;not demo
 	tst.w	(cont2team).w
 	bne.w	rtss2					;not demo
-	bsr.w	Readjoy1
+	bsr.w	ReadJoy1
 	btst	#sbut,d1				;sbut
 	bne.w	startpause1				;start on pad 1 pauses (92 went to Opening)
 	bsr.w	EndDemoOnPress
-	bsr.w	Readjoy2
+	bsr.w	ReadJoy2
 	btst	#sbut,d1				;sbut
 	bne.w	startpause2
 	;falls into EndDemoOnPress with pad 2 in d1
@@ -405,7 +405,7 @@ PauseExit	equ	*					;92 PauseExit: restore graphics and return from pause mode (
 	move.w	#$18,(palcount).w
 .wait	tst.w	(palcount).w		;wait for the palette fade to finish
 	bpl.s	.wait
-	move.w	(vcount).w,(oldvcount).w
+	move.w	(Vcount).w,(OldVcount).w
 	rts
 
 SetupPauseScreen					;92 Pausemode .pall. draw routine for the pause menu
@@ -448,7 +448,7 @@ ReplayMode							;this is instant replay play-back control and display code.
 	bset	#sf2replay,(sflags2).w	;flag that replay is on
 	bsr.w	ClrHor					;goto vertical icerink
 	move.w	#$400,d0
-	move.w	(VmMap3).w,d1
+	move.w	(VmMAP3).w,d1
 	move.w	#$7FF,d2
 	bsr.w	DoFill					;clear map 3
 	bsr.w	printz
@@ -476,11 +476,11 @@ ReplayMode							;this is instant replay play-back control and display code.
 	move.w	#$18,(palcount).w		;fade in colors now/graphics are ready
 	moveq	#1,d7
 	;replay main loop: wait d7 frames (1 = full speed), then read the pad that paused
-.top	move.w	(vcount).w,d0		;wait until d7 frames have passed
-	sub.w	(oldvcount).w,d0
+.top	move.w	(Vcount).w,d0		;wait until d7 frames have passed
+	sub.w	(OldVcount).w,d0
 	cmp.w	d0,d7
 	bhi.s	.top					;wait d7 frames
-	move.w	(vcount).w,(oldvcount).w
+	move.w	(Vcount).w,(OldVcount).w
 	moveq	#1,d7
 	bsr.w	getpzjoy
 	movea.w	#(CameraPosStruct-M68K_RAM),a5
@@ -631,8 +631,8 @@ ReplayMode							;this is instant replay play-back control and display code.
 
 getpzjoy							;read the joystick of the pad that paused
 	btst	#sfpj,(sflags).w
-	bne.w	Readjoy2
-	bra.w	Readjoy1
+	bne.w	ReadJoy2
+	bra.w	ReadJoy1
 
 suba4								;a4 = address in replay buffer of current
 									;frame. Back up 1 frame and set video parameters for display.
@@ -776,7 +776,7 @@ nonshift	equ	*					;92 nonshift: set the other replay variables (92 SetRCords is
 	andi.w	#$FFF,d0
 	andi.w	#$F000,(PadControlBits).w
 	or.w	d0,(PadControlBits).w
-	move.w	(a0)+,(crowdframe).w
+	move.w	(a0)+,(Crowdframe).w
 	move.w	(a0)+,(glovecords).w
 	move.b	(a0)+,(PBnum).w
 	addq.w	#1,a0
@@ -860,7 +860,7 @@ updatereplay						;called every frame to save replay events, d7 = elapsed frames
 	bset	#7,(lastsfx+1).w
 	move.b	d7,(a0)+				;save elapsed frames
 	move.w	(PadControlBits).w,(a0)+
-	move.w	(crowdframe).w,(a0)+
+	move.w	(Crowdframe).w,(a0)+
 	move.w	(glovecords).w,(a0)+
 	move.b	(PBnum).w,(a0)+
 	addq.w	#1,a0
@@ -979,13 +979,13 @@ updateplayers						;update every object in SortCords
 	bsr.w	setpads
 .tp	cmp.w	(c1playernum).w,d6		;is it the controller 1 player?
 	bne.w	.t0
-	bsr.w	Readjoy1
+	bsr.w	ReadJoy1
 	clr.w	d4						;pad index for cont 1 player
 	bsr.w	doinput
 	bra.w	.t1
 .t0	cmp.w	(c2playernum).w,d6		;is it the controller 2 player?
 	bne.w	.t1
-	bsr.w	Readjoy2
+	bsr.w	ReadJoy2
 	moveq	#2,d4					;pad index for cont 2 player
 	bsr.w	doinput
 	;run the assignment routine asstab[asslist[assnum]] for this object
@@ -1780,7 +1780,7 @@ FallDown							;player a2 falls down, player a3 is the hitting player. Some play
 	bsr.w	SetSPA
 	exg	a2,a3
 
-	addi.w	#$12C,(crowdlevel).w	;300
+	addi.w	#$12C,(Crowdlevel).w	;300
 	addi.w	#$F,(CwdExciteLvl).w	;raise crowd excitement
 
 	move.w	(puckc).w,d0
@@ -1830,7 +1830,7 @@ setInjuryType						;sets period injury. a2 = player injured, a3 = player checkin
 									;(injured for the period) in a2's tmpdst. Called from FallDown and from
 									;chkhit.fall
 	bset	#pf2unav,pflags2(a2)	;set player unavailable (92 used 4)
-	addi.w	#$12C,(crowdlevel).w	;pump up crowd
+	addi.w	#$12C,(Crowdlevel).w	;pump up crowd
 	addi.w	#$1E,(CwdExciteLvl).w
 	move.w	#SFXoooh2,-(sp)			;SFX
 	bsr.w	sfx
@@ -1905,7 +1905,7 @@ checkfight							;look for start of fight between players a2 & a3. Called from c
 .clr	clr.b	tmsize(a0)			;away team
 	clr.b	(a0)+					;home team
 	dbf	d0,.clr
-	addi.w	#$3E8,(crowdlevel).w	;add 1000
+	addi.w	#$3E8,(Crowdlevel).w	;add 1000
 	addi.w	#$23,(CwdExciteLvl).w
 	bclr	#sfspdir,(sflags).w
 	bclr	#sfssdir,(sflags).w
@@ -2072,7 +2072,7 @@ checkwallcoll						;d2/d3 = x/y to test, a3 = object, wcradiusx/wcradiusy = radi
 	cmp.l	#$1000,d3				;.radius*.radius
 	bls.w	.exit
 	exg	d0,d3
-	bsr.w	sroot
+	bsr.w	Sroot
 	exg	d0,d3
 	ext.l	d0
 	asl.l	#8,d0
@@ -2190,7 +2190,7 @@ checkgoal							;look for coll with goal/net. a2 = goal struct, a3 = object, d2/
 	btst	#gmclock,(gmode).w
 	bne.w	.snd
 	move.w	#SFXoooh,(sp)			;sfx 8 (92 used 31) and crowd
-	addi.w	#$12C,(crowdlevel).w	;add 300
+	addi.w	#$12C,(Crowdlevel).w	;add 300
 	addi.w	#$28,(CwdExciteLvl).w
 .snd	bsr.w	sfx					;play the sound
 	move.w	#$1000,d0
@@ -2230,7 +2230,7 @@ Goal								;puck in goal. a3 = puck. Entered from checkgoal new song, sfx 0, sc
 	move.w	#SFXsiren,-(sp)			;SFXsiren (92 same, 0)
 	bsr.w	sfx
 	bsr.w	freezewindow
-	addi.w	#$1F4,(crowdlevel).w	;add 500 (92 800)
+	addi.w	#$1F4,(Crowdlevel).w	;add 500 (92 800)
 	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
 	;scoring team a2: home if puck Ypos >= 0, away if negative; gmdir swaps the ends
@@ -2376,7 +2376,7 @@ checkgoalp							;check for player a3 collision with goal/net a2. Entered from c
 	muls.w	d0,d0
 	muls.w	d1,d1
 	add.l	d1,d0
-	bsr.w	sroot
+	bsr.w	Sroot
 	;normalise the normal (d0,d1) to length 256, then bounce
 	move.w	d0,d2
 	movem.w	(sp)+,d0-d1
@@ -2459,7 +2459,7 @@ wallcollb							;check for puck over wall. a3 = object, d0/d1 = cos/sin of the w
 	movea.l	(sp)+,a3
 	move.w	#SFXbglass,-(sp)		;sfx $E
 	bsr.w	sfx
-	addi.w	#$258,(crowdlevel).w	;add 600
+	addi.w	#$258,(Crowdlevel).w	;add 600
 	addi.w	#$F,(CwdExciteLvl).w
 .0	bset	#sfslock,(sflags).w		;puck goes over the wall: lock the scroll
 	bset	#pfnc,pflags(a3)
@@ -2795,7 +2795,7 @@ puckglue							;92 .glue. Player a2 takes the puck
 	bclr	#sf3fo,(sflags3).w
 	beq.w	.snd					;sflags3 bit 4 was clear
 	addq.w	#1,$E(a1)				;team word $E + 1
-	addi.w	#$C8,(crowdlevel).w		;+200
+	addi.w	#$C8,(Crowdlevel).w		;+200
 	move.w	#$C,(sp)				;song $C
 	cmpa.w	#(tmstruct-M68K_RAM),a1
 	bne.w	.snd					;away team
@@ -3427,12 +3427,12 @@ setupice							;set all variables, send non purgeable graphics, build sprite fra
 									;DecompressGraphicsPlain / DecompressGraphicsWithCallback
 	movem.l	d0-d7/a0-a6,-(sp)
 	bset	#df32c,(disflags).w
-	move.w	#$C000,(VmMap2).w		;map 2 address
+	move.w	#$C000,(VmMAP2).w		;map 2 address
 	move.w	#6,(Map2col).w			;map 2 width
 	move.w	#$DC00,(VSPRITES).w		;sprites address
-	move.w	#$E000,(VmMap1).w		;map 1 address
+	move.w	#$E000,(VmMAP1).w		;map 1 address
 	move.w	#6,(Map1col).w			;map 1 width (same as 2 always)
-	move.w	#$F000,(VmMap3).w		;map 3 address (92 $F800)
+	move.w	#$F000,(VmMAP3).w		;map 3 address (92 $F800)
 	move.w	#5,(Map3col).w			;map 3 width (dependent on df32c mode)
 	move.w	#$FC00,(VSCRLPM).w		;horizontal scroll address (92 $0000, set first)
 	moveq	#0,d0					;color to fade to
@@ -3445,10 +3445,10 @@ setupice							;set all variables, send non purgeable graphics, build sprite fra
 	clr.w	(Hpos).w
 	clr.w	(Vpos).w
 	move.w	#$7D0,(Oldrow).w		;2000
-	st	(zamx).w
+	st	(Zamx).w
 
 	move.w	#$800,d0				;(92 $1000)
-	move.w	(VmMap1).w,d1
+	move.w	(VmMAP1).w,d1
 	move.w	#$7FF,d2				;(92 moveq #1,d2)
 	bsr.w	DoFill					;erase map 1
 
@@ -3477,7 +3477,7 @@ setupice							;set all variables, send non purgeable graphics, build sprite fra
 	movea.l	#SmallFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$43434567,$89ABCDEF		;remap table for the small font
-	move.w	d4,(BigFontChars).w		;1st vram char for Bigfont tiles
+	move.w	d4,(BigFontchars).w		;1st vram char for Bigfont tiles
 	movea.l	#BigFontMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$71234567,$89ABCDEF		;remap table for the big font
@@ -3512,12 +3512,12 @@ setupice							;set all variables, send non purgeable graphics, build sprite fra
 	bsr.w	addframe2
 	adda.w	#ffosize,a3				;ffosize
 	bsr.w	addframe2
-	move.l	a5,(DMAListend).w
-	bsr.w	DoDMAList
+	move.l	a5,(DMAlistend).w
+	bsr.w	dodmalist
 
 	move.w	(sp)+,(disflags).w		;(palcount is set in setupice_highlight only)
 
-	move.l	#VBlank,(vbint).w
+	move.l	#VBlank,(VBint).w
 	bclr	#dfok,(disflags).w
 	bclr	#dfng,(disflags).w
 	move.w	#$2300,sr
@@ -3537,7 +3537,7 @@ setupice_highlight					;Rebuild the rink sprites after a highlight replay withou
 	clr.w	(Hpos).w
 	clr.w	(Vpos).w
 	move.w	#$7D0,(Oldrow).w		;2000
-	st	(zamx).w
+	st	(Zamx).w
 	move.w	(spritechars).w,d4		;sprite char start from setupice
 	bsr.w	defaultsprites
 	bsr.w	setupIceRinkPal			;transfer pal 0&1
@@ -3566,11 +3566,11 @@ setupice_highlight					;Rebuild the rink sprites after a highlight replay withou
 	bsr.w	addframe2
 	adda.w	#ffosize,a3				;ffosize
 	bsr.w	addframe2
-	move.l	a5,(DMAListend).w
-	bsr.w	DoDMAList
+	move.l	a5,(DMAlistend).w
+	bsr.w	dodmalist
 	move.w	#$1C,(palcount).w		;fade in new graphics now
 	move.w	(sp)+,(disflags).w
-	move.l	#VBlank,(vbint).w
+	move.l	#VBlank,(VBint).w
 	bclr	#dfok,(disflags).w
 	bclr	#dfng,(disflags).w
 	move.w	#$2300,sr
@@ -3948,7 +3948,7 @@ Opening2							;reset the stack and clear the variables, then options, playoff s
 .0	clr.l	(a0)+					;clear the variable area up to varend
 	cmpa.w	#(varend-M68K_RAM),a0	;varend
 	blt.s	.0
-	move.l	#vb2,(vbint).w
+	move.l	#vb2,(VBint).w
 	move.w	#$2500,sr
 	bsr.w	setoptions
 Opening3	bsr.w	PlayoffScreen	;playoff tree (returns at once outside playoff mode)
@@ -3962,15 +3962,15 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	tst.w	(OptPlayMode).w
 	beq.w	rtss
 
-	move.l	#VBlank_Playoff,(vbint).l
+	move.l	#VBlank_Playoff,(VBint).l
 	bclr	#df32c,(disflags).w
 	move.w	#0,(VSCRLPM).w
 	move.w	#$BC00,(VSPRITES).w
-	move.w	#$B000,(VmMap3).w
+	move.w	#$B000,(VmMAP3).w
 	move.w	#6,(Map3col).w
-	move.w	#$C000,(VmMap2).w
+	move.w	#$C000,(VmMAP2).w
 	move.w	#7,(Map2col).w
-	move.w	#$E000,(VmMap1).w
+	move.w	#$E000,(VmMAP1).w
 	move.w	#7,(Map1col).w			;128 col mode
 	move.w	#0,d0					;fade to color
 	bsr.w	setVram
@@ -4101,9 +4101,9 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 HandlePlayoffInput					;92 PlayoffScreen .jin. read both pads: start leaves PlayoffScreen,
 									;right/left set the scroll step, then falls into
 									;UpdatePlayoffScroll. Called from PlayoffScreen .input
-	bsr.w	Readjoy1
+	bsr.w	ReadJoy1
 	move.w	d3,-(sp)
-	bsr.w	Readjoy2
+	bsr.w	ReadJoy2
 	or.w	(sp)+,d3				;either pad
 	btst	#sbut,d3				;sbut
 	bne.w	PlayoffScreenExit
@@ -4162,10 +4162,10 @@ waitxc1								;(was PlayoffScreen_waitvsync) each time palcount runs out, eor t
 	bpl.w	.wait					;palcount still counting
 	eori.w	#$EE,(palfadenew+$42).w
 	move.w	#$18,(palcount).w
-.wait	move.w	(vcount).w,d0		;wait until the vblank handler bumps vcount
-	cmp.w	(oldvcount).w,d0
+.wait	move.w	(Vcount).w,d0		;wait until the vblank handler bumps Vcount
+	cmp.w	(OldVcount).w,d0
 	beq.s	.wait
-	move.w	d0,(oldvcount).w
+	move.w	d0,(OldVcount).w
 	rts
 
 PrintSeriesScore					;92 PlayoffScreen .doscores. print best of 7 wins "t-b" for game struct a2
@@ -4225,10 +4225,10 @@ DrawTeamBlocks						;92 PlayoffScreen .doteam. draw team block d1 (team*2) from 
 	movem.l	(sp)+,d0-d7/a0-a3
 	rts
 
-VBlank_Playoff						;(it undecoded): the PlayoffScreen vblank handler (vbint).
+VBlank_Playoff						;(it undecoded): the PlayoffScreen vblank handler (VBint).
 									;If dfng is clear and Sattsize is set: clear Sattsize, DoDMA the sprite
 									;table (Satt) to VSPRITES, then Vmaddr(VSCRLPM) and write
-									;$FEA0+DispAttribCtr to the hscroll, then cramfade. Always vcount+1,
+									;$FEA0+DispAttribCtr to the hscroll, then cramfade. Always Vcount+1,
 									;p_music_vblank, rte
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
@@ -4245,7 +4245,7 @@ VBlank_Playoff						;(it undecoded): the PlayoffScreen vblank handler (vbint).
 	add.w	(DispAttribCtr).w,d0
 	move.w	d0,(a0)
 .nosat	bsr.w	cramfade			;step the palette fade
-.nograph	addq.w	#1,(vcount).w	;frame counter
+.nograph	addq.w	#1,(Vcount).w	;frame counter
 	jsr	(p_music_vblank).l
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
@@ -4273,7 +4273,7 @@ ScoutingReport						;pregame scouting report. Called from PeriodOver.
 									;Returns on start, or when screentimer runs out ($1E0 after the text ends)
 	move.w	#SngScout,-(sp)			;song $37
 	bsr.w	song
-	move.l	#vb2,(vbint).w
+	move.l	#vb2,(VBint).w
 	bsr.w	clearTeamStats
 	bclr	#df32c,(disflags).w
 	move.w	#6,(Map1col).w
@@ -4360,7 +4360,7 @@ ScoutingReport						;pregame scouting report. Called from PeriodOver.
 	bsr.w	PrintScoutRatings		;away ratings at x 7
 
 	move.w	#$18,(palcount).w		;24
-	move.l	#vb2,(vbint).w
+	move.l	#vb2,(VBint).w
 	move	#$2500,sr
 
 	bsr.w	InitScoutingDisplay		;a0 = TestList
@@ -4577,7 +4577,7 @@ UpdateScoutingDisplay				;called every frame by ScoutingReport. When ScoutingRep
 	bra.w	.print
 
 ScrollDisplayUp						;next text line for UpdateScoutingDisplay (column 0). After line 7, move
-									;the text box up one row (DoDMA_nd2 copies 8 rows of $3A from VmMap1+$212,
+									;the text box up one row (DoDMA_nd2 copies 8 rows of $3A from VmMAP1+$212,
 									;rows $80 apart) and stay on the last line
 	clr.w	(DispAttribCtr).w
 	addq.w	#1,(VertLineScrolling).w
@@ -4586,7 +4586,7 @@ ScrollDisplayUp						;next text line for UpdateScoutingDisplay (column 0). After
 	subq.w	#1,(VertLineScrolling).w
 	movem.l	d0-d3,-(sp)
 	move.l	#7,d3
-	move.w	(VmMap1).w,d1
+	move.w	(VmMAP1).w,d1
 	addi.w	#$212,d1				;text box top left
 .loop	move.l	#$3A,d0				;copy 8 rows of the text box up by one row
 	move.w	d1,d2
@@ -4600,14 +4600,14 @@ ScrollDisplayUp						;next text line for UpdateScoutingDisplay (column 0). After
 SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at StanleyCupPosTable with
 									;StanleyMap sprites over them, $50 x 4 frames or until a button. Called
 									;from Begin
-	move.l	#VBlank_StanleyCup,(vbint).l
+	move.l	#VBlank_StanleyCup,(VBint).l
 	bclr	#df32c,(disflags).w
 	move.w	#5,(Map3col).w
-	move.w	#$A000,(VmMap2).w
+	move.w	#$A000,(VmMAP2).w
 	move.w	#7,(Map2col).w
-	move.w	#$C000,(VmMap1).w
+	move.w	#$C000,(VmMAP1).w
 	move.w	#7,(Map1col).w
-	move.w	#$F000,(VmMap3).w
+	move.w	#$F000,(VmMAP3).w
 	move.w	#$F800,(VSPRITES).w
 	move.w	#$FC00,(VSCRLPM).w
 	movea.w	#(palfadenew-M68K_RAM),a0
@@ -4679,8 +4679,8 @@ UpdateStanleyCupAnimation			;one StanleyMap sprite at each StanleyCupPosTable sp
 	bpl.s	.top
 	bra.w	EndSpriteList
 
-VBlank_StanleyCup					;vbint handler for the Stanley Cup screen: sprite table dma, cramfade,
-									;vcount
+VBlank_StanleyCup					;VBint handler for the Stanley Cup screen: sprite table dma, cramfade,
+									;Vcount
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
 	bne.w	.x
@@ -4691,7 +4691,7 @@ VBlank_StanleyCup					;vbint handler for the Stanley Cup screen: sprite table dm
 	movea.w	#(Satt-M68K_RAM),a0
 	bsr.w	DoDMA
 .nos	bsr.w	cramfade			;step the palette fade
-.x	addq.w	#1,(vcount).w			;frame counter
+.x	addq.w	#1,(Vcount).w			;frame counter
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
 
@@ -4710,14 +4710,14 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	bsr.w	song
 	move.w	(HVcount).l,(seed).w	;seed randomd0 from the H/V counter
 	move.w	(HVcount).l,(seed+2).w
-	move.l	#VBlank_TitleScreen,(vbint).l
+	move.l	#VBlank_TitleScreen,(VBint).l
 	bset	#df32c,(disflags).w
 	move.w	#5,(Map3col).w
-	move.w	#$A000,(VmMap2).w
+	move.w	#$A000,(VmMAP2).w
 	move.w	#7,(Map2col).w
-	move.w	#$C000,(VmMap1).w
+	move.w	#$C000,(VmMAP1).w
 	move.w	#7,(Map1col).w
-	move.w	#$F000,(VmMap3).w
+	move.w	#$F000,(VmMAP3).w
 	move.w	#$F800,(VSPRITES).w
 	move.w	#$FC00,(VSCRLPM).w
 	move.w	#0,d0					;fade to color
@@ -4947,8 +4947,8 @@ TitleScreen_wait					;wait for vblank, run TitleAnimCallback through CallAnimati
 									;if start is pressed, return to TitleScreen's caller (pops the return
 									;address). Called from TitleScreen
 	movem.l	d0-d7/a0-a6,-(sp)
-	move.w	(vcount).w,d0
-.0	cmp.w	(vcount).w,d0			;spin until the vblank handler bumps vcount
+	move.w	(Vcount).w,d0
+.0	cmp.w	(Vcount).w,d0			;spin until the vblank handler bumps Vcount
 	beq.s	.0
 	lea	TitleAnimCallback(pc),a0
 	bsr.w	CallAnimationCallback
@@ -4959,8 +4959,8 @@ TitleScreen_wait					;wait for vblank, run TitleAnimCallback through CallAnimati
 	addq.w	#4,sp					;start: leave TitleScreen
 	rts
 
-VBlank_TitleScreen					;vbint handler for the title screen: line scroll and sprite table dma,
-									;Vscroll, cramfade vcount, UpdateHorizontalScroll and the music driver
+VBlank_TitleScreen					;VBint handler for the title screen: line scroll and sprite table dma,
+									;Vscroll, cramfade Vcount, UpdateHorizontalScroll and the music driver
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
 	bne.w	.x
@@ -4978,7 +4978,7 @@ VBlank_TitleScreen					;vbint handler for the title screen: line scroll and spri
 	move.w	(VSPRITES).w,d1
 	bsr.w	DoDMA
 .nos	bsr.w	cramfade			;palette fade step
-.x	addq.w	#1,(vcount).w			;frame counter
+.x	addq.w	#1,(Vcount).w			;frame counter
 	bsr.w	UpdateHorizontalScroll
 	jsr	p_music_vblank
 	movem.l	(sp)+,d0-d7/a0-a6
@@ -5032,21 +5032,21 @@ AddTitleLogoSprites					;four Titlemap2 logo sprites at playoffspritex, playoffs
 CheckSound							;sound test, no caller found. Runs only with start+a+c held on pad 1.
 									;Prints "Check Sound"; right/left change the number, c plays it with sfx,
 									;start leaves
-	bsr.w	Readjoy1
+	bsr.w	ReadJoy1
 	cmp.b	#$E0,d3					;held: sbut, abut, cbut
 	bne.w	rtss
 	move	#$2500,sr
-	move.l	#vb2,(vbint).w
+	move.l	#vb2,(VBint).w
 	jsr	p_turnoff
 	bsr.w	forceblack
 	move.w	#$18,(palcount).w
 	bsr.w	printsmallz
 	String	CC_SetMapAndPosition,4,3,$C,1,'Check Sound'	;attribute 4, map 3, x $C, y 1
 	moveq	#$14,d6					;sound number
-.top	move.w	(vcount).w,d0		;sound test loop: wait for a frame
-.wait	cmp.w	(vcount).w,d0		;spin until vcount changes
+.top	move.w	(Vcount).w,d0		;sound test loop: wait for a frame
+.wait	cmp.w	(Vcount).w,d0		;spin until Vcount changes
 	beq.s	.wait
-	bsr.w	Readjoy1
+	bsr.w	ReadJoy1
 	bsr.w	ProcessInputWithRepeat
 	tst.b	d1
 	beq.s	.top
@@ -5073,23 +5073,23 @@ CheckSound							;sound test, no caller found. Runs only with start+a+c held on 
 ;	(UpdateRosterPlayers ... AddTeamSpriteFrame), and its own vblank handler (VBlank_SetOptions).
 ;
 ;	printz strings: first byte c, with -c = $ab: map = b&3, printa = (-c<<9)&$F800; then x, y. $FF is map 1,
-;	$FE map 2, $BF map 1 + priority, $BE map 2 + priority. Map 1 = VmMap1 ($E000), map 2 = VmMap2 ($C000).
+;	$FE map 2, $BF map 1 + priority, $BE map 2 + priority. Map 1 = VmMAP1 ($E000), map 2 = VmMAP2 ($C000).
 
 setoptions							;options screen display and input. Called from PeriodOver.
 									;6 minute demo timeout polling both pads, animated roster players in the
-									;team blocks random teams after a demo, ends with bra maketree
+									;team blocks random teams after a demo, ends with bra MakeTree
 	move	#$2500,sr				;(92 Rev A order)
-	move.l	#VBlank_SetOptions,(vbint).l
+	move.l	#VBlank_SetOptions,(VBint).l
 	bclr	#dfok,(disflags).w
 	bset	#dfng,(disflags).w
 	bclr	#df32c,(disflags).w
 	move.w	#0,(VSCRLPM).w
 	move.w	#$B400,(VSPRITES).w
-	move.w	#$B800,(VmMap3).w
+	move.w	#$B800,(VmMAP3).w
 	move.w	#5,(Map3col).w
-	move.w	#$C000,(VmMap2).w
+	move.w	#$C000,(VmMAP2).w
 	move.w	#6,(Map2col).w
-	move.w	#$E000,(VmMap1).w
+	move.w	#$E000,(VmMAP1).w
 	move.w	#6,(Map1col).w
 	move.w	#0,d0					;fade to color
 	bsr.w	setVram
@@ -5097,7 +5097,7 @@ setoptions							;options screen display and input. Called from PeriodOver.
 	bsr.w	orjoy
 
 	bsr.w	AddTeamBlock
-	move.w	d4,(Framercset).w		;framer tiles loaded here
+	move.w	d4,(framercset).w		;framer tiles loaded here
 	movea.l	#FramerMap+8,a2
 	bsr.w	DecompressGraphicsWithCallback
 	dc.l	$01234562,$89ABCDEF		;remap table (Rev 0; / or.l)
@@ -5164,16 +5164,16 @@ setoptions							;options screen display and input. Called from PeriodOver.
 	bclr	#dfng,(disflags).w		;fade in graphics now
 ;----------
 .top	move.l	#$5460,d6			;21600 frames (6 minutes) before the demo (92 40*60)
-.wait	move.w	(vcount).w,d1		;d1 = frames since the last pass
-	sub.w	(oldvcount).w,d1
+.wait	move.w	(Vcount).w,d1		;d1 = frames since the last pass
+	sub.w	(OldVcount).w,d1
 	beq.s	.wait					;wait for the next vblank
-	move.w	(vcount).w,(oldvcount).w
+	move.w	(Vcount).w,(OldVcount).w
 	bsr.w	UpdateRosterPlayers
-	bsr.w	Readjoy1
+	bsr.w	ReadJoy1
 	bsr.w	ProcessInputWithRepeat
 	tst.w	d1
 	bne.w	.nd						;pad 1 pressed
-	bsr.w	Readjoy2
+	bsr.w	ReadJoy2
 	bsr.w	ProcessInputWithRepeat
 	tst.w	d1
 	bne.w	.nd						;pad 2 pressed
@@ -5186,10 +5186,10 @@ setoptions							;options screen display and input. Called from PeriodOver.
 	clr.w	(OptNOP).w
 	clr.w	(OptLine).w				;line changes on
 	move.w	#1,(OptPen).w			;penalties "On"
-.ex	bsr.w	UpdatePlayoffLevel		;leave the menu: playoff level, fresh seed, then maketree
+.ex	bsr.w	UpdatePlayoffLevel		;leave the menu: playoff level, fresh seed, then MakeTree
 	move.w	(HVcount).l,(seed).w	;random seed hopefully
 	move.w	(HVcount).l,(seed+2).w
-	bra.w	maketree
+	bra.w	MakeTree
 
 .nd	btst	#sbut,d1				;sbut
 	bne.s	.ex
@@ -5738,7 +5738,7 @@ UpdateTeamSprites					;sprite list for the two roster players. a5 = DMAList, a6 
 	subi.l	#Satt,d0
 	lsr.w	#1,d0
 	move.w	d0,(Sattsize).w
-	move.l	a5,(DMAListend).w
+	move.l	a5,(DMAlistend).w
 	bset	#dfok,(disflags).w
 	rts
 
@@ -5764,7 +5764,7 @@ AddTeamSpriteFrame					;add player a3 (x = (a3) + $1C offset, y = $14) and a Gam
 	move.w	(crowdvrcset).w,d3
 	bra.w	SetSframe
 
-VBlank_SetOptions					;vbint handler stored by setoptions: cramfade unless dfng, plus
+VBlank_SetOptions					;VBint handler stored by setoptions: cramfade unless dfng, plus
 									;DumpSprites2 when dfok is set
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
@@ -5773,7 +5773,7 @@ VBlank_SetOptions					;vbint handler stored by setoptions: cramfade unless dfng,
 	beq.w	.fade
 	bsr.w	DumpSprites2
 .fade	bsr.w	cramfade			;palette fade step
-.nograph	addq.w	#1,(vcount).w	;frame counter
+.nograph	addq.w	#1,(Vcount).w	;frame counter
 	jsr	p_music_vblank
 	movem.l	(sp)+,d0-d7/a0-a6
 	rte
@@ -5810,7 +5810,7 @@ ContinuePlayoffs					;continue playoffs: read the playoff state back from the pa
 	move.w	(gamelevel).w,d0
 	or.w	(bosgames).w,d0
 	beq.w	.ex						;level 0, game 0: nothing played yet
-	bsr.w	maketree
+	bsr.w	MakeTree
 	moveq	#7,d0
 	sub.w	(pojoy).w,d0
 	move.w	d0,(OptNOP).w			;menu value from pojoy
@@ -5818,7 +5818,7 @@ ContinuePlayoffs					;continue playoffs: read the playoff state back from the pa
 	rts
 
 NewPO								;new playoff generates tree with same team 1.
-									;Called from setoptions for "new playoffs". Falls into maketree.
+									;Called from setoptions for "new playoffs". Falls into MakeTree.
 	moveq	#$20,d0					;32 trees
 	bsr.w	randomd0
 .top	addq.w	#1,d0				;next tree number (wraps at 32)
@@ -5841,7 +5841,7 @@ NewPO								;new playoff generates tree with same team 1.
 	clr.w	(gamelevel).w
 	move.w	#7,(bosgames).w			;not best of seven
 	cmpi.w	#2,(OptPlayMode).w
-	beq.w	maketree				;2 = playoffs (single games)
+	beq.w	MakeTree				;2 = playoffs (single games)
 	clr.w	(bosgames).w			;best of seven: game 0
 	moveq	#7,d0					;clr games won
 	movea.w	#(gstruct-M68K_RAM),a0
@@ -5849,9 +5849,9 @@ NewPO								;new playoff generates tree with same team 1.
 	clr.w	gspobwins(a0)
 	adda.w	#gssize,a0
 	dbf	d0,.cg
-;	falls into maketree
+;	falls into MakeTree
 
-maketree							;make playoff tree from playoffseats/winbits.
+MakeTree							;make playoff tree from playoffseats/winbits.
 									;Called from setoptions (bra), NewPO, EncodePW; falls in from
 									;SelectRandomPlayoffTree.
 	movem.l	d0-d4/a0-a3,-(sp)
@@ -5907,7 +5907,7 @@ maketree							;make playoff tree from playoffseats/winbits.
 	move.b	(a0)+,gst2+1(a1)
 	rts
 
-FigureJoy							;set cont1team/cont2team appropriately. Called from maketree and
+FigureJoy							;set cont1team/cont2team appropriately. Called from MakeTree and
 									;PickStartingGoalie.
 									;after a demo (demoflag clear) fills gstruct with random matchups
 									;(InitializeGameStructures)
@@ -6067,7 +6067,7 @@ EncodePW							;after playoff game compute winners and password if needed. Calle
 	move.w	#1,(OptPlayMode).w		;continue season
 
 	bsr.w	ResolveGames
-	bsr.w	maketree
+	bsr.w	MakeTree
 	cmpi.w	#4,(gamelevel).w
 	beq.w	.userwon				;finished playoffs
 	tst.w	(gamenum).w
@@ -6079,7 +6079,7 @@ EncodePW							;after playoff game compute winners and password if needed. Calle
 	beq.w	rtss					;(92 retail; Rev A beq MakeTree)
 	movea.w	#(tpassbits-M68K_RAM),a3	;bits before all games resolved (Rev 0)
 	bsr.w	ReadPassBits
-	bra.w	maketree
+	bra.w	MakeTree
 
 .userwon	movea.w	#(pwddatabuffer-M68K_RAM),a3	;password bits
 	bsr.w	ClrPassBits
@@ -6199,7 +6199,7 @@ SuperDiv							;5 words at a3 divided by 1 word (d0).
 GetShifter							;returns:
 									;d1 = number of games-1
 									;d2 = first bit of WinBits
-									;Called from maketree, FigureJoy, ResolveGames, and the stats,
+									;Called from MakeTree, FigureJoy, ResolveGames, and the stats,
 									;intermission and penalty screens.
 	move.l	d0,-(sp)
 	moveq	#-$10,d2

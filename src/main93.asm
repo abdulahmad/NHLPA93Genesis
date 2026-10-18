@@ -17,6 +17,7 @@
 ;	Imports and exports
 ;
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+RAMStart = $FF0000					;start of work RAM
 	
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;
@@ -24,6 +25,7 @@
 ;
 ;<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+Stack = $FFFFF6						;reset vector 0. ($FFFFFFF6, the 32-bit form). ram93.asm redefines Stack as the game stack
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;
@@ -33,7 +35,7 @@
 
 ;;	.region code
 	org	0
-	dc.l	InitialSP				; 0 initial stack pointer (ram93.asm, top of work RAM)
+	dc.l	Stack					; 0 initial stack pointer
 	dc.l	Start					; 4 initial program counter: reset enters Start
 	dc.l	AddError				; 8 bus error: bus and address error share AddError
 	dc.l	AddError

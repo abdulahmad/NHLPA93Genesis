@@ -88,15 +88,15 @@ forceblack							;fade all colors to black but don't upset palfadenew
 forcefade							;regardless of interupts/disflags fade in new palettes, don't upset
 									;anything else. Called from forceblack and setVram
 	move.w	sr,-(sp)				;save sr, vblank handler and disflags
-	move.l	(vbint).w,-(sp)
+	move.l	(VBint).w,-(sp)
 	move.w	(disflags).w,-(sp)
 	bclr	#dfng,(disflags).w
-	move.l	#vb2,(vbint).l			;minimal vblank handler (vb2) that runs the fade
+	move.l	#vb2,(VBint).l			;minimal vblank handler (vb2) that runs the fade
 	move.w	#$2500,sr				;enable vblank interrupts (mask level 5)
 .1	tst.w	(palcount).w			;wait until the fade has finished (palcount < 0)
 	bpl.s	.1
 	move.w	(sp)+,(disflags).w
-	move.l	(sp)+,(vbint).w
+	move.l	(sp)+,(VBint).w
 	move.w	(sp)+,sr
 	rts
 
@@ -208,7 +208,7 @@ randomd0							;d0 = range. Return random number in d0 (0 <= d0 < range)
 	movem.l	(sp)+,d1-d2
 	rts
 
-sroot								;Square Root, this returns (d0.L)^.5 in d0. Large values use a binary
+Sroot								;Square Root, this returns (d0.L)^.5 in d0. Large values use a binary
 									;search
 	tst.l	d0
 	beq.w	rtss					;zero^.5 = zero
@@ -285,44 +285,44 @@ song								;play song number. One word passed on stack
 waitx								;wait d0 vblanks or until input from either joystick. Return joystick
 									;variables (d0-d3) if any. Called from ScoutingReport and
 									;SetupStanleyCupCelebrationScreen
-	neg.w	d0						;vcount counts up from -d0 to 0
-	move.w	d0,(vcount).w
-.wait	bsr.w	Readjoy1			;either pad with a new press ends the wait
+	neg.w	d0						;Vcount counts up from -d0 to 0
+	move.w	d0,(Vcount).w
+.wait	bsr.w	ReadJoy1			;either pad with a new press ends the wait
 	tst.w	d1
 	bne.w	rtss
-	bsr.w	Readjoy2
+	bsr.w	ReadJoy2
 	tst.w	d1
 	bne.w	rtss
-	move.w	(vcount).w,d0
-.0	cmp.w	(vcount).w,d0			;wait for the next vblank to change vcount
+	move.w	(Vcount).w,d0
+.0	cmp.w	(Vcount).w,d0			;wait for the next vblank to change Vcount
 	beq.s	.0
 	tst.w	d0
 	bmi.s	.wait					;still counting up to zero
 	rts
 
-waitxsr								;d0 vblanks while the zamboni crosses (zamx counts up to $708) and the
+waitxsr								;d0 vblanks while the zamboni crosses (Zamx counts up to $708) and the
 									;crowd updates. A key on either pad (sflags bit 1 = pad 2) leaves at least
 									;120 frames and goes to HandleMenuInput; eq from it exits with d1 bit 7
 									;set. Called from Intermission
 	movem.l	d4-d7/a0-a3,-(sp)
-	neg.w	d0						;vcount counts up from -d0 to 0
-	move.w	d0,(vcount).w
-.wait	cmpi.w	#$708,(zamx).w		;(92 tst zamx / bmi.nz)
+	neg.w	d0						;Vcount counts up from -d0 to 0
+	move.w	d0,(Vcount).w
+.wait	cmpi.w	#$708,(Zamx).w		;(92 tst Zamx / bmi.nz)
 	bhi.w	.nz						;zamboni past $708: stop moving it
-	addq.w	#1,(zamx).w
+	addq.w	#1,(Zamx).w
 .nz	moveq	#1,d7					;one elapsed frame
 	bsr.w	updatecrowdf			;animate the crowd
 	bclr	#sfpj,(sflags).w		;pad 1
-	bsr.w	Readjoy1
+	bsr.w	ReadJoy1
 	bsr.w	ProcessInputWithRepeat
 	tst.w	d1
 	bne.w	.key
 	bset	#sfpj,(sflags).w		;pad 2
-	bsr.w	Readjoy2
+	bsr.w	ReadJoy2
 	bsr.w	ProcessInputWithRepeat
 	tst.w	d1
 	beq.w	.vid					;no key on either pad
-.key	move.w	(vcount).w,d0		;a key was pressed: d0 = frames left (negative)
+.key	move.w	(Vcount).w,d0		;a key was pressed: d0 = frames left (negative)
 	cmp.w	#-120,d0
 	blt.w	.menu					;more than 120 frames left: keep them
 	moveq	#-$78,d0				;else wait 120 more
@@ -332,10 +332,10 @@ waitxsr								;d0 vblanks while the zamboni crosses (zamx counts up to $708) an
 	addq.w	#2,sp
 	bset	#7,d1					;tell the caller the menu ended it
 	bra.w	.ex
-.resume	move.w	(sp)+,(vcount).w	;restore the frame count
+.resume	move.w	(sp)+,(Vcount).w	;restore the frame count
 .vid	bsr.w	setvideo			;update video for this frame
-	move.w	(vcount).w,d0
-.0	cmp.w	(vcount).w,d0			;wait for the next vblank
+	move.w	(Vcount).w,d0
+.0	cmp.w	(Vcount).w,d0			;wait for the next vblank
 	beq.s	.0
 	tst.w	d0
 	bmi.s	.wait
@@ -344,17 +344,17 @@ waitxsr								;d0 vblanks while the zamboni crosses (zamx counts up to $708) an
 
 waitjoy								;wait for either joystick input. Return d1 = new button presses. it as
 									;data (no caller found)
-	move.w	(vcount).w,d0
-.0	cmp.w	(vcount).w,d0			;wait one vblank
+	move.w	(Vcount).w,d0
+.0	cmp.w	(Vcount).w,d0			;wait one vblank
 	beq.s	.0
 	bsr.w	orjoy
 	beq.s	waitjoy					;no new press: wait again
 	rts
 
 orjoy								;return d1 = new button presses from either joystick
-	bsr.w	Readjoy1
+	bsr.w	ReadJoy1
 	move.w	d1,-(sp)				;pad 1 new presses
-	bsr.w	Readjoy2
+	bsr.w	ReadJoy2
 	or.w	(sp)+,d1				;combine with pad 2
 	rts
 
@@ -374,7 +374,7 @@ nodiag								;eliminate diagonal direction presses: if held directions (d3 bits
 .ok	movem.l	(sp)+,d0/d4-d5			;done
 	rts
 
-ProcessInputWithRepeat				;nodiag, then key repeat on d1-d3 from Readjoy1/2. A change (d2) resets
+ProcessInputWithRepeat				;nodiag, then key repeat on d1-d3 from ReadJoy1/2. A change (d2) resets
 									;the delay to 15 frames; while the same buttons stay held, every 4 frames
 									;return d1 = held buttons (d3).
 									;Called from Pausemode, menus and IntermissionLoop
@@ -391,7 +391,7 @@ ProcessInputWithRepeat				;nodiag, then key repeat on d1-d3 from Readjoy1/2. A c
 .chg	move.w	#$F,(repeatdelayframes).w	;first repeat delay
 	rts
 
-Readjoy1							;read controller 1. Return d0 = direction (bit 0-3) and new button (bit
+ReadJoy1							;read controller 1. Return d0 = direction (bit 0-3) and new button (bit
 									;4-7) presses, d1 = new presses (all 8 bits), d2 = changed buttons (all
 									;8), d3 = current held buttons (all 8)
 	move.l	a0,-(sp)
@@ -405,12 +405,12 @@ Readjoy1							;read controller 1. Return d0 = direction (bit 0-3) and new butto
 	and.w	d2,d1					;d1 = changed and now down = new presses
 	rts
 
-Readjoy2							;read controller 2. Return d0 = direction (bit 0-3) and new button (bit
+ReadJoy2							;read controller 2. Return d0 = direction (bit 0-3) and new button (bit
 									;4-7) presses, d1 = new presses (all 8 bits), d2 = changed buttons (all
 									;8), d3 = current held buttons (all 8)
 	move.l	a0,-(sp)
 	movea.l	#Joy2,a0
-	bsr.w	ReadJoy					;same as Readjoy1 with lj2
+	bsr.w	ReadJoy					;same as ReadJoy1 with lj2
 	movea.l	(sp)+,a0
 	move.w	(lj2).w,d2
 	move.w	d1,(lj2).w
@@ -601,7 +601,7 @@ setVram								;initialize all necesary video parameters based on my variables. 
 	bsr.w	forcefade				;fade the screen to that color
 
 setVram_0							;92 setVram second half. second half of setVram without the fade: clear
-									;vram and set the VDP registers from disflags, Map1col, VmMap1-3, VSPRITES
+									;vram and set the VDP registers from disflags, Map1col, VmMAP1-3, VSPRITES
 									;and VSCRLPM. Falls in from setVram, called from
 									;SetupStanleyCupCelebrationScreen
 	move.w	(disflags).w,-(sp)
@@ -630,21 +630,21 @@ setVram_0							;92 setVram second half. second half of setVram without the fade
 .i64	move.w	d0,4(a0)			;reg 16: scroll plane size
 
 	move.w	#$8200,d0
-	move.b	(VmMap1).w,d0
+	move.b	(VmMAP1).w,d0
 	lsr.b	#2,d0
 	andi.b	#%00111000,d0
-	move.w	d0,4(a0)				;reg 2: plane A name table address from VmMap1
+	move.w	d0,4(a0)				;reg 2: plane A name table address from VmMAP1
 
 	move.w	#$8400,d0
-	move.b	(VmMap2).w,d0
+	move.b	(VmMAP2).w,d0
 	lsr.b	#5,d0
-	move.w	d0,4(a0)				;reg 4: plane B name table address from VmMap2
+	move.w	d0,4(a0)				;reg 4: plane B name table address from VmMAP2
 
 	move.w	#$8300,d0
-	move.b	(VmMap3).w,d0
+	move.b	(VmMAP3).w,d0
 	lsr.b	#2,d0
 	andi.b	#%00111110,d0
-	move.w	d0,4(a0)				;reg 3: window name table address from VmMap3
+	move.w	d0,4(a0)				;reg 3: window name table address from VmMAP3
 
 	move.w	#$8500,d0
 	move.b	(VSPRITES).w,d0

@@ -27,7 +27,7 @@ AddPenalty2							;forced penalties like face off and game over. d0 = penalty nu
 	movem.l	d1/a0-a1,-(sp)
 	cmp.w	#$E,d0					;goal (92 used 6) and up
 	blt.w	.nosnd					;lesser stoppages: no crowd noise or song
-	addi.w	#$C8,(crowdlevel).w		;200
+	addi.w	#$C8,(Crowdlevel).w		;200
 	move.w	#$C,-(sp)				;song $C for the home team
 	btst	#pfteam,pflags(a3)		;which team's player
 	beq.w	.snd
@@ -63,9 +63,9 @@ chkprogress							;control progress of ref and game control thru penalty events.
 									;the horizontal rink for the player to enter the penalty box
 	btst	#gmpen,(gmode).w
 	beq.w	rtss					;no penalty stoppage in progress
-	tst.w	(Pencntdwn).w
+	tst.w	(PenCntDwn).w
 	bmi.w	InProgress				;countdown finished earlier: run the ref sequence
-	sub.w	d7,(Pencntdwn).w
+	sub.w	d7,(PenCntDwn).w
 	bpl.w	rtss					;still waiting out the stop delay
 	bclr	#gmpendel,(gmode).w		;delayed call (if any) is over
 	movea.w	#(PenBuf-M68K_RAM),a0
@@ -79,9 +79,9 @@ chkprogress							;control progress of ref and game control thru penalty events.
 	beq.s	.find
 	;a penalty with minutes: show the horizontal view so the player can enter the penalty box
 	bset	#sf2drec,(sflags2).w	;switch to horizontal mode for player to enter penalty box
-	move.w	(vcount).w,-(sp)		;keep vcount across the fade to black
+	move.w	(Vcount).w,-(sp)		;keep Vcount across the fade to black
 	bsr.w	forceblack
-	move.w	(sp)+,(vcount).w
+	move.w	(sp)+,(Vcount).w
 	bsr.w	SetHor					;horizontal rink graphics
 	move.w	(ExtraChars).w,d4		;load horizontal ref tiles
 	movea.l	#RefMap2+8,a2
@@ -286,9 +286,9 @@ checkfornewpen						;look for new penalty (entered thru addpenalty(2)). Stops pl
 	clr.w	d1
 	move.b	(a1),d1					;delay for stopping action
 	asl.w	#5,d1					;delay * 32 frames
-	cmp.w	(Pencntdwn).w,d1
+	cmp.w	(PenCntDwn).w,d1
 	ble.s	.next
-	move.w	d1,(Pencntdwn).w		;keep the longest delay of the called penalties
+	move.w	d1,(PenCntDwn).w		;keep the longest delay of the called penalties
 	bra.s	.next
 
 .dc	bset	#gmpendel,(gmode).w		;delayed penalty: remember it
@@ -354,7 +354,7 @@ Stop4Pen							;a0 = penaltylist penalty +2. Stop the clock, set the face off sp
 	addq.w	#4,sp
 	bsr.w	limitfo					;pull it away from walls near any penalized player's end
 
-.skipfo	clr.w	(Pencntdwn).w		;start the stop delay count from 0
+.skipfo	clr.w	(PenCntDwn).w		;start the stop delay count from 0
 	bset	#gmpen,(gmode).w		;penalty stoppage
 	move.w	#SFXwhistle,-(sp)		;whistle (92 used 10)
 	bsr.w	sfx
@@ -834,9 +834,9 @@ SetHor								;switch graphics to horizontal ice rink graphics mode. Does not re
 	btst	#sfpz,(sflags).w
 	bne.w	.ex
 	move.w	#$800,d0				;92 $1000
-	move.w	(VmMap1).w,d1
+	move.w	(VmMAP1).w,d1
 	move.w	#$7FF,d2				;blank tile (92 1)
-	bsr.w	DoFill					;fill d0 words at VmMap1 with the blank tile
+	bsr.w	DoFill					;fill d0 words at VmMAP1 with the blank tile
 
 .ex	movem.l	(sp)+,d0-d7/a0-a6		;restore and return
 	rts
@@ -1094,7 +1094,7 @@ ChkShotStat							;add to shot stat if a shot was taken. Also raises the crowd a
 	bclr	#sf2shot,(sflags2).w
 	beq.w	rtss					;no shot taken
 	movem.l	d0-d1/a1-a3,-(sp)
-	addi.w	#$64,(crowdlevel).w		;100
+	addi.w	#$64,(Crowdlevel).w		;100
 	addi.w	#$A,(CwdExciteLvl).w	;+10 excitement
 	move.w	(shotplayer).w,d0
 	asl.w	#scsize,d0				;scsize
@@ -1168,7 +1168,7 @@ Intermission						;end of period junk (zamboni/stats). Opens the pause menu scre
 	move.w	(ExtraChars).w,d4
 	movea.l	#ZamSprites+8,a2		;zamboni sprite tiles
 	bsr.w	DecompressGraphicsPlain
-	move.w	#$140,(zamx).w			;320
+	move.w	#$140,(Zamx).w			;320
 	move.w	(gsp).w,d0
 	tst.w	(OptPlayMode).w
 	beq.w	.ss
@@ -1206,7 +1206,7 @@ Intermission						;end of period junk (zamboni/stats). Opens the pause menu scre
 	bne.s	.wait					;keep waiting while a pad is on a team
 	tst.w	(cont2team).w
 	bne.s	.wait
-.clrz	st	(zamx).w				;zamboni off
+.clrz	st	(Zamx).w				;zamboni off
 	rts
 
 .sslist								;Menu item lists, by period then playoff period
@@ -1479,7 +1479,7 @@ StartHL2							;play hilite for game a0. Start skips it with a random result. A 
 	bsr.w	waitxsr
 	btst	#sbut,d1				;sbut
 	bne.w	.nhl1					;start: skip the highlight
-	st	(zamx).w					;zamboni off
+	st	(Zamx).w					;zamboni off
 	clr.w	(CwdExciteLvl).w
 	move.w	(a0),(HomeTeam).w		;set up teams for game in a0
 	move.w	2(a0),(VisTeam).w
@@ -1548,7 +1548,7 @@ StartHL2							;play hilite for game a0. Start skips it with a random result. A 
 	dbf	d0,.ploop
 	bsr.w	SprSort
 	move.w	#$18,(palcount).w		;24
-	move.w	(vcount).w,(oldvcount).w
+	move.w	(Vcount).w,(OldVcount).w
 	move.w	#$B4,-(sp)				;180 frames after the clock stops
 .0	jsr	(DoGameFrame).w				;DoGameFrame waits for the vblank (92 inline)
 	btst	#gmclock,(gmode).w

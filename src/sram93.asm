@@ -508,10 +508,10 @@ ClearVRAM							;clear loop of ClearRAMBuffer, then display on and hang
 	move.w	#$8144,(a0)				;display on
 .hang	bra.s	.hang				;hang forever
 
-ReadPad1Held						;reads pad 1 (Readjoy1). Return d0 = held buttons (bit 7 Start, 6 A, 5 C,
+ReadPad1Held						;reads pad 1 (ReadJoy1). Return d0 = held buttons (bit 7 Start, 6 A, 5 C,
 									;4 B). Called from BackupRAM_Read
 	movem.l	d1-d7,-(sp)
-	jsr	(Readjoy1).l
+	jsr	(ReadJoy1).l
 	move.w	d3,d0
 	movem.l	(sp)+,d1-d7
 	rts

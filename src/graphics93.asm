@@ -62,7 +62,7 @@ FaceOffSprites						;face off sprite frames (checkfo2 in video93.asm, logic93.as
 ZamSprites							;zamboni sprite frames (video93.asm, penalty93.asm)
 	incbin	..\Extracted\Graphics\Zam.anim
 	even
-BigFontMap							;big font tiles and map (BigFontChars; print93.asm, hockey93.asm)
+BigFontMap							;big font tiles and map (BigFontchars; print93.asm, hockey93.asm)
 	incbin	..\Extracted\Graphics\BigFont.map.jim
 	even
 SmallFontMap						;small font tiles and map (smallfontchars; AddSmallFont and the screens)

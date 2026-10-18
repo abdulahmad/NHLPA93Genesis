@@ -6,9 +6,9 @@
 ;	address (dc.l). Item 0 leaves the menu (its handler is rtss). String $FF ends the list.
 
 cd0									;$fftt = frame/time for various levels of crowd excitement.
-									;Used by updatecrowdf, indexed by crowd level and crowdstep
-									;4 blocks of 16 words, one per crowd level range ((crowdlevel/2) and $60 =
-									;byte offset 0,$20,$40,$60) each step (crowdstep 0-$1E, word index) gives
+									;Used by updatecrowdf, indexed by crowd level and Crowdstep
+									;4 blocks of 16 words, one per crowd level range ((Crowdlevel/2) and $60 =
+									;byte offset 0,$20,$40,$60) each step (Crowdstep 0-$1E, word index) gives
 									;the crowd frame (high byte) and its base duration (low byte) block 0 is a
 									;calm crowd (time $0c), blocks 1, 2 and 3 are livelier and faster (time 7,
 									;7, 3)

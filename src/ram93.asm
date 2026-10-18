@@ -25,7 +25,6 @@ refwidth	=	7					;width of ref.map frames
 refheight	=	8					;height of ref.map frames
 
 Stack	=	$FFFFFFFE				;game stack (Begin, StartPer, Opening2). 92 $fffffdf0
-InitialSP	=	$FFFFF6				;reset vector 0. ($FFFFFFF6, the 32-bit form)
 ;$FFFFFFFF: not used
 
 ;joystick button equates (bit numbers)
@@ -111,13 +110,13 @@ RAMSTART = varstart					;start of the variables, the same as varstart (92)
 	RSSET	varstart				;variables from here on are allocated upwards from varstart with rs
 VSCRLPM	rs.w	1					;location in vram of scroll parameters
 VSPRITES	rs.w	1				;location in vram of sprite attributes
-VmMap1	rs.w	1					;location in vram of playfield 1
+VmMAP1	rs.w	1					;location in vram of playfield 1
 Map1col	rs.w	1					;2 to this power = width in char of playfield 1
-VmMap2	rs.w	1					;location in vram of playfield 2
+VmMAP2	rs.w	1					;location in vram of playfield 2
 Map2col	rs.w	1					;2 to this power = width in char of playfield 2
-VmMap3	rs.w	1					;location in vram of playfield 3
+VmMAP3	rs.w	1					;location in vram of playfield 3
 Map3col	rs.w	1					;2 to this power = width in char of playfield 3
-BigFontChars	rs.w	1			;vram tiles for BigFont.map
+BigFontchars	rs.w	1			;vram tiles for BigFont.map
 smallfontchars	rs.w	1			;vram tiles for SmallFont.map
 smallfont2chars	rs.w	1			;vram tiles for the 2nd small font set.
 energybarchars	rs.w	1			;vram tiles for the energy bar (also logo / cup
@@ -125,7 +124,7 @@ energybarchars	rs.w	1			;vram tiles for the energy bar (also logo / cup
 rinkvrcset	rs.w	1				;vram tiles for IceRink.map
 crowdvrcset	rs.w	1				;vram tiles for the crowd animation (also the Title3map sprites)
 faceoffvrcset	rs.w	1			;vram tiles for FaceOff graphics
-Framercset	rs.w	1				;vram tiles for framer.map
+framercset	rs.w	1				;vram tiles for framer.map
 EASNcset	rs.w	1				;vram tiles for EASN.map
 basetileoffset	rs.w	1			;vram char of the home team block tiles; the visitor block is at +$18
 									;(setupTeamBlocksMap)
@@ -148,9 +147,9 @@ CC_SetMapAndPosition	=	$F8		;-8: next 4 bytes = attribute, map, x, y
 fodropx	rs.w	1					;face off drop spot x/y
 fodropy	rs.w	1					;face off drop spot y (see fodropx)
 recbpr	rs.l	1					;replay record buffer pointer: the frame being recorded (92 recbpr)
-vbint	rs.l	1					;address of vblank interupt code
-vcount	rs.w	1					;counter for vblank
-oldvcount	rs.w	1				;vcount at the last game frame: the frame loop waits d7 frames from it
+VBint	rs.l	1					;address of vblank interupt code
+Vcount	rs.w	1					;counter for vblank
+OldVcount	rs.w	1				;Vcount at the last game frame: the frame loop waits d7 frames from it
 repeatdelayframes	rs.w	1		;frames until the menu cursor repeats (first delay $F, then 4)
 asv	rs.w	1						;analog sound volume (crowd noise)
 lldisp	rs.w	1					;line level disp update counter
@@ -253,21 +252,21 @@ puckc	=	SortCords+(puckscnum*SCstruct)+newpos	;puck carrier: SCnum of the player
 Ylist	rs.w	Sortobjs			;list of y cords for each sortobj
 OOlistpos	rs.w	Sortobjs		;objects pos in OOlist
 OOlist	rs.b	Sortobjs			;object order list for sort objs
-crowdframe	rs.w	1				;current crowd frame number
-crowdlevel	rs.w	1				;level of crowd excitement
-crowdstep	rs.w	1				;animation step for crowd
-crowdcnt	rs.w	1				;count down to next step.
+Crowdframe	rs.w	1				;current crowd frame number
+Crowdlevel	rs.w	1				;level of crowd excitement
+Crowdstep	rs.w	1				;animation step for crowd
+Crowdcnt	rs.w	1				;count down to next step.
 CwdExciteLvl	rs.w	1			;crowd excitement level (starts at gamelevel*16, +$1E on an injury, +$28
 									;on a goal; peaks tracked below)
 MaxCwdExciteLvl	rs.w	1			;peak crowd level.
 NumCwdExciteLvl	rs.w	1			;crowd level sample count.
 SumCwdExciteLvl	rs.l	1			;crowd level running total.
-zamx	rs.w	1					;zamboni x cord
+Zamx	rs.w	1					;zamboni x cord
 playoffspritex	rs.w	1			;logo sprite x (title / playoff screens).
 playoffspritey	rs.w	1			;logo sprite y.
 clampcounter	rs.w	1			;title screen: logo slide-in timer (RAM reused by the title screens)
 DMAList	rs.l	2*140				;dma transfer list
-DMAListend	rs.l	1				;end of the DMA list: the address the next entry is written to
+DMAlistend	rs.l	1				;end of the DMA list: the address the next entry is written to
 Vpos	rs.w	1					;ice rink vertical position
 Oldrow	rs.w	1					;last row (used in vertical scrolling of the map data)
 Hpos	rs.w	1					;ice rink horizontal position
@@ -412,7 +411,7 @@ PenaltyBufferEnd	rs.w	1		;the word before PenBuf: the end of the scoring summary
 MaxPen	=	32						;penalties kept in PenBuf
 
 PenBuf	rs.w	MaxPen+1			;upto x penalties saved
-Pencntdwn	rs.w	1				;frames until the penalty or stoppage message ends (fights 60, an injury
+PenCntDwn	rs.w	1				;frames until the penalty or stoppage message ends (fights 60, an injury
 									;180)
 Penaltytimer	rs.w	1			;counts down the second for the penalty clocks (jps frames)
 PBnum	rs.w	1					;$HV00 h=home players in pb
@@ -531,7 +530,7 @@ OptPlayMode	rs.w	1				;play mode
 OptNOP	rs.w	1					;number of players (92 OptNOP)
 Opt1team	rs.w	1				;team 1 (92 Opt1team)
 Opt2team	rs.w	1				;team 2 (92 Opt2team)
-OptPerlen	rs.w	1				;period length index.
+Optperlen	rs.w	1				;period length index.
 OptPen	rs.w	1					;penalties 1 for off
 OptLine	rs.w	1					;line changes 0 for on
 demoflag	rs.w	1				;demo flag

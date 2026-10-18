@@ -152,12 +152,12 @@ PutTeamBlock						;copy 2 rows of 12 map words from TeamBlockMap+d0 to printx/pr
 	movem.l	(sp)+,d0-d2/a0-a1
 	rts
 
-MenuWaitVblank						;92 Pausemode .rjoy wait. wait for the next vblank, then resync vcount.
+MenuWaitVblank						;92 Pausemode .rjoy wait. wait for the next vblank, then resync Vcount.
 									;Saves d0
 	move.w	d0,-(sp)
-	move.w	(oldvcount).w,d0
-.wait	cmp.w	(vcount).w,d0		;vcount is bumped by the vblank handler
+	move.w	(OldVcount).w,d0
+.wait	cmp.w	(Vcount).w,d0		;Vcount is bumped by the vblank handler
 	beq.s	.wait
-	move.w	(oldvcount).w,(vcount).w
+	move.w	(OldVcount).w,(Vcount).w
 	move.w	(sp)+,d0
 	rts
