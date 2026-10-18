@@ -3025,22 +3025,17 @@ puckgoalie							;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y Save
 	pix	1111,3300
 	pix	1111,3300
 	pix	1111,3300
-	IF REV=2
-	pix	1111,3300					;goalie stack left (Rev B: 6 fewer, see below)
-	pix	1111,3300
-	pix	1111,3300
-	pix	1111,3300
-	ELSE
 	pix	1111,3300					;goalie stack left
 	pix	1111,3300
 	pix	1111,3300
 	pix	1111,3300
+	IF REV<2
 	pix	1111,3300
 	pix	1111,3300
 	pix	1111,3300
 	ENDIF
-	;Rev B drops 6 stack left entries so the stick entries start at frame +64, where the stick save frames are
-	;(SPAgstickr). Rev 0/A read them from +70, so those frames got stack odds.
+	;Rev B has 6 fewer stack left entries, so the stick entries start at frame +64, where the stick save
+	;frames are (SPAgstickr). Rev 0/A read them from +70, so those frames got stack odds.
 	pix	3111,1311					;goalie stick right/left
 	pix	3111,1311
 	pix	3111,1311
