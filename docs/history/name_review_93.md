@@ -347,7 +347,7 @@ Verdicts from reading each routine body / variable usage. "ok" = name matches be
 | sfx_playerwall2_cmdstream | ok |
 | sfx_playerwall3_cmdstream | ok |
 | sfx_playerwall4_cmdstream | ok |
-| sfx_id_26_27_cmdstream | ok |
+| sfx_empty_cmdstream | ok |
 | sfx_oooh_cmdstream | ok |
 | sfx_pass1_cmdstream | ok |
 | sfx_pass2_cmdstream | ok |
