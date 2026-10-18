@@ -14,14 +14,14 @@ Because the source uses labels, code and data can grow or move. Add new RAM to `
 | --- | --- | --- | --- |
 | Rev 0 (v1.0, "retail") | `1992.JUL`, `GM T-50396 -00` | `nhlpa93retail.bin` | `8efc1cacb079ea223966dda065c16c49e584cac2` |
 | Rev A (v1.1) | `1992.OCT`, `GM T-50396 -01` | `nhlpa93retailRevA.bin` | `2ab048fc7209df28b00ef47f2f686f5b7208466e` |
+| Rev B (v1.2) | `1993.FEB`, `GM T-50396 -00` | `nhlpa93retailRevB.bin` | `76c0f3d4665ffcd53adfffaa27fc4dded694f8f7` |
 
-`npm run extractassets` extracts from the retail ROM, `npm run extractassets:reva` from the Rev A ROM. The builds extract automatically when needed (`tools/prebuild.js`).
+`npm run extractassets` extracts from the retail ROM, `npm run extractassets:reva` from the Rev A ROM and `npm run extractassets:revb` from the Rev B ROM. The builds extract automatically when needed (`tools/prebuild.js`).
 
 ## Known Issues/Limitations
-- **Rev B (v1.2)**: `nhlpa93retailRevB.bin` (`1993.FEB`) is a separate later build (different rosters, graphics and about 145 code changes) and is not built.
 - **Z80 sound driver**: the Z80 code is the extracted binary, not source.
 - **Asset boundaries**: graphics and sound slices start at the labels the code uses; a few files may contain more than one asset.
-- **Checksum sensitivity**: `build:retail` / `build:reva` need the exact retail ROM for the extracted files; with validation on, any change stops the game at boot.
+- **Checksum sensitivity**: `build:retail` / `build:reva` / `build:revb` need the exact retail ROM for the extracted files; with validation on, any change stops the game at boot.
 
 ## Modding Tips
 - **Custom music / SFX**: add an event stream file and an `incbin` with a label in `sound93.asm`, then point a `MusicTrackPointerTable` entry at it (`dc.w <label>-MusicTrackPointerTable`).
