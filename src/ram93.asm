@@ -522,7 +522,7 @@ PalMode				rs.w	1		;Rev A only: VDP PAL bit (Begin). Set = 50 Hz: faster skating
 music_tick_divider	rs.w	1		;Rev A only: p_music_vblank runs the track slots again every 6th frame
 	ENDIF
 databuffer			rs.w	9		;the saved block, 128 bytes (data + checksum; marker is its checksum byte)
-pwddatabuffer		rs.w	5		;playoff password bits (5 words; no checksum in 93)
+passbits			rs.w	5		;playoff password bits (5 words; no checksum in 93)
 outputbuffer		rs.w	49		;work buffer, also the shot data kept between games
 marker				rs.w	1		;databuffer+126: not(sum) of the saved block
 tpassbits			rs.w	5		;temporary storage of passbits.
