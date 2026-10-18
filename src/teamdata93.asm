@@ -58,14 +58,27 @@ AllStarsEast						;team record: All Stars East (ASE)
 	incbin	..\Extracted\Graphics\Pals\ASEh.pal
 	incbin	..\Extracted\Graphics\Pals\ASEv.pal
 ;------------------------
-;ScoutReport: 8 bytes, bytes 0 and 3 are never read.
-;byte 1: high nibble = penalty kill deficit (negated while killing a penalty), low nibble = power play bonus.
-;The scouting screen shows power play adv. as a team's low nibble + the opponent's high nibble.
-;byte 2: high nibble = home bonus, low nibble = visitor bonus (negated); the screen adds the opponent's.
-;bytes 4-7: one rating nibble each, in screen order: shooting, skating, passing, defense, checking,
-;fighting, goalkeeping, overall
+;x - not read
+;x - not read
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
 ;------------------------
-.sr
+.sr									;xxeb,hvxx,skpd,cfgo
 	hex2	7020,00D6,9999,9099
 .godds								;starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	216,160
@@ -78,13 +91,26 @@ AllStarsEast						;team record: All Stars East (ASE)
 	dc.b	01,21,22,16,08,15,07,00
 	dc.b	01,20,17,15,07,16,08,00
 ;------------------------
-;Player: 8 attribute bytes after the name, one nibble per letter (goalie meaning after the slash)
-;u,n uniform # tens, units; w weight; l leg power; s speed; o offensive awareness; d defensive awareness;
-;p shot power / NA; c checking strength / NA; h shooting hand / glove hand; g stickhandling / glove left
-;saves; a shooting accuracy / glove right saves; e endurance / stick right saves; y shot/pass decision / stick
-;left saves; t passing accuracy / consistency; m aggressiveness (PIM) / NA
+;u - uniform # x10
+;n - uniform # x1
+;w - weight
+;l - leg power
+;s - speed
+;o - offensive awareness
+;d - defensive awareness
+;p - shot power / NA for goalie
+
+;c - checking strength / NA
+;h - shooting hand / glove hand
+;g - stickhandling / glove left saves
+;a - shooting accuracy / glove right saves
+
+;e - endurance / stick right saves
+;y - shot/pass decision / stick left saves
+;t - passing accuracy / consistency
+;m - aggressiveness (PIM) / NA
 ;------------------------
-.pld								;roster: one Player record per player, then an empty record (length 2)
+.pld								;unwl,sodp,chga,eytm (roster ends with an empty record, length 2)
 	Player	'Patrick Roy',			335F,AFFF,0100,FFFF
 	Player	'Mike Richter',			355D,ADDD,0100,DDDD
 	Player	'Don Beaupre',			0137,AAAA,0100,AAAA
