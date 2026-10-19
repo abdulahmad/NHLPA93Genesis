@@ -79,12 +79,12 @@ AllStarsEast						;team record: All Stars East (ASE), team 24
 ;o - overall
 ;------------------------
 .sr									; scouting report ratings
-;		qreb,hvxx,skpd,cfgo
+;			qreb,hvxx,skpd,cfgo
 	hex2	7020,00D6,9999,9099
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	216,160
 .ls									; line sets: 7 lines of 8 roster numbers, by position
-;		-G,LD,RD,LW,-C,RW,XA,00
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,18,14,04,11,05,00	;line 1
 	dc.b	01,19,20,15,05,12,04,00	;line 2
 	dc.b	01,21,22,16,06,13,04,00	;line 3
