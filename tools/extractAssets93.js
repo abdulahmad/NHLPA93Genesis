@@ -143,7 +143,7 @@ const assets = [
     { name: 'Title2.map.jim', folder: 'Graphics', start: 0x031288, end: 0x031F10 }, // Title2Map: 92 Title2Map: second TitleScreen bitmap (loaded by TitleScreen)
     { name: 'Title3.anim', folder: 'Graphics', start: 0x031F10, end: 0x0322CE }, // Title3Sprites: the three TitleAnimCallback sprites (SetSframe)
     { name: 'TitleLogo.anim', folder: 'Graphics', start: 0x0322CE, end: 0x032860 }, // TitleLogoSprites: the four title logo sprites (FinalizeSpriteList SetSframe); palette reused by PlayoffScreen
-    { name: 'Scouting.map.jim', folder: 'Graphics', start: 0x032860, end: 0x033388 }, // ScoutMap: 92 ScoutMap: ScoutingReport background, also PlayoffScreen, SetupScreen, DrawTeamScreen
+    { name: 'EASNBG.map.jim', folder: 'Graphics', start: 0x032860, end: 0x033388 }, // ScoutMap: 92 ScoutMap: ScoutingReport background, also PlayoffScreen, SetupScreen, DrawTeamScreen
     { name: 'Framer.map.jim', folder: 'Graphics', start: 0x033388, end: 0x033400 }, // FramerMap: 92 FramerMap
     { name: 'FaceOff.map.jim', folder: 'Graphics', start: 0x033400, end: 0x033864 }, // FaceOffMap: 92 FaceOffMap
     { name: 'IceRink.map.jim', folder: 'Graphics', start: 0x033864, end: 0x038906 }, // IceRinkMap: 92 IceRinkMap
@@ -299,7 +299,7 @@ const REVB_SLICES = {
     'Title2.map.jim': [0x03127E, 0x031F06],
     'Title3.anim': [0x031F06, 0x0322C2],
     'TitleLogo.anim': [0x0322C2, 0x032852],
-    'Scouting.map.jim': [0x032852, 0x0335AC],
+    'EASNBG.map.jim': [0x032852, 0x0335AC],
     'Framer.map.jim': [0x0335AC, 0x033624],
     'FaceOff.map.jim': [0x033624, 0x033A88],
     'IceRink.map.jim': [0x033A88, 0x038A90],

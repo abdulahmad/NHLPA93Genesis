@@ -4351,7 +4351,7 @@ ScoutingReport						;pregame scouting report. Called from PeriodOver.
 									;Draws both team blocks, the Ron Barr picture and the scouting report
 									;ratings, then types out the commentary paragraphs listed in TestList.
 									;Returns on start, or when screentimer runs out ($1E0 after the text ends)
-	move.w	#SngScout,-(sp)			;song $37
+	move.w	#SngScouting,-(sp)		;song $37
 	bsr.w	song
 	move.l	#vb2,(VBint).w
 	bsr.w	clearTeamStats
