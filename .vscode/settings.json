@@ -12,5 +12,17 @@
   "editor.insertSpaces": false,
   "editor.tabSize": 4,
   "editor.detectIndentation": false,
-  "files.insertFinalNewline": true
+  "files.insertFinalNewline": true,
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": [
+          "entity.name.function.macro"
+        ],
+        "settings": {
+          "foreground": "#F0883E"
+        }
+      }
+    ]
+  }
 }
