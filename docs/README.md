@@ -11,7 +11,7 @@ Start with the [main README](../README.md) for what this project is and how to b
 ## How the game works
 
 - [Sound system](sound-system.md): the 68000 driver, sound numbers, event streams, FM patches and PCM samples
-- [File formats](file-formats.md): `.JIM`, `.ANIM`, `.PAL` and the team data layout
+- [File formats](file-formats.md): `.map.jim`, `.anim`, `.pal`, packed tiles, strings, sound files and the team data layout
 
 ## History
 

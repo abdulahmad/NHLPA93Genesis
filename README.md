@@ -72,6 +72,6 @@ The documentation lives in [`docs/`](docs/README.md):
 
 - [Rev 0, Rev A and Rev B](docs/retail-vs-reva.md): what differs between the three ROM versions (v1.0, v1.1 and v1.2) and what `REV` changes
 - [Sound system](docs/sound-system.md): the 68000 driver, sound numbers, event streams, patches and samples
-- [File formats](docs/file-formats.md): `.JIM`, `.ANIM`, `.PAL` and the team data layout
+- [File formats](docs/file-formats.md): `.map.jim`, `.anim`, `.pal`, packed tiles, strings, sound files and the team data layout
 - [Modding](docs/modding.md): developing on this build, supported ROMs, known issues, tips
 - [Conventions](docs/conventions.md): naming lineage, comment rules, local labels
