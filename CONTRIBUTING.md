@@ -97,3 +97,8 @@ A comment-only or rename-only change must not change a single byte. Never commit
 - [ ] new symbols have comments, new constants replace the numbers they stand for
 - [ ] names follow 92 (spelling, capitalisation); renames are in the history file
 - [ ] no 92 comment was shortened or reworded
+
+## Editor setup (VS Code)
+
+The `.vscode/settings.json` in this repo selects the "NHL 68000 (SNASM68K)" language mode for `*.asm`, turns off colour swatches on hex values and colours macro names orange. The mode itself is a small extension that lives in
+[abdulahmad/nhl-disasm-report](https://github.com/abdulahmad/nhl-disasm-report/tree/main/vscode/nhl-asm). Clone that repo and run `vscode\install.cmd` (Windows) or link `vscode/nhl-asm` into `~/.vscode/extensions/` (macOS/Linux), then restart VS Code. Without it the files open as plain Assembly.
