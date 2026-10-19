@@ -1,19 +1,152 @@
-# File Formats
+# File formats
 
-Formats of the data in the NHLPA 93 ROM. The graphics tools live in other repositories.
+Formats of the data in the NHLPA 93 (Genesis) ROM, and of the files in `Extracted/`. The sister document for the Super Nintendo game is
+[NHLPA93SNES docs/file-formats.md](https://github.com/abdulahmad/NHLPA93SNES/blob/main/docs/file-formats.md); it uses the same sections, so
+the two can be read side by side. All values are big endian (68000).
 
-## .JIM
-Documentation for the NHLPA93 .JIM and .JZIP file format and tools to import/export to/from .JIM/.JZIP format lives here: https://github.com/abdulahmad/EA-NHL-Tools/tree/main/JIM-Tools
+## Extracted/
 
-## .ANIM94 format
-Documentation for the NHLPA93 .ANIM file format and tool to export from .ANIM format lives here: https://github.com/abdulahmad/EA-NHL-Tools/tree/main/ANIM94-To-BMP
+`tools/extractAssets93.js` cuts the assets out of the retail ROM into `Extracted/{Graphics,Sound,Text}/` (150 files for Rev 0 and Rev A, which
+share their slices; Rev B has pictures and sound data of its own and is extracted from its own ROM). `Extracted/` is not committed;
+`tools/prebuild.js` runs the extractor before every build when the folder is missing or stale, and the source `incbin`s the files.
+The extension gives the format:
 
-## .PAL
-.pal files use standard Genesis CRAM format for palette. Each color is 2 bytes in Genesis format (0000BBB0GGG0RRR0, where BBB=Blue bits, GGG=Green bits, RRR=Red bits).
+| Extension | Format | Files |
+|-----------|--------|-------|
+| `.map.jim` | Screen container: palette, map and tiles, see [.map.jim](#mapjim-and-anim-the-container) | 20 files in `Graphics/` (`Title1`, `IceRink`, `Arrows`, `Framer`, `BigFont`, `SmallFont`, ...) |
+| `.anim` | Sprite frame set: tiles, frame table and sprite entries, see [.anim](#anim-sprite-frames) | `Sprites` (all the player, goalie and puck frames), `Crowd`, `Zam`, `FaceOff`, `EASN`, `GameSetup`, `Title3`, `TitleLogo` |
+| `.pal` | Team palette, 32 bytes, see [Palettes](#palettes) | `Graphics/Pals/<team>h`, `<team>v` (52 files) |
+| `_cmdstream.bin` | 68000 event stream of a song or effect, see [Sound](#sound) | `Sound/fmtune_<song>`, `Sound/sfx_<name>` |
+| `_pcm.bin` | Raw signed 8-bit PCM sample | `Sound/sfx_<name>_pcm` (12 files) |
+| `fm_instrument_patches.bin` | 32 YM2612 patches of 32 bytes | `Sound/` |
+| `z80_snd_drv93.bin`, `z80_snd_drv93_end.bin` | The Z80 sound driver, in two pieces around the FM patch bank address | `Sound/` |
+| `.bin` (text) | `Text/ScoutingReportText.bin`, see [Text](#text) | `Text/` |
+
+## .map.jim and .anim: the container
+
+Both are one container with the same first twelve bytes, so a screen and a sprite set load tiles the same way:
+
+| Offset | Size | Content |
+|--------|------|---------|
+| `0x00` | long | offset of the palette from the start of the file, or `$FFFFFFFF` for none |
+| `0x04` | long | `.map.jim`: offset of the map. `.anim`: offset of the frame offset table |
+| `0x08` | word | tile count; bit 15 set = the tiles are packed (see [Packed tiles](#packed-tiles)) |
+| `0x0A` | | the tiles (raw: 32 bytes each, or one packed stream) |
+
+`DecompressGraphics` (`src/decompress93.asm`) sends the tiles to VRAM from the word at `0x08`. The `JIM-Tools` and `ANIM94-To-BMP` tools in
+[EA-NHL-Tools](https://github.com/abdulahmad/EA-NHL-Tools) convert `.map.jim` / `.anim` files to and from BMP.
+
+### Tiles
+
+8 x 8 pixels, 4 bits per pixel, 32 bytes per tile, row by row (the Genesis VDP format).
+
+### Packed tiles
+
+`DecompressBytecode` unpacks the stream through a 256 byte ring buffer, which it sends to VRAM every time it is full. It is a byte oriented
+LZ77 style code. The high nibble of an opcode byte selects the handler:
+
+| Opcode | Does |
+|--------|------|
+| `$00-$1F` | copy the next (opcode & `$1F`) + 1 bytes |
+| `$2x` | write (x + 1) zero bytes |
+| `$3x` | write the next byte (x + 3) times |
+| `$40-$7F` | copy (bits 0-2) + 2 bytes from (bits 3-5) + 1 bytes back |
+| `$8x` | copy x + 3 bytes from the distance in the next byte |
+| `$9x` | count = 5 bits (x and bit 7 of the next byte) + 3, distance = (bits 0-6 of the next byte) + 1 |
+| `$Ax` | count = 6 bits (x and the top 2 bits of the next byte) + 3, distance = (bits 0-5 of the next byte) + 1 |
+| `$Bx` | count = 7 bits (x and the top 3 bits of the next byte) + 3, distance = (bits 0-4 of the next byte) + 1 |
+| `$C0-$DF` | like `$40-$7F`, but the source walks down: count (bits 0-1) + 2, distance (bits 2-4) + 1 |
+| `$Ex` | like `$8x`, source walks down; distance 0 ends the stream |
+| `$Fx` | like `$9x`, source walks down |
+
+The SNES game uses the same code (see its file-formats document).
+
+### Palette
+
+Four palette lines of 16 colors, 2 bytes each in Genesis CRAM format (see [Palettes](#palettes)): 128 bytes at the palette offset. `dobitmap`
+copies the lines selected by a bit mask into the palette fade buffer.
+
+### Map (`.map.jim`)
+
+At the map offset: a word with the width, a word with the height, then width x height map words. A map word is the Genesis name table
+entry: priority bit 15, palette bits 14-13, vflip 12, hflip 11, tile 10-0. `dobitmap` adds the start tile and XORs the attribute bits of the
+caller's `printa`. Sizes: `Title1` 32 x 28, `Arrows` 12 x 23, `Framer` 3 x 3.
+
+### Sprite frames (`.anim`)
+
+At the frame offset table: one word per frame, plus one for the end, each the offset (from the table) of the frame's first sprite entry; a frame's
+entries run to the next frame's offset. Frame numbers start at 0 in 93 (92 counted from 1). A sprite entry is 8 bytes:
+
+| Offset | Size | Content |
+|--------|------|---------|
+| 0 | word | x, signed, relative to the frame origin |
+| 2 | word | y, signed |
+| 4 | word | tile number, relative to where the set's tiles are loaded |
+| 6 | word | bits 15-11: priority, palette (2 bits), vflip, hflip, as in a name table entry; bits 7-0: size code (see below) |
+
+Size codes 0-15 are the VDP sprite sizes: `sizetab` (`src/tables93.asm`) gives the number of tiles, `1,2,3,4,2,4,6,8,3,6,9,12,4,8,12,16`
+(1 x 1 to 4 x 4 tiles).
+
+`Sprites.anim` is the big set. Its header word at `0x04` is `$3574A`, and after the frame offset table (`FrameDataOff`) come the entries
+(`SprDataBytes`, `Sprites+$35C60`) and, last, the hot spot list (`HotList`, `Sprites+$3A056` in Rev 0 and Rev A, `$3A054` in Rev B): two signed
+bytes per frame (x, y of the stick blade relative to the frame origin). The other `.anim` files have no hot spots. The crowd frames
+(`Crowd.anim`) for the horizontal rink are 31 frames after the vertical ones. Rev B reads the table one entry earlier (see the `REV=2` branches
+in `SetSframe`).
+
+### Animations (`src/frames93.asm`)
+
+`SPFxxx` equates give the first frame number of each group of frames. `SPAlist` is the list of animation tables, one per animation, in the
+order of the `SPA` numbers (a `SPA` value is the table's offset from `SPAlist`). A table is eight word offsets (one per facing direction 0-7,
+relative to `.t`), a flags word (0 or 1), then per direction a list of `frame, time` word pairs; a negative time ends the list.
+
+## Palettes
+
+`Graphics/Pals/<team>h.pal` (home) and `<team>v.pal` (visitor): 32 bytes, 16 colors, each a word in Genesis CRAM format `0000 BBB0 GGG0 RRR0`
+(BBB, GGG and RRR are the 3 bit blue, green and red). The two files of a team are stored back to back in the team record
+(`Palettedata`). The 26 teams give 52 files; `ASE` / `ASW` are the All-Star teams.
+
+## Text
+
+### Strings
+
+A string is a word that counts itself, then the bytes, padded with a zero to an even length (the pad is in the count): `String 'Boston'` is
+`00 08 "Boston"`. The `String` macro (`src/macros/genesis93.mac`) builds them; `StringB` writes the length as a byte, which gives the same
+bytes for strings under 256 bytes. A byte with bit 7 set inside a string for `printsmall` is a control code, `-(ControlCodeJumpTable entry)`:
+
+| Code | Name | Next bytes |
+|------|------|------------|
+| `$FF` | `CC_SetMap` | map number (`printm`) |
+| `$FE` | `CC_SetAttribute` | palette/priority (`printa`) |
+| `$FD` | `CC_SetX` | `printx` |
+| `$FC` | `CC_SetY` | `printy` |
+| `$FB` | `CC_AddX` | signed byte added to `printx` |
+| `$FA` | `CC_AddY` | signed byte added to `printy` |
+| `$F9` | `CC_SetFont` | char set index |
+| `$F8` | `CC_SetMapAndPosition` | attribute, map, x, y |
+
+`String -1` ends a list of strings (the credits, the menus). An empty string is `00 02`.
+
+### `Text/ScoutingReportText.bin`
+
+ASCII paragraphs, each ended by `$0D`, for the scouting report screen (`UpdateScoutingDisplay`): paragraph n for team n (0-25), then four fixed
+ones (`$1A`-`$1D`: the intro and the closing lines). Words are separated by spaces; `_` `{` `}` `[` `]` stand for a team name or a player name
+(home / away) that the game inserts. `,` and `.` make the typing pause.
+
+## Sound
+
+The 68000 side of the driver is source (`src/sound93.asm`); `docs/sound-system.md` describes the driver, the sound numbers and the streams in
+full. The files:
+
+| File | Content |
+|------|---------|
+| `fmtune_<song>_cmdstream.bin`, `sfx_<name>_cmdstream.bin` | An event stream. An event is 4 bytes: delay before it, status (bits 6-4 command, bits 3-0 MIDI channel), two data bytes. Commands: `$0x` key off, `$1x` key on (note, volume; volume 0 = key off), `$4x` set the channel's patch, `$6x` pitch bend; the others are ignored. Status 0 ends the stream; a non-negative long after it is a loop pointer (songs `$35`-`$37`). `MusicTrackPointerTable` holds the word offsets of the 56 streams |
+| `fm_instrument_patches.bin` | 32 patches of 32 bytes (1024 bytes). Byte `$1E` is the pitch bend scale. The Z80 reads them through its 32K bank window |
+| `sfx_<name>_pcm.bin` | A sample, raw signed 8-bit PCM. Patches `$60` and up are samples; `pcm_sample_table` has 15 entries (sample address, 0), the 12 samples are these files |
+| `z80_snd_drv93.bin`, `z80_snd_drv93_end.bin` | The Z80 program (631 and 14 bytes). The first byte (`$18`) and the `ld bc` / `ld a` that load the FM patch bank address are in `src/sound93.asm`; `p_initialZ80` copies `$295` bytes to Z80 RAM |
 
 ## Team data
 
-Team data layout of the Rev 0 ROM (all values big endian).
+Team data layout of the Rev 0 ROM (all values big endian). The source (`src/teamdata93.asm`) has the record layout and, above each `.sr` and `.pld`, a legend of the nibbles; where this table says Unknown, the legend may name the field.
 
 Start of the team table: `0x314-0x37B` team addresses, `0x37C-0x387` team 0 offsets (the 6th offset tracks something different in 93 than in 92), `0x388-0x3C7` home and away palettes.
 
@@ -124,251 +257,8 @@ By default, `NumTeams = 26`
 | `0xTeamNameLength+1..0xTeamNameLength+2`  | `<TeamAbbreviationLength+1>` | Length of Team Abbreviation + 1. Includes extra alignment blank space as part of count if name is uneven |
 | `0xTeamNameLength+2..0xTeamNameLength+TeamAbbreviationLength+3`  | `<string>` | Team's Abbreviation. If Length is uneven, a blank space is added to the end for alignment |
 
+## Tools
 
-Sprite animation frames:
-SPFskatewp = 1
-SPFskate = 41
-SPFturnl = 81
-SPFturnr = 89
-SPFswing = 97
-SPFstop = 145
-SPFskateb = 161
-SPFcelebrate = 185
-SPFpump = 201
-SPFcup = 217
-SPFhipl = 225
-SPFhipr = 233
-SPFshoulderl = 241
-SPFshoulderr = 249
-SPFsweep = 257
-SPFfallback = 273
-SPFfallfwd = 305
-SPFduck = 337
-SPFHold = 345
-SPFgloves = 353
-SPFfight = 354
-SPFPen = 371
-SPFarrow = 378
-SPFpad = 384
-SPFpuck = 387
-SPFgoal = 398
-SPFGoalie = 400
-SPFLogos = 512
-SPFSiren = 536
-
-SPAgready_table
-SPAgglover_table
-SPAgglovel_table
-SPAgstickr_table
-SPAgstickl_table
-SPAgstackr_table
-SPAgstackl_table
-SPAgswing_table
-SPAgskate_table
-SPApflip_table
-SPAglide_table
-SPAskatewp_table
-SPAskate_table
-SPAturnl_table
-SPAturnr_table
-SPAstop_table
-SPApassf_table
-SPApassb_table
-SPAshotf_table
-SPAshotb_table
-SPAglideback_table
-SPAskateback_table
-SPAsweepchk_table
-SPAshoulderchkl_table
-SPAshoulderchkr_table
-SPAhipchkl_table
-SPAhipchkr_table
-SPAburst_table
-SPAHold_table
-SPAHold2_table
-SPAflail_table
-SPAfallfwd_table
-SPAfallback_table
-SPAcelebrate_table
-SPApump_table
-SPAfight_table
-SPAfgrab_table
-SPAfheld_table
-SPAfhigh_table
-SPAflow_table
-SPAfhith_table
-SPAfhitl_table
-SPAffall_table
-SPAwallright_table
-SPAwallleft_table
-SPAfaceoff_table
-SPAfaceoffr_table
-SPAsiren_table
-SPAstanley_table
-
-Changes from 92 to 93
-93.371-93.376 are new-- fight fall & injured -> NAME = 
-92.371 -> shifted to 93.377 (+6 offset)
-93.393 -> new instant replay cursor -> NAME = 
-92.387 -> shifted to 93.394 (+7 offset)
-92.486 = 93.493
-92.511 = 93.518
-92.512-535 = logos
-93.519-534 - new goalie dive -> NAME = 
-93.535-538 - new goalie glove wide save -> NAME = 
-93.539-554 - goalie smack stick on ice -> NAME = 
-92.536-549 -> shifted to 93.555-568 (+19 offset)
-93.569-584 - new player bat puck animation -> NAME = 
-93.585-600 - new player hook -> NAME = 
-93.601-624 - player flail/off balance -> NAME = 
-93.625-632 - player flip -> NAME =
-93.633-644 - player injured -> NAME = 
-93.645-649 - glass break -> NAME = 
-
-92 frame.asm format:
-<offset from SPAList> - header or offset byte -> pointer to Animation 1
-gready:
-<ptr to dir 0>
-<ptr to dir 1>
-<ptr to dir 2>
-<ptr to dir 3>
-<ptr to dir 4>
-<ptr to dir 5>
-<ptr to dir 7>
-<animFlags>
-<frame 1 dir 0> <-time> <additional frame/time groups>
-<frame 1 dir 1> <-time> <additional frame/time groups>
-<frame 1 dir 2> <-time> <additional frame/time groups>
-<frame 1 dir 3> <-time> <additional frame/time groups>
-<frame 1 dir 4> <-time> <additional frame/time groups>
-<frame 1 dir 5> <-time> <additional frame/time groups>
-<frame 1 dir 6> <-time> <additional frame/time groups>
-<frame 1 dir 7> <-time> <additional frame/time groups>
-
-NHL 94 PC Demo:
-0x36270 -- goalie animation
-0x0196, 0x021A, 0x21B, 0x21A, 0x21B, 0x196, 0x21A, 0x21B, 0x21A,
-406, 538, 539, 538, 539, 406, 538, 539 538
-
-96 01 B4 00 1A 02 0A 00 1B 02 0A 00 1A 02 0A 00 1B 02 0A 00 96 01 F0 00 1A 02 0A 00 1B 02 0A 00 1A 02 F6 FF
-
-NHL92:
-0x35B8 - start of SPAList
-first frame seems to be 0x190 aka 400, gready
-- 4 bytes per frame
-
-00 00 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 90 FF F8 01 93 FF F8 01 96 FF F8 01 99 FF F8 01 9C FF F8 01 9F FF F8 01 A2 FF F8 01 A5 FF F8 
-
-0000 -> SPA List
-0012 -> ptr to gready dir 0
-0016 -> ptr to gready dir 1
-001A -> ptr to gready dir 2
-001E -> ptr to gready dir 3 
-0022 -> ptr to gready dir 4 
-0026 -> ptr to gready dir 5 
-002A -> ptr to gready dir 6 
-002E -> ptr to gready dir 7 
-0000 -> Animation flags for gready
-01 90 FF F8 -> gready dir 0 frame 1,-time
-01 93 FF F8 -> gready dir 1 frame 1,-time
-01 96 FF F8 -> gready dir 2 frame 1,-time
-01 99 FF F8 -> gready dir 3 frame 1,-time
-01 9C FF F8 -> gready dir 4 frame 1,-time
-01 9F FF F8 -> gready dir 5 frame 1,-time
-01 A2 FF F8 -> gready dir 6 frame 1,-time
-01 A5 FF F8 -> gready dir 7 frame 1,-time
-
-NHL93
-0x4D90 - start of SPAList
-first frame seems to be 0x197 aka 407, gready
-- 24 bytes per frame
-00 00 00 12 00 36 00 5A 00 7E 00 A2 00 C6 00 EA 01 0E 00 01 01 97 00 B4 02 1B 00 0A 02 1C 00 0A 02 1B 00 0A 02 1C 00 0A 01 97 00 F0 02 1B 00 0A 02 1C 00 0A 02 1B FF F6 01 9A 00 82 02 1D 00 0A 02 1E 00 0A 02 1D 00 0A 02 1E 00 0A 01 9A 01 2C 02 1D 00 0A 02 1E 00 0A 02 1D FF F6 01 9D 00 D2 02 1F 00 0A 02 20 00 0A 02 1F 00 0A 02 20 00 0A 01 9D 00 78 02 1F 00 0A 02 20 00 0A 02 1F FF F6 01 A0 00 64 02 21 00 0A 02 22 00 0A 02 21 00 0A 02 22 00 0A 01 A0 00 C8 02 21 00 0A 02 22 00 0A 02 21 FF F6 01 A3 00 F0 02 23 00 0A 02 24 00 0A 02 23 00 0A 02 24 00 0A 01 A3 00 3C 02 23 00 0A 02 24 00 0A 02 23 FF F6 01 A6 00 B4 02 25 00 0A 02 26 00 0A 02 25 00 0A 02 26 00 0A 01 A6 00 F0 02 25 00 0A 02 26 00 0A 02 25 FF F6 01 A9 00 78 02 27 00 0A 02 28 00 0A 02 27 00 0A 02 28 00 0A 01 A9 00 78 02 27 00 0A 02 28 00 0A 02 27 FF F6 01 AC 00 B4 02 29 00 0A 02 2A 00 0A 02 29 00 0A 02 2A 00 0A 01 AC 00 B4 02 29 00 0A 02 2A 00 0A 02 29 FF F6
-
-0000 -> SPA List
-0012 -> ptr to gready dir 0
-0036 -> ptr to gready dir 1
-005A -> ptr to gready dir 2
-007E -> ptr to gready dir 3
-00A2 -> ptr to gready dir 4
-00C6 -> ptr to gready dir 5
-00EA -> ptr to gready dir 6
-010E -> ptr to gready dir 7
-0001 -> Animation flags for gready
-01 97 00 B4 02 1B 00 0A 02 1C 00 0A 02 1B 00 0A 02 1C 00 0A 01 97 00 F0 02 1B 00 0A 02 1C 00 0A 02 1B FF F6
-01 9A 00 82 02 1D 00 0A 02 1E 00 0A 02 1D 00 0A 02 1E 00 0A 01 9A 01 2C 02 1D 00 0A 02 1E 00 0A 02 1D FF F6
-01 9D 00 D2 02 1F 00 0A 02 20 00 0A 02 1F 00 0A 02 20 00 0A 01 9D 00 78 02 1F 00 0A 02 20 00 0A 02 1F FF F6
-01 A0 00 64 02 21 00 0A 02 22 00 0A 02 21 00 0A 02 22 00 0A 01 A0 00 C8 02 21 00 0A 02 22 00 0A 02 21 FF F6
-01 A3 00 F0 02 23 00 0A 02 24 00 0A 02 23 00 0A 02 24 00 0A 01 A3 00 3C 02 23 00 0A 02 24 00 0A 02 23 FF F6
-01 A6 00 B4 02 25 00 0A 02 26 00 0A 02 25 00 0A 02 26 00 0A 01 A6 00 F0 02 25 00 0A 02 26 00 0A 02 25 FF F6
-01 A9 00 78 02 27 00 0A 02 28 00 0A 02 27 00 0A 02 28 00 0A 01 A9 00 78 02 27 00 0A 02 28 00 0A 02 27 FF F6
-01 AC 00 B4 02 29 00 0A 02 2A 00 0A 02 29 00 0A 02 2A 00 0A 01 AC 00 B4 02 29 00 0A 02 2A 00 0A 02 29 FF F6
-
-
-92
-length of ptr list = 16
-length of animation flag = 2
-length of animation data = 4 bytes * 8 = 32
-= 50 bytes = 0x32
-
-93
-length of ptr list = 16
-length of animation flag = 2
-length of animation data = 36 bytes * 8 = 288
-= 306 = 0x132
-
-NHL92 Frames.asm 0x35B5-0x4619:
-00 00 00 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 90 FF F8 01 93 FF F8 01 96 FF F8 01 99 FF F8 01 9C FF F8 01 9F FF F8 01 A2 FF F8 01 A5 FF F8 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 91 FF E0 01 94 FF E0 01 97 FF E0 01 9A FF E0 01 9D FF E0 01 A0 FF E0 01 A3 FF E0 01 A6 FF E0 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 92 FF E0 01 95 FF E0 01 98 FF E0 01 9B FF E0 01 9E FF E0 01 A1 FF E0 01 A4 FF E0 01 A7 FF E0 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 D0 FF E0 01 D2 FF E0 01 D4 FF E0 01 D6 FF E0 01 D8 FF E0 01 DA FF E0 01 DC FF E0 01 DE FF E0 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 D1 FF E0 01 D3 FF E0 01 D5 FF E0 01 D7 FF E0 01 D9 FF E0 01 DB FF E0 01 DD FF E0 01 DF FF E0 00 12 00 1A 00 22 00 2A 00 32 00 3A 00 42 00 4A 00 00 01 B8 00 08 01 B9 FF E0 01 BA 00 08 01 BB FF E0 01 BA 00 08 01 BB FF E0 01 BC 00 08 01 BD FF E0 01 BE 00 08 01 BF FF E0 01 C0 00 08 01 C1 FF E0 01 C0 00 08 01 C1 FF E0 01 C2 00 08 01 C3 FF E0 00 12 00 1A 00 22 00 2A 00 32 00 3A 00 42 00 4A 00 00 01 C4 00 08 01 C5 FF E0 01 C6 00 08 01 C7 FF E0 01 C6 00 08 01 C7 FF E0 01 C8 00 08 01 C9 FF E0 01 CA 00 08 01 CB FF E0 01 CC 00 08 01 CD FF E0 01 CC 00 08 01 CD FF E0 01 CE 00 08 01 CF FF E0 00 12 00 1E 00 2A 00 36 00 42 00 4E 00 5A 00 66 00 00 01 A8 00 05 01 A9 00 08 01 A8 FF F0 01 AA 00 05 01 AB 00 08 01 AA FF F0 01 AC 00 05 01 AD 00 08 01 AC FF F0 01 AE 00 05 01 AF 00 08 01 AE FF F0 01 B0 00 05 01 B1 00 08 01 B0 FF F0 01 B2 00 05 01 B3 00 08 01 B2 FF F0 01 B4 00 05 01 B5 00 08 01 B4 FF F0 01 B6 00 05 01 B7 00 08 01 B6 FF F0 00 12 00 22 00 32 00 42 00 52 00 62 00 72 00 82 00 01 01 E0 00 0A 01 E1 00 0A 01 E2 00 0A 01 E3 FF F1 01 E4 00 0A 01 E5 00 0A 01 E6 00 0A 01 E7 FF F1 01 E8 00 0A 01 E9 00 0A 01 EA 00 0A 01 EB FF F1 01 EC 00 0A 01 ED 00 0A 01 EE 00 0A 01 EF FF F1 01 F0 00 0A 01 F1 00 0A 01 F2 00 0A 01 F3 FF F1 01 F4 00 0A 01 F5 00 0A 01 F6 00 0A 01 F7 FF F1 01 F8 00 0A 01 F9 00 0A 01 FA 00 0A 01 FB FF F1 01 FC 00 0A 01 FD 00 0A 01 FE 00 0A 01 FF FF F1 00 12 00 32 00 52 00 72 00 92 00 96 00 9A 00 9E 00 01 01 85 00 04 01 86 00 04 01 87 00 04 01 88 00 04 01 89 00 04 01 86 00 04 01 8A 00 04 01 84 FF FC 01 8C 00 02 01 84 00 02 01 8B 00 02 01 88 00 02 01 8D 00 02 01 88 00 02 01 8B 00 02 01 84 FF FE 01 87 00 02 01 86 00 02 01 85 00 02 01 84 00 02 01 8A 00 02 01 86 00 02 01 89 00 02 01 88 FF FE 01 8B 00 04 01 84 00 04 01 8C 00 04 01 84 00 04 01 8B 00 04 01 88 00 04 01 8D 00 04 01 88 FF FC 01 84 F0 00 01 84 F0 00 01 88 F0 00 01 88 F0 00 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 01 FF F8 00 06 FF F8 00 0B FF F8 00 10 FF F8 00 15 FF F8 00 1A FF F8 00 1F FF F8 00 24 FF F8 00 12 00 26 00 3A 00 4E 00 62 00 76 00 8A 00 9E 00 00 00 02 00 0A 00 03 00 0A 00 04 00 0A 00 05 00 0A 00 01 FF F1 00 07 00 0A 00 08 00 0A 00 09 00 0A 00 0A 00 0A 00 06 FF F1 00 0C 00 0A 00 0D 00 0A 00 0E 00 0A 00 0F 00 0A 00 0B FF F1 00 11 00 0A 00 12 00 0A 00 13 00 0A 00 14 00 0A 00 10 FF F1 00 16 00 0A 00 17 00 0A 00 18 00 0A 00 19 00 0A 00 15 FF F1 00 1B 00 0A 00 1C 00 0A 00 1D 00 0A 00 1E 00 0A 00 1A FF F1 00 20 00 0A 00 21 00 0A 00 22 00 0A 00 23 00 0A 00 1F FF F1 00 25 00 0A 00 26 00 0A 00 27 00 0A 00 28 00 0A 00 24 FF F1 00 12 00 26 00 3A 00 4E 00 62 00 76 00 8A 00 9E 00 00 00 2A 00 0A 00 2B 00 0A 00 2C 00 0A 00 2D 00 0A 00 29 FF F1 00 2F 00 0A 00 30 00 0A 00 31 00 0A 00 32 00 0A 00 2E FF F1 00 34 00 0A 00 35 00 0A 00 36 00 0A 00 37 00 0A 00 33 FF F1 00 39 00 0A 00 3A 00 0A 00 3B 00 0A 00 3C 00 0A 00 38 FF F1 00 3E 00 0A 00 3F 00 0A 00 40 00 0A 00 41 00 0A 00 3D FF F1 00 43 00 0A 00 44 00 0A 00 45 00 0A 00 46 00 0A 00 42 FF F1 00 48 00 0A 00 49 00 0A 00 4A 00 0A 00 4B 00 0A 00 47 FF F1 00 4D 00 0A 00 4E 00 0A 00 4F 00 0A 00 50 00 0A 00 4C FF F1 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 51 FF EE 00 52 FF EE 00 53 FF EE 00 54 FF EE 00 55 FF EE 00 56 FF EE 00 57 FF EE 00 58 FF EE 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 59 FF EE 00 5A FF EE 00 5B FF EE 00 5C FF EE 00 5D FF EE 00 5E FF EE 00 5F FF EE 00 60 FF EE 00 12 00 1A 00 22 00 2A 00 32 00 3A 00 42 00 4A 00 01 00 91 00 04 00 92 FF FC 00 93 00 04 00 94 FF FC 00 95 00 04 00 96 FF FC 00 97 00 04 00 98 FF FC 00 99 00 04 00 9A FF FC 00 9B 00 04 00 9C FF FC 00 9D 00 04 00 9E FF FC 00 9F 00 04 00 A0 FF FC 00 12 00 1E 00 2A 00 36 00 42 00 4E 00 5A 00 66 00 00 00 64 00 04 00 65 00 04 00 66 FF EC 00 6A 00 04 00 6B 00 04 00 6C FF EC 00 70 00 04 00 71 00 04 00 72 FF EC 00 76 00 04 00 77 00 04 00 78 FF EC 00 7C 00 04 00 7D 00 04 00 7E FF EC 00 82 00 04 00 83 00 04 00 84 FF EC 00 88 00 04 00 89 00 04 00 8A FF EC 00 8E 00 04 00 8F 00 04 00 90 FF EC 00 12 00 1E 00 2A 00 36 00 42 00 4E 00 5A 00 66 00 00 00 64 00 04 00 63 00 04 00 62 FF EC 00 6A 00 04 00 69 00 04 00 68 FF EC 00 70 00 04 00 6F 00 04 00 6E FF EC 00 76 00 04 00 75 00 04 00 74 FF EC 00 7C 00 04 00 7B 00 04 00 7A FF EC 00 82 00 04 00 81 00 04 00 80 FF EC 00 88 00 04 00 87 00 04 00 86 FF EC 00 8E 00 04 00 8D 00 04 00 8C FF EC 00 12 00 36 00 5A 00 7E 00 A2 00 C6 00 EA 01 0E 00 00 00 64 00 04 00 63 00 04 00 62 00 04 00 61 00 04 00 62 00 04 00 63 00 04 00 64 00 04 00 65 00 04 00 66 FF EC 00 6A 00 04 00 69 00 04 00 68 00 04 00 67 00 04 00 68 00 04 00 69 00 04 00 6A 00 04 00 6B 00 04 00 6C FF EC 00 70 00 04 00 6F 00 04 00 6E 00 04 00 6D 00 04 00 6E 00 04 00 6F 00 04 00 70 00 04 00 71 00 04 00 72 FF EC 00 76 00 04 00 75 00 04 00 74 00 04 00 73 00 04 00 74 00 04 00 75 00 04 00 76 00 04 00 77 00 04 00 78 FF EC 00 7C 00 04 00 7B 00 04 00 7A 00 04 00 79 00 04 00 7A 00 04 00 7B 00 04 00 7C 00 04 00 7D 00 04 00 7E FF EC 00 82 00 04 00 81 00 04 00 80 00 04 00 7F 00 04 00 80 00 04 00 81 00 04 00 82 00 04 00 83 00 04 00 84 FF EC 00 88 00 04 00 87 00 04 00 86 00 04 00 85 00 04 00 86 00 04 00 87 00 04 00 88 00 04 00 89 00 04 00 8A FF EC 00 8E 00 04 00 8D 00 04 00 8C 00 04 00 8B 00 04 00 8C 00 04 00 8D 00 04 00 8E 00 04 00 8F 00 04 00 90 FF EC 00 12 00 36 00 5A 00 7E 00 A2 00 C6 00 EA 01 0E 00 00 00 64 00 04 00 65 00 04 00 66 00 04 00 66 00 04 00 66 00 04 00 65 00 04 00 64 00 04 00 63 00 04 00 62 FF EC 00 6A 00 04 00 6B 00 04 00 6C 00 04 00 6C 00 04 00 6C 00 04 00 6B 00 04 00 6A 00 04 00 69 00 04 00 68 FF EC 00 70 00 04 00 71 00 04 00 72 00 04 00 72 00 04 00 72 00 04 00 71 00 04 00 70 00 04 00 6F 00 04 00 6E FF EC 00 76 00 04 00 77 00 04 00 78 00 04 00 78 00 04 00 78 00 04 00 77 00 04 00 76 00 04 00 75 00 04 00 74 FF EC 00 7C 00 04 00 7D 00 04 00 7E 00 04 00 7E 00 04 00 7E 00 04 00 7D 00 04 00 7C 00 04 00 7B 00 04 00 7A FF EC 00 82 00 04 00 83 00 04 00 84 00 04 00 84 00 04 00 84 00 04 00 83 00 04 00 82 00 04 00 81 00 04 00 80 FF EC 00 88 00 04 00 89 00 04 00 8A 00 04 00 8A 00 04 00 8A 00 04 00 89 00 04 00 88 00 04 00 87 00 04 00 86 FF EC 00 8E 00 04 00 8F 00 04 00 90 00 04 00 90 00 04 00 90 00 04 00 8F 00 04 00 8E 00 04 00 8D 00 04 00 8C FF EC 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 A1 FF F8 00 A4 FF F8 00 A7 FF F8 00 AA FF F8 00 AD FF F8 00 B0 FF F8 00 B3 FF F8 00 B6 FF F8 00 12 00 22 00 32 00 42 00 52 00 62 00 72 00 82 00 00 00 A1 00 0A 00 A2 00 0A 00 A1 00 0A 00 A3 FF F6 00 A4 00 0A 00 A5 00 0A 00 A4 00 0A 00 A6 FF F6 00 A7 00 0A 00 A8 00 0A 00 A7 00 0A 00 A9 FF F6 00 AA 00 0A 00 AB 00 0A 00 AA 00 0A 00 AC FF F6 00 AD 00 0A 00 AE 00 0A 00 AD 00 0A 00 AF FF F6 00 B0 00 0A 00 B1 00 0A 00 B0 00 0A 00 B2 FF F6 00 B3 00 0A 00 B4 00 0A 00 B3 00 0A 00 B5 FF F6 00 B6 00 0A 00 B7 00 0A 00 B6 00 0A 00 B8 FF F6 00 12 00 1E 00 2A 00 36 00 42 00 4E 00 5A 00 66 00 00 01 01 00 04 01 02 00 08 01 01 FF FC 01 03 00 04 01 04 00 08 01 03 FF FC 01 05 00 04 01 06 00 08 01 05 FF FC 01 07 00 04 01 08 00 08 01 07 FF FC 01 09 00 04 01 0A 00 08 01 09 FF FC 01 0B 00 04 01 0C 00 08 01 0B FF FC 01 0D 00 04 01 0E 00 08 01 0D FF FC 01 0F 00 04 01 10 00 08 01 0F FF FC 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 F1 FF E8 00 F2 FF E8 00 F3 FF E8 00 F4 FF E8 00 F5 FF E8 00 F6 FF E8 00 F7 FF E8 00 F8 FF E8 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 F9 FF E8 00 FA FF E8 00 FB FF E8 00 FC FF E8 00 FD FF E8 00 FE FF E8 00 FF FF E8 01 00 FF E8 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 E1 FF E8 00 E2 FF E8 00 E3 FF E8 00 E4 FF E8 00 E5 FF E8 00 E6 FF E8 00 E7 FF E8 00 E8 FF E8 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 E9 FF E8 00 EA FF E8 00 EB FF E8 00 EC FF E8 00 ED FF E8 00 EE FF E8 00 EF FF E8 00 F0 FF E8 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 29 FF E8 00 2E FF E8 00 33 FF E8 00 38 FF E8 00 3D FF E8 00 42 FF E8 00 47 FF E8 00 4C FF E8 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 59 FF E2 01 5A FF E2 01 5B FF E2 01 5C FF E2 01 5D FF E2 01 5E FF E2 01 5F FF E2 01 60 FF E2 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 59 FF E2 01 5A FF E2 01 5B FF E2 01 5C FF E2 01 5D FF E2 01 5E FF E2 01 5F FF E2 01 60 FF E2 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 29 FF E2 00 2E FF E2 00 33 FF E2 00 38 FF E2 00 3D FF E2 00 42 FF E2 00 47 FF E2 00 4C FF E2 00 12 00 26 00 3A 00 4E 00 62 00 76 00 8A 00 9E 00 00 01 31 00 06 01 32 00 06 01 33 00 64 01 34 00 08 01 51 FF F8 01 35 00 06 01 36 00 06 01 37 00 64 01 38 00 08 01 52 FF F8 01 39 00 06 01 3A 00 06 01 3B 00 64 01 3C 00 08 01 53 FF F8 01 3D 00 06 01 3E 00 06 01 3F 00 64 01 40 00 08 01 54 FF F8 01 41 00 06 01 42 00 06 01 43 00 64 01 44 00 08 01 55 FF F8 01 45 00 06 01 46 00 06 01 47 00 64 01 48 00 08 01 56 FF F8 01 49 00 06 01 4A 00 06 01 4B 00 64 01 4C 00 08 01 57 FF F8 01 4D 00 06 01 4E 00 06 01 4F 00 64 01 50 00 08 01 58 FF F8 00 12 00 26 00 3A 00 4E 00 62 00 76 00 8A 00 9E 00 00 01 11 00 06 01 12 00 06 01 13 00 64 01 14 00 08 01 51 FF F8 01 15 00 06 01 16 00 06 01 17 00 64 01 18 00 08 01 52 FF F8 01 19 00 06 01 1A 00 06 01 1B 00 64 01 1C 00 08 01 53 FF F8 01 1D 00 06 01 1E 00 06 01 1F 00 64 01 20 00 08 01 54 FF F8 01 21 00 06 01 22 00 06 01 23 00 64 01 24 00 08 01 55 FF F8 01 25 00 06 01 26 00 06 01 27 00 64 01 28 00 08 01 56 FF F8 01 29 00 06 01 2A 00 06 01 2B 00 64 01 2C 00 08 01 57 FF F8 01 2D 00 06 01 2E 00 06 01 2F 00 64 01 30 00 08 01 58 FF F8 00 12 00 1E 00 2A 00 36 00 42 00 4E 00 5A 00 66 00 00 00 B9 00 0C 00 BA 00 28 00 B9 FF FB 00 BB 00 0C 00 BC 00 28 00 BB FF FB 00 BD 00 0C 00 BE 00 28 00 BD FF FB 00 BF 00 0C 00 C0 00 28 00 BF FF FB 00 C1 00 0C 00 C2 00 28 00 C1 FF FB 00 C3 00 0C 00 C4 00 28 00 C3 FF FB 00 C5 00 0C 00 C6 00 28 00 C5 FF FB 00 C7 00 0C 00 C8 00 28 00 C7 FF FB 00 12 00 1E 00 2A 00 36 00 42 00 4E 00 5A 00 66 00 00 00 C9 00 08 00 CA 00 08 00 C9 FF F8 00 CB 00 08 00 CC 00 08 00 CB FF F8 00 CD 00 08 00 CE 00 08 00 CD FF F8 00 CF 00 08 00 D0 00 08 00 CF FF F8 00 D1 00 08 00 D2 00 08 00 D1 FF F8 00 D3 00 08 00 D4 00 08 00 D3 FF F8 00 D5 00 08 00 D6 00 08 00 D5 FF F8 00 D7 00 08 00 D8 00 08 00 D7 FF F8 00 12 00 12 00 12 00 22 00 22 00 22 00 22 00 22 00 00 01 62 00 08 01 63 00 08 01 64 00 08 01 65 FF FA 01 62 00 08 01 63 00 08 01 64 00 08 01 6A FF FA 00 12 00 12 00 12 00 1A 00 1A 00 1A 00 1A 00 1A 00 00 01 66 00 1C 01 65 FF FC 01 6B 00 1C 01 6A FF FC 00 12 00 12 00 12 00 1A 00 1A 00 1A 00 1A 00 1A 00 00 01 66 00 1E 01 65 FF FC 01 6B 00 1E 01 6A FF FC 00 12 00 12 00 12 00 22 00 22 00 22 00 22 00 22 00 00 01 67 00 06 01 68 00 10 01 67 00 04 01 65 FF F0 01 6C 00 06 01 6D 00 10 01 6C 00 04 01 6A FF F0 00 12 00 12 00 12 00 22 00 22 00 22 00 22 00 22 00 00 01 67 00 06 01 69 00 10 01 67 00 04 01 65 FF F0 01 6C 00 06 01 6E 00 10 01 6C 00 04 01 6A FF F0 00 12 00 12 00 12 00 1A 00 1A 00 1A 00 1A 00 1A 00 00 01 70 00 10 01 65 FF F8 01 70 00 10 01 6A FF F8 00 12 00 12 00 12 00 1A 00 1A 00 1A 00 1A 00 1A 00 00 01 6F 00 10 01 65 FF F8 01 6F 00 10 01 6A FF F8 00 12 00 12 00 12 00 12 00 12 00 12 00 12 00 12 00 00 01 70 00 08 01 71 00 08 01 72 00 C8 01 72 FF FE 00 12 00 1E 00 1E 00 2E 00 2E 00 2E 00 2E 00 3E 00 00 01 77 00 08 01 78 00 08 01 79 FF F8 01 73 00 08 01 74 00 08 01 75 00 08 01 76 FF F8 01 76 00 08 01 75 00 08 01 74 00 08 01 73 FF F8 00 12 00 1E 00 1E 00 2E 00 2E 00 2E 00 2E 00 3E 00 00 01 79 00 08 01 78 00 08 01 77 FF F8 01 76 00 08 01 75 00 08 01 74 00 08 01 73 FF F8 01 73 00 08 01 74 00 08 01 75 00 08 01 76 FF F8 00 12 00 1E 00 1E 00 1E 00 1E 00 1E 00 1E 00 1E 00 00 00 01 00 02 01 02 00 0A 01 01 FF FA 00 15 00 02 01 0A 00 0A 01 09 FF FA 00 12 00 16 00 16 00 16 00 16 00 16 00 16 00 16 00 00 00 01 FF FB 00 15 FF FB 00 12 00 12 00 12 00 12 00 12 00 12 00 12 00 12 00 01 02 18 00 03 02 19 00 03 02 1A 00 03 02 1B 00 03 02 1C 00 03 02 1D 00 03 02 1E 00 03 02 1F 00 03 02 20 00 03 02 21 00 03 02 22 00 03 02 23 00 03 02 24 00 03 02 25 FF FD 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 01 00 D9 FF E2 00 DA FF E2 00 DB FF E2 00 DC FF E2 00 DD FF E2 00 DE FF E2 00 DF FF E2 00 E0 FF E2
-
-NHLPA93 Frames.asm 0x4D8E-0x6445:
-00 00 00 12 00 36 00 5A 00 7E 00 A2 00 C6 00 EA 01 0E 00 01 01 97 00 B4 02 1B 00 0A 02 1C 00 0A 02 1B 00 0A 02 1C 00 0A 01 97 00 F0 02 1B 00 0A 02 1C 00 0A 02 1B FF F6 01 9A 00 82 02 1D 00 0A 02 1E 00 0A 02 1D 00 0A 02 1E 00 0A 01 9A 01 2C 02 1D 00 0A 02 1E 00 0A 02 1D FF F6 01 9D 00 D2 02 1F 00 0A 02 20 00 0A 02 1F 00 0A 02 20 00 0A 01 9D 00 78 02 1F 00 0A 02 20 00 0A 02 1F FF F6 01 A0 00 64 02 21 00 0A 02 22 00 0A 02 21 00 0A 02 22 00 0A 01 A0 00 C8 02 21 00 0A 02 22 00 0A 02 21 FF F6 01 A3 00 F0 02 23 00 0A 02 24 00 0A 02 23 00 0A 02 24 00 0A 01 A3 00 3C 02 23 00 0A 02 24 00 0A 02 23 FF F6 01 A6 00 B4 02 25 00 0A 02 26 00 0A 02 25 00 0A 02 26 00 0A 01 A6 00 F0 02 25 00 0A 02 26 00 0A 02 25 FF F6 01 A9 00 78 02 27 00 0A 02 28 00 0A 02 27 00 0A 02 28 00 0A 01 A9 00 78 02 27 00 0A 02 28 00 0A 02 27 FF F6 01 AC 00 B4 02 29 00 0A 02 2A 00 0A 02 29 00 0A 02 2A 00 0A 01 AC 00 B4 02 29 00 0A 02 2A 00 0A 02 29 FF F6 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 97 FF E2 01 9A FF E2 01 9D FF E2 01 A0 FF E2 01 A3 FF E2 01 A6 FF E2 01 A9 FF E2 01 AC FF E2 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 98 FF E0 01 9B FF E0 01 9E FF E0 01 A1 FF E0 01 A4 FF E0 01 A7 FF E0 01 AA FF E0 01 AD FF E0 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 99 FF E0 01 9C FF E0 01 9F FF E0 01 A2 FF E0 01 A5 FF E0 01 A8 FF E0 01 AB FF E0 01 AE FF E0 00 12 00 1E 00 22 00 26 00 2A 00 36 00 3A 00 3E 00 00 02 17 00 04 02 18 00 08 02 17 FF FC 01 9C FF E0 01 9F FF E0 01 A2 FF E0 02 19 00 04 02 1A 00 08 02 19 FF FC 01 A8 FF E0 01 AB FF E0 01 AE FF E0 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 D7 FF E0 01 D9 FF E0 01 DB FF E0 01 DD FF E0 01 DF FF E0 01 E1 FF E0 01 E3 FF E0 01 E5 FF E0 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 D8 FF E0 01 DA FF E0 01 DC FF E0 01 DE FF E0 01 E0 FF E0 01 E2 FF E0 01 E4 FF E0 01 E6 FF E0 00 12 00 1A 00 22 00 2A 00 32 00 3A 00 42 00 4A 00 00 01 BF 00 08 01 C0 FF E0 01 C1 00 08 01 C2 FF E0 01 C1 00 08 01 C2 FF E0 01 C3 00 08 01 C4 FF E0 01 C5 00 08 01 C6 FF E0 01 C7 00 08 01 C8 FF E0 01 C7 00 08 01 C8 FF E0 01 C9 00 08 01 CA FF E0 00 12 00 1A 00 22 00 2A 00 32 00 3A 00 42 00 4A 00 00 01 CB 00 08 01 CC FF E0 01 CD 00 08 01 CE FF E0 01 CD 00 08 01 CE FF E0 01 CF 00 08 01 D0 FF E0 01 D1 00 08 01 D2 FF E0 01 D3 00 08 01 D4 FF E0 01 D3 00 08 01 D4 FF E0 01 D5 00 08 01 D6 FF E0 00 12 00 1E 00 2A 00 36 00 42 00 4E 00 5A 00 66 00 00 02 07 00 08 02 08 00 30 02 07 FF F8 02 09 00 08 02 0A 00 30 02 09 FF F8 02 0B 00 08 02 0C 00 30 02 0B FF F8 02 0D 00 08 02 0E 00 30 02 0D FF F8 02 0F 00 08 02 10 00 30 02 0F FF F8 02 11 00 08 02 12 00 30 02 11 FF F8 02 13 00 08 02 14 00 30 02 13 FF F8 02 15 00 08 02 16 00 30 02 15 FF F8 00 12 00 1E 00 2A 00 36 00 42 00 4E 00 5A 00 66 00 00 01 AF 00 05 01 B0 00 08 01 AF FF F0 01 B1 00 05 01 B2 00 08 01 B1 FF F0 01 B3 00 05 01 B4 00 08 01 B3 FF F0 01 B5 00 05 01 B6 00 08 01 B5 FF F0 01 B7 00 05 01 B8 00 08 01 B7 FF F0 01 B9 00 05 01 BA 00 08 01 B9 FF F0 01 BB 00 05 01 BC 00 08 01 BB FF F0 01 BD 00 05 01 BE 00 08 01 BD FF F0 00 12 00 22 00 32 00 42 00 52 00 62 00 72 00 82 00 00 01 E7 00 0A 01 E8 00 0A 01 E9 00 0A 01 EA FF F1 01 EB 00 0A 01 EC 00 0A 01 ED 00 0A 01 EE FF F1 01 EF 00 0A 01 F0 00 0A 01 F1 00 0A 01 F2 FF F1 01 F3 00 0A 01 F4 00 0A 01 F5 00 0A 01 F6 FF F1 01 F7 00 0A 01 F8 00 0A 01 F9 00 0A 01 FA FF F1 01 FB 00 0A 01 FC 00 0A 01 FD 00 0A 01 FE FF F1 01 FF 00 0A 02 00 00 0A 02 01 00 0A 02 02 FF F1 02 03 00 0A 02 04 00 0A 02 05 00 0A 02 06 FF F1 00 12 00 32 00 52 00 72 00 92 00 96 00 9A 00 9E 00 01 01 8C 00 04 01 8D 00 04 01 8E 00 04 01 8F 00 04 01 90 00 04 01 8D 00 04 01 91 00 04 01 8B FF FC 01 93 00 02 01 8B 00 02 01 92 00 02 01 8F 00 02 01 94 00 02 01 8F 00 02 01 92 00 02 01 8B FF FE 01 8E 00 02 01 8D 00 02 01 8C 00 02 01 8B 00 02 01 91 00 02 01 8D 00 02 01 90 00 02 01 8F FF FE 01 92 00 04 01 8B 00 04 01 93 00 04 01 8B 00 04 01 92 00 04 01 8F 00 04 01 94 00 04 01 8F FF FC 01 8B F0 00 01 8B F0 00 01 8F F0 00 01 8F F0 00 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 01 FF F8 00 06 FF F8 00 0B FF F8 00 10 FF F8 00 15 FF F8 00 1A FF F8 00 1F FF F8 00 24 FF F8 00 12 00 22 00 32 00 42 00 52 00 62 00 72 00 82 00 00 00 02 00 0A 00 03 00 0A 00 04 00 0A 00 05 FF F6 00 07 00 0A 00 08 00 0A 00 09 00 0A 00 0A FF F6 00 0C 00 0A 00 0D 00 0A 00 0E 00 0A 00 0F FF F6 00 11 00 0A 00 12 00 0A 00 13 00 0A 00 14 FF F6 00 16 00 0A 00 17 00 0A 00 18 00 0A 00 19 FF F6 00 1B 00 0A 00 1C 00 0A 00 1D 00 0A 00 1E FF F6 00 20 00 0A 00 21 00 0A 00 22 00 0A 00 23 FF F6 00 25 00 0A 00 26 00 0A 00 27 00 0A 00 28 FF F6 00 12 00 22 00 32 00 42 00 52 00 62 00 72 00 82 00 00 00 2A 00 0A 00 2B 00 0A 00 2C 00 0A 00 2D FF F6 00 2F 00 0A 00 30 00 0A 00 31 00 0A 00 32 FF F6 00 34 00 0A 00 35 00 0A 00 36 00 0A 00 37 FF F6 00 39 00 0A 00 3A 00 0A 00 3B 00 0A 00 3C FF F6 00 3E 00 0A 00 3F 00 0A 00 40 00 0A 00 41 FF F6 00 43 00 0A 00 44 00 0A 00 45 00 0A 00 46 FF F6 00 48 00 0A 00 49 00 0A 00 4A 00 0A 00 4B FF F6 00 4D 00 0A 00 4E 00 0A 00 4F 00 0A 00 50 FF F6 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 51 FF F8 00 52 FF F8 00 53 FF F8 00 54 FF F8 00 55 FF F8 00 56 FF F8 00 57 FF F8 00 58 FF F8 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 59 FF F8 00 5A FF F8 00 5B FF F8 00 5C FF F8 00 5D FF F8 00 5E FF F8 00 5F FF F8 00 60 FF F8 00 12 00 1A 00 22 00 2A 00 32 00 3A 00 42 00 4A 00 01 00 91 00 04 00 92 FF FC 00 93 00 04 00 94 FF FC 00 95 00 04 00 96 FF FC 00 97 00 04 00 98 FF FC 00 99 00 04 00 9A FF FC 00 9B 00 04 00 9C FF FC 00 9D 00 04 00 9E FF FC 00 9F 00 04 00 A0 FF FC 00 12 00 1E 00 2A 00 36 00 42 00 4E 00 5A 00 66 00 00 00 64 00 04 00 65 00 04 00 66 FF EC 00 6A 00 04 00 6B 00 04 00 6C FF EC 00 70 00 04 00 71 00 04 00 72 FF EC 00 76 00 04 00 77 00 04 00 78 FF EC 00 7C 00 04 00 7D 00 04 00 7E FF EC 00 82 00 04 00 83 00 04 00 84 FF EC 00 88 00 04 00 89 00 04 00 8A FF EC 00 8E 00 04 00 8F 00 04 00 90 FF EC 00 12 00 1E 00 2A 00 36 00 42 00 4E 00 5A 00 66 00 00 00 64 00 04 00 63 00 04 00 62 FF EC 00 6A 00 04 00 69 00 04 00 68 FF EC 00 70 00 04 00 6F 00 04 00 6E FF EC 00 76 00 04 00 75 00 04 00 74 FF EC 00 7C 00 04 00 7B 00 04 00 7A FF EC 00 82 00 04 00 81 00 04 00 80 FF EC 00 88 00 04 00 87 00 04 00 86 FF EC 00 8E 00 04 00 8D 00 04 00 8C FF EC 00 12 00 36 00 5A 00 7E 00 A2 00 C6 00 EA 01 0E 00 00 00 64 00 04 00 63 00 04 00 62 00 04 00 61 00 04 00 62 00 04 00 63 00 04 00 64 00 04 00 65 00 04 00 66 FF EC 00 6A 00 04 00 69 00 04 00 68 00 04 00 67 00 04 00 68 00 04 00 69 00 04 00 6A 00 04 00 6B 00 04 00 6C FF EC 00 70 00 04 00 6F 00 04 00 6E 00 04 00 6D 00 04 00 6E 00 04 00 6F 00 04 00 70 00 04 00 71 00 04 00 72 FF EC 00 76 00 04 00 75 00 04 00 74 00 04 00 73 00 04 00 74 00 04 00 75 00 04 00 76 00 04 00 77 00 04 00 78 FF EC 00 7C 00 04 00 7B 00 04 00 7A 00 04 00 79 00 04 00 7A 00 04 00 7B 00 04 00 7C 00 04 00 7D 00 04 00 7E FF EC 00 82 00 04 00 81 00 04 00 80 00 04 00 7F 00 04 00 80 00 04 00 81 00 04 00 82 00 04 00 83 00 04 00 84 FF EC 00 88 00 04 00 87 00 04 00 86 00 04 00 85 00 04 00 86 00 04 00 87 00 04 00 88 00 04 00 89 00 04 00 8A FF EC 00 8E 00 04 00 8D 00 04 00 8C 00 04 00 8B 00 04 00 8C 00 04 00 8D 00 04 00 8E 00 04 00 8F 00 04 00 90 FF EC 00 12 00 36 00 5A 00 7E 00 A2 00 C6 00 EA 01 0E 00 00 00 64 00 04 00 65 00 04 00 66 00 04 00 66 00 04 00 66 00 04 00 65 00 04 00 64 00 04 00 63 00 04 00 62 FF EC 00 6A 00 04 00 6B 00 04 00 6C 00 04 00 6C 00 04 00 6C 00 04 00 6B 00 04 00 6A 00 04 00 69 00 04 00 68 FF EC 00 70 00 04 00 71 00 04 00 72 00 04 00 72 00 04 00 72 00 04 00 71 00 04 00 70 00 04 00 6F 00 04 00 6E FF EC 00 76 00 04 00 77 00 04 00 78 00 04 00 78 00 04 00 78 00 04 00 77 00 04 00 76 00 04 00 75 00 04 00 74 FF EC 00 7C 00 04 00 7D 00 04 00 7E 00 04 00 7E 00 04 00 7E 00 04 00 7D 00 04 00 7C 00 04 00 7B 00 04 00 7A FF EC 00 82 00 04 00 83 00 04 00 84 00 04 00 84 00 04 00 84 00 04 00 83 00 04 00 82 00 04 00 81 00 04 00 80 FF EC 00 88 00 04 00 89 00 04 00 8A 00 04 00 8A 00 04 00 8A 00 04 00 89 00 04 00 88 00 04 00 87 00 04 00 86 FF EC 00 8E 00 04 00 8F 00 04 00 90 00 04 00 90 00 04 00 90 00 04 00 8F 00 04 00 8E 00 04 00 8D 00 04 00 8C FF EC 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 A1 FF F8 00 A4 FF F8 00 A7 FF F8 00 AA FF F8 00 AD FF F8 00 B0 FF F8 00 B3 FF F8 00 B6 FF F8 00 12 00 22 00 32 00 42 00 52 00 62 00 72 00 82 00 00 00 A1 00 0A 00 A2 00 0A 00 A1 00 0A 00 A3 FF F6 00 A4 00 0A 00 A5 00 0A 00 A4 00 0A 00 A6 FF F6 00 A7 00 0A 00 A8 00 0A 00 A7 00 0A 00 A9 FF F6 00 AA 00 0A 00 AB 00 0A 00 AA 00 0A 00 AC FF F6 00 AD 00 0A 00 AE 00 0A 00 AD 00 0A 00 AF FF F6 00 B0 00 0A 00 B1 00 0A 00 B0 00 0A 00 B2 FF F6 00 B3 00 0A 00 B4 00 0A 00 B3 00 0A 00 B5 FF F6 00 B6 00 0A 00 B7 00 0A 00 B6 00 0A 00 B8 FF F6 00 12 00 1E 00 2A 00 36 00 42 00 4E 00 5A 00 66 00 00 01 01 00 04 01 02 00 08 01 01 FF FC 01 03 00 04 01 04 00 08 01 03 FF FC 01 05 00 04 01 06 00 08 01 05 FF FC 01 07 00 04 01 08 00 08 01 07 FF FC 01 09 00 04 01 0A 00 08 01 09 FF FC 01 0B 00 04 01 0C 00 08 01 0B FF FC 01 0D 00 04 01 0E 00 08 01 0D FF FC 01 0F 00 04 01 10 00 08 01 0F FF FC 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 F1 FF E8 00 F2 FF E8 00 F3 FF E8 00 F4 FF E8 00 F5 FF E8 00 F6 FF E8 00 F7 FF E8 00 F8 FF E8 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 F9 FF E8 00 FA FF E8 00 FB FF E8 00 FC FF E8 00 FD FF E8 00 FE FF E8 00 FF FF E8 01 00 FF E8 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 E1 FF E8 00 E2 FF E8 00 E3 FF E8 00 E4 FF E8 00 E5 FF E8 00 E6 FF E8 00 E7 FF E8 00 E8 FF E8 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 E9 FF E8 00 EA FF E8 00 EB FF E8 00 EC FF E8 00 ED FF E8 00 EE FF E8 00 EF FF E8 00 F0 FF E8 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 29 FF E8 00 2E FF E8 00 33 FF E8 00 38 FF E8 00 3D FF E8 00 42 FF E8 00 47 FF E8 00 4C FF E8 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 59 FF E2 01 5A FF E2 01 5B FF E2 01 5C FF E2 01 5D FF E2 01 5E FF E2 01 5F FF E2 01 60 FF E2 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 59 FF E2 01 5A FF E2 01 5B FF E2 01 5C FF E2 01 5D FF E2 01 5E FF E2 01 5F FF E2 01 60 FF E2 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 00 29 FF E2 00 2E FF E2 00 33 FF E2 00 38 FF E2 00 3D FF E2 00 42 FF E2 00 47 FF E2 00 4C FF E2 00 12 00 26 00 3A 00 4E 00 62 00 76 00 8A 00 9E 00 00 01 31 00 06 01 32 00 06 01 33 00 64 01 34 00 08 01 51 FF F8 01 35 00 06 01 36 00 06 01 37 00 64 01 38 00 08 01 52 FF F8 01 39 00 06 01 3A 00 06 01 3B 00 64 01 3C 00 08 01 53 FF F8 01 3D 00 06 01 3E 00 06 01 3F 00 64 01 40 00 08 01 54 FF F8 01 41 00 06 01 42 00 06 01 43 00 64 01 44 00 08 01 55 FF F8 01 45 00 06 01 46 00 06 01 47 00 64 01 48 00 08 01 56 FF F8 01 49 00 06 01 4A 00 06 01 4B 00 64 01 4C 00 08 01 57 FF F8 01 4D 00 06 01 4E 00 06 01 4F 00 64 01 50 00 08 01 58 FF F8 00 12 00 26 00 3A 00 4E 00 62 00 76 00 8A 00 9E 00 00 01 11 00 06 01 12 00 06 01 13 00 64 01 14 00 08 01 51 FF F8 01 15 00 06 01 16 00 06 01 17 00 64 01 18 00 08 01 52 FF F8 01 19 00 06 01 1A 00 06 01 1B 00 64 01 1C 00 08 01 53 FF F8 01 1D 00 06 01 1E 00 06 01 1F 00 64 01 20 00 08 01 54 FF F8 01 21 00 06 01 22 00 06 01 23 00 64 01 24 00 08 01 55 FF F8 01 25 00 06 01 26 00 06 01 27 00 64 01 28 00 08 01 56 FF F8 01 29 00 06 01 2A 00 06 01 2B 00 64 01 2C 00 08 01 57 FF F8 01 2D 00 06 01 2E 00 06 01 2F 00 64 01 30 00 08 01 58 FF F8 00 12 00 1E 00 2A 00 36 00 42 00 4E 00 5A 00 66 00 00 00 B9 00 0C 00 BA 00 28 00 B9 FF FB 00 BB 00 0C 00 BC 00 28 00 BB FF FB 00 BD 00 0C 00 BE 00 28 00 BD FF FB 00 BF 00 0C 00 C0 00 28 00 BF FF FB 00 C1 00 0C 00 C2 00 28 00 C1 FF FB 00 C3 00 0C 00 C4 00 28 00 C3 FF FB 00 C5 00 0C 00 C6 00 28 00 C5 FF FB 00 C7 00 0C 00 C8 00 28 00 C7 FF FB 00 12 00 1E 00 2A 00 36 00 42 00 4E 00 5A 00 66 00 00 00 C9 00 08 00 CA 00 08 00 C9 FF F8 00 CB 00 08 00 CC 00 08 00 CB FF F8 00 CD 00 08 00 CE 00 08 00 CD FF F8 00 CF 00 08 00 D0 00 08 00 CF FF F8 00 D1 00 08 00 D2 00 08 00 D1 FF F8 00 D3 00 08 00 D4 00 08 00 D3 FF F8 00 D5 00 08 00 D6 00 08 00 D5 FF F8 00 D7 00 08 00 D8 00 08 00 D7 FF F8 00 12 00 12 00 12 00 22 00 22 00 22 00 22 00 22 00 00 01 62 00 08 01 63 00 08 01 64 00 08 01 65 FF FA 01 62 00 08 01 63 00 08 01 64 00 08 01 6A FF FA 00 12 00 12 00 12 00 1A 00 1A 00 1A 00 1A 00 1A 00 00 01 66 00 1C 01 65 FF FC 01 6B 00 1C 01 6A FF FC 00 12 00 12 00 12 00 1A 00 1A 00 1A 00 1A 00 1A 00 00 01 66 00 1E 01 65 FF FC 01 6B 00 1E 01 6A FF FC 00 12 00 12 00 12 00 22 00 22 00 22 00 22 00 22 00 00 01 67 00 06 01 68 00 10 01 67 00 04 01 65 FF F0 01 6C 00 06 01 6D 00 10 01 6C 00 04 01 6A FF F0 00 12 00 12 00 12 00 22 00 22 00 22 00 22 00 22 00 00 01 67 00 06 01 69 00 10 01 67 00 04 01 65 FF F0 01 6C 00 06 01 6E 00 10 01 6C 00 04 01 6A FF F0 00 12 00 12 00 12 00 1A 00 1A 00 1A 00 1A 00 1A 00 00 01 70 00 10 01 65 FF F8 01 70 00 10 01 6A FF F8 00 12 00 12 00 12 00 1A 00 1A 00 1A 00 1A 00 1A 00 00 01 6F 00 10 01 65 FF F8 01 6F 00 10 01 6A FF F8 00 12 00 12 00 12 00 12 00 12 00 12 00 12 00 12 00 00 01 70 00 08 01 71 00 08 01 72 00 C8 01 72 FF FE 00 12 00 12 00 12 00 12 00 12 00 12 00 12 00 12 00 00 01 70 00 08 01 71 00 08 01 72 00 14 01 73 00 08 01 74 00 08 01 75 00 08 01 76 00 0A 01 77 00 0A 01 78 00 0A 01 76 00 0A 01 77 00 0A 01 78 00 0A 01 76 00 0A 01 77 00 0A 01 78 00 0A 01 76 00 0A 01 77 00 0A 01 78 FE 70 00 12 00 1E 00 1E 00 2E 00 2E 00 2E 00 2E 00 3E 00 00 01 7D 00 08 01 7E 00 08 01 7F FF F8 01 79 00 08 01 7A 00 08 01 7B 00 08 01 7C FF F8 01 7C 00 08 01 7B 00 08 01 7A 00 08 01 79 FF F8 00 12 00 1E 00 1E 00 2E 00 2E 00 2E 00 2E 00 3E 00 00 01 7F 00 08 01 7E 00 08 01 7D FF F8 01 7C 00 08 01 7B 00 08 01 7A 00 08 01 79 FF F8 01 79 00 08 01 7A 00 08 01 7B 00 08 01 7C FF F8 00 12 00 1E 00 1E 00 1E 00 1E 00 1E 00 1E 00 1E 00 00 00 01 00 02 01 02 00 0A 01 01 FF FA 00 15 00 02 01 0A 00 0A 01 09 FF FA 00 12 00 16 00 16 00 16 00 16 00 16 00 16 00 16 00 00 00 01 FF FB 00 15 FF FB 00 12 00 12 00 12 00 12 00 12 00 12 00 12 00 12 00 01 02 2B 00 03 02 2C 00 03 02 2D 00 03 02 2E 00 03 02 2F 00 03 02 30 00 03 02 31 00 03 02 32 00 03 02 33 00 03 02 34 00 03 02 35 00 03 02 36 00 03 02 37 00 03 02 38 FF FD 00 12 00 12 00 12 00 12 00 12 00 12 00 12 00 12 00 00 02 85 00 08 02 86 00 08 02 87 00 08 02 88 00 08 02 89 FC 18 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 01 00 D9 FF E2 00 DA FF E2 00 DB FF E2 00 DC FF E2 00 DD FF E2 00 DE FF E2 00 DF FF E2 00 E0 FF E2 00 12 00 1A 00 22 00 2A 00 32 00 3A 00 42 00 4A 00 00 02 39 00 06 02 3A FF FA 02 3B 00 06 02 3C FF FA 02 3D 00 06 02 3E FF FA 02 3F 00 06 02 40 FF FA 02 41 00 06 02 42 FF FA 02 43 00 06 02 44 FF FA 02 45 00 06 02 46 FF FA 02 47 00 06 02 48 FF FA 00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 02 49 FF E2 02 4B FF E2 02 4D FF E2 02 4F FF E2 02 51 FF E2 02 53 FF E2 02 55 FF E2 02 57 FF E2 00 12 00 22 00 32 00 42 00 52 00 62 00 72 00 82 00 00 02 49 00 09 02 4A 00 09 02 49 00 09 02 4A FF F7 02 4B 00 09 02 4C 00 09 02 4B 00 09 02 4C FF F7 02 4D 00 09 02 4E 00 09 02 4D 00 09 02 4E FF F7 02 4F 00 09 02 50 00 09 02 4F 00 09 02 50 FF F7 02 51 00 09 02 52 00 09 02 51 00 09 02 52 FF F7 02 53 00 09 02 54 00 09 02 53 00 09 02 54 FF F7 02 55 00 09 02 56 00 09 02 55 00 09 02 56 FF F7 02 57 00 09 02 58 00 09 02 57 00 09 02 58 FF F7 00 12 00 26 00 3A 00 4E 00 62 00 76 00 8A 00 9E 00 00 02 59 00 06 02 5A 00 06 02 5B 00 08 02 5A 00 06 02 59 FF FA 02 5C 00 06 02 5D 00 06 02 5E 00 08 02 5D 00 06 02 5C FF FA 02 5F 00 06 02 60 00 06 02 61 00 08 02 60 00 06 02 5F FF FA 02 62 00 06 02 63 00 06 02 64 00 08 02 63 00 06 02 62 FF FA 02 65 00 06 02 66 00 06 02 67 00 08 02 66 00 06 02 65 FF FA 02 68 00 06 02 69 00 06 02 6A 00 08 02 69 00 06 02 68 FF FA 02 6B 00 06 02 6C 00 06 02 6D 00 08 02 6C 00 06 02 6B FF FA 02 6E 00 06 02 6F 00 06 02 70 00 08 02 6F 00 06 02 6E FF FA 00 12 00 2A 00 42 00 5A 00 72 00 8A 00 A2 00 BA 00 00 00 51 00 04 00 58 00 04 01 0D 00 14 00 60 00 04 00 59 00 04 00 5A FF FC 00 52 00 04 00 51 00 04 01 0F 00 14 00 59 00 04 00 5A 00 04 00 5B FF FC 00 53 00 04 00 52 00 04 01 01 00 14 00 5A 00 04 00 5B 00 04 00 5C FF FC 00 54 00 04 00 53 00 04 01 03 00 14 00 5B 00 04 00 5C 00 04 00 5D FF FC 00 55 00 04 00 54 00 04 01 05 00 14 00 5C 00 04 00 5D 00 04 00 5E FF FC 00 56 00 04 00 55 00 04 01 07 00 14 00 5D 00 04 00 5E 00 04 00 5F FF FC 00 57 00 04 00 56 00 04 01 09 00 14 00 5E 00 04 00 5F 00 04 00 60 FF FC 00 58 00 04 00 57 00 04 01 0B 00 14 00 5F 00 04 00 60 00 04 00 59 FF FC 00 12 00 2E 00 4A 00 66 00 82 00 9E 00 BA 00 D6 00 00 02 71 00 06 02 72 00 06 02 73 00 06 02 74 00 06 01 13 00 64 01 14 00 08 01 51 FF F8 02 71 00 06 02 72 00 06 02 73 00 06 02 74 00 06 01 17 00 64 01 18 00 08 01 52 FF F8 02 71 00 06 02 72 00 06 02 73 00 06 02 74 00 06 01 1B 00 64 01 1C 00 08 01 53 FF F8 02 75 00 06 02 76 00 06 02 77 00 06 02 78 00 06 01 1F 00 64 01 20 00 08 01 54 FF F8 02 75 00 06 02 76 00 06 02 77 00 06 02 78 00 06 01 23 00 64 01 24 00 08 01 55 FF F8 02 75 00 06 02 76 00 06 02 77 00 06 02 78 00 06 01 27 00 64 01 28 00 08 01 56 FF F8 02 75 00 06 02 76 00 06 02 77 00 06 02 78 00 06 01 2B 00 64 01 2C 00 08 01 57 FF F8 02 71 00 06 02 72 00 06 02 73 00 06 02 74 00 06 01 2F 00 64 01 30 00 08 01 58 FF F8 00 12 00 12 00 12 00 5A 00 5A 00 5A 00 5A 00 12 00 00 01 11 00 06 01 12 00 06 01 13 00 1E 02 79 00 0A 02 7A 00 0A 02 7B 00 0A 02 7C 00 08 02 7D 00 08 02 7E 00 08 02 7C 00 08 02 7D 00 08 02 7E 00 08 02 7C 00 08 02 7D 00 08 02 7E 00 08 02 7C 00 08 02 7D 00 08 02 7E FC 7C 01 21 00 06 01 22 00 06 01 23 00 1E 02 7F 00 0A 02 80 00 0A 02 81 00 0A 02 82 00 08 02 83 00 08 02 84 00 08 02 82 00 08 02 83 00 08 02 84 00 08 02 82 00 08 02 83 00 08 02 84 00 08 02 82 00 08 02 83 00 08 02 84 FC 7C
-
--- animations that reuse direction pointers:
-SPAwallright
-SPAwallleft
-SPAfaceoff
-SPAfaceoffr
-SPAsiren
-SPAfight
-SPAfgrab
-SPAfheld
-SPAfhigh
-SPAflow
-SPAfhith
-SPAfhitl
-SPAffall
-
--- animations that repeat direction sprites (plus ones above):
-SPAgstackr
-SPAgstackl
-SPApflip -- kind of
-
-two bugs-- 1-- its not adding frame offset, and secondly the script assumes when there is an offset between directions is always constant-- need to make sure this doesn't mess things up and/or have to check all 8 directions before deciding to use offset
-
-NHLPA93Gen Animation data starts at 0x4D8E
-NHL94Gen Animation data starts at 0x5B1C
-NHL95PC Animation data starts at 0x110475 (Hockey.exe)
-NHL94PC Animation data starts at 0x358A6 (Hockey.exe)
-NHL95Gen Animation data starts at 0x5A34
-NHL96Gen Animation data starts at 0x5F96
-NHL97Gen Animation data starts at 0x7947
-NHL96PC Animation data likely starts 0x1884D4 -- 0x150820 another location
-00 12 00 16 00 1A 00 1E 00 22 00 26 00 2A 00 2E 00 00 01 90 FF F8 01 93 FF F8 01 96 FF F8 01 99 FF F8 01 9C FF F8 01 9F FF F8 01 A2 FF F8 01 A5 FF F8 
-
-8 frames per animation - 95 skate
-
-00 12 00 32 00 52 00 72
-
-2 frames per animation - 96 shoot
-00 12 00 1A 00 22 00 2A
-
-start of 96 anim: 00 12 00 72 00 D2 01 32
-
-
-wallright 92: 0x44DE-451B
-00 12 00 1E 00 1E 00 2E 00 2E 00 2E 00 2E 00 3E 00 00 01 77 00 08 01 78 00 08 01 79 FF F8 01 73 00 08 01 74 00 08 01 75 00 08 01 76 FF F8 01 76 00 08 01 75 00 08 01 74 00 08 01 73 FF F8
-
-wallright 93: 0x5EB6-5F50 <-- what its reading
-00 12 00 1E 00 1E 00 2E 00 2E 00 2E 00 2E 00 3E 00 00 01 7D 00 08 01 7E 00 08 01 7F FF F8 01 79 00 08 01 7A 00 08 01 7B 00 08 01 7C FF F8 01 7C 00 08 01 7B 00 08 01 7A 00 08 01 79 FF F8 00 12 00 1E 00 1E 00 2E 00 2E 00 2E 00 2E 00 3E 00 00 01 7F 00 08 01 7E 00 08 01 7D FF F8 01 7C 00 08 01 7B 00 08 01 7A 00 08 01 79 FF F8 01 79 00 08 01 7A 00 08 01 7B 00 08 01 7C FF F8 00 12 00 1E 00 1E 00 1E 00 1E 00 1E 00 1E 00 1E 00 00 00 01 00 02 01 02 00 0A 01 01 FF FA
-
-wallright 93: 0x5EB6-5EF3 <-- what it should be
-00 12 00 1E 00 1E 00 2E 00 2E 00 2E 00 2E 00 3E 00 00 01 7D 00 08 01 7E 00 08 01 7F FF F8 01 79 00 08 01 7A 00 08 01 7B 00 08 01 7C FF F8 01 7C 00 08 01 7B 00 08 01 7A 00 08 01 79 FF F8
+- `tools/extractAssets93.js` writes `Extracted/` from a ROM (found by SHA-1; `npm run extractassets`).
+- `tools/prebuild.js` checks the ROM and runs the extractor when `Extracted/` is missing or stale.
+- EA-NHL-Tools: `JIM-Tools` (`.map.jim` to and from BMP), `ANIM94-To-BMP` (`.anim` frames to BMP/RAW), `PAL-To-ACT` (`.pal` to Photoshop swatches).
