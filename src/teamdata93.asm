@@ -153,7 +153,29 @@ AllStarsWest						;team record: All Stars West (ASW), team 25
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\ASWh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\ASWv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	7020,00C7,9999,9099
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	173,224
@@ -226,7 +248,29 @@ Boston								;team record: Boston (BOS), team 0
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\BOSh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\BOSv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	3311,21E6,6766,6756
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	197,34
@@ -301,7 +345,29 @@ Buffalo								;team record: Buffalo (BUF), team 1
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\BUFh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\BUFv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	5522,22D8,2442,3933
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	101,80
@@ -376,7 +442,29 @@ Calgary								;team record: Calgary (CGY), team 2
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\CGYh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\CGYv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	6622,11D8,4334,4823
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	196,00
@@ -450,7 +538,29 @@ Chicago								;team record: Chicago (CHI), team 3
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\CHIh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\CHIv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	3000,21D7,7777,9888
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	164,49
@@ -525,7 +635,29 @@ Detroit								;team record: Detroit (DET), team 4
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\DETh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\DETv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	6111,00D7,8879,7878
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	226,16
@@ -599,7 +731,29 @@ Edmonton							;team record: Edmonton (EDM), team 5
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\EDMh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\EDMv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	6512,11C7,6535,4534
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	214,34
@@ -673,7 +827,29 @@ Hartford							;team record: Hartford (HFD), team 6
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\HFDh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\HFDv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	1402,00F6,2222,1342
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	146,00
@@ -747,7 +923,29 @@ LosAngeles							;team record: Los Angeles (LA), team 8
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\LAh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\LAv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	4410,10D8,5664,6535
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	198,16
@@ -822,7 +1020,29 @@ LongIsland							;team record: Long Island (LI), team 7
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\LIh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\LIv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	5522,01E7,5455,5234
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	102,00
@@ -896,7 +1116,29 @@ Minnesota							;team record: Minnesota (MIN), team 9
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\MINh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\MINv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	1301,11F6,1232,1652
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	166,00
@@ -970,7 +1212,29 @@ Montreal							;team record: Montreal (MTL), team 10
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\MTLh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\MTLv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	3011,22E7,7888,8499
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	210,32
@@ -1045,7 +1309,29 @@ NewJersey							;team record: New Jersey (NJ), team 11
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\NJh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\NJv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	5200,11F6,8668,6467
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	165,00
@@ -1119,7 +1405,29 @@ NewYork								;team record: New York (NY), team 12
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\NYh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\NYv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	7120,20F8,7989,7789
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	152,00
@@ -1195,7 +1503,29 @@ Ottawa								;team record: Ottawa (OTW), team 13
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\OTWh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\OTWv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	0702,02A6,1111,1411
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	96,00
@@ -1263,7 +1593,29 @@ Philadelphia						;team record: Philadelphia (PHI), team 14
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\PHIh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\PHIv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	2201,22E8,3443,2353
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	147,00
@@ -1338,7 +1690,29 @@ Pittsburgh							;team record: Pittsburgh (PIT), team 15
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\PITh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\PITv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	7621,10E7,5566,5725
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	182,00
@@ -1412,7 +1786,29 @@ Quebec								;team record: Quebec (QUE), team 16
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\QUEh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\QUEv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	2602,22E8,3212,1321
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	84,32
@@ -1488,7 +1884,29 @@ SanJose								;team record: San Jose (SJ), team 17
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\SJh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\SJv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	0702,12E6,2111,3211
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	133,34
@@ -1563,7 +1981,29 @@ StLouis								;team record: St
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\STLh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\STLv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	4210,21D8,4364,4564
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	194,32
@@ -1638,7 +2078,29 @@ TampaBay							;team record: Tampa Bay (TBY), team 19
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\TBYh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\TBYv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	0702,02A7,2111,1411
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	48,00
@@ -1707,7 +2169,29 @@ Toronto								;team record: Toronto (TOR), team 20
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\TORh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\TORv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	1411,12E8,2123,3232
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	211,00
@@ -1782,7 +2266,29 @@ Vancouver							;team record: Vancouver (VAN), team 21
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\VANh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\VANv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	4111,10E8,6877,7577
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	211,00
@@ -1857,7 +2363,29 @@ Winnipeg							;team record: Winnipeg (WPG), team 23
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\WPGh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\WPGv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	2020,10E7,4555,2185
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	149,48
@@ -1932,7 +2460,29 @@ Washington							;team record: Washington (WSH), team 22
 .pad								; team palettes (home and visitor)
 	incbin	..\Extracted\Graphics\Pals\WSHh.pal	; home colors
 	incbin	..\Extracted\Graphics\Pals\WSHv.pal	; visitor colors
+;------------------------
+;q - scoring odds offense row (bits 4-6, SetScore)
+;r - scoring odds defense row (bits 0-2)
+;e - penalty kill deficit (negated while killing a penalty)
+;b - power play bonus
+
+;h - home bonus
+;v - visitor bonus (negated)
+;x - not read
+;x - not read
+
+;s - shooting
+;k - skating
+;p - passing
+;d - defense
+
+;c - checking
+;f - fighting
+;g - goalkeeping
+;o - overall
+;------------------------
 .sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	7320,00E7,9697,8458
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	164,32
