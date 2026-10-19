@@ -28,8 +28,12 @@ TitleLogoSprites					;the four title logo sprites (AddTitleLogoSprites SetSframe
 	incbin	..\Extracted\Graphics\TitleLogo.anim
 	even
 ScoutMap							;EASNBG.map.jim: ScoutingReport background, also PlayoffScreen,
-									;SetupScreen, DrawTeamScreen
+									;SetupScreen, DrawTeamScreen. Rev B: EASportsBG.map.jim
+	IF REV=2
+	incbin	..\Extracted\Graphics\EASportsBG.map.jim
+	ELSE
 	incbin	..\Extracted\Graphics\EASNBG.map.jim
+	ENDIF
 	even
 FramerMap							;Framer tiles and map (AddFramer, print93.asm, hockey93.asm, stats93.asm)
 	incbin	..\Extracted\Graphics\Framer.map.jim

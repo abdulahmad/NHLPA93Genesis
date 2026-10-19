@@ -299,7 +299,7 @@ const REVB_SLICES = {
     'Title2.map.jim': [0x03127E, 0x031F06],
     'Title3.anim': [0x031F06, 0x0322C2],
     'TitleLogo.anim': [0x0322C2, 0x032852],
-    'EASNBG.map.jim': [0x032852, 0x0335AC],
+    'EASportsBG.map.jim': [0x032852, 0x0335AC],
     'Framer.map.jim': [0x0335AC, 0x033624],
     'FaceOff.map.jim': [0x033624, 0x033A88],
     'IceRink.map.jim': [0x033A88, 0x038A90],
