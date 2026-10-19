@@ -100,5 +100,5 @@ A comment-only or rename-only change must not change a single byte. Never commit
 
 ## Editor setup (VS Code)
 
-The `.vscode/settings.json` in this repo selects the "NHL 68000 (SNASM68K)" language mode for `*.asm`, turns off colour swatches on hex values and colours macro names orange. The mode itself is a small extension that lives in
-[abdulahmad/nhl-disasm-report](https://github.com/abdulahmad/nhl-disasm-report/tree/main/vscode/nhl-asm). Clone that repo and run `vscode\install.cmd` (Windows) or link `vscode/nhl-asm` into `~/.vscode/extensions/` (macOS/Linux), then restart VS Code. Without it the files open as plain Assembly.
+The `.vscode/settings.json` in this repo selects the "NHL 68000 (SNASM68K)" language mode for `*.asm`, turns off colour swatches on hex values and colours macro names orange. The mode itself is the
+[NHL disassembly assembly](https://marketplace.visualstudio.com/items?itemName=Abdul-HaseebAhmad.nhl-asm) extension ([source](https://github.com/abdulahmad/vscode-nhl-asm), also on [Open VSX](https://open-vsx.org/extension/Abdul-HaseebAhmad/nhl-asm)). `.vscode/extensions.json` recommends it, so VS Code offers to install it when you open the repo; or run `code --install-extension Abdul-HaseebAhmad.nhl-asm`. Without it the files open as plain Assembly.
