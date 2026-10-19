@@ -5,15 +5,15 @@
 ;	PutTeamBlock (team name bitmap) and MenuWaitVblank (vblank wait for screen loops) are not menu code. They
 ;	sit here because they lie between the menu engine and stats93.asm in the ROM.
 
-InitMenuState						;92 Pausemode .top. start a menu. a0 = item list, a1 = screen draw routine
-									;falls into DrawMenuScreen
+InitMenuState						;from 92 Pausemode .top. start a menu. a0 = item list, a1 = screen draw
+									;routine falls into DrawMenuScreen
 	move.l	a0,(menulist).w			;item list
 	move.l	a1,(menudraw).w			;draw routine
 	clr.w	(menuitem).w			;selected item
 	clr.w	(menuitem+2).w			;first visible item
 
-DrawMenuScreen						;92 Pausemode setup. call the draw routine, frame the menu box, print the
-									;items, fade in
+DrawMenuScreen						;from 92 Pausemode setup. call the draw routine, frame the menu box, print
+									;the items, fade in
 	movea.l	(menudraw).w,a0
 	jsr	(a0)
 	bsr.w	printsmallz
@@ -33,8 +33,8 @@ SetMenuPrintX						;printx = left edge of menu box: 5 in 32 column mode, else 9
 	addq.w	#4,(printx).w
 	rts
 
-HandleMenuInput						;92 Pausemode input. process one controller read (d1) for the current menu
-									;return eq = leave menu, ne = stay
+HandleMenuInput						;from 92 Pausemode input. process one controller read (d1) for the current
+									;menu return eq = leave menu, ne = stay
 	btst	#sbut,d1				;sbut
 	bne.w	.flip					;start: Z clear, flipped to eq
 	btst	#dbut,d1				;dbut
@@ -64,7 +64,7 @@ HandleMenuInput						;92 Pausemode input. process one controller read (d1) for t
 .flip	eori	#4,ccr				;invert Z
 	rts
 
-UpdateMenuSelection					;92 Pausemode .Pmenu. clamp the selection, scroll the 4 visible rows,
+UpdateMenuSelection					;from 92 Pausemode .Pmenu. clamp the selection, scroll the 4 visible rows,
 									;print the menu
 	move.w	(menuitem).w,d0
 	bpl.w	.0
@@ -152,8 +152,8 @@ PutTeamBlock						;copy 2 rows of 12 map words from TeamBlockMap+d0 to printx/pr
 	movem.l	(sp)+,d0-d2/a0-a1
 	rts
 
-MenuWaitVblank						;92 Pausemode .rjoy wait. wait for the next vblank, then resync Vcount.
-									;Saves d0
+MenuWaitVblank						;from 92 Pausemode .rjoy wait. wait for the next vblank, then resync
+									;Vcount. Saves d0
 	move.w	d0,-(sp)
 	move.w	(OldVcount).w,d0
 .wait	cmp.w	(Vcount).w,d0		;Vcount is bumped by the vblank handler

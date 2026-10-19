@@ -684,7 +684,7 @@ uppads								;update the gloves object and the 4 pad objects, and queue new pad
 	dbf	d4,.top
 	rts
 
-QueuePadLabel						;92 uppads. queue the 3 character label of a pad object (92 drew 2
+QueuePadLabel						;from 92 uppads. queue the 3 character label of a pad object (92 drew 2
 									;digits).
 									;Called from uppads. d1 = label code: bits 7-4 and 3-0 are digits ($F =
 									;blank), bits 10-8 index ButtonLabelCharTable. a0 = pad object, a5 = dma
@@ -716,7 +716,7 @@ QueuePadLabel						;92 uppads. queue the 3 character label of a pad object (92 d
 .btn	move.b	(a4,d2.w),d2		;third char from ButtonLabelCharTable
 	moveq	#2,d0					;char slot 2
 
-RenderSmallFontChar					;92 uppads .pd. dma one small font tile to the object's chars.
+RenderSmallFontChar					;from 92 uppads .pd. dma one small font tile to the object's chars.
 									;d2 = ascii char, d0 = char slot, a0 = object (VRchar), a5 = dma list
 	movea.l	#smallfontmap,a3
 	adda.l	4(a3),a3

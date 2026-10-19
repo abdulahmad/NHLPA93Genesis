@@ -20,7 +20,7 @@ UnpackNibbles						;a0 = packed data, d0 = count. Unpacks d0 4-bit values (high 
 	movem.l	(sp)+,d0-d2/a0-a1
 	rts
 
-WeightedRandomSelect				;92 SetScore .getscore. d0 = number of word weights at nibblebuffer.
+WeightedRandomSelect				;from 92 SetScore .getscore. d0 = number of word weights at nibblebuffer.
 									;Return d0 = random index, picked with those weights. Called from
 									;SetScore_getscore and PickStartingGoalie
 	movem.l	d1/a1,-(sp)
@@ -693,9 +693,9 @@ setVram								;initialize all necesary video parameters based on my variables. 
 	move.w	#$18,(palcount).w		;24
 	bsr.w	forcefade				;fade the screen to that color
 
-setVram_0							;92 setVram second half. second half of setVram without the fade: clear
-									;vram and set the VDP registers from disflags, Map1col, VmMAP1-3, VSPRITES
-									;and VSCRLPM. Falls in from setVram, called from
+setVram_0							;from 92 setVram second half. second half of setVram without the fade:
+									;clear vram and set the VDP registers from disflags, Map1col, VmMAP1-3,
+									;VSPRITES and VSCRLPM. Falls in from setVram, called from
 									;SetupStanleyCupCelebrationScreen
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w

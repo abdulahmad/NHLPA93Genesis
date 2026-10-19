@@ -86,8 +86,8 @@ Framer								;frame and fill (uses framer.map graphics and assums tiles are alr
 	move.w	d3,(a0)
 	rts
 
-printsmallz							;92 printz. see printsmall. String macro should follow the bsr/jsr to this
-									;routine; a1 is kept
+printsmallz							;from 92 printz. see printsmall. String macro should follow the bsr/jsr to
+									;this routine; a1 is kept
 	move.l	a1,-(sp)
 	movea.l	4(sp),a1				;string after the call
 	bsr.w	printsmall
@@ -95,10 +95,10 @@ printsmallz							;92 printz. see printsmall. String macro should follow the bsr
 	movea.l	(sp)+,a1
 	rts
 
-printsmall							;92 print. print string macro a1 at printx/y/m with printa. Bytes > 0 are
-									;chars ('@' = blank char $7FF, '^' = skip a column), tile = smallfontmap
-									;entry + smallfontchars[printfontset]. Bytes <= 0 run ControlCodeJumpTable
-									;entry -byte (0 = nothing)
+printsmall							;from 92 print. print string macro a1 at printx/y/m with printa. Bytes > 0
+									;are chars ('@' = blank char $7FF, '^' = skip a column), tile =
+									;smallfontmap entry + smallfontchars[printfontset]. Bytes <= 0 run
+									;ControlCodeJumpTable entry -byte (0 = nothing)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	movem.l	d0-d3/a0/a2-a3,-(sp)
@@ -154,7 +154,7 @@ ControlCodeJumpTable				;printsmall control codes, indexed by -byte
 	dc.l	ControlCode_SetFont		;-7: char set
 	dc.l	ControlCode_SetMapAndPosition	;-8: attribute, map, x, y
 
-ControlCode_SetMapAndPosition		;92 print negative-byte block. printsmall code -8, next 4 bytes =
+ControlCode_SetMapAndPosition		;from 92 print negative-byte block. printsmall code -8, next 4 bytes =
 									;attribute, map, x, y
 	bsr.w	ControlCode_SetAttribute
 	bsr.w	ControlCode_SetMap
