@@ -4078,7 +4078,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 
 	bsr.w	printz
 	String	$CE,0,0					;(92 -$01,60,4 before the Stanleymap bitmap)
-	movea.l	#ScoutMap,a0			;bitmap map data
+	movea.l	#EASNBGMap,a0			;bitmap map data
 	movea.l	a0,a1
 	movea.l	a0,a2
 	adda.l	(a2)+,a0
@@ -4371,7 +4371,7 @@ ScoutingReport						;pregame scouting report. Called from PeriodOver.
 
 	bsr.w	printz
 	String	$FE,0,0					;(92 -$02,0,0)
-	movea.l	#ScoutMap,a0			;bitmap map data (same as PlayoffScreen)
+	movea.l	#EASNBGMap,a0			;bitmap map data (same as PlayoffScreen)
 	movea.l	a0,a1
 	movea.l	a0,a2
 	adda.l	(a2)+,a0
