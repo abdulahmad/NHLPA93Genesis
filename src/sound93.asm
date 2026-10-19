@@ -11,7 +11,7 @@
 ;	numbers are in ram93.asm; the sizes and offsets below are the ones the driver code uses.
 
 ;	Sound numbers
-SoundLast			=	SngScout	;last sound number: sounds $0-$37, effects below $30, songs from $30
+SoundLast			=	SngScouting	;last sound number: sounds $0-$37, effects below $30, songs from $30
 FirstSong			=	SngGoal		;the first song; a new song stops the one playing
 
 ;	Track slots (rs.b in ram93.asm, 8 of them; slot n plays track 7-n): an event pointer and a delay

@@ -762,7 +762,7 @@ updatepwrplay						;show graphic and time remaining for power plays. Plays song 
 	addq.w	#1,tmPwrPlays(a3)		;new power play: count it for a3
 	cmpa.w	#(tmstruct-M68K_RAM),a3
 	bne.w	.uppt
-	move.w	#SngPowerPlay,-(sp)		;song only when team 1 (home) is on the power play
+	move.w	#SngPP,-(sp)			;song only when team 1 (home) is on the power play
 	bsr.w	song
 .uppt	bsr.w	printz				;power play marker string at x 1, y $19, then the time left and the team
 									;name

@@ -43,13 +43,13 @@ SngGoal			=	$30				;home goal tune (fmtune_goal)
 SngPeriodStart	=	$31				;period start tune (fmtune_periodstart)
 SngLateGame		=	$32				;late game tune, once in the 3rd period
 									;(CheckLateGameSong, fmtune_lategame)
-SngPowerPlay	=	$33				;home team power play tune (fmtune_powerplay)
+SngPP		=	$33					;home team power play tune (fmtune_powerplay)
 SngFaceoff		=	$34				;face off tune, once per period (fmtune_faceoff)
 SngTitle		=	$35				;title screen song (92 SngTitle)
 SngEOP			=	$36				;plays at every period end and the end of the game (IntermissionStart), on
 									;the playoff screen and when the highlights start (fmtune_eop). 92 had
 									;SngEOP, SngEOG and SngPO for these
-SngScout		=	$37				;scouting report
+SngScouting		=	$37				;scouting report
 SFXsiren		=	$0				;goal siren (92 SFXsiren)
 SFXbeep1		=	$1				;short beep (92 SFXbeep1)
 SFXbeep2		=	$2				;short beep, also the last minute warning when the clock reaches 60 (92
