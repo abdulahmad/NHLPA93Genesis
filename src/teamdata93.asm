@@ -159,6 +159,7 @@ AllStarsWest						;team record: All Stars West (ASW), team 25
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	173,224
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,16,12,04,09,05,00
 	dc.b	01,18,19,13,05,10,04,00
 	dc.b	01,20,21,14,06,11,04,00
@@ -213,6 +214,7 @@ Boston								;team record: Boston (BOS), team 0
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	197,34
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,19,20,16,05,14,06,00
 	dc.b	01,21,22,17,06,11,05,00
 	dc.b	01,23,24,15,07,12,05,00
@@ -269,6 +271,7 @@ Buffalo								;team record: Buffalo (BUF), team 1
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	101,80
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,18,13,06,09,04,00
 	dc.b	01,17,21,14,04,10,06,00
 	dc.b	01,19,23,15,05,08,06,00
@@ -325,6 +328,7 @@ Calgary								;team record: Calgary (CGY), team 2
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	196,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,19,17,14,03,10,06,00
 	dc.b	01,18,21,13,06,11,03,00
 	dc.b	01,16,20,15,04,09,03,00
@@ -380,6 +384,7 @@ Chicago								;team record: Chicago (CHI), team 3
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	164,49
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,19,14,05,09,07,00
 	dc.b	01,20,22,16,07,11,05,00
 	dc.b	01,21,23,13,06,10,05,00
@@ -436,6 +441,7 @@ Detroit								;team record: Detroit (DET), team 4
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	226,16
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,20,13,06,08,04,00
 	dc.b	01,18,22,14,04,07,06,00
 	dc.b	01,19,21,15,05,09,06,00
@@ -491,6 +497,7 @@ Edmonton							;team record: Edmonton (EDM), team 5
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	214,34
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,22,17,10,07,08,15,00
 	dc.b	01,19,20,11,15,06,07,00
 	dc.b	01,18,21,16,05,09,07,00
@@ -546,6 +553,7 @@ Hartford							;team record: Hartford (HFD), team 6
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	146,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,22,11,03,08,04,00
 	dc.b	01,19,21,12,04,09,03,00
 	dc.b	01,20,23,13,05,10,03,00
@@ -601,6 +609,7 @@ LosAngeles							;team record: Los Angeles (LA), team 8
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	198,16
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,19,20,11,05,10,04,00
 	dc.b	01,18,21,12,04,09,05,00
 	dc.b	01,17,22,13,06,08,05,00
@@ -657,6 +666,7 @@ LongIsland							;team record: Long Island (LI), team 7
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	102,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,17,13,04,12,03,00
 	dc.b	01,18,19,14,03,11,04,00
 	dc.b	01,21,23,15,06,10,04,00
@@ -712,6 +722,7 @@ Minnesota							;team record: Minnesota (MIN), team 9
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	166,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,21,14,04,10,03,00
 	dc.b	01,20,22,16,03,11,04,00
 	dc.b	01,19,23,15,05,09,04,00
@@ -767,6 +778,7 @@ Montreal							;team record: Montreal (MTL), team 10
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	210,32
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,18,14,05,13,04,00
 	dc.b	01,21,23,16,04,10,05,00
 	dc.b	01,19,22,15,06,11,05,00
@@ -823,6 +835,7 @@ NewJersey							;team record: New Jersey (NJ), team 11
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	165,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,22,23,14,03,08,04,00
 	dc.b	01,20,21,13,04,09,03,00
 	dc.b	01,18,19,12,05,10,03,00
@@ -878,6 +891,7 @@ NewYork								;team record: New York (NY), team 12
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	152,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,20,15,03,09,05,00
 	dc.b	01,21,24,16,05,08,03,00
 	dc.b	01,19,22,17,04,12,03,00
@@ -935,6 +949,7 @@ Ottawa								;team record: Ottawa (OTW), team 13
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	96,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,12,13,10,07,02,03,00
 	dc.b	01,14,15,08,03,06,10,00
 	dc.b	01,16,17,09,04,05,10,00
@@ -984,6 +999,7 @@ Philadelphia						;team record: Philadelphia (PHI), team 14
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	147,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,18,13,03,09,04,00
 	dc.b	01,21,23,15,04,10,03,00
 	dc.b	01,19,20,16,05,11,03,00
@@ -1040,6 +1056,7 @@ Pittsburgh							;team record: Pittsburgh (PIT), team 15
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	182,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,17,13,04,09,03,00
 	dc.b	01,19,23,14,03,10,04,00
 	dc.b	01,20,21,15,05,08,04,00
@@ -1095,6 +1112,7 @@ Quebec								;team record: Quebec (QUE), team 16
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	84,32
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,19,17,05,10,04,00
 	dc.b	01,18,24,14,04,08,05,00
 	dc.b	01,21,22,16,07,09,05,00
@@ -1152,6 +1170,7 @@ SanJose								;team record: San Jose (SJ), team 17
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	133,34
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,24,20,16,09,11,12,00
 	dc.b	01,23,21,17,08,12,09,00
 	dc.b	01,19,22,15,07,13,09,00
@@ -1208,6 +1227,7 @@ StLouis								;team record: St
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	194,32
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,22,17,14,04,10,06,00
 	dc.b	01,18,20,15,06,08,04,00
 	dc.b	01,19,21,13,07,09,04,00
@@ -1264,6 +1284,7 @@ TampaBay							;team record: Tampa Bay (TBY), team 19
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	48,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,13,12,09,02,06,03,00
 	dc.b	01,14,15,10,03,07,02,00
 	dc.b	01,16,17,11,04,08,02,00
@@ -1314,6 +1335,7 @@ Toronto								;team record: Toronto (TOR), team 20
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	211,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,19,13,03,06,05,00
 	dc.b	01,20,21,10,05,08,03,00
 	dc.b	01,18,22,14,04,07,03,00
@@ -1370,6 +1392,7 @@ Vancouver							;team record: Vancouver (VAN), team 21
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	211,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,19,13,03,09,05,00
 	dc.b	01,17,21,12,05,11,03,00
 	dc.b	01,20,22,16,04,10,03,00
@@ -1426,6 +1449,7 @@ Winnipeg							;team record: Winnipeg (WPG), team 23
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	149,48
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,21,17,07,10,04,00
 	dc.b	01,18,24,14,04,11,07,00
 	dc.b	01,22,23,15,05,09,07,00
@@ -1482,6 +1506,7 @@ Washington							;team record: Washington (WSH), team 22
 .godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	164,32
 .ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,19,20,12,05,08,04,00
 	dc.b	01,18,24,15,04,11,05,00
 	dc.b	01,21,22,14,06,10,05,00
