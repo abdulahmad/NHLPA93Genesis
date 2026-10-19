@@ -467,7 +467,7 @@ DrawTeamScreen						;line editor background: bitmap, frame, "Line Editor" title 
 	movem.l	d0-d5/a0-a2,-(sp)
 	bsr.w	printz
 	String	$FD,0,0
-	movea.l	#ScoutMap,a1			;background bitmap (map header + offset to data)
+	movea.l	#EASNBGMap,a1			;background bitmap (map header + offset to data)
 	adda.l	4(a1),a1
 	movea.w	#null,a2				;a2 saved/restored around this block
 	clr.w	d0
@@ -2113,11 +2113,11 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	dc.l	$91234567,$89ABCDEF		;inline 8 byte color remap table (skipped on return, not code)
 	move.w	(smallfontchars).w,d4
 	bsr.w	AddSmallFont
-	;draw the whole ScoutMap bitmap (map at ScoutMap + its second long), size from its first two words, on map
-	;3 at 0,0
+	;draw the whole EASNBGMap bitmap (map at EASNBGMap + its second long), size from its first two words,
+	;on map 3 at 0,0
 	bsr.w	printz
 	String	$BD,0,0
-	movea.l	#ScoutMap,a1
+	movea.l	#EASNBGMap,a1
 	adda.l	4(a1),a1
 	movea.w	#null,a2
 	clr.w	d0						;start x/y 0 in the map
@@ -2131,13 +2131,13 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	ENDIF
 	moveq	#0,d5					;no palette lines
 	bsr.w	dobitmap
-	;copy the rows d0 to d1 (from the caller's stack copy) of the ScoutMap bitmap, 40 wide, to map 3 at row
+	;copy the rows d0 to d1 (from the caller's stack copy) of the EASNBGMap bitmap, 40 wide, to map 3 at row
 	;printy+d0
 	bsr.w	printz
 	String	$FD,0,0					;map 3, attribute 0, x 0 y 0
 	movem.l	(sp),d0-d1/a2			;peek at the saved d0/d1/a2 without popping
 	add.w	d0,(printy).w
-	movea.l	#ScoutMap,a0			;a0 = palette (first long), a1 = map (second long)
+	movea.l	#EASNBGMap,a0			;a0 = palette (first long), a1 = map (second long)
 	movea.l	a0,a1
 	movea.l	a0,a2
 	adda.l	(a2)+,a0

@@ -143,7 +143,7 @@ const assets = [
     { name: 'Title2.map.jim', folder: 'Graphics', start: 0x031288, end: 0x031F10 }, // Title2Map: 92 Title2Map: second TitleScreen bitmap (loaded by TitleScreen)
     { name: 'Title3.anim', folder: 'Graphics', start: 0x031F10, end: 0x0322CE }, // Title3Sprites: the three TitleAnimCallback sprites (SetSframe)
     { name: 'TitleLogo.anim', folder: 'Graphics', start: 0x0322CE, end: 0x032860 }, // TitleLogoSprites: the four title logo sprites (FinalizeSpriteList SetSframe); palette reused by PlayoffScreen
-    { name: 'EASNBG.map.jim', folder: 'Graphics', start: 0x032860, end: 0x033388 }, // ScoutMap: 92 ScoutMap: ScoutingReport background, also PlayoffScreen, SetupScreen, DrawTeamScreen
+    { name: 'EASNBG.map.jim', folder: 'Graphics', start: 0x032860, end: 0x033388 }, // EASNBGMap: 92 ScoutMap: ScoutingReport background, also PlayoffScreen, SetupScreen, DrawTeamScreen
     { name: 'Framer.map.jim', folder: 'Graphics', start: 0x033388, end: 0x033400 }, // FramerMap: 92 FramerMap
     { name: 'FaceOff.map.jim', folder: 'Graphics', start: 0x033400, end: 0x033864 }, // FaceOffMap: 92 FaceOffMap
     { name: 'IceRink.map.jim', folder: 'Graphics', start: 0x033864, end: 0x038906 }, // IceRinkMap: 92 IceRinkMap

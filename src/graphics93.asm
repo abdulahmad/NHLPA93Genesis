@@ -27,14 +27,18 @@ TitleLogoSprites					;the four title logo sprites (AddTitleLogoSprites SetSframe
 									;reused by PlayoffScreen
 	incbin	..\Extracted\Graphics\TitleLogo.anim
 	even
-ScoutMap							;EASNBG.map.jim: ScoutingReport background, also PlayoffScreen,
-									;SetupScreen, DrawTeamScreen. Rev B: EASportsBG.map.jim
 	IF REV=2
+EASportsBGMap						;EASportsBG.map.jim: ScoutingReport background, also PlayoffScreen,
+									;SetupScreen, DrawTeamScreen. Rev B replaced the EASN one (EASNBGMap)
 	incbin	..\Extracted\Graphics\EASportsBG.map.jim
-	ELSE
-	incbin	..\Extracted\Graphics\EASNBG.map.jim
-	ENDIF
 	even
+EASNBGMap	equ	EASportsBGMap
+	ELSE
+EASNBGMap							;EASNBG.map.jim: ScoutingReport background, also PlayoffScreen,
+									;SetupScreen, DrawTeamScreen (92 ScoutMap)
+	incbin	..\Extracted\Graphics\EASNBG.map.jim
+	even
+	ENDIF
 FramerMap							;Framer tiles and map (AddFramer, print93.asm, hockey93.asm, stats93.asm)
 	incbin	..\Extracted\Graphics\Framer.map.jim
 	even
