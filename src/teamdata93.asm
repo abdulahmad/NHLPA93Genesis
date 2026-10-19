@@ -46,17 +46,17 @@ LineSets	=	6					;record offset of the word offset to the line sets (.ls)
 ScoutReport	=	8					;record offset of the word offset to the scouting report ratings (.sr)
 GoalieOdds	=	10					;record offset of the word offset to the starting goalie weights (.godds)
 
-AllStarsEast						;team record: All Stars East (ASE)
+AllStarsEast						;team record: All Stars East (ASE), team 24
 .0									;record base: six word offsets (Playerdata ... GoalieOdds) from here
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad								;home then visitor palette files (Palettedata)
-	incbin	..\Extracted\Graphics\Pals\ASEh.pal
-	incbin	..\Extracted\Graphics\Pals\ASEv.pal
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\ASEh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\ASEv.pal	; visitor colors
 ;------------------------
 ;q - scoring odds offense row (bits 4-6, SetScore)
 ;r - scoring odds defense row (bits 0-2)
@@ -78,13 +78,13 @@ AllStarsEast						;team record: All Stars East (ASE)
 ;g - goalkeeping
 ;o - overall
 ;------------------------
-.sr
-;		qreb,hvxx,skpd,cfgo
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	7020,00D6,9999,9099
-.godds								;starting goalie weights, 4 nibbles (PickStartingGoalie)
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	216,160
-.ls									;7 lines of 8 roster numbers, by position
-;		-G,LD,RD,LW,-C,RW,XA,00
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,18,14,04,11,05,00	;line 1
 	dc.b	01,19,20,15,05,12,04,00	;line 2
 	dc.b	01,21,22,16,06,13,04,00	;line 3
@@ -112,7 +112,7 @@ AllStarsEast						;team record: All Stars East (ASE)
 ;t - passing accuracy / consistency
 ;m - aggressiveness (PIM) / NA
 ;------------------------
-.pld								;roster: Player records, then an empty record (length 2)
+.pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Patrick Roy',			335F,AFFF,0100,FFFF
 	Player	'Mike Richter',			355D,ADDD,0100,DDDD
@@ -136,28 +136,30 @@ AllStarsEast						;team record: All Stars East (ASE)
 	Player	'Kevin Hatcher',		05AA,AADF,E4D7,F7D8
 	Player	'Eric Desjardins',		287D,AADA,B2D4,F4A5
 	Player	'Scott Stevens',		049D,ADFA,F7AA,F4DB
-	dc.b 0,2
-.tn									;team name string (Teamname)
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'All Stars East'
-.ta									;team abbreviation string
+.ta									; team abbreviation string
 	StringB	'ASE'
 
-AllStarsWest						;team record: All Stars West (ASW)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\ASWh.pal
-	incbin	..\Extracted\Graphics\Pals\ASWv.pal
-.sr
+AllStarsWest						;team record: All Stars West (ASW), team 25
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\ASWh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\ASWv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	7020,00C7,9999,9099
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	173,224
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,16,12,04,09,05,00
 	dc.b	01,18,19,13,05,10,04,00
 	dc.b	01,20,21,14,06,11,04,00
@@ -165,7 +167,8 @@ AllStarsWest						;team record: All Stars West (ASW)
 	dc.b	01,19,22,13,04,11,05,00
 	dc.b	01,17,20,14,07,15,08,00
 	dc.b	01,22,18,15,08,14,07,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Ed Belfour',			305F,AFFF,0100,FFFF
 	Player	'Kirk McLean',			016D,AFFD,0100,DDFF
 	Player	'Tim Cheveldae',		325D,ADDD,0100,DADD
@@ -188,28 +191,30 @@ AllStarsWest						;team record: All Stars West (ASW)
 	Player	'Mark Tinordi',			2588,5828,B582,E25D
 	Player	'Larry Robinson',		19A9,6396,A396,9397
 	Player	'Dave Ellett',			047B,B82E,95B5,E5B8
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'All Stars West'
-.ta
+.ta									; team abbreviation string
 	StringB	'ASW'
 
-Boston								;team record: Boston (BOS)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\BOSh.pal
-	incbin	..\Extracted\Graphics\Pals\BOSv.pal
-.sr
+Boston								;team record: Boston (BOS), team 0
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\BOSh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\BOSv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	3311,21E6,6766,6756
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	197,34
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,19,20,16,05,14,06,00
 	dc.b	01,21,22,17,06,11,05,00
 	dc.b	01,23,24,15,07,12,05,00
@@ -217,7 +222,8 @@ Boston								;team record: Boston (BOS)
 	dc.b	01,21,22,15,16,11,05,00
 	dc.b	01,19,20,11,12,15,07,00
 	dc.b	01,21,22,15,07,11,12,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Andy Moog',			353C,9ACC,0100,C9C9
 	Player	'Daniel Berthiaume',	3116,9AA6,0100,6966
 	Player	'Matt Delguidice',		3333,9AA3,0000,0300
@@ -242,28 +248,30 @@ Boston								;team record: Boston (BOS)
 	Player	'Gordon Murphy',		286F,C39C,CA93,F998
 	Player	'Jim Wiemer',			3686,33C3,6B63,966B
 	Player	'Bob Beers',			2279,9306,7230,9305
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Boston'
-.ta
+.ta									; team abbreviation string
 	StringB	'BOS'
 
-Buffalo								;team record: Buffalo (BUF)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\BUFh.pal
-	incbin	..\Extracted\Graphics\Pals\BUFv.pal
-.sr
+Buffalo								;team record: Buffalo (BUF), team 1
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\BUFh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\BUFv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	5522,22D8,2442,3933
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	101,80
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,18,13,06,09,04,00
 	dc.b	01,17,21,14,04,10,06,00
 	dc.b	01,19,23,15,05,08,06,00
@@ -271,7 +279,8 @@ Buffalo								;team record: Buffalo (BUF)
 	dc.b	01,23,21,14,04,10,06,00
 	dc.b	01,17,21,06,08,14,05,00
 	dc.b	01,23,20,14,05,06,08,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Daren Puppa',			3188,8AA8,0000,5588
 	Player	'Clint Malarchuk',		3058,8AA8,0100,8885
 	Player	'Tom Draper',			3552,8AA0,0100,2220
@@ -296,28 +305,30 @@ Buffalo								;team record: Buffalo (BUF)
 	Player	'Randy Moller',			2488,5225,9652,555D
 	Player	'Grant Ledyard',		037B,885B,8B52,E287
 	Player	'Randy Hillier',		2365,2002,5A20,2B5D
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Buffalo'
-.ta
+.ta									; team abbreviation string
 	StringB	'BUF'
 
-Calgary								;team record: Calgary (CGY)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\CGYh.pal
-	incbin	..\Extracted\Graphics\Pals\CGYv.pal
-.sr
+Calgary								;team record: Calgary (CGY), team 2
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\CGYh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\CGYv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	6622,11D8,4334,4823
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	196,00
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,19,17,14,03,10,06,00
 	dc.b	01,18,21,13,06,11,03,00
 	dc.b	01,16,20,15,04,09,03,00
@@ -325,7 +336,8 @@ Calgary								;team record: Calgary (CGY)
 	dc.b	01,18,21,06,05,11,03,00
 	dc.b	01,17,16,04,07,13,09,00
 	dc.b	01,19,20,13,09,04,07,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Mike Vernon',			3038,8AAB,0100,BB88
 	Player	'Jeff Reese',			3535,8AA5,0100,5588
 	Player	'Theoren Fleury',		142E,EB8B,C4BB,B88D
@@ -349,28 +361,30 @@ Calgary								;team record: Calgary (CGY)
 	Player	'Trent Yawney',			1868,5555,8788,B287
 	Player	'Alexnder Godynyuk',	2185,8525,9B55,222D
 	Player	'Neil Sheehy',			1595,2225,8A22,282D
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Calgary'
-.ta
+.ta									; team abbreviation string
 	StringB	'CGY'
 
-Chicago								;team record: Chicago (CHI)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\CHIh.pal
-	incbin	..\Extracted\Graphics\Pals\CHIv.pal
-.sr
+Chicago								;team record: Chicago (CHI), team 3
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\CHIh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\CHIv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	3000,21D7,7777,9888
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	164,49
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,19,14,05,09,07,00
 	dc.b	01,20,22,16,07,11,05,00
 	dc.b	01,21,23,13,06,10,05,00
@@ -378,7 +392,8 @@ Chicago								;team record: Chicago (CHI)
 	dc.b	01,21,22,07,10,11,05,00
 	dc.b	01,21,22,07,10,06,09,00
 	dc.b	01,18,19,06,09,07,10,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Ed Belfour',			305F,AFFF,0100,FFFF
 	Player	'Dominik Hasek',		313A,AAA7,0100,7AAA
 	Player	'Jim Waite',			295A,AAA7,0100,77AA
@@ -403,28 +418,30 @@ Chicago								;team record: Chicago (CHI)
 	Player	'Keith Brown',			046D,D7D7,BAA4,FAAA
 	Player	'Rod Buskas',			2584,4144,5A41,A44D
 	Player	'Igor Kravchuk',		037D,AA4A,81D4,74A4
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Chicago'
-.ta
+.ta									; team abbreviation string
 	StringB	'CHI'
 
-Detroit								;team record: Detroit (DET)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\DETh.pal
-	incbin	..\Extracted\Graphics\Pals\DETv.pal
-.sr
+Detroit								;team record: Detroit (DET), team 4
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\DETh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\DETv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	6111,00D7,8879,7878
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	226,16
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,20,13,06,08,04,00
 	dc.b	01,18,22,14,04,07,06,00
 	dc.b	01,19,21,15,05,09,06,00
@@ -432,7 +449,8 @@ Detroit								;team record: Detroit (DET)
 	dc.b	01,21,18,15,05,09,06,00
 	dc.b	01,20,18,06,07,13,04,00
 	dc.b	01,17,19,13,04,06,07,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Tim Cheveldae',		325D,ADDD,0100,DADD
 	Player	'Greg Millen',			3447,AAA4,0000,7774
 	Player	'Vincent Riendeau',		375A,AAA7,0100,A77A
@@ -456,28 +474,30 @@ Detroit								;team record: Detroit (DET)
 	Player	'Yves Racine',			335A,A77D,B5A4,D4AA
 	Player	'Brad Marsh',			20A4,74D4,A547,A47A
 	Player	'Bobby Dollas',			0897,A4D1,231A,7F17
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Detroit'
-.ta
+.ta									; team abbreviation string
 	StringB	'DET'
 
-Edmonton							;team record: Edmonton (EDM)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\EDMh.pal
-	incbin	..\Extracted\Graphics\Pals\EDMv.pal
-.sr
+Edmonton							;team record: Edmonton (EDM), team 5
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\EDMh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\EDMv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	6512,11C7,6535,4534
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	214,34
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,22,17,10,07,08,15,00
 	dc.b	01,19,20,11,15,06,07,00
 	dc.b	01,18,21,16,05,09,07,00
@@ -485,7 +505,8 @@ Edmonton							;team record: Edmonton (EDM)
 	dc.b	01,19,20,16,05,09,07,00
 	dc.b	01,22,18,16,05,12,08,00
 	dc.b	01,19,20,12,08,16,05,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Bill Ranford',			303C,9CFC,0100,CCFC
 	Player	'Ron Tugnutt',			3216,9AA3,0100,3336
 	Player	'Peter Ing',			0136,9AA3,0100,6969
@@ -509,28 +530,30 @@ Edmonton							;team record: Edmonton (EDM)
 	Player	'Norm MacIver',			3659,9CF9,9166,C097
 	Player	'Kevin Lowe',			046C,9369,A1C3,C39D
 	Player	'Craig Muni',			2873,33C3,C533,6667
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Edmonton'
-.ta
+.ta									; team abbreviation string
 	StringB	'EDM'
 
-Hartford							;team record: Hartford (HFD)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\HFDh.pal
-	incbin	..\Extracted\Graphics\Pals\HFDv.pal
-.sr
+Hartford							;team record: Hartford (HFD), team 6
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\HFDh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\HFDv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	1402,00F6,2222,1342
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	146,00
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,22,11,03,08,04,00
 	dc.b	01,19,21,12,04,09,03,00
 	dc.b	01,20,23,13,05,10,03,00
@@ -538,7 +561,8 @@ Hartford							;team record: Hartford (HFD)
 	dc.b	01,20,18,12,05,09,11,00
 	dc.b	01,18,20,13,12,04,09,00
 	dc.b	01,19,23,04,09,12,13,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Kay Whitmore',			3545,8AA5,0100,5858
 	Player	'Frank Petrangelo',		4055,8AA8,0100,5555
 	Player	'John Cullen',			1158,8B28,32EB,B5BB
@@ -562,28 +586,30 @@ Hartford							;team record: Hartford (HFD)
 	Player	'Randy Ladouceur',		29A8,2282,5552,852B
 	Player	'Adam Burt',			0668,852B,8385,B288
 	Player	'Doug Houda',			2762,2255,0225,852B
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Hartford'
-.ta
+.ta									; team abbreviation string
 	StringB	'HFD'
 
-LosAngeles							;team record: Los Angeles (LA)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\LAh.pal
-	incbin	..\Extracted\Graphics\Pals\LAv.pal
-.sr
+LosAngeles							;team record: Los Angeles (LA), team 8
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\LAh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\LAv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	4410,10D8,5664,6535
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	198,16
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,19,20,11,05,10,04,00
 	dc.b	01,18,21,12,04,09,05,00
 	dc.b	01,17,22,13,06,08,05,00
@@ -591,7 +617,8 @@ LosAngeles							;team record: Los Angeles (LA)
 	dc.b	01,17,18,12,04,09,05,00
 	dc.b	01,17,18,12,06,13,04,00
 	dc.b	01,19,20,13,04,12,06,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Kelly Hrudey',			3259,9AAC,0100,6669
 	Player	'Steve Weeks',			0133,9AA3,0100,6633
 	Player	'David Goverde',		4380,9AA3,0000,0330
@@ -616,28 +643,30 @@ LosAngeles							;team record: Los Angeles (LA)
 	Player	'Charlie Huddy',		2289,6639,9393,9397
 	Player	'Tim Watters',			0556,6363,7360,636D
 	Player	'Brent Thompson',		5643,3333,6530,633D
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Los Angeles'
-.ta
+.ta									; team abbreviation string
 	StringB	'LA'
 
-LongIsland							;team record: Long Island (LI)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\LIh.pal
-	incbin	..\Extracted\Graphics\Pals\LIv.pal
-.sr
+LongIsland							;team record: Long Island (LI), team 7
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\LIh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\LIv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	5522,01E7,5455,5234
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	102,00
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,17,13,04,12,03,00
 	dc.b	01,18,19,14,03,11,04,00
 	dc.b	01,21,23,15,06,10,04,00
@@ -645,7 +674,8 @@ LongIsland							;team record: Long Island (LI)
 	dc.b	01,23,18,13,06,03,14,00
 	dc.b	01,17,19,16,07,08,11,00
 	dc.b	01,20,22,08,11,16,07,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Glenn Healy',			3546,9AA6,0100,3636
 	Player	'Mark Fitzpatrik',		3063,9AA3,0100,3366
 	Player	'Ray Ferraro',			2056,9CCC,65CF,C698
@@ -669,28 +699,30 @@ LongIsland							;team record: Long Island (LI)
 	Player	'Jeff Norton',			0869,9996,7363,9095
 	Player	'Wayne McBean',			0663,33F6,6363,6C65
 	Player	'Scott Lachance',		0776,66F3,6163,6332
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Long Island'
-.ta
+.ta									; team abbreviation string
 	StringB	'LI'
 
-Minnesota							;team record: Minnesota (MIN)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\MINh.pal
-	incbin	..\Extracted\Graphics\Pals\MINv.pal
-.sr
+Minnesota							;team record: Minnesota (MIN), team 9
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\MINh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\MINv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	1301,11F6,1232,1652
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	166,00
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,21,14,04,10,03,00
 	dc.b	01,20,22,16,03,11,04,00
 	dc.b	01,19,23,15,05,09,04,00
@@ -698,7 +730,8 @@ Minnesota							;team record: Minnesota (MIN)
 	dc.b	01,20,18,05,04,09,03,00
 	dc.b	01,21,18,15,04,14,07,00
 	dc.b	01,20,23,14,07,15,04,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Jon Casey',			301B,8BA8,0100,558B
 	Player	'Darcy Wakaluk',		3555,8AA8,0100,5585
 	Player	'Dave Gagner',			1555,5B58,8588,B85A
@@ -722,28 +755,30 @@ Minnesota							;team record: Minnesota (MIN)
 	Player	'Mark Tinordi',			2488,5828,B582,E25D
 	Player	'David Shaw',			2685,5225,8452,555A
 	Player	'Derian Hatcher',		2888,55B5,6558,B82D
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Minnesota'
-.ta
+.ta									; team abbreviation string
 	StringB	'MIN'
 
-Montreal							;team record: Montreal (MTL)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\MTLh.pal
-	incbin	..\Extracted\Graphics\Pals\MTLv.pal
-.sr
+Montreal							;team record: Montreal (MTL), team 10
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\MTLh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\MTLv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	3011,22E7,7888,8499
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	210,32
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,18,14,05,13,04,00
 	dc.b	01,21,23,16,04,10,05,00
 	dc.b	01,19,22,15,06,11,05,00
@@ -751,7 +786,8 @@ Montreal							;team record: Montreal (MTL)
 	dc.b	01,21,23,17,05,09,14,00
 	dc.b	01,19,23,16,08,14,05,00
 	dc.b	01,20,18,14,05,16,08,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Patrick Roy',			335F,AFFF,0100,FFFF
 	Player	'Roland Melanson',		0157,AAA7,0100,4477
 	Player	'Andre Racicot',		4031,AAA1,0100,1111
@@ -776,28 +812,30 @@ Montreal							;team record: Montreal (MTL)
 	Player	'Sylvain Lefebvre',		038A,A4D4,8374,A4A8
 	Player	'Kevin Haller',			1457,7774,8747,F478
 	Player	'Patrice Brisebois',	434A,A7DA,A674,7475
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Montreal'
-.ta
+.ta									; team abbreviation string
 	StringB	'MTL'
 
-NewJersey							;team record: New Jersey (NJ)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\NJh.pal
-	incbin	..\Extracted\Graphics\Pals\NJv.pal
-.sr
+NewJersey							;team record: New Jersey (NJ), team 11
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\NJh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\NJv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	5200,11F6,8668,6467
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	165,00
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,22,23,14,03,08,04,00
 	dc.b	01,20,21,13,04,09,03,00
 	dc.b	01,18,19,12,05,10,03,00
@@ -805,7 +843,8 @@ NewJersey							;team record: New Jersey (NJ)
 	dc.b	01,21,22,14,04,09,03,00
 	dc.b	01,23,19,12,11,05,10,00
 	dc.b	01,21,22,05,10,12,11,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Chris Terreri',		311D,AAAA,0100,AAAA
 	Player	'Craig Billington',		013A,AAA4,0100,7777
 	Player	'Kevin Todd',			144A,DDA7,B57D,D7A5
@@ -829,28 +868,30 @@ NewJersey							;team record: New Jersey (NJ)
 	Player	'Alexei Kasatonov',		079D,AADD,B5DA,F4D5
 	Player	'Slava Fetisov',		02AD,77DD,B5D4,F1D8
 	Player	'Scott Stevens',		049D,ADFA,F7AA,F4DB
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'New Jersey'
-.ta
+.ta									; team abbreviation string
 	StringB	'NJ'
 
-NewYork								;team record: New York (NY)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\NYh.pal
-	incbin	..\Extracted\Graphics\Pals\NYv.pal
-.sr
+NewYork								;team record: New York (NY), team 12
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\NYh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\NYv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	7120,20F8,7989,7789
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	152,00
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,20,15,03,09,05,00
 	dc.b	01,21,24,16,05,08,03,00
 	dc.b	01,19,22,17,04,12,03,00
@@ -858,7 +899,8 @@ NewYork								;team record: New York (NY)
 	dc.b	01,21,24,16,04,08,03,00
 	dc.b	01,19,21,03,07,04,11,00
 	dc.b	01,18,20,04,11,03,07,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'John Vanbiesbrk',		344A,ADAA,0100,ADAD
 	Player	'Mike Richter',			355D,ADDD,0100,DDDD
 	Player	'Mark Messier',			118F,DFFA,F3FD,F4F9
@@ -884,28 +926,30 @@ NewYork								;team record: New York (NY)
 	Player	'Jay Wells',			2487,74A7,A577,717C
 	Player	'Per Djoos',			4447,A7D7,8074,D176
 	Player	'Normand Rochefort',	0597,7114,B171,7A49
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'New York'
-.ta
+.ta									; team abbreviation string
 	StringB	'NY'
 
-Ottawa								;team record: Ottawa (OTW)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\OTWh.pal
-	incbin	..\Extracted\Graphics\Pals\OTWv.pal
-.sr
+Ottawa								;team record: Ottawa (OTW), team 13
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\OTWh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\OTWv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	0702,02A6,1111,1411
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	96,00
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,12,13,10,07,02,03,00
 	dc.b	01,14,15,08,03,06,10,00
 	dc.b	01,16,17,09,04,05,10,00
@@ -913,7 +957,8 @@ Ottawa								;team record: Ottawa (OTW)
 	dc.b	01,17,14,07,10,02,03,00
 	dc.b	01,12,13,10,02,08,09,00
 	dc.b	01,17,16,08,09,10,02,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Peter Sidorkwicz',		3055,8AA5,0100,5555
 	Player	'Mark Lamb',			075C,C996,9196,6397
 	Player	'Mark Freer',			3756,6393,736C,6963
@@ -931,28 +976,30 @@ Ottawa								;team record: Ottawa (OTW)
 	Player	'Dominic Lavoie',		3880,0020,2000,220A
 	Player	'Darren Rumble',		3470,0020,2100,220A
 	Player	'Brad Miller',			44A2,5255,8D22,855F
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Ottawa'
-.ta
+.ta									; team abbreviation string
 	StringB	'OTW'
 
-Philadelphia						;team record: Philadelphia (PHI)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\PHIh.pal
-	incbin	..\Extracted\Graphics\Pals\PHIv.pal
-.sr
+Philadelphia						;team record: Philadelphia (PHI), team 14
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\PHIh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\PHIv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	2201,22E8,3443,2353
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	147,00
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,18,13,03,09,04,00
 	dc.b	01,21,23,15,04,10,03,00
 	dc.b	01,19,20,16,05,11,03,00
@@ -960,7 +1007,8 @@ Philadelphia						;team record: Philadelphia (PHI)
 	dc.b	01,21,18,13,03,09,04,00
 	dc.b	01,17,23,04,09,03,05,00
 	dc.b	01,21,20,03,05,04,09,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Ron Hextall',			2769,9AA9,0100,CC99
 	Player	'Dominic Roussel',		3353,9AA3,0100,3366
 	Player	'Rod Brindamour',		177C,9C6C,75CC,F9C9
@@ -985,28 +1033,30 @@ Philadelphia						;team record: Philadelphia (PHI)
 	Player	'Dan Kordic',			0680,0390,7603,693C
 	Player	'Mark Howe',			0259,99FC,71C9,F3C3
 	Player	'Corey Foster',			4470,0603,1133,6C36
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Philadelphia'
-.ta
+.ta									; team abbreviation string
 	StringB	'PHI'
 
-Pittsburgh							;team record: Pittsburgh (PIT)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\PITh.pal
-	incbin	..\Extracted\Graphics\Pals\PITv.pal
-.sr
+Pittsburgh							;team record: Pittsburgh (PIT), team 15
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\PITh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\PITv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	7621,10E7,5566,5725
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	182,00
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,17,13,04,09,03,00
 	dc.b	01,19,23,14,03,10,04,00
 	dc.b	01,20,21,15,05,08,04,00
@@ -1014,7 +1064,8 @@ Pittsburgh							;team record: Pittsburgh (PIT)
 	dc.b	01,21,18,03,10,09,04,00
 	dc.b	01,17,22,14,03,05,08,00
 	dc.b	01,18,20,05,08,14,03,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Tom Barrasso',			358C,9AC9,0000,99C9
 	Player	'Ken Wregget',			3166,9AA6,0100,9696
 	Player	'Ron Francis',			107C,9C6C,93CC,F6C3
@@ -1038,28 +1089,30 @@ Pittsburgh							;team record: Pittsburgh (PIT)
 	Player	'Paul Stanton',			2269,933C,9463,C6C9
 	Player	'Grant Jennings',		0376,6396,A769,663C
 	Player	'Jim Paek',				0266,9393,6333,6366
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Pittsburgh'
-.ta
+.ta									; team abbreviation string
 	StringB	'PIT'
 
-Quebec								;team record: Quebec (QUE)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\QUEh.pal
-	incbin	..\Extracted\Graphics\Pals\QUEv.pal
-.sr
+Quebec								;team record: Quebec (QUE), team 16
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\QUEh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\QUEv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	2602,22E8,3212,1321
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	84,32
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,19,17,05,10,04,00
 	dc.b	01,18,24,14,04,08,05,00
 	dc.b	01,21,22,16,07,09,05,00
@@ -1067,7 +1120,8 @@ Quebec								;team record: Quebec (QUE)
 	dc.b	01,22,24,14,04,08,09,00
 	dc.b	01,20,24,16,04,14,05,00
 	dc.b	01,21,18,14,05,16,04,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Jacques Cloutier',		3232,8AA2,0100,2225
 	Player	'Stephane Fiset',		3142,8AA0,0100,2200
 	Player	'John Tanner',			3450,8AA0,0100,0000
@@ -1093,28 +1147,30 @@ Quebec								;team record: Quebec (QUE)
 	Player	'Tony Twist',			1590,0050,3D00,280C
 	Player	'Curtis Leschyshyn',	0788,B505,8355,E289
 	Player	'Dan Lambert',			5042,2822,015B,5256
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Quebec'
-.ta
+.ta									; team abbreviation string
 	StringB	'QUE'
 
-SanJose								;team record: San Jose (SJ)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\SJh.pal
-	incbin	..\Extracted\Graphics\Pals\SJv.pal
-.sr
+SanJose								;team record: San Jose (SJ), team 17
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\SJh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\SJv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	0702,12E6,2111,3211
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	133,34
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,24,20,16,09,11,12,00
 	dc.b	01,23,21,17,08,12,09,00
 	dc.b	01,19,22,15,07,13,09,00
@@ -1122,7 +1178,8 @@ SanJose								;team record: San Jose (SJ)
 	dc.b	01,22,23,07,12,11,09,00
 	dc.b	01,20,23,07,12,16,09,00
 	dc.b	01,24,21,16,09,07,12,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Jeff Hackett',			3042,8AA2,0100,2225
 	Player	'Jarmo Myllys',			3525,8AA2,0100,5528
 	Player	'Arturs Irbe',			3245,8AA8,0100,8855
@@ -1147,28 +1204,30 @@ SanJose								;team record: San Jose (SJ)
 	Player	'Link Gaetz',			2388,8208,BD85,288F
 	Player	'Jay More',				0468,550B,8485,E28C
 	Player	'Doug Wilson',			245B,880F,81B5,E5B3
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'San Jose'
-.ta
+.ta									; team abbreviation string
 	StringB	'SJ'
 
 StLouis								;team record: St
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\STLh.pal
-	incbin	..\Extracted\Graphics\Pals\STLv.pal
-.sr
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\STLh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\STLv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	4210,21D8,4364,4564
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	194,32
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,22,17,14,04,10,06,00
 	dc.b	01,18,20,15,06,08,04,00
 	dc.b	01,19,21,13,07,09,04,00
@@ -1176,7 +1235,8 @@ StLouis								;team record: St
 	dc.b	01,21,20,07,04,09,08,00
 	dc.b	01,22,20,07,09,13,05,00
 	dc.b	01,21,19,13,05,07,09,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Curtis Joseph',		315C,9CCC,0100,99CC
 	Player	'Guy Hebert',			4050,9AA0,0100,0000
 	Player	'Pat Jablonski',		0143,9AA0,0000,3333
@@ -1201,28 +1261,30 @@ StLouis								;team record: St
 	Player	'Paul Cavallini',		148C,C999,95C3,F699
 	Player	'Lee Norwood',			2076,66C3,7763,636C
 	Player	'Rob Robinson',			4493,6033,6160,6933
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'St. Louis'
-.ta
+.ta									; team abbreviation string
 	StringB	'STL'
 
-TampaBay							;team record: Tampa Bay (TBY)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\TBYh.pal
-	incbin	..\Extracted\Graphics\Pals\TBYv.pal
-.sr
+TampaBay							;team record: Tampa Bay (TBY), team 19
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\TBYh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\TBYv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	0702,02A7,2111,1411
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	48,00
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,13,12,09,02,06,03,00
 	dc.b	01,14,15,10,03,07,02,00
 	dc.b	01,16,17,11,04,08,02,00
@@ -1230,7 +1292,8 @@ TampaBay							;team record: Tampa Bay (TBY)
 	dc.b	01,15,13,11,04,07,02,00
 	dc.b	01,14,13,10,03,11,05,00
 	dc.b	01,16,18,11,05,10,03,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Wendell Young',		0159,9AA9,0100,9699
 	Player	'Anatoli Semenov',		196C,9CCC,71CC,C9C4
 	Player	'Rob Dimaio',			1846,9303,1269,9F05
@@ -1249,28 +1312,30 @@ TampaBay							;team record: Tampa Bay (TBY)
 	Player	'Bob McGill',			0464,411D,B274,7F4A
 	Player	'Jeff Bloemberg',		3870,0020,2000,222A
 	Player	'Shawn Chambers',		2570,0000,2100,220A
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Tampa Bay'
-.ta
+.ta									; team abbreviation string
 	StringB	'TBY'
 
-Toronto								;team record: Toronto (TOR)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\TORh.pal
-	incbin	..\Extracted\Graphics\Pals\TORv.pal
-.sr
+Toronto								;team record: Toronto (TOR), team 20
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\TORh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\TORv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	1411,12E8,2123,3232
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	211,00
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,17,19,13,03,06,05,00
 	dc.b	01,20,21,10,05,08,03,00
 	dc.b	01,18,22,14,04,07,03,00
@@ -1278,7 +1343,8 @@ Toronto								;team record: Toronto (TOR)
 	dc.b	01,18,22,05,07,06,13,00
 	dc.b	01,19,21,12,04,10,03,00
 	dc.b	01,18,17,10,03,12,04,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Grant Fuhr',			315E,8EEE,0000,BBEE
 	Player	'Rick Wamsley',			3055,8AA5,0100,5555
 	Player	'Doug Gilmour',			933E,8BB8,B1BB,E2B8
@@ -1303,28 +1369,30 @@ Toronto								;team record: Toronto (TOR)
 	Player	'Darryl Shannon',		2868,5225,8182,B552
 	Player	'Bob Halkidis',			3372,2222,2725,582B
 	Player	'Dimitri Mironov',		1568,5208,218B,55B0
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Toronto'
-.ta
+.ta									; team abbreviation string
 	StringB	'TOR'
 
-Vancouver							;team record: Vancouver (VAN)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\VANh.pal
-	incbin	..\Extracted\Graphics\Pals\VANv.pal
-.sr
+Vancouver							;team record: Vancouver (VAN), team 21
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\VANh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\VANv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	4111,10E8,6877,7577
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	211,00
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,18,19,13,03,09,05,00
 	dc.b	01,17,21,12,05,11,03,00
 	dc.b	01,20,22,16,04,10,03,00
@@ -1332,7 +1400,8 @@ Vancouver							;team record: Vancouver (VAN)
 	dc.b	01,22,17,12,05,11,04,00
 	dc.b	01,19,22,06,07,12,05,00
 	dc.b	01,17,18,12,05,06,07,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Kirk McLean',			016D,AFFD,0100,DDFF
 	Player	'Troy Gamble',			3567,AAA7,0100,77AA
 	Player	'Cliff Ronning',		074F,FDD7,81DA,AAD4
@@ -1357,28 +1426,30 @@ Vancouver							;team record: Vancouver (VAN)
 	Player	'Doug Lidster',			037A,AADA,B2D7,F4D4
 	Player	'Randy Gregg',			2494,4444,5144,744A
 	Player	'Adrien Plavsic',		0667,7AD7,A374,7177
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Vancouver'
-.ta
+.ta									; team abbreviation string
 	StringB	'VAN'
 
-Winnipeg							;team record: Winnipeg (WPG)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\WPGh.pal
-	incbin	..\Extracted\Graphics\Pals\WPGv.pal
-.sr
+Winnipeg							;team record: Winnipeg (WPG), team 23
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\WPGh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\WPGv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	2020,10E7,4555,2185
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	149,48
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,20,21,17,07,10,04,00
 	dc.b	01,18,24,14,04,11,07,00
 	dc.b	01,22,23,15,05,09,07,00
@@ -1386,7 +1457,8 @@ Winnipeg							;team record: Winnipeg (WPG)
 	dc.b	01,22,18,14,04,12,11,00
 	dc.b	01,20,23,15,04,14,05,00
 	dc.b	01,22,18,14,05,15,04,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Bob Essensa',			352F,9CCF,0100,CCCC
 	Player	'Steph Beauregard',		3056,9AA6,0000,3666
 	Player	'Rick Tabaracci',		3156,9AA3,0100,3366
@@ -1411,28 +1483,30 @@ Winnipeg							;team record: Winnipeg (WPG)
 	Player	'Randy Carlyle',		0876,6396,A360,F966
 	Player	'Shawn Cronin',			4480,0030,7D00,C60F
 	Player	'Mario Marois',			3363,3333,6463,9969
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Winnipeg'
-.ta
+.ta									; team abbreviation string
 	StringB	'WPG'
 
-Washington							;team record: Washington (WSH)
-.0
-	dc.w	.pld-.0
-	dc.w	.pad-.0
-	dc.w	.tn-.0
-	dc.w	.ls-.0
-	dc.w	.sr-.0
-	dc.w	.godds-.0
-.pad
-	incbin	..\Extracted\Graphics\Pals\WSHh.pal
-	incbin	..\Extracted\Graphics\Pals\WSHv.pal
-.sr
+Washington							;team record: Washington (WSH), team 22
+.0									; record base: six word offsets (Playerdata ... GoalieOdds) from here
+	dc.w	.pld-.0					; Playerdata
+	dc.w	.pad-.0					; Palettedata
+	dc.w	.tn-.0					; Teamname
+	dc.w	.ls-.0					; LineSets
+	dc.w	.sr-.0					; ScoutReport
+	dc.w	.godds-.0				; GoalieOdds
+.pad								; team palettes (home and visitor)
+	incbin	..\Extracted\Graphics\Pals\WSHh.pal	; home colors
+	incbin	..\Extracted\Graphics\Pals\WSHv.pal	; visitor colors
+.sr									; scouting report ratings
+;			qreb,hvxx,skpd,cfgo
 	hex2	7320,00E7,9697,8458
-.godds
+.godds								; starting goalie weights, 4 nibbles (PickStartingGoalie)
 	dc.b	164,32
-.ls
+.ls									; line sets: 7 lines of 8 roster numbers, by position
+;			-G,LD,RD,LW,-C,RW,XA,00
 	dc.b	01,19,20,12,05,08,04,00
 	dc.b	01,18,24,15,04,11,05,00
 	dc.b	01,21,22,14,06,10,05,00
@@ -1440,7 +1514,8 @@ Washington							;team record: Washington (WSH)
 	dc.b	01,21,20,06,05,08,04,00
 	dc.b	01,21,24,12,05,06,07,00
 	dc.b	01,18,19,06,07,12,05,00
-.pld
+.pld								; roster: Player records, then an empty record (length 2)
+;									unwl,sodp,chga,eytm
 	Player	'Don Beaupre',			3337,AAAA,0100,AAAA
 	Player	'Mike Liut',			0167,AAA7,0100,A77A
 	Player	'Jim Hrivnak',			3954,AAA4,0100,1144
@@ -1465,14 +1540,14 @@ Washington							;team record: Washington (WSH)
 	Player	'Rod Langway',			059A,74D4,A1A1,A172
 	Player	'Ken Sabourin',			0284,4141,1111,771B
 	Player	'Brad Schlegel',		285A,7147,7071,D770
-	dc.b 0,2
-.tn
+	dc.b	0,2						; end of the player list (empty name)
+.tn									; team name string (Teamname)
 	StringB	'Washington'
-.ta
+.ta									; team abbreviation string
 	StringB	'WSH'
 
 
-playoffseats						;32 playoff trees x 16 bytes: team numbers in first round tree order
+playoffseats						;34 playoff trees x 16 bytes: team numbers in first round tree order
 									;(adjacent pairs meet); used by NewPO and MakeTree
 	dc.b	15,22,11,12, 1,0,6,10, 5,8,23,21, 9,4,18,3
 	dc.b	11,22,15,12, 6,0,1,10, 23,8,5,21, 18,4,9,3
