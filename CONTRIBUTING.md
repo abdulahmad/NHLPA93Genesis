@@ -68,6 +68,14 @@ A comment-only or rename-only change must not change a single byte. Never commit
   after the code.
 - No comment line is wider than 110 columns. A longer comment continues on the next lines, starting in the same
   column as the first line.
+- Columns count from 0, so column 36 is the start of the tenth tab stop (nine tabs on an empty line). Align with
+  tabs, never spaces.
+- A comment that explains one instruction goes to the right of that instruction, as its trailing comment at column
+  36 (shortened if needed). Do not put it on its own line above the instruction.
+- A comment on its own line, at the code indent (one tab), is only for a section or block header: it introduces the
+  steps below it. Exception: where NHL92Genesis (EA's original) has a comment on its own line in the same place,
+  keep that placement.
+- The continuation lines of a trailing comment also start at column 36, never at the code indent.
 - A header or block comment has paragraphs of at most 3 lines, separated by a `;` line. Keep headers short:
   what the file is, how it relates to its neighbours, and the few notes nobody could guess.
 - A banner (`;====`) introduces a section; use one comment block under it, not a list of every routine.
