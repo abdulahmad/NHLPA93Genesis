@@ -139,7 +139,7 @@ play_sfx_or_music_track				;start sound d0 (0-$37) in a track slot. $30 and up a
 
 stop_current_song					;stop the song in progress: free the first slot whose pointer is at or
 									;past the first song
-									;($30) data and key off its channels. Called from play_sfx_or_music_track
+									;data and key off its channels. Called from play_sfx_or_music_track
 									;and checkgoal
 	movem.l	d0-d3/a0-a3,-(sp)
 	movea.w	#(fm_track_slots-M68K_RAM),a1
@@ -222,7 +222,7 @@ p_music_vblank						;(vblank handler). Clear the change bits, run the 8 track sl
 									;send the buffer if anything changed and age the channels. Called every
 									;frame from the vblank handlers. Rev A runs the slots again every 6th
 									;frame while PalMode
-									;is set (music_tick_divider $CAF0); Rev 0 has no such block (22 bytes
+									;is set (music_tick_divider); Rev 0 has no such block (22 bytes
 									;shorter)
 	IF REV=2
 	bsr.b	ReadPads				;Rev B: poll the controllers first

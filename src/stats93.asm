@@ -941,7 +941,7 @@ attribjmp							;GetNameandAttrib column handlers, offsets from attribjmp
 	dc.w	AttribFighting-attribjmp
 	dc.w	AttribRating-attribjmp
 
-AttribStatus						;Roster column: status. Player d0's word at $66(a2) negative = not'ed
+AttribStatus						;Roster column: status. Player d0's tmpdst word in a2 negative = not'ed
 									;status 0-2 (Ice/Bench/Injury P), positive = penalty time (bit $C injured
 									;G, bit $E prints C)
 	add.w	d0,d0					;word index by player
@@ -983,7 +983,7 @@ StatusTextTbl						;AttribStatus strings
 	dc.w	$0006
 	dc.b	' C  '
 
-AttribEnergy						;Roster column: energy. $32(a2) word / 40, max 100
+AttribEnergy						;Roster column: energy. tmpde word / 40, max 100
 	add.w	d0,d0					;word index by player
 	move.w	tmpde(a2,d0.w),d0
 	ext.l	d0
@@ -1957,7 +1957,7 @@ DisplayStats						;team logos, then each TeamStatTextTbl row
 
 PrintStatValue						;from 92 DisplayStats .ss. print TeamStatTextTbl entry a0 for team a2
 									;centred at printx:
-									;value (offset $A is a time), "/second" if any, " (pct%)" for passing
+									;value (tmATOP is a time), "/second" if any, " (pct%)" for passing
 									;a3 = mesarea, an empty string (length word 2) the value text is appended
 									;to
 	movea.w	#(mesarea-M68K_RAM),a3
@@ -1965,7 +1965,7 @@ PrintStatValue						;from 92 DisplayStats .ss. print TeamStatTextTbl entry a0 fo
 	move.w	(a0),d0					;first stat offset
 	move.w	(a2,d0.w),d0			;value in the team struct
 	cmpi.w	#$A,(a0)
-	beq.w	.0						;offset $A (attack time) is formatted as a time instead
+	beq.w	.0						;tmATOP (attack time) is formatted as a time instead
 	bsr.w	PushNumber
 .0	cmpi.w	#$A,(a0)				;attack time: format d0 as minutes:seconds
 	bne.w	.1
@@ -1978,7 +1978,7 @@ PrintStatValue						;from 92 DisplayStats .ss. print TeamStatTextTbl entry a0 fo
 	move.w	(a2,d0.w),d0
 	bsr.w	PushNumber
 	bsr.w	appstring
-	cmpi.w	#$14,(a0)				;offset $14 (passing) also gets a percentage
+	cmpi.w	#$14,(a0)				;tmpasscomp (passing) also gets a percentage
 	bne.w	.x
 	bsr.w	appendz
 	String	$20,$28					;' ('
@@ -2015,16 +2015,16 @@ TeamStatTextTbl						;label, then team struct stat offset and second offset ($FF
 	dc.w	6,8						;tmPenalties / tmPenmin
 	dc.w	$000E
 	dc.b	'Faceoffs Won'
-	dc.w	$E,$FFFF				;team struct offset $E
+	dc.w	$E,$FFFF				;tmfowon
 	dc.w	$000E
 	dc.b	'Body Checks',0
-	dc.w	$10,$FFFF				;team struct offset $10
+	dc.w	$10,$FFFF				;tmchecks
 	dc.w	$000E
 	dc.b	'Attack Zone',0
 	dc.w	$A,$FFFF				;tmATOP, shown as a time
 	dc.w	$000A
 	dc.b	'Passing',0
-	dc.w	$14,$12					;offsets $14 / $12, also shown as a percentage
+	dc.w	$14,$12					;tmpasscomp / tmpasses, also shown as a percentage
 
 CrowdMeterScreen					;"Crowd Meter": current, average
 									;and peak crowd level in dB. Start exits

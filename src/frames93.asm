@@ -62,14 +62,14 @@ SPAlist								;base of the animation tables; a SPA value is the offset of a tab
 SPAgready	=	*-SPAlist			;goalie in ready position
 SPAgready_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0036
-	dc.w	.2-.t					; 0x005a
-	dc.w	.3-.t					; 0x007e
-	dc.w	.4-.t					; 0x00a2
-	dc.w	.5-.t					; 0x00c6
-	dc.w	.6-.t					; 0x00ea
-	dc.w	.7-.t					; 0x010e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	1
 
 .a	=	SPFGoalie
@@ -103,14 +103,14 @@ SPAgready_table:					;table of the animation above: direction offsets, flags, fr
 SPAgready2	=	*-SPAlist			;goalie ready position, held frame (used by the goalie scripts)
 SPAgready2_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFGoalie
@@ -135,14 +135,14 @@ SPAgready2_table:					;table of the animation above: direction offsets, flags, f
 SPAgglover	=	*-SPAlist			;goalie does glove save right
 SPAgglover_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFGoalie+1
@@ -167,14 +167,14 @@ SPAgglover_table:					;table of the animation above: direction offsets, flags, f
 SPAgglovel	=	*-SPAlist			;goalie does glove save left
 SPAgglovel_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFGoalie+2
@@ -199,14 +199,14 @@ SPAgglovel_table:					;table of the animation above: direction offsets, flags, f
 SPAgglovel2	=	*-SPAlist			;goalie second glove save (SPFglovel2 frames, from the other glove)
 SPAgglovel2_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001e
-	dc.w	.2-.t					; 0x0022
-	dc.w	.3-.t					; 0x0026
-	dc.w	.4-.t					; 0x002a
-	dc.w	.5-.t					; 0x0036
-	dc.w	.6-.t					; 0x003a
-	dc.w	.7-.t					; 0x003e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFglovel2
@@ -224,14 +224,14 @@ SPAgglovel2_table:					;table of the animation above: direction offsets, flags, 
 SPAgstickr	=	*-SPAlist			;goalie stick save right
 SPAgstickr_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFGoalie+64
@@ -256,14 +256,14 @@ SPAgstickr_table:					;table of the animation above: direction offsets, flags, f
 SPAgstickl	=	*-SPAlist			;goalie stick save left
 SPAgstickl_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFGoalie+65
@@ -288,14 +288,14 @@ SPAgstickl_table:					;table of the animation above: direction offsets, flags, f
 SPAgstackr	=	*-SPAlist			;goalie stack (pad save) right
 SPAgstackr_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001a
-	dc.w	.2-.t					; 0x0022
-	dc.w	.3-.t					; 0x002a
-	dc.w	.4-.t					; 0x0032
-	dc.w	.5-.t					; 0x003a
-	dc.w	.6-.t					; 0x0042
-	dc.w	.7-.t					; 0x004a
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFGoalie+40
@@ -312,14 +312,14 @@ SPAgstackr_table:					;table of the animation above: direction offsets, flags, f
 SPAgstackl	=	*-SPAlist			;goalie stack (pad save) left
 SPAgstackl_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001a
-	dc.w	.2-.t					; 0x0022
-	dc.w	.3-.t					; 0x002a
-	dc.w	.4-.t					; 0x0032
-	dc.w	.5-.t					; 0x003a
-	dc.w	.6-.t					; 0x0042
-	dc.w	.7-.t					; 0x004a
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFGoalie+52
@@ -336,14 +336,14 @@ SPAgstackl_table:					;table of the animation above: direction offsets, flags, f
 SPAgdive	=	*-SPAlist			;goalie diving save (SPFgdive frames)
 SPAgdive_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001e
-	dc.w	.2-.t					; 0x002a
-	dc.w	.3-.t					; 0x0036
-	dc.w	.4-.t					; 0x0042
-	dc.w	.5-.t					; 0x004e
-	dc.w	.6-.t					; 0x005a
-	dc.w	.7-.t					; 0x0066
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFgdive
@@ -368,14 +368,14 @@ SPAgdive_table:						;table of the animation above: direction offsets, flags, fr
 SPAgswing	=	*-SPAlist			;goalie passes puck
 SPAgswing_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001e
-	dc.w	.2-.t					; 0x002a
-	dc.w	.3-.t					; 0x0036
-	dc.w	.4-.t					; 0x0042
-	dc.w	.5-.t					; 0x004e
-	dc.w	.6-.t					; 0x005a
-	dc.w	.7-.t					; 0x0066
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFGoalie+24
@@ -400,14 +400,14 @@ SPAgswing_table:					;table of the animation above: direction offsets, flags, fr
 SPAgskate	=	*-SPAlist			;goalie skates
 SPAgskate_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0022
-	dc.w	.2-.t					; 0x0032
-	dc.w	.3-.t					; 0x0042
-	dc.w	.4-.t					; 0x0052
-	dc.w	.5-.t					; 0x0062
-	dc.w	.6-.t					; 0x0072
-	dc.w	.7-.t					; 0x0082
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFGoalie+80
@@ -432,14 +432,14 @@ SPAgskate_table:					;table of the animation above: direction offsets, flags, fr
 SPApflip	=	*-SPAlist			;puck animation (flipping puck)
 SPApflip_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0032
-	dc.w	.2-.t					; 0x0052
-	dc.w	.3-.t					; 0x0072
-	dc.w	.4-.t					; 0x0092
-	dc.w	.5-.t					; 0x0096
-	dc.w	.6-.t					; 0x009a
-	dc.w	.7-.t					; 0x009e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	1
 
 .a	=	SPFpuck+1
@@ -456,14 +456,14 @@ SPApflip_table:						;table of the animation above: direction offsets, flags, fr
 SPAglide	=	*-SPAlist			;player gliding with stick down
 SPAglide_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFskatewp
@@ -488,14 +488,14 @@ SPAglide_table:						;table of the animation above: direction offsets, flags, fr
 SPAskatewp	=	*-SPAlist			;player skating with stick down (SPFskatewp frames)
 SPAskatewp_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0022
-	dc.w	.2-.t					; 0x0032
-	dc.w	.3-.t					; 0x0042
-	dc.w	.4-.t					; 0x0052
-	dc.w	.5-.t					; 0x0062
-	dc.w	.6-.t					; 0x0072
-	dc.w	.7-.t					; 0x0082
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFskatewp+1
@@ -520,14 +520,14 @@ SPAskatewp_table:					;table of the animation above: direction offsets, flags, f
 SPAskate	=	*-SPAlist			;player skating with stick up (SPFskate frames)
 SPAskate_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0022
-	dc.w	.2-.t					; 0x0032
-	dc.w	.3-.t					; 0x0042
-	dc.w	.4-.t					; 0x0052
-	dc.w	.5-.t					; 0x0062
-	dc.w	.6-.t					; 0x0072
-	dc.w	.7-.t					; 0x0082
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFskate+1
@@ -552,14 +552,14 @@ SPAskate_table:						;table of the animation above: direction offsets, flags, fr
 SPAturnl	=	*-SPAlist			;player turning left
 SPAturnl_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFturnl
@@ -584,14 +584,14 @@ SPAturnl_table:						;table of the animation above: direction offsets, flags, fr
 SPAturnr	=	*-SPAlist			;player turning right
 SPAturnr_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFturnr
@@ -616,14 +616,14 @@ SPAturnr_table:						;table of the animation above: direction offsets, flags, fr
 SPAstop	=	*-SPAlist				;player scrape stopping
 SPAstop_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001a
-	dc.w	.2-.t					; 0x0022
-	dc.w	.3-.t					; 0x002a
-	dc.w	.4-.t					; 0x0032
-	dc.w	.5-.t					; 0x003a
-	dc.w	.6-.t					; 0x0042
-	dc.w	.7-.t					; 0x004a
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	1
 
 .a	=	SPFstop
@@ -648,14 +648,14 @@ SPAstop_table:						;table of the animation above: direction offsets, flags, fra
 SPApassf	=	*-SPAlist			;forward pass swing
 SPApassf_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001e
-	dc.w	.2-.t					; 0x002a
-	dc.w	.3-.t					; 0x0036
-	dc.w	.4-.t					; 0x0042
-	dc.w	.5-.t					; 0x004e
-	dc.w	.6-.t					; 0x005a
-	dc.w	.7-.t					; 0x0066
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFswing+3
@@ -680,14 +680,14 @@ SPApassf_table:						;table of the animation above: direction offsets, flags, fr
 SPApassb	=	*-SPAlist			;back hand pass swing
 SPApassb_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001e
-	dc.w	.2-.t					; 0x002a
-	dc.w	.3-.t					; 0x0036
-	dc.w	.4-.t					; 0x0042
-	dc.w	.5-.t					; 0x004e
-	dc.w	.6-.t					; 0x005a
-	dc.w	.7-.t					; 0x0066
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFswing+1
@@ -712,14 +712,14 @@ SPApassb_table:						;table of the animation above: direction offsets, flags, fr
 SPAshotf	=	*-SPAlist			;player shoots forehand
 SPAshotf_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0036
-	dc.w	.2-.t					; 0x005a
-	dc.w	.3-.t					; 0x007e
-	dc.w	.4-.t					; 0x00a2
-	dc.w	.5-.t					; 0x00c6
-	dc.w	.6-.t					; 0x00ea
-	dc.w	.7-.t					; 0x010e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFswing
@@ -744,14 +744,14 @@ SPAshotf_table:						;table of the animation above: direction offsets, flags, fr
 SPAshotb	=	*-SPAlist			;player shoots backhand
 SPAshotb_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0036
-	dc.w	.2-.t					; 0x005a
-	dc.w	.3-.t					; 0x007e
-	dc.w	.4-.t					; 0x00a2
-	dc.w	.5-.t					; 0x00c6
-	dc.w	.6-.t					; 0x00ea
-	dc.w	.7-.t					; 0x010e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFswing+1
@@ -776,14 +776,14 @@ SPAshotb_table:						;table of the animation above: direction offsets, flags, fr
 SPAglideback	=	*-SPAlist		;player gliding backwards
 SPAglideback_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFskateb
@@ -808,14 +808,14 @@ SPAglideback_table:					;table of the animation above: direction offsets, flags,
 SPAskateback	=	*-SPAlist		;player skating backwards
 SPAskateback_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0022
-	dc.w	.2-.t					; 0x0032
-	dc.w	.3-.t					; 0x0042
-	dc.w	.4-.t					; 0x0052
-	dc.w	.5-.t					; 0x0062
-	dc.w	.6-.t					; 0x0072
-	dc.w	.7-.t					; 0x0082
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFskateb
@@ -840,14 +840,14 @@ SPAskateback_table:					;table of the animation above: direction offsets, flags,
 SPAsweepchk	=	*-SPAlist			;player stick (sweep) checking
 SPAsweepchk_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001e
-	dc.w	.2-.t					; 0x002a
-	dc.w	.3-.t					; 0x0036
-	dc.w	.4-.t					; 0x0042
-	dc.w	.5-.t					; 0x004e
-	dc.w	.6-.t					; 0x005a
-	dc.w	.7-.t					; 0x0066
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFsweep
@@ -872,14 +872,14 @@ SPAsweepchk_table:					;table of the animation above: direction offsets, flags, 
 SPAshoulderchkl	=	*-SPAlist		;player shoulder checking left
 SPAshoulderchkl_table:				;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFshoulderl
@@ -904,14 +904,14 @@ SPAshoulderchkl_table:				;table of the animation above: direction offsets, flag
 SPAshoulderchkr	=	*-SPAlist		;player shoulder checking right
 SPAshoulderchkr_table:				;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFshoulderr
@@ -936,14 +936,14 @@ SPAshoulderchkr_table:				;table of the animation above: direction offsets, flag
 SPAhipchkl	=	*-SPAlist			;player hip checking left
 SPAhipchkl_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFhipl
@@ -968,14 +968,14 @@ SPAhipchkl_table:					;table of the animation above: direction offsets, flags, f
 SPAhipchkr	=	*-SPAlist			;player hip checking right
 SPAhipchkr_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFhipr
@@ -1000,14 +1000,14 @@ SPAhipchkr_table:					;table of the animation above: direction offsets, flags, f
 SPAburst	=	*-SPAlist			;player doing c button (speed/no check)
 SPAburst_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFskate
@@ -1032,14 +1032,14 @@ SPAburst_table:						;table of the animation above: direction offsets, flags, fr
 SPAHold	=	*-SPAlist				;player trying to hold
 SPAHold_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFHold
@@ -1064,14 +1064,14 @@ SPAHold_table:						;table of the animation above: direction offsets, flags, fra
 SPAHold2	=	*-SPAlist			;player holding opponent
 SPAHold2_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFHold
@@ -1096,14 +1096,14 @@ SPAHold2_table:						;table of the animation above: direction offsets, flags, fr
 SPAflail	=	*-SPAlist			;player being held by opponent
 SPAflail_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFskate
@@ -1128,14 +1128,14 @@ SPAflail_table:						;table of the animation above: direction offsets, flags, fr
 SPAfallfwd	=	*-SPAlist			;player falling forward
 SPAfallfwd_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0026
-	dc.w	.2-.t					; 0x003a
-	dc.w	.3-.t					; 0x004e
-	dc.w	.4-.t					; 0x0062
-	dc.w	.5-.t					; 0x0076
-	dc.w	.6-.t					; 0x008a
-	dc.w	.7-.t					; 0x009e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFfallfwd
@@ -1169,14 +1169,14 @@ SPAfallfwd_table:					;table of the animation above: direction offsets, flags, f
 SPAfallback	=	*-SPAlist			;player falling backward
 SPAfallback_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0026
-	dc.w	.2-.t					; 0x003a
-	dc.w	.3-.t					; 0x004e
-	dc.w	.4-.t					; 0x0062
-	dc.w	.5-.t					; 0x0076
-	dc.w	.6-.t					; 0x008a
-	dc.w	.7-.t					; 0x009e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFfallback
@@ -1210,14 +1210,14 @@ SPAfallback_table:					;table of the animation above: direction offsets, flags, 
 SPAcelebrate	=	*-SPAlist		;player raising stick/arms up
 SPAcelebrate_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001e
-	dc.w	.2-.t					; 0x002a
-	dc.w	.3-.t					; 0x0036
-	dc.w	.4-.t					; 0x0042
-	dc.w	.5-.t					; 0x004e
-	dc.w	.6-.t					; 0x005a
-	dc.w	.7-.t					; 0x0066
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFcelebrate
@@ -1242,14 +1242,14 @@ SPAcelebrate_table:					;table of the animation above: direction offsets, flags,
 SPApump	=	*-SPAlist				;player doing pump (arm pump) animation
 SPApump_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001e
-	dc.w	.2-.t					; 0x002a
-	dc.w	.3-.t					; 0x0036
-	dc.w	.4-.t					; 0x0042
-	dc.w	.5-.t					; 0x004e
-	dc.w	.6-.t					; 0x005a
-	dc.w	.7-.t					; 0x0066
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFpump
@@ -1274,14 +1274,14 @@ SPApump_table:						;table of the animation above: direction offsets, flags, fra
 SPAfight	=	*-SPAlist			;player throwing off gloves
 SPAfight_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0012
-	dc.w	.2-.t					; 0x0012
-	dc.w	.3-.t					; 0x0022
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0022
-	dc.w	.6-.t					; 0x0022
-	dc.w	.7-.t					; 0x0022
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFfight
@@ -1298,14 +1298,14 @@ SPAfight_table:						;table of the animation above: direction offsets, flags, fr
 SPAfgrab	=	*-SPAlist			;fighter grabbing
 SPAfgrab_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0012
-	dc.w	.2-.t					; 0x0012
-	dc.w	.3-.t					; 0x001a
-	dc.w	.4-.t					; 0x001a
-	dc.w	.5-.t					; 0x001a
-	dc.w	.6-.t					; 0x001a
-	dc.w	.7-.t					; 0x001a
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFfight+3
@@ -1322,14 +1322,14 @@ SPAfgrab_table:						;table of the animation above: direction offsets, flags, fr
 SPAfheld	=	*-SPAlist			;fighter holding
 SPAfheld_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0012
-	dc.w	.2-.t					; 0x0012
-	dc.w	.3-.t					; 0x001a
-	dc.w	.4-.t					; 0x001a
-	dc.w	.5-.t					; 0x001a
-	dc.w	.6-.t					; 0x001a
-	dc.w	.7-.t					; 0x001a
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFfight+3
@@ -1346,14 +1346,14 @@ SPAfheld_table:						;table of the animation above: direction offsets, flags, fr
 SPAfhigh	=	*-SPAlist			;fighter throws high punch
 SPAfhigh_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0012
-	dc.w	.2-.t					; 0x0012
-	dc.w	.3-.t					; 0x0022
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0022
-	dc.w	.6-.t					; 0x0022
-	dc.w	.7-.t					; 0x0022
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFfight+3
@@ -1370,14 +1370,14 @@ SPAfhigh_table:						;table of the animation above: direction offsets, flags, fr
 SPAflow	=	*-SPAlist				;fighter throws low punch
 SPAflow_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0012
-	dc.w	.2-.t					; 0x0012
-	dc.w	.3-.t					; 0x0022
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0022
-	dc.w	.6-.t					; 0x0022
-	dc.w	.7-.t					; 0x0022
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFfight+3
@@ -1394,14 +1394,14 @@ SPAflow_table:						;table of the animation above: direction offsets, flags, fra
 SPAfhith	=	*-SPAlist			;fighter hit by high punch
 SPAfhith_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0012
-	dc.w	.2-.t					; 0x0012
-	dc.w	.3-.t					; 0x001a
-	dc.w	.4-.t					; 0x001a
-	dc.w	.5-.t					; 0x001a
-	dc.w	.6-.t					; 0x001a
-	dc.w	.7-.t					; 0x001a
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFfight+3
@@ -1418,14 +1418,14 @@ SPAfhith_table:						;table of the animation above: direction offsets, flags, fr
 SPAfhitl	=	*-SPAlist			;fighter hit by low punch
 SPAfhitl_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0012
-	dc.w	.2-.t					; 0x0012
-	dc.w	.3-.t					; 0x001a
-	dc.w	.4-.t					; 0x001a
-	dc.w	.5-.t					; 0x001a
-	dc.w	.6-.t					; 0x001a
-	dc.w	.7-.t					; 0x001a
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFfight+3
@@ -1442,14 +1442,14 @@ SPAfhitl_table:						;table of the animation above: direction offsets, flags, fr
 SPAffall	=	*-SPAlist			;fighter falls down
 SPAffall_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0012
-	dc.w	.2-.t					; 0x0012
-	dc.w	.3-.t					; 0x0012
-	dc.w	.4-.t					; 0x0012
-	dc.w	.5-.t					; 0x0012
-	dc.w	.6-.t					; 0x0012
-	dc.w	.7-.t					; 0x0012
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFfight+14
@@ -1466,14 +1466,14 @@ SPAffall_table:						;table of the animation above: direction offsets, flags, fr
 SPAfinjury	=	*-SPAlist			;player injured (pf2inj; 93 only)
 SPAfinjury_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0012
-	dc.w	.2-.t					; 0x0012
-	dc.w	.3-.t					; 0x0012
-	dc.w	.4-.t					; 0x0012
-	dc.w	.5-.t					; 0x0012
-	dc.w	.6-.t					; 0x0012
-	dc.w	.7-.t					; 0x0012
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFfight+14
@@ -1491,14 +1491,14 @@ SPAfinjury_table:					;table of the animation above: direction offsets, flags, f
 SPAwallright	=	*-SPAlist		;player jumps wall with legs to the right
 SPAwallright_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001e
-	dc.w	.2-.t					; 0x001e
-	dc.w	.3-.t					; 0x002e
-	dc.w	.4-.t					; 0x002e
-	dc.w	.5-.t					; 0x002e
-	dc.w	.6-.t					; 0x002e
-	dc.w	.7-.t					; 0x003e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFPen
@@ -1515,14 +1515,14 @@ SPAwallright_table:					;table of the animation above: direction offsets, flags,
 SPAwallleft	=	*-SPAlist			;player jumps wall with legs to the left
 SPAwallleft_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001e
-	dc.w	.2-.t					; 0x001e
-	dc.w	.3-.t					; 0x002e
-	dc.w	.4-.t					; 0x002e
-	dc.w	.5-.t					; 0x002e
-	dc.w	.6-.t					; 0x002e
-	dc.w	.7-.t					; 0x003e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFPen
@@ -1539,14 +1539,14 @@ SPAwallleft_table:					;table of the animation above: direction offsets, flags, 
 SPAfaceoff	=	*-SPAlist			;player does faceoff stick check
 SPAfaceoff_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001e
-	dc.w	.2-.t					; 0x001e
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x001e
-	dc.w	.5-.t					; 0x001e
-	dc.w	.6-.t					; 0x001e
-	dc.w	.7-.t					; 0x001e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFskatewp
@@ -1564,14 +1564,14 @@ SPAfaceoff_table:					;table of the animation above: direction offsets, flags, f
 SPAfaceoffr	=	*-SPAlist			;ready position for faceoff
 SPAfaceoffr_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x0016
-	dc.w	.3-.t					; 0x0016
-	dc.w	.4-.t					; 0x0016
-	dc.w	.5-.t					; 0x0016
-	dc.w	.6-.t					; 0x0016
-	dc.w	.7-.t					; 0x0016
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFskatewp
@@ -1588,14 +1588,14 @@ SPAfaceoffr_table:					;table of the animation above: direction offsets, flags, 
 SPAsiren	=	*-SPAlist			;siren animation
 SPAsiren_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0012
-	dc.w	.2-.t					; 0x0012
-	dc.w	.3-.t					; 0x0012
-	dc.w	.4-.t					; 0x0012
-	dc.w	.5-.t					; 0x0012
-	dc.w	.6-.t					; 0x0012
-	dc.w	.7-.t					; 0x0012
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	1
 
 .a	=	SPFSiren
@@ -1612,14 +1612,14 @@ SPAsiren_table:						;table of the animation above: direction offsets, flags, fr
 SPAbglass	=	*-SPAlist			;puck hits the glass: glass bang animation (93 only; SPFbglass frames)
 SPAbglass_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0012
-	dc.w	.2-.t					; 0x0012
-	dc.w	.3-.t					; 0x0012
-	dc.w	.4-.t					; 0x0012
-	dc.w	.5-.t					; 0x0012
-	dc.w	.6-.t					; 0x0012
-	dc.w	.7-.t					; 0x0012
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFbglass
@@ -1636,14 +1636,14 @@ SPAbglass_table:					;table of the animation above: direction offsets, flags, fr
 SPAstanley	=	*-SPAlist			;player skates with stanley cup over head
 SPAstanley_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	1
 
 .a	=	SPFcup
@@ -1668,14 +1668,14 @@ SPAstanley_table:					;table of the animation above: direction offsets, flags, f
 SPAcatch	=	*-SPAlist			;player hit by a slower puck (93 only; puckbody)
 SPAcatch_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x001a
-	dc.w	.2-.t					; 0x0022
-	dc.w	.3-.t					; 0x002a
-	dc.w	.4-.t					; 0x0032
-	dc.w	.5-.t					; 0x003a
-	dc.w	.6-.t					; 0x0042
-	dc.w	.7-.t					; 0x004a
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFcatch
@@ -1700,14 +1700,14 @@ SPAcatch_table:						;table of the animation above: direction offsets, flags, fr
 SPAhook	=	*-SPAlist				;player hooking, also a hold animation (93 only)
 SPAhook_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0016
-	dc.w	.2-.t					; 0x001a
-	dc.w	.3-.t					; 0x001e
-	dc.w	.4-.t					; 0x0022
-	dc.w	.5-.t					; 0x0026
-	dc.w	.6-.t					; 0x002a
-	dc.w	.7-.t					; 0x002e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFhook
@@ -1732,14 +1732,14 @@ SPAhook_table:						;table of the animation above: direction offsets, flags, fra
 SPAhook2	=	*-SPAlist			;holding animation after SPAhook (93 only)
 SPAhook2_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0022
-	dc.w	.2-.t					; 0x0032
-	dc.w	.3-.t					; 0x0042
-	dc.w	.4-.t					; 0x0052
-	dc.w	.5-.t					; 0x0062
-	dc.w	.6-.t					; 0x0072
-	dc.w	.7-.t					; 0x0082
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFhook
@@ -1764,14 +1764,14 @@ SPAhook2_table:						;table of the animation above: direction offsets, flags, fr
 SPAstumble	=	*-SPAlist			;player stumbles instead of falling (93 only)
 SPAstumble_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0026
-	dc.w	.2-.t					; 0x003a
-	dc.w	.3-.t					; 0x004e
-	dc.w	.4-.t					; 0x0062
-	dc.w	.5-.t					; 0x0076
-	dc.w	.6-.t					; 0x008a
-	dc.w	.7-.t					; 0x009e
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFstumble
@@ -1796,14 +1796,14 @@ SPAstumble_table:					;table of the animation above: direction offsets, flags, f
 SPAfake	=	*-SPAlist				;skater fake: turn left, sweep, turn right frames (93 only)
 SPAfake_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x002a
-	dc.w	.2-.t					; 0x0042
-	dc.w	.3-.t					; 0x005a
-	dc.w	.4-.t					; 0x0072
-	dc.w	.5-.t					; 0x008a
-	dc.w	.6-.t					; 0x00a2
-	dc.w	.7-.t					; 0x00ba
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFturnl
@@ -1822,14 +1822,14 @@ SPAfake_table:						;table of the animation above: direction offsets, flags, fra
 SPAflip	=	*-SPAlist				;player flips over, third fall animation (93 only)
 SPAflip_table:						;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x002e
-	dc.w	.2-.t					; 0x004a
-	dc.w	.3-.t					; 0x0066
-	dc.w	.4-.t					; 0x0082
-	dc.w	.5-.t					; 0x009e
-	dc.w	.6-.t					; 0x00ba
-	dc.w	.7-.t					; 0x00d6
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFflip
@@ -1864,14 +1864,14 @@ SPAflip_table:						;table of the animation above: direction offsets, flags, fra
 SPAinjury1	=	*-SPAlist			;player falls and lies injured (93 only)
 SPAinjury1_table:					;table of the animation above: direction offsets, flags, frame/time lists
 .t									;offset to each direction of animation (0-7)
-	dc.w	.0-.t					; 0x0012
-	dc.w	.1-.t					; 0x0012
-	dc.w	.2-.t					; 0x0012
-	dc.w	.3-.t					; 0x005a
-	dc.w	.4-.t					; 0x005a
-	dc.w	.5-.t					; 0x005a
-	dc.w	.6-.t					; 0x005a
-	dc.w	.7-.t					; 0x0012
+	dc.w	.0-.t
+	dc.w	.1-.t
+	dc.w	.2-.t
+	dc.w	.3-.t
+	dc.w	.4-.t
+	dc.w	.5-.t
+	dc.w	.6-.t
+	dc.w	.7-.t
 	dc.w	0
 
 .a	=	SPFfallback
