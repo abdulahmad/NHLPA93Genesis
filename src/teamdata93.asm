@@ -11,32 +11,32 @@ null								;92 null: a zero long at $310, used as the tile pointer when there i
 
 TeamList							;table of long pointers to the team records, indexed by team number
 									;(HomeTeam/VisTeam); the 2 all-star teams are last
-	dc.l	Boston
-	dc.l	Buffalo
-	dc.l	Calgary
-	dc.l	Chicago
-	dc.l	Detroit
-	dc.l	Edmonton
-	dc.l	Hartford
+	dc.l	Boston					;1 BOS
+	dc.l	Buffalo					;2 BUF
+	dc.l	Calgary					;3 CGY
+	dc.l	Chicago					;4 CHI
+	dc.l	Detroit					;6 DET
+	dc.l	Edmonton				;7 EDM
+	dc.l	Hartford				;9 HFD
 	dc.l	LongIsland
-	dc.l	LosAngeles
+	dc.l	LosAngeles				;10 LA
 	dc.l	Minnesota
-	dc.l	Montreal
-	dc.l	NewJersey
+	dc.l	Montreal				;11 MTL
+	dc.l	NewJersey				;12 NJ
 	dc.l	NewYork
-	dc.l	Ottawa
-	dc.l	Philadelphia
-	dc.l	Pittsburgh
-	dc.l	Quebec
-	dc.l	SanJose
-	dc.l	StLouis
-	dc.l	TampaBay
-	dc.l	Toronto
-	dc.l	Vancouver
-	dc.l	Washington
-	dc.l	Winnipeg
-	dc.l	AllStarsEast
-	dc.l	AllStarsWest
+	dc.l	Ottawa					;15 OTW
+	dc.l	Philadelphia			;16 PHI
+	dc.l	Pittsburgh				;17 PIT
+	dc.l	Quebec					;18 QUE
+	dc.l	SanJose					;19 SJ
+	dc.l	StLouis					;20 STL
+	dc.l	TampaBay				;21 TB
+	dc.l	Toronto					;22 TOR
+	dc.l	Vancouver				;23 VAN
+	dc.l	Washington				;24 WSH
+	dc.l	Winnipeg				;25 WPG
+	dc.l	AllStarsEast			;26 ASE
+	dc.l	AllStarsWest			;27 ASW
 
 NumofTeams	=	(*-TeamList)/4		;number of teams in TeamList (26)
 Playerdata	=	0					;record offset of the word offset to the player data (.pld)
