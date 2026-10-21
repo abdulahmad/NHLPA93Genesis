@@ -5819,16 +5819,16 @@ RosterAnimScripts					;roster player animation scripts 0-7 (offsets), each (SetS
 	dc.w	.s0-RosterAnimScripts,.s1-RosterAnimScripts,.s2-RosterAnimScripts
 	dc.w	.s3-RosterAnimScripts,.s4-RosterAnimScripts,.s5-RosterAnimScripts
 	dc.w	.s6-RosterAnimScripts,.s7-RosterAnimScripts
-	;goalie script
-.s0	dc.w	SPAgready2,3,SPAgready2,4,SPAgready2,5,SPAgready2,-4,SPAgglover,4,SPAgready2,4,SPAgglovel,4,SPAgready2,4,0
-	;goalie script (other glove)
-.s5	dc.w	SPAgready2,3,SPAgready2,4,SPAgready2,5,SPAgready2,-4,SPAgglovel2,4,SPAgready2,4,SPAgready2,4,0
+.s0	dc.w	SPAgready2,3,SPAgready2,4,SPAgready2,5,SPAgready2,-4	;goalie script
+	dc.w	SPAgglover,4,SPAgready2,4,SPAgglovel,4,SPAgready2,4,0
+.s5	dc.w	SPAgready2,3,SPAgready2,4,SPAgready2,5,SPAgready2,-4	;goalie script (other glove)
+	dc.w	SPAgglovel2,4,SPAgready2,4,SPAgready2,4,0
 .s1	dc.w	SPAskate,3,SPAskate,4,SPAcelebrate,-5,SPAcelebrate,4,SPAglide,4,SPAglide,4,0	;skater celebrate
 .s2	dc.w	SPAskatewp,4,SPAskatewp,4,SPAfake,-4,SPAglide,4,SPAglide,4,0	;skater fake
 .s3	dc.w	SPAskatewp,5,SPAskatewp,5,SPAshotf,-5,SPAglide,5,SPAglide,5,0	;skater shot
 .s4	dc.w	SPAskatewp,3,SPAskatewp,3,SPAstumble,-3,SPAshotf,3,SPAglide,3,SPAglide,3,0	;skater stumble, shot
-																						;skater sweep check
-.s6	dc.w	SPAskate,4,SPAskate,5,SPAsweepchk,-5,SPAsweepchk,5,SPAskate,5,SPAsweepchk,5,SPAglide,5,SPAglide,5,0
+.s6	dc.w	SPAskate,4,SPAskate,5,SPAsweepchk,-5,SPAsweepchk,5	;skater sweep check
+	dc.w	SPAskate,5,SPAsweepchk,5,SPAglide,5,SPAglide,5,0
 .s7	dc.w	SPAskate,3,SPAskate,2,SPAfight,-2,SPAfhigh,2,SPAflow,2,SPAfhigh,2,SPAflow,2,0	;skater fight
 RosterOrderTable					;line data slots shown in turn: C, RW, LW, G, RD, LD of line 1, then lines
 									;2 and 3; $FF ends

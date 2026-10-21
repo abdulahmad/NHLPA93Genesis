@@ -307,7 +307,7 @@ showzam								;zamboni. Called from setvideo.
 	cmp.w	#$1A,d2
 	blt.w	.get
 	move.l	#$18,d2					;clamp to the last entry
-.get	IF REV=2
+.get	IF REV=2					;d2 = index into .ftab
 	lea	(.ftab).l,a1				;d2 = table offset
 	ELSE
 	movea.l	#.ftab,a1				;d2 = table offset
@@ -458,7 +458,7 @@ showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then the t
 	beq.w	.ex
 .next	addq.w	#8,a0				;next sprite of the frame
 	dbf	d4,.loop
-.ex	movem.l	(sp)+,d0-d5
+.ex	movem.l	(sp)+,d0-d5				;done: restore the registers
 	rts
 
 ;======================================================================

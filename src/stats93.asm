@@ -185,7 +185,7 @@ LineEditorMenu						;Slot cursor loop. Also entered from
 									;SelectLinePlayer when it is done
 	bsr.w	DrawTeamScreen
 	bsr.w	DrawLineIcons
-.loop	IF REV=2
+.loop	IF REV=2					;slot cursor loop: one frame of input
 	bsr.w	MenuWaitVblank			;per frame: d1 = pressed buttons with auto repeat (Rev B has no wrapper)
 	ELSE
 	bsr.w	MenuWaitVblankWrapper	;per frame: d1 = pressed buttons with auto repeat
@@ -269,7 +269,7 @@ SelectLinePlayer					;line editor: C pressed on slot TestList. Build the list of
 	dc.b	$F8,4,2,2,1,'{Select  Player}',0
 	clr.w	d0						;draw the list without moving the cursor
 	bra.w	.vert
-.loop	IF REV=2
+.loop	IF REV=2					;picker loop: one frame of input
 	bsr.w	MenuWaitVblank			;picker input loop
 	ELSE
 	bsr.w	MenuWaitVblankWrapper	;picker input loop
