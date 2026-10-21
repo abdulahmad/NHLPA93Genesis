@@ -14,7 +14,7 @@ AddPenalty							;add penalty d0 (PenaltyList offset) for player a3. Ignored whi
 	beq.w	AddPenalty2				;icing is always called
 	tst.w	(OptPen).w
 	beq.w	rtss					;penalties off
-	btst	#gmoffs,(gmode).w
+	btst	#gmoffs,(gmode).w		;gmoffs: offsides on
 	bne.w	AddPenalty2
 	cmp.w	#$10,d0					;offsides (92 used $A)
 	beq.w	rtss					;offsides off: ignore
@@ -22,7 +22,7 @@ AddPenalty							;add penalty d0 (PenaltyList offset) for player a3. Ignored whi
 AddPenalty2							;forced penalties like face off and game over. d0 = penalty number, a3 =
 									;player or player on penalized team. Penalty numbers from $E (goal) up
 									;raise the crowd and play a song
-	btst	#sfhor,(sflags).w
+	btst	#sfhor,(sflags).w		;sfhor: nothing in horizontal mode
 	bne.w	rtss					;horizontal (penalty box) mode: no new penalties
 	movem.l	d1/a0-a1,-(sp)
 	cmp.w	#$E,d0					;goal (92 used 6) and up
@@ -37,7 +37,7 @@ AddPenalty2							;forced penalties like face off and game over. d0 = penalty nu
 .nosnd	movea.w	#(PenBuf-M68K_RAM),a1	;a1 = PenBuf: 2 bytes per entry (penalty, player)
 	moveq	#$1F,d1					;MaxPen-1
 .0	tst.w	(a1)+					;find free slot
-	dbeq	d1,.0
+	dbeq	d1,.0					;find a free slot
 	bne.w	.noplayer				;buffer full
 	move.b	SCnum+1(a3),-(a1)		;store the player's sort number (second byte of the entry)
 	move.b	d0,-(a1)				;and the penalty number (first byte)
@@ -61,7 +61,7 @@ PenaltyManager						;called periodically. d7 = elapsed time since last call
 chkprogress							;control progress of ref and game control thru penalty events. When the
 									;stop delay runs out and a penalty with minutes is in PenBuf, switch to
 									;the horizontal rink for the player to enter the penalty box
-	btst	#gmpen,(gmode).w
+	btst	#gmpen,(gmode).w		;gmpen: penalty called
 	beq.w	rtss					;no penalty stoppage in progress
 	tst.w	(PenCntDwn).w
 	bmi.w	InProgress				;countdown finished earlier: run the ref sequence
@@ -117,7 +117,7 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 	tst.w	(a0)+
 	beq.w	.exit					;list empty: all done
 .0	tst.w	(a0)+					;find end of list
-	bne.s	.0
+	bne.s	.0						;find end of list
 	subq.w	#4,a0					;a0 = last entry (penalty byte, player byte)
 	bclr	#7,pbscnum(a0)			;bit 7 of the player byte = called but not yet
 									;logged (set in checkfornewpen)
@@ -159,7 +159,7 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 	adda.w	d1,a3					;a3 = the guilty player
 	clr.w	d0						;d0 = player id (bit 15 = visitors)
 	movea.w	#(tmstruct-M68K_RAM),a2	;a2 = his team, a1 = the other team
-	lea	tmsize(a2),a1
+	lea	tmsize(a2),a1				;tmsize: visitors
 	btst	#pfteam,pflags(a3)
 	beq.w	.sa1
 	bset	#7,-1(a4)				;log: visitors (pspen bit 7)
@@ -195,10 +195,10 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 	bset	#6,tmpdst(a1,d1.w)		;coincidental (both players)
 	bset	#6,tmpdst(a2,d0.w)
 .nocoin	movem.l	a0,-(sp)			;add player to penalty box list
-	lea	tmboxlist(a2),a0
+	lea	tmboxlist(a2),a0			;add player to penalty box list
 	moveq	#$18,d1
 .pl	tst.b	(a0)+					;find end of list
-	dbmi	d1,.pl
+	dbmi	d1,.pl					;find end of list
 	move.b	d0,-1(a0)				;append the roster offset
 	st	(a0)						;and a new -1 terminator
 	movem.l	(sp)+,a0
@@ -317,7 +317,7 @@ Stop4Pen							;a0 = penaltylist penalty +2. Stop the clock, set the face off sp
 	bne.w	.noticing
 	move.l	a3,-(sp)				;icing: the sign of y depends on the pfgoal flag of the icing player
 	movea.w	#(SortCords-M68K_RAM),a3
-	move.b	-1(a0),d1
+	move.b	-1(a0),d1				;step back: player byte of the entry just read
 	ext.w	d1
 	asl.w	#scsize,d1				;scsize
 	adda.w	d1,a3					;a3 = the icing player
@@ -710,7 +710,7 @@ GetLowestPen						;a2 = shorthanded team (its penalty box list is walked, as set
 									;from the penalty box times. Called from updatepwrplay
 	clr.w	d0						;d0 = running total, d3 = previous time
 	clr.w	d3
-	lea	tmboxlist(a2),a0
+	lea	tmboxlist(a2),a0			;penalty box list
 .top	clr.w	d2					;add up the steps between successive non-coincidental times
 	move.b	(a0)+,d2
 	bmi.w	.t2						;end of list
@@ -897,7 +897,7 @@ printscores1						;draw scoreboard. Vertical rink: period box and the score box 
 	movea.l	#PerLabels,a1
 	bsr.w	AdvanceStringPtr
 	move.w	(a1),d0					;center the period name on x $11
-	lsr.w	#1,d0
+	lsr.w	#1,d0					;center the period name on x $11
 	sub.w	d0,(printx).w
 	bsr.w	print
 	bsr.w	printz
@@ -1011,7 +1011,7 @@ pplpen								;?. Print one penalty box line: player number and time remaining. 
 	clr.w	d0
 	move.b	pldnum-pldsize(a1),d0	;player number (BCD)
 	move.w	(printx).w,-(sp)
-	movea.w	#(TextBuffer-M68K_RAM),a1
+	movea.w	#(TextBuffer-M68K_RAM),a1	;mesarea+2
 	bsr.w	ConvertByteToDigits		;two digits to TextBuffer
 	movea.w	#(mesarea-M68K_RAM),a1
 	move.w	#4,(a1)					;string length: 2 digits
@@ -1098,7 +1098,7 @@ AvgCline							;return d0 = average energy of current line on team a2
 
 ChkShotStat							;add to shot stat if a shot was taken. Also raises the crowd and counts
 									;the shot for the shooter and against the other team's goalie
-	bclr	#sf2shot,(sflags2).w
+	bclr	#sf2shot,(sflags2).w	;sf2shot: shot taken
 	beq.w	rtss					;no shot taken
 	movem.l	d0-d1/a1-a3,-(sp)
 	addi.w	#$64,(Crowdlevel).w		;100
@@ -1485,7 +1485,7 @@ StartHL2							;play hilite for game a0. Start skips it with a random result. A 
 	addq.w	#1,(printx).w
 	subq.w	#2,(printy).w
 	bsr.w	printz
-	String	'Highlight from game:'
+	String	'Highlight from game:'	;the text as code
 	move.w	#$B4,d0					;180 frames
 	bsr.w	waitxsr
 	btst	#sbut,d1				;sbut
