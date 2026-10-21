@@ -308,8 +308,7 @@ lineinput							;process input for line changes
 
 lcfound								;d2 = choice made 0-2
 	move.w	d2,d0
-	;save chosen row in tmlcchoice(a2): the box redraw shows only that row
-	move.w	d2,tmlcchoice(a2)
+	move.w	d2,tmlcchoice(a2)		;chosen row: the box redraw shows only that row
 	bsr.w	getlchoice				;translate choice 0-2 into line number 0-6
 	tst.w	d0
 	bmi.w	rtss					;not an eligible choice
@@ -576,7 +575,7 @@ passtoa0							;pass puck to player a0
 	blt.w	.3
 	move.b	#$C,(puckvz).w
 .3	move.w	d2,d0					;d2 = time (1/8 s): receiver temp1(a0) = d2*8-10
-	;(temp1), puck lockout = that - 6
+									;(temp1), puck lockout = that - 6
 	asl.w	#3,d0
 	subi.w	#$A,d0					;6
 	move.b	d0,temp1(a0)			;temp1 high byte

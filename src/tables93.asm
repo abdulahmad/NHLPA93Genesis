@@ -239,7 +239,7 @@ bfasciicon							;equates to find each char definition in bigfont.map.
 	ENDIF
 
 linelist	String	'Sc1'			;text list for line choices (PP1/PP2 are the power play lines).
-	;Used by SetLCmode2, puckfaceoff2 and DrawLineIcon
+									;Used by SetLCmode2, puckfaceoff2 and DrawLineIcon
 	String	'Sc2'
 	String	'Chk'
 	String	'PP1'
@@ -255,7 +255,7 @@ PlayerPositionText					;position names for the line slots. Used by DisplayPlayer
 	String	'RW'
 
 PerLabels	String	'1',18			;text list for periods. Used by printscores1,
-	;NewTicker3 and DisplayGameInfo
+									;NewTicker3 and DisplayGameInfo
 	String	'2',19
 	String	'3',20
 	String	'OT'
@@ -292,7 +292,7 @@ sublist								;substitution lists by position (goalie, LD, RD, LW, C, RW, extra
 	dc.b	-1
 
 priolist	dc.b	0,1,2,4,3,5,6	;positions in order of importance. Used by
-	;SetPlList, releasepl and getlinee
+									;SetPlList, releasepl and getlinee
 	IF REV=0
 	dc.b	$23						;pad, Rev 0 byte (Rev A: 0)
 	ELSE

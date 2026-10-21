@@ -4478,7 +4478,7 @@ PrintScoutRatings					;print the 8 rating nibbles of the scouting report long at
 									;a0 = this team's scouting report, a2 = the other team's (for the combined
 									;line). Called from ScoutingReport
 	move.l	4(a0),d5				;bytes 4-7: shooting/skating, passing/defense,
-	;checking/fighting, goalkeeping/overall
+									;checking/fighting, goalkeeping/overall
 	moveq	#7,d6
 .loop	eori.w	#2,(printfontset).w	;alternate char set each line
 	rol.l	#4,d5					;next nibble
