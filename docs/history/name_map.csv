@@ -206,3 +206,5 @@ SngPowerPlay,SngPP,92G
 SngScout,SngScouting,92G
 Scouting.map.jim,EASNBG.map.jim,92G
 ScoutMap,EASNBGMap,92G
+TitlePalBuffer,palfadenew+$20,92G
+palbuffer,palfadenew+$40,92G

@@ -15,6 +15,45 @@ VSRAM_W	=	$40000010				;VDP command: VSRAM write, address 0
 jimtiles	=	$A					;JIM graphics file header size: the tile data starts here
 HVcount	=	$c00008					;Video port
 
+;record and field offsets (names shared with 93S, 94G and 94S; docs/file-formats.md)
+jimpalette	=	0					;container header: long, offset of the palette ($FFFFFFFF none)
+jimdata		=	4					;long: offset of the map (.map.jim) or the frame table (.anim)
+jimtilecount	=	8				;word: tile count (bit 15 packed); the tiles follow (jimtiles)
+mapwidth	=	0					;map section: word width in tiles
+mapheight	=	2					;word height in tiles
+mapwords	=	4					;the map words
+seX			=	0					;.anim sprite entry (8 bytes): word x, signed, from the frame origin
+seY			=	2					;word y, signed
+seTile		=	4					;word tile, from the set's first tile
+seAttr		=	6					;word priority, palette, vflip, hflip (bits 15-11), size code (low byte)
+seSize		=	7					;byte VDP size code (low byte of seAttr)
+seLen		=	8
+satY		=	0					;VDP sprite attribute entry (Satt, 8 bytes): word y + 128
+satSize		=	2					;byte size code
+satLink		=	3					;byte next sprite (0 ends the list)
+satTile		=	4					;word priority, palette, flips, tile
+satX		=	6					;word x + 128
+satLen		=	8
+sstime		=	0					;ScoreSum entry (6 bytes per goal): word period / time
+ssflags		=	2					;byte 2 + skater difference (goal type); bit 7 = away team scored
+ssscorer	=	3					;byte scorer
+ssassist1	=	4					;byte first assist (negative none)
+ssassist2	=	5					;byte second assist (negative none)
+sssize		=	6
+pstime		=	0					;PenSum entry (4 bytes per penalty): word period / time
+pspen		=	2					;byte penalty (Penaltylist offset); bit 7 = away team
+psplayer	=	3					;byte penalized player
+pssize		=	4
+pbpen		=	0					;PenBuf entry (2 bytes): penalty number (0 = free)
+pbscnum		=	1					;SCnum of the player
+pcx			=	0					;puckcross entry (4 bytes; entry 0 top, 1 bottom): word x
+pcframes	=	2					;word frames
+pcsize		=	4
+foframe		=	0					;fofdata2, fofdata: 4 bytes per big faceoff sprite (2 centers, ref): frame
+foattr		=	2					;word attribute (bit 11 x flip)
+fosize		=	4
+plpos		=	6					;PlList: 6 wanted roster players, then their positions
+
 ;hardware
 IO_Z80BUS		=	$A11100			;Z80 bus request port ($100 requests the bus, 0 releases it)
 IO_Z80RES		=	$A11200			;Z80 reset port (0 holds the Z80 in reset, $100 releases it)
@@ -278,9 +317,7 @@ Vscroll			rs.w	1			;vertical scroll value
 wcradiusx		rs.w	1			;variables used in wall collisions
 wcradiusy		rs.w	1			;wall collision radius y (see wcradiusx)
 palcount		rs.w	1			;counter for fading in color palettes
-palfadenew		rs.w	16			;palettes to fade into
-TitlePalBuffer	rs.w	16			;title screen: palette fade buffer (16 colours)
-palbuffer		rs.w	32			;to palfadenew+$80
+palfadenew		rs.w	16*4		;palettes to fade into (+$20 the title palette, +$40 palettes 2-3)
 fofdata2	rs.l	2				;title screen: TitleAnimCallback timers; also the 2nd half of the face off
 									;frame/attribute data (see fofdata)
 fofdata				rs.l	1		;data for frame/att of big face off sprites

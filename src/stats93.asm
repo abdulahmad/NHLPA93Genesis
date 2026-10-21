@@ -22,12 +22,12 @@ ShowScores							;"Scores" screen: lists the other games in
 	String	$BD,$E,3,'Scores',$BD,$F,1
 	ENDIF
 	movea.l	#ScoresMap,a1
-	lea	8(a1),a2
-	adda.l	4(a1),a1
+	lea	jimtilecount(a1),a2
+	adda.l	jimdata(a1),a1
 	clr.w	d0
 	clr.w	d1
 	move.w	(a1),d2
-	move.w	2(a1),d3
+	move.w	mapheight(a1),d3
 	clr.w	d5
 	bsr.w	dobitmap
 	IF REV<2
@@ -468,12 +468,12 @@ DrawTeamScreen						;line editor background: bitmap, frame, "Line Editor" title 
 	bsr.w	printz
 	String	$FD,0,0
 	movea.l	#EASNBGMap,a1			;background bitmap (map header + offset to data)
-	adda.l	4(a1),a1
+	adda.l	jimdata(a1),a1
 	movea.w	#null,a2				;a2 saved/restored around this block
 	clr.w	d0
 	clr.w	d1
 	move.w	(a1),d2
-	move.w	2(a1),d3
+	move.w	mapheight(a1),d3
 	IF REV=2
 	moveq	#1,d4					;Rev B starts the tiles at char 1
 	ELSE
@@ -504,9 +504,9 @@ ClearLineEditorTop					;erase 40 x 10 at the top of map 2
 	move.w	#$7FF,d2
 	bra.w	eraser
 
-ClearMenuFlags						;clear palbuffer+$1A and palbuffer+$3A
-	clr.w	(palbuffer+$1A).w
-	clr.w	(palbuffer+$3A).w
+ClearMenuFlags						;clear palfadenew+$5A and palfadenew+$7A
+	clr.w	(palfadenew+$5A).w
+	clr.w	(palfadenew+$7A).w
 	rts
 
 	dc.w	$10,$C,4				;Entry used when OptLine is set
@@ -1173,7 +1173,7 @@ DrawScoringRow						;print ScoreSum entry at offset d3: time, team (bit 7 of byt
 	bsr.w	FormatAndPrintTime
 	;a2 = home or away team struct (bit 7 of byte 2 set = away)
 	movea.w	#(tmstruct-M68K_RAM),a2
-	btst	#7,2(a0,d3.w)
+	btst	#7,ssflags(a0,d3.w)
 	beq.w	.0						;home goal
 	adda.w	#tmsize,a2				;away team struct
 .0	movea.l	tmdata(a2),a1			;team data -> team name string
@@ -1184,19 +1184,19 @@ DrawScoringRow						;print ScoreSum entry at offset d3: time, team (bit 7 of byt
 	;goal type text (SH2/SH/blank/PP/PP2) at x $23
 	move.w	#$23,(printx).w
 	lea	GoalTypeTbl(pc),a1
-	move.b	2(a0,d3.w),d0
+	move.b	ssflags(a0,d3.w),d0
 	andi.w	#$7F,d0					;strip the away bit -> string index
 	bsr.w	Fprintsmall
 	;scorer at x $10, then the two assists (palette attribute $E000) on the following rows at x $12
 	move.w	#$10,(printx).w
-	move.b	3(a0,d3.w),d0
+	move.b	ssscorer(a0,d3.w),d0
 	bsr.w	PrintScorerName
 	move.w	#$E000,(printa).w
 	move.w	#$12,(printx).w
-	move.b	4(a0,d3.w),d0
+	move.b	ssassist1(a0,d3.w),d0
 	bsr.w	PrintScorerName			;first assist
 	move.w	#$12,(printx).w
-	move.b	5(a0,d3.w),d0			;second assist, falls into PrintScorerName
+	move.b	ssassist2(a0,d3.w),d0	;second assist, falls into PrintScorerName
 PrintScorerName						;print player d0 (byte, negative = none) and go down a row. it prints a
 									;player not a time
 	ext.w	d0						;sign extend: $FF = no player
@@ -1378,7 +1378,7 @@ DisplayPenaltyEntry					;print penalty entry at offset d3: time, team (bit 7 of 
 	bsr.w	FormatAndPrintTime
 	;a2 = home or away team struct (bit 7 of byte 2 set = away)
 	movea.w	#(tmstruct-M68K_RAM),a2
-	btst	#7,2(a0,d3.w)
+	btst	#7,pspen(a0,d3.w)
 	beq.w	.0						;home penalty
 	adda.w	#tmsize,a2				;away team struct
 .0	movea.l	tmdata(a2),a1			;team data -> team name string
@@ -1387,7 +1387,7 @@ DisplayPenaltyEntry					;print penalty entry at offset d3: time, team (bit 7 of 
 	move.w	#$C,(printx).w
 	bsr.w	print					;team name at x $C
 	;a3 = Penaltylist record for the type: byte 1 = minutes, string from +2 = penalty name
-	move.b	2(a0,d3.w),d0
+	move.b	pspen(a0,d3.w),d0
 	andi.w	#$7F,d0					;strip the away bit
 	movea.l	#Penaltylist,a3
 	adda.w	(a3,d0.w),a3
@@ -1399,7 +1399,7 @@ DisplayPenaltyEntry					;print penalty entry at offset d3: time, team (bit 7 of 
 	;player "NN F. Last" at x $10, then the penalty name on the next row (palette $E000)
 	move.w	#$10,(printx).w
 	clr.w	d0
-	move.b	3(a0,d3.w),d0
+	move.b	psplayer(a0,d3.w),d0
 	jsr	(FormatPlayerNumInitial).l
 	bsr.w	print
 	addq.w	#1,(printy).w
@@ -2118,12 +2118,12 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	bsr.w	printz
 	String	$BD,0,0
 	movea.l	#EASNBGMap,a1
-	adda.l	4(a1),a1
+	adda.l	jimdata(a1),a1
 	movea.w	#null,a2
 	clr.w	d0						;start x/y 0 in the map
 	clr.w	d1
 	move.w	(a1),d2					;map width
-	move.w	2(a1),d3				;map height
+	move.w	mapheight(a1),d3		;map height
 	IF REV=2
 	moveq	#1,d4					;Rev B starts the tiles at char 1
 	ELSE
