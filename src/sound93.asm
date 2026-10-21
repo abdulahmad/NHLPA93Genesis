@@ -84,53 +84,53 @@ p_turnoff							;(audio stop). Silence everything: free all slots, key off and m
 									;output
 									;channel, send the buffer and stop the PCM channel. Called from Begin,
 									;StartPer, game screens
-	movem.l	d0-d7/a0-a2,-(sp)
-	bsr.w	ClearAllTrackAndSFXSlots
+	movem.l	d0-d7/a0-a2,-(sp)		;save
+	bsr.w	ClearAllTrackAndSFXSlots	;free all slots
 	move.b	#$77,(Z80_command_buffer).w	;key off channels 0-2, 4-6
 	move.b	#$77,(Z80_command_buffer+2).w	;volume change on 0-2, 4-6
 	moveq	#6,d0					;7 volume bytes
-	movea.w	#(per_channel_attenuation_table-M68K_RAM),a0
+	movea.w	#(per_channel_attenuation_table-M68K_RAM),a0	;7 volume bytes
 .att	move.b	#$7F,(a0)+			;$7F = silent
 	dbf	d0,.att
-	bsr.w	UploadCommandBufferToZ80
-	bsr.w	StopPCMChannel
-	movem.l	(sp)+,d0-d7/a0-a2
+	bsr.w	UploadCommandBufferToZ80	;send it
+	bsr.w	StopPCMChannel			;stop the PCM channel
+	movem.l	(sp)+,d0-d7/a0-a2		;restore
 	rts
 
 play_sfx_or_music_track				;start sound d0 (0-$37) in a track slot. $30 and up are songs: the song
 									;already
 									;playing is stopped first. Does the jobs of / p_initune; called from sfx
 									;and song
-	cmp.w	#SoundLast,d0
+	cmp.w	#SoundLast,d0			;valid sound?
 	bgt.w	rtss					;out of range
-	movem.l	d0-d3/a0-a2,-(sp)
-	cmp.w	#FirstSong,d0
+	movem.l	d0-d3/a0-a2,-(sp)		;save
+	cmp.w	#FirstSong,d0			;a song?
 	blt.w	.slot					;sound effect
 	bsr.w	stop_current_song		;song: stop the current song
 .slot	movea.w	#(fm_track_slots-M68K_RAM),a1	;scan the 8 track slots for the lowest pointer (free slots are
 												;negative)
-	moveq	#NumSlots-1,d3
+	moveq	#NumSlots-1,d3			;8 slots
 .new	move.l	(a1),d1				;new lowest pointer
 	move.w	d3,d2					;its track number
 	movea.w	a1,a2
 .chk	cmp.l	(a1),d1				;next slot: is its pointer lower than the lowest so far?
 	bgt.s	.new					;lower (signed) pointer here: take this slot
-	addq.w	#SlotSize,a1
+	addq.w	#SlotSize,a1			;next slot
 	dbf	d3,.chk
 	tst.w	(a2)
 	bpl.w	.ex						;no free slot (lowest pointer is in use): do nothing
 	asl.w	#1,d0
 	movea.l	#SoundStreamTable,a0
 	adda.w	(a0,d0.w),a0			;start of the event stream
-	move.l	a0,(a2)
-	clr.w	sl_delay(a2)
+	move.l	a0,(a2)					;into the slot
+	clr.w	sl_delay(a2)			;no wait
 	move.b	(a0),sl_delaybyte(a2)	;first delay
 	movea.w	#(fm_voice_usage_table-M68K_RAM),a0
-	asl.w	#VoiceShift,d2
+	asl.w	#VoiceShift,d2			;this track's voices
 	adda.w	d2,a0
 	moveq	#NumMidiChans-1,d0		;the 8 midi channels of this track
 .clrv	clr.w	(a0)				;no pitch bend
-	clr.b	vc_spare(a0)
+	clr.b	vc_spare(a0)			;clear the spare byte
 	clr.b	vc_patch(a0)			;patch 0
 	adda.w	#NumSlots*VoiceSize,a0	;next channel (8 keys of 8 bytes)
 	dbf	d0,.clrv
@@ -141,9 +141,9 @@ stop_current_song					;stop the song in progress: free the first slot whose poin
 									;past the first song
 									;data and key off its channels. Called from play_sfx_or_music_track
 									;and checkgoal
-	movem.l	d0-d3/a0-a3,-(sp)
+	movem.l	d0-d3/a0-a3,-(sp)		;save
 	movea.w	#(fm_track_slots-M68K_RAM),a1
-	moveq	#NumSlots-1,d3
+	moveq	#NumSlots-1,d3			;8 slots
 	movea.l	#SoundStreamTable,a0
 	adda.w	FirstSong*2(a0),a0		;sound $30 data
 .find	cmpa.l	(a1),a0				;look for a slot whose pointer is at or past the first song data
@@ -155,7 +155,7 @@ stop_current_song					;stop the song in progress: free the first slot whose poin
 	movea.w	#(fm_channel_structs-M68K_RAM),a2
 .kill	move.b	ch_key(a2),d2		;each channel struct: release the ones that belong to this track
 	andi.w	#NumSlots-1,d2			;track of the key
-	cmp.w	d2,d3
+	cmp.w	d2,d3					;this track?
 	bne.w	.next					;another track
 	bsr.w	ReleaseChannelAndNote
 	move.b	ch_out(a2),d0			;output channel
@@ -164,7 +164,7 @@ stop_current_song					;stop the song in progress: free the first slot whose poin
 	move.b	#$7F,(a1,d0.w)			;silent
 .next	addq.w	#ChanSize,a2		;next channel struct
 	dbf	d1,.kill
-	bsr.w	UploadCommandBufferToZ80
+	bsr.w	UploadCommandBufferToZ80	;send it
 .ex	movem.l	(sp)+,d0-d3/a0-a3		;restore registers
 	rts
 
@@ -227,30 +227,30 @@ p_music_vblank						;(vblank handler). Clear the change bits, run the 8 track sl
 	IF REV=2
 	bsr.b	ReadPads				;Rev B: poll the controllers first
 	ENDIF
-	clr.b	(music_needs_z80_update).w
+	clr.b	(music_needs_z80_update).w	;nothing to send yet
 	clr.l	(Z80_command_buffer).w	;key off/on, volume, frequency bits
 	clr.b	(Z80_command_buffer+cb_patch).w	;patch bits
 .refresh	movea.w	#(fm_track_slots-M68K_RAM),a5	;run all 8 track slots (Rev A loops back here at 50 Hz)
-	moveq	#NumSlots-1,d7
+	moveq	#NumSlots-1,d7			;8 tracks
 .slot	bsr.w	ProcessOneMusicTrack	;process track slot a5, track d7
-	addq.w	#SlotSize,a5
+	addq.w	#SlotSize,a5			;next slot
 	dbf	d7,.slot
 	IF REV>=1
 	tst.w	(PalMode).w				;Rev A: at 50 Hz run the slots again every 6th frame
 	beq.w	.tick
-	subq.w	#1,(music_tick_divider).w
+	subq.w	#1,(music_tick_divider).w	;count down the divider
 	bpl.w	.tick
-	addq.w	#6,(music_tick_divider).w
+	addq.w	#6,(music_tick_divider).w	;reload it
 	bra.s	.refresh
 .tick								;end of the Rev A only block
 	ENDIF
 	tst.b	(music_needs_z80_update).w
 	beq.w	.age					;nothing changed
-	bsr.w	UploadCommandBufferToZ80
+	bsr.w	UploadCommandBufferToZ80	;send it
 .age	movea.w	#(fm_channel_structs-M68K_RAM),a0	;age the 6 channel structs
-	moveq	#NumChans-1,d0
+	moveq	#NumChans-1,d0			;6 channels
 .ageloop	addq.b	#1,ch_age(a0)	;age +1 per frame
-	bne.w	.next
+	bne.w	.next					;not wrapped
 	subq.b	#1,ch_age(a0)			;hold at $FF
 .next	addq.w	#ChanSize,a0		;next channel struct
 	dbf	d0,.ageloop
@@ -258,8 +258,8 @@ p_music_vblank						;(vblank handler). Clear the change bits, run the 8 track sl
 
 z80_bus_release_delay				;Z80 busy: give the bus back, wait, then falls into
 									;UploadCommandBufferToZ80 to retry
-	clr.w	(IO_Z80BUS).l
-	moveq	#$64,d0
+	clr.w	(IO_Z80BUS).l			;release the Z80 bus
+	moveq	#$64,d0					;wait count
 .delay	dbf	d0,.delay				;short wait before the bus is requested again
 
 UploadCommandBufferToZ80			;copy the 33-byte command buffer to Z80 RAM $02 once the Z80 is idle ($97
@@ -275,38 +275,38 @@ UploadCommandBufferToZ80			;copy the 33-byte command buffer to Z80 RAM $02 once 
 	cmpi.b	#Z80Idle,z80_cmd(a0)
 	bne.s	z80_bus_release_delay	;not idle
 	move.b	#Z80Cmd_Upload,z80_cmd(a0)	;command
-	move.b	#0,z80_busy(a0)
-	adda.w	#z80_cmdbuf,a0
-	movea.w	#(Z80_command_buffer-M68K_RAM),a1
+	move.b	#0,z80_busy(a0)			;not busy
+	adda.w	#z80_cmdbuf,a0			;command buffer area
+	movea.w	#(Z80_command_buffer-M68K_RAM),a1	;the buffer
 	moveq	#CmdBufSize-1,d0		;33 bytes
 .copy	move.b	(a1)+,(a0)+			;copy the buffer to Z80 RAM
 	dbf	d0,.copy
-	clr.w	(IO_Z80BUS).l
+	clr.w	(IO_Z80BUS).l			;release the Z80 bus
 	rts
 
 ProcessOneMusicTrack				;count down track slot a5 (track d7) and run every event that is due.
 									;Called from p_music_vblank
-	subq.w	#1,sl_delay(a5)
+	subq.w	#1,sl_delay(a5)			;count down
 	bpl.w	rtss					;not due yet
 .event	tst.w	(a5)				;run the next event of this slot
 	bmi.w	rtss					;slot free or ended
-	movea.l	(a5),a0
-	addq.l	#EventSize,(a5)
-	clr.w	sl_delay(a5)
+	movea.l	(a5),a0					;event pointer
+	addq.l	#EventSize,(a5)			;next event
+	clr.w	sl_delay(a5)			;no wait
 	move.b	EventSize+ev_delay(a0),sl_delaybyte(a5)	;delay before the next event
 	move.b	ev_status(a0),d0
-	bne.w	.cmd
+	bne.w	.cmd					;a command
 	st	(a5)						;status 0: end of stream
-	tst.w	ev_data(a0)
+	tst.w	ev_data(a0)				;loop pointer?
 	bmi.w	rtss
 	move.l	ev_data(a0),(a5)		;loop pointer
 	bra.s	.event
 .cmd	move.b	ev_status(a0),d0	;dispatch on the command number in status bits 6-4
 	andi.w	#EvCmdMask,d0			;command number * 16
 	lsr.w	#3,d0					;word index
-	lea	command_jump_table(pc),a2
+	lea	command_jump_table(pc),a2	;handlers
 	adda.w	(a2,d0.w),a2
-	jsr	(a2)
+	jsr	(a2)						;run it
 	bra.s	ProcessOneMusicTrack	;the next event may be due now (delay 0)
 
 command_jump_table					;event handlers by status bits 6-4, as offsets from the table
@@ -323,16 +323,16 @@ handle_command_00					;event $0x: key off note +2 on channel +1 bits 3-0 of trac
 									;entered from
 									;handle_command_10 for volume 0. Falls into ReleaseChannelAndNote
 	move.b	ev_status(a0),d0
-	andi.w	#EvChanMask,d0
-	asl.w	#KeyShift,d0
+	andi.w	#EvChanMask,d0			;midi channel
+	asl.w	#KeyShift,d0			;times 8
 	or.w	d7,d0					;key
-	asl.w	#8,d0
+	asl.w	#8,d0					;key to the high byte
 	move.b	ev_data(a0),d0			;key and note, as in channel struct +0/+1
 	movea.w	#(fm_track_slots-M68K_RAM),a2	;end of the channel structs
-	moveq	#NumChans-1,d1
+	moveq	#NumChans-1,d1			;6 channels
 .find	subq.w	#ChanSize,a2		;search the channel structs (last to first) for this key and note
-	cmp.w	(a2),d0
-	dbeq	d1,.find
+	cmp.w	(a2),d0					;this key and note?
+	dbeq	d1,.find				;until found
 	bne.w	rtss					;not playing
 	btst	#ch_on,ch_flags(a2)
 	dbne	d1,.find				;matched but already off: keep looking
@@ -341,53 +341,53 @@ handle_command_00					;event $0x: key off note +2 on channel +1 bits 3-0 of trac
 ReleaseChannelAndNote				;key off channel struct a2 if it is on. The PCM patches ($60 up) stop the
 									;PCM channel
 									;instead. Called from stop_current_song
-	bclr	#ch_on,ch_flags(a2)
+	bclr	#ch_on,ch_flags(a2)		;key off
 	beq.w	rtss					;was off
 	cmpi.b	#PCMPatch,ch_patch(a2)
 	bge.w	StopPCMChannel			;PCM patch
 	move.b	ch_out(a2),d0			;output channel
 	bset	d0,(Z80_command_buffer).w	;key off
-	st	(music_needs_z80_update).w
+	st	(music_needs_z80_update).w	;send the buffer
 	rts
 
 StopPCMChannel						;clear Z80 RAM $8E (the PCM rate byte written by
 									;UpdateChannelFrequencyAndVolume).
 									;Called from p_turnoff and for a PCM key off
-	move.w	#$100,(IO_Z80BUS).l
+	move.w	#$100,(IO_Z80BUS).l		;request the Z80 bus
 	IF REV=2
 .zb2	btst	#0,(IO_Z80BUS).l	;Rev B waits for the Z80 to grant the bus
 	bne.b	.zb2
 	ENDIF
-	clr.b	(Z80_RAM+z80_pcm_rate).l
-	clr.w	(IO_Z80BUS).l
+	clr.b	(Z80_RAM+z80_pcm_rate).l	;PCM rate 0
+	clr.w	(IO_Z80BUS).l			;release the Z80 bus
 	rts
 
 handle_command_10					;event $1x: key on note +2 at volume +3 on channel +1 bits 3-0 of track d7
 									;(volume 0 =
 									;key off). Patches $60 up play on the PCM channel. Falls into
 									;UpdateChannelFrequencyAndVolume
-	tst.b	ev_data+1(a0)
+	tst.b	ev_data+1(a0)			;volume
 	beq.s	handle_command_00		;volume 0: key off
 	movea.w	#(pcm_channel_struct-M68K_RAM),a2	;6th channel struct
 	movea.w	#(fm_voice_usage_table-M68K_RAM),a3
 	move.b	ev_status(a0),d0
-	andi.w	#EvChanMask,d0
-	asl.w	#KeyShift,d0
+	andi.w	#EvChanMask,d0			;midi channel
+	asl.w	#KeyShift,d0			;times 8
 	or.w	d7,d0					;key
-	move.w	d0,d6
+	move.w	d0,d6					;d6 = key
 	asl.w	#KeyShift,d0
 	move.b	vc_patch(a3,d0.w),d0	;patch of this key
 	cmp.b	#PCMPatch,d0
 	bge.w	.pcm					;PCM patch
-	moveq	#NumFMChans-1,d1
-	bra.w	.setold
+	moveq	#NumFMChans-1,d1		;5 FM channels
+	bra.w	.setold					;start with it
 .old	cmp.b	ch_age(a2),d2		;is this channel older than the oldest so far (age in d2)?
 	bhi.w	.nextold				;a4 is older
 .setold	movea.w	a2,a4				;a4 = oldest channel so far, d2 = its age
-	move.b	ch_age(a4),d2
+	move.b	ch_age(a4),d2			;its age
 .nextold	subq.w	#ChanSize,a2	;next channel struct
-	dbf	d1,.old
-	moveq	#NumFMChans-1,d1
+	dbf	d1,.old						;loop
+	moveq	#NumFMChans-1,d1		;5 FM channels
 	movea.w	#(pcm_channel_struct-M68K_RAM),a2
 .free	subq.w	#ChanSize,a2		;look for a channel struct that is off
 	btst	#ch_on,ch_flags(a2)
@@ -399,19 +399,19 @@ handle_command_10					;event $1x: key on note +2 at volume +3 on channel +1 bits
 	beq.w	.keyon					;found: no patch change
 .patch	movea.w	a4,a2				;give the chosen channel its new patch
 	move.b	d0,ch_patch(a2)			;new patch
-	clr.w	d1
+	clr.w	d1						;clear the high byte
 	move.b	ch_out(a2),d1			;output channel
 	bset	d1,(Z80_command_buffer+cb_patch).w	;patch change
 	movea.w	#(per_channel_patch_table-M68K_RAM),a4	;patch bytes
 	move.b	d0,(a4,d1.w)
-	st	(music_needs_z80_update).w
+	st	(music_needs_z80_update).w	;send the buffer
 .keyon	clr.b	ch_age(a2)			;age 0
 	bset	#ch_on,ch_flags(a2)		;on
 	move.b	d6,ch_key(a2)			;key
 	clr.w	d3
 	move.b	ev_data(a0),d3
 	move.b	d3,ch_note(a2)			;note
-	clr.w	d1
+	clr.w	d1						;clear the high byte
 	move.b	ch_out(a2),d1			;output channel
 	bset	d1,(Z80_command_buffer+cb_keyon).w	;key on
 	lea	.veltab(pc),a4
@@ -422,38 +422,38 @@ handle_command_10					;event $1x: key on note +2 at volume +3 on channel +1 bits
 	movea.w	#(per_channel_attenuation_table-M68K_RAM),a4
 	move.b	d0,(a4,d1.w)
 	bset	d1,(Z80_command_buffer+cb_volume).w	;volume change
-	bra.w	UpdateChannelFrequencyAndVolume
+	bra.w	UpdateChannelFrequencyAndVolume	;and its frequency
 .veltab	dc.b	$1A,$18,$16,$14,$12,$10,$0E,$0C,$0A,$08,$06,$04,$03,$02,$01,$00	;attenuation by volume/8
 .pcm	bset	#ch_on,ch_flags(a2)	;a2 = the PCM channel
 	beq.w	.pcmon					;it was off
-	cmp.b	ch_patch(a2),d0
+	cmp.b	ch_patch(a2),d0			;playing a higher patch?
 	ble.w	rtss					;a sample with the same or a higher patch number is playing
 .pcmon	move.b	d0,ch_patch(a2)		;mark the PCM channel with the new patch
 	movea.w	#(pcm_channel_struct-M68K_RAM),a2
-	clr.b	ch_age(a2)
+	clr.b	ch_age(a2)				;age 0
 	move.b	d6,ch_key(a2)			;key
 	move.b	ev_data(a0),ch_note(a2)	;note
-	ext.w	d0
-	subi.w	#PCMPatch,d0
+	ext.w	d0						;word
+	subi.w	#PCMPatch,d0			;sample number
 	asl.w	#KeyShift,d0			;8 bytes per sample
-	lea	pcm_sample_table(pc),a1
-	move.l	4(a1,d0.w),d1
+	lea	pcm_sample_table(pc),a1		;PCM sample start, end longs by patch - $60
+	move.l	4(a1,d0.w),d1			;d1 = length
 	move.l	(a1,d0.w),d0
-	move.w	#$100,(IO_Z80BUS).l
+	move.w	#$100,(IO_Z80BUS).l		;request the Z80 bus
 	IF REV=2
 .zb3	btst	#0,(IO_Z80BUS).l	;Rev B waits for the Z80 to grant the bus
 	bne.b	.zb3
 	ENDIF
 	movea.l	#Z80_RAM,a1
 	move.b	d0,z80_pcm_addr+2(a1)	;first long to Z80 $23-$25, high byte first
-	lsr.w	#8,d0
+	lsr.w	#8,d0					;middle byte
 	move.b	d0,z80_pcm_addr+1(a1)
-	swap	d0
+	swap	d0						;high byte
 	move.b	d0,z80_pcm_addr(a1)
 	move.b	d1,z80_pcm_len+2(a1)	;second long to Z80 $26-$28
-	lsr.w	#8,d1
+	lsr.w	#8,d1					;middle byte
 	move.b	d1,z80_pcm_len+1(a1)
-	swap	d1
+	swap	d1						;high byte
 	move.b	d1,z80_pcm_len(a1)
 	move.b	ev_data+1(a0),d1
 	lsr.b	#2,d1					;volume / 4
@@ -462,24 +462,24 @@ handle_command_10					;event $1x: key on note +2 at volume +3 on channel +1 bits
 	moveq	#3,d1					;at least 3
 .rate	move.b	d1,z80_pcm_vol(a1)	;PCM volume/4 (at least 3) to the Z80
 	move.b	#Z80Cmd_PCM,z80_cmd(a1)	;command $29
-	move.b	#0,z80_busy(a1)
-	clr.w	(IO_Z80BUS).l
+	move.b	#0,z80_busy(a1)			;not busy
+	clr.w	(IO_Z80BUS).l			;release the Z80 bus
 
 UpdateChannelFrequencyAndVolume		;set the frequency of channel struct a2 from its note and the pitch bend
 									;of
 									;its key (a3 = voice table). Called from handle_command_60, entered from
 									;handle_command_10
-	clr.l	d3
+	clr.l	d3						;clear
 	move.b	ch_note(a2),d3			;note
 	divu.w	#$C,d3					;d3 = octave, high word = note in the octave
-	move.w	d3,-(sp)
-	swap	d3
-	add.w	d3,d3
-	lea	.fnum(pc),a4
+	move.w	d3,-(sp)				;keep the octave
+	swap	d3						;note in the octave
+	add.w	d3,d3					;word index
+	lea	.fnum(pc),a4				;frequency numbers
 	move.w	(a4,d3.w),d2			;frequency number of the note
-	clr.w	d1
+	clr.w	d1						;clear the high byte
 	move.b	ch_key(a2),d1			;key
-	asl.w	#VoiceShift,d1
+	asl.w	#VoiceShift,d1			;voice table offset
 	move.w	(a3,d1.w),d3			;pitch bend
 	beq.w	.nobend
 	clr.w	d1
@@ -487,40 +487,40 @@ UpdateChannelFrequencyAndVolume		;set the frequency of channel struct a2 from it
 	asl.w	#PatchShift,d1			;32 bytes per patch
 	movea.l	#fm_instrument_patches,a4
 	move.b	patch_bendscale(a4,d1.w),d1	;patch byte $1E: bend scale
-	ext.w	d1
-	muls.w	d1,d3
-	asr.l	#2,d3
+	ext.w	d1						;word
+	muls.w	d1,d3					;bend * scale
+	asr.l	#2,d3					;scale down
 	asr.w	#7,d3
 	addi.w	#$C0,d3					;centre of .bendtab
-	add.w	d3,d3
-	lea	.bendtab(pc),a4
+	add.w	d3,d3					;word index
+	lea	.bendtab(pc),a4				;bend factors
 	mulu.w	(a4,d3.w),d2
-	asl.l	#1,d2
+	asl.l	#1,d2					;scale
 	swap	d2						;d2 = d2 * factor / $8000
 .nobend	move.w	(sp)+,d3			;octave
 	cmpi.b	#PCMPatch,ch_patch(a2)
 	bge.w	.pcm					;PCM patch
-	asl.w	#3,d3
+	asl.w	#3,d3					;octave
 	asl.w	#8,d3					;octave in bits 13-11
-	or.w	d3,d2
-	clr.w	d3
+	or.w	d3,d2					;octave and frequency number
+	clr.w	d3						;clear the high byte
 	move.b	ch_out(a2),d3			;output channel
 	bset	d3,(Z80_command_buffer+cb_freq).w	;frequency change
-	add.w	d3,d3
+	add.w	d3,d3					;word index
 	movea.w	#(per_channel_frequency_table-M68K_RAM),a4	;frequency words
 	move.w	d2,(a4,d3.w)
-	st	(music_needs_z80_update).w
+	st	(music_needs_z80_update).w	;send the buffer
 	rts
 .pcm	move.w	#$100,(IO_Z80BUS).l	;PCM patch: set the sample rate in Z80 RAM
 	IF REV=2
 .zb4	btst	#0,(IO_Z80BUS).l	;Rev B waits for the Z80 to grant the bus
 	bne.b	.zb4
 	ENDIF
-	neg.w	d3
+	neg.w	d3						;8 - octave
 	addq.w	#8,d3
 	lsr.w	d3,d2					;frequency number >> (8 - octave)
 	move.b	d2,(Z80_RAM+z80_pcm_rate).l	;PCM rate
-	clr.w	(IO_Z80BUS).l
+	clr.w	(IO_Z80BUS).l			;release the Z80 bus
 	rts
 .fnum								;frequency number of each note in the octave
 	dc.w	$0146,$0159,$016E,$0184,$019B,$01B3,$01CD,$01E8,$0205,$0224,$0245,$0268
@@ -570,8 +570,8 @@ handle_command_40					;event $4x: set the patch of channel +1 bits 3-0 of track 
 									;table +3)
 	movea.w	#(fm_voice_usage_table-M68K_RAM),a3
 	move.b	ev_status(a0),d0
-	andi.w	#EvChanMask,d0
-	asl.w	#KeyShift,d0
+	andi.w	#EvChanMask,d0			;midi channel
+	asl.w	#KeyShift,d0			;times 8
 	or.w	d7,d0					;key
 	asl.w	#KeyShift,d0
 	move.b	ev_data(a0),vc_patch(a3,d0.w)
@@ -582,18 +582,18 @@ handle_command_60					;event $6x: set the pitch bend of channel +1 bits 3-0 of t
 									;then update the frequency of every channel struct playing that key
 	movea.w	#(fm_voice_usage_table-M68K_RAM),a3
 	move.b	ev_status(a0),d0
-	andi.w	#EvChanMask,d0
-	asl.w	#KeyShift,d0
+	andi.w	#EvChanMask,d0			;midi channel
+	asl.w	#KeyShift,d0			;times 8
 	or.w	d7,d0					;key
-	move.w	d0,d4
+	move.w	d0,d4					;d4 = key
 	asl.w	#KeyShift,d0
-	move.w	ev_data(a0),vc_bend(a3,d0.w)
+	move.w	ev_data(a0),vc_bend(a3,d0.w)	;bend word
 	subi.w	#BendCentre,vc_bend(a3,d0.w)	;signed, 0 = no bend
 	movea.w	#(fm_channel_structs-M68K_RAM),a2
-	moveq	#NumChans-1,d0
+	moveq	#NumChans-1,d0			;6 channels
 .loop	cmp.b	ch_key(a2),d4		;find the channel structs playing this key
 	bne.w	.next					;another key
-	bsr.w	UpdateChannelFrequencyAndVolume
+	bsr.w	UpdateChannelFrequencyAndVolume	;new frequency
 .next	addq.w	#ChanSize,a2		;next channel struct
 	dbf	d0,.loop
 	rts
@@ -606,9 +606,9 @@ p_initialZ80						;(initialization). Free all slots, load the Z80 program into Z
 									;256 bytes below Z80 $2000 ((i-$80)*8/d + $80 for d = 8-36, byte 0 = 0)
 									;and start the Z80.
 									;Called from Begin
-	movem.l	d0-d2/a0-a2,-(sp)
-	bsr.w	ClearAllTrackAndSFXSlots
-	move.w	#$100,(IO_Z80RES).l
+	movem.l	d0-d2/a0-a2,-(sp)		;save
+	bsr.w	ClearAllTrackAndSFXSlots	;free all slots
+	move.w	#$100,(IO_Z80RES).l		;Z80 reset off
 	move.w	#$100,(IO_Z80BUS).l		;request the Z80 bus
 	IF REV=2
 .zb5	btst	#0,(IO_Z80BUS).l	;Rev B waits for the Z80 to grant the bus
@@ -624,45 +624,45 @@ p_initialZ80						;(initialization). Free all slots, load the Z80 program into Z
 	move.l	#Z80Tables-1,d3			;29 tables
 .tab	move.w	#$FF,d0				;start one 256-byte table
 .byte	move.w	d0,d1				;one table byte: ((i-$80)*8)/divisor + $80
-	subi.w	#$80,d1
-	asl.w	#3,d1
-	ext.l	d1
-	divs.w	d2,d1
+	subi.w	#$80,d1					;x - $80
+	asl.w	#3,d1					;* 8
+	ext.l	d1						;long
+	divs.w	d2,d1					;/ divisor
 	addi.w	#$80,d1
-	move.b	d1,-(a2)
+	move.b	d1,-(a2)				;store it
 	dbf	d0,.byte
 	clr.b	(a2)					;entry 0 = 0
-	addq.w	#1,d2
+	addq.w	#1,d2					;next divisor
 	dbf	d3,.tab
 	move.w	#0,(IO_Z80RES).l		;Z80 reset
 	move.w	#0,(IO_Z80BUS).l		;release the bus
-	move.w	#$1F4,d0
+	move.w	#$1F4,d0				;wait count
 .wait	dbf	d0,.wait				;wait for the Z80 reset to finish
 	move.w	#$100,(IO_Z80RES).l		;Z80 runs
-	clr.b	(music_needs_z80_update).w
-	movem.l	(sp)+,d0-d2/a0-a2
+	clr.b	(music_needs_z80_update).w	;nothing to send
+	movem.l	(sp)+,d0-d2/a0-a2		;restore
 	rts
 
 ClearAllTrackAndSFXSlots			;free the 8 track slots and reset the 6 channel structs (output channels
 									;0, 1, 2,
 									;4, 5, 6, patch $FF, off). Called from p_turnoff and p_initialZ80
 	movea.w	#(fm_track_slots-M68K_RAM),a0
-	moveq	#NumSlots-1,d0
-	moveq	#-1,d1
+	moveq	#NumSlots-1,d0			;8 slots
+	moveq	#-1,d1					;free = -1
 .trk	move.l	d1,(a0)				;free
-	addq.w	#SlotSize,a0
-	dbf	d0,.trk
-	moveq	#NumChans-1,d0
+	addq.w	#SlotSize,a0			;next slot
+	dbf	d0,.trk						;loop
+	moveq	#NumChans-1,d0			;6 channels
 	movea.w	#(fm_track_slots-M68K_RAM),a0	;end of the channel structs
 .chan	subq.w	#ChanSize,a0		;set up channel struct d0 (last to first)
 	move.b	d0,ch_out(a0)			;output channel
-	cmp.w	#3,d0
-	blt.w	.set
+	cmp.w	#3,d0					;channel 3 or more?
+	blt.w	.set					;no
 	addq.b	#1,ch_out(a0)			;3-5 become 4-6
 .set	st	ch_patch(a0)			;patch $FF
 	clr.w	(a0)					;key, note
 	clr.b	ch_flags(a0)			;off
-	dbf	d0,.chan
+	dbf	d0,.chan					;loop
 	rts
 
 Z80_Program_Code					;First byte of the Z80 program (movea.l in p_initialZ80); the rest of the
