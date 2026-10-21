@@ -9,7 +9,7 @@
 VBlank								;main vblank code for game play (VBint target, set by setupice).
 									;Not VBjsr: that is the level 6 vector stub
 	movem.l	d0-d7/a0-a6,-(sp)
-	btst	#dfng,(disflags).w
+	btst	#dfng,(disflags).w		;dfng: don't touch the vdp
 	bne.w	.nograph				;don't screw with vchip cause I'm using it
 	bclr	#dfok,(disflags).w
 	beq.w	.01
@@ -66,7 +66,7 @@ DumpSprites							;transfer (by dma) scroll stuff, sprite table, vram data in dm
 DumpSprites2						;transfer sprite table, then the dma list. Falls into dodmalist.
 									;Also called from 00014404
 	movea.w	#(Satt-M68K_RAM),a0		;transfer sprite table
-	move.w	(Sattsize).w,d0
+	move.w	(Sattsize).w,d0			;words
 	move.w	(VSPRITES).w,d1
 	bsr.w	DoDMA
 
@@ -109,7 +109,7 @@ setvideo							;this is not vblank code but sets up ram for vblank transfers.
 	bsr.w	showzam
 	bsr.w	showcrowd
 	bsr.w	showref
-	cmpa.w	#(Satt-M68K_RAM),a6
+	cmpa.w	#(Satt-M68K_RAM),a6		;no sprites: one blank sprite
 	bne.w	.n
 	clr.l	(a6)+					;no sprites: one blank sprite
 	clr.l	(a6)+
@@ -447,7 +447,7 @@ showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then the t
 	move.w	seAttr(a0),d5
 	andi.w	#$F800,d5
 	add.w	seTile(a0),d5
-	add.w	(crowdvrcset).w,d5
+	add.w	(crowdvrcset).w,d5		;crowd start char
 	move.w	d5,(a6)+
 	move.w	(a0),d5
 	addi.w	#$70,d5					;128-16
@@ -506,7 +506,7 @@ showclock							;put the game clock in the dma list. Called from setvideo; retur
 	movea.w	#(VmMAP1-M68K_RAM),a1
 	moveq	#$18,d0					;.clocky = 24
 	moveq	#3,d2					;.clockx = 3
-	btst	#sfhor,(sflags).w
+	btst	#sfhor,(sflags).w		;sfhor (always clear here: the horizontal rink prints the clock above)
 	beq.w	.cv
 	movea.w	#(VmMAP2-M68K_RAM),a1
 	moveq	#4,d0					;.clocky2 = 4
@@ -610,15 +610,15 @@ checksso							;do graphics for sso structure: arrows for the two players when t
 
 setsortcords						;setup sort cord graphics: addframe for the 16 objects in OOlist order.
 									;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter
-	movea.w	#(OOlist-M68K_RAM),a4
+	movea.w	#(OOlist-M68K_RAM),a4	;move OOlist into a4
 	move.w	#$F,d0					;sortobjs-1
 .top	clr.w	d1					;next object number from OOlist
-	move.b	(a4)+,d1
+	move.b	(a4)+,d1				;move next sortcord into d1
 	asl.w	#scsize-1,d1			;scsize-1
-	movea.w	#(SortCords-M68K_RAM),a3
-	adda.w	d1,a3
+	movea.w	#(SortCords-M68K_RAM),a3	;SortCords into a3
+	adda.w	d1,a3					;add offset to next struct
 	bsr.w	addframe
-	dbf	d0,.top
+	dbf	d0,.top						;loop until done
 	rts
 
 setffo								;draw the 5 objects tied to icerink scrolling (pads ...). Called from
@@ -627,7 +627,7 @@ setffo								;draw the 5 objects tied to icerink scrolling (pads ...). Called f
 									;sprites
 	bsr.w	uppads
 	move.w	#4,d0					;ffonum-1
-	movea.w	#(pads-M68K_RAM),a3
+	movea.w	#(pads-M68K_RAM),a3		;move start of struct into a3
 .top	movea.w	a6,a0				;per object: a0 = first sprite this object writes
 	bsr.w	addframe
 	cmpa.w	a6,a0
@@ -652,7 +652,7 @@ uppads								;update the gloves object and the 4 pad objects, and queue new pad
 	move.w	d0,(a0)					;Xpos
 	ext.w	d1
 	asl.w	#2,d1
-	move.w	d1,Ypos(a0)
+	move.w	d1,Ypos(a0)				;move d1 into Ypos
 	clr.w	Zpos(a0)				;shown
 .nogloves	moveq	#3,d4			;4 pads (92 3); d4 = pads left-1
 	movea.w	#(pads-M68K_RAM),a0
@@ -745,12 +745,12 @@ addframe							;a3 = cords.l frame/oldframe VRsize VRchar. Project the object wi
 									;Called from setsortcords and setffo. a5 = dma trans, a6/d6 = sprite att
 	movem.l	d0-d2,-(sp)
 	move.w	(a3),d0					;Xpos
-	move.w	Ypos(a3),d1
-	move.w	Zpos(a3),d2
+	move.w	Ypos(a3),d1				;Ypos into d1
+	move.w	Zpos(a3),d2				;Zpos into d2
 	bmi.w	.exit					;hidden
-	bsr.w	find3d
+	bsr.w	find3d					;get position on screen
 	cmp.w	#osflag,d1				;osflag
-	beq.w	.exit
+	beq.w	.exit					;exit if Sort Cord is off screen
 	bsr.w	addframe2
 .exit	movem.l	(sp)+,d0-d2			;hidden or off screen: nothing drawn
 	rts
@@ -763,15 +763,15 @@ addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, 
 									;attribute bits, low 11 the frame frames come from SpritesMap (offset
 									;table at +4) instead of a framelist. attribute is restored on exit
 	move.w	attribute(a3),-(sp)		;save attribute
-	movem.l	d0-d5/a0-a2,-(sp)
-	move.w	frame(a3),d4
-	bmi.w	.exit
-	beq.w	.exit
+	movem.l	d0-d5/a0-a2,-(sp)		;push to stack
+	move.w	frame(a3),d4			;move frame into d4
+	bmi.w	.exit					;exit if minus
+	beq.w	.exit					;exit if 0
 	andi.w	#$F800,d4				;frame's attribute bits
 	eor.w	d4,attribute(a3)		;flip them into attribute for this draw
-	move.w	frame(a3),d4
-	andi.w	#$7FF,d4
-	movea.l	#Sprites,a2
+	move.w	frame(a3),d4			;move frame back into d4
+	andi.w	#$7FF,d4				;pass first 11 bits
+	movea.l	#Sprites,a2				;sprite frame list
 	adda.l	jimdata(a2),a2			;frame offset table
 	IF REV=2
 	add.w	d4,d4					;Rev B: the offset table has no entry for frame 0, so index one word lower
@@ -788,102 +788,102 @@ addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, 
 	bge.w	.exit					;frame past the table
 	move.w	2(a2,d4.w),d5
 	sub.w	(a2,d4.w),d5
-	lsr.w	#3,d5
+	lsr.w	#3,d5					;divide d5 by 8
 	subq.w	#1,d5					;number of sprites in frame-1
 	adda.w	(a2,d4.w),a2
 	ENDIF
-	clr.w	d3
-	clr.w	d4
+	clr.w	d3						;clear d3
+	clr.w	d4						;clear d4
 .sloop	move.w	d0,-(sp)			;per sprite of the frame; d0 = x for now, saved
-	move.w	frame(a3),d0
-	andi.w	#$7FF,d0
-	cmp.w	oldframe(a3),d0
+	move.w	frame(a3),d0			;move frame into d0
+	andi.w	#$7FF,d0				;pass first 11 bits
+	cmp.w	oldframe(a3),d0			;compare old frame to d0 (current frame)
 	beq.w	.noref					;same frame: tiles already in vram
 
-	tst.w	d5
-	bne.w	.nn
+	tst.w	d5						;check if d5 is 0
+	bne.w	.nn						;branch if not
 	move.w	d0,oldframe(a3)			;last sprite: oldframe = frame
 .nn	movem.w	d0-d4,-(sp)				;work out whether this sprite's tiles overlap the previous one's;
 									;prevtileptr(sp) / prevtilecnt(sp) = d2 / d4 of the last sprite
 	move.w	seTile(a2),d2			;tile pointer (kept whole)
-	clr.w	d4
+	clr.w	d4						;clear d4
 	move.b	seSize(a2),d4			;size byte
-	movea.l	#sizetab,a0
+	movea.l	#sizetab,a0				;move address into a0
 	move.b	(a0,d4.w),d4			;chars used in this sprite
-	cmp.w	prevtilecnt(sp),d4
+	cmp.w	prevtilecnt(sp),d4		;compare current d4 to previous d4
 	bgt.w	.nodup					;more data in prev sprite so no dup
-	cmp.w	prevtileptr(sp),d2
-	blt.w	.nodup
-	move.w	prevtileptr(sp),d0
+	cmp.w	prevtileptr(sp),d2		;compare current d2 to previous d2
+	blt.w	.nodup					;branch if less than
+	move.w	prevtileptr(sp),d0		;move previous d2 into d0
 	add.w	prevtilecnt(sp),d0		;end of last data
-	sub.w	d2,d0
-	sub.w	d4,d0
-	bmi.w	.nodup
-	movem.w	(sp)+,d0-d1
-	addq.w	#6,sp
+	sub.w	d2,d0					;sub d2 from d0
+	sub.w	d4,d0					;sub d4 from d0
+	bmi.w	.nodup					;branch if d0 negative
+	movem.w	(sp)+,d0-d1				;pop d0 and d1 from stack
+	addq.w	#6,sp					;add 6 to stack pointer
 	bra.w	.dup
 
 .nodup	add.w	prevtilecnt(sp),d3	;d3 = vram char offset after the previous sprite's tiles
-	movem.w	(sp)+,d0-d1
-	addq.w	#6,sp
+	movem.w	(sp)+,d0-d1				;pop d0 and d1 from stack (d0=Xpos, d1=Ypos)
+	addq.w	#6,sp					;add 6 to stack pointer (moves past old d4 spot on stack)
 
 	movem.w	d0-d4,-(sp)				;queue a dma of this sprite's new tiles
-	add.w	VRchar(a3),d3
-	ext.l	d2
-	asl.l	#5,d2
+	add.w	VRchar(a3),d3			;add VRChar of player struct to d3
+	ext.l	d2						;extend d2 (clears out upper word)
+	asl.l	#5,d2					;mult d2 by 32
 	addi.l	#Spritetiles,d2			;tile address
-	asl.w	#4,d4
-	asl.w	#5,d3
+	asl.w	#4,d4					;mult by 16 (# of sprite tiles by 16)
+	asl.w	#5,d3					;mult by 32 (# of prev sprite tiles+VrChar by 32)
 	move.l	d2,(a5)+
 	move.w	d4,(a5)+				;words to transfer
 	move.w	d3,(a5)+				;vram destination
-	movem.w	(sp)+,d0-d4
+	movem.w	(sp)+,d0-d4				;pop from stack
 .dup	move.b	d3,VRoffs(a3,d5.w)	;remember this sprite's char offset in the object
 .noref	move.w	(sp)+,d0			;restore x
 	movem.w	d0-d2,-(sp)				;write sprite att
 	move.w	seY(a2),d2				;y global (+2; 92 used +0)
 	btst	#4,attribute(a3)		;y flip
-	beq.w	.noyflip
-	move.b	seSize(a2),d2
-	andi.w	#3,d2
-	addq.w	#1,d2
-	asl.w	#3,d2
-	neg.w	d2
-	sub.w	seY(a2),d2
+	beq.w	.noyflip				;branch if no y flip
+	move.b	seSize(a2),d2			;move byte 7 (sizetab byte) into d2
+	andi.w	#3,d2					;pass bit 1 and 2
+	addq.w	#1,d2					;add 1
+	asl.w	#3,d2					;mult by 8
+	neg.w	d2						;negate d2
+	sub.w	seY(a2),d2				;sub Y global from d2
 .noyflip	add.w	d2,d1			;screen y + sprite y
-	move.w	d1,(a6)
+	move.w	d1,(a6)					;move sprite's Ypos into a6 data (Satt)
 
 	move.w	(a2),d2					;x global (+0; 92 used +6)
 	btst	#3,attribute(a3)		;x flip
-	beq.w	.noxflip
-	move.b	seSize(a2),d2
-	andi.w	#$C,d2
-	addq.w	#4,d2
-	asl.w	#1,d2
-	neg.w	d2
-	sub.w	(a2),d2
+	beq.w	.noxflip				;branch if no x flip
+	move.b	seSize(a2),d2			;move data at 7+a2 into d2
+	andi.w	#$C,d2					;pass bit 3 and 4
+	addq.w	#4,d2					;add 4
+	asl.w	#1,d2					;mult by 2
+	neg.w	d2						;negate d2
+	sub.w	(a2),d2					;sub data at a2 from d2
 .noxflip	add.w	d2,d0			;screen x + sprite x
-	move.w	d0,satX(a6)
+	move.w	d0,satX(a6)				;move sprite's Xpos into 6+a6 position
 	move.b	seSize(a2),satSize(a6)	;size
 	move.b	d6,satLink(a6)			;link
-	move.w	seAttr(a2),d2
-	move.w	attribute(a3),d0
-	eor.w	d0,d2
-	andi.w	#$F800,d2
-	btst	#0,attribute+1(a3)
-	beq.w	.nospec
-	btst	#$E,d2
-	beq.w	.nospec
+	move.w	seAttr(a2),d2			;move 6+a2 into d2 (to be used to check palette and set HVFlip)
+	move.w	attribute(a3),d0		;move attribute into d0
+	eor.w	d0,d2					;EOR d0 with d2
+	andi.w	#$F800,d2				;pass top 5 bits
+	btst	#0,attribute+1(a3)		;check if bit 0 of attribute+1 is 0
+	beq.w	.nospec					;branch if zero
+	btst	#$E,d2					;check if bit 14 is 0
+	beq.w	.nospec					;branch if zero
 	bset	#$D,d2					;team 2 color
 .nospec	or.b	VRoffs(a3,d5.w),d2	;char offset of this sprite
-	add.w	VRchar(a3),d2
-	move.w	d2,satTile(a6)
-	movem.w	(sp)+,d0-d2
+	add.w	VRchar(a3),d2			;add VRchar to d2
+	move.w	d2,satTile(a6)			;move d2 into 4+a6 (Satt)
+	movem.w	(sp)+,d0-d2				;pop from stack
 
-	addq.w	#1,d6
-	addq.w	#8,a6
-	addq.w	#8,a2
-	dbf	d5,.sloop
+	addq.w	#1,d6					;add 1 to d6
+	addq.w	#8,a6					;add 8 to a6
+	addq.w	#8,a2					;add 8 to a2
+	dbf	d5,.sloop					;loop if still sprites in frame
 .exit	movem.l	(sp)+,d0-d5/a0-a2	;also reached when frame is 0, negative or past the table
 	move.w	(sp)+,attribute(a3)		;restore attribute
 	rts
