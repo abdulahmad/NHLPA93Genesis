@@ -53,6 +53,16 @@ foframe		=	0					;fofdata2, fofdata: 4 bytes per big faceoff sprite (2 centers, 
 foattr		=	2					;word attribute (bit 11 x flip)
 fosize		=	4
 plpos		=	6					;PlList: 6 wanted roster players, then their positions
+pldnum		=	0					;.pld player ratings, 8 bytes after the name String (92 setplayer field
+									;names): jersey number, 2 BCD digits -> rostnum
+pldweight	=	1					;high nibble weight, low nibble leg power legstr
+pldlegspd	=	2					;high nibble speed legspd, low nibble offense aioff
+pldaidef	=	3					;high nibble defense aidef, low nibble shot power shotspd
+pldcheck	=	4					;high nibble checking, bit 0 handed, bits 1-3 fighting
+pldstick	=	5					;high nibble stickhandling stickhand, low nibble shot accuracy
+pldendur	=	6					;high nibble endurance, low nibble shoot / pass odds spodds
+pldpass		=	7					;high nibble passing passacc, low nibble aggression aggress
+pldsize		=	8
 
 ;hardware
 IO_Z80BUS		=	$A11100			;Z80 bus request port ($100 requests the bus, 0 releases it)

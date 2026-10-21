@@ -3362,7 +3362,7 @@ setplayer							;bring player onto the ice and set his stats
 	lsr.w	#1,d3
 	movea.l	tmdata(a0),a0
 	move.l	a0,-(sp)
-	adda.w	8(a0),a0				;team data + word at team data+8
+	adda.w	ScoutReport(a0),a0		;scouting report bytes
 	clr.l	(PPBonus).w				;all four bonus bytes
 	tst.w	position(a3)
 	beq.w	.nomod					;goalie: no modifiers
@@ -3403,23 +3403,23 @@ setplayer							;bring player onto the ice and set his stats
 .nomod	movea.l	(sp)+,a0			;tmdata
 	adda.w	(a0),a0					;roster records
 .find	adda.w	(a0),a0				;skip name
-	addq.w	#8,a0					;skip 8 attribute bytes
+	addq.w	#pldsize,a0				;skip 8 attribute bytes
 	dbf	d3,.find
-	subq.w	#8,a0					;a0 = player d3's attribute bytes
+	subq.w	#pldsize,a0				;a0 = player d3's attribute bytes
 	;roster attribute bytes (a0): 0 rostnum; 1 weight/legstr; 2 legspd/aioff; 3 aidef/shotspd;
 	;4 checking/fight/handed; 5 stickhand/shotacc; 6 endurance/spodds; 7 passacc/aggress
 	move.b	(a0),rostnum(a3)
-	move.b	1(a0),d3
+	move.b	pldweight(a0),d3
 	andi.w	#$F0,d3
 	lsr.w	#1,d3					;(92 no shift)
 	move.b	d3,weight(a3)
-	move.b	1(a0),d3
+	move.b	pldweight(a0),d3
 	andi.b	#$F,d3
 	move.b	d3,legstr(a3)
-	move.b	2(a0),d3
+	move.b	pldlegspd(a0),d3
 	lsr.b	#4,d3
 	move.b	d3,legspd(a3)
-	move.b	2(a0),d3
+	move.b	pldlegspd(a0),d3
 	andi.b	#$F,d3
 	add.b	(PPBonus).w,d3
 	add.b	(PKBonus).w,d3
@@ -3430,7 +3430,7 @@ setplayer							;bring player onto the ice and set his stats
 	addi.b	#$F,d3					;frames to skip
 	lsr.b	#1,d3
 	move.b	d3,aioff(a3)
-	move.b	3(a0),d3
+	move.b	pldaidef(a0),d3
 	lsr.b	#4,d3
 	add.b	(HmAwBonus).w,d3
 	bsr.w	ClampNibble
@@ -3438,50 +3438,50 @@ setplayer							;bring player onto the ice and set his stats
 	addi.b	#$F,d3					;frames to skip
 	lsr.b	#1,d3
 	move.b	d3,aidef(a3)
-	move.b	3(a0),shotspd(a3)
+	move.b	pldaidef(a0),shotspd(a3)
 	andi.b	#$F,shotspd(a3)
-	move.b	4(a0),d3
+	move.b	pldcheck(a0),d3
 	lsr.b	#4,d3
 	add.b	(ThirdPBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,checking(a3)			;checking rating
 	bclr	#3,attribute(a3)
-	move.b	4(a0),handed(a3)
+	move.b	pldcheck(a0),handed(a3)
 	andi.b	#1,handed(a3)			;bit 0 set is left handed
 	bne.w	.ha
 	bset	#3,attribute(a3)
-.ha	move.b	4(a0),fighting(a3)		;fight rating = byte 4 & $E
+.ha	move.b	pldcheck(a0),fighting(a3)	;fight rating = byte 4 & $E
 	andi.b	#$E,fighting(a3)
-	move.b	5(a0),d3
+	move.b	pldstick(a0),d3
 	lsr.b	#4,d3
 	add.b	(PPBonus).w,d3
 	add.b	(PKBonus).w,d3
 	add.b	(HmAwBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,stickhand(a3)
-	move.b	5(a0),d3
+	move.b	pldstick(a0),d3
 	andi.b	#$F,d3
 	add.b	(PPBonus).w,d3
 	add.b	(PKBonus).w,d3
 	add.b	(HmAwBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,shotacc(a3)
-	move.b	6(a0),d3
+	move.b	pldendur(a0),d3
 	lsr.b	#4,d3
 	move.b	d3,endurance(a3)
-	move.b	6(a0),d3
+	move.b	pldendur(a0),d3
 	andi.b	#$F,d3
 	add.b	(ThirdPBonus).w,d3
 	add.b	(ThirdPBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,spodds(a3)
-	move.b	7(a0),d3
+	move.b	pldpass(a0),d3
 	lsr.b	#4,d3
 	add.b	(PPBonus).w,d3
 	add.b	(HmAwBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,passacc(a3)
-	move.b	7(a0),aggress(a3)		;aggress
+	move.b	pldpass(a0),aggress(a3)	;aggress
 	andi.b	#$F,aggress(a3)
 	rts
 
@@ -3942,7 +3942,7 @@ CopyTeamLines						;'Set Original lines' (LineEditorMenuText): copy the team dat
 									;sets to tmlines. a2 = team struct, tmdata(a2) set
 	moveq	#$D,d0					;14 longs
 	movea.l	tmdata(a2),a0
-	adda.w	6(a0),a0				;lines offset in the team data
+	adda.w	LineSets(a0),a0			;lines offset in the team data
 	lea	tmlines(a2),a1
 .copy	move.l	(a0)+,(a1)+			;copy the line sets to tmlines
 	dbf	d0,.copy
@@ -3958,7 +3958,7 @@ setplayercolors						;copy in correct color data for each team. Called from setu
 	adda.w	#tmsize,a0
 
 .sp	movea.l	tmdata(a0),a2			;a0 = team struct, d1 = palette offset (0 home, $20 visitors)
-	adda.w	2(a2),a2				;Palettedata
+	adda.w	Palettedata(a2),a2		;palettes
 	adda.w	d1,a2
 	movea.w	#(palfadenew+$40-M68K_RAM),a1
 	adda.w	d1,a1
@@ -4432,9 +4432,9 @@ ScoutingReport						;pregame scouting report. Called from PeriodOver.
 	bsr.w	printsmallz
 	String	CC_SetX,$1D,CC_SetY,$F,CC_SetFont	;x $1D, y $F, char set 0 (pad byte)
 	movea.l	(HomeTeamRosterPtr).w,a0
-	adda.w	8(a0),a0				;a0 = home scouting report bytes
+	adda.w	ScoutReport(a0),a0		;a0 = home scouting report bytes
 	movea.l	(AwayTeamRosterPtr).w,a2
-	adda.w	8(a2),a2				;a2 = away scouting report bytes
+	adda.w	ScoutReport(a2),a2		;a2 = away scouting report bytes
 	bsr.w	PrintScoutRatings		;home ratings at x $1D
 	bsr.w	printsmallz
 	String	CC_SetX,7,CC_SetY,$F,CC_SetFont	;x 7, y $F, char set 0 (pad byte)
@@ -4638,7 +4638,7 @@ UpdateScoutingDisplay				;called every frame by ScoutingReport. When ScoutingRep
 	adda.w	(a1),a1					;player data
 	bra.w	.pn
 .pl	adda.w	(a1),a1					;skip name and 8 bytes of ratings
-	addq.w	#8,a1
+	addq.w	#pldsize,a1
 .pn	dbf	d1,.pl						;step through d1 roster records
 	bra.w	.name
 .away	movea.l	(AwayTeamRosterPtr).w,a1	;away team name
@@ -4647,7 +4647,7 @@ UpdateScoutingDisplay				;called every frame by ScoutingReport. When ScoutingRep
 	cmpi.w	#$18,(tmstruct+tmgoalie+2).w
 	bge.w	.tname					;used when >= $18
 .home	movea.l	(HomeTeamRosterPtr).w,a1	;home team name
-.tname	adda.w	4(a1),a1			;team name
+.tname	adda.w	Teamname(a1),a1		;team name
 .name	addq.w	#1,(PlayerScrollCtr).w	;step past the escape char
 	add.w	(a1),d0
 	subq.w	#1,d0
@@ -5423,7 +5423,7 @@ setoptions							;options screen display and input. Called from PeriodOver.
 	asl.w	#2,d3
 	movea.l	(a1,d3.w),a1
 	lsr.w	#2,d3
-	adda.w	4(a1),a1
+	adda.w	Teamname(a1),a1
 	bra.w	print
 
 .nms								;next menu by d0
@@ -5726,7 +5726,7 @@ SetupNextPlayer						;player of team a2 slid out. Load the team palette (setplay
 									;his animation script from the ratings. Branched to from
 									;UpdateRosterPlayer
 	movea.l	tmdata(a2),a0
-	adda.w	2(a0),a0				;Palettedata
+	adda.w	Palettedata(a0),a0		;palettes
 	movea.w	#(palfadenew+$40-M68K_RAM),a1
 	moveq	#7,d0
 	cmpa.w	#(tmstruct-M68K_RAM),a2
@@ -5804,7 +5804,7 @@ GetRosterEntry						;a0 = roster entry d0 of team a2 (name string, then 8 bytes:
 	adda.w	(a0),a0					;player data
 	bra.w	.cnt
 .next	adda.w	(a0),a0				;skip the name
-	addq.w	#8,a0
+	addq.w	#pldsize,a0
 .cnt	dbf	d0,.next				;d0 entries to skip
 	rts
 
@@ -6565,7 +6565,7 @@ ShowThreeStars						;end of game "Stars of the Game" box. Called from UpdatePA w
 	move.w	#$1A,(printx).w
 	addq.w	#1,(printy).w
 	movea.l	tmdata(a2),a1			;string at team data offset 4, then its first offset
-	adda.w	4(a1),a1
+	adda.w	Teamname(a1),a1
 	adda.w	(a1),a1
 	bsr.w	print
 	bsr.w	getname					;a1 = number and name of player d0
@@ -6913,7 +6913,7 @@ GetPlayerNamePointer				;a0 = name string of player d0 on team a2. From tmdata a
 	adda.w	(a0),a0
 	bra.w	.cnt
 .next	adda.w	(a0),a0				;skip the name
-	addq.w	#8,a0
+	addq.w	#pldsize,a0
 .cnt	dbf	d0,.next				;d0 entries to skip
 	rts
 
@@ -6936,15 +6936,15 @@ AddError							;address error vector. The bus error vector also points here
 	move.w	#$2700,sr
 	bsr.w	printbigz
 	String	$BD,0,0,'Address Error'	;92 -$43
-	move.l	$A(sp),d0				;pc
-	move.l	2(sp),d1				;access address
+	move.l	$A(sp),d0				;pc (exception frame)
+	move.l	2(sp),d1				;access address (exception frame)
 	bra.w	crash
 
 Illinst								;illegal instruction vector.
 	move.w	#$2700,sr
 	bsr.w	printbigz
 	String	$BD,0,0,'Illegal Instruction'
-	move.l	2(sp),d0
+	move.l	2(sp),d0				;pc (exception frame)
 	move.l	d0,d1
 	bra.w	crash
 

@@ -144,12 +144,12 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 	beq.w	.sa2					;no player involved
 	movem.l	d0-d1/a1-a4,-(sp)
 	bsr.w	GetPeriodTimeRemaining	;log time, penalty and player
-	;PenSum entry (4 bytes): time word, penalty byte, player byte (bit 7 = visitors)
+	;PenSum entry (pssize bytes): pstime word, pspen byte (bit 7 = visitors), psplayer byte
 	movea.w	#(PenSum-M68K_RAM),a4
 	adda.w	(PenSumLength).w,a4
 	cmpi.w	#$EC,(PenSumLength).w	;log full: keep overwriting the last entry
 	beq.w	.full
-	addq.w	#4,(PenSumLength).w
+	addq.w	#pssize,(PenSumLength).w
 .full	move.w	d0,(a4)+			;time
 	move.b	(a0),(a4)+				;penalty
 	clr.w	d1
@@ -162,7 +162,7 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 	lea	tmsize(a2),a1
 	btst	#pfteam,pflags(a3)
 	beq.w	.sa1
-	bset	#7,-1(a4)				;log: visitors
+	bset	#7,-1(a4)				;log: visitors (pspen bit 7)
 	move.w	#$8000,d0
 	exg	a1,a2
 .sa1	addq.w	#1,tmPenalties(a2)	;team penalty count
@@ -775,7 +775,7 @@ updatepwrplay						;show graphic and time remaining for power plays. Plays song 
 	move.w	#2,(a3)					;empty string in mesarea, then append the position string and name
 	bsr.w	appendz
 	String	$BF,1,$19
-	adda.w	4(a0),a0				;team name
+	adda.w	Teamname(a0),a0			;team name
 	adda.w	(a0),a0
 	movea.l	a0,a1
 	bsr.w	appstring
@@ -916,7 +916,7 @@ PrintTeamNameAndScore				;from 92 printscores1 .ps. print the team name of team 
 									;printx/printy, then its score as 2 digits at x $1C. Called twice from
 									;printscores1
 	movea.l	tmdata(a2),a1
-	adda.w	4(a1),a1
+	adda.w	Teamname(a1),a1
 	adda.w	(a1),a1					;skip the first string to the team name
 	bsr.w	print
 	move.w	#$1C,(printx).w			;score column
@@ -1006,10 +1006,10 @@ pplpen								;?. Print one penalty box line: player number and time remaining. 
 	adda.w	(a1),a1					;a1 = roster in the team data
 	lsr.w	#1,d0					;d0 = player index
 .find	adda.w	(a1),a1				;skip d0+1 roster entries (name string + 8 bytes)
-	addq.w	#8,a1
+	addq.w	#pldsize,a1
 	dbf	d0,.find
 	clr.w	d0
-	move.b	-8(a1),d0				;player number (BCD)
+	move.b	pldnum-pldsize(a1),d0	;player number (BCD)
 	move.w	(printx).w,-(sp)
 	movea.w	#(TextBuffer-M68K_RAM),a1
 	bsr.w	ConvertByteToDigits		;two digits to TextBuffer
@@ -1294,7 +1294,7 @@ SetScore							;add to score for game in a0. After period 3 a game within one go
 									;0-3
 	movea.w	#TeamList,a1			;team address table
 	movea.l	(a1,d0.w),a1
-	adda.w	8(a1),a1
+	adda.w	ScoutReport(a1),a1
 	move.b	(a1),d0
 	andi.w	#$70,d0
 	lsr.w	#1,d0					;row * 8
@@ -1304,7 +1304,7 @@ SetScore							;add to score for game in a0. After period 3 a game within one go
 	asl.w	#2,d1
 	movea.w	#TeamList,a1
 	movea.l	(a1,d1.w),a1
-	adda.w	8(a1),a1
+	adda.w	ScoutReport(a1),a1
 	move.b	(a1),d0
 	andi.w	#7,d0
 	asl.w	#3,d0
@@ -1400,7 +1400,7 @@ NewTicker3							;display ticker score for game d3 (a0 = gstruct entry), skip if
 	movea.w	#TeamList,a1			;team address table
 	asl.w	#2,d0
 	movea.l	(a1,d0.w),a1
-	adda.w	4(a1),a1				;TeamName
+	adda.w	Teamname(a1),a1			;team name
 	bsr.w	print
 	move.w	4(sp),(printx).w
 	addi.w	#$15,(printx).w			;92 23
