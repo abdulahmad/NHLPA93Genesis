@@ -127,7 +127,7 @@ PrintGameInfo						;from 92 NewTicker3 .tn. print team d0's name at x 6 and scor
 	movea.w	#TeamList,a1			;team address table
 	asl.w	#2,d0
 	movea.l	(a1,d0.w),a1
-	adda.w	4(a1),a1				;team name
+	adda.w	Teamname(a1),a1			;team name
 	move.w	#6,(printx).w
 	bsr.w	print
 	move.w	#$18,(printx).w
@@ -1177,7 +1177,7 @@ DrawScoringRow						;print ScoreSum entry at offset d3: time, team (bit 7 of byt
 	beq.w	.0						;home goal
 	adda.w	#tmsize,a2				;away team struct
 .0	movea.l	tmdata(a2),a1			;team data -> team name string
-	adda.w	4(a1),a1
+	adda.w	Teamname(a1),a1
 	adda.w	(a1),a1
 	move.w	#$C,(printx).w
 	bsr.w	print					;team name at x $C
@@ -1382,7 +1382,7 @@ DisplayPenaltyEntry					;print penalty entry at offset d3: time, team (bit 7 of 
 	beq.w	.0						;home penalty
 	adda.w	#tmsize,a2				;away team struct
 .0	movea.l	tmdata(a2),a1			;team data -> team name string
-	adda.w	4(a1),a1
+	adda.w	Teamname(a1),a1
 	adda.w	(a1),a1
 	move.w	#$C,(printx).w
 	bsr.w	print					;team name at x $C
@@ -2223,7 +2223,7 @@ TimeoutMenu							;pause menu "Timeout" for team a2: uses the
 	bsr.w	printz
 	String	$BD,$C,$E,'Timeout',$BD,$11,$F
 	movea.l	tmdata(a2),a1			;team name, centred
-	adda.w	4(a1),a1
+	adda.w	Teamname(a1),a1
 	move.w	(a1),d0
 	lsr.w	#1,d0
 	sub.w	d0,(printx).w
@@ -2361,7 +2361,7 @@ GetForwardCount						;d0 = forwards on team a2 (high nibble of team data byte 3 
 									;in word 8)
 	movem.l	a0,-(sp)
 	movea.l	tmdata(a2),a0
-	adda.w	8(a0),a0
+	adda.w	ScoutReport(a0),a0
 	move.b	3(a0),d0
 	lsr.w	#4,d0					;high nibble = forward count
 	andi.w	#$F,d0

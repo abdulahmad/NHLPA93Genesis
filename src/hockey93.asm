@@ -3362,7 +3362,7 @@ setplayer							;bring player onto the ice and set his stats
 	lsr.w	#1,d3
 	movea.l	tmdata(a0),a0
 	move.l	a0,-(sp)
-	adda.w	8(a0),a0				;team data + word at team data+8
+	adda.w	ScoutReport(a0),a0		;scouting report bytes
 	clr.l	(PPBonus).w				;all four bonus bytes
 	tst.w	position(a3)
 	beq.w	.nomod					;goalie: no modifiers
@@ -3942,7 +3942,7 @@ CopyTeamLines						;'Set Original lines' (LineEditorMenuText): copy the team dat
 									;sets to tmlines. a2 = team struct, tmdata(a2) set
 	moveq	#$D,d0					;14 longs
 	movea.l	tmdata(a2),a0
-	adda.w	6(a0),a0				;lines offset in the team data
+	adda.w	LineSets(a0),a0			;lines offset in the team data
 	lea	tmlines(a2),a1
 .copy	move.l	(a0)+,(a1)+			;copy the line sets to tmlines
 	dbf	d0,.copy
@@ -3958,7 +3958,7 @@ setplayercolors						;copy in correct color data for each team. Called from setu
 	adda.w	#tmsize,a0
 
 .sp	movea.l	tmdata(a0),a2			;a0 = team struct, d1 = palette offset (0 home, $20 visitors)
-	adda.w	2(a2),a2				;Palettedata
+	adda.w	Palettedata(a2),a2		;palettes
 	adda.w	d1,a2
 	movea.w	#(palfadenew+$40-M68K_RAM),a1
 	adda.w	d1,a1
@@ -4432,9 +4432,9 @@ ScoutingReport						;pregame scouting report. Called from PeriodOver.
 	bsr.w	printsmallz
 	String	CC_SetX,$1D,CC_SetY,$F,CC_SetFont	;x $1D, y $F, char set 0 (pad byte)
 	movea.l	(HomeTeamRosterPtr).w,a0
-	adda.w	8(a0),a0				;a0 = home scouting report bytes
+	adda.w	ScoutReport(a0),a0		;a0 = home scouting report bytes
 	movea.l	(AwayTeamRosterPtr).w,a2
-	adda.w	8(a2),a2				;a2 = away scouting report bytes
+	adda.w	ScoutReport(a2),a2		;a2 = away scouting report bytes
 	bsr.w	PrintScoutRatings		;home ratings at x $1D
 	bsr.w	printsmallz
 	String	CC_SetX,7,CC_SetY,$F,CC_SetFont	;x 7, y $F, char set 0 (pad byte)
@@ -4647,7 +4647,7 @@ UpdateScoutingDisplay				;called every frame by ScoutingReport. When ScoutingRep
 	cmpi.w	#$18,(tmstruct+tmgoalie+2).w
 	bge.w	.tname					;used when >= $18
 .home	movea.l	(HomeTeamRosterPtr).w,a1	;home team name
-.tname	adda.w	4(a1),a1			;team name
+.tname	adda.w	Teamname(a1),a1		;team name
 .name	addq.w	#1,(PlayerScrollCtr).w	;step past the escape char
 	add.w	(a1),d0
 	subq.w	#1,d0
@@ -5423,7 +5423,7 @@ setoptions							;options screen display and input. Called from PeriodOver.
 	asl.w	#2,d3
 	movea.l	(a1,d3.w),a1
 	lsr.w	#2,d3
-	adda.w	4(a1),a1
+	adda.w	Teamname(a1),a1
 	bra.w	print
 
 .nms								;next menu by d0
@@ -5726,7 +5726,7 @@ SetupNextPlayer						;player of team a2 slid out. Load the team palette (setplay
 									;his animation script from the ratings. Branched to from
 									;UpdateRosterPlayer
 	movea.l	tmdata(a2),a0
-	adda.w	2(a0),a0				;Palettedata
+	adda.w	Palettedata(a0),a0		;palettes
 	movea.w	#(palfadenew+$40-M68K_RAM),a1
 	moveq	#7,d0
 	cmpa.w	#(tmstruct-M68K_RAM),a2
@@ -6565,7 +6565,7 @@ ShowThreeStars						;end of game "Stars of the Game" box. Called from UpdatePA w
 	move.w	#$1A,(printx).w
 	addq.w	#1,(printy).w
 	movea.l	tmdata(a2),a1			;string at team data offset 4, then its first offset
-	adda.w	4(a1),a1
+	adda.w	Teamname(a1),a1
 	adda.w	(a1),a1
 	bsr.w	print
 	bsr.w	getname					;a1 = number and name of player d0

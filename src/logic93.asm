@@ -193,7 +193,7 @@ SetLCmode2							;a2 = team struct for lc. Draw the lc box with
 .next	dbf	d4,.loop				;repeat for the other rows
 	;finally print the team name on the box
 	movea.l	tmdata(a2),a1			;team name
-	adda.w	4(a1),a1
+	adda.w	Teamname(a1),a1
 	adda.w	(a1),a1
 	addq.w	#2,(printx).w
 	bra.w	print
@@ -1631,7 +1631,7 @@ addinfo								;d0 = penalty byte (player SCnum in low nibble). Build "<name> <t
 	bsr.w	appendz
 	String	' ',0
 	movea.l	tmdata(a2),a1			;team name
-	adda.w	4(a1),a1
+	adda.w	Teamname(a1),a1
 	adda.w	(a1),a1
 	bsr.w	appstring
 	cmp.w	(a3),d2
