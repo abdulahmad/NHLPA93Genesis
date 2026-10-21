@@ -237,7 +237,7 @@ rostnum		=	$6F					;roster number of the player
 spodds		=	$70					;attribute byte set by setplayer (goalies: 92 GSSleft)
 stickhand	=	$71					;stick handling (puck control and steal odds; goalies: 92 GGSleft)
 endurance	=	$72					;endurance (how fast the energy runs out; goalies: 92 GSSright)
-aggress		=	$73					;and offset
+aggress		=	$73					;aggression: penalty odds (goalies: glove save left)
 fighting	=	$74					;fighting rating (fight strength and fight odds)
 checking	=	$75					;checking rating (check odds)
 handed		=	$76					;bit0 set is left handed. 92 $74
@@ -288,7 +288,8 @@ pads				rs.w	42		;face off objects tied to the rink scroll: the 3 pads and the c
 									;logo (ffo, ffosize bytes each; 92 pads = ffo)
 ffosize				=	OldXpos		;field objects tied to icerink scrolling, OldXpos bytes each
 CameraPosStruct		rs.w	11		;scroll camera: tracked object, target and the lead on the scroll
-									;(UpdateCameraPos)
+									;(UpdateCameraPos). Really 14 words: camtrack and camidle lie past
+									;these 11 and overlap replayactive (camtrack is the replayactive word)
 camtrack			=	$16			;camera struct: SCnum of the object tracked in replay (the struct
 									;stands in for a sort object: Xpos/Ypos are its position)
 camidle				=	$18			;camera struct: $FF while the replay d-pad is idle, cleared on scroll
