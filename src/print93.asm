@@ -51,7 +51,7 @@ Framer								;frame and fill (uses framer.map graphics and assums tiles are alr
 	move.w	(printa).w,d2
 	add.w	(framercset).w,d2
 	movea.l	#Framermap,a1
-	adda.l	4(a1),a1
+	adda.l	jimdata(a1),a1
 	addq.w	#4,a1
 	clr.w	d4						;d4 = offset of the frame map row (6 bytes per row: left, middle, right)
 	bsr.w	.tbline					;top row
@@ -127,7 +127,7 @@ printsmall							;from 92 print. print string macro a1 at printx/y/m with printa
 	beq.w	.skip
 	asl.w	#1,d0					;ascii -> word index into the font map
 	movea.l	#smallfontmap,a2
-	adda.l	4(a2),a2
+	adda.l	jimdata(a2),a2
 	move.w	4(a2,d0.w),d0			;tile number of this char
 	move.w	(printfontset).w,d1		;char set * 2
 	add.w	(a3,d1.w),d0
@@ -273,7 +273,7 @@ print								;a1 = string macro, printx/y = x/y cordinate on map for printing, p
 	beq.w	.skip
 	asl.w	#1,d0					;ascii -> word index into the font map
 	movea.l	#smallfontmap,a2
-	adda.l	4(a2),a2
+	adda.l	jimdata(a2),a2
 	move.w	4(a2,d0.w),d0			;tile number of this char
 	add.w	(smallfontchars).w,d0	;plus first small font char in vram
 .p	add.w	d2,d0					;for alternate paletes
@@ -523,7 +523,7 @@ printbig							;same as print, only use bigfont.map graphics. a1 = string macro,
 	clr.w	d2
 .p0	asl.w	#1,d1					;word offset into the map
 	movea.l	#bigfontmap,a0
-	adda.l	4(a0),a0
+	adda.l	jimdata(a0),a0
 .p1	move.w	4(a0,d1.w),d3			;top tile of this column
 	bsr.w	.dump
 	move.w	(a0),d7					;map width

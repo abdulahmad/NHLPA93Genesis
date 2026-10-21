@@ -472,7 +472,7 @@ ReplayMode							;this is instant replay play-back control and display code.
 	move.w	(rinkvrcset).w,d4
 	move.w	#0,d5
 	movea.l	#IceRinkMap,a1
-	adda.l	4(a1),a1
+	adda.l	jimdata(a1),a1
 	movea.w	#null,a2
 	bsr.w	dobitmap				;display replay icon
 	bclr	#sfscrl,(sflags).w		;manual scroll is off
@@ -2315,8 +2315,8 @@ Goal								;puck in goal. a3 = puck. Entered from checkgoal new song, sfx 0, sc
 .0	move.w	d0,Ypos(a3)				;store Ypos
 	move.w	#$600,Zvel(a3)
 	clr.w	Zpos(a3)
-	st	(puckcross+2).w				;puckcross+2
-	st	(puckcross+6).w				;puckcross+6
+	st	(puckcross+pcframes).w		;puckcross+2
+	st	(puckcross+pcsize+pcframes).w	;puckcross+6
 	bset	#pfnc,pflags(a3)
 	move.w	#pnothing,d0			;pnothing (92 same)
 	bsr.w	assreplace
@@ -3152,7 +3152,7 @@ setpersonel							;this will set personel on team a2 according to team a2's regi
 	cmp.b	pnum(a3),d5
 	dbeq	d3,.2
 	bne.w	.next					;not on the ice now
-	move.b	6(a4,d4.w),newpos(a3)
+	move.b	plpos(a4,d4.w),newpos(a3)
 	move.b	d5,newpnum(a3)
 	clr.b	(a4,d4.w)
 .next	dbf	d4,.1					;next PlList slot
@@ -3172,7 +3172,7 @@ setpersonel							;this will set personel on team a2 according to team a2's regi
 	movea.w	a3,a0					;a0 = free sort obj
 .chkpos	tst.w	position(a3)		;does this obj have a position yet?
 	dbpl	d3,.4					;keep looking while that obj has no position
-	move.b	6(a4,d4.w),newpos(a0)
+	move.b	plpos(a4,d4.w),newpos(a0)
 	move.b	d5,newpnum(a0)
 	clr.b	(a4,d4.w)
 .next2	dbf	d4,.3					;next PlList slot
@@ -3198,7 +3198,7 @@ SetPlList							;create list (PlList) of players who we want on the ice now a2 =
 .0	clr.w	d5						;slot d4: d5 = position from priolist
 	move.b	(a0,d4.w),d5			;position
 	move.b	(a1,d5.w),(a4,d4.w)		;player number
-	move.b	d5,6(a4,d4.w)
+	move.b	d5,plpos(a4,d4.w)
 	bne.w	.next
 	moveq	#1,d3
 	add.w	tmgoalie(a2),d3			;goalie: 1 + tmgoalie (92 adds 1 for the 2nd goalie only)
@@ -3215,7 +3215,7 @@ SetPlList							;create list (PlList) of players who we want on the ice now a2 =
 	tst.w	tmpdst(a2,d3.w)
 	ble.w	.next1					;player is ok
 .sub	lea	tmlines(a2),a1			;now find player of similar position who is available
-	move.b	6(a4,d4.w),d0			;position
+	move.b	plpos(a4,d4.w),d0		;position
 	ext.w	d0
 	asl.w	#1,d0
 	movea.l	#sublist,a0
@@ -3683,9 +3683,9 @@ setupTeamBlocksMap					;Load TeamBlocks.map tiles at d4+$30 and copy the home an
 	addi.w	#$30,d4					;skip the 48 chars for the two team blocks
 	movea.w	#(TeamBlockMap-M68K_RAM),a1	;map word buffer for CopyTeamBlockMapData
 	movea.l	#TeamBlocksmap,a0
-	lea	8(a0),a2
+	lea	jimtilecount(a0),a2
 	bsr.w	DecompressGraphicsPlain	;all team block tiles to vram at d4
-	adda.l	4(a0),a0				;map data
+	adda.l	jimdata(a0),a0			;map data
 	move.l	a0,-(sp)
 	move.w	(HomeTeam).w,d0
 	move.w	(basetileoffset).w,d1
@@ -4088,7 +4088,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	clr.w	d0
 	clr.w	d1
 	move.w	(a1),d2					;width and height from the map header
-	move.w	2(a1),d3
+	move.w	mapheight(a1),d3
 	moveq	#3,d5
 	bsr.w	dobitmap
 
@@ -4273,7 +4273,7 @@ DrawTreeArrow						;from 92 PlayoffScreen .doarrow. draw tree arrow d0 from Arro
 	movea.l	#ArrowsMap,a0
 	movea.l	a0,a1
 	adda.l	(a0),a0
-	adda.l	4(a1),a1
+	adda.l	jimdata(a1),a1
 	movea.w	#null,a2				;no tiles
 	clr.w	d1
 	moveq	#2,d2
@@ -4296,7 +4296,7 @@ DrawTeamBlocks						;from 92 PlayoffScreen .doteam. draw team block d1 (team*2) 
 	bne.w	.nohi
 	move.w	#$6000,(printa).w		;palette 3
 .nohi	movea.l	#TeamBlocksmap,a1	;a1 = map header of the team blocks
-	adda.l	4(a1),a1
+	adda.l	jimdata(a1),a1
 	movea.w	#null,a2				;no tiles
 	clr.w	d0
 	move.w	(a1),d2					;(92 moveq #13,d2)
@@ -4401,7 +4401,7 @@ ScoutingReport						;pregame scouting report. Called from PeriodOver.
 	clr.w	d0
 	clr.w	d1
 	move.w	(a1),d2					;width and height from the map header
-	move.w	2(a1),d3
+	move.w	mapheight(a1),d3
 	moveq	#$C,d5					;color fam 3-4
 	bsr.w	dobitmap
 
@@ -4714,7 +4714,7 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 	clr.w	d0
 	clr.w	d1
 	move.w	(a1),d2
-	move.w	2(a1),d3
+	move.w	mapheight(a1),d3
 	clr.w	d4
 	moveq	#$F,d5					;color fam 1-4
 	bsr.w	dobitmap
@@ -4736,12 +4736,12 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 	movea.l	#EASNmap2,a0
 	movea.l	a0,a1
 	adda.l	(a0),a0					;palette
-	adda.l	4(a1),a1				;map header
+	adda.l	jimdata(a1),a1			;map header
 	movea.w	#null,a2				;a zero word: no tiles
 	clr.w	d0
 	clr.w	d1
 	move.w	(a1),d2
-	move.w	2(a1),d3
+	move.w	mapheight(a1),d3
 	clr.w	d4
 	moveq	#$F,d5					;color fam 1-4
 	bsr.w	dobitmap
@@ -4861,12 +4861,12 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	bsr.w	printz
 	String	$FE,0,$16
 	movea.l	#Title1Map,a1			;rows $16 down of Titlemap, map only
-	adda.l	4(a1),a1
+	adda.l	jimdata(a1),a1
 	movea.w	#null,a2				;a zero word: no tiles
 	clr.w	d0
 	moveq	#$16,d1
 	move.w	(a1),d2
-	move.w	2(a1),d3
+	move.w	mapheight(a1),d3
 	sub.w	d1,d3
 	moveq	#0,d5					;no palettes
 	bsr.w	dobitmap
@@ -4881,7 +4881,7 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	clr.w	d0
 	clr.w	d1
 	move.w	(a1),d2
-	move.w	2(a1),d3
+	move.w	mapheight(a1),d3
 	moveq	#$F,d5					;color fam 1-4
 	bsr.w	dobitmap
 
@@ -4899,12 +4899,12 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	bsr.w	printz
 	String	$FE,0,$A
 	movea.l	#Title2Map,a1			;bitmap
-	lea	8(a1),a2
-	adda.l	4(a1),a1
+	lea	jimtilecount(a1),a2
+	adda.l	jimdata(a1),a1
 	clr.w	d0
 	clr.w	d1
 	move.w	(a1),d2
-	move.w	2(a1),d3
+	move.w	mapheight(a1),d3
 	moveq	#0,d5					;no palettes
 	bsr.w	dobitmap
 
@@ -5112,7 +5112,7 @@ EndSpriteList						;end of the sprite list build: close the sprite list at a6 an
 	bne.w	.n
 	clr.l	(a6)+					;no sprites: one blank entry
 	clr.l	(a6)+
-.n	clr.b	-5(a6)					;end sprite list (92 3-8(a6))
+.n	clr.b	satLink-satLen(a6)		;end sprite list (92 3-8(a6))
 	move.l	a6,d0
 	subi.l	#Satt,d0
 	lsr.w	#1,d0
@@ -5552,7 +5552,7 @@ dotb								;draw team name bar d1 = team number at printx/printy.
 	movea.l	#TeamBlocksmap,a0
 	movea.l	a0,a1
 	adda.l	(a0),a0
-	adda.l	4(a1),a1
+	adda.l	jimdata(a1),a1
 	movea.w	#null,a2				;tile data: word 0 at $310 = no tiles
 	move.w	(a1),d2					;width from the map header (92 13)
 	moveq	#2,d3
@@ -5847,7 +5847,7 @@ UpdateTeamSprites					;sprite list for the two roster players. a5 = DMAList, a6 
 	bne.w	.n
 	clr.l	(a6)+					;no sprites: one blank entry
 	clr.l	(a6)+
-.n	clr.b	-5(a6)					;end sprite list (92 3-8(a6))
+.n	clr.b	satLink-satLen(a6)		;end sprite list (92 3-8(a6))
 	move.l	a6,d0
 	subi.l	#Satt,d0
 	lsr.w	#1,d0
@@ -6550,7 +6550,7 @@ ShowThreeStars						;end of game "Stars of the Game" box. Called from UpdatePA w
 	String	$BF,9,$10,'Stars of the Game',$BF,3,$F
 	movea.l	#IceRinkMap,a1			;in the string. map at IceRinkMap offset 4
 	movea.w	#null,a2
-	adda.l	4(a1),a1
+	adda.l	jimdata(a1),a1
 	moveq	#$D,d0					;dobitmap d0-d5
 	moveq	#$5B,d1
 	moveq	#6,d2
@@ -6625,10 +6625,10 @@ CalcStarScores						;star score for every roster slot of both teams to DispAttri
 	movea.w	#(ChkCnt-M68K_RAM),a0	;+ ScoreSumbytes = last goal entry
 	adda.w	(ScoreSumbytes).w,a0
 	clr.w	d0
-	btst	#7,2(a0)
+	btst	#7,ssflags(a0)
 	beq.w	.slot					;home goal
 	addi.w	#$1A,d0					;away goal: second 26 entries
-.slot	add.b	3(a0),d0			;scorer
+.slot	add.b	ssscorer(a0),d0		;scorer
 	asl.w	#2,d0
 	movea.w	#(DispAttribCtr-M68K_RAM),a0
 	move.l	#$7FFFFFFF,0(a0,d0.w)	;game winner is the first star
@@ -6726,38 +6726,38 @@ ShowGoalBox							;goal box. Closes both line change boxes, then printbig "GOAL!
 	String	$BF,$B,2
 	moveq	#$13,d0					;in the string. framer size
 	moveq	#5,d1					;5 rows: no assist
-	tst.b	4(a4)
+	tst.b	ssassist1(a4)
 	bmi.w	.frame
 	addq.w	#2,d1					;7: one assist
-	tst.b	5(a4)
+	tst.b	ssassist2(a4)
 	bmi.w	.frame
 	addq.w	#1,d1					;8: two assists
 .frame	bsr.w	Framer				;draw the box frame
 	movea.w	#(tmstruct-M68K_RAM),a2
-	btst	#7,2(a4)
+	btst	#7,ssflags(a4)
 	beq.w	.home					;home team scored
 	adda.w	#tmsize,a2
 .home	lea	GoalBoxText(pc),a1		;a1 = GOAL! string
 	clr.w	d0
-	move.b	3(a4),d0				;scorer
+	move.b	ssscorer(a4),d0			;scorer
 	addi.w	#$B4,d0
 	cmpi.b	#3,0(a2,d0.w)			;goals
 	bne.w	.print
 	adda.w	(a1),a1					;third goal: HAT TRICK!
 .print	bsr.w	printbig			;big text, then scorer
 	clr.w	d0
-	move.b	3(a4),d0
+	move.b	ssscorer(a4),d0
 	bsr.w	FormatPlayerNumInitial
 	bsr.w	print
 	clr.w	d0
-	move.b	4(a4),d0				;first assist
+	move.b	ssassist1(a4),d0		;first assist
 	bmi.w	.ex
 	bsr.w	printz
 	String	$BF,$E,6,'Assist by:',$BF,$C,7
 	bsr.w	FormatPlayerNumInitial	;in the string
 	bsr.w	print
 	clr.w	d0
-	move.b	5(a4),d0				;second assist
+	move.b	ssassist2(a4),d0		;second assist
 	bmi.w	.ex
 	bsr.w	printz
 	String	$BF,$C,8

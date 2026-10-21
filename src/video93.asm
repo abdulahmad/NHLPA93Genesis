@@ -113,7 +113,7 @@ setvideo							;this is not vblank code but sets up ram for vblank transfers.
 	bne.w	.n
 	clr.l	(a6)+					;no sprites: one blank sprite
 	clr.l	(a6)+
-.n	clr.b	-5(a6)					;end sprite list: link byte of the last sprite = 0 (92 3-8(a6))
+.n	clr.b	satLink-satLen(a6)		;end sprite list: link byte of the last sprite = 0 (92 3-8(a6))
 	move.l	a6,d0
 	subi.l	#Satt,d0
 	lsr.w	#1,d0					;halved (92 stored the byte count)
@@ -142,7 +142,7 @@ updatescroll						;using hpos and vpos set scroll cords; queue rink map rows on 
 	cmp.w	d4,d1
 	beq.w	rtss					;same row as last frame
 	movea.l	#IceRinkMap,a0			;(move/adda leave the cmp flags)
-	adda.l	4(a0),a0				;a0 = map header: (a0) = chars per row, data at 4(a0)
+	adda.l	jimdata(a0),a0			;a0 = map header: (a0) = chars per row, data at 4(a0)
 	blt.w	.su						;row went up
 .sd	move.w	d1,d0					;scrolling down: queue map rows, one per pass (d3 = max rows)
 	neg.w	d0
@@ -225,7 +225,7 @@ checkfo2							;face off graphics. a3 = face off data (word frame, word flags), 
 	bmi.w	.next
 	beq.w	.next					;no frame
 	movea.l	#FaceOffSprites,a2
-	adda.l	4(a2),a2				;frame offset table
+	adda.l	jimdata(a2),a2			;frame offset table
 	add.w	d4,d4
 	IF REV=2
 	move.w	(a2,d4.w),d5
@@ -240,14 +240,14 @@ checkfo2							;face off graphics. a3 = face off data (word frame, word flags), 
 	subq.w	#1,d5					;number of sprites in frame
 	adda.w	(a2,d4.w),a2
 	ENDIF
-.sloop	move.w	2(a2),d2			;one sprite of the frame: y
+.sloop	move.w	seY(a2),d2			;one sprite of the frame: y
 	addi.w	#$80,d2					;sprite coordinates start at 128
 	add.w	(fodropy).w,d2
 	move.w	d2,(a6)					;y global
 	move.w	(a2),d2					;x global
 	btst	#3,2(a3)				;x flip
 	beq.w	.noxflip
-	move.b	7(a2),d2				;mirror: x = -(sprite width in pixels) - x
+	move.b	seSize(a2),d2			;mirror: x = -(sprite width in pixels) - x
 	andi.w	#$C,d2					;size byte bits 3-2 = width-1 in tiles (*4)
 	addq.w	#4,d2
 	asl.w	#1,d2					;width in pixels
@@ -256,17 +256,17 @@ checkfo2							;face off graphics. a3 = face off data (word frame, word flags), 
 .noxflip							;d2 = x offset (mirrored or not)
 	addi.w	#$80,d2
 	add.w	(fodropx).w,d2
-	move.w	d2,6(a6)				;sprite x
-	move.b	7(a2),2(a6)				;sprite size
-	move.b	d6,3(a6)				;link
-	move.w	6(a2),d2
+	move.w	d2,satX(a6)				;sprite x
+	move.b	seSize(a2),satSize(a6)	;sprite size
+	move.b	d6,satLink(a6)			;link
+	move.w	seAttr(a2),d2
 	andi.w	#$F800,d2				;frame flags (attribute bits)
-	or.w	4(a2),d2				;plus char
-	move.w	2(a3),d1
+	or.w	seTile(a2),d2			;plus char
+	move.w	foattr(a3),d1
 	andi.w	#$F800,d1				;object flags xor'd in (flip bits)
 	eor.w	d1,d2
 	add.w	(faceoffvrcset).w,d2
-	move.w	d2,4(a6)				;char + flags
+	move.w	d2,satTile(a6)			;char + flags
 	addq.w	#1,d6					;next link
 	addq.w	#8,a6
 	addq.w	#8,a2
@@ -323,7 +323,7 @@ SetSframe							;draw one sprite frame. Called from showzam and from the screen 
 	cmp.w	#MaxSprites,d6			;MaxSprites
 	bge.w	rtss
 	movem.l	d0-d5/a0,-(sp)
-	adda.l	4(a0),a0				;frame offset table
+	adda.l	jimdata(a0),a0			;frame offset table
 	add.w	d2,d2
 	IF REV=2
 	move.w	(a0,d2.w),d4
@@ -338,13 +338,13 @@ SetSframe							;draw one sprite frame. Called from showzam and from the screen 
 	subq.w	#1,d4					;number of sprites in frame
 	adda.w	(a0,d2.w),a0
 	ENDIF
-.loop	move.w	2(a0),(a6)			;per sprite: y (+ d1)
+.loop	move.w	seY(a0),(a6)		;per sprite: y (+ d1)
 	add.w	d1,(a6)+
-	move.b	7(a0),(a6)+				;size
+	move.b	seSize(a0),(a6)+		;size
 	move.b	d6,(a6)+				;link
-	move.w	6(a0),d2
+	move.w	seAttr(a0),d2
 	andi.w	#$F800,d2
-	add.w	4(a0),d2
+	add.w	seTile(a0),d2
 	add.w	d3,d2
 	move.w	d2,(a6)+				;char + flags
 	move.w	(a0),(a6)				;x
@@ -361,7 +361,7 @@ showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then the t
 									;Crowdframe frames.
 									;Called from setvideo. a5 = dma list, a6 = sprite table, d6 = link counter
 	movea.l	#CrowdSprites,a1
-	adda.l	4(a1),a1				;a1 = frame offset table
+	adda.l	jimdata(a1),a1			;a1 = frame offset table
 	move.w	(Hpos).w,d4
 	move.w	(Vpos).w,d5
 	btst	#sfhor,(sflags).w
@@ -430,23 +430,23 @@ showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then the t
 	addi.w	#$70,d3					;112
 
 	move.w	(sp)+,d4
-.loop	cmp.w	2(a0),d2			;per sprite: skip it if outside the window d0-d3
+.loop	cmp.w	seY(a0),d2			;per sprite: skip it if outside the window d0-d3
 	bgt.w	.next
-	cmp.w	2(a0),d3
+	cmp.w	seY(a0),d3
 	blt.w	.next
 	cmp.w	(a0),d0
 	bgt.w	.next
 	cmp.w	(a0),d1
 	blt.w	.next
-	move.w	2(a0),d5
+	move.w	seY(a0),d5
 	addi.w	#$70,d5					;128-16
 	sub.w	d2,d5
 	move.w	d5,(a6)+
-	move.b	7(a0),(a6)+
+	move.b	seSize(a0),(a6)+
 	move.b	d6,(a6)+
-	move.w	6(a0),d5
+	move.w	seAttr(a0),d5
 	andi.w	#$F800,d5
-	add.w	4(a0),d5
+	add.w	seTile(a0),d5
 	add.w	(crowdvrcset).w,d5
 	move.w	d5,(a6)+
 	move.w	(a0),d5
@@ -478,7 +478,7 @@ showclock							;put the game clock in the dma list. Called from setvideo; retur
 	beq.w	rtss
 	movea.w	#(xc1-M68K_RAM),a0		;end of the 5 word clock buffer; written backward
 	movea.l	#smallfontmap,a1
-	adda.l	4(a1),a1
+	adda.l	jimdata(a1),a1
 
 	move.w	4+(':'*2)(a1),d0		;map entry for ':'
 	add.w	(smallfontchars).w,d0
@@ -719,7 +719,7 @@ QueuePadLabel						;from 92 uppads. queue the 3 character label of a pad object 
 RenderSmallFontChar					;from 92 uppads .pd. dma one small font tile to the object's chars.
 									;d2 = ascii char, d0 = char slot, a0 = object (VRchar), a5 = dma list
 	movea.l	#smallfontmap,a3
-	adda.l	4(a3),a3
+	adda.l	jimdata(a3),a3
 	add.w	d2,d2
 	move.w	4(a3,d2.w),d2			;map entry for the char
 	andi.w	#$7FF,d2
@@ -770,7 +770,7 @@ addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, 
 	move.w	frame(a3),d4
 	andi.w	#$7FF,d4
 	movea.l	#Sprites,a2
-	adda.l	4(a2),a2				;frame offset table
+	adda.l	jimdata(a2),a2			;frame offset table
 	IF REV=2
 	add.w	d4,d4					;Rev B: the offset table has no entry for frame 0, so index one word lower
 	cmp.w	(a2),d4					;first offset = table size
@@ -802,9 +802,9 @@ addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, 
 	bne.w	.nn
 	move.w	d0,oldframe(a3)			;last sprite: oldframe = frame
 .nn	movem.w	d0-d4,-(sp)				;work out whether this sprite's tiles overlap the previous one's
-	move.w	4(a2),d2				;tile pointer (kept whole)
+	move.w	seTile(a2),d2			;tile pointer (kept whole)
 	clr.w	d4
-	move.b	7(a2),d4				;size byte
+	move.b	seSize(a2),d4			;size byte
 	movea.l	#sizetab,a0
 	move.b	(a0,d4.w),d4			;chars used in this sprite
 	cmp.w	8(sp),d4
@@ -838,32 +838,32 @@ addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, 
 .dup	move.b	d3,VRoffs(a3,d5.w)	;remember this sprite's char offset in the object
 .noref	move.w	(sp)+,d0			;restore x
 	movem.w	d0-d2,-(sp)				;write sprite att
-	move.w	2(a2),d2				;y global (+2; 92 used +0)
+	move.w	seY(a2),d2				;y global (+2; 92 used +0)
 	btst	#4,attribute(a3)		;y flip
 	beq.w	.noyflip
-	move.b	7(a2),d2
+	move.b	seSize(a2),d2
 	andi.w	#3,d2
 	addq.w	#1,d2
 	asl.w	#3,d2
 	neg.w	d2
-	sub.w	2(a2),d2
+	sub.w	seY(a2),d2
 .noyflip	add.w	d2,d1			;screen y + sprite y
 	move.w	d1,(a6)
 
 	move.w	(a2),d2					;x global (+0; 92 used +6)
 	btst	#3,attribute(a3)		;x flip
 	beq.w	.noxflip
-	move.b	7(a2),d2
+	move.b	seSize(a2),d2
 	andi.w	#$C,d2
 	addq.w	#4,d2
 	asl.w	#1,d2
 	neg.w	d2
 	sub.w	(a2),d2
 .noxflip	add.w	d2,d0			;screen x + sprite x
-	move.w	d0,6(a6)
-	move.b	7(a2),2(a6)				;size
-	move.b	d6,3(a6)				;link
-	move.w	6(a2),d2
+	move.w	d0,satX(a6)
+	move.b	seSize(a2),satSize(a6)	;size
+	move.b	d6,satLink(a6)			;link
+	move.w	seAttr(a2),d2
 	move.w	attribute(a3),d0
 	eor.w	d0,d2
 	andi.w	#$F800,d2
@@ -874,7 +874,7 @@ addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, 
 	bset	#$D,d2					;team 2 color
 .nospec	or.b	VRoffs(a3,d5.w),d2	;char offset of this sprite
 	add.w	VRchar(a3),d2
-	move.w	d2,4(a6)
+	move.w	d2,satTile(a6)
 	movem.w	(sp)+,d0-d2
 
 	addq.w	#1,d6

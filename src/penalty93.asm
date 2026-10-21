@@ -119,13 +119,13 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 .0	tst.w	(a0)+					;find end of list
 	bne.s	.0
 	subq.w	#4,a0					;a0 = last entry (penalty byte, player byte)
-	bclr	#7,1(a0)				;bit 7 of the player byte = called but not yet
+	bclr	#7,pbscnum(a0)			;bit 7 of the player byte = called but not yet
 									;logged (set in checkfornewpen)
 	bne.w	.Sa						;first pass: log it
 	;later pass: wait until the penalized player has left the ice (position negative), then drop the entry
 	move.l	a3,-(sp)
 	clr.w	d1
-	move.b	1(a0),d1
+	move.b	pbscnum(a0),d1
 	asl.w	#scsize,d1				;scsize
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d1,a3					;a3 = the player
@@ -153,7 +153,7 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 .full	move.w	d0,(a4)+			;time
 	move.b	(a0),(a4)+				;penalty
 	clr.w	d1
-	move.b	1(a0),d1
+	move.b	pbscnum(a0),d1
 	asl.w	#scsize,d1				;scsize
 	movea.w	#(SortCords-M68K_RAM),a3
 	adda.w	d1,a3					;a3 = the guilty player
@@ -466,7 +466,7 @@ PushRef								;tell vblank what to display. d0 = ref frame, $40 clears the wind
 	btst	#sfhor,(sflags).w
 	beq.w	.m1
 	movea.l	#RefMap2,a0				;horizontal ref map
-.m1	adda.l	4(a0),a0				;skip to the map data (offset in the header)
+.m1	adda.l	jimdata(a0),a0			;skip to the map data (offset in the header)
 	addq.w	#4,a0
 	adda.w	d0,a0					;+ frame offset
 	movea.w	#(RefRamMap-M68K_RAM),a1	;a1 = ram copy of the ref map that vblank sends to vram
@@ -826,7 +826,7 @@ SetHor								;switch graphics to horizontal ice rink graphics mode. Does not re
 	bsr.w	printz
 	String	$FE,0,0
 	movea.l	#IceRinkMap,a1			;draw the horizontal rink map with dobitmap
-	adda.l	4(a1),a1
+	adda.l	jimdata(a1),a1
 	movea.w	#null,a2				;tile pointer null: a zero word, so nothing to decompress
 	clr.w	d0						;start x 0
 	moveq	#$55,d1					;85: start y in the map
@@ -951,12 +951,12 @@ EASNLogo							;Draw easn.map at x 1, y $19 on the vertical ice rink if no power
 DrawEASNMap							;Draw the EASN logo map at the current printx/printy.
 									;Also called from ShowScores
 	movea.l	#EASNmap,a1
-	adda.l	4(a1),a1
+	adda.l	jimdata(a1),a1
 	movea.w	#null,a2				;tile pointer null (as in SetHor)
 	clr.w	d0						;start x/y 0
 	clr.w	d1
 	move.w	(a1),d2					;width and height from the map header (92: 7, 2)
-	move.w	2(a1),d3
+	move.w	mapheight(a1),d3
 	move.w	(EASNcset).w,d4			;start char
 	clr.w	d5						;no palette lines
 	bra.w	dobitmap
@@ -1041,7 +1041,7 @@ dobar	equ	*						;92 dobar (draw energy bar for energy level d0); in 92 this is 
 	sub.w	d0,d1					;d1 = bar frame (15 = empty)
 	clr.w	d0
 	movea.l	#EnergyBarMap,a1
-	adda.l	4(a1),a1
+	adda.l	jimdata(a1),a1
 	movea.w	#null,a2				;tile pointer null (as in SetHor)
 	move.w	(a1),d2					;map width
 	moveq	#1,d3					;1 row high
@@ -1524,8 +1524,8 @@ StartHL2							;play hilite for game a0. Start skips it with a random result. A 
 	clr.w	(glovecords).w
 	clr.b	(iflags).w
 	st	(RefCnt).w
-	st	(puckcross+2).w
-	st	(puckcross+6).w
+	st	(puckcross+pcframes).w
+	st	(puckcross+pcsize+pcframes).w
 	jsr	p_turnoff
 	bsr.w	setupice_highlight
 	bsr.w	ClrHor					;vertical rink

@@ -3534,8 +3534,8 @@ puckfaceoff2						;face off control logic and general setup for action a3 = the 
 	clr.w	(glovecords).w			;no fighting gloves
 	clr.b	(iflags).w				;no icing
 	st	(RefCnt).w					;no refs
-	st	(puckcross+2).w				;no goalie moes
-	st	(puckcross+6).w
+	st	(puckcross+pcframes).w		;no goalie moes
+	st	(puckcross+pcsize+pcframes).w
 	bclr	#sf2refref,(sflags2).w
 	bset	#sf2faceoff,(sflags2).w	;face off in progress
 	bset	#sf2drec,(sflags2).w	;don't record yet
@@ -3712,15 +3712,15 @@ puckfaceoff2						;face off control logic and general setup for action a3 = the 
 	move.w	#$18,(palcount).w
 	movea.l	#fofdata2,a0			;second half of the big face off sprite data
 	move.w	#1,(a0)
-	move.w	#$8000,2(a0)
-	move.w	#4,4(a0)
-	move.w	#$A800,6(a0)
-	move.w	#7,8(a0)				;frame of ref
-	move.w	#$8000,fofdata-fofdata2+2(a0)
+	move.w	#$8000,foattr(a0)
+	move.w	#4,fosize+foframe(a0)
+	move.w	#$A800,fosize+foattr(a0)
+	move.w	#7,2*fosize+foframe(a0)	;frame of ref
+	move.w	#$8000,fofdata-fofdata2+foattr(a0)
 	btst	#gmdir,(gmode).w
 	bne.w	.nfl
-	eori.w	#$800,2(a0)				;flip attribute bit $800 (two of the sprites) when gmdir is clear
-	eori.w	#$800,6(a0)
+	eori.w	#$800,foattr(a0)		;flip attribute bit $800 (two of the sprites) when gmdir is clear
+	eori.w	#$800,fosize+foattr(a0)
 .nfl	move.w	#-1,(fodir1).w		;no pull directions yet
 	move.w	#-1,(fodir2).w
 	movem.l	(sp)+,d0-d7/a0-a6
@@ -3807,14 +3807,14 @@ Endfaceoff							;drop the puck: pick the faceoff winner and send the puck off.
 	moveq	#$10,d2
 	move.w	(a1),d1					;first record's word 0 (index into .ftab, 1-based)
 	sub.b	-1(a0,d1.w),d2			;d2 = $10 - .ftab[first] ...
-	move.w	4(a1),d1
+	move.w	fosize+foframe(a1),d1
 	add.b	-1(a0,d1.w),d2			;... + .ftab[second]
 	moveq	#$21,d0
 	bsr.w	randomd0				;random 0-$20
 	cmp.b	d0,d2
 	bls.w	.p1won					;d2 <= random: stay with the first record
 	addq.w	#4,a1					;else use the second record
-.p1won	btst	#3,2(a1)			;bit 3 of the winner's attribute word ($800 flips)
+.p1won	btst	#3,foattr(a1)		;bit 3 of the winner's attribute word ($800 flips)
 	beq.w	.pos
 	move.w	(fodir2).w,d3			;visiting player won: use his pull direction ...
 	neg.w	d4						;... and push the puck the other way (-$800)
