@@ -144,12 +144,12 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 	beq.w	.sa2					;no player involved
 	movem.l	d0-d1/a1-a4,-(sp)
 	bsr.w	GetPeriodTimeRemaining	;log time, penalty and player
-	;PenSum entry (4 bytes): time word, penalty byte, player byte (bit 7 = visitors)
+	;PenSum entry (pssize bytes): pstime word, pspen byte (bit 7 = visitors), psplayer byte
 	movea.w	#(PenSum-M68K_RAM),a4
 	adda.w	(PenSumLength).w,a4
 	cmpi.w	#$EC,(PenSumLength).w	;log full: keep overwriting the last entry
 	beq.w	.full
-	addq.w	#4,(PenSumLength).w
+	addq.w	#pssize,(PenSumLength).w
 .full	move.w	d0,(a4)+			;time
 	move.b	(a0),(a4)+				;penalty
 	clr.w	d1
@@ -162,7 +162,7 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 	lea	tmsize(a2),a1
 	btst	#pfteam,pflags(a3)
 	beq.w	.sa1
-	bset	#7,-1(a4)				;log: visitors
+	bset	#7,-1(a4)				;log: visitors (pspen bit 7)
 	move.w	#$8000,d0
 	exg	a1,a2
 .sa1	addq.w	#1,tmPenalties(a2)	;team penalty count

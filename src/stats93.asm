@@ -1373,7 +1373,7 @@ DisplayPenaltyEntry					;print penalty entry at offset d3: time, team (bit 7 of 
 	move.w	(sp)+,(printy).w
 	;a0 = PenSum, d3 = byte offset of the entry; print period and time at x 1
 	movea.w	#(PenSum-M68K_RAM),a0
-	move.w	(a0,d3.w),d0
+	move.w	pstime(a0,d3.w),d0
 	move.w	#1,(printx).w
 	bsr.w	FormatAndPrintTime
 	;a2 = home or away team struct (bit 7 of byte 2 set = away)
