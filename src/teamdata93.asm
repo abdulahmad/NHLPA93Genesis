@@ -1595,6 +1595,8 @@ Credits								;copyright and credits text: groups of String lines, each group e
 	String	'Licensed by'
 	String	'Sega Enterprises Ltd.'
 	String	-1
+CreditsPages						;the credits pages after the copyright group (printed by the title
+									;screen), the first one blank
 	String	''						;empty string: a blank first credits page (as at the end of this file)
 	String	-1
 

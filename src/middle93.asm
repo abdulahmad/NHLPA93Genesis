@@ -168,7 +168,7 @@ CopyPaletteToCRAM					;copy all 64 palfadenew colors straight to color ram and s
 	bset	#dfng,(disflags).w
 	movea.w	#(palfadenew-M68K_RAM),a1
 	movea.l	#Vdata,a0
-	move.l	#$C0000000,4(a0)		;cram write 0
+	move.l	#CRAM_W,4(a0)			;cram write 0
 	moveq	#$1F,d0					;32 longs = 64 colors
 .0	move.l	(a1)+,(a0)				;two colors per long
 	dbf	d0,.0
@@ -754,7 +754,7 @@ setVram_0							;from 92 setVram second half. second half of setVram without the
 	move.w	#$8700,4(a0)			;Palette # 0 is border/transparent.
 	move.w	#$8B00,4(a0)			;Scroll mode. (entire scroll)
 
-	move.l	#$40000010,4(a0)		;vsram write 0
+	move.l	#VSRAM_W,4(a0)			;vsram write 0
 	move.l	#0,(a0)					;vertical scroll 0 for playfield 1/2
 	move.w	(sp)+,(disflags).w
 	rts

@@ -497,9 +497,9 @@ ClearRAMBuffer						;backup RAM status screen. Interrupts off, display off, back
 	move.w	#$9000,(a0)
 	move.w	#$9100,(a0)
 	move.w	#$9200,(a0)
-	move.l	#$C0000000,(Vctrl).l	;cram write, colour 0
+	move.l	#CRAM_W,(Vctrl).l		;cram write, colour 0
 	move.w	d0,(Vdata).l
-	move.l	#$40000000,(Vctrl).l	;vram write, address 0
+	move.l	#VRAM_W,(Vctrl).l		;vram write, address 0
 	move.w	#$FFF,d1				;$1000 longs
 	moveq	#0,d0
 ClearVRAM							;clear loop of ClearRAMBuffer, then display on and hang

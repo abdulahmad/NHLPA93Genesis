@@ -88,7 +88,7 @@ SetScroll2							;write Hscroll / Vscroll to the vdp. Called from DumpSprites.
 	addq.w	#2,d0
 	bsr.w	Vmaddr
 	move.w	(Hscroll).w,(a0)
-	move.l	#$40020010,4(a0)		;vsram write, address 2
+	move.l	#VSRAM_W+(2<<16),4(a0)	;vsram write, address 2
 	move.w	(Vscroll).w,(a0)
 	rts
 
@@ -480,7 +480,7 @@ showclock							;put the game clock in the dma list. Called from setvideo; retur
 	movea.l	#smallfontmap,a1
 	adda.l	4(a1),a1
 
-	move.w	$78(a1),d0				;4+(':'*2)
+	move.w	4+(':'*2)(a1),d0		;map entry for ':'
 	add.w	(smallfontchars).w,d0
 	ori.w	#$8000,d0
 	move.w	d0,(clockram).w			;colon
@@ -521,7 +521,7 @@ showclock							;put the game clock in the dma list. Called from setvideo; retur
 
 .char	swap	d0					;d0 high word = digit, write its tile to -(a0)
 	asl.w	#1,d0
-	move.w	$64(a1,d0.w),d0			;4+('0'*2)
+	move.w	4+('0'*2)(a1,d0.w),d0	;map entry for the digit
 	add.w	(smallfontchars).w,d0
 	ori.w	#$8000,d0
 	move.w	d0,-(a0)
@@ -634,7 +634,7 @@ setffo								;draw the 5 objects tied to icerink scrolling (pads ...). Called f
 	beq.w	.next					;no sprites added
 	move.w	2(a3),d1				;x offset (set by QueuePadLabel)
 	add.w	d1,6(a0)				;sprite 1 x
-	add.w	d1,$E(a0)				;sprite 2 x
+	add.w	d1,8+6(a0)				;sprite 2 x
 .next	adda.w	#ffosize,a3			;ffosize: next object
 	dbf	d0,.top
 	rts
@@ -725,7 +725,7 @@ RenderSmallFontChar					;from 92 uppads .pd. dma one small font tile to the obje
 	andi.w	#$7FF,d2
 	asl.w	#5,d2					;32 bytes per tile
 	movea.l	#smallfontmap,a3
-	lea	$A(a3,d2.w),a3				;tile data
+	lea	jimtiles(a3,d2.w),a3		;tile data
 	move.l	a3,(a5)+
 	move.w	#$10,(a5)+				;words to transfer
 	add.w	VRchar(a0),d0
