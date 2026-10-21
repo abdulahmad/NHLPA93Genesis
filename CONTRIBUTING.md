@@ -60,6 +60,10 @@ A comment-only or rename-only change must not change a single byte. Never commit
 - No IDA names or addresses (`loc_`, `sub_`, `unk_`), no source-file or segment names, no hard-coded ROM
   addresses (include lines may carry the address range of the file), no notes about other games except the
   `92 <name>` and `from 92 <name>` equivalents above and value differences such as `(92 $58)`.
+- No raw addresses or offsets in comments: no RAM or ROM addresses and no structure offsets. Write the name
+  instead (`tmgoalie(a2)`, not `$26(a2)`; `tmstruct+tmflags`, not `C6FE`) or say what the value means, and leave
+  out an address that only repeats the operand. The only numbers allowed are the address range on an include
+  line and a value difference such as `(92 $58)` on the line of the name it belongs to.
 
 ## 5. Comment layout
 
