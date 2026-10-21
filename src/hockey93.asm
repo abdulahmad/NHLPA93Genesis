@@ -2279,21 +2279,21 @@ Goal								;puck in goal. a3 = puck. Entered from checkgoal new song, sfx 0, sc
 .home	move.w	tmtouch1(a2),d0		;scorer
 	move.b	d0,(a0)+				;byte 3
 	move.w	#$FFFF,(a0)				;no assists yet
-	addi.w	#$B4,d0
-	addq.b	#1,(a2,d0.w)			;team byte $B4 + scorer +1
+	addi.w	#tmgoals,d0
+	addq.b	#1,(a2,d0.w)			;tmgoals of the scorer +1
 	move.w	tmtouch2(a2),d0			;first assist
 	bmi.w	.noast
 	move.b	d0,(a0)+				;byte 4
-	addi.w	#$CE,d0
-	addq.b	#1,(a2,d0.w)			;team byte $CE + player +1
+	addi.w	#tmassists,d0
+	addq.b	#1,(a2,d0.w)			;tmassists of the player +1
 	move.w	tmtouch3(a2),d0			;second assist
 	bmi.w	.noast
 	move.b	d0,(a0)					;byte 5
-	addi.w	#$CE,d0
+	addi.w	#tmassists,d0
 	addq.b	#1,(a2,d0.w)
 .noast	move.w	tmgoalie(a1),d0		;goalie of the other team gets a goal against
 	bmi.w	.pen
-	addi.w	#$B4,d0
+	addi.w	#tmgoals,d0
 	addq.b	#1,(a1,d0.w)			;tmgoals of the other team's goalie +1
 .pen	bsr.w	PenGoalStuff		;penalty and goal bookkeeping
 	bsr.w	printscores1
@@ -6740,7 +6740,7 @@ ShowGoalBox							;goal box. Closes both line change boxes, then printbig "GOAL!
 .home	lea	GoalBoxText(pc),a1		;a1 = GOAL! string
 	clr.w	d0
 	move.b	ssscorer(a4),d0			;scorer
-	addi.w	#$B4,d0
+	addi.w	#tmgoals,d0				;goals of the scorer
 	cmpi.b	#3,0(a2,d0.w)			;goals
 	bne.w	.print
 	adda.w	(a1),a1					;third goal: HAT TRICK!
