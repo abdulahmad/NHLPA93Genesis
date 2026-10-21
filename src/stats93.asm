@@ -88,7 +88,7 @@ UpdateVertScrollReg					;write VSRAM word 1 = VertLineScrolling - $30
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w		;don't int graphics
 	movea.l	#Vdata,a0				;a0 = VDP data port, +4 = control port
-	move.l	#$40020010,4(a0)		;VSRAM write, address 2
+	move.l	#VSRAM_W+(2<<16),4(a0)	;VSRAM write, address 2
 	move.w	#$FFD0,d0				;-$30
 	add.w	(VertLineScrolling).w,d0
 	move.w	d0,(a0)
@@ -105,14 +105,14 @@ DisplayGameInfo						;from 92 NewTicker3. print game d3 of gstruct (2 team rows 
 	adda.w	d0,a0
 	btst	#gsfhl,gsflags(a0)		;gsflags(a0)
 	bne.w	rtss2
-	btst	#2,$E(a0)				;gsflags bit 2: also skipped
+	btst	#2,gsflags(a0)			;bit 2: also skipped
 	bne.w	rtss2
 	move.w	2(a0),d0				;first team / score
-	move.w	$C(a0),d1
+	move.w	gss2(a0),d1
 	bsr.w	PrintGameInfo
 	addq.w	#1,(printy).w
 	move.w	(a0),d0					;second team / score
-	move.w	$A(a0),d1
+	move.w	gss1(a0),d1
 	bsr.w	PrintGameInfo
 	move.w	8(a0),d0				;period, 1 based
 	subq.w	#1,d0
@@ -423,7 +423,7 @@ DrawLineIcon						;line editor: draw line d5 (name from linelist, then its playe
 	addq.w	#1,d4					;slots are 1-5 (LD RD LW C RW)
 	move.w	2(a0),(printy).w
 	move.w	4(a0),d3				;slot count - 1
-	lea	$16A(a2),a3					;team line table
+	lea	tmlines(a2),a3				;team line table
 .slot	move.w	(a0),(printx).w		;loop over the line's slots
 	bsr.w	printsmallz
 	String	CC_AddX,$FF,CC_AddY,2,CC_SetAttribute,6
@@ -504,9 +504,9 @@ ClearLineEditorTop					;erase 40 x 10 at the top of map 2
 	move.w	#$7FF,d2
 	bra.w	eraser
 
-ClearMenuFlags						;clear palfadenew+$5A and palfadenew+$7A
-	clr.w	(palfadenew+$5A).w
-	clr.w	(palfadenew+$7A).w
+ClearMenuFlags						;clear palbuffer+$1A and palbuffer+$3A
+	clr.w	(palbuffer+$1A).w
+	clr.w	(palbuffer+$3A).w
 	rts
 
 	dc.w	$10,$C,4				;Entry used when OptLine is set
@@ -543,7 +543,7 @@ LineEditorExit						;line editor: start pressed. Run the exit menu (LineEditorMe
 	movea.l	#rtss,a1				;a1 = menu callback (just an rts)
 	movea.l	#LineEditorMenuText,a0
 	movea.w	#(databuffer-M68K_RAM),a3
-	move.w	$28(a2),d0				;team number + 1 = first databuffer byte?
+	move.w	tmteam(a2),d0			;team number + 1 = first databuffer byte?
 	addq.w	#1,d0
 	cmp.b	(a3),d0
 	beq.w	.0
@@ -573,7 +573,7 @@ SetLineSlot							;put player d0 (1 based) in line slot d2 of team a2. If he is 
 									;another slot of the same line, the old occupant of d2 is moved there
 									;(swap)
 	movem.l	d0-d2/a0-a1,-(sp)
-	lea	$16A(a2),a0					;a0 = team line table (8 bytes per line)
+	lea	tmlines(a2),a0				;a0 = team line table (8 bytes per line)
 	move.w	d2,d1
 	andi.w	#$FFF8,d1
 	lea	(a0,d1.w),a1				;a1 = start of d2's line
@@ -626,10 +626,10 @@ EncodeTeamLines						;reverse of
 									;it with BackupRAM_Save
 	movem.l	d0-d4/a0-a3,-(sp)
 	movea.w	#(databuffer-M68K_RAM),a0
-	move.w	$28(a2),d0
+	move.w	tmteam(a2),d0
 	addq.w	#1,d0
 	move.b	d0,(a0)+
-	lea	$16A(a2),a1
+	lea	tmlines(a2),a1
 	bsr.w	GetGoalieCount
 	move.w	d0,d1
 	bsr.w	GetForwardCount
@@ -775,7 +775,7 @@ UpdatePlayerListScroll				;set VertLineScrolling = d0. Stop on a page boundary. 
 .2	move.w	(disflags).w,-(sp)		;set the VSRAM scroll value
 	bset	#dfng,(disflags).w
 	movea.l	#Vdata,a0
-	move.l	#$40020010,4(a0)
+	move.l	#VSRAM_W+(2<<16),4(a0)
 	move.w	#$FF90,d0				;-$70
 	add.w	(VertLineScrolling).w,d0
 	move.w	d0,(a0)
@@ -850,7 +850,7 @@ DisplayPlayerList					;draw roster page SelectedPlayerIdx (0 goalies, 1-7 lines)
 	subq.w	#1,d0					;line number
 	bmi.w	.row
 	asl.w	#3,d0					;8 bytes per line
-	lea	$16A(a2),a3					;a3 = player numbers of that line (skip byte 0)
+	lea	tmlines(a2),a3				;a3 = player numbers of that line (skip byte 0)
 	lea	1(a3,d0.w),a3
 	movea.l	#PlayerPositionText,a5
 	moveq	#4,d1					;5 positions
@@ -1114,7 +1114,7 @@ UpdateScoringScroll					;set VertLineScrolling = d0. Stop on an entry boundary, 
 .2	move.w	(disflags).w,-(sp)		;set the VSRAM scroll value, as in UpdateVertScrollReg
 	bset	#dfng,(disflags).w
 	movea.l	#Vdata,a0
-	move.l	#$40020010,4(a0)
+	move.l	#VSRAM_W+(2<<16),4(a0)
 	moveq	#-$50,d0
 	add.w	(VertLineScrolling).w,d0
 	move.w	d0,(a0)
@@ -1320,7 +1320,7 @@ UpdatePenaltyScroll					;set VertLineScrolling = d0. Stop on an entry boundary, 
 .2	move.w	(disflags).w,-(sp)		;set the vertical scroll (VSRAM)
 	bset	#dfng,(disflags).w		;don't int graphics while the VDP is being addressed
 	movea.l	#Vdata,a0
-	move.l	#$40020010,4(a0)		;VDP command: VSRAM write, address 2
+	move.l	#VSRAM_W+(2<<16),4(a0)	;VDP command: VSRAM write, address 2
 	move.w	#$FFB0,d0				;-$50
 	add.w	(VertLineScrolling).w,d0
 	move.w	d0,(a0)
@@ -1443,12 +1443,12 @@ PlayoffStatsScreen					;"Playoff Stats": PlayerStatsList with d7 = 1 for the pla
 	movem.l	a2,-(sp)
 	jsr	(ReadTeamStats).l			;load the playoff team stats
 	;find which team struct is the playoff team: d0 = potree[potreeteam] is compared with the word at
-	;tmstruct+$28 (probably the home team number); a2 = home struct if equal, else the away struct
+	;tmstruct+tmteam (the home team number); a2 = home struct if equal, else the away struct
 	movea.w	#(potree-M68K_RAM),a0
 	move.w	(potreeteam).w,d0
 	move.b	(a0,d0.w),d0
 	movea.w	#(tmstruct-M68K_RAM),a2
-	cmp.w	$28(a2),d0
+	cmp.w	tmteam(a2),d0
 	beq.w	.0
 	adda.w	#tmsize,a2
 .0	moveq	#1,d7					;playoff mode: stats come from the playoff RAM tables
@@ -1567,7 +1567,7 @@ SetStatsListScrollReg				;VSRAM = VertLineScrolling - $68
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w		;don't int graphics while the VDP is being addressed
 	movea.l	#Vdata,a0
-	move.l	#$40020010,4(a0)		;VDP command: VSRAM write, address 2
+	move.l	#VSRAM_W+(2<<16),4(a0)	;VDP command: VSRAM write, address 2
 	move.w	#$FF98,d0				;-$68
 	add.w	(VertLineScrolling).w,d0
 	move.w	d0,(a0)
@@ -1828,8 +1828,8 @@ GetStatsValue						;d2 += word d0 of the RAM table at StatsOffsetTbl2+d1 (0 = no
 StatsOffsetTbl2						;playoff stat RAM tables per column (G, A, G+A, SOG, PIM) 2 words per
 									;column: RAM address of the word array and an optional second one to add
 									;(0 = none)
-	dc.w	(statsbuffer-M68K_RAM),0,(statsbuffer+$34-M68K_RAM),0,(statsbuffer-M68K_RAM),(statsbuffer+$34-M68K_RAM)
-	dc.w	(statsbuffer+$68-M68K_RAM),0,(statsbuffer+$9C-M68K_RAM),0
+	dc.w	(statsbuffer-M68K_RAM),0,(statsbuffer+(maxros*2)-M68K_RAM),0,(statsbuffer-M68K_RAM),(statsbuffer+(maxros*2)-M68K_RAM)
+	dc.w	(statsbuffer+(maxros*4)-M68K_RAM),0,(statsbuffer+(maxros*6)-M68K_RAM),0
 StatColumnOffsets					;team struct byte arrays per column, same order
 									;2 words per column: offset in the team struct of the first array and the
 									;second one to add ($FFFF = none)
@@ -2345,10 +2345,10 @@ DrawGoalieSelectList				;from 92 Pausemode .gnum. draw the goalie list, row menu
 	dbf	d1,.row
 	rts
 
-GetGoalieCount						;d0 = goalies on team a2 (nibbles in the team data word at offset $A)
+GetGoalieCount						;d0 = goalies on team a2 (nibbles in the team data word at GoalieOdds)
 	movem.l	d1/a0,-(sp)
 	movea.l	tmdata(a2),a0
-	adda.w	$A(a0),a0
+	adda.w	GoalieOdds(a0),a0
 	move.w	(a0),d1					;word with one nibble per goalie slot
 	clr.w	d0
 .count	addq.w	#1,d0				;count nibbles by shifting 4 bits out until the word is 0

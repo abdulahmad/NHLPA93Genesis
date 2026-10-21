@@ -176,7 +176,7 @@ SetLCmode2							;a2 = team struct for lc. Draw the lc box with
 	bmi.w	.next					;no line for this button
 	btst	#tmflcm,tmflags(a2)
 	bne.w	.pr
-	cmp.w	$2E(a2),d4				;box being closed: only the chosen row
+	cmp.w	tmlcchoice(a2),d4		;box being closed: only the chosen row
 	bne.w	.up
 	move.w	tmline(a2),d0
 .pr	movea.w	#(mesarea-M68K_RAM),a1	;a1 = message area; row letter string
@@ -308,8 +308,8 @@ lineinput							;process input for line changes
 
 lcfound								;d2 = choice made 0-2
 	move.w	d2,d0
-	;save chosen row in $2E(a2): the box redraw shows only that row
-	move.w	d2,$2E(a2)
+	;save chosen row in tmlcchoice(a2): the box redraw shows only that row
+	move.w	d2,tmlcchoice(a2)
 	bsr.w	getlchoice				;translate choice 0-2 into line number 0-6
 	tst.w	d0
 	bmi.w	rtss					;not an eligible choice
@@ -506,7 +506,7 @@ dopass								;pass the puck in passdir, to the best teammate there if any. Also
 passtoa0							;pass puck to player a0
 									;count a pass for the team and remember the receiver
 	bsr.w	loadTeamStruct
-	addq.w	#1,$12(a2)				;count passes
+	addq.w	#1,tmpasses(a2)			;count passes
 	move.w	SCnum(a0),(passReceiverPlayerNum).w
 	move.w	(passspeed).w,d5		;in pix/sec
 	asr.w	#2,d5
@@ -575,11 +575,11 @@ passtoa0							;pass puck to player a0
 	cmp.w	#12,d2
 	blt.w	.3
 	move.b	#$C,(puckvz).w
-.3	move.w	d2,d0					;d2 = time (1/8 s): receiver $40(a0) = d2*8-10
+.3	move.w	d2,d0					;d2 = time (1/8 s): receiver temp1(a0) = d2*8-10
 	;(temp1), puck lockout = that - 6
 	asl.w	#3,d0
 	subi.w	#$A,d0					;6
-	move.b	d0,$40(a0)				;temp2
+	move.b	d0,temp1(a0)			;temp1 high byte
 	subq.w	#6,d0					;10
 	move.b	d0,(puckx+nopuck).w
 	;receiver target temp3/temp4 = puck + (relative vector + receiver motion)
@@ -1341,9 +1341,9 @@ assfight							;fighting logic
 	bmi.w	donothing
 	bclr	#pfna,pflags(a3)		;clear new assignment
 	beq.w	.nna					;not first time through
-	;strength = energy * aggress / 4096, min 5
+	;strength = energy * fighting / 4096, min 5
 	bsr.w	getpde					;get player's energy level
-	move.b	$74(a3),d1				;aggress
+	move.b	fighting(a3),d1			;fighting
 	ext.w	d1
 	mulu.w	d1,d0
 	lsr.w	#8,d0
@@ -1542,7 +1542,7 @@ chkhit								;part of fight to see if player is hit
 	addi.w	#$1E,(CwdExciteLvl).w
 	moveq	#$3C,d0
 	bsr.w	randomd0
-	cmp.b	$75(a0),d0				;checking value
+	cmp.b	checking(a0),d0			;checking value
 	bgt.w	.noinj					;skip injury
 	move.w	#$B4,(PenCntDwn).w		;180: player is injured
 	bset	#pf2inj,pflags2(a3)
@@ -1615,12 +1615,12 @@ banner								;fight banner: close both line change boxes, frame a box with "<pl
 	rts
 
 addinfo								;d0 = penalty byte (player SCnum in low nibble). Build "<name> <team>" in
-									;a1, add aggress to d3, keep widest in d2,
+									;a1, add fighting to d3, keep widest in d2,
 									;centre printx
 	movea.w	#(SortCords-M68K_RAM),a1
 	andi.w	#$F,d0
 	asl.w	#7,d0
-	add.b	$74(a1,d0.w),d3			;aggress
+	add.b	fighting(a1,d0.w),d3	;fighting
 	movea.w	#(tmstruct-M68K_RAM),a2
 	btst	#pfteam,pflags(a1,d0.w)
 	beq.w	.0
@@ -2477,9 +2477,9 @@ assgoalie							;Player a3 is goalie. Also entered from assnearest
 	cmp.w	#7,d2
 	ble.w	playeracc
 	bra.w	stopna
-	;rush a loose puck only when stats and puck motion say so
-.rush	tst.w	(puckc).w			;rush a loose puck when
-	bpl.s	.de5					;the score/time stats say so
+	;rush a loose puck only when nobody is near it and the puck motion says so
+.rush	tst.w	(puckc).w			;rush a loose puck only when the
+	bpl.s	.de5					;nearest skaters of both teams are far (tmnear)
 	btst	#ifok,(iflags).w
 	bne.s	.de5
 	movea.w	#(tmstruct-M68K_RAM),a1
@@ -2487,9 +2487,9 @@ assgoalie							;Player a3 is goalie. Also entered from assnearest
 	btst	#pfteam,pflags(a3)
 	beq.w	.t0
 	exg	a1,a2
-.t0	cmpi.l	#$1324,$2A(a1)			;own and other team stats thresholds
+.t0	cmpi.l	#$1324,tmnear(a1)		;own and other team's nearest distance^2 limits
 	blt.w	.de5
-	cmpi.l	#$9C4,$2A(a2)
+	cmpi.l	#$9C4,tmnear(a2)
 	blt.w	.de5
 	cmpi.w	#$E0,(pucky).w
 	bgt.w	.dir
@@ -2592,9 +2592,9 @@ assgoalietopuck						;goalie skates out to a loose puck (inserted by
 	btst	#pfteam,pflags(a3)
 	beq.w	.t0
 	exg	a1,a2
-.t0	cmpi.l	#$E10,$2A(a1)			;long at $2A of each team struct (score/time stat) vs limits
+.t0	cmpi.l	#$E10,tmnear(a1)		;each team's nearest distance^2 (tmnear) vs limits
 	blt.w	assexit
-	cmpi.l	#$640,$2A(a2)
+	cmpi.l	#$640,tmnear(a2)
 	blt.w	assexit
 .go	bra.w	skatetopuck				;keep skating to the puck
 
@@ -3036,7 +3036,7 @@ assnearest							;this is a special assignment used for the player who is neares
 .nopc	sub.b	d7,temp1(a3)		;timer expired?
 	bpl.w	.nodec
 	move.b	aioff(a3),temp1(a3)		;reload timer from the offensive rating
-	clr.l	$2A(a2)					;team long, set to best distance below
+	clr.l	tmnear(a2)				;team long, set to best distance below
 	move.w	(puckc).w,d1
 	bmi.w	.np						;puck is loose
 	asl.w	#scsize,d1				;scsize
@@ -3082,7 +3082,7 @@ assnearest							;this is a special assignment used for the player who is neares
 	dbf	d4,.de0
 	tst.l	d2
 	bmi.w	.de1					;nobody qualified
-	move.l	d2,$2A(a2)				;nearest distance^2
+	move.l	d2,tmnear(a2)			;nearest distance^2
 .switch	cmpa.w	a1,a3				;a1 = the player who should chase the puck
 	beq.w	.de1					;that is me
 	btst	#gmclock,(gmode).w		;clock stopped: no swap
@@ -3109,9 +3109,9 @@ assnearest							;this is a special assignment used for the player who is neares
 	bsr.w	chkpk2
 	bne.w	.x						;not killing penalty
 	addq.w	#4,d1					;killing a penalty: much larger range
-.x	moveq	#$14,d0					;random range ($14 - aggress) << d1
-	sub.b	$75(a3),d0				;aggress
-	asl.w	d1,d0					;range = ($14 - aggress) << d1
+.x	moveq	#$14,d0					;random range ($14 - checking) << d1
+	sub.b	checking(a3),d0			;checking
+	asl.w	d1,d0					;range = ($14 - checking) << d1
 	bsr.w	randomd0
 	cmp.w	#1,d0					;(92 #2)
 	bhi.w	.nodec					;usually nothing
@@ -3159,10 +3159,10 @@ assnearest							;this is a special assignment used for the player who is neares
 
 check4check							;look for good opportunity for checking opponent. Falls in from
 									;assnearest; also entered from assfwatch and asswingd roll against
-									;aggression first, then look for an opponent within 30 units whom a3 is
-									;facing
+									;the checking rating first, then look for an opponent within 30 units
+									;whom a3 is facing
 	moveq	#$14,d0
-	sub.b	$75(a3),d0				;aggress
+	sub.b	checking(a3),d0			;checking
 	tst.w	(OptPen).w				;OptPen nonzero (penalties off): double the range
 	beq.w	.nopen
 	asl.w	#1,d0
@@ -3597,10 +3597,10 @@ puckfaceoff2						;face off control logic and general setup for action a3 = the 
 	btst	#pfteam,pflags(a3)
 	beq.w	.tm
 	adda.w	#tmsize,a2
-.tm	clr.w	$18(a2)					;reset the face off man's touch list of his team
-	move.b	pnum(a3),$19(a2)
-	st	$1A(a2)
-	st	$1C(a2)
+.tm	clr.w	tmtouch1(a2)			;reset the face off man's touch list of his team
+	move.b	pnum(a3),tmtouch1+1(a2)
+	st	tmtouch2(a2)
+	st	tmtouch3(a2)
 	bclr	#tmflast,tmflags(a2)	;tmflags bit 3
 	move.l	#afaceoffpl,d0			;afaceoffpl
 .l1	bsr.w	assinsert				;give the player his face off assignment
@@ -3717,7 +3717,7 @@ puckfaceoff2						;face off control logic and general setup for action a3 = the 
 	move.w	#4,4(a0)
 	move.w	#$A800,6(a0)
 	move.w	#7,8(a0)				;frame of ref
-	move.w	#$8000,$A(a0)
+	move.w	#$8000,fofdata-fofdata2+2(a0)
 	btst	#gmdir,(gmode).w
 	bne.w	.nfl
 	eori.w	#$800,2(a0)				;flip attribute bit $800 (two of the sprites) when gmdir is clear
@@ -4021,16 +4021,16 @@ a2touchpuck							;player a2 touches puck. Look for penalties/offsides/other jun
 	lea	tmsize(a0),a0				;a0 = a2's team struct
 .t	clr.w	d0						;d0 = player number
 	move.b	pnum(a2),d0				;d0 = player number
-	cmp.w	$18(a0),d0				;same player as the last touch: no change
+	cmp.w	tmtouch1(a0),d0			;same player as the last touch: no change
 	beq.w	.same
 	bclr	#tmflast,tmflags(a0)	;tmflags bit 3 set: overwrite the last touch only
 	bne.w	.st
-	move.w	$1A(a0),$1C(a0)			;shift the touch list down
-	move.w	$18(a0),$1A(a0)
-.st	move.w	d0,$18(a0)				;newest touch
-	cmp.w	$1C(a0),d0
+	move.w	tmtouch2(a0),tmtouch3(a0)	;shift the touch list down
+	move.w	tmtouch1(a0),tmtouch2(a0)
+.st	move.w	d0,tmtouch1(a0)			;newest touch
+	cmp.w	tmtouch3(a0),d0
 	bne.w	.same
-	st	$1C(a0)						;player was also the third touch: drop it
+	st	tmtouch3(a0)				;player was also the third touch: drop it
 .same	bclr	#sf2shot,(sflags2).w	;a touch ends the "shot was taken" state
 	bsr.w	a2offsides
 	btst	#ifok,(iflags).w		;ifok

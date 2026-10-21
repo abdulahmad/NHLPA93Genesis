@@ -195,7 +195,7 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 	bset	#6,tmpdst(a1,d1.w)		;coincidental (both players)
 	bset	#6,tmpdst(a2,d0.w)
 .nocoin	movem.l	a0,-(sp)			;add player to penalty box list
-	lea	$9A(a2),a0
+	lea	tmboxlist(a2),a0
 	moveq	#$18,d1
 .pl	tst.b	(a0)+					;find end of list
 	dbmi	d1,.pl
@@ -562,7 +562,7 @@ PenGoalStuff						;do this stuff after a goal. a1 = scored on team, a2 = scoring
 	move.w	tmap(a2),d2				;end p.killing by scored on team
 	cmp.w	tmap(a1),d2
 	ble.w	.ex						;scoring team did not have more players on the ice
-	lea	$9A(a1),a0					;penalty box list of the scored on team
+	lea	tmboxlist(a1),a0			;penalty box list of the scored on team
 .0	clr.w	d2						;next box list entry
 	move.b	(a0)+,d2				;d2 = roster offset of the next player in the box
 	bmi.w	.ex						;end of list
@@ -604,7 +604,7 @@ ProcessPenaltyList					;from 92 updatepentime .ut. a2 = team. Walks the penalty 
 									;second and the rest wait. Beeps when the first served time gets to 5 or
 									;less and releases the player at 0. Coincidental penalties count down on
 									;their own
-	lea	$9A(a2),a0					;a0 = box list (roster offsets, -1 ends)
+	lea	tmboxlist(a2),a0			;a0 = box list (roster offsets, -1 ends)
 	movea.w	#(mesarea-M68K_RAM),a1	;serving players
 	moveq	#2,d1					;two can serve at once
 	moveq	#2,d3
@@ -710,7 +710,7 @@ GetLowestPen						;a2 = shorthanded team (its penalty box list is walked, as set
 									;from the penalty box times. Called from updatepwrplay
 	clr.w	d0						;d0 = running total, d3 = previous time
 	clr.w	d3
-	lea	$9A(a2),a0
+	lea	tmboxlist(a2),a0
 .top	clr.w	d2					;add up the steps between successive non-coincidental times
 	move.b	(a0)+,d2
 	bmi.w	.t2						;end of list
@@ -724,7 +724,7 @@ GetLowestPen						;a2 = shorthanded team (its penalty box list is walked, as set
 .t2	cmpi.w	#6,tmap(a3)				;6 on ice, done
 	beq.w	rtss
 	sub.w	d3,d0
-	lea	$9A(a3),a0					;then the other team's box list
+	lea	tmboxlist(a3),a0			;then the other team's box list
 	clr.w	d2
 .t3	move.b	(a0)+,d2				;next player of the other team
 	bmi.w	rtss
@@ -977,7 +977,7 @@ USBoard								;update score board, including the players in the penalty box and
 	movem.l	(sp)+,d0-d7/a0-a3
 	rts
 
-.dispen	lea	$9A(a2),a0				;penalty box list of team a2. Prints the players with tmpdst bit 14 clear
+.dispen	lea	tmboxlist(a2),a0		;penalty box list of team a2. Prints the players with tmpdst bit 14 clear
 									;first, then those with it set
 .l1	clr.w	d0						;pass 1: players with bit 14 (coincidental) clear
 	move.b	(a0)+,d0
@@ -986,7 +986,7 @@ USBoard								;update score board, including the players in the penalty box and
 	bne.s	.l1
 	bsr.w	pplpen
 	bra.s	.l1
-.p2	lea	$9A(a2),a0					;pass 2: the players with the bit set
+.p2	lea	tmboxlist(a2),a0			;pass 2: the players with the bit set
 .l2	clr.w	d0						;next entry
 	move.b	(a0)+,d0
 	bmi.w	rtss					;end of list: done
@@ -1054,7 +1054,7 @@ dobar	equ	*						;92 dobar (draw energy bar for energy level d0); in 92 this is 
 
 getlinee							;d0 = line number, a2 = team struct. Return d0 = energy level of this line
 	movem.l	d1-d5/a0-a3,-(sp)
-	lea	$16A(a2),a1					;line sets
+	lea	tmlines(a2),a1				;line sets
 	asl.w	#3,d0					;8 bytes per line
 	adda.w	d0,a1					;a1 = this line (one player number per position)
 	clr.l	d0						;d0 = energy sum
@@ -1629,22 +1629,22 @@ StartHL2							;play hilite for game a0. Start skips it with a random result. A 
 .nhl0	bsr.w	.ranres				;start already pressed: random result only
 	bra.s	.exit
 
-.setteam	jsr	(reenergizeteam).l	;refill energy and set $18/$1A/$1C(a2) per team (a2 = team)
+.setteam	jsr	(reenergizeteam).l	;refill energy and set tmtouch1/2/3(a2) per team (a2 = team)
 	bsr.w	setpersonel
 	bsr.w	forcepldata
-	st	$18(a2)
-	st	$1A(a2)
-	st	$1C(a2)
+	st	tmtouch1(a2)
+	st	tmtouch2(a2)
+	st	tmtouch3(a2)
 	rts
 
-.ranres	move.w	$A(a0),d0			;random resolve of game (if tied = random score)
-	cmp.w	$C(a0),d0
+.ranres	move.w	gss1(a0),d0			;random resolve of game (if tied = random score)
+	cmp.w	gss2(a0),d0
 	bne.w	.rr0
 	move.w	(HVcount).l,d0			;hvcount
 	andi.w	#1,d0
-	add.w	d0,$A(a0)
+	add.w	d0,gss1(a0)
 	eori.w	#1,d0
-	add.w	d0,$C(a0)
+	add.w	d0,gss2(a0)
 .rr0	move.w	#5,gsper(a0)		;gsper: final
 	rts
 
