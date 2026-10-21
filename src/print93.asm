@@ -8,9 +8,9 @@
 xyVmMap								;use printx/y/m to set vram address. Returns a0 = Vdata.
 									;Saves d0-d2 and calls Vmaddr
 	movem.l	d0-d2,-(sp)				;save
-	move.w	(printx).w,d0
-	move.w	(printy).w,d1
-	movea.w	#(VmMAP1-M68K_RAM),a0
+	move.w	(printx).w,d0			;x
+	move.w	(printy).w,d1			;y
+	movea.w	#(VmMAP1-M68K_RAM),a0	;map 1 info
 	adda.w	(printm).w,a0			;this map
 	move.w	2(a0),d2				;map width shift
 	asl.w	d2,d1					;y * map width
@@ -19,7 +19,7 @@ xyVmMap								;use printx/y/m to set vram address. Returns a0 = Vdata.
 	add.w	(a0),d0					;plus the map address
 	bsr.w	Vmaddr					;set the vram address
 	movem.l	(sp)+,d0-d2				;restore
-	rts
+	rts								;return
 
 eraser								;fill rectangle with char. d0/d1 = x/y size of rectangle, d2 = char word
 									;to fill with, printx/y/m define top left corner to start at
@@ -39,7 +39,7 @@ eraser								;fill rectangle with char. d0/d1 = x/y size of rectangle, d2 = cha
 	addq.w	#4,sp					;drop the sizes
 	move.w	(sp)+,(disflags).w		;restore the flags
 	movem.l	(sp)+,d0-d2/a0			;restore
-	rts
+	rts								;return
 
 Framer								;frame and fill (uses framer.map graphics and assums tiles are already
 									;located at framercset). d0/d1 = x/y size of rectangle, printx/y/m define
@@ -66,7 +66,7 @@ Framer								;frame and fill (uses framer.map graphics and assums tiles are alr
 	addq.w	#4,sp					;drop the sizes
 	move.w	(sp)+,(disflags).w		;restore the flags
 	movem.l	(sp)+,d0-d4/a0-a1		;restore
-	rts
+	rts								;return
 
 .tbline	bsr.w	xyVmMap				;draw one frame row: left cell, width-2 middle cells, right cell
 	addq.w	#1,(printy).w			;next row
@@ -79,12 +79,12 @@ Framer								;frame and fill (uses framer.map graphics and assums tiles are alr
 	addq.w	#2,d4					;next cell
 	bsr.w	.setter					;right cell
 	addq.w	#2,d4					;d4 = next map row
-	rts
+	rts								;return
 
 .setter	move.w	(a1,d4.w),d3		;frame map word + char base/attribute (d2), written to vram
 	add.w	d2,d3					;plus attribute and chars
 	move.w	d3,(a0)					;write the cell
-	rts
+	rts								;return
 
 printsmallz							;from 92 printz. see printsmall. String macro should follow the bsr/jsr to
 									;this routine; a1 is kept
@@ -93,7 +93,7 @@ printsmallz							;from 92 printz. see printsmall. String macro should follow th
 	bsr.w	printsmall				;print it
 	move.l	a1,4(sp)				;return past the string
 	movea.l	(sp)+,a1				;restore
-	rts
+	rts								;return
 
 printsmall							;from 92 print. print string macro a1 at printx/y/m with printa. Bytes > 0
 									;are chars ('@' = blank char $7FF, '^' = skip a column), tile =
@@ -115,29 +115,29 @@ printsmall							;from 92 print. print string macro a1 at printx/y/m with printa
 	neg.w	d0						;control code (0 = padding)
 	asl.w	#2,d0					;long index
 	movea.l	#ControlCodeJumpTable,a2	;control code table
-	movea.l	(a2,d0.w),a2
+	movea.l	(a2,d0.w),a2			;its handler
 	jsr	(a2)						;run it
 	bra.w	.1						;next
 
 .nocom	cmp.b	#'@',d0				;ordinary character
-	bne.w	.noblank
+	bne.w	.noblank				;no
 	move.w	#$7FF,d0				;blank char (92 moveq #1)
 	bra.w	.p						;write it
 .noblank	cmp.b	#'^',d0			;not blank; '^' = skip a column
 	beq.w	.skip					;yes: skip
 	asl.w	#1,d0					;ascii -> word index into the font map
-	movea.l	#smallfontmap,a2
+	movea.l	#smallfontmap,a2		;small font
 	adda.l	jimdata(a2),a2			;map data
 	move.w	4(a2,d0.w),d0			;tile number of this char
 	move.w	(printfontset).w,d1		;char set * 2
-	add.w	(a3,d1.w),d0
+	add.w	(a3,d1.w),d0			;plus the char set
 .p	add.w	d2,d0					;for alternate paletes
 	move.w	d0,(a0)					;write the cell
 	addq.w	#1,(printx).w			;next column
 .1	dbf	d3,.0						;d3 = bytes left in the string
 	movem.l	(sp)+,d0-d3/a0/a2-a3	;restore
-	move.w	(sp)+,(disflags).w
-	rts
+	move.w	(sp)+,(disflags).w		;restore the flags
+	rts								;return
 
 .skip	addq.w	#1,(printx).w		;'^': skip a column
 	bsr.w	xyVmMap					;vram address
@@ -177,11 +177,11 @@ ControlCode_SetAttribute			;printsmall code -2, next byte = palette/priority (0-
 	subq.w	#1,d3					;byte used
 	ror.w	#3,d2					;to bits 15-13
 	move.w	d2,(printa).w			;store it
-	rts
+	rts								;return
 
 ControlCode_SetX					;printsmall code -3, next byte = printx
 	clr.w	d0						;clear
-	move.b	(a1)+,d0
+	move.b	(a1)+,d0				;attribute byte
 	subq.w	#1,d3					;byte used
 	move.w	d0,(printx).w			;store it
 	bra.w	xyVmMap					;vram address
@@ -214,7 +214,7 @@ ControlCode_SetFont					;printsmall code -7, next byte = char set index (printfo
 	subq.w	#1,d3					;byte used
 	asl.w	#1,d0					;word index
 	move.w	d0,(printfontset).w		;store it
-	rts
+	rts								;return
 
 printz								;see print. String macro should follow the bsr/jsr to this routine. Keeps
 									;a1 (92 popped the return into a1)
@@ -223,7 +223,7 @@ printz								;see print. String macro should follow the bsr/jsr to this routine
 	bsr.w	print					;print it
 	move.l	a1,4(sp)				;return past the string
 	movea.l	(sp)+,a1				;restore
-	rts
+	rts								;return
 
 print								;a1 = string macro, printx/y = x/y cordinate on map for printing, printm =
 									;map to print on, printa = attribute for characters. string
@@ -266,23 +266,23 @@ print								;a1 = string macro, printx/y = x/y cordinate on map for printing, p
 	bra.w	.1						;next
 
 .nocom	cmp.b	#'@',d0				;ordinary character
-	bne.w	.noblank
+	bne.w	.noblank				;no
 	move.w	#$7FF,d0				;blank char (92 moveq #1)
 	bra.w	.p						;write it
 .noblank	cmp.b	#'^',d0			;'^' = skip a column
 	beq.w	.skip					;yes: skip
 	asl.w	#1,d0					;ascii -> word index into the font map
-	movea.l	#smallfontmap,a2
+	movea.l	#smallfontmap,a2		;small font
 	adda.l	jimdata(a2),a2			;map data
 	move.w	4(a2,d0.w),d0			;tile number of this char
 	add.w	(smallfontchars).w,d0	;plus first small font char in vram
 .p	add.w	d2,d0					;for alternate paletes
 	move.w	d0,(a0)					;write the cell
-	addq.w	#1,(printx).w
+	addq.w	#1,(printx).w			;next column
 .1	dbf	d3,.0						;d3 = bytes left in the string
 	movem.l	(sp)+,d0-d3/a0/a2		;restore
-	move.w	(sp)+,(disflags).w
-	rts
+	move.w	(sp)+,(disflags).w		;restore the flags
+	rts								;return
 
 .skip	addq.w	#1,(printx).w		;'^': skip a column
 	bsr.w	xyVmMap					;vram address
@@ -321,30 +321,30 @@ PushTime							;convert d0 into string format of minutes:seconds. Return a1 = st
 	ext.l	d0						;long
 	divu.w	#10,d0
 	swap	d0						;remainder
-	addi.w	#'0',d0
+	addi.w	#'0',d0					;to ascii
 	move.b	d0,-(a1)				;ones of seconds
 	swap	d0						;quotient
 
 	ext.l	d0						;long
 	divu.w	#6,d0
 	swap	d0						;remainder
-	addi.w	#'0',d0
+	addi.w	#'0',d0					;to ascii
 	move.b	d0,-(a1)				;tens of seconds
 	swap	d0						;quotient
 
-	move.b	#':',-(a1)
+	move.b	#':',-(a1)				;colon
 
 	ext.l	d0						;long
 	divu.w	#10,d0
 	swap	d0						;remainder
-	addi.w	#'0',d0
+	addi.w	#'0',d0					;to ascii
 	move.b	d0,-(a1)				;ones of minutes
 	swap	d0						;quotient
 
 	move.b	#' ',-(a1)				;leading space
 	tst.w	d0						;tens of minutes?
 	beq.w	.noz					;minutes tens = 0: keep the space
-	addi.w	#'0',d0
+	addi.w	#'0',d0					;to ascii
 	move.b	d0,(a1)					;over the space (92 -(a1))
 .noz	move.l	(sp)+,d0			;d0 = end address of the string
 	sub.l	a1,d0					;minus the start
@@ -355,7 +355,7 @@ PushTime							;convert d0 into string format of minutes:seconds. Return a1 = st
 	addq.w	#1,d0					;one more
 .1	move.w	d0,-(a1)				;string length word in front
 	move.l	(sp)+,d0				;restore
-	rts
+	rts								;return
 
 PushNumber							;convert d0 into string format of base 10 number, no leading zeros. Return
 									;a1 = string
@@ -365,7 +365,7 @@ PushNumber							;convert d0 into string format of base 10 number, no leading ze
 .0	ext.l	d0						;next digit: remainder of /10, written backwards
 	divu.w	#10,d0
 	swap	d0						;remainder
-	addi.w	#'0',d0
+	addi.w	#'0',d0					;to ascii
 	move.b	d0,-(a1)				;digit
 	swap	d0						;quotient
 	tst.w	d0						;more?
@@ -379,7 +379,7 @@ PushNumber							;convert d0 into string format of base 10 number, no leading ze
 	addq.w	#1,d0					;one more
 .1	move.w	d0,-(a1)				;string length word in front
 	move.l	(sp)+,d0				;restore
-	rts
+	rts								;return
 
 PushNumberWidth						;convert d0 into a d1 digit base 10 string, leading zeros as spaces (the
 									;last digit always shown). Return a1 = string at PushWidthBuf
@@ -393,7 +393,7 @@ PushNumberWidth						;convert d0 into a d1 digit base 10 string, leading zeros a
 	moveq	#' ',d3					;leading fill
 .dig	ext.l	d0					;next digit: d0 / d2, high digit first
 	divu.w	d2,d0					;divide d2 into d0
-	bne.w	.digit
+	bne.w	.digit					;nonzero digit
 	cmp.w	#1,d2					;compare d2 to 1
 	beq.w	.digit					;last digit: always a number
 	move.w	d3,d0					;leading zero
@@ -413,7 +413,7 @@ PushNumberWidth						;convert d0 into a d1 digit base 10 string, leading zeros a
 .even	movea.w	#(PushWidthBuf-M68K_RAM),a1	;store the length word at the front
 	move.w	d0,(a1)					;move d0 into a1 address location
 	movem.l	(sp)+,d0-d3				;push from stack
-	rts
+	rts								;return
 
 appendz								;see appstring. String macro should follow the bsr/jsr to this routine
 	movea.l	(sp)+,a1				;the String
@@ -453,7 +453,7 @@ printbigz							;see print big. String macro should follow the bsr/jsr to this r
 	bsr.w	printbig				;print it
 	move.l	a1,4(sp)				;return past the string
 	movea.l	(sp)+,a1				;restore
-	rts
+	rts								;return
 
 printbig							;same as print, only use bigfont.map graphics. a1 = string macro, printx/y
 									;= x/y cordinate on map for printing, printm = map to print on, printa =
@@ -463,10 +463,10 @@ printbig							;same as print, only use bigfont.map graphics. a1 = string macro,
 	move.w	(disflags).w,-(sp)		;save the flags
 	bset	#dfng,(disflags).w		;no graphics
 	movem.l	d0-d7/a0/a2,-(sp)		;save
-	move.w	(printx).w,d4
-	move.w	(printy).w,d5
+	move.w	(printx).w,d4			;x
+	move.w	(printy).w,d5			;y
 	move.w	(printa).w,d6			;attribute
-	add.w	(BigFontchars).w,d6
+	add.w	(BigFontchars).w,d6		;plus the big font chars
 
 	move.w	(a1)+,d3				;string length
 	subq.w	#2,d3					;minus the length word
@@ -502,16 +502,16 @@ printbig							;same as print, only use bigfont.map graphics. a1 = string macro,
 	blt.w	.2						;yes
 	cmp.b	#'z',d0
 	bgt.w	.2						;yes
-	addi.b	#'A'-'a',d0
+	addi.b	#'A'-'a',d0				;to upper case
 .2	move.w	d3,-(sp)				;.dochar uses d3
-	bsr.w	.dochar
+	bsr.w	.dochar					;draw it
 	move.w	(sp)+,d3				;restore
 .1	dbf	d3,.0						;d3 = bytes left in the string
 	move.w	d4,(printx).w			;restore x
 	move.w	d5,(printy).w			;restore y
 	movem.l	(sp)+,d0-d7/a0/a2		;restore
 	move.w	(sp)+,(disflags).w		;restore the flags
-	rts
+	rts								;return
 
 .dochar	subi.w	#$20,d0				;no special case for space
 	movea.l	#bfasciicon,a0			;per-char table of brush offsets into the big font map
@@ -522,41 +522,41 @@ printbig							;same as print, only use bigfont.map graphics. a1 = string macro,
 	neg.w	d1						;negative: one char wide
 	clr.w	d2
 .p0	asl.w	#1,d1					;word offset into the map
-	movea.l	#bigfontmap,a0
-	adda.l	jimdata(a0),a0
+	movea.l	#bigfontmap,a0			;big font
+	adda.l	jimdata(a0),a0			;map data
 .p1	move.w	4(a0,d1.w),d3			;top tile of this column
-	bsr.w	.dump
+	bsr.w	.dump					;write it
 	move.w	(a0),d7					;map width
 	asl.w	#1,d7
 	add.w	d7,d1					;same column, row below
 	move.w	4(a0,d1.w),d3			;bottom tile
 	sub.w	d7,d1
-	addq.w	#1,d5
-	bsr.w	.dump
-	subq.w	#1,d5
+	addq.w	#1,d5					;row below
+	bsr.w	.dump					;write it
+	subq.w	#1,d5					;back up
 	addq.w	#1,d4					;x char position
 	addq.w	#2,d1					;next column of the brush
 	dbf	d2,.p1						;chars are two tiles tall, one or two wide
-	rts
+	rts								;return
 
 .dump	add.w	d6,d3				;write tile d3 (+ attribute/char base d6) at d4/d5 of map printm
-	movem.l	d1/a0,-(sp)
-	move.w	d5,d0
-	movea.l	#VmMAP1,a0
-	adda.w	(printm).w,a0
-	move.w	2(a0),d1
+	movem.l	d1/a0,-(sp)				;save
+	move.w	d5,d0					;y
+	movea.l	#VmMAP1,a0				;map info
+	adda.w	(printm).w,a0			;this map
+	move.w	2(a0),d1				;width shift
 	asl.w	d1,d0
-	add.w	d4,d0
+	add.w	d4,d0					;plus x
 	asl.w	#1,d0
-	add.w	(a0),d0
-	bsr.w	Vmaddr
-	move.w	d3,(a0)
-	movem.l	(sp)+,d1/a0
-	rts
+	add.w	(a0),d0					;plus map base
+	bsr.w	Vmaddr					;set the vram address
+	move.w	d3,(a0)					;write the tile
+	movem.l	(sp)+,d1/a0				;restore
+	rts								;return
 
 AddSmallFont						;transfer smallfont.map tiles to vram. d4 = char to start tiles at, return
 									;d4 = end of tiles + 1. Goes through DecompressGraphics
-	move.w	d4,(smallfontchars).w
+	move.w	d4,(smallfontchars).w	;1st vram char for smallfont tiles
 	movea.l	#SmallFontMap+8,a2		;font tiles
 	bra.w	DecompressGraphicsPlain	;send them
 
