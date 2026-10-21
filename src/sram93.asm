@@ -501,10 +501,10 @@ ClearRAMBuffer						;backup RAM status screen. Interrupts off, display off, back
 	move.w	d0,(Vdata).l
 	move.l	#VRAM_W,(Vctrl).l		;vram write, address 0
 	move.w	#$FFF,d1				;$1000 longs
-	moveq	#0,d0
+	moveq	#0,d0					;Clear d0
 ClearVRAM							;clear loop of ClearRAMBuffer, then display on and hang
 	move.l	d0,(Vdata).l
-	dbf	d1,ClearVRAM
+	dbf	d1,ClearVRAM				;Loop for 16383 longs
 	move.w	#$8144,(a0)				;display on
 .hang	bra.s	.hang				;hang forever
 
