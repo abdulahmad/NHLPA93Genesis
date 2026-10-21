@@ -6936,15 +6936,15 @@ AddError							;address error vector. The bus error vector also points here
 	move.w	#$2700,sr
 	bsr.w	printbigz
 	String	$BD,0,0,'Address Error'	;92 -$43
-	move.l	$A(sp),d0				;pc
-	move.l	2(sp),d1				;access address
+	move.l	$A(sp),d0				;pc (exception frame)
+	move.l	2(sp),d1				;access address (exception frame)
 	bra.w	crash
 
 Illinst								;illegal instruction vector.
 	move.w	#$2700,sr
 	bsr.w	printbigz
 	String	$BD,0,0,'Illegal Instruction'
-	move.l	2(sp),d0
+	move.l	2(sp),d0				;pc (exception frame)
 	move.l	d0,d1
 	bra.w	crash
 

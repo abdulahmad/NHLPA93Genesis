@@ -186,7 +186,7 @@ randomd0s							;d0 = range. Return d0 = random number (-range < d0 < range)
 	rts
 
 randomd0							;d0 = range. Return random number in d0 (0 <= d0 < range)
-	movem.l	d0-d2,-(sp)
+	movem.l	d0-d2,-(sp)				;2(sp) = range (the saved d0 low word)
 	;32-bit linear congruential generator: seed = seed * $BB40E62D + 1 (built from 16-bit mulu)
 	move.w	(seed+2).w,d0			;seed+2 (92)
 	move.w	d0,d1
@@ -259,10 +259,11 @@ Sroot								;Square Root, this returns (d0.L)^.5 in d0. Large values use a bina
 .lo	move.w	d4,d1					;low = mid
 	bra.s	.bs
 
+sfxarg		=	16*4				;sfx / song: stack offset of the number word after the movem
 sfx									;play sound effect number. One word passed on stack
-	movem.l	d0-d7/a0-a6,-(sp)
+	movem.l	d0-d7/a0-a6,-(sp)		;sfxarg(sp) = the number word (above 15 longs and the return address)
 	clr.l	d0
-	move.w	$40(sp),d0				;16*4(a7)
+	move.w	sfxarg(sp),d0			;sound number
 	bmi.w	.none					;negative = no sound
 	move.w	d0,(lastsfx).w			;remember the last effect
 	jsr	(play_sfx_or_music_track).l
@@ -272,9 +273,9 @@ sfx									;play sound effect number. One word passed on stack
 	rts
 
 song								;play song number. One word passed on stack
-	movem.l	d0-d7/a0-a6,-(sp)
+	movem.l	d0-d7/a0-a6,-(sp)		;sfxarg(sp) = the number word (above 15 longs and the return address)
 	clr.l	d0
-	move.w	$40(sp),d0				;16*4(a7)
+	move.w	sfxarg(sp),d0			;sound number
 	bmi.w	.none					;negative = no song
 	jsr	(play_sfx_or_music_track).l	;same call as sfx, without lastsfx
 .none	movem.l	(sp)+,d0-d7/a0-a6	;restore registers
@@ -678,7 +679,7 @@ DoFill								;fill vram. d0 = words to fill, d1 = vram address, d2 = data to fi
 	rts
 
 WaitDMA								;wait for dma completion
-	move.w	(Vctrl).l,-(sp)			;read the vdp status
+	move.w	(Vctrl).l,-(sp)			;read the vdp status; 1(sp) is its low byte
 	btst	#1,1(sp)				;status bit 1 = dma busy
 	addq.w	#2,sp
 	bne.s	WaitDMA
@@ -778,7 +779,7 @@ dobitmap							;transfer palette data/map data/tiles data to vram. a0 = palette,
 	move.w	(printy).w,-(sp)		;keep printy
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
-	movem.l	d0-d3/d5-d6/a0-a3,-(sp)
+	movem.l	d0-d3/d5-d6/a0-a3,-(sp)	;2(sp) start x, $A(sp) width x, $E(sp) width y (low words of d0, d2, d3)
 	move.w	d1,d6					;y start in d6 (92 used 6(a7))
 	movea.w	#(palfadenew-M68K_RAM),a3	;a3 = target palette, a0 = palette data
 	bra.w	.00

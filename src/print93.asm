@@ -26,7 +26,7 @@ eraser								;fill rectangle with char. d0/d1 = x/y size of rectangle, d2 = cha
 	movem.l	d0-d2/a0,-(sp)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
-	movem.w	d0-d1,-(sp)
+	movem.w	d0-d1,-(sp)				;(sp) = width, 2(sp) = rows left
 .1	bsr.s	xyVmMap					;one row: a0 = vram port at printx/y
 	move.w	(sp),d0					;width
 	subq.w	#1,d0
@@ -47,7 +47,7 @@ Framer								;frame and fill (uses framer.map graphics and assums tiles are alr
 	movem.l	d0-d4/a0-a1,-(sp)
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
-	movem.w	d0-d1,-(sp)
+	movem.w	d0-d1,-(sp)				;(sp) = width, 2(sp) = rows left; the row routine reads the width at 4(sp)
 	move.w	(printa).w,d2
 	add.w	(framercset).w,d2
 	movea.l	#Framermap,a1
@@ -88,7 +88,7 @@ Framer								;frame and fill (uses framer.map graphics and assums tiles are alr
 
 printsmallz							;from 92 printz. see printsmall. String macro should follow the bsr/jsr to
 									;this routine; a1 is kept
-	move.l	a1,-(sp)
+	move.l	a1,-(sp)				;4(sp) = return address = the String after the call
 	movea.l	4(sp),a1				;string after the call
 	bsr.w	printsmall
 	move.l	a1,4(sp)				;return past the string
@@ -218,7 +218,7 @@ ControlCode_SetFont					;printsmall code -7, next byte = char set index (printfo
 
 printz								;see print. String macro should follow the bsr/jsr to this routine. Keeps
 									;a1 (92 popped the return into a1)
-	move.l	a1,-(sp)
+	move.l	a1,-(sp)				;4(sp) = return address = the String after the call
 	movea.l	4(sp),a1				;string after the call
 	bsr.w	print
 	move.l	a1,4(sp)				;return past the string
@@ -448,7 +448,7 @@ appstring							;append string a1 to string a3
 
 printbigz							;see print big. String macro should follow the bsr/jsr to this routine.
 									;Keeps a1 (92 popped the return into a1)
-	move.l	a1,-(sp)
+	move.l	a1,-(sp)				;4(sp) = return address = the String after the call
 	movea.l	4(sp),a1				;string after the call
 	bsr.w	printbig
 	move.l	a1,4(sp)				;return past the string

@@ -755,6 +755,8 @@ addframe							;a3 = cords.l frame/oldframe VRsize VRchar. Project the object wi
 .exit	movem.l	(sp)+,d0-d2			;hidden or off screen: nothing drawn
 	rts
 
+prevtileptr	=	4					;addframe2 stack: the last sprite's tile pointer (saved d2)
+prevtilecnt	=	8					;and its tile count (saved d4)
 addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, a6 =
 									;sprite table, d6 = link counter.
 									;Also entered from checksso .ca and setupice. frame word: top 5 bits are
@@ -801,18 +803,19 @@ addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, 
 	tst.w	d5
 	bne.w	.nn
 	move.w	d0,oldframe(a3)			;last sprite: oldframe = frame
-.nn	movem.w	d0-d4,-(sp)				;work out whether this sprite's tiles overlap the previous one's
+.nn	movem.w	d0-d4,-(sp)				;work out whether this sprite's tiles overlap the previous one's;
+									;prevtileptr(sp) / prevtilecnt(sp) = d2 / d4 of the last sprite
 	move.w	seTile(a2),d2			;tile pointer (kept whole)
 	clr.w	d4
 	move.b	seSize(a2),d4			;size byte
 	movea.l	#sizetab,a0
 	move.b	(a0,d4.w),d4			;chars used in this sprite
-	cmp.w	8(sp),d4
+	cmp.w	prevtilecnt(sp),d4
 	bgt.w	.nodup					;more data in prev sprite so no dup
-	cmp.w	4(sp),d2
+	cmp.w	prevtileptr(sp),d2
 	blt.w	.nodup
-	move.w	4(sp),d0
-	add.w	8(sp),d0				;end of last data
+	move.w	prevtileptr(sp),d0
+	add.w	prevtilecnt(sp),d0		;end of last data
 	sub.w	d2,d0
 	sub.w	d4,d0
 	bmi.w	.nodup
@@ -820,7 +823,7 @@ addframe2							;d0/d1 = x/y coordinates on screen, a3 = object. a5 = dma list, 
 	addq.w	#6,sp
 	bra.w	.dup
 
-.nodup	add.w	8(sp),d3			;d3 = vram char offset after the previous sprite's tiles
+.nodup	add.w	prevtilecnt(sp),d3	;d3 = vram char offset after the previous sprite's tiles
 	movem.w	(sp)+,d0-d1
 	addq.w	#6,sp
 

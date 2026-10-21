@@ -845,7 +845,7 @@ doshot								;stick is at puck so launch puck toward goal
 .cp	cmp.w	#$88,d0					;cap the error
 	blt.w	.ar
 	move.w	#$88,d0
-.ar	move.w	d0,-(sp)				;x dist += random error
+.ar	move.w	d0,-(sp)				;x dist += random error; 2(sp) / 4(sp) = x / y dist pushed before
 	bsr.w	randomd0s
 	add.w	d0,2(sp)				;x dist
 	move.w	(sp),d0
@@ -4448,7 +4448,8 @@ vtoa								;d0/d1 are x/y distances which are converted into direction 0-7 and
 
 GetHot								;push long address of structure to get hot spot from. Hot spot x/y
 									;returned in d0/d1. Reads a byte pair per frame from HotList
-	movem.l	a0-a1,-(sp)
+	movem.l	a0-a1,-(sp)				;$C(sp) = the address the caller pushed (above 2 longs and the return
+									;address)
 	movea.l	$C(sp),a0				;a0 = structure address pushed by the caller (above the return address)
 	clr.w	d0
 	clr.w	d1
