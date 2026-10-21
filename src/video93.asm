@@ -576,7 +576,7 @@ checksso							;do graphics for sso structure: arrows for the two players when t
 	bset	#dbut,d2				;dbut
 .3	tst.w	d2						;test: any direction off screen?
 	beq.w	rtss					;on screen: no arrow
-	movea.l	#jdtab,a1				;Rev A operand $DA88
+	movea.l	#jdtab,a1
 	move.b	(a1,d2.w),d2			;direction 0-7
 	asl.w	#3,d2
 	movea.l	#.tab,a1

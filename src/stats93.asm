@@ -941,7 +941,7 @@ attribjmp							;GetNameandAttrib column handlers, offsets from attribjmp
 	dc.w	AttribFighting-attribjmp
 	dc.w	AttribRating-attribjmp
 
-AttribStatus						;Roster column: status. Player d0's word at $66(a2) negative = not'ed
+AttribStatus						;Roster column: status. Player d0's tmpdst word in a2 negative = not'ed
 									;status 0-2 (Ice/Bench/Injury P), positive = penalty time (bit $C injured
 									;G, bit $E prints C)
 	add.w	d0,d0					;word index by player
@@ -983,7 +983,7 @@ StatusTextTbl						;AttribStatus strings
 	dc.w	$0006
 	dc.b	' C  '
 
-AttribEnergy						;Roster column: energy. $32(a2) word / 40, max 100
+AttribEnergy						;Roster column: energy. tmpde word / 40, max 100
 	add.w	d0,d0					;word index by player
 	move.w	tmpde(a2,d0.w),d0
 	ext.l	d0

@@ -542,7 +542,7 @@ printbig							;same as print, only use bigfont.map graphics. a1 = string macro,
 .dump	add.w	d6,d3				;write tile d3 (+ attribute/char base d6) at d4/d5 of map printm
 	movem.l	d1/a0,-(sp)
 	move.w	d5,d0
-	movea.l	#VmMAP1,a0				;$FFFFB004
+	movea.l	#VmMAP1,a0
 	adda.w	(printm).w,a0
 	move.w	2(a0),d1
 	asl.w	d1,d0

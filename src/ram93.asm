@@ -2,7 +2,7 @@
 ;	Equates only: it adds nothing to the ROM. Rev A adds PalMode/music_tick_divider.
 ;
 ;	Hardware ports, screen and sound constants, button bits and rink distances come first. Then the work RAM
-;	map from $FFFF0000 (replay frame buffer up to varstart $FFFFB000), then the variables allocated with rs
+;	map from M68K_RAM (the replay frame buffer up to varstart), then the variables allocated with rs
 ;	from varstart: video and print state, sort objects, flags, team and game structures, menu and sound state.
 
 ;video and sound ports
@@ -28,7 +28,7 @@ MaxSprites	=	64					;max sprites during game (64 because 32 col mode)
 refwidth	=	7					;width of ref.map frames
 refheight	=	8					;height of ref.map frames
 
-Stack	=	$FFFFFFFE				;game stack (Begin, StartPer, Opening2). 92 $fffffdf0
+Stack	=	$FFFFFFFE				;game stack (Begin, StartPer, Opening2)
 ;$FFFFFFFF: not used
 
 ;joystick button equates (bit numbers)
@@ -104,7 +104,7 @@ GoalieStruct	=	$FFFFAFCA		;below varstart
 
 replaysize	=	98					;number of bytes per replay frame (92 84)
 replaynum	=	((varstart-replaystart)/replaysize)-1	;number of frames for replay
-replayend	=	replaystart+(replaynum*replaysize)	;end of replay ram ($FFFFAF54)
+replayend	=	replaystart+(replaynum*replaysize)	;end of replay ram
 
 Sortobjs	=	16					;number of sorted graphics objects- these are arranged so sprites lower on
 									;the screen are of higher priority
@@ -537,7 +537,7 @@ screentimer			rs.w	1		;frames left on a screen (ScoutingReport); last cursor row
 TestList			rs.w	122		;scouting report: list of the lines to show (also the line editor cursor
 									;and slots)
 nibblebuffer		rs.w	6		;UnpackNibbles words, WeightedRandomSelect weights.
-varend		=	nibblebuffer+8		;end of the variables cleared by Opening2 ($FFFFCAD2). 92 had a varend
+varend		=	nibblebuffer+8		;end of the variables cleared by Opening2. 92 had a varend
 									;label after TickerNum
 OptPlayMode	rs.w	1				;play mode
 OptNOP		rs.w	1				;number of players (92 OptNOP)

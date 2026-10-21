@@ -82,9 +82,9 @@ StartGame							;reset game state for a new game, then start the first period
 	jsr	setupice
 	jmp	(IntermissionStart).l		;on to period start
 
-ClearShotData						;clear 49 words at $FFCB0A
+ClearShotData						;clear the 49 words of outputbuffer (the shot data)
 	moveq	#$30,d0
-	movea.w	#(outputbuffer-M68K_RAM),a0	;Rev 0 (v1.0) shot buffer (Rev A outputbuffer: $CB0E)
+	movea.w	#(outputbuffer-M68K_RAM),a0	;shot data buffer
 .0	clr.w	(a0)+					;clear one word
 	dbf	d0,.0
 	rts
@@ -1669,10 +1669,10 @@ holdcheck							;player a2 is in hold animation looking to hold opponent a3. Ent
 	bsr.w	checkagr
 	cmp.w	#6,d0
 	bhi.w	.ex
-	move.w	#$24,d0					;penalty $24 after $CE2 (92 used $1E)
+	move.w	#$24,d0					;holding (92 used penalty $1E)
 	cmpi.w	#SPAHold2,SPA(a3)
 	beq.w	.pen
-	move.w	#$1E,d0					;penalty $1E after $130E
+	move.w	#$1E,d0					;hooking
 .pen	bsr.w	AddPenalty			;call the penalty
 .ex	exg	a2,a3						;swap back
 	st	(collflag).w
@@ -1749,7 +1749,7 @@ FallDown							;player a2 falls down, player a3 is the hitting player. Some play
 	addi.w	#$10,d0
 	cmp.w	impact(a2),d0
 	ble.w	.fall
-	move.b	#$3C,nopuckb(a2)		;no second $13A0 until the timer runs out
+	move.b	#$3C,nopuckb(a2)		;no second stumble until the timer runs out
 	bra.w	.2
 
 .fall	tst.w	position(a3)		;position: no check stats for a goalie hitter
@@ -1984,8 +1984,8 @@ checkfight							;look for start of fight between players a2 & a3. Called from c
 	bra.w	SetSPA
 
 SetInst								;d0 = fight rating a3 needs. Called twice from checkfight (a2/a3 swapped)
-									;Returns unless a3's fight rating ($74) >= d0, a2's >= 2 and a2's >= $10 -
-									;2 * a2's check count ($11C in its team struct). Then sets pf2fight on a2
+									;Returns unless a3's fighting rating >= d0, a2's >= 2 and a2's >= $10 -
+									;2 * a2's pchecks. Then sets pf2fight on a2
 									;and a3. If a3 was not already fighting, OptPen is not 0 and HV counter &
 									;3 is 0, calls AddPenalty2 with penalty $2A (92 used $22) and a3 = the
 									;first skater on a3's team (not a3) that has no penalty and is available.
@@ -2294,7 +2294,7 @@ Goal								;puck in goal. a3 = puck. Entered from checkgoal new song, sfx 0, sc
 .noast	move.w	tmgoalie(a1),d0		;goalie of the other team gets a goal against
 	bmi.w	.pen
 	addi.w	#$B4,d0
-	addq.b	#1,(a1,d0.w)			;other team byte $B4 + $26(a1) +1
+	addq.b	#1,(a1,d0.w)			;tmgoals of the other team's goalie +1
 .pen	bsr.w	PenGoalStuff		;penalty and goal bookkeeping
 	bsr.w	printscores1
 	move.l	#7,d0					;assignment 7 (92 used 8)
@@ -3180,7 +3180,7 @@ setpersonel							;this will set personel on team a2 according to team a2's regi
 	rts
 
 SetPlList							;create list (PlList) of players who we want on the ice now a2 = team
-									;struct. Reads the lines from the team struct ($16A), and falls back to
+									;struct. Reads the lines from tmlines, and falls back to
 									;every roster player when sublist has no free player
 	movea.w	#(PlList-M68K_RAM),a4
 	clr.l	(a4)
@@ -4026,7 +4026,7 @@ Opening2							;reset the stack and clear the variables, then options, playoff s
 	bsr.w	KillCrowd				;stop the crowd sound
 	move.w	#$2700,sr
 	movea.w	#(Stack-M68K_RAM),sp
-	movea.w	#(VSCRLPM-M68K_RAM),a0	;varstart ($FFB000)
+	movea.w	#(VSCRLPM-M68K_RAM),a0	;varstart
 .0	clr.l	(a0)+					;clear the variable area up to varend
 	cmpa.w	#(varend-M68K_RAM),a0	;varend
 	blt.s	.0
@@ -5578,8 +5578,8 @@ setoptions_printpos2				;set the print position of team a2's player name: x 2 (v
 	move.w	#$1A,(printx).w			;home team on the right
 	rts
 
-PickStartingGoalie					;pick the goalie shown for team a2 when it changes: $26(a2) = weighted
-									;random roster index from the 4 nibbles at team data +$A offset
+PickStartingGoalie					;pick the goalie shown for team a2 on a change: tmgoalie(a2) = weighted
+									;random roster index from the 4 nibbles in the team data
 									;(UnpackNibbles / WeightedRandomSelect). $26 stays 0 when a pad controls
 									;the team, gamelevel > 2 or OptLine is set. Called from UpdateRosterPlayer
 	movem.l	d0/a0,-(sp)
@@ -5622,9 +5622,9 @@ UpdateRosterPlayers					;run the roster player in both team blocks and build the
 	movem.l	(sp)+,d0-d7/a0-a6
 	rts
 
-UpdateRosterPlayer					;roster player of team a2 (sprite struct a3 = $22(a2), tmsort). When the
+UpdateRosterPlayer					;roster player of team a2 (sprite struct a3 = tmsort(a2)). When the
 									;team (tmteam, set by setteams) differs from the one shown ((a2)), start
-									;over. Bit 2 of $30(a2) set: slide the player out 3 per frame, then
+									;over. tmfslide of tmflags(a2) set: slide the player out 3 per frame, then
 									;SetupNextPlayer. Else slide in 1 per frame, run updateanim, and when the
 									;animation is done step the RosterAnimScripts script (8(a2) = script,
 									;tmrosstep(a2) = offset). A negative direction also prints the player's
@@ -5713,8 +5713,8 @@ UpdateRosterPlayer					;roster player of team a2 (sprite struct a3 = $22(a2), tm
 	addq.w	#1,(printy).w
 	bra.w	print					;line 2 = last name
 
-SlideOutRosterPlayer				;erase the name of team a2 and set bit 2 of
-									;$30(a2) (slide the player out).
+SlideOutRosterPlayer				;erase the name of team a2 and set tmfslide in
+									;tmflags(a2) (tmfslide: slide the player out).
 									;Called and branched to from UpdateRosterPlayer
 	bsr.w	ClearRosterName
 	bset	#tmfslide,tmflags(a2)
@@ -5722,7 +5722,7 @@ SlideOutRosterPlayer				;erase the name of team a2 and set bit 2 of
 
 SetupNextPlayer						;player of team a2 slid out. Load the team palette (setplayercolors.sp),
 									;put the sprite at x offset -40, take the next RosterOrderTable slot
-									;(goalie slot: $26(a2)), set the sprite flag from the player data and pick
+									;(goalie slot: tmgoalie(a2)), set the sprite flag from the player and pick
 									;his animation script from the ratings. Branched to from
 									;UpdateRosterPlayer
 	movea.l	tmdata(a2),a0
@@ -5856,8 +5856,8 @@ UpdateTeamSprites					;sprite list for the two roster players. a5 = DMAList, a6 
 	bset	#dfok,(disflags).w
 	rts
 
-AddTeamSpriteFrame					;add player a3 (x = (a3) + $1C offset, y = $14) and a GameSetupMap frame 1
-									;sprite at y $80, x $80 + ($24/2 mod 48), +$C0 when $62(a3) bit 6 is
+AddTeamSpriteFrame					;add player a3 (x = Xpos + rosxoff, y = Ypos) and a GameSetupMap frame 1
+									;sprite at y $80, x $80 + ($24/2 mod 48), +$C0 when pflags(a3) bit 6 is
 									;clear. Called from UpdateTeamSprites
 	move.w	(a3),d0
 	add.w	rosxoff(a3),d0
@@ -6328,8 +6328,8 @@ GetShifter							;returns:
 
 AddPlayoffTeamStats					;Adds the po team's game stats to its packed playoff totals. Called from
 									;PeriodOver at the end of a playoff game. Unpacks the totals
-									;(ReadTeamStats), adds the $68 stat bytes at team struct+$B4, then packs
-									;each total back into the bit stream below $CB68, clamped to its
+									;(ReadTeamStats), adds the $68 stat bytes from tmgoals on, then packs
+									;each total back into the bit stream in outputbuffer, clamped to its
 									;BitWidthTable width (8, 10, 6, 6 bits, by d0 & 3).
 	cmpi.w	#1,(OptPlayMode).w
 	blt.w	rtss					;regular season
@@ -6383,7 +6383,7 @@ BitWidthTable						;playoff stat bit widths, indexed by stat number & 3.
 									;Used by AddPlayoffTeamStats and ReadTeamStats.
 	dc.b	8,$A,6,6
 
-ReadTeamStats						;Unpack the $68 playoff stat totals from the bit stream below $CB68 into
+ReadTeamStats						;Unpack the $68 playoff stat totals from the outputbuffer bit stream into
 									;statsbuffer words. Called from AddPlayoffTeamStats and
 									;PlayoffStatsScreen.
 	movea.w	#(statsbuffer-M68K_RAM),a0
@@ -6419,8 +6419,8 @@ ReadTeamStats						;Unpack the $68 playoff stat totals from the bit stream below
 ;	A goal entry (ScoreSum, 6 bytes): word period/time, byte 2 bit 7 away team scored, byte 3 scorer, bytes 4
 ;	and 5 assists (negative: none). ChkCnt + ScoreSumbytes is the last entry.
 ;
-;	Per roster slot (26 slots) the team struct keeps goals ($B4, goals against for a goalie), assists ($CE),
-;	shots ($E8, shots against for a goalie) and frames on ice (word $136).
+;	Per roster slot (26 slots) the team struct keeps goals (tmgoals; goalies: against), assists (tmassists),
+;	shots (tmpshots, shots against for a goalie) and frames on ice (tmpice, words).
 
 ResolveGames						;compute winners and losers for playoff matchups. Called from EncodePW
 	move.w	(gamenum).w,d0

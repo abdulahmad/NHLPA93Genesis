@@ -599,7 +599,7 @@ updatepentime						;update the time remaining on all penalized players, once a s
 	bsr.w	ProcessPenaltyList
 	adda.w	#tmsize,a2
 
-ProcessPenaltyList					;from 92 updatepentime .ut. a2 = team. Walks the penalty box list ($9A):
+ProcessPenaltyList					;from 92 updatepentime .ut. a2 = team. Walks tmboxlist:
 									;the first two players without a coincidental penalty count down one
 									;second and the rest wait. Beeps when the first served time gets to 5 or
 									;less and releases the player at 0. Coincidental penalties count down on
