@@ -9,6 +9,10 @@
 Asound	=	$c00011					;analog sound (PSG)
 Vdata	=	$c00000					;video ports
 Vctrl	=	Vdata+4					;video control port (Vdata+4)
+VRAM_W	=	$40000000				;VDP command: VRAM write, address 0 (address bits 16-29 and 0-1)
+CRAM_W	=	$C0000000				;VDP command: CRAM write, address 0
+VSRAM_W	=	$40000010				;VDP command: VSRAM write, address 0
+jimtiles	=	$A					;JIM graphics file header size: the tile data starts here
 HVcount	=	$c00008					;Video port
 
 ;hardware
@@ -168,6 +172,8 @@ Zpos		=	$18					;height above the ice
 OldXpos		=	$1C					;x position before the last move
 OldYpos		=	$20					;y position before the last move
 OldZpos		=	$24					;height before the last move
+rosxoff		=	OldXpos				;roster screen: sprite x offset from Xpos (slides -40..+40)
+rosslide	=	OldZpos				;roster screen: slide counter, sets the x of the name block sprite
 Xvel		=	$28					;x velocity
 Yvel		=	$2A					;y velocity
 Zvel		=	$2C					;z velocity (vertical)
@@ -191,7 +197,9 @@ facedir		=	$54					;direction of facing
 SPA			=	$58					;animation
 SPAnum		=	$5A					;index into animation
 SPAcnt		=	$5C					;count down to next frame of animation
+SPAattr		=	$10					;SPA table: attribute word after the 8 direction offsets (bit 0 = loop)
 nopuck		=	$5E					;no puck coll until zero
+nopuckb		=	$5F					;second count down (low byte of nopuck)
 newpos		=	$60					;requested next position of this player
 newpnum		=	$61					;requested next player (from roster) for this player
 pflags		=	$62					;player flags (pfdoff, pfna, pfnc, pfjoycon,
@@ -230,6 +238,8 @@ spodds		=	$70					;attribute byte set by setplayer (goalies: 92 GSSleft)
 stickhand	=	$71					;stick handling (puck control and steal odds; goalies: 92 GGSleft)
 endurance	=	$72					;endurance (how fast the energy runs out; goalies: 92 GSSright)
 aggress		=	$73					;and offset
+fighting	=	$74					;fighting rating (fight strength and fight odds)
+checking	=	$75					;checking rating (check odds)
 handed		=	$76					;bit0 set is left handed. 92 $74
 SortCords	rs.b	Sortobjs*SCstruct	;the sort objects: 12 players, the puck and its shadow, 2 spare
 										;(SCstruct bytes each)
@@ -279,6 +289,10 @@ pads				rs.w	42		;face off objects tied to the rink scroll: the 3 pads and the c
 ffosize				=	OldXpos		;field objects tied to icerink scrolling, OldXpos bytes each
 CameraPosStruct		rs.w	11		;scroll camera: tracked object, target and the lead on the scroll
 									;(UpdateCameraPos)
+camtrack			=	$16			;camera struct: SCnum of the object tracked in replay (the struct
+									;stands in for a sort object: Xpos/Ypos are its position)
+camidle				=	$18			;camera struct: $FF while the replay d-pad is idle, cleared on scroll
+									;or track (never read)
 replayactive		rs.w	3		;set by ReplayMode.
 glovestruct			rs.w	14		;gloves object, pads+(4*ffosize).
 PadControlBits		rs.w	1		;pad assignment bits: $FFFF = no pad assignments (set at game setup); the
@@ -448,9 +462,27 @@ tmftimeout	=	2					;timeout used (the pause menu drops Timeout from then on). Th
 tmfmid		=	tmftimeout			;nearest player always takes the in-between spot (assnearest), so a team
 									;that used its timeout does too
 tmfslide	=	tmftimeout			;roster screen: the player name is sliding out (UpdateRosterPlayer)
+tmrosstep	=	tmATOP				;roster screen: byte offset of the current RosterAnimScripts step
+tmfowon		=	$E					;face-offs won stat
+tmchecks	=	$10					;checks stat
+tmpasses	=	$12					;passes stat
+tmpasscomp	=	$14					;completed passes stat
+tmtouch1	=	$18					;last touch (team/pnum word): the scorer
+tmtouch2	=	$1A					;second last touch (first assist)
+tmtouch3	=	$1C					;third last touch (second assist)
+tmteam		=	$28					;team number (TeamList index) of this team struct
+tmnear		=	$2A					;long: nearest skater's distance^2 to the puck (assnearest)
+tmlcchoice	=	$2E					;line change box row chosen (0-2)
 tmpde		=	$32					;energy level of each roster player. 92 $20
 maxros		=	26					;roster slots per team
 tmpdst		=	tmpde+(2*maxros)	;-2=bench/-1=ice/0+=penalty box. 92 $54
+tmboxlist	=	tmpdst+(2*maxros)	;penalty box list of roster players (bytes, negative ends)
+tmgoals		=	$B4					;goals per roster player (goalies: goals against), bytes
+tmassists	=	tmgoals+maxros		;assists per roster player (bytes)
+tmpshots	=	tmgoals+(2*maxros)	;shots per roster player (goalies: shots against), bytes
+pchecks		=	$11C				;checks per roster player (bytes)
+tmpice		=	$136				;frames on ice per roster player (words)
+tmlines		=	$16A				;line sets copied from the team data (LineSets), 7 lines x 8 bytes
 tmsize		=	$1A2				;92 $88
 tmstruct	rs.b	tmsize			;home team structure (tmsize bytes)
 HomeTeamRosterPtr	=	tmstruct+tmdata	;home team roster address (tmdata of the home team)
