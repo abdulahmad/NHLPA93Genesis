@@ -189,7 +189,7 @@ stop_current_song					;stop the song in progress: free the first slot whose poin
 ReadPads							;Rev B: read both controllers once a frame, from the vblank, with the Z80
 									;bus held. The raw bytes go to PadRaw1/PadRaw2 for ReadJoy1/ReadJoy2
 	move.w	#$100,(IO_Z80BUS).l		;turn off z80
-.wait	btst	#0,(IO_Z80BUS).l
+.wait	btst	#0,(IO_Z80BUS).l	;wait for the Z80 to give up the bus
 	bne.b	.wait
 	lea	(Joy1).l,a0
 	bsr.w	ReadPadByte

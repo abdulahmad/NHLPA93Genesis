@@ -435,7 +435,7 @@ appstring							;append string a1 to string a3
 .2	move.b	(a1)+,(a0)+				;copy one char
 	bne.w	.3
 	subq.w	#1,a0					;a zero byte is not kept, so it gets overwritten next
-.3	dbf	d0,.2
+.3	dbf	d0,.2						;next char
 	move.l	a0,d0
 	btst	#0,d0
 	beq.w	.4

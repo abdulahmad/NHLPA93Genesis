@@ -528,7 +528,7 @@ DoDMA								;initiate dma transfer (dma transfer bug is compensated for). d0 = 
 	adda.w	d0,a0
 	move.w	d2,d0					;second part: the rest, falls into .nd
 	bra.w	.nd
-.dd	IF REV=2
+.dd	IF REV=2						;first part entry: save the registers its rts pops
 	movem.l	d2-d3/a1,-(sp)			;entry for the first part (so its rts pops the same registers)
 	ELSE
 	movem.l	d2/a1,-(sp)				;entry for the first part (so its rts pops the same registers)
@@ -569,7 +569,7 @@ DoDMA								;initiate dma transfer (dma transfer bug is compensated for). d0 = 
 	move.w	sr,-(sp)
 	move.w	#$2700,sr				;no interrupt while the Z80 is off the bus
 	move.w	#$100,(IO_Z80BUS).l		;turn off z80
-.zw	btst	#0,(IO_Z80BUS).l
+.zw	btst	#0,(IO_Z80BUS).l		;wait for the Z80 to give up the bus
 	bne.b	.zw
 	move.w	(dmaram+2).w,(a1)
 	move.w	(dmaram).w,(a1)			;this write starts the dma
@@ -583,7 +583,7 @@ DoDMA								;initiate dma transfer (dma transfer bug is compensated for). d0 = 
 	andi.w	#3,d3
 	move.l	d3,(a1)					;vram write command, no dma
 	move.w	(a0),-4(a1)
-.ok	move.w	(sp)+,sr
+.ok	move.w	(sp)+,sr				;restore the interrupt level
 	movem.l	(sp)+,d2-d3/a1
 	rts
 	ELSE
@@ -635,7 +635,7 @@ DoDMA_nd2							;vram to vram copy by dma (reg 23 = $C0), protected from vblank.
 	IF REV=2
 	move.l	d0,(dmaram).w
 	move.w	#$100,(IO_Z80BUS).l		;turn off z80
-.zw	btst	#0,(IO_Z80BUS).l
+.zw	btst	#0,(IO_Z80BUS).l		;wait for the Z80 to give up the bus
 	bne.b	.zw
 	move.w	(dmaram).w,(a1)
 	move.w	(dmaram+2).w,(a1)
@@ -667,7 +667,7 @@ DoFill								;fill vram. d0 = words to fill, d1 = vram address, d2 = data to fi
 	move.w	d2,d3					;d3 = fill word twice, for long writes
 	lsr.w	#1,d0					;words -> longs
 	subq.w	#1,d0
-.0	IF REV=2
+.0	IF REV=2						;loop: fill one long
 	move.l	d3,(dmaram).w			;Rev B writes the long from ram, as DoDMA does
 	move.w	(dmaram).w,(a1)
 	move.w	(dmaram+2).w,(a1)
