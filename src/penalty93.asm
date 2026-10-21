@@ -120,7 +120,7 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 	bne.s	.0
 	subq.w	#4,a0					;a0 = last entry (penalty byte, player byte)
 	bclr	#7,1(a0)				;bit 7 of the player byte = called but not yet
-	;logged (set in checkfornewpen)
+									;logged (set in checkfornewpen)
 	bne.w	.Sa						;first pass: log it
 	;later pass: wait until the penalized player has left the ice (position negative), then drop the entry
 	move.l	a3,-(sp)

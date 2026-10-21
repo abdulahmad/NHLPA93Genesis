@@ -6,7 +6,7 @@
 ;	ratings, scoring odds, line sets (7 lines of 8 bytes), players, team name and abbreviation.
 
 null								;92 null: a zero long at $310, used as the tile pointer when there is
-	;nothing to draw (no tiles)
+									;nothing to draw (no tiles)
 	dc.l	$0000
 
 TeamList							;table of long pointers to the team records, indexed by team number
