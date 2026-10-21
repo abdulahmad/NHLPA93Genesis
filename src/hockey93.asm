@@ -3403,23 +3403,23 @@ setplayer							;bring player onto the ice and set his stats
 .nomod	movea.l	(sp)+,a0			;tmdata
 	adda.w	(a0),a0					;roster records
 .find	adda.w	(a0),a0				;skip name
-	addq.w	#8,a0					;skip 8 attribute bytes
+	addq.w	#pldsize,a0				;skip 8 attribute bytes
 	dbf	d3,.find
-	subq.w	#8,a0					;a0 = player d3's attribute bytes
+	subq.w	#pldsize,a0				;a0 = player d3's attribute bytes
 	;roster attribute bytes (a0): 0 rostnum; 1 weight/legstr; 2 legspd/aioff; 3 aidef/shotspd;
 	;4 checking/fight/handed; 5 stickhand/shotacc; 6 endurance/spodds; 7 passacc/aggress
 	move.b	(a0),rostnum(a3)
-	move.b	1(a0),d3
+	move.b	pldweight(a0),d3
 	andi.w	#$F0,d3
 	lsr.w	#1,d3					;(92 no shift)
 	move.b	d3,weight(a3)
-	move.b	1(a0),d3
+	move.b	pldweight(a0),d3
 	andi.b	#$F,d3
 	move.b	d3,legstr(a3)
-	move.b	2(a0),d3
+	move.b	pldlegspd(a0),d3
 	lsr.b	#4,d3
 	move.b	d3,legspd(a3)
-	move.b	2(a0),d3
+	move.b	pldlegspd(a0),d3
 	andi.b	#$F,d3
 	add.b	(PPBonus).w,d3
 	add.b	(PKBonus).w,d3
@@ -3430,7 +3430,7 @@ setplayer							;bring player onto the ice and set his stats
 	addi.b	#$F,d3					;frames to skip
 	lsr.b	#1,d3
 	move.b	d3,aioff(a3)
-	move.b	3(a0),d3
+	move.b	pldaidef(a0),d3
 	lsr.b	#4,d3
 	add.b	(HmAwBonus).w,d3
 	bsr.w	ClampNibble
@@ -3438,50 +3438,50 @@ setplayer							;bring player onto the ice and set his stats
 	addi.b	#$F,d3					;frames to skip
 	lsr.b	#1,d3
 	move.b	d3,aidef(a3)
-	move.b	3(a0),shotspd(a3)
+	move.b	pldaidef(a0),shotspd(a3)
 	andi.b	#$F,shotspd(a3)
-	move.b	4(a0),d3
+	move.b	pldcheck(a0),d3
 	lsr.b	#4,d3
 	add.b	(ThirdPBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,checking(a3)			;checking rating
 	bclr	#3,attribute(a3)
-	move.b	4(a0),handed(a3)
+	move.b	pldcheck(a0),handed(a3)
 	andi.b	#1,handed(a3)			;bit 0 set is left handed
 	bne.w	.ha
 	bset	#3,attribute(a3)
-.ha	move.b	4(a0),fighting(a3)		;fight rating = byte 4 & $E
+.ha	move.b	pldcheck(a0),fighting(a3)	;fight rating = byte 4 & $E
 	andi.b	#$E,fighting(a3)
-	move.b	5(a0),d3
+	move.b	pldstick(a0),d3
 	lsr.b	#4,d3
 	add.b	(PPBonus).w,d3
 	add.b	(PKBonus).w,d3
 	add.b	(HmAwBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,stickhand(a3)
-	move.b	5(a0),d3
+	move.b	pldstick(a0),d3
 	andi.b	#$F,d3
 	add.b	(PPBonus).w,d3
 	add.b	(PKBonus).w,d3
 	add.b	(HmAwBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,shotacc(a3)
-	move.b	6(a0),d3
+	move.b	pldendur(a0),d3
 	lsr.b	#4,d3
 	move.b	d3,endurance(a3)
-	move.b	6(a0),d3
+	move.b	pldendur(a0),d3
 	andi.b	#$F,d3
 	add.b	(ThirdPBonus).w,d3
 	add.b	(ThirdPBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,spodds(a3)
-	move.b	7(a0),d3
+	move.b	pldpass(a0),d3
 	lsr.b	#4,d3
 	add.b	(PPBonus).w,d3
 	add.b	(HmAwBonus).w,d3
 	bsr.w	ClampNibble
 	move.b	d3,passacc(a3)
-	move.b	7(a0),aggress(a3)		;aggress
+	move.b	pldpass(a0),aggress(a3)	;aggress
 	andi.b	#$F,aggress(a3)
 	rts
 
@@ -4638,7 +4638,7 @@ UpdateScoutingDisplay				;called every frame by ScoutingReport. When ScoutingRep
 	adda.w	(a1),a1					;player data
 	bra.w	.pn
 .pl	adda.w	(a1),a1					;skip name and 8 bytes of ratings
-	addq.w	#8,a1
+	addq.w	#pldsize,a1
 .pn	dbf	d1,.pl						;step through d1 roster records
 	bra.w	.name
 .away	movea.l	(AwayTeamRosterPtr).w,a1	;away team name
@@ -5804,7 +5804,7 @@ GetRosterEntry						;a0 = roster entry d0 of team a2 (name string, then 8 bytes:
 	adda.w	(a0),a0					;player data
 	bra.w	.cnt
 .next	adda.w	(a0),a0				;skip the name
-	addq.w	#8,a0
+	addq.w	#pldsize,a0
 .cnt	dbf	d0,.next				;d0 entries to skip
 	rts
 
@@ -6913,7 +6913,7 @@ GetPlayerNamePointer				;a0 = name string of player d0 on team a2. From tmdata a
 	adda.w	(a0),a0
 	bra.w	.cnt
 .next	adda.w	(a0),a0				;skip the name
-	addq.w	#8,a0
+	addq.w	#pldsize,a0
 .cnt	dbf	d0,.next				;d0 entries to skip
 	rts
 

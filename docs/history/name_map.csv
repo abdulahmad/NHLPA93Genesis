@@ -208,3 +208,12 @@ Scouting.map.jim,EASNBG.map.jim,92G
 ScoutMap,EASNBGMap,92G
 TitlePalBuffer,palfadenew+$20,92G
 palbuffer,palfadenew+$40,92G
+(raw offset),pldnum,92G setplayer fields (.pld rating byte; as 94G)
+(raw offset),pldweight,92G setplayer fields (.pld rating byte; as 94G)
+(raw offset),pldlegspd,92G setplayer fields (.pld rating byte; as 94G)
+(raw offset),pldaidef,92G setplayer fields (.pld rating byte; as 94G)
+(raw offset),pldcheck,92G setplayer fields (.pld rating byte; as 94G)
+(raw offset),pldstick,92G setplayer fields (.pld rating byte; as 94G)
+(raw offset),pldendur,92G setplayer fields (.pld rating byte; as 94G)
+(raw offset),pldpass,92G setplayer fields (.pld rating byte; as 94G)
+(raw offset),pldsize,92G setplayer fields (.pld rating byte; as 94G)

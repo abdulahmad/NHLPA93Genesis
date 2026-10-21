@@ -907,7 +907,7 @@ GetNameandAttrib					;print player d0's name, then at x $1E the column picked by
 	movea.l	tmdata(a2),a0			;team data, player records
 	adda.w	(a0),a0
 .skip	adda.w	(a0),a0				;step over d0 records (+1 header) to player d0
-	addq.w	#8,a0
+	addq.w	#pldsize,a0
 	dbf	d0,.skip
 	clr.w	d0
 	clr.w	d1
@@ -2322,7 +2322,7 @@ DrawGoalieSelectList				;from 92 Pausemode .gnum. draw the goalie list, row menu
 	subq.w	#1,d2
 	bra.w	.3
 .skip	adda.w	(a1),a1				;next player record
-	addq.w	#8,a1
+	addq.w	#pldsize,a1
 .3	dbf	d2,.skip					;repeat d0-1 times
 	move.w	#8,(printx).w
 	bsr.w	print					;goalie name at x 8
@@ -2376,7 +2376,7 @@ GetPlayerCount						;d0 = players on team a2 (records until a length word of 2)
 loopthroughplayers					;one pass per record: advance by the record's length word plus 8 bytes
 	addq.w	#1,d0
 	adda.w	(a0),a0
-	addq.w	#8,a0
+	addq.w	#pldsize,a0
 	cmpi.w	#2,(a0)					;a length word of 2 marks the end (no more records)
 	bne.s	loopthroughplayers
 	movem.l	(sp)+,a0

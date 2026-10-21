@@ -1006,10 +1006,10 @@ pplpen								;?. Print one penalty box line: player number and time remaining. 
 	adda.w	(a1),a1					;a1 = roster in the team data
 	lsr.w	#1,d0					;d0 = player index
 .find	adda.w	(a1),a1				;skip d0+1 roster entries (name string + 8 bytes)
-	addq.w	#8,a1
+	addq.w	#pldsize,a1
 	dbf	d0,.find
 	clr.w	d0
-	move.b	-8(a1),d0				;player number (BCD)
+	move.b	pldnum-pldsize(a1),d0	;player number (BCD)
 	move.w	(printx).w,-(sp)
 	movea.w	#(TextBuffer-M68K_RAM),a1
 	bsr.w	ConvertByteToDigits		;two digits to TextBuffer
