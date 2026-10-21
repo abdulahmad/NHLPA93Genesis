@@ -2998,7 +2998,7 @@ puckgoalie							;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y Save
 	clr.w	Zvel(a3)
 	bra.w	puckglue				;goalie holds the puck
 
-.list	dc.w	aggress,passacc		;save attribute offsets (92 had stickhand,shotacc)
+.list	dc.w	GGSleft,passacc		;save attribute offsets (92 had stickhand,shotacc)
 	dc.w	spodds,endurance
 
 .list2								;odds for stopping puck in each quadrant for each possible goalie frame
