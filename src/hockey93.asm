@@ -3960,7 +3960,7 @@ setplayercolors						;copy in correct color data for each team. Called from setu
 .sp	movea.l	tmdata(a0),a2			;a0 = team struct, d1 = palette offset (0 home, $20 visitors)
 	adda.w	2(a2),a2				;Palettedata
 	adda.w	d1,a2
-	movea.w	#(palbuffer-M68K_RAM),a1	;+$40 (same address)
+	movea.w	#(palfadenew+$40-M68K_RAM),a1
 	adda.w	d1,a1
 	moveq	#7,d0
 .5	move.l	(a2)+,(a1)+				;copy 8 longs (one 16 color palette)
@@ -4096,7 +4096,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	lea	8(a1),a2
 	adda.l	(a1),a1
 	moveq	#7,d0
-	movea.w	#(palbuffer-M68K_RAM),a0
+	movea.w	#(palfadenew+$40-M68K_RAM),a0
 .pal	move.l	-$40(a0),$20(a0)	;pal 0 -> pal 3
 	move.l	(a1)+,-$40(a0)			;Titlemap2 palette -> pal 0
 	move.l	-$20(a0),(a0)+			;pal 1 -> pal 2
@@ -4237,12 +4237,12 @@ PlayoffScreenExit					;from 92 PlayoffScreen .exit. drop HandlePlayoffInput's re
 	rts
 
 waitxc1								;each time palcount runs out, eor the color
-									;word at palbuffer+2 with $EE and
+									;word at palfadenew+$42 with $EE and
 									;restart palcount at $18 (a color flash), then wait for the next vblank.
 									;Called from PlayoffScreen .input
 	tst.w	(palcount).w
 	bpl.w	.wait					;palcount still counting
-	eori.w	#$EE,(palbuffer+2).w
+	eori.w	#$EE,(palfadenew+$42).w
 	move.w	#$18,(palcount).w
 .wait	move.w	(Vcount).w,d0		;wait until the vblank handler bumps Vcount
 	cmp.w	(OldVcount).w,d0
@@ -4891,7 +4891,7 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	asl.w	#5,d0
 	lea	TitlePalettes(pc),a1		;one of 4 random palettes
 	adda.w	d0,a1
-	movea.w	#(TitlePalBuffer-M68K_RAM),a0
+	movea.w	#(palfadenew+$20-M68K_RAM),a0
 	moveq	#7,d0
 .tops0	move.l	(a1)+,(a0)+			;copy 8 longs = 16 colors
 	dbf	d0,.tops0
@@ -5020,7 +5020,7 @@ TitleAnimCallback					;CallAnimationCallback routine for the title
 
 TitleScrollTriggers					;Hscroll trigger points for the three TitleAnimCallback sprites
 	dc.w	$B2,$DA,$6C
-TitlePalettes						;four 16 color palettes for TitlePalBuffer, one
+TitlePalettes						;four 16 color palettes for palfadenew+$20, one
 									;picked at random by TitleScreen
 	dc.w	$EEA,$EEE,$CCC,$AAA,$888,$666,$444,$222,0,$66A,$46A,$446,$4A4,$484,$262,$40
 	dc.w	$EEA,$EEE,$CCC,$AAA,$888,$666,$444,$222,0,$66A,$46A,$446,$E44,$A44,$822,$400
@@ -5727,7 +5727,7 @@ SetupNextPlayer						;player of team a2 slid out. Load the team palette (setplay
 									;UpdateRosterPlayer
 	movea.l	tmdata(a2),a0
 	adda.w	2(a0),a0				;Palettedata
-	movea.w	#(palbuffer-M68K_RAM),a1
+	movea.w	#(palfadenew+$40-M68K_RAM),a1
 	moveq	#7,d0
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.pal

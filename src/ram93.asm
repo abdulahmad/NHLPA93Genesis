@@ -278,9 +278,7 @@ Vscroll			rs.w	1			;vertical scroll value
 wcradiusx		rs.w	1			;variables used in wall collisions
 wcradiusy		rs.w	1			;wall collision radius y (see wcradiusx)
 palcount		rs.w	1			;counter for fading in color palettes
-palfadenew		rs.w	16			;palettes to fade into
-TitlePalBuffer	rs.w	16			;title screen: palette fade buffer (16 colours)
-palbuffer		rs.w	32			;to palfadenew+$80
+palfadenew		rs.w	16*4		;palettes to fade into (+$20 the title palette, +$40 palettes 2-3)
 fofdata2	rs.l	2				;title screen: TitleAnimCallback timers; also the 2nd half of the face off
 									;frame/attribute data (see fofdata)
 fofdata				rs.l	1		;data for frame/att of big face off sprites

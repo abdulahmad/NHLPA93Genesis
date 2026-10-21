@@ -504,9 +504,9 @@ ClearLineEditorTop					;erase 40 x 10 at the top of map 2
 	move.w	#$7FF,d2
 	bra.w	eraser
 
-ClearMenuFlags						;clear palbuffer+$1A and palbuffer+$3A
-	clr.w	(palbuffer+$1A).w
-	clr.w	(palbuffer+$3A).w
+ClearMenuFlags						;clear palfadenew+$5A and palfadenew+$7A
+	clr.w	(palfadenew+$5A).w
+	clr.w	(palfadenew+$7A).w
 	rts
 
 	dc.w	$10,$C,4				;Entry used when OptLine is set
