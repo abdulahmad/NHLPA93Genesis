@@ -6,9 +6,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for how changes are made (names, comments
 
 ## 🚧 Current Status
 
-- About 90-95% done.
-- Remaining: a few small label fixes, another check of the file split, and confirming all assets are extracted.
-- Frame lists and animation names still need proper labels.
+- 99% done.
+- Remaining: any changes to make it consistent with the downstream disassemblies (93S, 94G, etc.).
 
 A work-in-progress attempt at reverse engineering a bitwise perfect compilable source of NHLPA Hockey 93 for Sega Genesis. Requires original ROM file to build.
 
