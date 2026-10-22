@@ -765,7 +765,7 @@ updatepwrplay						;show graphic and time remaining for power plays. Plays song 
 	move.w	#SngPP,-(sp)			;song only when team 1 (home) is on the power play
 	bsr.w	song
 .uppt	bsr.w	printz				;power play marker string at x 1, y $19, then the time left and the team
-									;name
+									;name (92 drew the marker with DoSmallLogo; 93 prints tiles $16-$19)
 	String	$BF,1,$19,'   ',$16,$17,$18,$19,$BF,1,$1A,'  ',0
 	bsr.w	GetLowestPen			;d0 = time left
 	bsr.w	PushTime				;a1 = m:ss string
