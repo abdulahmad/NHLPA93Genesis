@@ -3506,7 +3506,7 @@ ClampNibble							;clamp byte d3 to 0-15. Called by setplayer
 setupice							;set all variables, send non purgeable graphics, build sprite frame lists
 									;for ice rink.
 									;Called from StartGame and StartPer. 93 decompresses the tile sets with
-									;DecompressGraphicsPlain / DecompressGraphicsWithCallback
+									;DecompressGraphicsPlain / DecompressGraphicsWithRemap
 	movem.l	d0-d7/a0-a6,-(sp)
 	bset	#df32c,(disflags).w
 	move.w	#$C000,(VmMAP2).w		;map 2 address
@@ -3557,11 +3557,11 @@ setupice							;set all variables, send non purgeable graphics, build sprite fra
 	bsr.w	AddFramer				;Framer tiles (92 inline ReMap)
 	move.w	d4,(smallfontchars).w	;1st vram char for smallfont tiles
 	movea.l	#SmallFontMap+8,a2
-	bsr.w	DecompressGraphicsWithCallback
+	bsr.w	DecompressGraphicsWithRemap
 	dc.l	$43434567,$89ABCDEF		;remap table for the small font
 	move.w	d4,(BigFontchars).w		;1st vram char for Bigfont tiles
 	movea.l	#BigFontMap+8,a2
-	bsr.w	DecompressGraphicsWithCallback
+	bsr.w	DecompressGraphicsWithRemap
 	dc.l	$71234567,$89ABCDEF		;remap table for the big font
 
 	bsr.w	setupTeamBlocksMap		;team blocks for both teams
@@ -3674,7 +3674,7 @@ setupEASNmap						;from 92 setupice EASN block. Decompress the easn logo tiles t
 									;Return d4 = next free vram char
 	move.w	(EASNcset).w,d4
 	movea.l	#EASNmap+8,a2
-	bsr.w	DecompressGraphicsWithCallback
+	bsr.w	DecompressGraphicsWithRemap
 	dc.l	$71234567,$89ABCDEF		;remap table
 	rts
 
@@ -4348,7 +4348,7 @@ PlayoffScreenText					;round titles by gamelevel, printed with printsmall.
 ;	its credits scroller and vblank, the sprite list helpers, and an unreferenced sound test (CheckSound).
 ;
 ;	printz strings: first byte -$ab = map/attribute code ($FF = map 1), then x, y. printsmallz codes: $F8
-;	attribute,map,x,y; $F9 char set; $FC y; $FD x. DecompressGraphicsWithCallback is followed by its remap
+;	attribute,map,x,y; $F9 char set; $FC y; $FD x. DecompressGraphicsWithRemap is followed by its remap
 ;	table.
 
 ScoutingReport						;pregame scouting report. Called from PeriodOver.
@@ -4369,7 +4369,7 @@ ScoutingReport						;pregame scouting report. Called from PeriodOver.
 	bsr.w	AddSmallFont
 	move.w	d4,(smallfont2chars).w	;1st vram char of the 2nd small font set
 	movea.l	#SmallFontMap+8,a2
-	bsr.w	DecompressGraphicsWithCallback
+	bsr.w	DecompressGraphicsWithRemap
 	dc.l	$0A234567,$89ABCDEF		;remap table (Rev 0; / or.l)
 	bsr.w	AddFramer
 
@@ -4920,7 +4920,7 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	clr.w	(fofdata2+4).w
 	move.w	d4,(smallfontchars).w
 	movea.l	#SmallFontMap+8,a2
-	bsr.w	DecompressGraphicsWithCallback
+	bsr.w	DecompressGraphicsWithRemap
 	dc.l	$08F04567,$89ABCDEF		;remap table (Rev 0; #$67 / or.l)
 
 	bsr.w	printz
@@ -5215,11 +5215,11 @@ setoptions							;options screen display and input. Called from PeriodOver.
 	bsr.w	AddTeamBlock
 	move.w	d4,(framercset).w		;framer tiles loaded here
 	movea.l	#FramerMap+8,a2
-	bsr.w	DecompressGraphicsWithCallback
+	bsr.w	DecompressGraphicsWithRemap
 	dc.l	$01234562,$89ABCDEF		;remap table (Rev 0; / or.l)
 	move.w	d4,(smallfontchars).w	;small font loaded here
 	movea.l	#SmallFontMap+8,a2
-	bsr.w	DecompressGraphicsWithCallback
+	bsr.w	DecompressGraphicsWithRemap
 	dc.l	$0FC04567,$89ABCDEF		;remap table (Rev 0; / or.l)
 
 	bsr.w	printz

@@ -576,7 +576,7 @@ PKBonus				rs.b	1		;penalty kill bonus
 ThirdPBonus			rs.b	1		;third period bonus (2 when tied or trailing with half or more of the
 									;period left)
 HmAwBonus			rs.b	1		;home / visitor bonus
-callbackPtr			rs.l	1		;remap table for DecompressGraphicsWithCallback; 0 = plain DMA
+remapTablePtr		rs.l	1		;remap table for DecompressGraphicsWithRemap; 0 = plain DMA
 DispAttribCtr		rs.w	1		;stats screens: attribute page / sort column
 playoffscroll		=	DispAttribCtr	;reused: playoff screen scroll position
 scoutcolumn			=	DispAttribCtr	;reused: scouting report column

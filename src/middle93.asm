@@ -775,7 +775,7 @@ dobitmap							;transfer palette data/map data/tiles data to vram. a0 = palette,
 									;map, a2 = tiles (DecompressGraphics data), d0 = start x, d1 = start y, d2
 									;= width x, d3 = width y, d4 = start char, d5 = pal used bits (0-3) for
 									;color fam 1-4. printy is restored and the tiles go last through
-									;DecompressGraphics (returns d4 = end char)
+									;DecompressGraphics (returns d4 = one past the last char)
 	move.w	(printy).w,-(sp)		;keep printy
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
@@ -819,6 +819,6 @@ dobitmap							;transfer palette data/map data/tiles data to vram. a0 = palette,
 	move.w	(sp)+,(printy).w
 	rts
 
-	include decompress93.asm		;$00DD68-$00DF8D DecompressGraphicsWithCallback ...
+	include decompress93.asm		;$00DD68-$00DF8D DecompressGraphicsWithRemap ...
 	;FlushOutputBuffer (new in 93)
 	include print93.asm				;$00DF8E-$00E525 xyVmMap ... AddTeamBlock

@@ -1,4 +1,4 @@
-;	Tile decompressor, new in 93 (92 sent tiles straight to vram with DoDMA).
+;	Tile decompressor, new in 93 (92 sent tiles straight to vram with DoDMApro).
 ;	DecompressGraphics sends a graphic's tiles to vram. If the tile count has bit 15 set the tiles are packed:
 ;	DecompressBytecode unpacks them and FlushOutputBuffer sends each full 256 byte buffer to vram.
 ;
@@ -8,22 +8,22 @@
 ;	Build note: EA's compiler emits cmp #imm,Dn as CMP (Bxxx) but SNASM emits CMPI (0Cxx). The source has the
 ;	real cmp / exg; fixopcodes.js patches the encoding after assembly.
 
-DecompressGraphicsWithCallback		;DecompressGraphics through remap. The 8 bytes after the bsr are the remap
-									;color table (callbackPtr = their address); returns past them. a2 = tile
-									;data, d4 = start char
-	move.l	(sp),(callbackPtr).w
+DecompressGraphicsWithRemap			;DecompressGraphics through remap. The 8 bytes after the bsr are the remap
+									;color table (remapTablePtr = their address); returns past them. a2 =
+									;tile data, d4 = start char
+	move.l	(sp),(remapTablePtr).w
 	bsr.w	DecompressGraphics
 	addq.l	#8,(sp)					;skip the inline remap table
 	rts
 
-DecompressGraphicsPlain				;clear callbackPtr (plain DMA, no remap) and fall into DecompressGraphics.
+DecompressGraphicsPlain				;clear remapTablePtr (plain DMA, no remap), fall into DecompressGraphics.
 									;a2 = tile data, d4 = start char
-	clr.l	(callbackPtr).w
+	clr.l	(remapTablePtr).w
 
 DecompressGraphics					;send tiles to vram. a2 = data: word count of tiles (0 = none, bit 15 set
 									;= compressed by DecompressBytecode), then the tiles. d4 = start char,
-									;returns d4 = end char + 1. Uses remap with callbackPtr when it is set,
-									;else DoDMApro
+									;returns d4 = start char + count (one past the last char). Uses remap
+									;with remapTablePtr when it is set, else DoDMApro
 	movem.l	d0-d1/a0-a6,-(sp)
 	movea.l	a2,a0					;a0 = compressed data
 	move.w	d4,d1
@@ -34,9 +34,9 @@ DecompressGraphics					;send tiles to vram. a2 = data: word count of tiles (0 = 
 	add.w	d0,d4
 	asl.w	#4,d0					;words to transfer
 	pea	(.done).l
-	tst.l	(callbackPtr).w
+	tst.l	(remapTablePtr).w
 	beq.w	DoDMApro
-	movea.l	(callbackPtr).w,a1		;remap table
+	movea.l	(remapTablePtr).w,a1	;remap table
 	bra.w	remap
 
 .packed	andi.w	#$7FFF,d0			;tile count
@@ -45,44 +45,44 @@ DecompressGraphics					;send tiles to vram. a2 = data: word count of tiles (0 = 
 .done	movem.l	(sp)+,d0-d1/a0-a6	;also the return target of the plain/remap paths (pea above)
 	rts
 
-DecompressBytecode					;unpack a0 into the 256 byte ring buffer at decompbuffer and flush each
-									;full buffer to vram d3 (FlushOutputBuffer). The high nibble of each
-									;opcode byte picks a handler from jump_table. Ends on a
-									;CopyBackwardReverseMedium code with distance 0. d1 = vram address
+DecompressBytecode					;unpack a0 into the 256 byte ring buffer at decompbuffer, flushing each
+									;full buffer to vram (FlushOutputBuffer). d1 = vram address in (kept in
+									;d3; d1 then = buffer offset). The opcode high nibble picks a handler
+									;from DecompressOpcodeTable; a distance 0 ReverseMedium code ends it
 	movea.w	#(decompbuffer-M68K_RAM),a1	;output buffer
-	movea.w	#(decompbuffer-M68K_RAM),a3
-	movea.w	#(callbackPtr-M68K_RAM),a4
+	movea.w	#(decompbuffer-M68K_RAM),a3	;unused by the handlers
+	movea.w	#(remapTablePtr-M68K_RAM),a4
 	movea.l	#remap,a5
 	movea.l	#DoDMApro,a6
 	movem.l	d0-d3/a0-a2,-(sp)
 	move.w	d1,d3					;d3 = vram address
 	clr.w	d1						;d1 = output buffer offset
-	clr.w	d2
+	clr.w	d2						;scratch
 .loop	move.b	(a0)+,d0			;read opcode
 	andi.w	#$F0,d0
 	lsr.w	#3,d0					;upper nibble * 2
-	lea	jump_table(pc),a2
+	lea	DecompressOpcodeTable(pc),a2
 	move.w	(a2,d0.w),d0
 	jsr	(a2,d0.w)					;handler, reads its count from -1(a0)
 	bra.s	.loop
 
-jump_table							;DecompressBytecode handler offsets, one per opcode high nibble
-	dc.w	Opcode_CopyLiteral-jump_table	;0
-	dc.w	Opcode_CopyLiteral-jump_table	;1
-	dc.w	Opcode_ClearBytes-jump_table	;2
-	dc.w	Opcode_Fillbytes-jump_table	;3
-	dc.w	Opcode_CopyBackwardShort-jump_table	;4
-	dc.w	Opcode_CopyBackwardShort-jump_table	;5
-	dc.w	Opcode_CopyBackwardShort-jump_table	;6
-	dc.w	Opcode_CopyBackwardShort-jump_table	;7
-	dc.w	Opcode_CopyBackwardMedium-jump_table	;8
-	dc.w	Opcode_CopyBackwardLong-jump_table	;9
-	dc.w	Opcode_CopyBackwardExtended1-jump_table	;A
-	dc.w	Opcode_CopyBackwardExtended2-jump_table	;B
-	dc.w	Opcode_CopyBackwardReverseShort-jump_table	;C
-	dc.w	Opcode_CopyBackwardReverseShort-jump_table	;D
-	dc.w	Opcode_CopyBackwardReverseMedium-jump_table	;E
-	dc.w	Opcode_CopyBackwardReverseLong-jump_table	;F
+DecompressOpcodeTable				;DecompressBytecode handler offsets, one per opcode high nibble
+	dc.w	Opcode_CopyLiteral-DecompressOpcodeTable	;0
+	dc.w	Opcode_CopyLiteral-DecompressOpcodeTable	;1
+	dc.w	Opcode_ClearBytes-DecompressOpcodeTable	;2
+	dc.w	Opcode_FillBytes-DecompressOpcodeTable	;3
+	dc.w	Opcode_CopyBackwardShort-DecompressOpcodeTable	;4
+	dc.w	Opcode_CopyBackwardShort-DecompressOpcodeTable	;5
+	dc.w	Opcode_CopyBackwardShort-DecompressOpcodeTable	;6
+	dc.w	Opcode_CopyBackwardShort-DecompressOpcodeTable	;7
+	dc.w	Opcode_CopyBackwardMedium-DecompressOpcodeTable	;8
+	dc.w	Opcode_CopyBackwardLong-DecompressOpcodeTable	;9
+	dc.w	Opcode_CopyBackwardExtended1-DecompressOpcodeTable	;A
+	dc.w	Opcode_CopyBackwardExtended2-DecompressOpcodeTable	;B
+	dc.w	Opcode_CopyBackwardReverseShort-DecompressOpcodeTable	;C
+	dc.w	Opcode_CopyBackwardReverseShort-DecompressOpcodeTable	;D
+	dc.w	Opcode_CopyBackwardReverseMedium-DecompressOpcodeTable	;E
+	dc.w	Opcode_CopyBackwardReverseLong-DecompressOpcodeTable	;F
 
 Opcode_CopyLiteral					;opcodes 0-1, copy (low 5 bits)+1 bytes from the data
 	move.b	-1(a0),d0
@@ -104,7 +104,7 @@ Opcode_ClearBytes					;opcode 2, write (low 4 bits)+1 zero bytes
 .next	dbf	d0,.loop				;next zero byte
 	rts
 
-Opcode_Fillbytes					;opcode 3, write the next data byte (low 4 bits)+3 times
+Opcode_FillBytes					;opcode 3, write the next data byte (low 4 bits)+3 times
 	move.b	-1(a0),d0
 	andi.w	#$F,d0
 	addq.w	#2,d0
@@ -216,7 +216,7 @@ Opcode_CopyBackwardReverseMedium	;opcode E, reverse copy (low 4 bits)+3 bytes, d
 	tst.w	d1						;end of data
 	beq.w	.fin					;buffer empty
 	bsr.w	FlushOutputBuffer
-.fin	addq.w	#4,sp				;drop the return into DecompressBytecode
+.fin	addq.w	#4,sp				;drop the handler return: rts goes to DecompressBytecode's caller
 	movem.l	(sp)+,d0-d3/a0-a2
 	rts
 
@@ -233,7 +233,7 @@ Opcode_CopyBackwardReverseLong		;opcode F, reverse copy, count and distance as O
 	bra.s	CopyBackwardReverseRun
 
 FlushOutputBuffer					;send d1 bytes (0 = 256) of the ring buffer a1 to vram d3 and advance d3.
-									;(a4) = callbackPtr: set = remap with that table (jsr (a5)), clear =
+									;(a4) = remapTablePtr: set = remap with that table (jsr (a5)), clear =
 									;DoDMApro (jsr (a6))
 	movem.l	d0-d1/a0-a1,-(sp)
 	move.w	d1,d0
