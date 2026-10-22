@@ -937,7 +937,7 @@ updatesound							;move the crowd noise volume (psg noise channel) toward Crowdl
 .iasv	add.w	d2,(asv).w			;step asv toward the target
 	bpl.w	.non
 	clr.w	(asv).w
-.non	move.b	#$C8,(Asound).l		;psg: noise channel setup, then attenuation below
+.non	move.b	#$C8,(Asound).l		;psg: tone 3 frequency (noise rate), then the noise attenuation
 	move.b	#1,(Asound).l
 	move.b	(asv).w,d0
 	eori.b	#$F,d0
@@ -946,9 +946,9 @@ updatesound							;move the crowd noise volume (psg noise channel) toward Crowdl
 	rts
 
 KillCrowd							;silence the crowd noise (psg). Called from Reset, SetupPauseScreen, ...
-	move.b	#$E7,(Asound).l
-	move.b	#$DF,(Asound).l
-	move.b	#$C8,(Asound).l
+	move.b	#$E7,(Asound).l			;noise: white, rate from tone 3
+	move.b	#$DF,(Asound).l			;tone 3 off
+	move.b	#$C8,(Asound).l			;tone 3 frequency (the noise rate)
 	move.b	#1,(Asound).l
 	move.b	#$FF,(Asound).l			;noise channel off
 	rts
