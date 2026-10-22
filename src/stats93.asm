@@ -2109,7 +2109,7 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	;load the frame graphics and the small font tiles
 	move.w	(framercset).w,d4
 	movea.l	#FramerMap+8,a2
-	bsr.w	DecompressGraphicsWithCallback
+	bsr.w	DecompressGraphicsWithRemap
 	dc.l	$91234567,$89ABCDEF		;inline 8 byte color remap table (skipped on return, not code)
 	move.w	(smallfontchars).w,d4
 	bsr.w	AddSmallFont
@@ -2156,7 +2156,7 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	;char + 1)
 	move.w	d4,(smallfont2chars).w
 	movea.l	#SmallFontMap+8,a2
-	bsr.w	DecompressGraphicsWithCallback
+	bsr.w	DecompressGraphicsWithRemap
 	dc.l	$D1234567,$89ABCDEF		;inline 8 byte color remap table (skipped on return, not code) blank map 2
 									;(64x32 cells of char $7FF) from 0,0
 	bsr.w	printz
@@ -2196,7 +2196,7 @@ ExitStatsScreen						;leave a stats screen: back to 32 cell mode, reload the rin
 	bsr.w	DecompressGraphicsPlain
 	move.w	(smallfontchars).w,d4
 	movea.l	#SmallFontMap+8,a2
-	bsr.w	DecompressGraphicsWithCallback
+	bsr.w	DecompressGraphicsWithRemap
 	dc.l	$43434567,$89ABCDEF		;inline 8 byte color remap table (skipped on return, not code)
 	move.w	(framercset).w,d4
 	bsr.w	AddFramer
