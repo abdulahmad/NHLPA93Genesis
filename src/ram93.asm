@@ -190,6 +190,7 @@ printa			rs.w	1			;attribute for print characters
 printm			rs.w	1			;map to use (0 = map 1, 4 = map 2, 8 = map 3)
 printfontset	rs.w	1			;printsmall char set (index*2 into smallfontchars).
 ;printsmall control codes (byte value = -(ControlCodeJumpTable entry); names match the ControlCode_* routines)
+strtext				=	2			;String: start of the text after its length word
 CC_SetMap			=	$FF			;-1: next byte = map number -> printm
 CC_SetAttribute		=	$FE			;-2: next byte = palette/priority -> printa
 CC_SetX				=	$FD			;-3: next byte = printx

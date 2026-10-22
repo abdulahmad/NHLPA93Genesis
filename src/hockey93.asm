@@ -5702,7 +5702,7 @@ UpdateRosterPlayer					;roster player of team a2 (sprite struct a3 = tmsort(a2))
 	sub.w	d0,(printx).w			;center in 14 columns
 	bsr.w	print
 	move.w	d1,-(a0)				;length word in front of the last name
-	tst.b	2(a0)
+	tst.b	strtext(a0)
 	bne.w	.ln2
 	subq.w	#1,d1					;starts with the pad byte
 .ln2	movea.w	a0,a1				;a1 = last name string, center it too
