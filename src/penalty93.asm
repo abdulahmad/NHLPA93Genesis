@@ -1144,7 +1144,7 @@ SetupTeamForIntermission			;reset the bench, then for each team refill energy an
 	move.w	tmap(a3),d0
 	sub.w	tmap(a2),d0				;a3's players on ice minus a2's
 	beq.w	rtss					;even
-	move.w	#3,tmline(a3)			;Pw1
+	move.w	#3,tmline(a3)			;PP1
 	tst.w	d0
 	bpl.w	rtss					;a3 has more players: power play line
 	move.w	#5,tmline(a3)			;PK1
