@@ -9,7 +9,7 @@
 ;	and fixopcodes.js patches the encoding after assembly.
 
 	include	Main93.Asm				;EA provided code for startup and EA logo
-	include	TeamData93.Asm			;$000310-$004D8D
+	include	TeamData93.Asm			;null, TeamList ... CreditsPages
 	include	Frames93.Asm			;graphics data table for Sprites.anim
 	include	Ram93.Asm				;ram allocation and some equates	
 					;no ROM bytes (equates only)
@@ -446,8 +446,8 @@ seta2								;Set a2 to tmstruct of pause joystick
 	adda.w	#tmsize,a2
 .x	rts								;return
 
-	include menu93.asm				;$006A00-$006C09 InitMenuState ... MenuWaitVblank (menu engine)
-	include stats93.asm				;$006C0A-$008AC3 stats, attribute, game info screens
+	include menu93.asm				;InitMenuState ... MenuWaitVblank (menu engine)
+	include stats93.asm				;stats, attribute, game info screens
 ;------------------------------------------------------------
 ;	Instant replay, player and animation update, scroll window
 ;------------------------------------------------------------
@@ -1178,9 +1178,9 @@ checkwindow							;set hpos and vpos according to how screen should follow puck
 	rts
 
 
-	include logic93.asm				;$00946E-$00D5D1 doinput ... dirtab
-	include middle93.asm			;$00D5D2-$00E525 UnpackNibbles ... AddTeamBlock
-	include penalty93.asm			;$00E526-$00F757 AddPenalty ... AdvanceStringPtr, DoHiLights ... StartHL2
+	include logic93.asm				;doinput ... dirtab
+	include middle93.asm			;UnpackNibbles ... AddTeamBlock
+	include penalty93.asm			;AddPenalty ... AdvanceStringPtr, DoHiLights ... StartHL2
 
 
 ;------------------------------------------------------------
@@ -3497,7 +3497,7 @@ ClampNibble							;clamp byte d3 to 0-15. Called by setplayer
 .x	rts								;return d3 clamped to 0-15
 
 
-	include video93.asm				;$011802-$0122A7 VBlank ... KillCrowd
+	include video93.asm				;VBlank ... KillCrowd
 
 ;------------------------------------------------------------
 ;	Rink and team setup, title, playoffs and options screens
@@ -3934,7 +3934,7 @@ setteams							;use hometeam/visteam to set team structures. Falls in from
 
 InitTeamStructure					;from 92 setteams. Set up team struct a2 for team d0: store the team
 									;number at tmteam, the team data address at tmdata ($1E, from the team
-									;address table at $314), and copy 14 longs of line data (team data +6
+									;address table TeamList), and copy 14 longs of line data (team data +6
 									;offset) to tmlines. Called from setteams
 	move.w	d0,tmteam(a2)
 	movea.w	#TeamList,a0			;team address table
@@ -5555,7 +5555,7 @@ dotb								;draw team name bar d1 = team number at printx/printy.
 	movea.l	a0,a1
 	adda.l	(a0),a0
 	adda.l	jimdata(a1),a1
-	movea.w	#null,a2				;tile data: word 0 at $310 = no tiles
+	movea.w	#null,a2				;tile data: word 0 at null = no tiles
 	move.w	(a1),d2					;width from the map header (92 13)
 	moveq	#2,d3
 	moveq	#2,d4					;(92 $8002)
@@ -7004,8 +7004,8 @@ crash								;printbig d1 then d0 as hex, set the vdp up, load a palette and han
 
 	include tables93.asm			;data tables (crowd frames, asstab, penalty list, playoff tree, menu item
 									;lists)
-	include sram93.asm				;$015FE6-$0165D7 BackupRAM_*, BackupRAM_Save, ClearRAMBuffer, ClearVRAM
-	include sound93.asm				;$0165D8-$02E1FB  sound driver (68k code, Z80 blob at $016E53, sound data)
-	include graphics93.asm			;$02E1FC-$07FB75 graphics data (92 incbins after part 3)
-	include checksum93.asm			;$07FB76-$07FBC7  SecurityCheck, ValidationRoutine
+	include sram93.asm				;BackupRAM_*, BackupRAM_Save, ClearRAMBuffer, ClearVRAM
+	include sound93.asm				;sound driver (68k code, Z80 blob, sound data)
+	include graphics93.asm			;graphics data (92 incbins after part 3)
+	include checksum93.asm			;SecurityCheck, ValidationRoutine
 	dcb.b	$80000-*,$FF
