@@ -1203,9 +1203,11 @@ asspenalty							;player a3 should goto penalty box
 	bsr.w	SetSPA
 	moveq	#6,d2
 	tst.b	handed(a3)
-	beq.w	.righty
+	beq.w	.left
 	moveq	#2,d2					;left handed: face 2 (right)
-.righty	cmp.w	facedir(a3),d2		;turn one step toward d2
+.left								;label name is 92G's; the branch is taken by right handed players
+									;(handed 0), who keep d2 = 6 (face left); left handed set d2 = 2
+	cmp.w	facedir(a3),d2			;turn one step toward d2
 	beq.w	.ok
 	addq.w	#1,facedir(a3)
 	andi.w	#7,facedir(a3)

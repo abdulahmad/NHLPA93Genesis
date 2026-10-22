@@ -221,4 +221,3 @@ palbuffer,palfadenew+$40,92G
 (raw offset),prevtileptr,as 94G (addframe2 saved d2 on the stack)
 (raw offset),prevtilecnt,as 94G (addframe2 saved d4 on the stack)
 (alias),GGSleft,92G (goalie glove save left; aggress in 93, stickhand in 92)
-.left,.righty,asspenalty: the branch is taken for right handed players (handed 0)
