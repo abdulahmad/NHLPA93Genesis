@@ -158,6 +158,6 @@ MenuWaitVblank						;from 92 Pausemode .rjoy wait. wait for the next vblank, the
 	move.w	(OldVcount).w,d0
 .wait	cmp.w	(Vcount).w,d0		;Vcount is bumped by the vblank handler
 	beq.s	.wait
-	move.w	(OldVcount).w,(Vcount).w
+	move.w	(OldVcount).w,(Vcount).w	;puts the old count back: possible original bug
 	move.w	(sp)+,d0
 	rts

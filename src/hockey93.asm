@@ -2791,10 +2791,11 @@ puckstick							;puck collides with stick
 	bra.s	.stdef
 
 puckglue							;from 92 .glue. Player a2 takes the puck 
-									;Global because puckgoalie .nopc also branches here. Plays song 7, or $C
-									;($B for the home team) when sflags3 bit 4 was set, and counts a pass
-									;completion when a2 is passReceiverPlayerNum. Falls into setd0player
-	move.w	#7,-(sp)				;song 7
+									;Global because puckgoalie .nopc also branches here. Plays sound effect
+									;SFXpuckget, or after a faceoff (sf3fo) SFXcrowdboo (SFXcrowdcheer for the
+									;home team), and counts a completed pass when a2 is passReceiverPlayerNum.
+									;Falls into setd0player
+	move.w	#SFXpuckget,-(sp)
 	move.w	SCnum(a2),d0
 	move.w	d0,(puckc).w
 	movea.w	#(tmstruct-M68K_RAM),a0
@@ -2809,12 +2810,12 @@ puckglue							;from 92 .glue. Player a2 takes the puck
 	beq.w	.snd					;no
 	addq.w	#1,tmfowon(a1)			;tmfowon + 1
 	addi.w	#$C8,(Crowdlevel).w		;+200
-	move.w	#$C,(sp)				;song $C
+	move.w	#SFXcrowdboo,(sp)
 	cmpa.w	#(tmstruct-M68K_RAM),a1
 	bne.w	.snd					;away team
 	addi.w	#$A,(CwdExciteLvl).w
-	move.w	#$B,(sp)				;song $B for the home team
-.snd	bsr.w	song				;play the chosen song
+	move.w	#SFXcrowdcheer,(sp)		;home team
+.snd	bsr.w	song				;play the chosen sound effect
 	move.w	SCnum(a2),d0
 	cmp.w	(passReceiverPlayerNum).w,d0
 	bne.w	.nrec
@@ -2895,8 +2896,8 @@ puckbody							;puck hits player a2. a3 = puck, d0 = distance^2 (from checkpuckc
 rtss	rts							;shared rts
 
 puckgoalie							;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y Save odds from
-									;the goalie's save attribute and the frame table .list2.
-									;song on a hard shot, a puck carrier loses the puck, and a slow
+									;the goalie's save attribute and the frame table .list2. Crowd sound
+									;effect on a hard shot, a puck carrier loses the puck, and a slow
 									;loose puck (.nopc) is caught through puckglue
 	btst	#gmhl,(gmode).w
 	bne.s	rtss
@@ -2945,12 +2946,12 @@ puckgoalie							;puck hits goalie a2. a3 = puck, d0/d1 = goalie - puck x/y Save
 	cmpi.w	#$3000,(puckvy).w
 	bgt.w	.setsfx
 	cmpi.w	#$D000,(puckvy).w
-	bgt.w	.nosong					;-$3000 < Yvel <= $3000: no song
-.setsfx	move.w	#SFXcrowdcheer,-(sp)	;song $B (home goalie)
+	bgt.w	.nosong					;-$3000 < Yvel <= $3000: no crowd sound
+.setsfx	move.w	#SFXcrowdcheer,-(sp)	;cheer sound effect (home goalie)
 	btst	#pfteam,pflags(a2)
 	beq.w	.song
-	move.w	#SFXoooh2,(sp)			;song $D (visiting goalie)
-.song	bsr.w	song				;play the crowd song
+	move.w	#SFXoooh2,(sp)			;oooh sound effect (visiting goalie)
+.song	bsr.w	song				;play it (song plays sound effects too)
 .nosong	move.w	#SFXpuckbody,-(sp)	;puck body sound (92 used 5)
 	bsr.w	sfx
 	move.w	(puckc).w,d2
