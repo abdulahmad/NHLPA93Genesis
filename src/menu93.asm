@@ -76,7 +76,7 @@ UpdateMenuSelection					;from 92 Pausemode .Pmenu. clamp the selection, scroll t
 	bra.w	.2
 .next	adda.w	(a0),a0				;advance to the next item entry
 	addq.w	#4,a0
-	tst.w	2(a0)					;negative = last item
+	tst.w	strtext(a0)				;negative = last item
 .2	dbmi	d0,.next				;stop after d0 items or at the last item
 	addq.w	#1,d0					;d0 = items left unwalked (-1 if all walked), +1 = overshoot
 	sub.w	d0,(menuitem).w			;no item below the last
@@ -124,7 +124,7 @@ UpdateMenuSelection					;from 92 Pausemode .Pmenu. clamp the selection, scroll t
 	bsr.w	printsmall				;item text
 	addq.w	#1,d0
 	addq.w	#4,a1
-	tst.w	2(a1)					;negative = last item
+	tst.w	strtext(a1)				;negative = last item
 	dbmi	d1,.row
 	bmi.w	.x
 	bsr.w	SetMenuPrintX

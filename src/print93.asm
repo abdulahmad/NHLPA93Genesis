@@ -422,7 +422,7 @@ appendz								;see appstring. String macro should follow the bsr/jsr to this ro
 
 appstring							;append string a1 to string a3
 	movem.l	d0/a0,-(sp)
-	lea	2(a3),a0					;a0 scans a3's text for its terminating zero
+	lea	strtext(a3),a0				;a0 scans a3's text for its terminating zero
 	move.w	(a3),d0					;a3 length word
 	subq.w	#3,d0
 	bmi.w	.1
