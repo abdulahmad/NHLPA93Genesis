@@ -5,7 +5,7 @@
 ;	(Playerdata, Palettedata, Teamname, LineSets, ScoutReport, GoalieOdds), then the palettes, scouting
 ;	ratings, scoring odds, line sets (7 lines of 8 bytes), players, team name and abbreviation.
 
-null								;92 null: a zero long at $310, used as the tile pointer when there is
+null								;92 null: a zero long, used as the tile pointer when there is
 									;nothing to draw (no tiles)
 	dc.l	$0000
 
