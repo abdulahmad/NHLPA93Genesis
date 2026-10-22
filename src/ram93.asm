@@ -172,10 +172,11 @@ Map3col			rs.w	1			;2 to this power = width in char of playfield 3
 BigFontchars	rs.w	1			;vram tiles for BigFont.map
 smallfontchars	rs.w	1			;vram tiles for SmallFont.map
 smallfont2chars	rs.w	1			;vram tiles for the 2nd small font set.
-energybarchars	rs.w	1			;vram tiles for the energy bar (also logo / cup
-									;sprites on the title screens).
+energybarchars	rs.w	1			;vram tiles for the energy bar
+logochars		=	energybarchars	;reused: logo / cup sprite tiles on the title screens
 rinkvrcset		rs.w	1			;vram tiles for IceRink.map
-crowdvrcset		rs.w	1			;vram tiles for the crowd animation (also the Title3map sprites)
+crowdvrcset		rs.w	1			;vram tiles for the crowd animation
+menuspritechars	=	crowdvrcset		;reused: Title3map and game setup sprite tiles
 faceoffvrcset	rs.w	1			;vram tiles for FaceOff graphics
 framercset		rs.w	1			;vram tiles for framer.map
 EASNcset		rs.w	1			;vram tiles for EASN.map
@@ -317,7 +318,8 @@ SumCwdExciteLvl	rs.l	1			;crowd level running total.
 Zamx			rs.w	1			;zamboni x cord
 playoffspritex	rs.w	1			;logo sprite x (title / playoff screens).
 playoffspritey	rs.w	1			;logo sprite y.
-clampcounter	rs.w	1			;title screen: logo slide-in timer (RAM reused by the title screens)
+clampcounter	rs.w	1			;not used as a clamp counter in 93
+logoslide		=	clampcounter	;reused: title / playoff screen logo slide-in timer
 DMAList			rs.l	2*140		;dma transfer list
 DMAlistend		rs.l	1			;end of the DMA list: the address the next entry is written to
 Vpos			rs.w	1			;ice rink vertical position
@@ -574,7 +576,12 @@ ThirdPBonus			rs.b	1		;third period bonus (2 when tied or trailing with half or 
 									;period left)
 HmAwBonus			rs.b	1		;home / visitor bonus
 callbackPtr			rs.l	1		;remap table for DecompressGraphicsWithCallback; 0 = plain DMA
-DispAttribCtr		rs.w	1		;scouting report: scroll position (RAM shared with the stats screens)
+DispAttribCtr		rs.w	1		;stats screens: attribute page / sort column
+playoffscroll		=	DispAttribCtr	;reused: playoff screen scroll position
+scoutcolumn			=	DispAttribCtr	;reused: scouting report column
+titlescrollspeed	=	DispAttribCtr	;reused: title screen hscroll speed
+starscores			=	DispAttribCtr	;reused: 52 star score longs (CalcStarScores)
+decompbuffer		=	DispAttribCtr	;reused: DecompressBytecode 256 byte ring buffer
 VertLineScrolling	rs.w	1		;scouting report: text line being drawn, -1 = none (RAM shared with the
 									;stats screens)
 PlayerScrollCtr		rs.w	1		;scouting report: scroll step per frame (RAM
@@ -620,7 +627,7 @@ retrycount			rs.w	1		;backup RAM retries left (10 at InitBackupRAM)
 errorflag			rs.w	1		;backup RAM error count / flag (cleared at InitBackupRAM)
 sramdataptr			rs.l	1		;pointer to the data being read or written in backup RAM
 address				rs.l	1		;backup RAM address being accessed
-byecount			rs.l	1		;backup RAM byte counter (long)
+byecount			rs.l	1		;caller's d1 (byte count), restored on exit from BackupRAM_ReadBlock
 bytecount			rs.w	1		;backup RAM byte counter
 command				rs.w	1		;backup RAM command byte being sent
 bufferptr			rs.l	1		;backup RAM buffer pointer

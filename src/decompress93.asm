@@ -45,12 +45,12 @@ DecompressGraphics					;send tiles to vram. a2 = data: word count of tiles (0 = 
 .done	movem.l	(sp)+,d0-d1/a0-a6	;also the return target of the plain/remap paths (pea above)
 	rts
 
-DecompressBytecode					;unpack a0 into the 256 byte ring buffer at DispAttribCtr and flush each
+DecompressBytecode					;unpack a0 into the 256 byte ring buffer at decompbuffer and flush each
 									;full buffer to vram d3 (FlushOutputBuffer). The high nibble of each
 									;opcode byte picks a handler from jump_table. Ends on a
 									;CopyBackwardReverseMedium code with distance 0. d1 = vram address
-	movea.w	#(DispAttribCtr-M68K_RAM),a1	;output buffer
-	movea.w	#(DispAttribCtr-M68K_RAM),a3
+	movea.w	#(decompbuffer-M68K_RAM),a1	;output buffer
+	movea.w	#(decompbuffer-M68K_RAM),a3
 	movea.w	#(callbackPtr-M68K_RAM),a4
 	movea.l	#remap,a5
 	movea.l	#DoDMApro,a6
