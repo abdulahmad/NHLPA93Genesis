@@ -85,13 +85,13 @@ AllStarsEast						;team record: All Stars East (ASE), team 24
 	dc.b	216,160
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,17,18,14,04,11,05,00	;line 1
-	dc.b	01,19,20,15,05,12,04,00	;line 2
-	dc.b	01,21,22,16,06,13,04,00	;line 3
-	dc.b	01,17,18,14,04,11,05,00	;line 4, power play 1
-	dc.b	01,19,20,16,05,12,04,00	;line 5, power play 2
-	dc.b	01,21,22,16,08,15,07,00	;line 6, penalty kill 1
-	dc.b	01,20,17,15,07,16,08,00	;line 7, penalty kill 2
+	dc.b	01,17,18,14,04,11,05,00	;line 1 Sc1
+	dc.b	01,19,20,15,05,12,04,00	;line 2 Sc2
+	dc.b	01,21,22,16,06,13,04,00	;line 3 Chk
+	dc.b	01,17,18,14,04,11,05,00	;line 4 PP1
+	dc.b	01,19,20,16,05,12,04,00	;line 5 PP2
+	dc.b	01,21,22,16,08,15,07,00	;line 6 PK1
+	dc.b	01,20,17,15,07,16,08,00	;line 7 PK2
 ;------------------------
 ;u - uniform # x10
 ;n - uniform # x1
@@ -160,13 +160,13 @@ AllStarsWest						;team record: All Stars West (ASW), team 25
 	dc.b	173,224
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,17,16,12,04,09,05,00
-	dc.b	01,18,19,13,05,10,04,00
-	dc.b	01,20,21,14,06,11,04,00
-	dc.b	01,17,16,12,05,09,04,00
-	dc.b	01,19,22,13,04,11,05,00
-	dc.b	01,17,20,14,07,15,08,00
-	dc.b	01,22,18,15,08,14,07,00
+	dc.b	01,17,16,12,04,09,05,00	;line 1 Sc1
+	dc.b	01,18,19,13,05,10,04,00	;line 2 Sc2
+	dc.b	01,20,21,14,06,11,04,00	;line 3 Chk
+	dc.b	01,17,16,12,05,09,04,00	;line 4 PP1
+	dc.b	01,19,22,13,04,11,05,00	;line 5 PP2
+	dc.b	01,17,20,14,07,15,08,00	;line 6 PK1
+	dc.b	01,22,18,15,08,14,07,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Ed Belfour',			305F,AFFF,0100,FFFF
@@ -215,13 +215,13 @@ Boston								;team record: Boston (BOS), team 0
 	dc.b	197,34
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,19,20,16,05,14,06,00
-	dc.b	01,21,22,17,06,11,05,00
-	dc.b	01,23,24,15,07,12,05,00
-	dc.b	01,19,20,05,06,14,16,00
-	dc.b	01,21,22,15,16,11,05,00
-	dc.b	01,19,20,11,12,15,07,00
-	dc.b	01,21,22,15,07,11,12,00
+	dc.b	01,19,20,16,05,14,06,00	;line 1 Sc1
+	dc.b	01,21,22,17,06,11,05,00	;line 2 Sc2
+	dc.b	01,23,24,15,07,12,05,00	;line 3 Chk
+	dc.b	01,19,20,05,06,14,16,00	;line 4 PP1
+	dc.b	01,21,22,15,16,11,05,00	;line 5 PP2
+	dc.b	01,19,20,11,12,15,07,00	;line 6 PK1
+	dc.b	01,21,22,15,07,11,12,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Andy Moog',			353C,9ACC,0100,C9C9
@@ -272,13 +272,13 @@ Buffalo								;team record: Buffalo (BUF), team 1
 	dc.b	101,80
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,20,18,13,06,09,04,00
-	dc.b	01,17,21,14,04,10,06,00
-	dc.b	01,19,23,15,05,08,06,00
-	dc.b	01,18,17,13,06,09,04,00
-	dc.b	01,23,21,14,04,10,06,00
-	dc.b	01,17,21,06,08,14,05,00
-	dc.b	01,23,20,14,05,06,08,00
+	dc.b	01,20,18,13,06,09,04,00	;line 1 Sc1
+	dc.b	01,17,21,14,04,10,06,00	;line 2 Sc2
+	dc.b	01,19,23,15,05,08,06,00	;line 3 Chk
+	dc.b	01,18,17,13,06,09,04,00	;line 4 PP1
+	dc.b	01,23,21,14,04,10,06,00	;line 5 PP2
+	dc.b	01,17,21,06,08,14,05,00	;line 6 PK1
+	dc.b	01,23,20,14,05,06,08,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Daren Puppa',			3188,8AA8,0000,5588
@@ -329,13 +329,13 @@ Calgary								;team record: Calgary (CGY), team 2
 	dc.b	196,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,19,17,14,03,10,06,00
-	dc.b	01,18,21,13,06,11,03,00
-	dc.b	01,16,20,15,04,09,03,00
-	dc.b	01,19,17,14,03,10,05,00
-	dc.b	01,18,21,06,05,11,03,00
-	dc.b	01,17,16,04,07,13,09,00
-	dc.b	01,19,20,13,09,04,07,00
+	dc.b	01,19,17,14,03,10,06,00	;line 1 Sc1
+	dc.b	01,18,21,13,06,11,03,00	;line 2 Sc2
+	dc.b	01,16,20,15,04,09,03,00	;line 3 Chk
+	dc.b	01,19,17,14,03,10,05,00	;line 4 PP1
+	dc.b	01,18,21,06,05,11,03,00	;line 5 PP2
+	dc.b	01,17,16,04,07,13,09,00	;line 6 PK1
+	dc.b	01,19,20,13,09,04,07,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Mike Vernon',			3038,8AAB,0100,BB88
@@ -385,13 +385,13 @@ Chicago								;team record: Chicago (CHI), team 3
 	dc.b	164,49
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,18,19,14,05,09,07,00
-	dc.b	01,20,22,16,07,11,05,00
-	dc.b	01,21,23,13,06,10,05,00
-	dc.b	01,18,19,14,05,09,10,00
-	dc.b	01,21,22,07,10,11,05,00
-	dc.b	01,21,22,07,10,06,09,00
-	dc.b	01,18,19,06,09,07,10,00
+	dc.b	01,18,19,14,05,09,07,00	;line 1 Sc1
+	dc.b	01,20,22,16,07,11,05,00	;line 2 Sc2
+	dc.b	01,21,23,13,06,10,05,00	;line 3 Chk
+	dc.b	01,18,19,14,05,09,10,00	;line 4 PP1
+	dc.b	01,21,22,07,10,11,05,00	;line 5 PP2
+	dc.b	01,21,22,07,10,06,09,00	;line 6 PK1
+	dc.b	01,18,19,06,09,07,10,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Ed Belfour',			305F,AFFF,0100,FFFF
@@ -442,13 +442,13 @@ Detroit								;team record: Detroit (DET), team 4
 	dc.b	226,16
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,17,20,13,06,08,04,00
-	dc.b	01,18,22,14,04,07,06,00
-	dc.b	01,19,21,15,05,09,06,00
-	dc.b	01,17,20,06,04,08,05,00
-	dc.b	01,21,18,15,05,09,06,00
-	dc.b	01,20,18,06,07,13,04,00
-	dc.b	01,17,19,13,04,06,07,00
+	dc.b	01,17,20,13,06,08,04,00	;line 1 Sc1
+	dc.b	01,18,22,14,04,07,06,00	;line 2 Sc2
+	dc.b	01,19,21,15,05,09,06,00	;line 3 Chk
+	dc.b	01,17,20,06,04,08,05,00	;line 4 PP1
+	dc.b	01,21,18,15,05,09,06,00	;line 5 PP2
+	dc.b	01,20,18,06,07,13,04,00	;line 6 PK1
+	dc.b	01,17,19,13,04,06,07,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Tim Cheveldae',		325D,ADDD,0100,DADD
@@ -498,13 +498,13 @@ Edmonton							;team record: Edmonton (EDM), team 5
 	dc.b	214,34
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,22,17,10,07,08,15,00
-	dc.b	01,19,20,11,15,06,07,00
-	dc.b	01,18,21,16,05,09,07,00
-	dc.b	01,17,21,10,07,08,05,00
-	dc.b	01,19,20,16,05,09,07,00
-	dc.b	01,22,18,16,05,12,08,00
-	dc.b	01,19,20,12,08,16,05,00
+	dc.b	01,22,17,10,07,08,15,00	;line 1 Sc1
+	dc.b	01,19,20,11,15,06,07,00	;line 2 Sc2
+	dc.b	01,18,21,16,05,09,07,00	;line 3 Chk
+	dc.b	01,17,21,10,07,08,05,00	;line 4 PP1
+	dc.b	01,19,20,16,05,09,07,00	;line 5 PP2
+	dc.b	01,22,18,16,05,12,08,00	;line 6 PK1
+	dc.b	01,19,20,12,08,16,05,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Bill Ranford',			303C,9CFC,0100,CCFC
@@ -554,13 +554,13 @@ Hartford							;team record: Hartford (HFD), team 6
 	dc.b	146,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,18,22,11,03,08,04,00
-	dc.b	01,19,21,12,04,09,03,00
-	dc.b	01,20,23,13,05,10,03,00
-	dc.b	01,22,19,11,13,03,05,00
-	dc.b	01,20,18,12,05,09,11,00
-	dc.b	01,18,20,13,12,04,09,00
-	dc.b	01,19,23,04,09,12,13,00
+	dc.b	01,18,22,11,03,08,04,00	;line 1 Sc1
+	dc.b	01,19,21,12,04,09,03,00	;line 2 Sc2
+	dc.b	01,20,23,13,05,10,03,00	;line 3 Chk
+	dc.b	01,22,19,11,13,03,05,00	;line 4 PP1
+	dc.b	01,20,18,12,05,09,11,00	;line 5 PP2
+	dc.b	01,18,20,13,12,04,09,00	;line 6 PK1
+	dc.b	01,19,23,04,09,12,13,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Kay Whitmore',			3545,8AA5,0100,5858
@@ -610,13 +610,13 @@ LosAngeles							;team record: Los Angeles (LA), team 8
 	dc.b	198,16
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,19,20,11,05,10,04,00
-	dc.b	01,18,21,12,04,09,05,00
-	dc.b	01,17,22,13,06,08,05,00
-	dc.b	01,19,20,11,05,10,04,00
-	dc.b	01,17,18,12,04,09,05,00
-	dc.b	01,17,18,12,06,13,04,00
-	dc.b	01,19,20,13,04,12,06,00
+	dc.b	01,19,20,11,05,10,04,00	;line 1 Sc1
+	dc.b	01,18,21,12,04,09,05,00	;line 2 Sc2
+	dc.b	01,17,22,13,06,08,05,00	;line 3 Chk
+	dc.b	01,19,20,11,05,10,04,00	;line 4 PP1
+	dc.b	01,17,18,12,04,09,05,00	;line 5 PP2
+	dc.b	01,17,18,12,06,13,04,00	;line 6 PK1
+	dc.b	01,19,20,13,04,12,06,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Kelly Hrudey',			3259,9AAC,0100,6669
@@ -667,13 +667,13 @@ LongIsland							;team record: Long Island (LI), team 7
 	dc.b	102,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,20,17,13,04,12,03,00
-	dc.b	01,18,19,14,03,11,04,00
-	dc.b	01,21,23,15,06,10,04,00
-	dc.b	01,20,17,15,14,04,06,00
-	dc.b	01,23,18,13,06,03,14,00
-	dc.b	01,17,19,16,07,08,11,00
-	dc.b	01,20,22,08,11,16,07,00
+	dc.b	01,20,17,13,04,12,03,00	;line 1 Sc1
+	dc.b	01,18,19,14,03,11,04,00	;line 2 Sc2
+	dc.b	01,21,23,15,06,10,04,00	;line 3 Chk
+	dc.b	01,20,17,15,14,04,06,00	;line 4 PP1
+	dc.b	01,23,18,13,06,03,14,00	;line 5 PP2
+	dc.b	01,17,19,16,07,08,11,00	;line 6 PK1
+	dc.b	01,20,22,08,11,16,07,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Glenn Healy',			3546,9AA6,0100,3636
@@ -723,13 +723,13 @@ Minnesota							;team record: Minnesota (MIN), team 9
 	dc.b	166,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,18,21,14,04,10,03,00
-	dc.b	01,20,22,16,03,11,04,00
-	dc.b	01,19,23,15,05,09,04,00
-	dc.b	01,21,22,14,03,10,04,00
-	dc.b	01,20,18,05,04,09,03,00
-	dc.b	01,21,18,15,04,14,07,00
-	dc.b	01,20,23,14,07,15,04,00
+	dc.b	01,18,21,14,04,10,03,00	;line 1 Sc1
+	dc.b	01,20,22,16,03,11,04,00	;line 2 Sc2
+	dc.b	01,19,23,15,05,09,04,00	;line 3 Chk
+	dc.b	01,21,22,14,03,10,04,00	;line 4 PP1
+	dc.b	01,20,18,05,04,09,03,00	;line 5 PP2
+	dc.b	01,21,18,15,04,14,07,00	;line 6 PK1
+	dc.b	01,20,23,14,07,15,04,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Jon Casey',			301B,8BA8,0100,558B
@@ -779,13 +779,13 @@ Montreal							;team record: Montreal (MTL), team 10
 	dc.b	210,32
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,20,18,14,05,13,04,00
-	dc.b	01,21,23,16,04,10,05,00
-	dc.b	01,19,22,15,06,11,05,00
-	dc.b	01,20,19,14,16,04,05,00
-	dc.b	01,21,23,17,05,09,14,00
-	dc.b	01,19,23,16,08,14,05,00
-	dc.b	01,20,18,14,05,16,08,00
+	dc.b	01,20,18,14,05,13,04,00	;line 1 Sc1
+	dc.b	01,21,23,16,04,10,05,00	;line 2 Sc2
+	dc.b	01,19,22,15,06,11,05,00	;line 3 Chk
+	dc.b	01,20,19,14,16,04,05,00	;line 4 PP1
+	dc.b	01,21,23,17,05,09,14,00	;line 5 PP2
+	dc.b	01,19,23,16,08,14,05,00	;line 6 PK1
+	dc.b	01,20,18,14,05,16,08,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Patrick Roy',			335F,AFFF,0100,FFFF
@@ -836,13 +836,13 @@ NewJersey							;team record: New Jersey (NJ), team 11
 	dc.b	165,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,22,23,14,03,08,04,00
-	dc.b	01,20,21,13,04,09,03,00
-	dc.b	01,18,19,12,05,10,03,00
-	dc.b	01,23,20,13,03,08,04,00
-	dc.b	01,21,22,14,04,09,03,00
-	dc.b	01,23,19,12,11,05,10,00
-	dc.b	01,21,22,05,10,12,11,00
+	dc.b	01,22,23,14,03,08,04,00	;line 1 Sc1
+	dc.b	01,20,21,13,04,09,03,00	;line 2 Sc2
+	dc.b	01,18,19,12,05,10,03,00	;line 3 Chk
+	dc.b	01,23,20,13,03,08,04,00	;line 4 PP1
+	dc.b	01,21,22,14,04,09,03,00	;line 5 PP2
+	dc.b	01,23,19,12,11,05,10,00	;line 6 PK1
+	dc.b	01,21,22,05,10,12,11,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Chris Terreri',		311D,AAAA,0100,AAAA
@@ -892,13 +892,13 @@ NewYork								;team record: New York (NY), team 12
 	dc.b	152,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,18,20,15,03,09,05,00
-	dc.b	01,21,24,16,05,08,03,00
-	dc.b	01,19,22,17,04,12,03,00
-	dc.b	01,18,19,03,05,09,04,00
-	dc.b	01,21,24,16,04,08,03,00
-	dc.b	01,19,21,03,07,04,11,00
-	dc.b	01,18,20,04,11,03,07,00
+	dc.b	01,18,20,15,03,09,05,00	;line 1 Sc1
+	dc.b	01,21,24,16,05,08,03,00	;line 2 Sc2
+	dc.b	01,19,22,17,04,12,03,00	;line 3 Chk
+	dc.b	01,18,19,03,05,09,04,00	;line 4 PP1
+	dc.b	01,21,24,16,04,08,03,00	;line 5 PP2
+	dc.b	01,19,21,03,07,04,11,00	;line 6 PK1
+	dc.b	01,18,20,04,11,03,07,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'John Vanbiesbrk',		344A,ADAA,0100,ADAD
@@ -950,13 +950,13 @@ Ottawa								;team record: Ottawa (OTW), team 13
 	dc.b	96,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,12,13,10,07,02,03,00
-	dc.b	01,14,15,08,03,06,10,00
-	dc.b	01,16,17,09,04,05,10,00
-	dc.b	01,12,13,08,03,06,10,00
-	dc.b	01,17,14,07,10,02,03,00
-	dc.b	01,12,13,10,02,08,09,00
-	dc.b	01,17,16,08,09,10,02,00
+	dc.b	01,12,13,10,07,02,03,00	;line 1 Sc1
+	dc.b	01,14,15,08,03,06,10,00	;line 2 Sc2
+	dc.b	01,16,17,09,04,05,10,00	;line 3 Chk
+	dc.b	01,12,13,08,03,06,10,00	;line 4 PP1
+	dc.b	01,17,14,07,10,02,03,00	;line 5 PP2
+	dc.b	01,12,13,10,02,08,09,00	;line 6 PK1
+	dc.b	01,17,16,08,09,10,02,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Peter Sidorkwicz',		3055,8AA5,0100,5555
@@ -1000,13 +1000,13 @@ Philadelphia						;team record: Philadelphia (PHI), team 14
 	dc.b	147,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,17,18,13,03,09,04,00
-	dc.b	01,21,23,15,04,10,03,00
-	dc.b	01,19,20,16,05,11,03,00
-	dc.b	01,17,23,12,04,10,03,00
-	dc.b	01,21,18,13,03,09,04,00
-	dc.b	01,17,23,04,09,03,05,00
-	dc.b	01,21,20,03,05,04,09,00
+	dc.b	01,17,18,13,03,09,04,00	;line 1 Sc1
+	dc.b	01,21,23,15,04,10,03,00	;line 2 Sc2
+	dc.b	01,19,20,16,05,11,03,00	;line 3 Chk
+	dc.b	01,17,23,12,04,10,03,00	;line 4 PP1
+	dc.b	01,21,18,13,03,09,04,00	;line 5 PP2
+	dc.b	01,17,23,04,09,03,05,00	;line 6 PK1
+	dc.b	01,21,20,03,05,04,09,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Ron Hextall',			2769,9AA9,0100,CC99
@@ -1057,13 +1057,13 @@ Pittsburgh							;team record: Pittsburgh (PIT), team 15
 	dc.b	182,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,18,17,13,04,09,03,00
-	dc.b	01,19,23,14,03,10,04,00
-	dc.b	01,20,21,15,05,08,04,00
-	dc.b	01,17,20,13,04,08,10,00
-	dc.b	01,21,18,03,10,09,04,00
-	dc.b	01,17,22,14,03,05,08,00
-	dc.b	01,18,20,05,08,14,03,00
+	dc.b	01,18,17,13,04,09,03,00	;line 1 Sc1
+	dc.b	01,19,23,14,03,10,04,00	;line 2 Sc2
+	dc.b	01,20,21,15,05,08,04,00	;line 3 Chk
+	dc.b	01,17,20,13,04,08,10,00	;line 4 PP1
+	dc.b	01,21,18,03,10,09,04,00	;line 5 PP2
+	dc.b	01,17,22,14,03,05,08,00	;line 6 PK1
+	dc.b	01,18,20,05,08,14,03,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Tom Barrasso',			358C,9AC9,0000,99C9
@@ -1113,13 +1113,13 @@ Quebec								;team record: Quebec (QUE), team 16
 	dc.b	84,32
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,20,19,17,05,10,04,00
-	dc.b	01,18,24,14,04,08,05,00
-	dc.b	01,21,22,16,07,09,05,00
-	dc.b	01,20,19,05,10,09,04,00
-	dc.b	01,22,24,14,04,08,09,00
-	dc.b	01,20,24,16,04,14,05,00
-	dc.b	01,21,18,14,05,16,04,00
+	dc.b	01,20,19,17,05,10,04,00	;line 1 Sc1
+	dc.b	01,18,24,14,04,08,05,00	;line 2 Sc2
+	dc.b	01,21,22,16,07,09,05,00	;line 3 Chk
+	dc.b	01,20,19,05,10,09,04,00	;line 4 PP1
+	dc.b	01,22,24,14,04,08,09,00	;line 5 PP2
+	dc.b	01,20,24,16,04,14,05,00	;line 6 PK1
+	dc.b	01,21,18,14,05,16,04,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Jacques Cloutier',		3232,8AA2,0100,2225
@@ -1171,13 +1171,13 @@ SanJose								;team record: San Jose (SJ), team 17
 	dc.b	133,34
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,24,20,16,09,11,12,00
-	dc.b	01,23,21,17,08,12,09,00
-	dc.b	01,19,22,15,07,13,09,00
-	dc.b	01,24,20,09,08,13,12,00
-	dc.b	01,22,23,07,12,11,09,00
-	dc.b	01,20,23,07,12,16,09,00
-	dc.b	01,24,21,16,09,07,12,00
+	dc.b	01,24,20,16,09,11,12,00	;line 1 Sc1
+	dc.b	01,23,21,17,08,12,09,00	;line 2 Sc2
+	dc.b	01,19,22,15,07,13,09,00	;line 3 Chk
+	dc.b	01,24,20,09,08,13,12,00	;line 4 PP1
+	dc.b	01,22,23,07,12,11,09,00	;line 5 PP2
+	dc.b	01,20,23,07,12,16,09,00	;line 6 PK1
+	dc.b	01,24,21,16,09,07,12,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Jeff Hackett',			3042,8AA2,0100,2225
@@ -1228,13 +1228,13 @@ StLouis								;team record: St
 	dc.b	194,32
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,22,17,14,04,10,06,00
-	dc.b	01,18,20,15,06,08,04,00
-	dc.b	01,19,21,13,07,09,04,00
-	dc.b	01,22,17,06,10,08,04,00
-	dc.b	01,21,20,07,04,09,08,00
-	dc.b	01,22,20,07,09,13,05,00
-	dc.b	01,21,19,13,05,07,09,00
+	dc.b	01,22,17,14,04,10,06,00	;line 1 Sc1
+	dc.b	01,18,20,15,06,08,04,00	;line 2 Sc2
+	dc.b	01,19,21,13,07,09,04,00	;line 3 Chk
+	dc.b	01,22,17,06,10,08,04,00	;line 4 PP1
+	dc.b	01,21,20,07,04,09,08,00	;line 5 PP2
+	dc.b	01,22,20,07,09,13,05,00	;line 6 PK1
+	dc.b	01,21,19,13,05,07,09,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Curtis Joseph',		315C,9CCC,0100,99CC
@@ -1285,13 +1285,13 @@ TampaBay							;team record: Tampa Bay (TBY), team 19
 	dc.b	48,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,13,12,09,02,06,03,00
-	dc.b	01,14,15,10,03,07,02,00
-	dc.b	01,16,17,11,04,08,02,00
-	dc.b	01,12,14,09,02,06,04,00
-	dc.b	01,15,13,11,04,07,02,00
-	dc.b	01,14,13,10,03,11,05,00
-	dc.b	01,16,18,11,05,10,03,00
+	dc.b	01,13,12,09,02,06,03,00	;line 1 Sc1
+	dc.b	01,14,15,10,03,07,02,00	;line 2 Sc2
+	dc.b	01,16,17,11,04,08,02,00	;line 3 Chk
+	dc.b	01,12,14,09,02,06,04,00	;line 4 PP1
+	dc.b	01,15,13,11,04,07,02,00	;line 5 PP2
+	dc.b	01,14,13,10,03,11,05,00	;line 6 PK1
+	dc.b	01,16,18,11,05,10,03,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Wendell Young',		0159,9AA9,0100,9699
@@ -1336,13 +1336,13 @@ Toronto								;team record: Toronto (TOR), team 20
 	dc.b	211,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,17,19,13,03,06,05,00
-	dc.b	01,20,21,10,05,08,03,00
-	dc.b	01,18,22,14,04,07,03,00
-	dc.b	01,17,19,13,10,03,07,00
-	dc.b	01,18,22,05,07,06,13,00
-	dc.b	01,19,21,12,04,10,03,00
-	dc.b	01,18,17,10,03,12,04,00
+	dc.b	01,17,19,13,03,06,05,00	;line 1 Sc1
+	dc.b	01,20,21,10,05,08,03,00	;line 2 Sc2
+	dc.b	01,18,22,14,04,07,03,00	;line 3 Chk
+	dc.b	01,17,19,13,10,03,07,00	;line 4 PP1
+	dc.b	01,18,22,05,07,06,13,00	;line 5 PP2
+	dc.b	01,19,21,12,04,10,03,00	;line 6 PK1
+	dc.b	01,18,17,10,03,12,04,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Grant Fuhr',			315E,8EEE,0000,BBEE
@@ -1393,13 +1393,13 @@ Vancouver							;team record: Vancouver (VAN), team 21
 	dc.b	211,00
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,18,19,13,03,09,05,00
-	dc.b	01,17,21,12,05,11,03,00
-	dc.b	01,20,22,16,04,10,03,00
-	dc.b	01,18,19,13,04,09,05,00
-	dc.b	01,22,17,12,05,11,04,00
-	dc.b	01,19,22,06,07,12,05,00
-	dc.b	01,17,18,12,05,06,07,00
+	dc.b	01,18,19,13,03,09,05,00	;line 1 Sc1
+	dc.b	01,17,21,12,05,11,03,00	;line 2 Sc2
+	dc.b	01,20,22,16,04,10,03,00	;line 3 Chk
+	dc.b	01,18,19,13,04,09,05,00	;line 4 PP1
+	dc.b	01,22,17,12,05,11,04,00	;line 5 PP2
+	dc.b	01,19,22,06,07,12,05,00	;line 6 PK1
+	dc.b	01,17,18,12,05,06,07,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Kirk McLean',			016D,AFFD,0100,DDFF
@@ -1450,13 +1450,13 @@ Winnipeg							;team record: Winnipeg (WPG), team 23
 	dc.b	149,48
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,20,21,17,07,10,04,00
-	dc.b	01,18,24,14,04,11,07,00
-	dc.b	01,22,23,15,05,09,07,00
-	dc.b	01,20,21,07,10,11,04,00
-	dc.b	01,22,18,14,04,12,11,00
-	dc.b	01,20,23,15,04,14,05,00
-	dc.b	01,22,18,14,05,15,04,00
+	dc.b	01,20,21,17,07,10,04,00	;line 1 Sc1
+	dc.b	01,18,24,14,04,11,07,00	;line 2 Sc2
+	dc.b	01,22,23,15,05,09,07,00	;line 3 Chk
+	dc.b	01,20,21,07,10,11,04,00	;line 4 PP1
+	dc.b	01,22,18,14,04,12,11,00	;line 5 PP2
+	dc.b	01,20,23,15,04,14,05,00	;line 6 PK1
+	dc.b	01,22,18,14,05,15,04,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Bob Essensa',			352F,9CCF,0100,CCCC
@@ -1507,13 +1507,13 @@ Washington							;team record: Washington (WSH), team 22
 	dc.b	164,32
 .ls									; line sets: 7 lines of 8 roster numbers, by position
 ;			-G,LD,RD,LW,-C,RW,XA,00
-	dc.b	01,19,20,12,05,08,04,00
-	dc.b	01,18,24,15,04,11,05,00
-	dc.b	01,21,22,14,06,10,05,00
-	dc.b	01,19,18,15,07,04,05,00
-	dc.b	01,21,20,06,05,08,04,00
-	dc.b	01,21,24,12,05,06,07,00
-	dc.b	01,18,19,06,07,12,05,00
+	dc.b	01,19,20,12,05,08,04,00	;line 1 Sc1
+	dc.b	01,18,24,15,04,11,05,00	;line 2 Sc2
+	dc.b	01,21,22,14,06,10,05,00	;line 3 Chk
+	dc.b	01,19,18,15,07,04,05,00	;line 4 PP1
+	dc.b	01,21,20,06,05,08,04,00	;line 5 PP2
+	dc.b	01,21,24,12,05,06,07,00	;line 6 PK1
+	dc.b	01,18,19,06,07,12,05,00	;line 7 PK2
 .pld								; roster: Player records, then an empty record (length 2)
 ;									unwl,sodp,chga,eytm
 	Player	'Don Beaupre',			3337,AAAA,0100,AAAA
