@@ -623,7 +623,7 @@ fm_voice_usage_table	rs.w	256	;which track slot uses each FM voice (256 words)
 fm_channel_structs	rs.w	15		;FM channel state (15 words)
 pcm_channel_struct	rs.w	3		;PCM (DAC) channel state (3 words)
 fm_track_slots		rs.w	25		;track slots that play the sounds and songs (25 words)
-retrycount			rs.w	1		;backup RAM retries left (10 at InitBackupRAM)
+retrycount			rs.w	1		;backup RAM retry limit: 10, only set by InitBackupRAM (errorflag counts)
 errorflag			rs.w	1		;backup RAM error count / flag (cleared at InitBackupRAM)
 sramdataptr			rs.l	1		;pointer to the data being read or written in backup RAM
 address				rs.l	1		;backup RAM address being accessed

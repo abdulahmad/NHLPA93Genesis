@@ -1002,7 +1002,7 @@ updateplayers						;update every object in SortCords
 	moveq	#2,d4					;pad index for cont 2 player
 	bsr.w	doinput
 	;run the assignment routine asstab[asslist[assnum]] for this object
-.t1	move.w	assnum(a3),d0			;no pfalock test here
+.t1	move.w	assnum(a3),d0			;92 skipped this while pfalock was set; 93 and 94G always run it
 	clr.w	d1
 	move.b	asslist(a3,d0.w),d1
 	asl.w	#2,d1
