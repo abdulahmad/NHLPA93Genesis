@@ -4092,7 +4092,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	moveq	#3,d5
 	bsr.w	dobitmap
 
-	movea.l	#TitleLogoSprites,a1	;Titlemap2 palette to pal 0, tiles at energybarchars
+	movea.l	#TitleLogoSprites,a1	;Titlemap2 palette to pal 0, tiles at logochars
 	lea	8(a1),a2
 	adda.l	(a1),a1
 	moveq	#7,d0
@@ -4101,10 +4101,10 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	move.l	(a1)+,-$40(a0)			;Titlemap2 palette -> pal 0
 	move.l	-$20(a0),(a0)+			;pal 1 -> pal 2
 	dbf	d0,.pal
-	move.w	d4,(energybarchars).w
+	move.w	d4,(logochars).w
 	bsr.w	DecompressGraphicsPlain
 
-	move.w	#$104,(clampcounter).w	;RAM reused by this screen
+	move.w	#$104,(logoslide).w		;RAM reused by this screen
 	move.w	#$110,(playoffspritey).w
 
 	movea.l	#Vctrl,a0
@@ -4171,7 +4171,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	clr.w	d0
 	clr.w	d4
 	move.w	#$FFFF,(PlayerScrollCtr).w	;scroll step (RAM shared with the stats screens)
-	move.w	#1,(DispAttribCtr).w	;scroll position
+	move.w	#1,(playoffscroll).w	;scroll position
 	bsr.w	UpdatePlayoffScroll
 
 .input	bsr.w	waitxc1				;main loop: flash color, wait a frame, then read pads
@@ -4202,7 +4202,7 @@ UpdatePlayoffScroll					;from 92 PlayoffScreen .scrup. move the tree one step (P
 									;HandlePlayoffInput, also called from PlayoffScreen
 	move.w	(PlayerScrollCtr).w,d0
 	beq.w	rtss					;not scrolling
-	add.w	(DispAttribCtr).w,d0
+	add.w	(playoffscroll).w,d0
 	move.w	(gamelevel).w,d1
 	cmp.w	#3,d1
 	bls.w	.lim
@@ -4213,7 +4213,7 @@ UpdatePlayoffScroll					;from 92 PlayoffScreen .scrup. move the tree one step (P
 	neg.w	d1
 	cmp.w	d1,d0
 	blt.w	rtss
-	move.w	d0,(DispAttribCtr).w
+	move.w	d0,(playoffscroll).w
 	clr.w	(playoffspritex).w
 	move.w	d0,d1
 	addi.w	#$124,d1
@@ -4310,7 +4310,7 @@ DrawTeamBlocks						;from 92 PlayoffScreen .doteam. draw team block d1 (team*2) 
 VBlank_Playoff						;(it undecoded): the PlayoffScreen vblank handler (VBint).
 									;If dfng is clear and Sattsize is set: clear Sattsize, DoDMA the sprite
 									;table (Satt) to VSPRITES, then Vmaddr(VSCRLPM) and write
-									;$FEA0+DispAttribCtr to the hscroll, then cramfade. Always Vcount+1,
+									;$FEA0+playoffscroll to the hscroll, then cramfade. Always Vcount+1,
 									;p_music_vblank, rte
 	movem.l	d0-d7/a0-a6,-(sp)
 	btst	#dfng,(disflags).w
@@ -4324,7 +4324,7 @@ VBlank_Playoff						;(it undecoded): the PlayoffScreen vblank handler (VBint).
 	move.w	(VSCRLPM).w,d0
 	bsr.w	Vmaddr
 	move.w	#$FEA0,d0
-	add.w	(DispAttribCtr).w,d0
+	add.w	(playoffscroll).w,d0
 	move.w	d0,(a0)
 .nosat	bsr.w	cramfade			;step the palette fade
 .nograph	addq.w	#1,(Vcount).w	;frame counter
@@ -4551,7 +4551,7 @@ UpdateScoutingDisplay				;called every frame by ScoutingReport. When ScoutingRep
 									;(at once if asv is set), print the next word of ScoutingReportText. '_'
 									;'{' '}' '[' ']' print a team or player name.
 									;PlayerScrollCtr = offset of the next word (negative: next paragraph),
-									;DispAttribCtr = column
+									;scoutcolumn = column
 	cmpi.w	#$1000,(ScoutingReportTimer).w
 	bgt.w	rtss					;text finished ($7FFF)
 	tst.w	(asv).w
@@ -4561,7 +4561,7 @@ UpdateScoutingDisplay				;called every frame by ScoutingReport. When ScoutingRep
 .go	movea.l	#ScoutingReportText,a1	;time to print: a1 = text base
 	move.w	(PlayerScrollCtr).w,d0
 	bpl.w	.cont					;in a paragraph
-	clr.w	(DispAttribCtr).w		;column 0
+	clr.w	(scoutcolumn).w			;column 0
 	move.w	(SelectedPlayerIdx).w,d0
 	addq.w	#2,(SelectedPlayerIdx).w
 	movea.w	#(TestList-M68K_RAM),a0
@@ -4580,7 +4580,7 @@ UpdateScoutingDisplay				;called every frame by ScoutingReport. When ScoutingRep
 	move.w	a2,d0					;d0 = paragraph offset
 .cont	lea	(a1,d0.w),a2			;a2 = next word to print
 	move.w	#$A,(ScoutingReportTimer).w	;10 frames per word
-	move.w	(DispAttribCtr).w,d0
+	move.w	(scoutcolumn).w,d0
 	cmpi.b	#$5F,(a2)				;'_'
 	beq.w	.under
 	cmpi.b	#$7B,(a2)				;'{' home team name
@@ -4623,12 +4623,12 @@ UpdateScoutingDisplay				;called every frame by ScoutingReport. When ScoutingRep
 	bsr.w	ScrollDisplayUp			;wrap to a new line
 .noscr	bsr.w	printz				;position the word: x 9 + column, y 4 + line
 	String	$FF,9,4
-	move.w	(DispAttribCtr).w,d0
+	move.w	(scoutcolumn).w,d0
 	add.w	d0,(printx).w			;x 9 + column
 	move.w	(VertLineScrolling).w,d0
 	add.w	d0,(printy).w			;y 4 + text line
 	bsr.w	print
-	add.w	d1,(DispAttribCtr).w
+	add.w	d1,(scoutcolumn).w
 	rts
 .awtm	movea.w	#(awtmstruct-M68K_RAM),a1	;away player name
 	bra.w	.team
@@ -4661,7 +4661,7 @@ UpdateScoutingDisplay				;called every frame by ScoutingReport. When ScoutingRep
 ScrollDisplayUp						;next text line for UpdateScoutingDisplay (column 0). After line 7, move
 									;the text box up one row (DoDMA_nd2 copies 8 rows of $3A from VmMAP1+$212,
 									;rows $80 apart) and stay on the last line
-	clr.w	(DispAttribCtr).w
+	clr.w	(scoutcolumn).w
 	addq.w	#1,(VertLineScrolling).w
 	cmpi.w	#7,(VertLineScrolling).l
 	blt.w	rtss
@@ -4751,7 +4751,7 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 	clr.w	d4						;tiles at vram char 0
 	bsr.w	DecompressGraphicsPlain
 	movea.l	#SpinningEASN+8,a2
-	move.w	d4,(energybarchars).w	;1st vram char of the cup sprites
+	move.w	d4,(logochars).w		;1st vram char of the cup sprites
 	bsr.w	DecompressGraphicsPlain
 	bsr.w	UpdateStanleyCupAnimation
 	move.w	#$18,(palcount).w		;24
@@ -4778,7 +4778,7 @@ UpdateStanleyCupAnimation			;one SpinningEASN sprite at each StanleyCupPosTable 
 	andi.w	#7,(asv).w
 	movea.l	#SpinningEASN,a0
 	lea	StanleyCupPosTable(pc),a4
-	move.w	(energybarchars).w,d3
+	move.w	(logochars).w,d3
 .top	move.w	(a4)+,d0			;each table entry: column in d0, row in d1
 	asl.w	#3,d0
 	addi.w	#$58,d0					;x = column * 8 + $58
@@ -4909,10 +4909,10 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	bsr.w	dobitmap
 
 	movea.l	#TitleLogoSprites+8,a2
-	move.w	d4,(energybarchars).w	;1st vram char of the logo sprites
+	move.w	d4,(logochars).w		;1st vram char of the logo sprites
 	bsr.w	DecompressGraphicsPlain
 	movea.l	#Title3Sprites+8,a2
-	move.w	d4,(crowdvrcset).w		;1st vram char of the Title3map sprites
+	move.w	d4,(menuspritechars).w	;1st vram char of the Title3map sprites
 	bsr.w	DecompressGraphicsPlain
 	clr.l	(fofdata2).w			;TitleAnimCallback timers
 	clr.w	(fofdata2+4).w
@@ -4926,16 +4926,16 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	movea.l	#Credits,a1				;copyright lines
 	bsr.w	.top4
 	addi.w	#$20,(Vscroll).w
-	move.w	#$104,(clampcounter).w	;AddTitleLogoSprites logo slide in
+	move.w	#$104,(logoslide).w		;AddTitleLogoSprites logo slide in
 	move.w	#$120,(playoffspritex).w	;logo x
 	move.w	#$D0,(playoffspritey).w	;logo y
 	clr.w	(asv).w
-	move.w	#$FFCE,(DispAttribCtr).w	;Hscroll speed (UpdateHorizontalScroll)
+	move.w	#$FFCE,(titlescrollspeed).w	;Hscroll speed (UpdateHorizontalScroll)
 	move.w	#$20,(palcount).w
 	move	#$2500,sr
 
 .top1	bsr.w	TitleScreen_wait	;wait for the logo
-	tst.w	(clampcounter).w
+	tst.w	(logoslide).w
 	bne.s	.top1
 
 	move.w	#$3C,d3					;1 second
@@ -4993,7 +4993,7 @@ TitleAnimCallback					;CallAnimationCallback routine for the title
 	movea.w	#(fofdata2-M68K_RAM),a1
 	lea	TitleScrollTriggers(pc),a2
 	moveq	#2,d7
-	move.w	(crowdvrcset).w,d3
+	move.w	(menuspritechars).w,d3
 	ori.w	#$8000,d3				;priority
 .top	move.w	(a1)+,d0			;sprite d7 (2-0): d0 = its fofdata2 timer
 	bmi.w	.chk
@@ -5029,9 +5029,9 @@ TitlePalettes						;four 16 color palettes for palfadenew+$20, one
 
 UpdateHorizontalScroll				;title screen line scroll, called each vblank from VBlank_TitleScreen.
 									;The top $AF lines scroll plane B by Hscroll, the last $31 lines and plane
-									;A stay at 0. Hscroll moves by (asv += DispAttribCtr) >> 8; beyond +-8 the
-									;direction flips, else about 1 in 40 frames picks a new speed (-$32 to
-									;$32)
+									;A stay at 0. Hscroll moves by (asv += titlescrollspeed) >> 8; beyond +-8
+									;the direction flips, else about 1 in 40 frames picks a new speed (-$32
+									;to $32)
 	move.w	#$DF,d0					;224 lines
 	movea.w	#(SortCords-M68K_RAM),a0	;line scroll table
 .loop	clr.l	(a0)+				;clear one line scroll entry (plane A and B words); d0 = lines left
@@ -5039,7 +5039,7 @@ UpdateHorizontalScroll				;title screen line scroll, called each vblank from VBl
 	ble.w	.next
 	move.w	(Hscroll).w,-2(a0)
 .next	dbf	d0,.loop				;next line
-	move.w	(DispAttribCtr).w,d0
+	move.w	(titlescrollspeed).w,d0
 	add.w	(asv).w,d0
 	move.w	d0,(asv).w
 	asr.w	#8,d0
@@ -5053,8 +5053,8 @@ UpdateHorizontalScroll				;title screen line scroll, called each vblank from VBl
 	cmp.w	#$64,d0
 	bhi.w	.x
 	subi.w	#$32,d0
-	move.w	d0,(DispAttribCtr).w
-.rev	neg.w	(DispAttribCtr).w	;flip the scroll direction
+	move.w	d0,(titlescrollspeed).w
+.rev	neg.w	(titlescrollspeed).w	;flip the scroll direction
 .x	rts								;return
 
 TitleScreen_wait					;wait for vblank, run TitleAnimCallback through CallAnimationCallback.wait
@@ -5120,20 +5120,20 @@ EndSpriteList						;end of the sprite list build: close the sprite list at a6 an
 	rts
 
 AddTitleLogoSprites					;four Titlemap2 logo sprites at playoffspritex, playoffspritey.
-									;clampcounter counts down by 2 and the pieces drop into place from above,
+									;logoslide counts down by 2 and the pieces drop into place from above,
 									;each 64 later than the next.
 									;Called from CallAnimationCallback
-	subq.w	#2,(clampcounter).w
+	subq.w	#2,(logoslide).w
 	bpl.w	.0
-	clr.w	(clampcounter).w
+	clr.w	(logoslide).w
 .0	movea.l	#TitleLogoSprites,a0	;a0 = logo sprite data
 	moveq	#3,d7
-	move.w	(energybarchars).w,d3
+	move.w	(logochars).w,d3
 	ori.w	#$8000,d3				;priority
 .top	move.w	(playoffspritex).w,d0	;logo piece d7 (3-0): x = playoffspritex
 	move.w	d7,d1
 	asl.w	#6,d1
-	sub.w	(clampcounter).w,d1
+	sub.w	(logoslide).w,d1
 	bmi.w	.1
 	clr.w	d1						;in place
 .1	add.w	(playoffspritey).w,d1	;y = piece drop offset + base y
@@ -5242,7 +5242,7 @@ setoptions							;options screen display and input. Called from PeriodOver.
 	bsr.w	dobitmap
 
 	movea.l	#GameSetupSprites+8,a2	;roster player sprite tiles after the bitmap
-	move.w	d4,(crowdvrcset).w
+	move.w	d4,(menuspritechars).w
 	bsr.w	DecompressGraphicsPlain
 	bsr.w	defaultsprites2
 	move.w	#$28,(SortCords+rosxoff).w	;home player x offset 40 (off the block)
@@ -5875,7 +5875,7 @@ AddTeamSpriteFrame					;add player a3 (x = Xpos + rosxoff, y = Ypos) and a GameS
 	addi.w	#$C0,d0
 .x	move.w	#$80,d1					;sprite y
 	moveq	#1,d2					;frame
-	move.w	(crowdvrcset).w,d3
+	move.w	(menuspritechars).w,d3
 	bra.w	SetSframe
 
 VBlank_SetOptions					;VBint handler stored by setoptions: cramfade unless dfng, plus
@@ -6580,11 +6580,11 @@ ShowThreeStars						;end of game "Stars of the Game" box. Called from UpdatePA w
 .nosong	movem.l	(sp)+,d0-d5/a0-a4	;restore registers
 	rts
 
-TakeTopStarScore					;take the highest of the 52 star scores at DispAttribCtr (26 per team,
+TakeTopStarScore					;take the highest of the 52 star scores at starscores (26 per team,
 									;home first) and clear it. Returns d0 = player slot, a2 = its team struct.
 									;Called from ShowThreeStars
 	movem.l	d1-d2/a1/a4,-(sp)
-	movea.w	#(DispAttribCtr-M68K_RAM),a4
+	movea.w	#(starscores-M68K_RAM),a4
 	clr.l	d0						;best so far
 	moveq	#$33,d2					;52 scores
 .find	cmp.l	(a4)+,d0			;scan for the highest score
@@ -6594,7 +6594,7 @@ TakeTopStarScore					;take the highest of the 52 star scores at DispAttribCtr (2
 .next	dbf	d2,.find				;next entry
 	clr.l	(a1)					;taken
 	move.w	a1,d0
-	subi.w	#(DispAttribCtr-M68K_RAM),d0
+	subi.w	#(starscores-M68K_RAM),d0
 	lsr.w	#2,d0					;entry number
 	movea.w	#(tmstruct-M68K_RAM),a2
 	cmp.w	#$1A,d0
@@ -6604,11 +6604,11 @@ TakeTopStarScore					;take the highest of the 52 star scores at DispAttribCtr (2
 .home	movem.l	(sp)+,d1-d2/a1/a4	;restore registers
 	rts
 
-CalcStarScores						;star score for every roster slot of both teams to DispAttribCtr (26 longs
+CalcStarScores						;star score for every roster slot of both teams to starscores (26 longs
 									;per team, home first). d5 = GetPeriodTime + d2, the goalie ice time
 									;needed. If gsp is 3 and the score is not tied, the scorer of the last
 									;goal gets $7FFFFFFF. Called from ShowThreeStars
-	movea.w	#(DispAttribCtr-M68K_RAM),a4
+	movea.w	#(starscores-M68K_RAM),a4
 	jsr	(GetPeriodTime).w
 	move.w	d0,d5
 	add.w	d2,d5
@@ -6630,7 +6630,7 @@ CalcStarScores						;star score for every roster slot of both teams to DispAttri
 	addi.w	#$1A,d0					;away goal: second 26 entries
 .slot	add.b	ssscorer(a0),d0		;scorer
 	asl.w	#2,d0
-	movea.w	#(DispAttribCtr-M68K_RAM),a0
+	movea.w	#(starscores-M68K_RAM),a0
 	move.l	#$7FFFFFFF,0(a0,d0.w)	;game winner is the first star
 .x	rts								;return
 
