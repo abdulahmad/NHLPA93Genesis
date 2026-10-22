@@ -75,3 +75,7 @@ The documentation lives in [`docs/`](docs/README.md):
 - [File formats](docs/file-formats.md): `.map.jim`, `.anim`, `.pal`, packed tiles, strings, sound files and the team data layout
 - [Modding](docs/modding.md): developing on this build, supported ROMs, known issues, tips
 - [Conventions](docs/conventions.md): naming lineage, comment rules, local labels
+
+## Credits
+
+Thanks to chaos, StaticEck, McMarkis, Drezz, smozoma and kingraph for their help with the disassembly.
