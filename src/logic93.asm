@@ -1196,14 +1196,16 @@ asspenalty							;player a3 should goto penalty box
 	bpl.w	rtss
 	addq.w	#8,temp1(a3)
 	bset	#pfnc,pflags(a3)
-	;glide in, turn toward the wall (facedir 6 or 2 by handedness)
+	;glide in, turn toward d2: right handed faces 6 (left, away from the box), left handed faces 2
+	;(right, toward the box). Righty faces 6 (mirrored to frame dir 2), lefty faces 2: both show the
+	;same glide frame, the righty x-flipped
 	move.w	#SPAglide,d1
 	bsr.w	SetSPA
 	moveq	#6,d2
 	tst.b	handed(a3)
-	beq.w	.left
-	moveq	#2,d2
-.left	cmp.w	facedir(a3),d2		;turn one step toward d2
+	beq.w	.righty
+	moveq	#2,d2					;left handed: face 2 (right)
+.righty	cmp.w	facedir(a3),d2		;turn one step toward d2
 	beq.w	.ok
 	addq.w	#1,facedir(a3)
 	andi.w	#7,facedir(a3)

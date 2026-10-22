@@ -959,11 +959,12 @@ updateplayers						;update every object in SortCords
 	bne.w	.z1
 	tst.w	Zvel(a3)
 	beq.w	.done
-.z1	asl.w	#1,d4					;*32	gravity
+.z1	asl.w	#1,d4					;gravity: d4 = 32*d7, Zvel -= it
 	sub.w	d4,Zvel(a3)
-	asl.w	#1,d4					;*64
+	asl.w	#1,d4					;d4 = 64*d7, Zvel -= it: 96*d7 in all (120*d7
+									;Rev A PAL); Zvel unit 1/4096 px a frame
 	sub.w	d4,Zvel(a3)
-	lsr.w	#2,d4
+	lsr.w	#2,d4					;d4 back to 16*d7, the position step
 	move.w	Zvel(a3),d0
 	muls.w	d4,d0
 	add.l	d0,Zpos(a3)
