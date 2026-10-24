@@ -75,6 +75,10 @@ The documentation lives in [`docs/`](docs/README.md):
 - [Modding](docs/modding.md): developing on this build, supported ROMs, known issues, tips
 - [Conventions](docs/conventions.md): naming lineage, comment rules, local labels
 
+## AI assistance
+
+This project is AI-assisted. The work is directed by a strict ruleset and curated by hand, with the aim of producing correctly labelled and commented code that matches the spirit of what the original source code would have been. We can't guarantee it's perfect, and ultimately this will always be a work in progress. If you see something that needs fixing, raise an issue, or even better, raise a PR.
+
 ## Credits
 
 Thanks to chaos, StaticEck, McMarkis and Drezz for their help with the disassembly.
