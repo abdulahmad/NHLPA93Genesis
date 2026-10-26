@@ -19,7 +19,7 @@ The extension gives the format:
 | `_cmdstream.bin` | 68000 event stream of a song or effect, see [Sound](#sound) | `Sound/fmtune_<song>`, `Sound/sfx_<name>` |
 | `_pcm.bin` | Raw signed 8-bit PCM sample | `Sound/sfx_<name>_pcm` (12 files) |
 | `fm_instrument_patches.bin` | 32 YM2612 patches of 32 bytes | `Sound/` |
-| `z80_snd_drv93.bin`, `z80_snd_drv93_end.bin` | The Z80 sound driver, in two pieces around the FM patch bank address | `Sound/` |
+| `z80_snd_drv93.bin` | The Z80 sound driver bytes, only for the build's check of `src/z80_snd_drv93.asm` | `Sound/` |
 | `.bin` (text) | `Text/ScoutingReportText.bin`, see [Text](#text) | `Text/` |
 
 ## .map.jim and .anim: the container
@@ -142,7 +142,7 @@ full. The files:
 | `fmtune_<song>_cmdstream.bin`, `sfx_<name>_cmdstream.bin` | An event stream. An event is 4 bytes: delay before it, status (bits 6-4 command, bits 3-0 MIDI channel), two data bytes. Commands: `$0x` key off, `$1x` key on (note, volume; volume 0 = key off), `$4x` set the channel's patch, `$6x` pitch bend; the others are ignored. Status 0 ends the stream; a non-negative long after it is a loop pointer (songs `$35`-`$37`). `MusicTrackPointerTable` holds the word offsets of the 56 streams |
 | `fm_instrument_patches.bin` | 32 patches of 32 bytes (1024 bytes). Byte `$1E` is the pitch bend scale. The Z80 reads them through its 32K bank window |
 | `sfx_<name>_pcm.bin` | A sample, raw signed 8-bit PCM. Patches `$60` and up are samples; `pcm_sample_table` has 15 entries (sample address, 0), the 12 samples are these files |
-| `z80_snd_drv93.bin`, `z80_snd_drv93_end.bin` | The Z80 program (631 and 14 bytes). The first byte (`$18`) and the `ld bc` / `ld a` that load the FM patch bank address are in `src/sound93.asm`; `p_initialZ80` copies `$295` bytes to Z80 RAM |
+| `z80_snd_drv93.bin` | The Z80 program (651 bytes) as it is in the ROM. Not included anywhere: the source is `src/z80_snd_drv93.asm`, and the build compares its asm80 output with this file except the FM patch address operands (Z80 `$278`-`$27C`), which `src/sound93.asm` writes from `fm_instrument_patches`. `p_initialZ80` copies `$295` bytes to Z80 RAM |
 
 ## Team data
 
