@@ -16,7 +16,7 @@ const ROOT = path.join(__dirname, '..');
 const WIN = process.platform === 'win32';
 const EXE = path.join(ROOT, 'assembler', 'Assembler.exe');
 const MODES = {
-    // id is the MODE equate src/sound93.asm uses to include this mode's Z80 driver binary.
+    // id is the MODE equate src/sound/sound93.asm uses to include this mode's Z80 driver binary.
     retail: { id: 0, rev: 0, checksum: 1, prebuild: 'retail', ref: 'nhlpa93retail.bin' },
     reva: { id: 1, rev: 1, checksum: 1, prebuild: 'reva', ref: 'nhlpa93retailRevA.bin' },
     revb: { id: 2, rev: 2, checksum: 1, prebuild: 'revb', ref: 'nhlpa93retailRevB.bin' },
@@ -53,7 +53,7 @@ let n = 0;
 const ROMNAME = { retail: 'Rev 0 (v1.0, retail)', reva: 'Rev A (v1.1)', revb: 'Rev B (v1.2)', dev: 'Rev 0 or Rev A' }[modeName];
 const ABOUT = {
     prebuild: `check the ${modeName === 'dev' ? 'Rev 0 or Rev A' : ROMNAME} ROM and extract graphics/sound assets into Extracted/`,
-    z80: 'asm80 builds the Z80 sound driver from src/z80_snd_drv93.asm and checks it against the ROM bytes',
+    z80: 'asm80 builds the Z80 sound driver from src/sound/z80_snd_drv93.asm and checks it against the ROM bytes',
     assemble: 'SNASM68k turns src/hockey93.asm into a raw ROM image',
     fixopcodes: "patch the instructions where SNASM picks a different encoding than EA's original assembler",
     verify: modeName === 'dev' ? 'compare byte-for-byte with a retail ROM (only retail and reva builds)' : `compare byte-for-byte with the ${ROMNAME} ROM`,
@@ -128,13 +128,13 @@ function run(cmd, argv, opts = {}) {
 }
 const node = (script, argv) => run(process.execPath, [path.join(__dirname, script), ...argv]);
 
-// The Z80 sound driver: asm80 (npm devDependency) assembles src/z80_snd_drv93.asm into obj/z80_snd_drv93.bin,
+// The Z80 sound driver: asm80 (npm devDependency) assembles src/sound/z80_snd_drv93.asm into obj/z80_snd_drv93.bin,
 // which sound93.asm includes. It must equal the bytes extracted from the ROM (Extracted/Sound/z80_snd_drv93.bin)
 // except Z80 $278-$27C, the FM patch address operands that sound93.asm writes from fm_instrument_patches.
 const Z80_PATCHED = [0x278, 0x27D];
 async function buildZ80() {
     begin('z80');
-    const src = path.join(ROOT, 'src', 'z80_snd_drv93.asm');
+    const src = path.join(ROOT, 'src', 'sound', 'z80_snd_drv93.asm');
     const out = path.join(OBJ, 'z80_snd_drv93.bin');
     let asm80;
     try { asm80 = require.resolve('asm80/asm80.js'); } catch (e) { fail('z80', 'asm80 is not installed, run npm i'); }

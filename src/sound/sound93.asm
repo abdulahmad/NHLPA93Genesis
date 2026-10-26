@@ -666,7 +666,7 @@ ClearAllTrackAndSFXSlots			;free the 8 track slots and reset the 6 channel struc
 	dbf	d0,.chan
 	rts
 
-Z80_Program_Code					;The Z80 sound driver, $28B bytes, built by asm80 from src/z80_snd_drv93.asm
+Z80_Program_Code					;The Z80 sound driver, $28B bytes, built by asm80 from src/sound/z80_snd_drv93.asm
 									;(output/<mode>/obj/z80_snd_drv93.bin). p_initialZ80 copies Z80ProgramLen ($295)
 									;bytes from here: the 10 bytes after the driver (the pad byte and the start of
 									;pcm_sample_table) land below the Z80 stack top and are never read as data.

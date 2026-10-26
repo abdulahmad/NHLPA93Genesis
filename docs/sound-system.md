@@ -3,7 +3,7 @@
 The 68000 sound driver, the sound numbers, the event streams and the data the Z80 and the samples use.
 
 ## Overview
-The 68k side of the driver is source (`src/sound93.asm`, `p_turnoff` ... `ClearAllTrackAndSFXSlots`); the Z80 side is source too (`src/z80_snd_drv93.asm`, asm80). There is no NHL 92 code in it: 92 used a different driver.
+The 68k side of the driver is source (`src/sound/sound93.asm`, `p_turnoff` ... `ClearAllTrackAndSFXSlots`); the Z80 side is source too (`src/sound/z80_snd_drv93.asm`, asm80). There is no NHL 92 code in it: 92 used a different driver.
 
 - **Sound numbers**: `sfx` and `song` both call `play_sfx_or_music_track`. Sounds 0-`$2F` are effects, `$30`-`$37` are songs (`$30` goal, `$31` period start, `$32` third period, `$33` power play, `$34` faceoff, `$35` title, `$36` end of game / playoffs / highlights, `$37` scouting report). Starting a song stops the one already playing.
 - **Track slots**: 8 slots at `fm_track_slots` (long event pointer, delay). `p_music_vblank` runs every slot once per frame; in Rev A, at 50 Hz, it runs them again every 6th frame.
