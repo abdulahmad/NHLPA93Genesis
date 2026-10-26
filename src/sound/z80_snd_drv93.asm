@@ -1,7 +1,7 @@
 ; =============================================================================
 ; NHLPA Hockey 93 Sega Genesis - Z80 sound driver
 ; =============================================================================
-; Source for the Z80 program that p_initialZ80 (src/sound93.asm) copies into
+; Source for the Z80 program that p_initialZ80 (src/sound/sound93.asm) copies into
 ; Z80 RAM at $0000 ($A00000 on the 68000 side). In the Rev 0 (retail) ROM
 ; these bytes sit at $16E52-$170DC (Z80_Program_Code). Built with asm80 (npm
 ; package, see README) into output/<mode>/obj/z80_snd_drv93.bin, which
@@ -22,7 +22,7 @@
 ;   - Unlike NHL 92's driver it waits on the YM2612 busy flag (status bit 7)
 ;     before every register write.
 ;
-; Shared RAM used by the 68000 (names as in src/sound93.asm):
+; Shared RAM used by the 68000 (names as in src/sound/sound93.asm):
 ;   $0002-$0022  z80_cmdbuf         copy of Z80_command_buffer (33 bytes)
 ;   $0023-$0025  z80_dac_start_addr       sample start address (high byte first)
 ;   $0026-$0028  z80_dac_next_addr  where playback continues after a 0 byte

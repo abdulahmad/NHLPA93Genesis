@@ -7005,7 +7005,7 @@ crash								;printbig d1 then d0 as hex, set the vdp up, load a palette and han
 	include tables93.asm			;data tables (crowd frames, asstab, penalty list, playoff tree, menu item
 									;lists)
 	include sram93.asm				;BackupRAM_*, BackupRAM_Save, ClearRAMBuffer, ClearVRAM
-	include sound93.asm				;sound driver (68k code, Z80 blob, sound data)
+	include sound\sound93.asm				;sound driver (68k code, Z80 blob, sound data)
 	include graphics93.asm			;graphics data (92 incbins after part 3)
 	include checksum93.asm			;SecurityCheck, ValidationRoutine
 	dcb.b	$80000-*,$FF

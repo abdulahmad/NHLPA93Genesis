@@ -19,7 +19,7 @@ Because the source uses labels, code and data can grow or move. Add new RAM to `
 `npm run extractassets` extracts from the retail ROM, `npm run extractassets:reva` from the Rev A ROM and `npm run extractassets:revb` from the Rev B ROM. The builds extract automatically when needed (`tools/prebuild.js`).
 
 ## Known Issues/Limitations
-- **Z80 sound driver**: source in `src/z80_snd_drv93.asm` (asm80). A changed driver no longer matches the ROM bytes, so the build's z80 step reports a mismatch.
+- **Z80 sound driver**: source in `src/sound/z80_snd_drv93.asm` (asm80). A changed driver no longer matches the ROM bytes, so the build's z80 step reports a mismatch.
 - **Asset boundaries**: graphics and sound slices start at the labels the code uses; a few files may contain more than one asset.
 - **Checksum sensitivity**: `build:retail` / `build:reva` / `build:revb` need the exact retail ROM for the extracted files; with validation on, any change stops the game at boot.
 

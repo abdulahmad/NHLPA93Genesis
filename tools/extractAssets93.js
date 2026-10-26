@@ -58,14 +58,14 @@ const assets = [
     { name: 'WPGv.pal', folder: 'Graphics/Pals', start: 0x43C8, end: 0x43E8 },
     { name: 'WSHh.pal', folder: 'Graphics/Pals', start: 0x4666, end: 0x4686 },
     { name: 'WSHv.pal', folder: 'Graphics/Pals', start: 0x4686, end: 0x46A6 },
-    // Sound and graphics data: contiguous retail slices (end is exclusive) for the incbins in src/sound93.asm
+    // Sound and graphics data: contiguous retail slices (end is exclusive) for the incbins in src/sound/sound93.asm
     // ($16E52-$2E1FB) and src/graphics93.asm ($2E1FC-$7FB75). Names follow the NHL 92 extractor where 93 has the
     // same asset (z80_snd_drv, sfx_*_pcm, sfx_*_cmdstream, <name>.map.jim for bitmaps, <name>.anim for sprite frames).
     // Sound boundaries come from the tables the 68k driver reads (pcm_sample_table, fm_instrument_patches,
     // MusicTrackPointerTable; each event stream runs to the next one). Sound names are from the sfx / song call sites.
     // Absolute addresses (PCM sample table, song loop pointers, the Z80 FM patch bank address) and pad bytes are
     // source in sound93.asm, not slices, so the data relocates for Rev A.
-    // The Z80 driver ($28B bytes at Z80_Program_Code) is source (src/z80_snd_drv93.asm). This slice is not included
+    // The Z80 driver ($28B bytes at Z80_Program_Code) is source (src/sound/z80_snd_drv93.asm). This slice is not included
     // anywhere: the build's z80 step only compares the asm80 output with it (all but the FM patch address operands at
     // Z80 $278-$27C, which sound93.asm writes from fm_instrument_patches and so differ between revisions).
     { name: 'z80_snd_drv93.bin', folder: 'Sound', start: 0x016E52, end: 0x0170DD },
