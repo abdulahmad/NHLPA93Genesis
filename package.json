@@ -17,6 +17,7 @@
     "clean": "node tools/build.js --clean"
   },
   "devDependencies": {
+    "asm80": "1.11.14",
     "crc-32": "^1.2.2"
   },
   "author": "",

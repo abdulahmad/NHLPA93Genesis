@@ -59,14 +59,16 @@ const assets = [
     { name: 'WSHh.pal', folder: 'Graphics/Pals', start: 0x4666, end: 0x4686 },
     { name: 'WSHv.pal', folder: 'Graphics/Pals', start: 0x4686, end: 0x46A6 },
     // Sound and graphics data: contiguous retail slices (end is exclusive) for the incbins in src/sound93.asm
-    // ($16E53-$2E1FB) and src/graphics93.asm ($2E1FC-$7FB75). Names follow the NHL 92 extractor where 93 has the
+    // ($16E52-$2E1FB) and src/graphics93.asm ($2E1FC-$7FB75). Names follow the NHL 92 extractor where 93 has the
     // same asset (z80_snd_drv, sfx_*_pcm, sfx_*_cmdstream, <name>.map.jim for bitmaps, <name>.anim for sprite frames).
     // Sound boundaries come from the tables the 68k driver reads (pcm_sample_table, fm_instrument_patches,
     // MusicTrackPointerTable; each event stream runs to the next one). Sound names are from the sfx / song call sites.
     // Absolute addresses (PCM sample table, song loop pointers, the Z80 FM patch bank address) and pad bytes are
     // source in sound93.asm, not slices, so the data relocates for Rev A.
-    { name: 'z80_snd_drv93.bin', folder: 'Sound', start: 0x016E53, end: 0x0170CA }, // 93 Z80 driver after its first byte ($16E52 is Z80_Program_Code dc.b $18), up to the ld bc of the FM patch bank address. p_initialZ80 copies $295 bytes from $16E52
-    { name: 'z80_snd_drv93_end.bin', folder: 'Sound', start: 0x0170CF, end: 0x0170DD }, // rest of the 93 Z80 driver
+    // The Z80 driver ($28B bytes at Z80_Program_Code) is source (src/z80_snd_drv93.asm). This slice is not included
+    // anywhere: the build's z80 step only compares the asm80 output with it (all but the FM patch address operands at
+    // Z80 $278-$27C, which sound93.asm writes from fm_instrument_patches and so differ between revisions).
+    { name: 'z80_snd_drv93.bin', folder: 'Sound', start: 0x016E52, end: 0x0170DD },
     { name: 'sfx_shotbh_pcm.bin', folder: 'Sound', start: 0x017156, end: 0x01734A }, // sample 2: shotbh
     { name: 'sfx_pass_pcm.bin', folder: 'Sound', start: 0x01734A, end: 0x018077 }, // sample 1: pass
     { name: 'sfx_oooh_pcm.bin', folder: 'Sound', start: 0x018078, end: 0x01B2BC }, // sample 12: oooh, sfx_oooh2, sfx_bglass
@@ -221,8 +223,7 @@ const REVB_SLICES = {
     'WPGv.pal': [0x0043C2, 0x0043E2],
     'WSHh.pal': [0x004660, 0x004680],
     'WSHv.pal': [0x004680, 0x0046A0],
-    'z80_snd_drv93.bin': [0x016E47, 0x0170BE],
-    'z80_snd_drv93_end.bin': [0x0170C3, 0x0170D1],
+    'z80_snd_drv93.bin': [0x016E46, 0x0170D1],
     'sfx_shotbh_pcm.bin': [0x01714A, 0x01733E],
     'sfx_pass_pcm.bin': [0x01733E, 0x01806B],
     'sfx_oooh_pcm.bin': [0x01806C, 0x01B2B0],
@@ -321,15 +322,16 @@ const REVB_SLICES = {
 };
 
 // Known retail ROMs. Slices are listed at retail addresses; each version maps a retail address to
-// its own (Rev A: every slice from the Z80 driver at $16E53 on sits $2E bytes higher). The bytes of
-// every slice are the same in both, so either ROM gives the same Extracted/ files.
+// its own (Rev A: every slice from the Z80 driver at $16E52 on sits $2E bytes higher). The bytes of
+// every slice are the same in every version, so any ROM gives the same Extracted/ files, except the FM patch
+// address operands inside z80_snd_drv93.bin (only used by the build's z80 check, which skips them).
 const VERSIONS = [
     { id: 'retail', label: 'NHLPA Hockey 93 Rev 0 / v1.0 retail (1992.JUL, GM T-50396 -00)', file: 'nhlpa93retail.bin',
       sha1: '8efc1cacb079ea223966dda065c16c49e584cac2', size: 0x80000, date: '1992.JUL', serial: 'GM T-50396 -00',
       map: (a) => a },
     { id: 'reva', label: 'NHLPA Hockey 93 Rev A / v1.1 (1992.OCT, GM T-50396 -01)', file: 'nhlpa93retailRevA.bin',
       sha1: '2ab048fc7209df28b00ef47f2f686f5b7208466e', size: 0x80000, date: '1992.OCT', serial: 'GM T-50396 -01',
-      map: (a) => (a >= 0x16E53 ? a + 0x2E : a) },
+      map: (a) => (a >= 0x16E52 ? a + 0x2E : a) },
     { id: 'revb', label: 'NHLPA Hockey 93 Rev B / v1.2 (1993.FEB, GM T-50396 -00)', file: 'nhlpa93retailRevB.bin',
       sha1: '76c0f3d4665ffcd53adfffaa27fc4dded694f8f7', size: 0x80000, date: '1993.FEB', serial: 'GM T-50396 -00', slices: REVB_SLICES },
 ];

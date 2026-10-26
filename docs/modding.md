@@ -8,7 +8,7 @@ Build with `build:dev` (`checksum=0`): `Start` skips `jsr ValidationRoutine` and
 Because the source uses labels, code and data can grow or move. Add new RAM to `src/ram93.asm`. Sound and graphics files come from `Extracted/`; replace a file there (keeping its name) to change an asset, or add an `incbin` with a label.
 
 ## Supported ROMs
-`tools/extractAssets93.js` finds the version of the ROM it is given by SHA-1 and reads each slice at that version's address (Rev A: every slice from the Z80 driver at `$16E53` on is `$2E` bytes higher). Both give the same `Extracted/` files. Any other ROM (a bad dump, a hack, a prototype such as the `1993.FEB` or `1992.MAY` builds) is refused with its SHA-1, size and header.
+`tools/extractAssets93.js` finds the version of the ROM it is given by SHA-1 and reads each slice at that version's address (Rev A: every slice from the Z80 driver at `$16E52` on is `$2E` bytes higher). Both give the same `Extracted/` files. Any other ROM (a bad dump, a hack, a prototype such as the `1993.FEB` or `1992.MAY` builds) is refused with its SHA-1, size and header.
 
 | Version | Header | File | SHA-1 |
 | --- | --- | --- | --- |
@@ -19,7 +19,7 @@ Because the source uses labels, code and data can grow or move. Add new RAM to `
 `npm run extractassets` extracts from the retail ROM, `npm run extractassets:reva` from the Rev A ROM and `npm run extractassets:revb` from the Rev B ROM. The builds extract automatically when needed (`tools/prebuild.js`).
 
 ## Known Issues/Limitations
-- **Z80 sound driver**: the Z80 code is the extracted binary, not source.
+- **Z80 sound driver**: source in `src/z80_snd_drv93.asm` (asm80). A changed driver no longer matches the ROM bytes, so the build's z80 step reports a mismatch.
 - **Asset boundaries**: graphics and sound slices start at the labels the code uses; a few files may contain more than one asset.
 - **Checksum sensitivity**: `build:retail` / `build:reva` / `build:revb` need the exact retail ROM for the extracted files; with validation on, any change stops the game at boot.
 

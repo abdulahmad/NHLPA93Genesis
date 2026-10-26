@@ -16,10 +16,11 @@ const ROOT = path.join(__dirname, '..');
 const WIN = process.platform === 'win32';
 const EXE = path.join(ROOT, 'assembler', 'Assembler.exe');
 const MODES = {
-    retail: { rev: 0, checksum: 1, prebuild: 'retail', ref: 'nhlpa93retail.bin' },
-    reva: { rev: 1, checksum: 1, prebuild: 'reva', ref: 'nhlpa93retailRevA.bin' },
-    revb: { rev: 2, checksum: 1, prebuild: 'revb', ref: 'nhlpa93retailRevB.bin' },
-    dev: { rev: 1, checksum: 0, prebuild: 'any', ref: null },
+    // id is the MODE equate src/sound93.asm uses to include this mode's Z80 driver binary.
+    retail: { id: 0, rev: 0, checksum: 1, prebuild: 'retail', ref: 'nhlpa93retail.bin' },
+    reva: { id: 1, rev: 1, checksum: 1, prebuild: 'reva', ref: 'nhlpa93retailRevA.bin' },
+    revb: { id: 2, rev: 2, checksum: 1, prebuild: 'revb', ref: 'nhlpa93retailRevB.bin' },
+    dev: { id: 3, rev: 1, checksum: 0, prebuild: 'any', ref: null },
 };
 
 const args = process.argv.slice(2);
@@ -52,6 +53,7 @@ let n = 0;
 const ROMNAME = { retail: 'Rev 0 (v1.0, retail)', reva: 'Rev A (v1.1)', revb: 'Rev B (v1.2)', dev: 'Rev 0 or Rev A' }[modeName];
 const ABOUT = {
     prebuild: `check the ${modeName === 'dev' ? 'Rev 0 or Rev A' : ROMNAME} ROM and extract graphics/sound assets into Extracted/`,
+    z80: 'asm80 builds the Z80 sound driver from src/z80_snd_drv93.asm and checks it against the ROM bytes',
     assemble: 'SNASM68k turns src/hockey93.asm into a raw ROM image',
     fixopcodes: "patch the instructions where SNASM picks a different encoding than EA's original assembler",
     verify: modeName === 'dev' ? 'compare byte-for-byte with a retail ROM (only retail and reva builds)' : `compare byte-for-byte with the ${ROMNAME} ROM`,
@@ -126,12 +128,36 @@ function run(cmd, argv, opts = {}) {
 }
 const node = (script, argv) => run(process.execPath, [path.join(__dirname, script), ...argv]);
 
+// The Z80 sound driver: asm80 (npm devDependency) assembles src/z80_snd_drv93.asm into obj/z80_snd_drv93.bin,
+// which sound93.asm includes. It must equal the bytes extracted from the ROM (Extracted/Sound/z80_snd_drv93.bin)
+// except Z80 $278-$27C, the FM patch address operands that sound93.asm writes from fm_instrument_patches.
+const Z80_PATCHED = [0x278, 0x27D];
+async function buildZ80() {
+    begin('z80');
+    const src = path.join(ROOT, 'src', 'z80_snd_drv93.asm');
+    const out = path.join(OBJ, 'z80_snd_drv93.bin');
+    let asm80;
+    try { asm80 = require.resolve('asm80/asm80.js'); } catch (e) { fail('z80', 'asm80 is not installed, run npm i'); }
+    try { fs.rmSync(out, { force: true }); } catch (e) { /* rebuilt below */ }
+    // asm80 writes the output (and its .lst) relative to the source folder.
+    const r = await run(process.execPath, [asm80, '-m', 'Z80', '-t', 'bin', '-o', path.relative(path.dirname(src), out), rel(src)]);
+    fs.writeFileSync(path.join(OBJ, 'Build_z80_snd_drv93.log'), r.out, 'latin1');
+    if (r.status !== 0 || !fs.existsSync(out) || /ERROR/.test(r.out)) fail('z80', `asm80 failed, see ${rel(path.join(OBJ, 'Build_z80_snd_drv93.log'))}`, r.out.split(/\r?\n/).slice(-12).join('\n'));
+    detail(r.out);
+    const built = fs.readFileSync(out);
+    const ref = fs.readFileSync(path.join(ROOT, 'Extracted', 'Sound', 'z80_snd_drv93.bin'));
+    let i = 0;
+    while (i < built.length && i < ref.length && (built[i] === ref[i] || (i >= Z80_PATCHED[0] && i < Z80_PATCHED[1]))) i++;
+    if (built.length !== ref.length || i < built.length) fail('z80', `${rel(out)} (${built.length} bytes) differs from the ROM bytes (${ref.length} bytes) at Z80 $${i.toString(16).toUpperCase()}`, null, 'MISMATCH');
+    step('z80', `MATCH ${built.length} bytes (except the FM patch address at $278-$27C) == ROM Z80_Program_Code -> ${rel(out)}`);
+}
+
 // SNASM68k with the options EA's build matched, directly on Windows, under wine elsewhere.
 // src and outputs are relative to src/ (backslashes, as the assembler expects).
 async function assemble(name, src, outBase, binExt, rev, checksum) {
     const asmArgs = ['/p', '/m', '/g', '/o', 'd-', '/o', 's-', '/o', 'r+', '/o', 'l+', '/o', 'l.', '/o', 'ow+', '/o', 'op-',
         '/o', 'os+', '/o', 'oz+', '/o', 'omq-', '/o', 'oaq+', '/o', 'osq+',
-        '/e', `REV=${rev}`, '/e', `CHECKSUM=${checksum}`, `${src},${outBase}${binExt},${outBase},${outBase}`];
+        '/e', `REV=${rev}`, '/e', `CHECKSUM=${checksum}`, '/e', `MODE=${mode.id}`, `${src},${outBase}${binExt},${outBase},${outBase}`];
     const r = await (WIN ? run(EXE, asmArgs, { cwd: path.join(ROOT, 'src') })
         : run('wine', [EXE, ...asmArgs], { cwd: path.join(ROOT, 'src'), env: { ...process.env, WINEDEBUG: '-all' } }));
     const base = path.join(ROOT, 'src', outBase.replace(/\\/g, '/'));
@@ -179,7 +205,7 @@ async function fixopcodes(name, a) {
         console.log(c.green('CLEAN'));
         return;
     }
-    steps = 4;
+    steps = 5;
     const rev = mode.rev;
     const checksum = mode.checksum;
     fs.mkdirSync(OBJ, { recursive: true });
@@ -195,19 +221,22 @@ async function fixopcodes(name, a) {
         detail(r.out);
     }
 
-    // 2. assemble: the ROM.
+    // 2. z80: the Z80 sound driver binary sound93.asm includes.
+    await buildZ80();
+
+    // 3. assemble: the ROM.
     begin('assemble');
     const a = await assemble('assemble', 'hockey93.asm', `..\\output\\${modeName}\\obj\\nhl93`, '.bin', rev, checksum);
     step('assemble', `${a.errors} errors, ${a.warnings} warnings, ${a.lines} lines in ${a.secs}s (REV=${rev} CHECKSUM=${checksum}) -> ${rel(a.bin)}`);
 
-    // 3. fixopcodes: the result is output/<mode>/nhl93.bin.
+    // 4. fixopcodes: the result is output/<mode>/nhl93.bin.
     begin('fixopcodes');
     const f = await fixopcodes('fixopcodes', a);
     const final = path.join(OUT, ROM);
     fs.renameSync(f.fixed, final);
     step('fixopcodes', `${f.count} opcodes fixed${f.skipped ? `, ${f.skipped} skipped` : ''} -> ${rel(final)}`);
 
-    // 4. verify against the reference ROM.
+    // 5. verify against the reference ROM.
     if (!mode.ref) { step('verify', `${rel(final)} not verified (dev build)`); return; }
     begin('verify');
     const r = await node('verifyRom.js', [final, mode.ref]);
