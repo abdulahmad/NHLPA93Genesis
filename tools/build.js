@@ -16,11 +16,10 @@ const ROOT = path.join(__dirname, '..');
 const WIN = process.platform === 'win32';
 const EXE = path.join(ROOT, 'assembler', 'Assembler.exe');
 const MODES = {
-    // id is the MODE equate src/sound/sound93.asm uses to include this mode's Z80 driver binary.
-    retail: { id: 0, rev: 0, checksum: 1, prebuild: 'retail', ref: 'nhlpa93retail.bin' },
-    reva: { id: 1, rev: 1, checksum: 1, prebuild: 'reva', ref: 'nhlpa93retailRevA.bin' },
-    revb: { id: 2, rev: 2, checksum: 1, prebuild: 'revb', ref: 'nhlpa93retailRevB.bin' },
-    dev: { id: 3, rev: 1, checksum: 0, prebuild: 'any', ref: null },
+    retail: { rev: 0, checksum: 1, prebuild: 'retail', ref: 'nhlpa93retail.bin' },
+    reva: { rev: 1, checksum: 1, prebuild: 'reva', ref: 'nhlpa93retailRevA.bin' },
+    revb: { rev: 2, checksum: 1, prebuild: 'revb', ref: 'nhlpa93retailRevB.bin' },
+    dev: { rev: 1, checksum: 0, prebuild: 'any', ref: null },
 };
 
 const args = process.argv.slice(2);
@@ -157,7 +156,7 @@ async function buildZ80() {
 async function assemble(name, src, outBase, binExt, rev, checksum) {
     const asmArgs = ['/p', '/m', '/g', '/o', 'd-', '/o', 's-', '/o', 'r+', '/o', 'l+', '/o', 'l.', '/o', 'ow+', '/o', 'op-',
         '/o', 'os+', '/o', 'oz+', '/o', 'omq-', '/o', 'oaq+', '/o', 'osq+',
-        '/e', `REV=${rev}`, '/e', `CHECKSUM=${checksum}`, '/e', `MODE=${mode.id}`, `${src},${outBase}${binExt},${outBase},${outBase}`];
+        '/e', `REV=${rev}`, '/e', `CHECKSUM=${checksum}`, `${src},${outBase}${binExt},${outBase},${outBase}`];
     const r = await (WIN ? run(EXE, asmArgs, { cwd: path.join(ROOT, 'src') })
         : run('wine', [EXE, ...asmArgs], { cwd: path.join(ROOT, 'src'), env: { ...process.env, WINEDEBUG: '-all' } }));
     const base = path.join(ROOT, 'src', outBase.replace(/\\/g, '/'));
