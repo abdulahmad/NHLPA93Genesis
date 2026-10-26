@@ -672,31 +672,35 @@ Z80_Program_Code					;The Z80 sound driver, $28B bytes, built by asm80 from src/
 									;pcm_sample_table) land below the Z80 stack top and are never read as data.
 	IF MODE=0 ; retail
 	incbin	..\output\retail\obj\z80_snd_drv93.bin,0,$278	;Z80 $0000-$0277
-	ENDIF
-	IF MODE=1 ; Rev A
-	incbin	..\output\reva\obj\z80_snd_drv93.bin,0,$278
-	ENDIF
-	IF MODE=2 ; Rev B
-	incbin	..\output\revb\obj\z80_snd_drv93.bin,0,$278
-	ENDIF
-	IF MODE=3 ; dev
-	incbin	..\output\dev\obj\z80_snd_drv93.bin,0,$278
-	ENDIF
 	;Z80 $0278 (z80_fm_patches_window): ld bc operand, the bank window address of the FM patches
 	dc.b	fm_instrument_patches&$FF,((fm_instrument_patches>>8)&$7F)|$80
 	;Z80 $027A: add hl,bc / ld a,n; $027C (z80_fm_patches_bank): the 32K bank of the FM patches
 	dc.b	$09,$3E,fm_instrument_patches>>15
-	IF MODE=0
 	incbin	..\output\retail\obj\z80_snd_drv93.bin,$27D,$E	;Z80 $027D-$028A: jp SetBank, SelectPart
 	ENDIF
-	IF MODE=1
-	incbin	..\output\reva\obj\z80_snd_drv93.bin,$27D,$E
+	IF MODE=1 ; Rev A
+	incbin	..\output\reva\obj\z80_snd_drv93.bin,0,$278	;Z80 $0000-$0277
+	;Z80 $0278 (z80_fm_patches_window): ld bc operand, the bank window address of the FM patches
+	dc.b	fm_instrument_patches&$FF,((fm_instrument_patches>>8)&$7F)|$80
+	;Z80 $027A: add hl,bc / ld a,n; $027C (z80_fm_patches_bank): the 32K bank of the FM patches
+	dc.b	$09,$3E,fm_instrument_patches>>15
+	incbin	..\output\reva\obj\z80_snd_drv93.bin,$27D,$E	;Z80 $027D-$028A: jp SetBank, SelectPart
 	ENDIF
-	IF MODE=2
-	incbin	..\output\revb\obj\z80_snd_drv93.bin,$27D,$E
+	IF MODE=2 ; Rev B
+	incbin	..\output\revb\obj\z80_snd_drv93.bin,0,$278	;Z80 $0000-$0277
+	;Z80 $0278 (z80_fm_patches_window): ld bc operand, the bank window address of the FM patches
+	dc.b	fm_instrument_patches&$FF,((fm_instrument_patches>>8)&$7F)|$80
+	;Z80 $027A: add hl,bc / ld a,n; $027C (z80_fm_patches_bank): the 32K bank of the FM patches
+	dc.b	$09,$3E,fm_instrument_patches>>15
+	incbin	..\output\revb\obj\z80_snd_drv93.bin,$27D,$E	;Z80 $027D-$028A: jp SetBank, SelectPart
 	ENDIF
-	IF MODE=3
-	incbin	..\output\dev\obj\z80_snd_drv93.bin,$27D,$E
+	IF MODE=3 ; dev
+	incbin	..\output\dev\obj\z80_snd_drv93.bin,0,$278	;Z80 $0000-$0277
+	;Z80 $0278 (z80_fm_patches_window): ld bc operand, the bank window address of the FM patches
+	dc.b	fm_instrument_patches&$FF,((fm_instrument_patches>>8)&$7F)|$80
+	;Z80 $027A: add hl,bc / ld a,n; $027C (z80_fm_patches_bank): the 32K bank of the FM patches
+	dc.b	$09,$3E,fm_instrument_patches>>15
+	incbin	..\output\dev\obj\z80_snd_drv93.bin,$27D,$E	;Z80 $027D-$028A: jp SetBank, SelectPart
 	ENDIF
 	IF REV=0
 	dc.b	$83						;pad: Rev 0 leftover byte
