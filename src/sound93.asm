@@ -66,17 +66,17 @@ CmdBufSize			=	33			;bytes copied to the Z80
 
 ;	Z80 memory map (offsets from Z80_RAM)
 z80_cmdbuf			=	$02			;where the command buffer is copied to
-z80_pcm_addr		=	$23			;3 bytes: PCM sample start (high byte first)
-z80_pcm_next_addr	=	$26			;3 bytes: where the Z80 carries on after a 0 sample byte (high byte first)
-z80_pcm_vol			=	$83			;volume table page ($03-$1F, $1F loudest)
-z80_pcm_rate		=	$8E			;sample step per DAC write; 0 holds the current byte (no advance)
+z80_dac_start_addr		=	$23			;3 bytes: PCM sample start (high byte first)
+z80_dac_next_addr	=	$26			;3 bytes: where the Z80 carries on after a 0 sample byte (high byte first)
+z80_dac_vol_page			=	$83			;volume table page ($03-$1F, $1F loudest)
+z80_dac_step		=	$8E			;sample step per DAC write; 0 holds the current byte (no advance)
 z80_cmd				=	$96			;low byte of the sample loop's jump target: Z80Idle when the Z80 can take
 									;a command
 z80_cmd_high		=	$97			;high byte of that jump target; the Z80 always leaves 0 here
 z80_tables			=	$2000		;end of the 29 tables of 256 bytes below it
-Z80Idle				=	$7D			;the sample loop (PcmLoop in z80_snd_drv93.asm): no command pending
-Z80Cmd_Upload		=	$D1			;UploadHandler: take the command buffer
-Z80Cmd_PCM			=	$29			;Start: restart with the PCM sample set up at z80_pcm_addr
+Z80Idle				=	$7D			;the sample loop (MainLoop in z80_snd_drv93.asm): no command pending
+Z80Cmd_Upload		=	$D1			;UpdateFmChannels: take the command buffer
+Z80Cmd_PCM			=	$29			;Z80_Init: restart with the PCM sample set up at z80_dac_start_addr
 Z80ProgramLen		=	$295		;bytes of the Z80 program copied to Z80 RAM
 Z80Tables			=	29			;tables of 256 bytes built by p_initialZ80
 
@@ -275,7 +275,7 @@ UploadCommandBufferToZ80			;copy the 33-byte command buffer to Z80 RAM $02 once 
 	bne.s	z80_bus_release_delay	;not idle
 	cmpi.b	#Z80Idle,z80_cmd(a0)
 	bne.s	z80_bus_release_delay	;not idle
-	move.b	#Z80Cmd_Upload,z80_cmd(a0)	;the sample loop jumps to UploadHandler next
+	move.b	#Z80Cmd_Upload,z80_cmd(a0)	;the sample loop jumps to UpdateFmChannels next
 	move.b	#0,z80_cmd_high(a0)
 	adda.w	#z80_cmdbuf,a0
 	movea.w	#(Z80_command_buffer-M68K_RAM),a1
@@ -359,7 +359,7 @@ StopPCMChannel						;clear Z80 RAM $8E (the PCM rate byte written by
 .zb2	btst	#0,(IO_Z80BUS).l	;Rev B waits for the Z80 to grant the bus
 	bne.b	.zb2
 	ENDIF
-	clr.b	(Z80_RAM+z80_pcm_rate).l
+	clr.b	(Z80_RAM+z80_dac_step).l
 	clr.w	(IO_Z80BUS).l
 	rts
 
@@ -446,23 +446,23 @@ handle_command_10					;event $1x: key on note +2 at volume +3 on channel +1 bits
 	bne.b	.zb3
 	ENDIF
 	movea.l	#Z80_RAM,a1
-	move.b	d0,z80_pcm_addr+2(a1)	;first long to Z80 $23-$25, high byte first
+	move.b	d0,z80_dac_start_addr+2(a1)	;first long to Z80 $23-$25, high byte first
 	lsr.w	#8,d0
-	move.b	d0,z80_pcm_addr+1(a1)
+	move.b	d0,z80_dac_start_addr+1(a1)
 	swap	d0
-	move.b	d0,z80_pcm_addr(a1)
-	move.b	d1,z80_pcm_next_addr+2(a1)	;second long to Z80 $26-$28
+	move.b	d0,z80_dac_start_addr(a1)
+	move.b	d1,z80_dac_next_addr+2(a1)	;second long to Z80 $26-$28
 	lsr.w	#8,d1
-	move.b	d1,z80_pcm_next_addr+1(a1)
+	move.b	d1,z80_dac_next_addr+1(a1)
 	swap	d1
-	move.b	d1,z80_pcm_next_addr(a1)
+	move.b	d1,z80_dac_next_addr(a1)
 	move.b	ev_data+1(a0),d1
 	lsr.b	#2,d1					;volume / 4
 	cmp.w	#3,d1
 	bgt.w	.rate
 	moveq	#3,d1					;at least 3
-.rate	move.b	d1,z80_pcm_vol(a1)	;volume/4 (at least 3): the Z80's volume table page
-	move.b	#Z80Cmd_PCM,z80_cmd(a1)	;command $29: the Z80 restarts at Start
+.rate	move.b	d1,z80_dac_vol_page(a1)	;volume/4 (at least 3): the Z80's volume table page
+	move.b	#Z80Cmd_PCM,z80_cmd(a1)	;command $29: the Z80 restarts at Z80_Init
 	move.b	#0,z80_cmd_high(a1)
 	clr.w	(IO_Z80BUS).l
 
@@ -520,7 +520,7 @@ UpdateChannelFrequencyAndVolume		;set the frequency of channel struct a2 from it
 	neg.w	d3
 	addq.w	#8,d3
 	lsr.w	d3,d2					;frequency number >> (8 - octave)
-	move.b	d2,(Z80_RAM+z80_pcm_rate).l	;PCM rate
+	move.b	d2,(Z80_RAM+z80_dac_step).l	;PCM rate
 	clr.w	(IO_Z80BUS).l
 	rts
 .fnum								;frequency number of each note in the octave
