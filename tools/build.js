@@ -31,6 +31,8 @@ const OUT = path.join(ROOT, 'output', modeName);
 const OBJ = path.join(OUT, 'obj');
 const ROM = 'nhl93.bin';
 const { romPath } = require('./roms');
+// The generated file gets each player's id (the number of his placeholder, P001) as a comment at the end of his row.
+const idNote = (rest, ph) => rest + (rest.includes(';') ? ' ' : '\t;') + ph.slice(0, 4);
 const rel = (p) => path.relative(ROOT, p).split(path.sep).join('/');
 
 // ANSI colors: off when stdout is not a terminal, NO_COLOR is set, or --no-color. Windows 10+ cmd and
@@ -196,12 +198,12 @@ function buildTeamData() {
     const names = fs.readFileSync(namesPath, 'latin1').split('\n');
     if (names[names.length - 1] === '') names.pop();
     let i = 0;
-    const out = fs.readFileSync(srcPath, 'latin1').replace(/^([ \t]*Player[ \t]+')((?:[^']|'')*)(')/gm, (m, a, placeholder, z) => {
+    const out = fs.readFileSync(srcPath, 'latin1').replace(/^([ \t]*Player[ \t]+')((?:[^']|'')*)(')([^\r\n]*)/gm, (m, a, placeholder, z, rest) => {
         const name = names[i++];
         if (name === undefined) fail('names', `${rel(srcPath)} has more Player rows than ${rel(namesPath)} has names (${names.length})`);
         const want = placeholder.replace(/''/g, "'").length;
         if (name.length !== want) fail('names', `Player row ${i}: the name '${name}' has ${name.length} characters, its placeholder '${placeholder}' has ${want}`);
-        return a + name.replace(/'/g, "''") + z;
+        return a + name.replace(/'/g, "''") + z + idNote(rest, placeholder);
     });
     if (i !== names.length) fail('names', `${rel(namesPath)} has ${names.length} names, ${rel(srcPath)} has ${i} Player rows`);
     const dest = path.join(OBJ, 'teamdata93.asm');
