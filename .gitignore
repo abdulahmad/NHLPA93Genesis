@@ -9,6 +9,8 @@ output/**
 
 # ROM dumps (not distributed; see README for file names and SHA-1)
 nhl*.bin
+/*.bin
+/*.gen
 nhl*.md
 nhl*.gen
 

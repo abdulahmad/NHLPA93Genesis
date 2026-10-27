@@ -13,7 +13,7 @@ The code, data and bytes must not change unless the change is the point of the P
 tools/verify_all.sh -q
 ```
 
-It builds Rev 0 and Rev A and compares each with its ROM (`nhlpa93retail.bin` and `nhlpa93retailRevA.bin` in the repo folder, see the README). Code that differs between the revisions is inside `IF REV=...` blocks; keep a change that is not about a revision outside them.
+It builds Rev 0 and Rev A and compares each with its ROM (`nhlpa93retail.bin` and `nhlpa93retailRevA.bin` in the repo folder under any file name, found by SHA-1; see the README). Code that differs between the revisions is inside `IF REV=...` blocks; keep a change that is not about a revision outside them.
 
 A comment-only or rename-only change must not change a single byte. Never commit ROMs, `Extracted/` or
 `output/`.

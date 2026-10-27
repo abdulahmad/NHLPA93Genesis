@@ -36,13 +36,13 @@ Status: all 68k code is source and the Rev 0 (v1.0, the "retail" ROM), Rev A (v1
 
 2. In the `NHLPA93Genesis` folder, run `npm i` to install `node_modules` (this includes [asm80](https://www.npmjs.com/package/asm80), pinned in `package.json`, the Z80 assembler for the sound driver)
 
-3. Copy the NHLPA Hockey 93 Sega Genesis retail ROM file into the `NHLPA93Genesis` folder as `nhlpa93retail.bin`. Copy the Rev A ROM as `nhlpa93retailRevA.bin` if you want to verify Rev A builds
+3. Copy the NHLPA Hockey 93 Sega Genesis retail ROM file into the `NHLPA93Genesis` folder (`nhlpa93retail.bin` is the usual name, but any file name works: the build finds each ROM by its SHA-1 and size, `tools/roms.js`). Copy the Rev A ROM there too if you want to verify Rev A builds
 
     | ROM | File name | SHA-1 | Size |
     | --- | --- | --- | --- |
-    | Rev 0, v1.0 "retail" (`1992.JUL`, `GM T-50396 -00`) | `nhlpa93retail.bin` | `8efc1cacb079ea223966dda065c16c49e584cac2` | 524288 bytes |
-    | Rev A, v1.1 (`1992.OCT`, `GM T-50396 -01`) | `nhlpa93retailRevA.bin` | `2ab048fc7209df28b00ef47f2f686f5b7208466e` | 524288 bytes |
-    | Rev B, v1.2 (`1993.FEB`, `GM T-50396 -00`) | `nhlpa93retailRevB.bin` | `76c0f3d4665ffcd53adfffaa27fc4dded694f8f7` | 524288 bytes |
+    | Rev 0, v1.0 "retail" (`1992.JUL`, `GM T-50396 -00`) | `nhlpa93retail.bin` (usual name) | `8efc1cacb079ea223966dda065c16c49e584cac2` | 524288 bytes |
+    | Rev A, v1.1 (`1992.OCT`, `GM T-50396 -01`) | `nhlpa93retailRevA.bin` (usual name) | `2ab048fc7209df28b00ef47f2f686f5b7208466e` | 524288 bytes |
+    | Rev B, v1.2 (`1993.FEB`, `GM T-50396 -00`) | `nhlpa93retailRevB.bin` (usual name) | `76c0f3d4665ffcd53adfffaa27fc4dded694f8f7` | 524288 bytes |
 
 4. Build one of 4 versions. Everything runs through `tools/build.js` (node; on Windows it runs the assembler directly, on Linux/macOS under wine). Each build first runs `tools/prebuild.js`, which checks the ROM by SHA-1 and size (and stops with the expected file name, SHA-1 and size if it is missing or wrong), then extracts the assets into `Extracted/` if they are missing or incomplete. It then assembles the Z80 sound driver with asm80 and `src/hockey93.asm`, fixes the opcodes and verifies the result.
 
