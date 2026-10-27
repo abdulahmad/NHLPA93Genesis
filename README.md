@@ -1,6 +1,8 @@
 # NHLPA93Genesis
 
-> **Making a mod, hack, port or other derivative work from this repo? You must credit me (abdulahmad) and everyone credited in this repo, clearly, in your own repo and in every release. See [Credits and derivative works](#credits-and-derivative-works).**
+> **📀 Game data is not included.** This repository has the assembly code only. The graphics, team palettes, sound samples, music and the NHLPA player names are extracted from your own copy of the original ROM when you build, and are not in the repo. You need the NHLPA Hockey 93 Genesis ROM for the build you want (Rev 0, Rev A or Rev B), with the file names and SHA-1s listed under [Instructions](#instructions), or the build stops.
+
+> **🤝 Making a mod, hack, port or other derivative work from this repo? You must credit me (abdulahmad) and everyone credited in this repo, clearly, in your own repo and in every release. See [Credits and derivative works](#credits-and-derivative-works).**
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how changes are made (names, comments, layout, verification).
 
