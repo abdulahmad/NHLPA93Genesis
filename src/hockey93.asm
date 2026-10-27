@@ -9,7 +9,24 @@
 ;	and fixopcodes.js patches the encoding after assembly.
 
 	include	Main93.Asm				;EA provided code for startup and EA logo
-	include	TeamData93.Asm			;null, TeamList ... CreditsPages
+	;null, TeamList ... CreditsPages: src/teamdata93.asm with the real player names put back by tools/build.js (it has
+	;placeholders in git and needs the ROM, see its header)
+	IF REV=0 ; retail
+	include	..\output\retail\obj\TeamData93.Asm
+	ENDIF
+	IF REV=1 ; Rev A and dev (dev has CHECKSUM=0)
+	IF CHECKSUM=1
+	include	..\output\reva\obj\TeamData93.Asm
+	ENDIF
+	ENDIF
+	IF REV=2 ; Rev B
+	include	..\output\revb\obj\TeamData93.Asm
+	ENDIF
+	IF REV=1
+	IF CHECKSUM=0 ; dev
+	include	..\output\dev\obj\TeamData93.Asm
+	ENDIF
+	ENDIF
 	include	Frames93.Asm			;graphics data table for Sprites.anim
 	include	Ram93.Asm				;ram allocation and some equates	
 					;no ROM bytes (equates only)

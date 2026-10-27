@@ -51,6 +51,7 @@ let n = 0;
 // wraps). Otherwise both lines are printed once, after the step.
 const ROMNAME = { retail: 'Rev 0 (v1.0, retail)', reva: 'Rev A (v1.1)', revb: 'Rev B (v1.2)', dev: 'Rev 0 or Rev A' }[modeName];
 const ABOUT = {
+    names: 'put the real player names (extracted from the ROM) into a copy of src/teamdata93.asm, which has placeholders',
     prebuild: `check the ${modeName === 'dev' ? 'Rev 0 or Rev A' : ROMNAME} ROM and extract graphics/sound assets into Extracted/`,
     z80: 'asm80 builds the Z80 sound driver from src/sound/z80_snd_drv93.asm and checks it against the ROM bytes',
     assemble: 'SNASM68k turns src/hockey93.asm into a raw ROM image',
@@ -151,6 +152,31 @@ async function buildZ80() {
     step('z80', `MATCH ${built.length} bytes (except the FM patch address at $278-$27C) == ROM Z80_Program_Code -> ${rel(out)}`);
 }
 
+// The team data: src/teamdata93.asm holds placeholders instead of the NHLPA player names. The extractor writes the real
+// names from the ROM to Extracted/PlayerNames.txt (one per line, in the order of the Player rows); this copies the source
+// to obj/teamdata93.asm with each placeholder replaced by its name, which hockey93.asm includes. A name must have the
+// length of its placeholder: the PLAYER macro writes the row length, so a different length would move the data after it.
+function buildTeamData() {
+    begin('names');
+    const srcPath = path.join(ROOT, 'src', 'teamdata93.asm');
+    const namesPath = path.join(ROOT, 'Extracted', 'PlayerNames.txt');
+    if (!fs.existsSync(namesPath)) fail('names', `${rel(namesPath)} is missing, run npm run extractassets`);
+    const names = fs.readFileSync(namesPath, 'latin1').split('\n');
+    if (names[names.length - 1] === '') names.pop();
+    let i = 0;
+    const out = fs.readFileSync(srcPath, 'latin1').replace(/^([ \t]*Player[ \t]+')((?:[^']|'')*)(')/gm, (m, a, placeholder, z) => {
+        const name = names[i++];
+        if (name === undefined) fail('names', `${rel(srcPath)} has more Player rows than ${rel(namesPath)} has names (${names.length})`);
+        const want = placeholder.replace(/''/g, "'").length;
+        if (name.length !== want) fail('names', `Player row ${i}: the name '${name}' has ${name.length} characters, its placeholder '${placeholder}' has ${want}`);
+        return a + name.replace(/'/g, "''") + z;
+    });
+    if (i !== names.length) fail('names', `${rel(namesPath)} has ${names.length} names, ${rel(srcPath)} has ${i} Player rows`);
+    const dest = path.join(OBJ, 'teamdata93.asm');
+    fs.writeFileSync(dest, out, 'latin1');
+    step('names', `${i} player names -> ${rel(dest)}`);
+}
+
 // SNASM68k with the options EA's build matched, directly on Windows, under wine elsewhere.
 // src and outputs are relative to src/ (backslashes, as the assembler expects).
 async function assemble(name, src, outBase, binExt, rev, checksum) {
@@ -204,7 +230,7 @@ async function fixopcodes(name, a) {
         console.log(c.green('CLEAN'));
         return;
     }
-    steps = 5;
+    steps = 6;
     const rev = mode.rev;
     const checksum = mode.checksum;
     fs.mkdirSync(OBJ, { recursive: true });
@@ -223,19 +249,22 @@ async function fixopcodes(name, a) {
     // 2. z80: the Z80 sound driver binary sound93.asm includes.
     await buildZ80();
 
-    // 3. assemble: the ROM.
+    // 3. names: the team data with the real player names, which hockey93.asm includes.
+    buildTeamData();
+
+    // 4. assemble: the ROM.
     begin('assemble');
     const a = await assemble('assemble', 'hockey93.asm', `..\\output\\${modeName}\\obj\\nhl93`, '.bin', rev, checksum);
     step('assemble', `${a.errors} errors, ${a.warnings} warnings, ${a.lines} lines in ${a.secs}s (REV=${rev} CHECKSUM=${checksum}) -> ${rel(a.bin)}`);
 
-    // 4. fixopcodes: the result is output/<mode>/nhl93.bin.
+    // 5. fixopcodes: the result is output/<mode>/nhl93.bin.
     begin('fixopcodes');
     const f = await fixopcodes('fixopcodes', a);
     const final = path.join(OUT, ROM);
     fs.renameSync(f.fixed, final);
     step('fixopcodes', `${f.count} opcodes fixed${f.skipped ? `, ${f.skipped} skipped` : ''} -> ${rel(final)}`);
 
-    // 5. verify against the reference ROM.
+    // 6. verify against the reference ROM.
     if (!mode.ref) { step('verify', `${rel(final)} not verified (dev build)`); return; }
     begin('verify');
     const r = await node('verifyRom.js', [final, mode.ref]);

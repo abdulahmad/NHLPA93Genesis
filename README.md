@@ -15,7 +15,7 @@ A work-in-progress attempt at reverse engineering a bitwise perfect compilable s
 
 Built on the work that McMarkis (https://github.com/Mhopkinsinc/NHLHockey) did to get the NHL 92 source compiling, and my work to make the code bitwise perfect to the retail version. Also references chaos' disassembly work of NHL 92-94 (https://github.com/Chaos81/nhl94-disassembly).
 
-Status: all 68k code is source and the Rev 0 (v1.0, the "retail" ROM), Rev A (v1.1) and Rev B (v1.2) ROMs build bitwise perfect from it. The Z80 sound driver is commented Z80 source (`src/sound/z80_snd_drv93.asm`, assembled with asm80). The sound data (PCM samples, FM patches, event streams), the team palettes and the graphics are incbins of slices extracted from the retail ROM; anything in them that holds a ROM address is source, so the data follows the code.
+Status: all 68k code is source and the Rev 0 (v1.0, the "retail" ROM), Rev A (v1.1) and Rev B (v1.2) ROMs build bitwise perfect from it. The Z80 sound driver is commented Z80 source (`src/sound/z80_snd_drv93.asm`, assembled with asm80). The sound data (PCM samples, FM patches, event streams), the team palettes and the graphics are incbins of slices extracted from the retail ROM, and the player names are put back from the ROM at build time (the source has placeholders); anything in them that holds a ROM address is source, so the data follows the code.
 
 ## Features of this version:
 - Rev 0 / v1.0 (`1992.JUL -00`, build mode `retail`), Rev A / v1.1 (`1992.OCT -01`, build mode `reva`) and Rev B / v1.2 (`1993.FEB -00`, build mode `revb`) ROMs build bitwise perfect from the same source (`IF REV` blocks)
@@ -63,9 +63,10 @@ Other scripts:
 
 1. **prebuild**: check the ROM and extract graphics, sound and text assets into `Extracted/`.
 2. **z80**: asm80 assembles the Z80 sound driver `src/sound/z80_snd_drv93.asm` into `output/<mode>/obj/z80_snd_drv93.bin` (asm80 writes its listing `z80_snd_drv93.lst` next to it) and checks it byte-for-byte against the driver bytes at `Z80_Program_Code`, which the prebuild extracts to `Extracted/Sound/z80_snd_drv93.bin` only for this check. The FM patch address operands (Z80 `$278`-`$27C`) are skipped: `src/sound/sound93.asm` writes them from `fm_instrument_patches`, so they differ between revisions. `src/sound/sound93.asm` includes the assembled file around them.
-3. **assemble**: SNASM68k turns `src/hockey93.asm` into a raw ROM image.
-4. **fixopcodes**: patch the instructions where SNASM picks a different encoding than EA's original assembler.
-5. **verify**: compare byte-for-byte with the Rev 0, Rev A or Rev B ROM. Dev builds are not verified.
+3. **names**: `src/teamdata93.asm` has placeholders instead of the NHLPA player names (they are licensed data and are not in the repository). The prebuild extracts the real names from your ROM into `Extracted/PlayerNames.txt`, and this step writes them into a copy, `output/<mode>/obj/teamdata93.asm`, which `src/hockey93.asm` includes. A name must have the length of its placeholder.
+4. **assemble**: SNASM68k turns `src/hockey93.asm` into a raw ROM image.
+5. **fixopcodes**: patch the instructions where SNASM picks a different encoding than EA's original assembler.
+6. **verify**: compare byte-for-byte with the Rev 0, Rev A or Rev B ROM. Dev builds are not verified.
 
 In a terminal, each step turns a spinner while it runs and is redrawn with a green check or a red cross when it ends. The colours are off when the output is not a terminal, with `NO_COLOR` set, or with `--no-color`. A failing step prints `FAILED` (or `MISMATCH`), the relevant log lines (`output/<mode>/obj/Build_nhl93.log` for the assembler) and `BUILD FAILED at <step>`, and exits 1.
 
