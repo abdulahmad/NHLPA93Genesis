@@ -4,16 +4,16 @@
   "description": "Build scripts for NHLPA Hockey 93 (Sega Genesis)",
   "scripts": {
     "assets": "node tools/prebuild.js any",
-    "extractassets": "node tools/extractAssets93.js nhlpa93retail.bin",
-    "extractassets:reva": "node tools/extractAssets93.js nhlpa93retailRevA.bin",
-    "extractassets:revb": "node tools/extractAssets93.js nhlpa93retailRevB.bin",
+    "extractassets": "node tools/extractAssets93.js retail",
+    "extractassets:reva": "node tools/extractAssets93.js reva",
+    "extractassets:revb": "node tools/extractAssets93.js revb",
     "build:retail": "node tools/build.js retail",
     "build:reva": "node tools/build.js reva",
     "build:revb": "node tools/build.js revb",
     "build:dev": "node tools/build.js dev",
-    "verify:retail": "node tools/verifyRom.js output/retail/nhl93.bin nhlpa93retail.bin",
-    "verify:reva": "node tools/verifyRom.js output/reva/nhl93.bin nhlpa93retailRevA.bin",
-    "verify:revb": "node tools/verifyRom.js output/revb/nhl93.bin nhlpa93retailRevB.bin",
+    "verify:retail": "node tools/verifyRom.js output/retail/nhl93.bin retail",
+    "verify:reva": "node tools/verifyRom.js output/reva/nhl93.bin reva",
+    "verify:revb": "node tools/verifyRom.js output/revb/nhl93.bin revb",
     "clean": "node tools/build.js --clean"
   },
   "devDependencies": {

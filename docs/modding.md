@@ -15,9 +15,9 @@ Because the source uses labels, code and data can grow or move. Add new RAM to `
 
 | Version | Header | File | SHA-1 |
 | --- | --- | --- | --- |
-| Rev 0 (v1.0, "retail") | `1992.JUL`, `GM T-50396 -00` | `nhlpa93retail.bin` | `8efc1cacb079ea223966dda065c16c49e584cac2` |
-| Rev A (v1.1) | `1992.OCT`, `GM T-50396 -01` | `nhlpa93retailRevA.bin` | `2ab048fc7209df28b00ef47f2f686f5b7208466e` |
-| Rev B (v1.2) | `1993.FEB`, `GM T-50396 -00` | `nhlpa93retailRevB.bin` | `76c0f3d4665ffcd53adfffaa27fc4dded694f8f7` |
+| Rev 0 (v1.0, "retail") | `1992.JUL`, `GM T-50396 -00` | `nhlpa93retail.bin` (usual name) | `8efc1cacb079ea223966dda065c16c49e584cac2` |
+| Rev A (v1.1) | `1992.OCT`, `GM T-50396 -01` | `nhlpa93retailRevA.bin` (usual name) | `2ab048fc7209df28b00ef47f2f686f5b7208466e` |
+| Rev B (v1.2) | `1993.FEB`, `GM T-50396 -00` | `nhlpa93retailRevB.bin` (usual name) | `76c0f3d4665ffcd53adfffaa27fc4dded694f8f7` |
 
 `npm run extractassets` extracts from the retail ROM, `npm run extractassets:reva` from the Rev A ROM and `npm run extractassets:revb` from the Rev B ROM. The builds extract automatically when needed (`tools/prebuild.js`).
 
