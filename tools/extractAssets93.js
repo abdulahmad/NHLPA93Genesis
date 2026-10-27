@@ -5,6 +5,8 @@ const crypto = require('crypto');
 // NHLPA 93 asset extractor: writes the retail ROM slices that the source incbins (team palettes in
 // teamdata93.asm, sound and Z80 data in sound93.asm, graphics in graphics93.asm) into Extracted/.
 // Run by npm run extractassets (and by every build). Slices are [start, end) retail addresses.
+// It also writes Extracted/PlayerNames.txt: the real player names, one per line in the order of the Player rows of
+// teamdata93.asm, which holds placeholders instead (tools/build.js puts the names back, see playerNames below).
 const assets = [
     { name: 'ASEh.pal', folder: 'Graphics/Pals', start: 0x388, end: 0x3A8 }, // ASE
     { name: 'ASEv.pal', folder: 'Graphics/Pals', start: 0x3A8, end: 0x3C8 },
@@ -328,13 +330,35 @@ const REVB_SLICES = {
 const VERSIONS = [
     { id: 'retail', label: 'NHLPA Hockey 93 Rev 0 / v1.0 retail (1992.JUL, GM T-50396 -00)', file: 'nhlpa93retail.bin',
       sha1: '8efc1cacb079ea223966dda065c16c49e584cac2', size: 0x80000, date: '1992.JUL', serial: 'GM T-50396 -00',
-      map: (a) => a },
+      map: (a) => a, teamList: 0x314 },
     { id: 'reva', label: 'NHLPA Hockey 93 Rev A / v1.1 (1992.OCT, GM T-50396 -01)', file: 'nhlpa93retailRevA.bin',
       sha1: '2ab048fc7209df28b00ef47f2f686f5b7208466e', size: 0x80000, date: '1992.OCT', serial: 'GM T-50396 -01',
-      map: (a) => (a >= 0x16E52 ? a + 0x2E : a) },
+      map: (a) => (a >= 0x16E52 ? a + 0x2E : a), teamList: 0x314 },
     { id: 'revb', label: 'NHLPA Hockey 93 Rev B / v1.2 (1993.FEB, GM T-50396 -00)', file: 'nhlpa93retailRevB.bin',
-      sha1: '76c0f3d4665ffcd53adfffaa27fc4dded694f8f7', size: 0x80000, date: '1993.FEB', serial: 'GM T-50396 -00', slices: REVB_SLICES },
+      sha1: '76c0f3d4665ffcd53adfffaa27fc4dded694f8f7', size: 0x80000, date: '1993.FEB', serial: 'GM T-50396 -00', slices: REVB_SLICES, teamList: 0x30E },
 ];
+
+// The player names of the ROM, in the order of the Player rows of src/teamdata93.asm (the team records in ROM order, the
+// players of each record in order). teamList is the address of TeamList: 26 long pointers to the team records. A record
+// starts with six word offsets; the players run from the first offset to the team name. Each player is a word holding
+// the length of the row prefix and name (the PLAYER macro writes $00 and the length byte), the name (padded to an even
+// length with $00) and 8 rating bytes.
+function readPlayerNames(rom, teamList) {
+    const records = [];
+    for (let i = 0; i < 26; i++) records.push(rom.readUInt32BE(teamList + i * 4));
+    records.sort((a, b) => a - b);
+    const names = [];
+    for (const rec of records) {
+        const end = rec + rom.readUInt16BE(rec + 4);        // Teamname
+        let pos = rec + rom.readUInt16BE(rec);              // Playerdata
+        while (pos < end - 2) {
+            const len = rom.readUInt16BE(pos) - 2;
+            names.push(rom.toString('latin1', pos + 2, pos + 2 + len).replace(/\0/g, ''));
+            pos += 2 + len + 8;
+        }
+    }
+    return names;
+}
 
 // Find the version of a ROM by SHA-1. Size and header are only used to explain a refusal.
 function detectVersion(data) {
@@ -403,6 +427,12 @@ async function extractAssets(romPath, options = {}) {
                 console.log(`Extracted ${asset.name} to ${outputPath}`);
             }
         }
+
+        // The player names: teamdata93.asm in git has placeholders, the build writes these into the copy it assembles.
+        const names = readPlayerNames(romData, version.teamList);
+        await fs.writeFile(path.join(baseDir, 'PlayerNames.txt'), names.join('\n') + '\n', 'latin1');
+        written.push({ path: 'PlayerNames.txt', size: names.join('\n').length + 1 });
+        console.log(`Extracted ${names.length} player names to ${path.join(baseDir, 'PlayerNames.txt')}`);
 
         // Completion marker for tools/prebuild.js: ROM, extractor version and every file written.
         const extractorSha1 = crypto.createHash('sha1').update(await fs.readFile(__filename)).digest('hex');
