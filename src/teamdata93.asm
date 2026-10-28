@@ -5,7 +5,7 @@
 ;	not included directly: it needs the original ROM.
 ;	  - tools/extractAssets93.js reads the player names from your ROM into Extracted/PlayerNames.txt
 ;	    (one name per line, in the order of the Player rows below);
-;	  - tools/build.js (the 'names' step) copies this file to output/<mode>/obj/teamdata93.asm with the real
+;	  - tools/build.js (the 'names' step) copies this file to output/obj/teamdata93.asm with the real
 ;	    names put back, and hockey93.asm includes that copy.
 ;	Keep the placeholder lengths when editing a row's name or adding a player.
 ;
