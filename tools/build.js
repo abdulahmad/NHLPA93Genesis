@@ -31,6 +31,8 @@ const OUT = path.join(ROOT, 'output', modeName);
 const OBJ = path.join(OUT, 'obj');
 const ROM = 'nhl93.bin';
 const { romPath } = require('./roms');
+const { formatAssemblerFailureDetail, hasBranchOutOfRange, DEFAULT_DOC } = require('./assembleHints');
+const EXPANDING_ROM_FILL_HINT = 'the 512 KB fill in src/hockey93.asm';
 // The generated file gets each player's id (the number of his placeholder, P001) as a comment at the end of his row.
 const idNote = (rest, ph) => rest + (rest.includes(';') ? ' ' : '\t;') + ph.slice(0, 4);
 const rel = (p) => path.relative(ROOT, p).split(path.sep).join('/');
@@ -226,8 +228,11 @@ async function assemble(name, src, outBase, binExt, rev, checksum) {
     const sum = r.out.match(/(\d+) error\(s\) from (\d+) lines in ([\d.]+) seconds/);
     if (!sum) fail(name, `no assembler summary in ${rel(logPath)} (exit ${r.status})`, lines.slice(-20).join('\n'));
     if (Number(sum[1]) > 0 || !fs.existsSync(base + binExt)) {
-        const bad = lines.filter((l) => /\.(asm|inc|mac)\(\d+|error|fatal|not recognised|undefined|could not/i.test(l) && !/error\(s\) from/.test(l)).slice(0, 40);
-        fail(name, `${sum[1]} error(s), see ${rel(logPath)}`, bad.join('\n'));
+        const detail = formatAssemblerFailureDetail(lines, { fillHint: EXPANDING_ROM_FILL_HINT });
+        const headline = hasBranchOutOfRange(lines)
+            ? `branch out of range — see ${DEFAULT_DOC}`
+            : `${sum[1]} error(s), see ${rel(logPath)}`;
+        fail(name, headline, detail);
     }
     detail(r.out);
     const warnings = lines.filter((l) => /warning/i.test(l)).length;
