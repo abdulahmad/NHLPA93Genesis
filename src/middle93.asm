@@ -700,7 +700,7 @@ setVram_0							;from 92 setVram second half. second half of setVram without the
 									;SetupStanleyCupCelebrationScreen
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
-	move.w	#$8F02,(Vctrl).l		;VmInc 2
+	VmInc	2
 	clr.w	d0
 	bsr.w	Vmaddr					;vram address 0, a0 = Vdata
 	move.w	#$3FFF,d0				;$4000 longs = all 64k of vram
