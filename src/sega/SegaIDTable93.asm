@@ -24,8 +24,7 @@
 	ELSE
 	dc.w	$0000					; 06	$18E	check sum data (installed by checksum program) (2 bytes)
 	ENDIF
-	ELSE
-	IF REV=1
+	ELSEIF REV=1
 ;	Rev A (v1.1)
 	dc.b	'SEGA GENESIS    '		; 01	$100	Sega Genesis ID (16 bytes)
 	dc.b	'(C)T-50 1992.OCT'		; 02	$110	company ID / release date (YYYY.MMM) (16 bytes)
@@ -56,7 +55,6 @@
 	dc.w	$2799					; 06	$18E	check sum data (installed by checksum program) (2 bytes)
 	ELSE
 	dc.w	$0000					; 06	$18E	check sum data (installed by checksum program) (2 bytes)
-	ENDIF
 	ENDIF
 	ENDIF
 	dc.b	'J               '		; 07	$190	I/O peripheral info. (J=Control Pad) (16 bytes)

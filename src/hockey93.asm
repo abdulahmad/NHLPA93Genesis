@@ -11,22 +11,17 @@
 	include	Main93.Asm				;EA provided code for startup and EA logo
 	;null, TeamList ... CreditsPages: src/teamdata93.asm with the real player names put back by tools/build.js (it has
 	;placeholders in git and needs the ROM, see its header)
-	IF REV=0 ; retail
-	include	..\output\retail\obj\TeamData93.Asm
-	ENDIF
-	IF REV=1 ; Rev A and dev (dev has CHECKSUM=0)
-	IF CHECKSUM=1
-	include	..\output\reva\obj\TeamData93.Asm
-	ENDIF
-	ENDIF
-	IF REV=2 ; Rev B
-	include	..\output\revb\obj\TeamData93.Asm
-	ENDIF
-	IF REV=1
+	;this build's copy (TeamData93Asm, a string equate used as \TeamData93Asm): dev is the only build with CHECKSUM=0 (REV=1), the retail builds go by REV
 	IF CHECKSUM=0 ; dev
-	include	..\output\dev\obj\TeamData93.Asm
+TeamData93Asm	equs	"..\output\dev\obj\TeamData93.Asm"
+	ELSEIF REV=0 ; retail (Rev 0)
+TeamData93Asm	equs	"..\output\retail\obj\TeamData93.Asm"
+	ELSEIF REV=1 ; Rev A
+TeamData93Asm	equs	"..\output\reva\obj\TeamData93.Asm"
+	ELSE ; Rev B (REV=2)
+TeamData93Asm	equs	"..\output\revb\obj\TeamData93.Asm"
 	ENDIF
-	ENDIF
+	include	\TeamData93Asm
 	include	Frames93.Asm			;graphics data table for Sprites.anim
 	include	Ram93.Asm				;ram allocation and some equates	
 					;no ROM bytes (equates only)

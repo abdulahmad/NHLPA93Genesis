@@ -24,12 +24,10 @@ ContinueValidation	subq.l	#1,d1	;loop back until d1 longs have been counted
 	;compare the finished sum with the expected value for this ROM revision
 	IF REV=2
 	cmpi.l	#$07F7C2C9,d0			;Rev B sum. Real CMPI (0C80), not EA cmp
-	ELSE
-	IF REV=1
+	ELSEIF REV=1
 	cmpi.l	#$C62A6024,d0			;Rev A sum. Real CMPI (0C80), not EA cmp
 	ELSE
 	cmpi.l	#$EB689746,d0			;Rev 0 sum. Real CMPI (0C80), not EA cmp
-	ENDIF
 	ENDIF
 	bne.s	VDPErrorSetup			;wrong sum: red screen
 	rts

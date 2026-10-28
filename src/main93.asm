@@ -55,7 +55,7 @@ PadByte	=	0
 	dcb.l   18,$FFFFFFFF
 	ELSE
 	dcb.b   72,$00
-	ENDIF							; $5E - $18 = 70 bytes
+	ENDIF							; $5F - $18 + 1 = 72 bytes
 	
 	org	$60
 	dc.l	IRQ7					; level 0-3 interrupts are not implemented.
@@ -73,7 +73,7 @@ PadByte	=	0
 	dcb.l   28,$FFFFFFFF
 	ELSE
 	dcb.b   112,$00
-	ENDIF							; $5E - $18 = 70 bytes
+	ENDIF							; $FF - $90 + 1 = 112 bytes
 
 ErrorStatus							;4 longs of zero (16 bytes, ends at $110); nothing in the source
 									;references it
