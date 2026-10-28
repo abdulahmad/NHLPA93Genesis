@@ -81,6 +81,42 @@ String  MACRO
     IF NARG>23
         dc.b    \24
     ENDIF
+    IF NARG>24
+        dc.b    \25
+    ENDIF
+    IF NARG>25
+        dc.b    \26
+    ENDIF
+    IF NARG>26
+        dc.b    \27
+    ENDIF
+    IF NARG>27
+        dc.b    \28
+    ENDIF
+    IF NARG>28
+        dc.b    \29
+    ENDIF
+    IF NARG>29
+        dc.b    \30
+    ENDIF
+    IF NARG>30
+        dc.b    \31
+    ENDIF
+    IF NARG>31
+        dc.b    \32
+    ENDIF
+    IF NARG>32
+        dc.b    \33
+    ENDIF
+    IF NARG>33
+        dc.b    \34
+    ENDIF
+    IF NARG>34
+        dc.b    \35
+    ENDIF
+    IF NARG>35
+        dc.b    \36
+    ENDIF
         ; Pad with zero if needed for word alignment
     IF *&1
         dc.b    0
