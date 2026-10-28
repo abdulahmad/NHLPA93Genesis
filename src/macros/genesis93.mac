@@ -4,7 +4,7 @@
 ; VmInc: set the VDP auto-increment (register 15).
 ;   Emits: move.w #$8F00+(\1&255),Vctrl (one instruction, no data).
 ;   \1: bytes to step after each VDP data access (2 for word writes).
-;   Example (92G middle.asm:484; unused here): VmInc 2  -> move.w #$8F02,Vctrl
+;   Example (middle93.asm:703): VmInc 2  -> move.w #$8F02,Vctrl
 VmInc MACRO							;set video auto inc. mode
 	move	#$8f00+(\1&255),Vctrl
 	ENDM
