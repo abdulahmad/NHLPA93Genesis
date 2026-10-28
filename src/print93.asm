@@ -303,14 +303,10 @@ FormatAndPrintTime					;print a period label and time. d0 bits 14-15 = period (P
 	bra.w	print
 
 PeriodLabelTable					;String list for FormatAndPrintTime: " 1", " 2", " 3", "OT"
-	dc.w	4
-	dc.b	' 1'
-	dc.w	4
-	dc.b	' 2'
-	dc.w	4
-	dc.b	' 3'
-	dc.w	4
-	dc.b	'OT'
+	String	' 1'
+	String	' 2'
+	String	' 3'
+	String	'OT'
 
 PushTime							;convert d0 into string format of minutes:seconds. Return a1 = string.
 									;pads the minutes to 2 places with a space

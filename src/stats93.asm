@@ -265,8 +265,7 @@ SelectLinePlayer					;line editor: C pressed on slot TestList. Build the list of
 	moveq	#3,d1
 	bsr.w	Framer
 	bsr.w	printsmallz
-	dc.w	$0018
-	dc.b	$F8,4,2,2,1,'{Select  Player}',0
+	String	$F8,$04,$02,$02,$01,'{Select  Player}'
 	clr.w	d0						;draw the list without moving the cursor
 	bra.w	.vert
 .loop	IF REV=2					;picker loop: one frame of input
@@ -344,11 +343,7 @@ PrintAttribHeader					;line editor player list: column header for attribute page
 	moveq	#5,d1					;at most 6 rows
 .4	move.w	#2,(printy).w			;first row at y 2
 .row	bsr.w	printsmallz			;blank the row (22 spaces), then print the player
-	dc.w	$0020
-	dc.b	$FE,4,$FD,5,$FA,1
-	dc.b	$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20
-	dc.b	$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20
-	dc.b	$FD,5
+	String	$FE,$04,$FD,$05,$FA,$01,'                      ',$FD,$05
 	cmp.w	(VertLineScrolling).w,d2	;cursor row?
 	bne.w	.5
 	move.w	d7,(printa).w			;use the highlight attribute
@@ -415,8 +410,7 @@ DrawLineIcon						;line editor: draw line d5 (name from linelist, then its playe
 	move.w	#$8000,(printa).w
 	jsr	(Fprintsmall).l
 	bsr.w	printsmallz
-	dc.w	$0008
-	dc.b	' Line',0
+	String	' Line'
 	move.w	(a0),(printx).w
 	move.w	d5,d4
 	asl.w	#3,d4					;8 slots per line
@@ -488,8 +482,7 @@ DrawTeamScreen						;line editor background: bitmap, frame, "Line Editor" title 
 	moveq	#6,d1
 	bsr.w	Framer
 	bsr.w	printbigz
-	dc.w	$0014
-	dc.b	$BE,$A,4,'Line  Editor',$BE,$E,1
+	String	$BE,$0A,$04,'Line  Editor',$BE,$0E,$01
 	clr.w	d0						;map offset: home 0, away $30
 	cmpa.w	#(tmstruct-M68K_RAM),a2	;home team?
 	beq.w	PutTeamBlock
@@ -682,17 +675,14 @@ TeamRosterScreen					;"Team Roster" screen for team a2
 	moveq	#6,d1
 	bsr.w	Framer
 	bsr.w	printbigz
-	dc.w	$0014
-	dc.b	$BD,9,4,'Team  Roster',$BD,$E,1
+	String	$BD,$09,$04,'Team  Roster',$BD,$0E,$01
 	clr.w	d0						;logo map offset: home 0, away $30
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.home
 	moveq	#$30,d0
 .home	bsr.w	PutTeamBlock		;team logo block
 	bsr.w	printsmallz
-	dc.w	$0034
-	dc.b	$F8,6,3,2,$C,$F9,1,'Pos.^Player',$FD,$1E,$FC,$C,'Rating'
-	dc.b	$FD,$C,$FC,$1A,'A^-^Switch^Teams',$F9,0
+	String	$F8,$06,$03,$02,$0C,$F9,$01,'Pos.^Player',$FD,$1E,$FC,$0C,'Rating',$FD,$0C,$FC,$1A,'A^-^Switch^Teams',$F9
 	bsr.w	printz
 	String	$BD,1,8,0
 	moveq	#$12,d0
@@ -877,22 +867,14 @@ GoalieRowText						;position text for the
 	String	'G'
 	String	'G'
 PlayerStatMenuTxt					;roster page titles, { } are the left/right arrows
-	dc.w	$0012
-	dc.b	'    Goalies    }'
-	dc.w	$0012
-	dc.b	'{  Scoring  1  }'
-	dc.w	$0012
-	dc.b	'{  Scoring  2  }'
-	dc.w	$0012
-	dc.b	'{   Checking   }'
-	dc.w	$0012
-	dc.b	'{ Power Play 1 }'
-	dc.w	$0012
-	dc.b	'{ Power Play 2 }'
-	dc.w	$0012
-	dc.b	'{Penalty Kill 1}'
-	dc.w	$0012
-	dc.b	'{Penalty Kill 2 '
+	String	'    Goalies    }'
+	String	'{  Scoring  1  }'
+	String	'{  Scoring  2  }'
+	String	'{   Checking   }'
+	String	'{ Power Play 1 }'
+	String	'{ Power Play 2 }'
+	String	'{Penalty Kill 1}'
+	String	'{Penalty Kill 2 '
 
 GetNameandAttrib					;print player d0's name, then at x $1E the column picked by d4 (from
 									;PAttribColumns/GAttribColumns): low word = attribjmp offset, high word =
@@ -970,18 +952,12 @@ AttribStatus						;Roster column: status. Player d0's tmpdst word in a2 negative
 	bra.w	Fprintsmall
 
 StatusTextTbl						;AttribStatus strings
-	dc.w	$000A
-	dc.b	'Ice     '
-	dc.w	$000A
-	dc.b	'Bench   '
-	dc.w	$000A
-	dc.b	'Injury P'
-	dc.w	$000A
-	dc.b	'Injury G'
-	dc.w	$0006
-	dc.b	'    '
-	dc.w	$0006
-	dc.b	' C  '
+	String	'Ice     '
+	String	'Bench   '
+	String	'Injury P'
+	String	'Injury G'
+	String	'    '
+	String	' C  '
 
 AttribEnergy						;Roster column: energy. tmpde word / 40, max 100
 	add.w	d0,d0					;word index by player
@@ -1014,10 +990,8 @@ AttribHanded						;Roster column: handedness. Bit 0 of the sum
 	bra.w	Fprintsmall
 
 HandedTextTbl						;AttribHanded strings
-	dc.w	$000A
-	dc.b	'Righty  '
-	dc.w	$000A
-	dc.b	'Lefty   '
+	String	'Righty  '
+	String	'Lefty   '
 
 AttribWeight						;Roster column: Weight. 140 + 8 * rating lb
 	asl.w	#3,d0
@@ -1025,8 +999,7 @@ AttribWeight						;Roster column: Weight. 140 + 8 * rating lb
 	bsr.w	PushNumber
 	bsr.w	print
 	bsr.w	printz
-	dc.w	$0008
-	dc.b	' lb  ',0
+	String	' lb  '
 	rts
 
 ScoringSummaryScreen				;"Scoring Summary": one 4 row
@@ -1041,16 +1014,14 @@ ScoringSummaryScreen				;"Scoring Summary": one 4 row
 	moveq	#6,d1
 	bsr.w	Framer
 	bsr.w	printbigz
-	dc.w	$0018
-	dc.b	$BD,6,4,'Scoring Summary',$BD,6,1,0
+	String	$BD,$06,$04,'Scoring Summary',$BD,$06,$01
 	moveq	#$30,d0					;away logo, then home logo
 	bsr.w	PutTeamBlock
 	addq.w	#4,(printx).w
 	clr.w	d0
 	bsr.w	PutTeamBlock
 	bsr.w	printsmallz
-	dc.w	$0034
-	dc.b	$F8,6,3,0,8,$F9,1,'^Per^^Time^^Tm^^Goal/Assist^^^^^^^^P/S^^',$F9,0,0
+	String	$F8,$06,$03,$00,$08,$F9,$01,'^Per^^Time^^Tm^^Goal/Assist^^^^^^^^P/S^^',$F9,$00
 	clr.l	d0
 	move.w	(ScoreSumbytes).w,d0
 	divu.w	#6,d0					;goals
@@ -1207,16 +1178,11 @@ PrintScorerName						;print player d0 (byte, negative = none) and go down a row.
 	rts
 
 GoalTypeTbl							;ScoreSum byte 2 & $7F: SH2, SH, even, PP, PP2
-	dc.w	$0006
-	dc.b	'SH2',0
-	dc.w	$0004
-	dc.b	'SH'
-	dc.w	$0004
-	dc.b	' ',0
-	dc.w	$0004
-	dc.b	'PP'
-	dc.w	$0006
-	dc.b	'PP2',0
+	String	'SH2'
+	String	'SH'
+	String	' '
+	String	'PP'
+	String	'PP2'
 
 PenaltySummaryScreen				;"Penalty Summary": one 3 row
 									;entry per penalty (4 bytes each from PenSum). Same scroll handling as
@@ -1234,8 +1200,7 @@ PenaltySummaryScreen				;"Penalty Summary": one 3 row
 	moveq	#6,d1
 	bsr.w	Framer
 	bsr.w	printbigz
-	dc.w	$0018
-	dc.b	$BD,5,4,'Penalty  Summary',$BD,6,1
+	String	$BD,$05,$04,'Penalty  Summary',$BD,$06,$01
 	moveq	#$30,d0
 	bsr.w	PutTeamBlock
 	addq.w	#4,(printx).w
@@ -1243,8 +1208,7 @@ PenaltySummaryScreen				;"Penalty Summary": one 3 row
 	bsr.w	PutTeamBlock
 	;column header line in the small font
 	bsr.w	printsmallz
-	dc.w	$0034
-	dc.b	$F8,6,3,0,8,$F9,1,'^Per^^Time^^Tm^^Player/Penalty^^^^min^^^',$F9,0,0
+	String	$F8,$06,$03,$00,$08,$F9,$01,'^Per^^Time^^Tm^^Player/Penalty^^^^min^^^',$F9,$00
 	;VertLineScrolling = pixel height of all entries (entries * 24); it is the scroll position
 	;of the first drawn frame, SelectedPlayerIdx = the maximum scroll (last 5 entries visible)
 	clr.l	d0
@@ -1479,15 +1443,12 @@ PlayerStatsList						;stats screen for team a2, d7 = 0 game / 1 playoff.
 	tst.w	d7
 	beq.w	.title					;game stats
 	bsr.w	printbigz				;playoff stats title, no "switch teams" hint
-	dc.w	$0016
-	dc.b	$BD,7,4,'Playoff  Stats',$BD,$E,1
+	String	$BD,$07,$04,'Playoff  Stats',$BD,$0E,$01
 	bra.w	.team
 .title	bsr.w	printsmallz			;"A - Switch Teams" hint
-	dc.w	$001C
-	dc.b	$F8,6,3,$C,$1A,$F9,1,'A^-^Switch^Teams',$F9,0,0
+	String	$F8,$06,$03,$0C,$1A,$F9,$01,'A',$5E,'-',$5E,'Switch',$5E,'Teams',$F9,$00
 	bsr.w	printbigz
-	dc.w	$0016
-	dc.b	$BD,8,4,'Player  Stats',$BD,$E,1,0
+	String	$BD,$08,$04,'Player  Stats',$BD,$0E,$01
 .team	clr.w	d0					;TeamBlockMap offset: 0 for the home struct, $30 for the away struct
 	cmpa.w	#(tmstruct-M68K_RAM),a2
 	beq.w	.home
@@ -1591,8 +1552,7 @@ DrawStatsList						;stats screen: column headers (sort column highlighted), titl
 									;"Player" column header, then the stat column headers (goalie mode: the
 									;single goalie header string)
 	bsr.w	printsmallz
-	dc.w	$0012
-	dc.b	$F8,6,3,4,$B,$F9,1,'Player',$FB,7,0
+	String	$F8,$06,$03,$04,$0B,$F9,$01,'Player',$FB,$07
 	lea	StatColumnHeaders(pc),a1
 	moveq	#5,d3					;goalie mode: d3 = 5 so only the first (goalie) string is printed
 	tst.w	(DispAttribCtr).w
@@ -1837,32 +1797,20 @@ StatColumnOffsets					;team struct byte arrays per column, same order
 
 StatColumnHeaders					;stats screen column headers (goalie header, then 5 columns) length word +
 									;text per string, the first one is skipped (adda.w (a1),a1) in skater mode
-	dc.w	$0016
-	dc.b	'Saves Shots Save %  '
-	dc.w	$0006
-	dc.b	'   G'
-	dc.w	$0006
-	dc.b	'   A'
-	dc.w	$0006
-	dc.b	' Pts'
-	dc.w	$0006
-	dc.b	' SOG'
-	dc.w	$0006
-	dc.b	' PIM'
+	String	'Saves Shots Save %  '
+	String	'   G'
+	String	'   A'
+	String	' Pts'
+	String	' SOG'
+	String	' PIM'
 StatSortTitles						;Sort column
 									;titles, [ ] are the left/right arrows
-	dc.w	$0016
-	dc.b	'    Goalie Saves   ]'
-	dc.w	$0016
-	dc.b	'[      Goals       ]'
-	dc.w	$0016
-	dc.b	'[     Assists      ]'
-	dc.w	$0016
-	dc.b	'[      Points      ]'
-	dc.w	$0016
-	dc.b	'[  Shots On Goal   ]'
-	dc.w	$0016
-	dc.b	'[ Penalty Minutes   '
+	String	'    Goalie Saves   ]'
+	String	'[      Goals       ]'
+	String	'[     Assists      ]'
+	String	'[      Points      ]'
+	String	'[  Shots On Goal   ]'
+	String	'[ Penalty Minutes   '
 
 DrawStatsListArrows					;stats screen up/down arrows. Saves d0-d1/a1
 	movem.l	d0-d1/a1,-(sp)
@@ -1907,8 +1855,7 @@ StatsReport							;"Game Statistics": both teams' totals. Start
 	moveq	#6,d1
 	bsr.w	Framer
 	bsr.w	printbigz
-	dc.w	$0018
-	dc.b	$BD,6,4,'Game  Statistics',$BD,6,1
+	String	$BD,$06,$04,'Game  Statistics',$BD,$06,$01
 	moveq	#$30,d0
 	bsr.w	PutTeamBlock
 	addq.w	#4,(printx).w
@@ -2001,29 +1948,21 @@ PrintStatValue						;from 92 DisplayStats .ss. print TeamStatTextTbl entry a0 fo
 	bra.w	print
 
 TeamStatTextTbl						;label, then team struct stat offset and second offset ($FFFF none)
-	dc.w	$0008
-	dc.b	'Score',0
+	String	'Score'
 	dc.w	$C,$FFFF				;tmscore
-	dc.w	$0008
-	dc.b	'Shots',0
+	String	'Shots'
 	dc.w	0,$FFFF					;tmshots
-	dc.w	$000C
-	dc.b	'Power Play'
+	String	'Power Play'
 	dc.w	2,4						;tmPwrGoals / tmPwrPlays
-	dc.w	$000C
-	dc.b	'Penalties',0
+	String	'Penalties'
 	dc.w	6,8						;tmPenalties / tmPenmin
-	dc.w	$000E
-	dc.b	'Faceoffs Won'
+	String	'Faceoffs Won'
 	dc.w	$E,$FFFF				;tmfowon
-	dc.w	$000E
-	dc.b	'Body Checks',0
+	String	'Body Checks'
 	dc.w	$10,$FFFF				;tmchecks
-	dc.w	$000E
-	dc.b	'Attack Zone',0
+	String	'Attack Zone'
 	dc.w	$A,$FFFF				;tmATOP, shown as a time
-	dc.w	$000A
-	dc.b	'Passing',0
+	String	'Passing'
 	dc.w	$14,$12					;tmpasscomp / tmpasses, also shown as a percentage
 
 CrowdMeterScreen					;"Crowd Meter": current, average
@@ -2040,8 +1979,7 @@ CrowdMeterScreen					;"Crowd Meter": current, average
 	moveq	#6,d1
 	bsr.w	Framer
 	bsr.w	printbigz
-	dc.w	$0014
-	dc.b	$BD,9,4,'Crowd  Meter',$BD,6,1
+	String	$BD,$09,$04,'Crowd  Meter',$BD,$06,$01
 	moveq	#$30,d0
 	bsr.w	PutTeamBlock
 	addq.w	#4,(printx).w
@@ -2057,19 +1995,16 @@ CrowdMeterScreen					;"Crowd Meter": current, average
 PrintCrowdMeter						;crowd meter rows: CwdExciteLvl, average (SumCwdExciteLvl /
 									;NumCwdExciteLvl samples) and peak (MaxCwdExciteLvl)
 	bsr.w	printsmallz
-	dc.w	$0016
-	dc.b	$F8,4,2,4,$C,'Current Level',$FD,$1C
+	String	$F8,$04,$02,$04,$0C,'Current Level',$FD,$1C
 	move.w	(CwdExciteLvl).w,d0		;row 1: current level
 	bsr.w	PrintCrowdDB
 	bsr.w	printsmallz
-	dc.w	$0016
-	dc.b	$FD,4,$FA,2,'Average Level',$FD,$1C,0
+	String	$FD,$04,$FA,$02,'Average Level',$FD,$1C
 	move.l	(SumCwdExciteLvl).w,d0	;row 2: average = sum / number of samples
 	divu.w	(NumCwdExciteLvl).w,d0
 	bsr.w	PrintCrowdDB
 	bsr.w	printsmallz
-	dc.w	$0012
-	dc.b	$FD,4,$FA,2,'Peak Level',$FD,$1C
+	String	$FD,$04,$FA,$02,'Peak Level',$FD,$1C
 	move.w	(MaxCwdExciteLvl).w,d0	;row 3: peak level, falls into PrintCrowdDB
 PrintCrowdDB						;print crowd level d0 as sqrt(d0*4) + 65 " dB"
 	ext.l	d0
@@ -2080,8 +2015,7 @@ PrintCrowdDB						;print crowd level d0 as sqrt(d0*4) + 65 " dB"
 	bsr.w	PushNumberWidth
 	bsr.w	print
 	bsr.w	printz
-	dc.w	$0006
-	dc.b	' dB',0
+	String	' dB'
 	rts
 
 SetupScreen							;common start for the stats screens: blank, 40 cell mode, load framer and
@@ -2306,14 +2240,12 @@ DrawGoalieSelectList				;from 92 Pausemode .gnum. draw the goalie list, row menu
 	move.w	#$8000,(printa).w		;selected row uses attribute $8000
 	;clear the row with 22 spaces
 .1	bsr.w	printz					;blank the row with the chosen attribute
-	dc.w	$0018
-	dc.b	'                      '
+	String	'                      '
 	tst.w	d0
 	bne.w	.player
 	move.w	#$B,(printx).w
 	bsr.w	printz
-	dc.w	$000C
-	dc.b	'no goalie',0
+	String	'no goalie'
 	bra.w	.next
 	;goalie row: a1 = player record number d0-1 of team a2 (records are a length word + 8 bytes each)
 .player	movea.l	tmdata(a2),a1		;goalie row: find the player record
