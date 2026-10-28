@@ -450,9 +450,7 @@ ClearLineArea						;line editor: erase the line area and print the
 	beq.w	.0
 	move.w	(LineIconPosTable-6).l,(printx).l	;OptLine: use the entry before
 .0	bsr.w	printsmallz				;labels, one column per slot
-	dc.w	$0022
-	dc.b	$FE,4,$FB,$FD,$FA,2,'LD',$FB,$FE,$FA,2,'RD',$FB,$FE,$FA,2,'LW'
-	dc.b	$FB,$FE,$FA,2,'C ',$FB,$FE,$FA,2,'RW'
+	String	$FE,$04,$FB,$FD,$FA,$02,'LD',$FB,$FE,$FA,$02,'RD',$FB,$FE,$FA,$02,'LW',$FB,$FE,$FA,$02,'C ',$FB,$FE,$FA,$02,'RW'
 	rts
 
 DrawTeamScreen						;line editor background: bitmap, frame, "Line Editor" title and the team
