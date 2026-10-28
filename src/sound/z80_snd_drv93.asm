@@ -4,7 +4,7 @@
 ; Source for the Z80 program that p_initialZ80 (src/sound/sound93.asm) copies into
 ; Z80 RAM at $0000 ($A00000 on the 68000 side). In the Rev 0 (retail) ROM
 ; these bytes sit at $16E52-$170DC (Z80_Program_Code). Built with asm80 (npm
-; package, see README) into output/<mode>/obj/z80_snd_drv93.bin, which
+; package, see README) into output/obj/z80_snd_drv93.bin, which
 ; sound93.asm includes. This is a different driver from NHL 92's
 ; (src/sound/z80_snd_drv.asm in NHL92Genesis); names are shared where the
 ; job is the same (SetBank, the YM2612 equates).

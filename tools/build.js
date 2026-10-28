@@ -7,8 +7,10 @@
 // retail: REV=0 CHECKSUM=1, verified against the Rev 0 ROM. reva: REV=1 CHECKSUM=1, verified against
 // the Rev A ROM. revb: REV=2 CHECKSUM=1, verified against the Rev B ROM (each found in the repo folder by its SHA-1 and size, any file
 // name: tools/roms.js). dev: REV=1 CHECKSUM=0 (no validation routine), not verified.
-// Each mode has its own folder: output/<mode>/nhl93.bin is the ROM, output/<mode>/obj/ holds the intermediates
-// (the assembler's raw binary and listing, its log, the opcode-fixed binary before it is moved up).
+// output/<mode>/nhl93.bin is the ROM of each mode; output/obj/ is ONE shared folder for the intermediates (the Z80
+// driver, the team data with names, the assembler's raw binary, listing and log), so src/sound/sound93.asm and
+// src/hockey93.asm include them from a single fixed path. Every build empties output/obj/ first and regenerates the
+// intermediates for its own mode, so nothing is reused from another mode's build. Run builds one at a time.
 const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
@@ -28,7 +30,7 @@ const verbose = args.includes('--verbose');
 const modeName = args.find((a) => MODES[a]) || 'retail';
 const mode = MODES[modeName];
 const OUT = path.join(ROOT, 'output', modeName);
-const OBJ = path.join(OUT, 'obj');
+const OBJ = path.join(ROOT, 'output', 'obj');
 const ROM = 'nhl93.bin';
 const { romPath } = require('./roms');
 const { formatAssemblerFailureDetail, hasBranchOutOfRange, DEFAULT_DOC } = require('./assembleHints');
@@ -272,7 +274,10 @@ async function fixopcodes(name, a) {
     steps = 6;
     const rev = mode.rev;
     const checksum = mode.checksum;
+    // output/obj/ is shared by all modes: empty it so this build cannot pick up another mode's intermediates.
+    fs.rmSync(OBJ, { recursive: true, force: true });
     fs.mkdirSync(OBJ, { recursive: true });
+    fs.mkdirSync(OUT, { recursive: true });
 
     // 1. prebuild: ROM check (path, SHA-1, size) and Extracted/ assets.
     {
@@ -293,7 +298,7 @@ async function fixopcodes(name, a) {
 
     // 4. assemble: the ROM.
     begin('assemble');
-    const a = await assemble('assemble', 'hockey93.asm', `..\\output\\${modeName}\\obj\\nhl93`, '.bin', rev, checksum);
+    const a = await assemble('assemble', 'hockey93.asm', `..\\output\\obj\\nhl93`, '.bin', rev, checksum);
     step('assemble', `${a.errors} errors, ${a.warnings} warnings, ${a.lines} lines in ${a.secs}s (REV=${rev} CHECKSUM=${checksum}) -> ${rel(a.bin)}`);
 
     // 5. fixopcodes: the result is output/<mode>/nhl93.bin.

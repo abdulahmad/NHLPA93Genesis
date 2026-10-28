@@ -3,7 +3,7 @@ node_modules/
 npm-debug.log*
 *.bak
 
-# Build output and extracted assets (rebuilt by the build)
+# Build output and extracted assets (rebuilt by the build): output/<mode>/nhl93.bin ROMs, shared output/obj/ intermediates
 Extracted/**
 output/**
 
