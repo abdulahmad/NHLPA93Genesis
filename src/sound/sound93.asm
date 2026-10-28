@@ -1004,10 +1004,8 @@ ScoutingReportText					;scouting report text
 	incbin	..\Extracted\Text\ScoutingReportText.bin	;ScoutingReportText: scouting report paragraphs
 	IF REV=0
 	dc.b	$72						;pad: Rev 0 leftover byte
-	ELSE
-	IF REV=2
+	ELSEIF REV=2
 	dc.b	$0D						;pad: Rev B byte
 	ELSE
 	dc.b	0
-	ENDIF
 	ENDIF
