@@ -670,33 +670,8 @@ Z80_Program_Code					;The Z80 sound driver, $28B bytes, built by asm80 from src/
 									;(output/<mode>/obj/z80_snd_drv93.bin). p_initialZ80 copies Z80ProgramLen ($295)
 									;bytes from here: the 10 bytes after the driver (the pad byte and the start of
 									;pcm_sample_table) land below the Z80 stack top and are never read as data.
-	IF REV=0 ; retail
-	incbin	..\output\retail\obj\z80_snd_drv93.bin,0,$278	;Z80 $0000-$0277
-	;Z80 $0278 (z80_fm_patches_window): ld bc operand, the bank window address of the FM patches
-	dc.b	fm_instrument_patches&$FF,((fm_instrument_patches>>8)&$7F)|$80
-	;Z80 $027A: add hl,bc / ld a,n; $027C (z80_fm_patches_bank): the 32K bank of the FM patches
-	dc.b	$09,$3E,fm_instrument_patches>>15
-	incbin	..\output\retail\obj\z80_snd_drv93.bin,$27D,$E	;Z80 $027D-$028A: jp SetBank, SelectPart
-	ENDIF
-	IF REV=1 ; Rev A and dev (dev has CHECKSUM=0)
-	IF CHECKSUM=1
-	incbin	..\output\reva\obj\z80_snd_drv93.bin,0,$278	;Z80 $0000-$0277
-	;Z80 $0278 (z80_fm_patches_window): ld bc operand, the bank window address of the FM patches
-	dc.b	fm_instrument_patches&$FF,((fm_instrument_patches>>8)&$7F)|$80
-	;Z80 $027A: add hl,bc / ld a,n; $027C (z80_fm_patches_bank): the 32K bank of the FM patches
-	dc.b	$09,$3E,fm_instrument_patches>>15
-	incbin	..\output\reva\obj\z80_snd_drv93.bin,$27D,$E	;Z80 $027D-$028A: jp SetBank, SelectPart
-	ENDIF
-	ENDIF
-	IF REV=2 ; Rev B
-	incbin	..\output\revb\obj\z80_snd_drv93.bin,0,$278	;Z80 $0000-$0277
-	;Z80 $0278 (z80_fm_patches_window): ld bc operand, the bank window address of the FM patches
-	dc.b	fm_instrument_patches&$FF,((fm_instrument_patches>>8)&$7F)|$80
-	;Z80 $027A: add hl,bc / ld a,n; $027C (z80_fm_patches_bank): the 32K bank of the FM patches
-	dc.b	$09,$3E,fm_instrument_patches>>15
-	incbin	..\output\revb\obj\z80_snd_drv93.bin,$27D,$E	;Z80 $027D-$028A: jp SetBank, SelectPart
-	ENDIF
-	IF REV=1
+	;one block per build (this build's driver binary): dev is the only build with CHECKSUM=0 (REV=1), the
+	;retail builds go by REV
 	IF CHECKSUM=0 ; dev
 	incbin	..\output\dev\obj\z80_snd_drv93.bin,0,$278	;Z80 $0000-$0277
 	;Z80 $0278 (z80_fm_patches_window): ld bc operand, the bank window address of the FM patches
@@ -704,6 +679,30 @@ Z80_Program_Code					;The Z80 sound driver, $28B bytes, built by asm80 from src/
 	;Z80 $027A: add hl,bc / ld a,n; $027C (z80_fm_patches_bank): the 32K bank of the FM patches
 	dc.b	$09,$3E,fm_instrument_patches>>15
 	incbin	..\output\dev\obj\z80_snd_drv93.bin,$27D,$E	;Z80 $027D-$028A: jp SetBank, SelectPart
+	ELSE
+	IF REV=0 ; retail (Rev 0)
+	incbin	..\output\retail\obj\z80_snd_drv93.bin,0,$278	;Z80 $0000-$0277
+	;Z80 $0278 (z80_fm_patches_window): ld bc operand, the bank window address of the FM patches
+	dc.b	fm_instrument_patches&$FF,((fm_instrument_patches>>8)&$7F)|$80
+	;Z80 $027A: add hl,bc / ld a,n; $027C (z80_fm_patches_bank): the 32K bank of the FM patches
+	dc.b	$09,$3E,fm_instrument_patches>>15
+	incbin	..\output\retail\obj\z80_snd_drv93.bin,$27D,$E	;Z80 $027D-$028A: jp SetBank, SelectPart
+	ELSE
+	IF REV=1 ; Rev A
+	incbin	..\output\reva\obj\z80_snd_drv93.bin,0,$278	;Z80 $0000-$0277
+	;Z80 $0278 (z80_fm_patches_window): ld bc operand, the bank window address of the FM patches
+	dc.b	fm_instrument_patches&$FF,((fm_instrument_patches>>8)&$7F)|$80
+	;Z80 $027A: add hl,bc / ld a,n; $027C (z80_fm_patches_bank): the 32K bank of the FM patches
+	dc.b	$09,$3E,fm_instrument_patches>>15
+	incbin	..\output\reva\obj\z80_snd_drv93.bin,$27D,$E	;Z80 $027D-$028A: jp SetBank, SelectPart
+	ELSE ; Rev B (REV=2)
+	incbin	..\output\revb\obj\z80_snd_drv93.bin,0,$278	;Z80 $0000-$0277
+	;Z80 $0278 (z80_fm_patches_window): ld bc operand, the bank window address of the FM patches
+	dc.b	fm_instrument_patches&$FF,((fm_instrument_patches>>8)&$7F)|$80
+	;Z80 $027A: add hl,bc / ld a,n; $027C (z80_fm_patches_bank): the 32K bank of the FM patches
+	dc.b	$09,$3E,fm_instrument_patches>>15
+	incbin	..\output\revb\obj\z80_snd_drv93.bin,$27D,$E	;Z80 $027D-$028A: jp SetBank, SelectPart
+	ENDIF
 	ENDIF
 	ENDIF
 	IF REV=0
