@@ -13,7 +13,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for how changes are made (names, comments
 - 99% done.
 - Remaining: any changes to make it consistent with the downstream disassemblies (93S, 94G, etc.).
 
-A work-in-progress attempt at reverse engineering a bitwise perfect compilable source of NHLPA Hockey 93 for Sega Genesis. Requires original ROM file to build.
+Reverse engineered source of NHLPA Hockey 93 for Sega Genesis NHLPA Hockey 93 for Sega Genesis. Requires original ROM file to build.
 
 Built on the work that McMarkis (https://github.com/Mhopkinsinc/NHLHockey) did to get the NHL 92 source compiling, and my work to make the code bitwise perfect to the retail version. Also references chaos' disassembly work of NHL 92-94 (https://github.com/Chaos81/nhl94-disassembly).
 
