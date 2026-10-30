@@ -1,9 +1,10 @@
 ;	RAM map. Names the work RAM variables, the hardware ports and the offsets inside the game's structures.
 ;	Equates only: it adds nothing to the ROM. Rev A adds PalMode/music_tick_divider.
 ;
-;	Hardware ports, screen and sound constants, button bits and rink distances come first. Then the work RAM
-;	map from M68K_RAM (the replay frame buffer up to varstart), then the variables allocated with rs
-;	from varstart: video and print state, sort objects, flags, team and game structures, menu and sound state.
+;	Hardware ports, sprite and ref map sizes, controller ports and the stack, button bits, song and sound
+;	numbers, rink distances, the replay buffer and sort object sizes come first (92 ram.asm order), then the
+;	record offsets. Then the variables allocated with rs from varstart: video and print state, sort objects,
+;	flags, team and game structures, menu and sound state. The rs order sets the addresses and is fixed.
 
 ;video and sound ports
 Asound	=	$c00011					;analog sound (PSG)
@@ -14,6 +15,103 @@ CRAM_W	=	$C0000000				;VDP command: CRAM write, address 0
 VSRAM_W	=	$40000010				;VDP command: VSRAM write, address 0
 jimtiles	=	$A					;JIM graphics file header size: the tile data starts here
 HVcount	=	$c00008					;Video port
+
+;sprite and ref map sizes
+MaxSprites	=	64					;max sprites during game (64 because 32 col mode)
+
+refwidth	=	7					;width of ref.map frames
+refheight	=	8					;height of ref.map frames
+
+;hardware
+IO_Z80BUS		=	$A11100			;Z80 bus request port ($100 requests the bus, 0 releases it)
+IO_Z80RES		=	$A11200			;Z80 reset port (0 holds the Z80 in reset, $100 releases it)
+Z80_RAM			=	$A00000			;Z80 RAM as seen from the 68000 (Z80_RAM+$8E is the PCM rate byte)
+BackupRAM_Port	=	$200000			;serial backup RAM port: low byte bit 7 data, bit 6 clock
+Joy1			=	$a10003			;controller ports
+Joy2			=	$a10005			;controller port 2 data
+Stack	=	$FFFFFFFE				;game stack (Begin, StartPer, Opening2)
+;$FFFFFFFF: not used
+
+;joystick button equates (bit numbers)
+ubut	=	0						;up
+dbut	=	1						;down
+lbut	=	2						;left
+rbut	=	3						;right
+bbut	=	4						;b button
+cbut	=	5						;c button
+abut	=	6						;a button
+sbut	=	7						;start button
+osflag	=	20000					;flag for off screen graphic ($4E20)
+
+;sfx / song numbers
+SngTitle		=	$35				;title screen song (92 SngTitle)
+SngEOP			=	$36				;plays at every period end and the end of the game (PeriodOver_sp), on
+									;the playoff screen and when the highlights start (fmtune_eop). 92 had
+									;SngEOP, SngEOG and SngPO for these
+SngGoal			=	$30				;home goal tune (fmtune_goal)
+SngPeriodStart	=	$31				;period start tune (fmtune_periodstart)
+SngLateGame		=	$32				;late game tune, once in the 3rd period
+									;(CheckLateGameSong, fmtune_lategame)
+SngPP		=	$33					;home team power play tune (fmtune_powerplay)
+SngFaceoff		=	$34				;face off tune, once per period (fmtune_faceoff)
+SngScouting		=	$37				;scouting report
+;sound effects
+SFXsiren		=	$0				;goal siren (92 SFXsiren)
+SFXbeep1		=	$1				;short beep (92 SFXbeep1)
+SFXbeep2		=	$2				;short beep, also the last minute warning when the clock reaches 60 (92
+									;SFXbeep2)
+SFXwhistle		=	$3				;referee whistle (92 SFXwhistle)
+SFXhorn			=	$4				;horn at the end of a period (92 SFXhorn)
+SFXpass			=	$10				;pass, 4 variants $10-$13 picked by puck height (92 SFXpass)
+SFXshotbh		=	$14				;backhand shot, 4 variants $14-$17 (92 SFXshotbh)
+SFXshotfh		=	$18				;forehand/slap shot, 4 variants $18-$1B (92 SFXshotfh)
+SFXshotwiff		=	$5				;whiff, a miss on a slap shot (92 SFXshotwiff)
+SFXstdef		=	$6				;stick deflects the puck (92 SFXstdef)
+SFXpuckget		=	$7				;puck pickup, the puck hits the ice on the face off (92 SFXpuckget)
+SFXpuckbody		=	$24				;puck hits a player (92 SFXpuckbody)
+SFXpuckwall1	=	$28				;puck hits the boards, loud (92 SFXpuckwall1, hitboard2). $28-$2B are one
+									;sound at 4 volumes
+SFXpuckwall2	=	$29				;medium (92 SFXpuckwall2, hitboard2volm)
+SFXpuckwall3	=	$2A				;soft (92 SFXpuckwall3, hitboard2vols)
+SFXpuckwall4	=	$2B				;softest (new in 93)
+SFXbglass		=	$E				;puck hits the glass over the wall (wallcollb):
+									;glass bang with a crowd oooh
+SFXpuckice		=	$2C				;puck bounces on the ice, 4 variants $2C-$2F by speed (92 SFXpuckice)
+SFXplayerwall	=	$20				;player hits the boards (92 SFXplayerwall)
+SFXplayerwall2	=	$21				;player hits the boards, quieter (never played; same patches as
+									;SFXplayerwall)
+SFXplayerwall3	=	$22				;quieter again (never played)
+SFXplayerwall4	=	$23				;quietest (never played)
+SFXpuckpost		=	$25				;puck hits the goal post (92 SFXpuckpost)
+SFX26			=	$26				;empty 4-byte stream, no sound (never played)
+SFX27			=	$27				;same empty stream as SFX26 (never played)
+SFXcheck		=	$1C				;body check, 4 variants $1C-$1F, never the same one twice in a row (92
+									;SFXcheck; 92 had a second group, SFXcheck2)
+SFXhithigh		=	$9				;fight punch (92 SFXhithigh)
+SFXhitlow		=	$A				;fight punch at a different rate (92 SFXhitlow)
+SFXcrowdcheer	=	$B				;crowd cheer (92 SFXcrowdcheer)
+SFXcrowdboo		=	$C				;crowd boo (92 SFXcrowdboo)
+SFXoooh			=	$8				;crowd oooh (92 SFXoooh)
+SFXoooh2		=	$D				;second, lower crowd oooh: an injury, the visiting goalie making a save
+SFXhomewin		=	$F				;home team won: crowd roar with a short tune (song $F, played from
+									;ShowThreeStars)
+goalline		=	176				;distance from blue line to goalline
+Blueline		=	$58				;distance from center line to blueline (92 kept it in a variable)
+Sideline		=	$88				;distance from center to side boards (92 kept it in a variable)
+
+replaystart		=	$FFFF0000		;start of ram area for replay frames, also the start of RAM
+M68K_RAM		=	replaystart		;start of the 68000 work RAM, the same as replaystart
+varstart		=	$FFFFB000		;start of variable space (end of replay)
+GoalieStruct	=	$FFFFAFCA		;below varstart
+
+replaysize	=	98					;number of bytes per replay frame (92 84)
+replaynum	=	((varstart-replaystart)/replaysize)-1	;number of frames for replay
+replayend	=	replaystart+(replaynum*replaysize)	;end of replay ram
+
+Sortobjs	=	16					;number of sorted graphics objects- these are arranged so sprites lower on
+									;the screen are of higher priority
+scsize		=	7					;2 to this power indicates ram needed for each sortobj
+SCstruct	=	1<<scsize			;ram for each sortobj
 
 ;record and field offsets (names shared with 93S, 94G and 94S; docs/file-formats.md)
 jimpalette	=	0					;container header: long, offset of the palette ($FFFFFFFF none)
@@ -64,101 +162,6 @@ pldendur	=	6					;high nibble endurance, low nibble shoot / pass odds spodds
 pldpass		=	7					;high nibble passing passacc, low nibble aggression aggress
 pldsize		=	8
 
-;hardware
-IO_Z80BUS		=	$A11100			;Z80 bus request port ($100 requests the bus, 0 releases it)
-IO_Z80RES		=	$A11200			;Z80 reset port (0 holds the Z80 in reset, $100 releases it)
-Z80_RAM			=	$A00000			;Z80 RAM as seen from the 68000 (Z80_RAM+$8E is the PCM rate byte)
-BackupRAM_Port	=	$200000			;serial backup RAM port: low byte bit 7 data, bit 6 clock
-Joy1			=	$a10003			;controller ports
-Joy2			=	$a10005			;controller port 2 data
-
-MaxSprites	=	64					;max sprites during game (64 because 32 col mode)
-
-refwidth	=	7					;width of ref.map frames
-refheight	=	8					;height of ref.map frames
-
-Stack	=	$FFFFFFFE				;game stack (Begin, StartPer, Opening2)
-;$FFFFFFFF: not used
-
-;joystick button equates (bit numbers)
-ubut	=	0						;up
-dbut	=	1						;down
-lbut	=	2						;left
-rbut	=	3						;right
-bbut	=	4						;b button
-cbut	=	5						;c button
-abut	=	6						;a button
-sbut	=	7						;start button
-osflag	=	20000					;flag for off screen graphic ($4E20)
-
-;sfx / song numbers
-SngGoal			=	$30				;home goal tune (fmtune_goal)
-SngPeriodStart	=	$31				;period start tune (fmtune_periodstart)
-SngLateGame		=	$32				;late game tune, once in the 3rd period
-									;(CheckLateGameSong, fmtune_lategame)
-SngPP		=	$33					;home team power play tune (fmtune_powerplay)
-SngFaceoff		=	$34				;face off tune, once per period (fmtune_faceoff)
-SngTitle		=	$35				;title screen song (92 SngTitle)
-SngEOP			=	$36				;plays at every period end and the end of the game (PeriodOver_sp), on
-									;the playoff screen and when the highlights start (fmtune_eop). 92 had
-									;SngEOP, SngEOG and SngPO for these
-SngScouting		=	$37				;scouting report
-SFXsiren		=	$0				;goal siren (92 SFXsiren)
-SFXbeep1		=	$1				;short beep (92 SFXbeep1)
-SFXbeep2		=	$2				;short beep, also the last minute warning when the clock reaches 60 (92
-									;SFXbeep2)
-SFXwhistle		=	$3				;referee whistle (92 SFXwhistle)
-SFXhorn			=	$4				;horn at the end of a period (92 SFXhorn)
-SFXshotwiff		=	$5				;whiff, a miss on a slap shot (92 SFXshotwiff)
-SFXstdef		=	$6				;stick deflects the puck (92 SFXstdef)
-SFXpuckget		=	$7				;puck pickup, the puck hits the ice on the face off (92 SFXpuckget)
-SFXoooh			=	$8				;crowd oooh (92 SFXoooh)
-SFXhithigh		=	$9				;fight punch (92 SFXhithigh)
-SFXhitlow		=	$A				;fight punch at a different rate (92 SFXhitlow)
-SFXcrowdcheer	=	$B				;crowd cheer (92 SFXcrowdcheer)
-SFXcrowdboo		=	$C				;crowd boo (92 SFXcrowdboo)
-SFXoooh2		=	$D				;second, lower crowd oooh: an injury, the visiting goalie making a save
-SFXbglass		=	$E				;puck hits the glass over the wall (wallcollb):
-									;glass bang with a crowd oooh
-SFXhomewin		=	$F				;home team won: crowd roar with a short tune (song $F, played from
-									;ShowThreeStars)
-SFXpass			=	$10				;pass, 4 variants $10-$13 picked by puck height (92 SFXpass)
-SFXshotbh		=	$14				;backhand shot, 4 variants $14-$17 (92 SFXshotbh)
-SFXshotfh		=	$18				;forehand/slap shot, 4 variants $18-$1B (92 SFXshotfh)
-SFXcheck		=	$1C				;body check, 4 variants $1C-$1F, never the same one twice in a row (92
-									;SFXcheck; 92 had a second group, SFXcheck2)
-SFXplayerwall	=	$20				;player hits the boards (92 SFXplayerwall)
-SFXplayerwall2	=	$21				;player hits the boards, quieter (never played; same patches as
-									;SFXplayerwall)
-SFXplayerwall3	=	$22				;quieter again (never played)
-SFXplayerwall4	=	$23				;quietest (never played)
-SFXpuckbody		=	$24				;puck hits a player (92 SFXpuckbody)
-SFXpuckpost		=	$25				;puck hits the goal post (92 SFXpuckpost)
-SFX26			=	$26				;empty 4-byte stream, no sound (never played)
-SFX27			=	$27				;same empty stream as SFX26 (never played)
-SFXpuckwall1	=	$28				;puck hits the boards, loud (92 SFXpuckwall1, hitboard2). $28-$2B are one
-									;sound at 4 volumes
-SFXpuckwall2	=	$29				;medium (92 SFXpuckwall2, hitboard2volm)
-SFXpuckwall3	=	$2A				;soft (92 SFXpuckwall3, hitboard2vols)
-SFXpuckwall4	=	$2B				;softest (new in 93)
-SFXpuckice		=	$2C				;puck bounces on the ice, 4 variants $2C-$2F by speed (92 SFXpuckice)
-goalline		=	176				;distance from blue line to goalline
-Blueline		=	$58				;distance from center line to blueline (92 kept it in a variable)
-Sideline		=	$88				;distance from center to side boards (92 kept it in a variable)
-
-replaystart		=	$FFFF0000		;start of ram area for replay frames, also the start of RAM
-M68K_RAM		=	replaystart		;start of the 68000 work RAM, the same as replaystart
-varstart		=	$FFFFB000		;start of variable space (end of replay)
-GoalieStruct	=	$FFFFAFCA		;below varstart
-
-replaysize	=	98					;number of bytes per replay frame (92 84)
-replaynum	=	((varstart-replaystart)/replaysize)-1	;number of frames for replay
-replayend	=	replaystart+(replaynum*replaysize)	;end of replay ram
-
-Sortobjs	=	16					;number of sorted graphics objects- these are arranged so sprites lower on
-									;the screen are of higher priority
-scsize		=	7					;2 to this power indicates ram needed for each sortobj
-SCstruct	=	1<<scsize			;ram for each sortobj
 RAMSTART	=	varstart			;start of the variables, the same as varstart (92)
 	RSSET	varstart				;variables from here on are allocated upwards from varstart with rs
 VSCRLPM			rs.w	1			;location in vram of scroll parameters
@@ -335,9 +338,10 @@ palfadenew		rs.w	16*4		;palettes to fade into (+$20 the title palette, +$40 pale
 fofdata2	rs.l	2				;title screen: TitleAnimCallback timers; also the 2nd half of the face off
 									;frame/attribute data (see fofdata)
 fofdata				rs.l	1		;data for frame/att of big face off sprites
+ffonum				=	5			;5 objects tied to icerink scrolling (3 pads + centre ice logo + gloves)
+ffosize				=	OldXpos		;field objects tied to icerink scrolling, OldXpos bytes each
 pads				rs.w	42		;face off objects tied to the rink scroll: the 3 pads and the centre ice
 									;logo (ffo, ffosize bytes each; 92 pads = ffo)
-ffosize				=	OldXpos		;field objects tied to icerink scrolling, OldXpos bytes each
 CameraPosStruct		rs.w	11		;scroll camera: tracked object, target and the lead on the scroll
 									;(UpdateCameraPos). Really 14 words: camtrack and camidle lie past
 									;these 11 and overlap replayactive (camtrack is the replayactive word)
@@ -350,7 +354,6 @@ glovestruct			rs.w	14		;gloves object, pads+(4*ffosize).
 PadControlBits		rs.w	1		;pad assignment bits: $FFFF = no pad assignments (set at game setup); the
 									;top 4 bits are masked and set around the camera and start-up code
 padcont				rs.w	4		;pad assignment data (4 words), cleared together with PadControlBits
-ffonum				=	5			;5 objects tied to icerink scrolling (3 pads + centre ice logo + gloves)
 ssonum				=	2			;2 objects not tied to icerink scrolling (the 2 arrows for off screen
 									;players; 92 had 4, with 2 scoreboard logos)
 ssosize				=	Ypos		;bytes per sso object
