@@ -222,3 +222,4 @@ palbuffer,palfadenew+$40,92G
 (raw offset),prevtilecnt,as 94G (addframe2 saved d4 on the stack)
 (alias),GGSleft,92G (goalie glove save left; aggress in 93, stickhand in 92)
 .aoff,.off,92G (SPA*_table frame step equate; 92 .off)
+PenDataGhold,PenDataghold,92G (92 PenDataghold: goalie hold / out of play slowdown penalty data)

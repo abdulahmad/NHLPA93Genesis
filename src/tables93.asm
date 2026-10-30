@@ -101,9 +101,9 @@ PenEOP	equ	(*-Penaltylist)			;2 period over
 PenEOG	equ	(*-Penaltylist)			;4 game over
 	dc.w	PenDataEOG-Penaltylist
 PenOOP	equ	(*-Penaltylist)			;6
-	dc.w	PenDataGhold-Penaltylist
+	dc.w	PenDataghold-Penaltylist
 PenGhold	equ	(*-Penaltylist)		;8
-	dc.w	PenDataGhold-Penaltylist
+	dc.w	PenDataghold-Penaltylist
 PenWhistle	equ	(*-Penaltylist)		;$A whistle
 	dc.w	PenDatawhistle-Penaltylist
 PenIcing	equ	(*-Penaltylist)		;$C icing
@@ -165,7 +165,7 @@ PenDataice	dc.w	$0100			;ttmm: slow down 1, 0 minutes
 PenDataoffsides	dc.w	$0100		;ttmm: slow down 1, 0 minutes
 	String	'Off-side'
 	dc.w	$0002,$0301,-$040f
-PenDataGhold	dc.w	$0100		;ttmm: slow down 1, 0 minutes (also used for out of play / PenOOP)
+PenDataghold	dc.w	$0100		;ttmm: slow down 1, 0 minutes (also used for out of play / PenOOP)
 	String	'Face Off'
 	dc.w	-$050a
 PenDatadelay	dc.w	$0000		;ttmm: no slow down, 0 minutes
