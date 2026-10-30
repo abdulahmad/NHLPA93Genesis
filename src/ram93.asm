@@ -13,8 +13,6 @@ Vctrl	=	Vdata+4					;video control port (Vdata+4)
 VRAM_W	=	$40000000				;VDP command: VRAM write, address 0 (address bits 16-29 and 0-1)
 CRAM_W	=	$C0000000				;VDP command: CRAM write, address 0
 VSRAM_W	=	$40000010				;VDP command: VSRAM write, address 0
-jimtiles	=	$A					;JIM graphics file header size: the tile data starts here
-HVcount	=	$c00008					;Video port
 
 ;sprite and ref map sizes
 MaxSprites	=	64					;max sprites during game (64 because 32 col mode)
@@ -41,6 +39,7 @@ bbut	=	4						;b button
 cbut	=	5						;c button
 abut	=	6						;a button
 sbut	=	7						;start button
+HVcount	=	$c00008					;Video port
 osflag	=	20000					;flag for off screen graphic ($4E20)
 
 ;sfx / song numbers
@@ -96,8 +95,6 @@ SFXoooh2		=	$D				;second, lower crowd oooh: an injury, the visiting goalie maki
 SFXhomewin		=	$F				;home team won: crowd roar with a short tune (song $F, played from
 									;ShowThreeStars)
 goalline		=	176				;distance from blue line to goalline
-Blueline		=	$58				;distance from center line to blueline (92 kept it in a variable)
-Sideline		=	$88				;distance from center to side boards (92 kept it in a variable)
 
 replaystart		=	$FFFF0000		;start of ram area for replay frames, also the start of RAM
 M68K_RAM		=	replaystart		;start of the 68000 work RAM, the same as replaystart
@@ -117,6 +114,7 @@ SCstruct	=	1<<scsize			;ram for each sortobj
 jimpalette	=	0					;container header: long, offset of the palette ($FFFFFFFF none)
 jimdata		=	4					;long: offset of the map (.map.jim) or the frame table (.anim)
 jimtilecount	=	8				;word: tile count (bit 15 packed); the tiles follow (jimtiles)
+jimtiles	=	$A					;JIM graphics file header size: the tile data starts here
 mapwidth	=	0					;map section: word width in tiles
 mapheight	=	2					;word height in tiles
 mapwords	=	4					;the map words
@@ -231,6 +229,9 @@ periodendtime		rs.w	1		;CheckLateGameSong trigger time.
 
 ;the following are equates for the sort object structure (SCstruct bytes each)
 
+Xcord				=	0			;x and y words at the start of an sso object (the defaultsprites sso
+									;lists)
+Ycord				=	2			;y word of an sso object
 Xpos		=	$0					;x position (the first word of a sort object)
 attribute	=	$4					;frame attribute switch bits
 frame		=	$6					;alice frame number
@@ -347,6 +348,8 @@ Oldrow			rs.w	1			;last row (used in vertical scrolling of the map data)
 Hpos			rs.w	1			;ice rink horizontal position
 Hscroll			rs.w	1			;horizontal scroll value
 Vscroll			rs.w	1			;vertical scroll value
+Blueline		=	$58				;distance from center line to blueline (92 kept it in a variable)
+Sideline		=	$88				;distance from center to side boards (92 kept it in a variable)
 wcradiusx		rs.w	1			;variables used in wall collisions
 wcradiusy		rs.w	1			;wall collision radius y (see wcradiusx)
 palcount		rs.w	1			;counter for fading in color palettes
@@ -373,9 +376,6 @@ padcont				rs.w	4		;pad assignment data (4 words), cleared together with PadCont
 ssonum				=	2			;2 objects not tied to icerink scrolling (the 2 arrows for off screen
 									;players; 92 had 4, with 2 scoreboard logos)
 ssosize				=	Ypos		;bytes per sso object
-Xcord				=	0			;x and y words at the start of an sso object (the defaultsprites sso
-									;lists)
-Ycord				=	2			;y word of an sso object
 sso					rs.w	20		;screen objects not tied to the rink scroll: 2 arrows for off screen
 									;players (92 had 4, with 2 scoreboard logos)
 shotplayer			rs.w	1		;player who shot last
