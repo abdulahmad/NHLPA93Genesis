@@ -4097,7 +4097,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	moveq	#3,d5
 	bsr.w	dobitmap
 
-	movea.l	#TitleLogoSprites,a1	;Titlemap2 palette to pal 0, tiles at logochars
+	movea.l	#NHLPALogoSprites,a1	;Titlemap2 palette to pal 0, tiles at logochars
 	lea	8(a1),a2
 	adda.l	(a1),a1
 	moveq	#7,d0
@@ -4711,7 +4711,7 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 	bsr.w	printz
 	String	CC_Font2,0,0					;(the lea in this string)
 	IF REV=2
-	movea.l	#EASportsMap2,a2
+	movea.l	#EASportsSplashMap,a2
 	movea.l	a2,a0					;a0 = palette (first long), a1 = map header (second long), a2 = tiles
 	movea.l	a2,a1
 	adda.l	(a2)+,a0
@@ -4913,7 +4913,7 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	moveq	#0,d5					;no palettes
 	bsr.w	dobitmap
 
-	movea.l	#TitleLogoSprites+8,a2
+	movea.l	#NHLPALogoSprites+8,a2
 	move.w	d4,(logochars).w		;1st vram char of the logo sprites
 	bsr.w	DecompressGraphicsPlain
 	movea.l	#Title3Sprites+8,a2
@@ -5131,7 +5131,7 @@ AddTitleLogoSprites					;four Titlemap2 logo sprites at playoffspritex, playoffs
 	subq.w	#2,(logoslide).w
 	bpl.w	.0
 	clr.w	(logoslide).w
-.0	movea.l	#TitleLogoSprites,a0	;a0 = logo sprite data
+.0	movea.l	#NHLPALogoSprites,a0	;a0 = logo sprite data
 	moveq	#3,d7
 	move.w	(logochars).w,d3
 	ori.w	#$8000,d3				;priority
