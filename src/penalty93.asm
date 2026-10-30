@@ -177,14 +177,14 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 	asl.w	#1,d0					;d0 = roster offset (player*2) for tmpdst
 	ext.w	d2
 	mulu.w	#$3C,d2					;60: minutes -> seconds
-	bset	#$D,d2					;bit 13 = just called (cleared again by coinsearch)
+	bset	#$D,d2					;bit 13 = just called (cleared again by InProgress_ap)
 	tst.w	tmpdst(a2,d0.w)
 	bmi.w	.st						;on the ice/bench: plain value
 	btst	#4,tmpdst(a2,d0.w)
 	beq.w	.st
 	bset	#$C,d2					;keep bit 4 of an old penalty time as bit 12
 .st	move.w	d2,tmpdst(a2,d0.w)		;store the penalty time (seconds) for this player
-	andi.w	#$EFFF,d2				;drop bit 12 for the comparison below
+.coinsearch	andi.w	#$EFFF,d2				;drop bit 12 for the comparison below
 	moveq	#(maxros-1)*2+2,d1		;(MaxRos-1)*2+2
 .ctop	subq.w	#2,d1				;same time on the other team
 	bmi.w	.nocoin
@@ -216,9 +216,9 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 	bra.w	.ex
 
 .exit	movea.w	#(tmstruct-M68K_RAM),a2	;PenBuf empty: recount the players on ice for both teams
-	bsr.w	coinsearch
+	bsr.w	InProgress_ap
 	adda.w	#tmsize,a2
-	bsr.w	coinsearch
+	bsr.w	InProgress_ap
 	
 	bclr	#gmpen,(gmode).w		;penalty stoppage is over
 	movea.w	#(puckx-M68K_RAM),a3	;a3 = puck object
@@ -227,7 +227,7 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 .ex	movem.l	(sp)+,d0/a0-a3			;restore and return
 	rts
 
-coinsearch							;a2 = team. Clears tmpdst bit 5, counts players kept off the ice by
+InProgress_ap							;a2 = team. Clears tmpdst bit 5, counts players kept off the ice by
 									;penalties (coincidental and bit 4 times do not count, at most 2) and sets
 									;tmap. Called twice from InProgress
 	moveq	#6,d1					;d1 = players on ice, starts at 6
