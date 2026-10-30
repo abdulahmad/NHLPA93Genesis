@@ -2710,7 +2710,7 @@ checkpuckcoll						;look for puck coll with players. a3 = puck. Entered from puc
 ;======================================================================
 ;======================================================================
 ;	Puck collisions (puckstick, setd0player, puckbody, puckgoalie, deflect), then the player roster code
-;	(makepde ... setplayer, SetPlList_s1, ClampNibble).
+;	(makepde ... setplayer, TryAddPlayerToList, ClampNibble).
 ;
 ;	setplayer writes the attribute bytes from the roster record: weight, legstr, legspd, aioff, aidef,
 ;	shotspd, shotacc, passacc, rostnum, spodds, stickhand, endurance, aggress, the fight and checking ratings
@@ -3229,7 +3229,7 @@ SetPlList							;create list (PlList) of players who we want on the ice now a2 =
 	move.b	(a0)+,d0
 	bmi.w	.all					;end of list
 	move.b	(a1,d0.w),d0
-	bsr.w	SetPlList_s1
+	bsr.w	TryAddPlayerToList
 	beq.s	.s1						;not available
 .next1	dbf	d4,.1					;next slot
 	rts
@@ -3238,11 +3238,11 @@ SetPlList							;create list (PlList) of players who we want on the ice now a2 =
 .try	move.w	d3,d0				;d0 = candidate player number, d3 counts down
 	subq.w	#1,d3
 	bmi.s	.next1					;none available
-	bsr.w	SetPlList_s1
+	bsr.w	TryAddPlayerToList
 	beq.s	.try
 	bra.s	.next1
 
-SetPlList_s1					;from 92 SetPlList .s1/.s2. d0 = player number (1 based), d4 = PlList slot
+TryAddPlayerToList					;from 92 SetPlList .s1/.s2. d0 = player number (1 based), d4 = PlList slot
 									;a2 = team struct, a4 = PlList. Return Z clear = added, Z set (d1 = 0) =
 									;not available
 	move.w	d0,d1
