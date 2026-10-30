@@ -157,9 +157,9 @@ DrawScrollArrows					;ShowScores up/down arrows. Saves d0-d1/a1
 
 ScrollArrowTable					;DrawScrollArrows strings: none, up, down. Only 3 entries (the penalty and
 									;attribute versions have a 4th for both arrows)
-	String	$20,$FB,$FF,$FA,$13,$20,$F9
-	String	$7B,$FB,$FF,$FA,$13,$20,$F9
-	String	$20,$FB,$FF,$FA,$13,$7D,$F9
+	String	' ',CC_AddX,$FF,CC_AddY,$13,' ',CC_SetFont
+	String	'{',CC_AddX,$FF,CC_AddY,$13,' ',CC_SetFont
+	String	' ',CC_AddX,$FF,CC_AddY,$13,'}',CC_SetFont
 
 LineEditor							;"Line Editor" screen for team a2.
 									;Pick a line slot, then a player to put there. Pause menu item
@@ -265,7 +265,7 @@ SelectLinePlayer					;line editor: C pressed on slot TestList. Build the list of
 	moveq	#3,d1
 	bsr.w	Framer
 	bsr.w	printsmallz
-	String	$F8,$04,$02,$02,$01,'{Select  Player}'
+	String	CC_SetMapAndPosition,$04,$02,$02,$01,'{Select  Player}'
 	clr.w	d0						;draw the list without moving the cursor
 	bra.w	.vert
 .loop	IF REV=2					;picker loop: one frame of input
@@ -343,7 +343,7 @@ PrintAttribHeader					;line editor player list: column header for attribute page
 	moveq	#5,d1					;at most 6 rows
 .4	move.w	#2,(printy).w			;first row at y 2
 .row	bsr.w	printsmallz			;blank the row (22 spaces), then print the player
-	String	$FE,$04,$FD,$05,$FA,$01,'                      ',$FD,$05
+	String	CC_SetAttribute,$04,CC_SetX,$05,CC_AddY,$01,'                      ',CC_SetX,$05
 	cmp.w	(VertLineScrolling).w,d2	;cursor row?
 	bne.w	.5
 	move.w	d7,(printa).w			;use the highlight attribute
@@ -450,7 +450,7 @@ ClearLineArea						;line editor: erase the line area and print the
 	beq.w	.0
 	move.w	(LineIconPosTable-6).l,(printx).l	;OptLine: use the entry before
 .0	bsr.w	printsmallz				;labels, one column per slot
-	String	$FE,$04,$FB,$FD,$FA,$02,'LD',$FB,$FE,$FA,$02,'RD',$FB,$FE,$FA,$02,'LW',$FB,$FE,$FA,$02,'C ',$FB,$FE,$FA,$02,'RW'
+	String	CC_SetAttribute,$04,CC_AddX,$FD,CC_AddY,$02,'LD',CC_AddX,$FE,CC_AddY,$02,'RD',CC_AddX,$FE,CC_AddY,$02,'LW',CC_AddX,$FE,CC_AddY,$02,'C ',CC_AddX,$FE,CC_AddY,$02,'RW'
 	rts
 
 DrawTeamScreen						;line editor background: bitmap, frame, "Line Editor" title and the team
@@ -540,7 +540,7 @@ LineEditorExit						;line editor: start pressed. Run the exit menu (LineEditorMe
 	beq.w	.0
 	movea.l	#LineEditorMenuNoLoad,a0	;no load option for another team's data
 .0	bsr.w	printsmallz				;string $FF,2: probably selects the menu text mode
-	String	$FF,2
+	String	CC_SetMap,2
 	bsr.w	Pausemode_top			;a0 = menu text, a1 = callback
 .loop	bsr.w	MenuWaitVblank		;menu loop, d1 = pressed buttons
 	bsr.w	getpzjoy
@@ -680,7 +680,7 @@ TeamRosterScreen					;"Team Roster" screen for team a2
 	moveq	#$30,d0
 .home	bsr.w	PutTeamBlock		;team logo block
 	bsr.w	printsmallz
-	String	$F8,$06,$03,$02,$0C,$F9,$01,'Pos.^Player',$FD,$1E,$FC,$0C,'Rating',$FD,$0C,$FC,$1A,'A^-^Switch^Teams',$F9
+	String	CC_SetMapAndPosition,$06,$03,$02,$0C,CC_SetFont,$01,'Pos.^Player',CC_SetX,$1E,CC_SetY,$0C,'Rating',CC_SetX,$0C,CC_SetY,$1A,'A^-^Switch^Teams',CC_SetFont
 	bsr.w	printz
 	String	CC_Font3Pri,1,8,0
 	moveq	#$12,d0
@@ -1019,7 +1019,7 @@ ScoringSummaryScreen				;"Scoring Summary": one 4 row
 	clr.w	d0
 	bsr.w	PutTeamBlock
 	bsr.w	printsmallz
-	String	$F8,$06,$03,$00,$08,$F9,$01,'^Per^^Time^^Tm^^Goal/Assist^^^^^^^^P/S^^',$F9,$00
+	String	CC_SetMapAndPosition,$06,$03,$00,$08,CC_SetFont,$01,'^Per^^Time^^Tm^^Goal/Assist^^^^^^^^P/S^^',CC_SetFont,$00
 	clr.l	d0
 	move.w	(ScoreSumbytes).w,d0
 	divu.w	#6,d0					;goals
@@ -1206,7 +1206,7 @@ PenaltySummaryScreen				;"Penalty Summary": one 3 row
 	bsr.w	PutTeamBlock
 	;column header line in the small font
 	bsr.w	printsmallz
-	String	$F8,$06,$03,$00,$08,$F9,$01,'^Per^^Time^^Tm^^Player/Penalty^^^^min^^^',$F9,$00
+	String	CC_SetMapAndPosition,$06,$03,$00,$08,CC_SetFont,$01,'^Per^^Time^^Tm^^Player/Penalty^^^^min^^^',CC_SetFont,$00
 	;VertLineScrolling = pixel height of all entries (entries * 24); it is the scroll position
 	;of the first drawn frame, SelectedPlayerIdx = the maximum scroll (last 5 entries visible)
 	clr.l	d0
@@ -1395,10 +1395,10 @@ ScrollArrowTbl						;none, up, down, both
 									;each string: top glyph ($20 blank / $7B up arrow), then x-1, y+$11
 									;(CC_AddX/CC_AddY), bottom glyph ($20 blank / $7D down arrow), then
 									;CC_SetFont
-	String	$20,$FB,$FF,$FA,$11,$20,$F9	;none
-	String	$7B,$FB,$FF,$FA,$11,$20,$F9	;up arrow only
-	String	$20,$FB,$FF,$FA,$11,$7D,$F9	;down arrow only
-	String	$7B,$FB,$FF,$FA,$11,$7D,$F9	;both arrows
+	String	' ',CC_AddX,$FF,CC_AddY,$11,' ',CC_SetFont	;none
+	String	'{',CC_AddX,$FF,CC_AddY,$11,' ',CC_SetFont	;up arrow only
+	String	' ',CC_AddX,$FF,CC_AddY,$11,'}',CC_SetFont	;down arrow only
+	String	'{',CC_AddX,$FF,CC_AddY,$11,'}',CC_SetFont	;both arrows
 
 PlayoffStatsScreen					;"Playoff Stats": PlayerStatsList with d7 = 1 for the player's playoff
 									;team (potree), stats from ReadTeamStats
@@ -1444,7 +1444,7 @@ PlayerStatsList						;stats screen for team a2, d7 = 0 game / 1 playoff.
 	String	CC_Font3Pri,$07,$04,'Playoff  Stats',CC_Font3Pri,$0E,$01
 	bra.w	.team
 .title	bsr.w	printsmallz			;"A - Switch Teams" hint
-	String	$F8,$06,$03,$0C,$1A,$F9,$01,'A',$5E,'-',$5E,'Switch',$5E,'Teams',$F9,$00
+	String	CC_SetMapAndPosition,$06,$03,$0C,$1A,CC_SetFont,$01,'A',$5E,'-',$5E,'Switch',$5E,'Teams',CC_SetFont,$00
 	bsr.w	printbigz
 	String	CC_Font3Pri,$08,$04,'Player  Stats',CC_Font3Pri,$0E,$01
 .team	clr.w	d0					;TeamBlockMap offset: 0 for the home struct, $30 for the away struct
@@ -1550,7 +1550,7 @@ DrawStatsList						;stats screen: column headers (sort column highlighted), titl
 									;"Player" column header, then the stat column headers (goalie mode: the
 									;single goalie header string)
 	bsr.w	printsmallz
-	String	$F8,$06,$03,$04,$0B,$F9,$01,'Player',$FB,$07
+	String	CC_SetMapAndPosition,$06,$03,$04,$0B,CC_SetFont,$01,'Player',CC_AddX,$07
 	lea	StatColumnHeaders(pc),a1
 	moveq	#5,d3					;goalie mode: d3 = 5 so only the first (goalie) string is printed
 	tst.w	(DispAttribCtr).w
@@ -1834,10 +1834,10 @@ DrawStatsListArrows					;stats screen up/down arrows. Saves d0-d1/a1
 ScrollArrowTbl2						;none, up, down, both
 									;same layout as ScrollArrowTbl but the bottom glyph is $C rows below the
 									;top one
-	String	$20,$FB,$FF,$FA,$C,$20,$F9	;none
-	String	$7B,$FB,$FF,$FA,$C,$20,$F9	;up arrow only
-	String	$20,$FB,$FF,$FA,$C,$7D,$F9	;down arrow only
-	String	$7B,$FB,$FF,$FA,$C,$7D,$F9	;both arrows
+	String	' ',CC_AddX,$FF,CC_AddY,$C,' ',CC_SetFont	;none
+	String	'{',CC_AddX,$FF,CC_AddY,$C,' ',CC_SetFont	;up arrow only
+	String	' ',CC_AddX,$FF,CC_AddY,$C,'}',CC_SetFont	;down arrow only
+	String	'{',CC_AddX,$FF,CC_AddY,$C,'}',CC_SetFont	;both arrows
 
 StatsReport							;"Game Statistics": both teams' totals. Start
 									;exits
@@ -1993,16 +1993,16 @@ CrowdMeterScreen					;"Crowd Meter": current, average
 PrintCrowdMeter						;crowd meter rows: CwdExciteLvl, average (SumCwdExciteLvl /
 									;NumCwdExciteLvl samples) and peak (MaxCwdExciteLvl)
 	bsr.w	printsmallz
-	String	$F8,$04,$02,$04,$0C,'Current Level',$FD,$1C
+	String	CC_SetMapAndPosition,$04,$02,$04,$0C,'Current Level',CC_SetX,$1C
 	move.w	(CwdExciteLvl).w,d0		;row 1: current level
 	bsr.w	PrintCrowdDB
 	bsr.w	printsmallz
-	String	$FD,$04,$FA,$02,'Average Level',$FD,$1C
+	String	CC_SetX,$04,CC_AddY,$02,'Average Level',CC_SetX,$1C
 	move.l	(SumCwdExciteLvl).w,d0	;row 2: average = sum / number of samples
 	divu.w	(NumCwdExciteLvl).w,d0
 	bsr.w	PrintCrowdDB
 	bsr.w	printsmallz
-	String	$FD,$04,$FA,$02,'Peak Level',$FD,$1C
+	String	CC_SetX,$04,CC_AddY,$02,'Peak Level',CC_SetX,$1C
 	move.w	(MaxCwdExciteLvl).w,d0	;row 3: peak level, falls into PrintCrowdDB
 PrintCrowdDB						;print crowd level d0 as sqrt(d0*4) + 65 " dB"
 	ext.l	d0

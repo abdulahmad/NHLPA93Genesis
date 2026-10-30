@@ -215,6 +215,9 @@ CC_Font1Pri			=	$BF			;-$41: map 1, priority
 CC_Font2Pri			=	$BE			;-$42: map 2, priority
 CC_Font3Pri			=	$BD			;-$43: map 3, priority
 CC_Font3Pal3Pri		=	$8D			;-$73: map 3, palette 3, priority
+;Whole-String markers that list / page readers test (tst.w strtext: a String of just $FF, word $FF00, is negative)
+CC_ListEnd			=	$FF			;String CC_ListEnd ends a menu item list (menu93.asm HandleMenuInput / Pausemode_Pmenu)
+CC_PageEnd			=	$FF			;String CC_PageEnd ends a credits page; two in a row end the credits (hockey93.asm TitleScreen)
 fodropx				rs.w	1		;face off drop spot x/y
 fodropy				rs.w	1		;face off drop spot y (see fodropx)
 recbpr				rs.l	1		;replay record buffer pointer: the frame being recorded (92 recbpr)

@@ -437,8 +437,8 @@ GAttribColumns						;goalie attribute columns, same format as PAttribColumns.
 	dc.w	-1
 
 Pausemode_mlist							;from 92 Pausemode .mlist. pause menu item list (Pausemode)
-	String	$FE,5
-	String	$FE,4
+	String	CC_SetAttribute,5
+	String	CC_SetAttribute,4
 	String	'   Resume Game    '
 	dc.l	rtss
 	String	'  Instant Replay  '
@@ -463,12 +463,12 @@ Pausemode_mlist							;from 92 Pausemode .mlist. pause menu item list (Pausemode
 	dc.l	CrowdMeterScreen
 	String	'     Timeout      '
 	dc.l	TimeoutMenu
-	String	$FF
+	String	CC_ListEnd
 
 PauseText2							;pause menu item list without Timeout, used when tmflags bit 2 of the
 									;pausing team is set (Pausemode)
-	String	$FE,5
-	String	$FE,4
+	String	CC_SetAttribute,5
+	String	CC_SetAttribute,4
 	String	'   Resume Game    '
 	dc.l	rtss
 	String	'  Instant Replay  '
@@ -491,11 +491,11 @@ PauseText2							;pause menu item list without Timeout, used when tmflags bit 2 
 	dc.l	ShowScores
 	String	'   Crowd Meter    '
 	dc.l	CrowdMeterScreen
-	String	$FF
+	String	CC_ListEnd
 
 StartGameText						;intermission menu for gsp 0
-	String	$FE,5
-	String	$FE,4
+	String	CC_SetAttribute,5
+	String	CC_SetAttribute,4
 	String	'    Start Game    '
 	dc.l	rtss
 	String	'  Change Goalie   '
@@ -506,12 +506,12 @@ StartGameText						;intermission menu for gsp 0
 	dc.l	TeamRosterScreen
 	String	'   Other Scores   '
 	dc.l	ShowScores
-	String	$FF
+	String	CC_ListEnd
 
 StartGameTextPO						;intermission menu for gsp 0 in the playoffs
 									;adds Playoff Stats
-	String	$FE,5
-	String	$FE,4
+	String	CC_SetAttribute,5
+	String	CC_SetAttribute,4
 	String	'    Start Game    '
 	dc.l	rtss
 	String	'  Change Goalie   '
@@ -524,12 +524,12 @@ StartGameTextPO						;intermission menu for gsp 0 in the playoffs
 	dc.l	PlayoffStatsScreen
 	String	'   Other Scores   '
 	dc.l	ShowScores
-	String	$FF
+	String	CC_ListEnd
 
 IntermissionText					;intermission menu for gsp 1-3, season and
 									;playoffs
-	String	$FE,5
-	String	$FE,4
+	String	CC_SetAttribute,5
+	String	CC_SetAttribute,4
 	String	'   Resume Game    '
 	dc.l	rtss
 	String	'    Game Stats    '
@@ -550,11 +550,11 @@ IntermissionText					;intermission menu for gsp 1-3, season and
 	dc.l	Pausemode_go
 	String	'    Edit Lines    '
 	dc.l	LineEditor
-	String	$FF
+	String	CC_ListEnd
 
 ExitGameText						;intermission menu for gsp 4.
-	String	$FE,5
-	String	$FE,4
+	String	CC_SetAttribute,5
+	String	CC_SetAttribute,4
 	String	'    Exit Game     '
 	dc.l	rtss
 	String	'    Game Stats    '
@@ -571,12 +571,12 @@ ExitGameText						;intermission menu for gsp 4.
 	dc.l	ShowScores
 	String	'   Crowd Meter    '
 	dc.l	CrowdMeterScreen
-	String	$FF
+	String	CC_ListEnd
 
 ExitGameTextPO						;intermission menu for gsp 4 in the playoffs
 									;same items as ExitGameText
-	String	$FE,5
-	String	$FE,4
+	String	CC_SetAttribute,5
+	String	CC_SetAttribute,4
 	String	'    Exit Game     '
 	dc.l	rtss
 	String	'    Game Stats    '
@@ -593,11 +593,11 @@ ExitGameTextPO						;intermission menu for gsp 4 in the playoffs
 	dc.l	ShowScores
 	String	'   Crowd Meter    '
 	dc.l	CrowdMeterScreen
-	String	$FF
+	String	CC_ListEnd
 
 LineEditorMenuText					;line editor exit menu (LineEditorExit)
-	String	$FE,6,$F9,1
-	String	$FE,4,$F9,1
+	String	CC_SetAttribute,6,CC_SetFont,1
+	String	CC_SetAttribute,4,CC_SetFont,1
 	String	'       Exit       '
 	dc.l	rtss
 	String	'Set Original lines'
@@ -606,15 +606,15 @@ LineEditorMenuText					;line editor exit menu (LineEditorExit)
 	dc.l	EncodeTeamLines
 	String	'  Load Team Line  '
 	dc.l	DecodeTeamLines
-	String	$FF
+	String	CC_ListEnd
 
 LineEditorMenuNoLoad				;line editor exit menu without Load Team Line (LineEditorExit)
-	String	$FE,6,$F9,1
-	String	$FE,4,$F9,1
+	String	CC_SetAttribute,6,CC_SetFont,1
+	String	CC_SetAttribute,4,CC_SetFont,1
 	String	'       Exit       '
 	dc.l	rtss
 	String	'Set Original lines'
 	dc.l	CopyTeamLines
 	String	'  Save Team Line  '
 	dc.l	EncodeTeamLines
-	String	$FF
+	String	CC_ListEnd
