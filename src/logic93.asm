@@ -3702,7 +3702,7 @@ puckfaceoff2						;face off control logic and general setup for action a3 = the 
 	bne.w	.nx
 	exg	d0,d1
 .nx	bsr.w	printsmallz				;print the two line names
-	String	$FB,1,$FA,$FE
+	String	CC_AddX,1,CC_AddY,$FE
 	movea.l	#linelist,a1
 	bsr.w	Fprintsmall				;first line name (d0)
 	addq.w	#4,(printx).w

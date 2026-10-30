@@ -1605,54 +1605,54 @@ Credits								;copyright and credits text: groups of String lines, each group e
 	String	'$ 1992 Electronic Arts'
 	String	'Licensed by'
 	String	'Sega Enterprises Ltd.'
-	String	-1
+	String	CC_PageEnd
 CreditsPages						;the credits pages after the copyright group (printed by the title
 									;screen), the first one blank
 	String	''						;empty string: a blank first credits page (as at the end of this file)
-	String	-1
+	String	CC_PageEnd
 
 	String	'Design adapted by'
 	String	'Michael Brook'
 	String	'Scott Orr'
 	String	'Richard Hilleman'
-	String	-1
+	String	CC_PageEnd
 
 	String	'Programmed by'
 	String	'Jim Simmons'
-	String	-1
+	String	CC_PageEnd
 
 	String	'Graphics by'
 	String	'George Simmons'
 	String	'Brian O''Hara'
 	String	'Curt Toumanian'
-	String	-1
+	String	CC_PageEnd
 
 	String	'Music and Sound by'
 	String	'Jim Simmons'
-	String	-1
+	String	CC_PageEnd
 
 	String	'Produced by'
 	String	'Michael Brook'
-	String	-1
+	String	CC_PageEnd
 
 	String	'Assistant Producer'
 	String	'Steve Matulac'
-	String	-1
+	String	CC_PageEnd
 
 	String	'Technical Directors'
 	String	'Scott Cronce'
 	String	'Tom DeBry'
-	String	-1
+	String	CC_PageEnd
 
 	String	'Testing by'
 	String	'Robert Zalot'
 	String	'Yun Shin'
 	String	'Joel Simmons'
-	String	-1
+	String	CC_PageEnd
 
 	String	'Player Ratings by'
 	String	'Igor Kuperman'
-	String	-1
+	String	CC_PageEnd
 
 	String	'Special Thanks to'
 	String	'Bob Borgen'
@@ -1660,9 +1660,9 @@ CreditsPages						;the credits pages after the copyright group (printed by the t
 	String	'Ian Pulver'
 	String	'Rob Blake'
 	String	'John McIntyre'
-	String	-1
+	String	CC_PageEnd
 
 	
 	String	''
-	String	-1
-	String	-1
+	String	CC_PageEnd
+	String	CC_PageEnd

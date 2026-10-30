@@ -4157,7 +4157,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	dbf	d4,.top3
 
 .noscr	bsr.w	printsmallz			;round title
-	String	$F8,1,1,$41,$1A
+	String	CC_SetMapAndPosition,1,1,$41,$1A
 	lea	PlayoffScreenText(pc),a1
 	move.w	(gamelevel).w,d0
 	bsr.w	AdvanceStringPtr		;a1 = string d0
