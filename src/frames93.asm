@@ -52,7 +52,7 @@ SPFbglass	=	SPFinjury1+12		; 645 - New (glass bang)
 ;	(0 or 1), then per direction a list of frame,time word pairs; a negative time ends the list. A SPA value,
 ;	as kept in SPA(a3), is the offset of its table from SPAlist; SetSPA in logic93.asm switches animation.
 ;
-;	Only the animation equate and table lines are commented. The .0-.7 direction labels and the .a/.b/.c/.aoff
+;	Only the animation equate and table lines are commented. The .0-.7 direction labels and the .a/.b/.c/.off
 ;	helper symbols are assembler temporaries that step through the SPF frame numbers.
 
 SPAlist								;base of the animation tables; a SPA value is the offset of a table from
@@ -73,30 +73,30 @@ SPAgready_table:					;table of the animation above: direction offsets, flags, fr
 	dc.w	1
 
 .a	=	SPFGoalie
-.aoff	=	3
+.off	=	3
 .b	=	SPFgready
 .boff	=	2
 
 .0	dc.w	.a,180,.b,10,.b+1,10,.b,10,.b+1,10,.a,240,.b,10,.b+1,10,.b,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .1	dc.w	.a,130,.b,10,.b+1,10,.b,10,.b+1,10,.a,300,.b,10,.b+1,10,.b,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .2	dc.w	.a,210,.b,10,.b+1,10,.b,10,.b+1,10,.a,120,.b,10,.b+1,10,.b,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .3	dc.w	.a,100,.b,10,.b+1,10,.b,10,.b+1,10,.a,200,.b,10,.b+1,10,.b,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .4	dc.w	.a,240,.b,10,.b+1,10,.b,10,.b+1,10,.a,60,.b,10,.b+1,10,.b,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .5	dc.w	.a,180,.b,10,.b+1,10,.b,10,.b+1,10,.a,240,.b,10,.b+1,10,.b,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .6	dc.w	.a,120,.b,10,.b+1,10,.b,10,.b+1,10,.a,120,.b,10,.b+1,10,.b,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .7	dc.w	.a,180,.b,10,.b+1,10,.b,10,.b+1,10,.a,180,.b,10,.b+1,10,.b,-10
 
@@ -114,22 +114,22 @@ SPAgready2_table:					;table of the animation above: direction offsets, flags, f
 	dc.w	0
 
 .a	=	SPFGoalie
-.aoff	=	3
+.off	=	3
 
 .0	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-30
 
 SPAgglover	=	*-SPAlist			;goalie does glove save right
@@ -146,22 +146,22 @@ SPAgglover_table:					;table of the animation above: direction offsets, flags, f
 	dc.w	0
 
 .a	=	SPFGoalie+1
-.aoff	=	3
+.off	=	3
 
 .0	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-32
 
 SPAgglovel	=	*-SPAlist			;goalie does glove save left
@@ -178,22 +178,22 @@ SPAgglovel_table:					;table of the animation above: direction offsets, flags, f
 	dc.w	0
 
 .a	=	SPFGoalie+2
-.aoff	=	3
+.off	=	3
 
 .0	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-32
 
 SPAgglovel2	=	*-SPAlist			;goalie second glove save (SPFglovel2 frames, from the other glove)
@@ -235,22 +235,22 @@ SPAgstickr_table:					;table of the animation above: direction offsets, flags, f
 	dc.w	0
 
 .a	=	SPFGoalie+64
-.aoff	=	2
+.off	=	2
 
 .0	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-32
 
 SPAgstickl	=	*-SPAlist			;goalie stick save left
@@ -267,22 +267,22 @@ SPAgstickl_table:					;table of the animation above: direction offsets, flags, f
 	dc.w	0
 
 .a	=	SPFGoalie+65
-.aoff	=	2
+.off	=	2
 
 .0	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-32
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-32
 
 SPAgstackr	=	*-SPAlist			;goalie stack (pad save) right
@@ -347,22 +347,22 @@ SPAgdive_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFgdive
-.aoff	=	2
+.off	=	2
 
 .0	dc.w	.a,8,.a+1,48,.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,8,.a+1,48,.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,8,.a+1,48,.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,8,.a+1,48,.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,8,.a+1,48,.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,8,.a+1,48,.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,8,.a+1,48,.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,8,.a+1,48,.a,-8
 
 SPAgswing	=	*-SPAlist			;goalie passes puck
@@ -379,22 +379,22 @@ SPAgswing_table:					;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFGoalie+24
-.aoff	=	2
+.off	=	2
 
 .0	dc.w	.a,5,.a+1,8,.a,-16
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,5,.a+1,8,.a,-16
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,5,.a+1,8,.a,-16
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,5,.a+1,8,.a,-16
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,5,.a+1,8,.a,-16
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,5,.a+1,8,.a,-16
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,5,.a+1,8,.a,-16
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,5,.a+1,8,.a,-16
 
 SPAgskate	=	*-SPAlist			;goalie skates
@@ -411,22 +411,22 @@ SPAgskate_table:					;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFGoalie+80
-.aoff	=	4
+.off	=	4
 
 .0	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-15
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-15
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-15
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-15
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-15
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-15
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-15
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-15
 
 SPApflip	=	*-SPAlist			;puck animation (flipping puck)
@@ -467,22 +467,22 @@ SPAglide_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFskatewp
-.aoff	=	5
+.off	=	5
 
 .0	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-8
 
 SPAskatewp	=	*-SPAlist			;player skating with stick down (SPFskatewp frames)
@@ -499,22 +499,22 @@ SPAskatewp_table:					;table of the animation above: direction offsets, flags, f
 	dc.w	0
 
 .a	=	SPFskatewp+1
-.aoff	=	5
+.off	=	5
 
 .0	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
 
 SPAskate	=	*-SPAlist			;player skating with stick up (SPFskate frames)
@@ -531,22 +531,22 @@ SPAskate_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFskate+1
-.aoff	=	5
+.off	=	5
 
 .0	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,10,.a+1,10,.a+2,10,.a+3,-10
 
 SPAturnl	=	*-SPAlist			;player turning left
@@ -563,22 +563,22 @@ SPAturnl_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFturnl
-.aoff	=	1
+.off	=	1
 
 .0	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-8
 
 SPAturnr	=	*-SPAlist			;player turning right
@@ -595,22 +595,22 @@ SPAturnr_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFturnr
-.aoff	=	1
+.off	=	1
 
 .0	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-8
 
 SPAstop	=	*-SPAlist				;player scrape stopping
@@ -627,22 +627,22 @@ SPAstop_table:						;table of the animation above: direction offsets, flags, fra
 	dc.w	1
 
 .a	=	SPFstop
-.aoff	=	2
+.off	=	2
 
 .0	dc.w	.a,4,.a+1,-4
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,4,.a+1,-4
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,4,.a+1,-4
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,4,.a+1,-4
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,4,.a+1,-4
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,4,.a+1,-4
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,4,.a+1,-4
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,4,.a+1,-4
 
 SPApassf	=	*-SPAlist			;forward pass swing
@@ -659,22 +659,22 @@ SPApassf_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFswing+3
-.aoff	=	6
+.off	=	6
 
 .0	dc.w	.a,4,.a+1,4,.a+2,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,4,.a+1,4,.a+2,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,4,.a+1,4,.a+2,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,4,.a+1,4,.a+2,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,4,.a+1,4,.a+2,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,4,.a+1,4,.a+2,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,4,.a+1,4,.a+2,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,4,.a+1,4,.a+2,-20
 
 SPApassb	=	*-SPAlist			;back hand pass swing
@@ -691,22 +691,22 @@ SPApassb_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFswing+1
-.aoff	=	6
+.off	=	6
 
 .0	dc.w	.a+2,4,.a+1,4,.a,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a+2,4,.a+1,4,.a,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a+2,4,.a+1,4,.a,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a+2,4,.a+1,4,.a,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a+2,4,.a+1,4,.a,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a+2,4,.a+1,4,.a,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a+2,4,.a+1,4,.a,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a+2,4,.a+1,4,.a,-20
 
 SPAshotf	=	*-SPAlist			;player shoots forehand
@@ -723,22 +723,22 @@ SPAshotf_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFswing
-.aoff	=	6
+.off	=	6
 
 .0	dc.w	.a+3,4,.a+2,4,.a+1,4,.a,4,.a+1,4,.a+2,4,.a+3,4,.a+4,4,.a+5,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a+3,4,.a+2,4,.a+1,4,.a,4,.a+1,4,.a+2,4,.a+3,4,.a+4,4,.a+5,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a+3,4,.a+2,4,.a+1,4,.a,4,.a+1,4,.a+2,4,.a+3,4,.a+4,4,.a+5,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a+3,4,.a+2,4,.a+1,4,.a,4,.a+1,4,.a+2,4,.a+3,4,.a+4,4,.a+5,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a+3,4,.a+2,4,.a+1,4,.a,4,.a+1,4,.a+2,4,.a+3,4,.a+4,4,.a+5,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a+3,4,.a+2,4,.a+1,4,.a,4,.a+1,4,.a+2,4,.a+3,4,.a+4,4,.a+5,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a+3,4,.a+2,4,.a+1,4,.a,4,.a+1,4,.a+2,4,.a+3,4,.a+4,4,.a+5,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a+3,4,.a+2,4,.a+1,4,.a,4,.a+1,4,.a+2,4,.a+3,4,.a+4,4,.a+5,-20
 
 SPAshotb	=	*-SPAlist			;player shoots backhand
@@ -755,22 +755,22 @@ SPAshotb_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFswing+1
-.aoff	=	6
+.off	=	6
 
 .0	dc.w	.a+2,4,.a+3,4,.a+4,4,.a+4,4,.a+4,4,.a+3,4,.a+2,4,.a+1,4,.a,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a+2,4,.a+3,4,.a+4,4,.a+4,4,.a+4,4,.a+3,4,.a+2,4,.a+1,4,.a,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a+2,4,.a+3,4,.a+4,4,.a+4,4,.a+4,4,.a+3,4,.a+2,4,.a+1,4,.a,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a+2,4,.a+3,4,.a+4,4,.a+4,4,.a+4,4,.a+3,4,.a+2,4,.a+1,4,.a,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a+2,4,.a+3,4,.a+4,4,.a+4,4,.a+4,4,.a+3,4,.a+2,4,.a+1,4,.a,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a+2,4,.a+3,4,.a+4,4,.a+4,4,.a+4,4,.a+3,4,.a+2,4,.a+1,4,.a,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a+2,4,.a+3,4,.a+4,4,.a+4,4,.a+4,4,.a+3,4,.a+2,4,.a+1,4,.a,-20
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a+2,4,.a+3,4,.a+4,4,.a+4,4,.a+4,4,.a+3,4,.a+2,4,.a+1,4,.a,-20
 
 SPAglideback	=	*-SPAlist		;player gliding backwards
@@ -787,22 +787,22 @@ SPAglideback_table:					;table of the animation above: direction offsets, flags,
 	dc.w	0
 
 .a	=	SPFskateb
-.aoff	=	3
+.off	=	3
 
 .0	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-8
 
 SPAskateback	=	*-SPAlist		;player skating backwards
@@ -819,22 +819,22 @@ SPAskateback_table:					;table of the animation above: direction offsets, flags,
 	dc.w	0
 
 .a	=	SPFskateb
-.aoff	=	3
+.off	=	3
 
 .0	dc.w	.a,10,.a+1,10,.a,10,.a+2,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,10,.a+1,10,.a,10,.a+2,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,10,.a+1,10,.a,10,.a+2,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,10,.a+1,10,.a,10,.a+2,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,10,.a+1,10,.a,10,.a+2,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,10,.a+1,10,.a,10,.a+2,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,10,.a+1,10,.a,10,.a+2,-10
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,10,.a+1,10,.a,10,.a+2,-10
 
 SPAsweepchk	=	*-SPAlist			;player stick (sweep) checking
@@ -851,22 +851,22 @@ SPAsweepchk_table:					;table of the animation above: direction offsets, flags, 
 	dc.w	0
 
 .a	=	SPFsweep
-.aoff	=	2
+.off	=	2
 
 .0	dc.w	.a,4,.a+1,8,.a,-4
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,4,.a+1,8,.a,-4
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,4,.a+1,8,.a,-4
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,4,.a+1,8,.a,-4
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,4,.a+1,8,.a,-4
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,4,.a+1,8,.a,-4
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,4,.a+1,8,.a,-4
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,4,.a+1,8,.a,-4
 
 SPAshoulderchkl	=	*-SPAlist		;player shoulder checking left
@@ -883,22 +883,22 @@ SPAshoulderchkl_table:				;table of the animation above: direction offsets, flag
 	dc.w	0
 
 .a	=	SPFshoulderl
-.aoff	=	1
+.off	=	1
 
 .0	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-24
 
 SPAshoulderchkr	=	*-SPAlist		;player shoulder checking right
@@ -915,22 +915,22 @@ SPAshoulderchkr_table:				;table of the animation above: direction offsets, flag
 	dc.w	0
 
 .a	=	SPFshoulderr
-.aoff	=	1
+.off	=	1
 
 .0	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-24
 
 SPAhipchkl	=	*-SPAlist			;player hip checking left
@@ -947,22 +947,22 @@ SPAhipchkl_table:					;table of the animation above: direction offsets, flags, f
 	dc.w	0
 
 .a	=	SPFhipl
-.aoff	=	1
+.off	=	1
 
 .0	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-24
 
 SPAhipchkr	=	*-SPAlist			;player hip checking right
@@ -979,22 +979,22 @@ SPAhipchkr_table:					;table of the animation above: direction offsets, flags, f
 	dc.w	0
 
 .a	=	SPFhipr
-.aoff	=	1
+.off	=	1
 
 .0	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-24
 
 SPAburst	=	*-SPAlist			;player doing c button (speed/no check)
@@ -1011,22 +1011,22 @@ SPAburst_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFskate
-.aoff	=	5
+.off	=	5
 
 .0	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-24
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-24
 
 SPAHold	=	*-SPAlist				;player trying to hold
@@ -1043,22 +1043,22 @@ SPAHold_table:						;table of the animation above: direction offsets, flags, fra
 	dc.w	0
 
 .a	=	SPFHold
-.aoff	=	1
+.off	=	1
 
 .0	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-30
 
 SPAHold2	=	*-SPAlist			;player holding opponent
@@ -1075,22 +1075,22 @@ SPAHold2_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFHold
-.aoff	=	1
+.off	=	1
 
 .0	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-30
 
 SPAflail	=	*-SPAlist			;player being held by opponent
@@ -1107,22 +1107,22 @@ SPAflail_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFskate
-.aoff	=	5
+.off	=	5
 
 .0	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-30
 
 SPAfallfwd	=	*-SPAlist			;player falling forward
@@ -1139,30 +1139,30 @@ SPAfallfwd_table:					;table of the animation above: direction offsets, flags, f
 	dc.w	0
 
 .a	=	SPFfallfwd
-.aoff	=	4
+.off	=	4
 .b	=	SPFduck
 .boff	=	1
 
 .0	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .1	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .2	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .3	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .4	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .5	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .6	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .7	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
 
@@ -1180,30 +1180,30 @@ SPAfallback_table:					;table of the animation above: direction offsets, flags, 
 	dc.w	0
 
 .a	=	SPFfallback
-.aoff	=	4
+.off	=	4
 .b	=	SPFduck
 .boff	=	1
 
 .0	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .1	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .2	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .3	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .4	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .5	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .6	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .b	set	.b+.boff
 .7	dc.w	.a,6,.a+1,6,.a+2,100,.a+3,8,.b,-8
 
@@ -1221,22 +1221,22 @@ SPAcelebrate_table:					;table of the animation above: direction offsets, flags,
 	dc.w	0
 
 .a	=	SPFcelebrate
-.aoff	=	2
+.off	=	2
 
 .0	dc.w	.a,12,.a+1,40,.a,-5
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,12,.a+1,40,.a,-5
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,12,.a+1,40,.a,-5
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,12,.a+1,40,.a,-5
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,12,.a+1,40,.a,-5
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,12,.a+1,40,.a,-5
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,12,.a+1,40,.a,-5
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,12,.a+1,40,.a,-5
 
 SPApump	=	*-SPAlist				;player doing pump (arm pump) animation
@@ -1253,22 +1253,22 @@ SPApump_table:						;table of the animation above: direction offsets, flags, fra
 	dc.w	0
 
 .a	=	SPFpump
-.aoff	=	2
+.off	=	2
 
 .0	dc.w	.a,8,.a+1,8,.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,8,.a+1,8,.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,8,.a+1,8,.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,8,.a+1,8,.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,8,.a+1,8,.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,8,.a+1,8,.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,8,.a+1,8,.a,-8
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,8,.a+1,8,.a,-8
 
 SPAfight	=	*-SPAlist			;player throwing off gloves
@@ -1647,22 +1647,22 @@ SPAstanley_table:					;table of the animation above: direction offsets, flags, f
 	dc.w	1
 
 .a	=	SPFcup
-.aoff	=	1
+.off	=	1
 
 .0	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-30
 
 SPAcatch	=	*-SPAlist			;player hit by a slower puck (93 only; puckbody)
@@ -1679,22 +1679,22 @@ SPAcatch_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFcatch
-.aoff	=	2
+.off	=	2
 
 .0	dc.w	.a,6,.a+1,-6
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,6,.a+1,-6
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,6,.a+1,-6
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,6,.a+1,-6
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,6,.a+1,-6
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,6,.a+1,-6
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,6,.a+1,-6
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,6,.a+1,-6
 
 SPAhook	=	*-SPAlist				;player hooking, also a hold animation (93 only)
@@ -1711,22 +1711,22 @@ SPAhook_table:						;table of the animation above: direction offsets, flags, fra
 	dc.w	0
 
 .a	=	SPFhook
-.aoff	=	2
+.off	=	2
 
 .0	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,-30
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,-30
 
 SPAhook2	=	*-SPAlist			;holding animation after SPAhook (93 only)
@@ -1743,22 +1743,22 @@ SPAhook2_table:						;table of the animation above: direction offsets, flags, fr
 	dc.w	0
 
 .a	=	SPFhook
-.aoff	=	2
+.off	=	2
 
 .0	dc.w	.a,9,.a+1,9,.a,9,.a+1,-9
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,9,.a+1,9,.a,9,.a+1,-9
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,9,.a+1,9,.a,9,.a+1,-9
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,9,.a+1,9,.a,9,.a+1,-9
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,9,.a+1,9,.a,9,.a+1,-9
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,9,.a+1,9,.a,9,.a+1,-9
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,9,.a+1,9,.a,9,.a+1,-9
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,9,.a+1,9,.a,9,.a+1,-9
 
 SPAstumble	=	*-SPAlist			;player stumbles instead of falling (93 only)
@@ -1775,22 +1775,22 @@ SPAstumble_table:					;table of the animation above: direction offsets, flags, f
 	dc.w	0
 
 .a	=	SPFstumble
-.aoff	=	3
+.off	=	3
 
 .0	dc.w	.a,6,.a+1,6,.a+2,8,.a+1,6,.a,-6
-.a	set	.a+.aoff
+.a	set	.a+.off
 .1	dc.w	.a,6,.a+1,6,.a+2,8,.a+1,6,.a,-6
-.a	set	.a+.aoff
+.a	set	.a+.off
 .2	dc.w	.a,6,.a+1,6,.a+2,8,.a+1,6,.a,-6
-.a	set	.a+.aoff
+.a	set	.a+.off
 .3	dc.w	.a,6,.a+1,6,.a+2,8,.a+1,6,.a,-6
-.a	set	.a+.aoff
+.a	set	.a+.off
 .4	dc.w	.a,6,.a+1,6,.a+2,8,.a+1,6,.a,-6
-.a	set	.a+.aoff
+.a	set	.a+.off
 .5	dc.w	.a,6,.a+1,6,.a+2,8,.a+1,6,.a,-6
-.a	set	.a+.aoff
+.a	set	.a+.off
 .6	dc.w	.a,6,.a+1,6,.a+2,8,.a+1,6,.a,-6
-.a	set	.a+.aoff
+.a	set	.a+.off
 .7	dc.w	.a,6,.a+1,6,.a+2,8,.a+1,6,.a,-6
 
 SPAfake	=	*-SPAlist				;skater fake: turn left, sweep, turn right frames (93 only)
