@@ -109,11 +109,11 @@ DisplayGameInfo						;from 92 NewTicker3. print game d3 of gstruct (2 team rows 
 	bne.w	rtss2
 	move.w	2(a0),d0				;first team / score
 	move.w	gss2(a0),d1
-	bsr.w	NewTicker3_tn
+	bsr.w	PrintGameInfo
 	addq.w	#1,(printy).w
 	move.w	(a0),d0					;second team / score
 	move.w	gss1(a0),d1
-	bsr.w	NewTicker3_tn
+	bsr.w	PrintGameInfo
 	move.w	8(a0),d0				;period, 1 based
 	subq.w	#1,d0
 	movea.l	#PerLabels,a1
@@ -122,7 +122,7 @@ DisplayGameInfo						;from 92 NewTicker3. print game d3 of gstruct (2 team rows 
 	addq.w	#2,(printy).w
 	rts
 
-NewTicker3_tn						;from 92 NewTicker3 .tn. print team d0's name at x 6 and score d1 (2
+PrintGameInfo						;from 92 NewTicker3 .tn. print team d0's name at x 6 and score d1 (2
 									;digits) at x $18
 	movea.w	#TeamList,a1			;team address table
 	asl.w	#2,d0
