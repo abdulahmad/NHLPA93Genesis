@@ -2388,7 +2388,7 @@ assgoalie							;Player a3 is goalie. Also entered from assnearest
 	divs.w	d2,d1
 .de4	add.w	d3,d1				;absolute target y
 	move.w	d1,d2
-	;crossing soon and in reach: pick a save animation from GoalieSaveList
+	;crossing soon and in reach: pick a save animation from assgoalie_list
 	cmpi.w	#$22,2(a0)				;frames til crossing
 	bhi.w	.de5
 	cmpi.w	#$18,(a0)
@@ -2430,7 +2430,7 @@ assgoalie							;Player a3 is goalie. Also entered from assnearest
 	bmi.w	.de7
 	subq.w	#2,d0					;stack
 .de7	add.w	d0,d0				;index the save list
-	lea	GoalieSaveList(pc),a1
+	lea	assgoalie_list(pc),a1
 	move.w	(a1,d0.w),d1
 	cmp.w	#SPAgglovel,d1
 	bne.w	.set
@@ -2558,7 +2558,7 @@ AdjustFacingDirection				;Turn facedir one step
 	move.w	d1,facedir(a3)
 	rts
 
-GoalieSaveList						;from 92 assgoalie .list. goalie save choices
+assgoalie_list						;92 assgoalie .list. goalie save choices
 									;word table of 6 save animations: glove right/left, pad stack right/left,
 									;stick right/left
 	dc.w	SPAgglover
