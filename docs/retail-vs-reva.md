@@ -19,7 +19,7 @@ All three build from the same source (`IF REV=...` blocks). The revisions are nu
 EA changed the EASN branding to EA Sports in this version and reworked parts of the engine. About 96% of the bytes of Rev A are found in Rev B, shifted by a few bytes here and there. The reasons given below are read from the code, not documented anywhere.
 
 - **EA Sports replaces EASN.**
-  - The pictures are `EASports.map.jim` (the logo, `EASportsMap`, which `EASNmap` is an alias of) and `EASports2.map.jim` (`EASportsMap2`). The five EASN bitmaps and the spinning EASN animation (`EASN.anim`, `SpinningEASN`) are gone, so the Stanley Cup screen draws one EA Sports picture and does not animate. Its vblank handler is `vb2`.
+  - The pictures are `EASports.map.jim` (the logo, `EASportsMap`, which `EASNmap` is an alias of) and `EASports2.map.jim` (`EASportsSplashMap`). The five EASN bitmaps and the spinning EASN animation (`EASN.anim`, `SpinningEASN`) are gone, so the Stanley Cup screen draws one EA Sports picture and does not animate. Its vblank handler is `vb2`.
   - The EASN logo is not drawn on the Scores screen, and the "Scores" title moved up.
   - The ticker title is `EA Hockey Night`.
   - The pictures that carried the branding are recompressed and have different sizes: Scouting, IceRink, Zam, GameSetup, Title3, TitleLogo and the player, crowd and face off sprite sheets. `tools/extractAssets93.js` has the Rev B slices (`REVB_SLICES`) and `tools/prebuild.js` extracts again when a build switches between Rev B and the other two.
@@ -34,7 +34,7 @@ EA changed the EASN branding to EA Sports in this version and reworked parts of 
 - The unused exception vectors are `$FFFFFFFF` instead of 0, and the vectors of the handlers moved with the code.
 - The ROM sum for `ValidationRoutine` is `$07F7C2C9`.
 - Pad bytes: the same pad bytes as in Rev 0 are `$FF` (`PadByte` in `main93.asm`), and the scouting text pad is `$0D`.
-- Graphics order: `EASportsMap` comes before the arrows map, and the last picture is `EASportsMap2`. `HotList` is 2 bytes earlier in the player sheet.
+- Graphics order: `EASportsMap` comes before the arrows map, and the last picture is `EASportsSplashMap`. `HotList` is 2 bytes earlier in the player sheet.
 
 ## Finding the differences
 

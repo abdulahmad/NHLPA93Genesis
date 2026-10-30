@@ -23,7 +23,7 @@ Title2Map							;second TitleScreen bitmap
 Title3Sprites						;the three TitleAnimCallback sprites
 	incbin	..\Extracted\Graphics\Title3.anim
 	even
-TitleLogoSprites					;the four title logo sprites (AddTitleLogoSprites SetSframe); palette
+NHLPALogoSprites					;the four title logo sprites (AddTitleLogoSprites SetSframe); palette
 									;reused by PlayoffScreen
 	incbin	..\Extracted\Graphics\NHLPALogo.anim
 	even
@@ -108,7 +108,7 @@ ScoresMap							;bitmap under the title on the ShowScores "Scores" screen
 	incbin	..\Extracted\Graphics\Scores.map.jim
 	even
 	IF REV=2
-EASportsMap2						;the EA Sports picture of the Stanley Cup screen. Rev B has no five
+EASportsSplashMap						;the EA Sports picture of the Stanley Cup screen. Rev B has no five
 									;EASN bitmaps and no spinning EASN animation
 	incbin	..\Extracted\Graphics\EASportsSplash.map.jim
 	even
