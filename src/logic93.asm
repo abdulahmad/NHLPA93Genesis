@@ -208,7 +208,7 @@ setlccords							;set printx/y to cords for lc box on team a2
 	beq.w	.noflip
 	eori.w	#$16,d0
 .noflip	bsr.w	printz				;set print position from the String below
-	String	$BF,$16,0
+	String	CC_Font1Pri,$16,0
 	add.w	d0,(printy).w
 	moveq	#2,d0
 	bsr.w	getlchoice
@@ -1570,7 +1570,7 @@ chkhit								;part of fight to see if player is hit
 
 ClearMessageLine					;(Rev A). Clear the message line
 	bsr.w	printz
-	String	$BF,0,1,0
+	String	CC_Font1Pri,0,1,0
 	moveq	#$28,d0
 	moveq	#5,d1
 	move.w	#$7FF,d2
@@ -1595,7 +1595,7 @@ banner								;fight banner: close both line change boxes, frame a box with "<pl
 	move.b	-5(a0),d0
 	bsr.w	addinfo
 	bsr.w	printz
-	String	$BF,$F,1,0
+	String	CC_Font1Pri,$F,1,0
 	move.w	d2,d0
 	lsr.w	#1,d2
 	sub.w	d2,(printx).w
@@ -1613,7 +1613,7 @@ banner								;fight banner: close both line change boxes, frame a box with "<pl
 	bsr.w	addinfo
 	bsr.w	print
 	bsr.w	printz
-	String	$BF,$F,3,'vs',0
+	String	CC_Font1Pri,$F,3,'vs',0
 	movem.l	(sp)+,d0-d3/a0-a4
 	rts
 
@@ -3660,7 +3660,7 @@ puckfaceoff2						;face off control logic and general setup for action a3 = the 
 	movea.l	(sp)+,a3
 	bsr.w	ResetAndSelectPlayers
 	bsr.w	printz
-	String	$FF,0,0					;inline string data: print the face off box (control codes)
+	String	CC_Font1,0,0					;inline string data: print the face off box (control codes)
 	moveq	#$36,d0					;8+46
 	tst.w	(fox).w
 	bpl.w	.fok
@@ -3777,7 +3777,7 @@ updatefaceoff						;a3 = puck. Drop animation frame from temp1; at 0 erases the 
 	rts
 .erase	bclr	#dffaceoff,(disflags).w	;face off display off
 	bsr.w	printz
-	String	$BF,0,0
+	String	CC_Font1Pri,0,0
 	move.w	(fodropx).w,d0
 	subi.w	#$2E,d0
 	asr.w	#3,d0

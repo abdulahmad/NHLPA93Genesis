@@ -202,6 +202,19 @@ CC_AddX				=	$FB			;-5: add next signed byte to printx
 CC_AddY				=	$FA			;-6: add next signed byte to printy
 CC_SetFont			=	$F9			;-7: next byte = char set index
 CC_SetMapAndPosition	=	$F8		;-8: next 4 bytes = attribute, map, x, y
+;print/printz/printbig/printbigz/appendz control byte (NOT printsmall: there $FF.. are the CC_Set* codes above).
+;One byte with bit 7 set, read as -$ab: bits 0-1 font (= map 1-3), bits 4-5 palette, bit 6 priority; then x, y.
+;Names match 93S ram93s.asm
+CC_Font1			=	$FF			;-$01: map 1
+CC_Font2			=	$FE			;-$02: map 2
+CC_Font3			=	$FD			;-$03: map 3
+CC_Font1Pal1		=	$EF			;-$11: map 1, palette 1
+CC_Font2Pal3		=	$CE			;-$32: map 2, palette 3
+CC_Font3Pal3		=	$CD			;-$33: map 3, palette 3
+CC_Font1Pri			=	$BF			;-$41: map 1, priority
+CC_Font2Pri			=	$BE			;-$42: map 2, priority
+CC_Font3Pri			=	$BD			;-$43: map 3, priority
+CC_Font3Pal3Pri		=	$8D			;-$73: map 3, palette 3, priority
 fodropx				rs.w	1		;face off drop spot x/y
 fodropy				rs.w	1		;face off drop spot y (see fodropx)
 recbpr				rs.l	1		;replay record buffer pointer: the frame being recorded (92 recbpr)
