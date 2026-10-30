@@ -25,7 +25,7 @@ Title3Sprites						;the three TitleAnimCallback sprites
 	even
 TitleLogoSprites					;the four title logo sprites (AddTitleLogoSprites SetSframe); palette
 									;reused by PlayoffScreen
-	incbin	..\Extracted\Graphics\TitleLogo.anim
+	incbin	..\Extracted\Graphics\NHLPALogo.anim
 	even
 	IF REV=2
 EASportsBGMap						;EASportsBG.map.jim: ScoutingReport background, also PlayoffScreen,
@@ -110,7 +110,7 @@ ScoresMap							;bitmap under the title on the ShowScores "Scores" screen
 	IF REV=2
 EASportsMap2						;the EA Sports picture of the Stanley Cup screen. Rev B has no five
 									;EASN bitmaps and no spinning EASN animation
-	incbin	..\Extracted\Graphics\EASports2.map.jim
+	incbin	..\Extracted\Graphics\EASportsSplash.map.jim
 	even
 	ELSE
 SpinningEASN						;the spinning EASN logo sprites of the Stanley Cup screen, drawn with

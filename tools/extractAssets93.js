@@ -146,7 +146,7 @@ const assets = [
     { name: 'Title1.map.jim', folder: 'Graphics', start: 0x02F0B0, end: 0x031288 }, // Title1Map: 92 Title1Map: TitleScreen backdrop
     { name: 'Title2.map.jim', folder: 'Graphics', start: 0x031288, end: 0x031F10 }, // Title2Map: 92 Title2Map: second TitleScreen bitmap (loaded by TitleScreen)
     { name: 'Title3.anim', folder: 'Graphics', start: 0x031F10, end: 0x0322CE }, // Title3Sprites: the three TitleAnimCallback sprites (SetSframe)
-    { name: 'TitleLogo.anim', folder: 'Graphics', start: 0x0322CE, end: 0x032860 }, // TitleLogoSprites: the four title logo sprites (FinalizeSpriteList SetSframe); palette reused by PlayoffScreen
+    { name: 'NHLPALogo.anim', folder: 'Graphics', start: 0x0322CE, end: 0x032860 }, // TitleLogoSprites: the four title logo sprites (FinalizeSpriteList SetSframe); palette reused by PlayoffScreen
     { name: 'EASNBG.map.jim', folder: 'Graphics', start: 0x032860, end: 0x033388 }, // EASNBGMap: 92 ScoutMap: ScoutingReport background, also PlayoffScreen, SetupScreen, DrawTeamScreen
     { name: 'Framer.map.jim', folder: 'Graphics', start: 0x033388, end: 0x033400 }, // FramerMap: 92 FramerMap
     { name: 'FaceOff.map.jim', folder: 'Graphics', start: 0x033400, end: 0x033864 }, // FaceOffMap: 92 FaceOffMap
@@ -301,7 +301,7 @@ const REVB_SLICES = {
     'Title1.map.jim': [0x02F0A6, 0x03127E],
     'Title2.map.jim': [0x03127E, 0x031F06],
     'Title3.anim': [0x031F06, 0x0322C2],
-    'TitleLogo.anim': [0x0322C2, 0x032852],
+    'NHLPALogo.anim': [0x0322C2, 0x032852],
     'EASportsBG.map.jim': [0x032852, 0x0335AC],
     'Framer.map.jim': [0x0335AC, 0x033624],
     'FaceOff.map.jim': [0x033624, 0x033A88],
@@ -320,7 +320,7 @@ const REVB_SLICES = {
     'EASports.map.jim': [0x07C6A2, 0x07C7B2],
     'RonBarr.map.jim': [0x07CA0E, 0x07CFE6],
     'Scores.map.jim': [0x07CFE6, 0x07D3CC],
-    'EASports2.map.jim': [0x07D3CC, 0x07E2F4],
+    'EASportsSplash.map.jim': [0x07D3CC, 0x07E2F4],
 };
 
 // Known retail ROMs. Slices are listed at retail addresses; each version maps a retail address to
