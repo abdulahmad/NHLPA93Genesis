@@ -12,7 +12,7 @@ All three build from the same source (`IF REV=...` blocks). The revisions are nu
 ## Specific Differences and Comments (Rev 0 vs Rev A)
 - Header: Rev A writes the title `NHLPA HOCKEY '93` in capitals.
 - Code addresses move by +`$E` after `Begin`, +`$18` after `updateplayers` and +`$2E` after `p_music_vblank`. The source uses labels, so the moves are automatic, including the sound data's absolute pointers (PCM sample table, song loop pointers, the Z80 driver's FM patch bank address).
-- Pad bytes: Rev 0 has leftover values in 11 pad bytes (`Setplass .alist`, `ButtonLabelCharTable`, `bfasciicon`, `priolist`, `PlayoffTreeSetup`, the Z80 driver end, four PCM sample ends and the scouting text end); Rev A has 0.
+- Pad bytes: Rev 0 has leftover values in 11 pad bytes (`Setplass .alist`, `ButtonLabelCharTable`, `bfasciicon`, `priolist`, `PlayoffScreen_setup`, the Z80 driver end, four PCM sample ends and the scouting text end); Rev A has 0.
 
 ## Overall Differences Between Rev A (REV=1) and Rev B (REV=2)
 

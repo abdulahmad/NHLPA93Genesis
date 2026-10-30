@@ -2,10 +2,10 @@
 ;	assignment table (asstab), PenaltyList and its records, the playoff tree layout, the line editor and
 ;	roster attribute column lists, the menu item lists and other small tables. Code addresses here are labels.
 ;
-;	Menu item lists (InitMenuState): two printsmall control Strings, then per item a String and the handler
+;	Menu item lists (Pausemode_top): two printsmall control Strings, then per item a String and the handler
 ;	address (dc.l). Item 0 leaves the menu (its handler is rtss). String $FF ends the list.
 
-cd0									;$fftt = frame/time for various levels of crowd excitement.
+updatecrowdf_cd0									;$fftt = frame/time for various levels of crowd excitement.
 									;Used by updatecrowdf, indexed by crowd level and Crowdstep
 									;4 blocks of 16 words, one per crowd level range ((Crowdlevel/2) and $60 =
 									;byte offset 0,$20,$40,$60) each step (Crowdstep 0-$1E, word index) gives
@@ -299,16 +299,16 @@ priolist	dc.b	0,1,2,4,3,5,6	;positions in order of importance. Used by
 	dc.b	PadByte
 	ENDIF
 
-PlayoffTreeSetup					;from 92 PlayoffScreen .setup. Playoff tree layout by gamelevel:
+PlayoffScreen_setup					;from 92 PlayoffScreen .setup. Playoff tree layout by gamelevel:
 									;one column per round. Used by PlayoffScreen
-	dc.w	.l0-PlayoffTreeSetup
-	dc.w	.l1-PlayoffTreeSetup
-	dc.w	.l2-PlayoffTreeSetup
-	dc.w	.l3-PlayoffTreeSetup
-	dc.w	.l4-PlayoffTreeSetup
+	dc.w	.l0-PlayoffScreen_setup
+	dc.w	.l1-PlayoffScreen_setup
+	dc.w	.l2-PlayoffScreen_setup
+	dc.w	.l3-PlayoffScreen_setup
+	dc.w	.l4-PlayoffScreen_setup
 
-	;tree graphics for level 0: teams-1 then x,y per team (DrawTeamBlocks), arrows-1 then x,d0 per
-	;arrow (DrawTreeArrow), scores-1 then x,y per score (PrintSeriesScore, negative: none)
+	;tree graphics for level 0: teams-1 then x,y per team (PlayoffScreen_doteam), arrows-1 then x,d0 per
+	;arrow (PlayoffScreen_doarrow), scores-1 then x,y per score (PlayoffScreen_doscores, negative: none)
 .l0	dc.b	16-1					;level 0: 16 team blocks, then arrows and series scores
 	dc.b	45,2,45,5,45,8,45,11,45,14,45,17,45,20,45,23
 	dc.b	71,2,71,5,71,8,71,11,71,14,71,17,71,20,71,23
@@ -436,7 +436,7 @@ GAttribColumns						;goalie attribute columns, same format as PAttribColumns.
 	dc.w	$2000,6					;weight
 	dc.w	-1
 
-PauseText							;from 92 Pausemode .mlist. pause menu item list (Pausemode)
+Pausemode_mlist							;from 92 Pausemode .mlist. pause menu item list (Pausemode)
 	String	$FE,5
 	String	$FE,4
 	String	'   Resume Game    '
@@ -444,7 +444,7 @@ PauseText							;from 92 Pausemode .mlist. pause menu item list (Pausemode)
 	String	'  Instant Replay  '
 	dc.l	ReplayMode
 	String	'  Change Goalie   '
-	dc.l	SelectGoalieMenu
+	dc.l	Pausemode_go
 	String	'    Edit Lines    '
 	dc.l	LineEditor
 	String	'    Game Stats    '
@@ -474,7 +474,7 @@ PauseText2							;pause menu item list without Timeout, used when tmflags bit 2 
 	String	'  Instant Replay  '
 	dc.l	ReplayMode
 	String	'  Change Goalie   '
-	dc.l	SelectGoalieMenu
+	dc.l	Pausemode_go
 	String	'    Edit Lines    '
 	dc.l	LineEditor
 	String	'    Game Stats    '
@@ -499,7 +499,7 @@ StartGameText						;intermission menu for gsp 0
 	String	'    Start Game    '
 	dc.l	rtss
 	String	'  Change Goalie   '
-	dc.l	SelectGoalieMenu
+	dc.l	Pausemode_go
 	String	'    Edit Lines    '
 	dc.l	LineEditor
 	String	'   Team Roster    '
@@ -515,7 +515,7 @@ StartGameTextPO						;intermission menu for gsp 0 in the playoffs
 	String	'    Start Game    '
 	dc.l	rtss
 	String	'  Change Goalie   '
-	dc.l	SelectGoalieMenu
+	dc.l	Pausemode_go
 	String	'    Edit Lines    '
 	dc.l	LineEditor
 	String	'   Team Roster    '
@@ -547,7 +547,7 @@ IntermissionText					;intermission menu for gsp 1-3, season and
 	String	'   Crowd Meter    '
 	dc.l	CrowdMeterScreen
 	String	'  Change Goalie   '
-	dc.l	SelectGoalieMenu
+	dc.l	Pausemode_go
 	String	'    Edit Lines    '
 	dc.l	LineEditor
 	String	$FF

@@ -464,7 +464,7 @@ showcrowd							;draw crowd sprites: up to 3 frames per PBnum nibble, then the t
 ;======================================================================
 ;======================================================================
 ;	showclock, checksso, setsortcords, setffo, uppads, addframe, addframe2, find3d, updatesound and KillCrowd,
-;	plus the pad label code (QueuePadLabel, RenderSmallFontChar).
+;	plus the pad label code (QueuePadLabel, uppads_pd).
 ;
 ;	ssosize = $14 (an sso object) and scsize = 7 (128 byte SortCords entries). DMA list entries (a5): long
 ;	source, word length in words, word vram.
@@ -688,7 +688,7 @@ QueuePadLabel						;from 92 uppads. queue the 3 character label of a pad object 
 									;digits).
 									;Called from uppads. d1 = label code: bits 7-4 and 3-0 are digits ($F =
 									;blank), bits 10-8 index ButtonLabelCharTable. a0 = pad object, a5 = dma
-									;list. Falls into RenderSmallFontChar for the last char
+									;list. Falls into uppads_pd for the last char
 	lea	ButtonLabelCharTable(pc),a4
 	clr.w	2(a0)					;x offset (setffo adds it to the sprites)
 	move.w	d1,d2
@@ -699,7 +699,7 @@ QueuePadLabel						;from 92 uppads. queue the 3 character label of a pad object 
 	subq.w	#4,2(a0)				;and move the label 4 left
 .hi	addi.w	#$30,d2					;'0' (tens digit of the label, or blank)
 	clr.w	d0						;char slot 0
-	bsr.w	RenderSmallFontChar
+	bsr.w	uppads_pd
 	move.w	d1,d2
 	andi.w	#$F,d2
 	cmp.w	#$F,d2
@@ -707,7 +707,7 @@ QueuePadLabel						;from 92 uppads. queue the 3 character label of a pad object 
 	move.w	#-$10,d2				;$F: blank
 .lo	addi.w	#$30,d2					;'0' (ones digit of the label, or blank)
 	moveq	#1,d0					;char slot 1
-	bsr.w	RenderSmallFontChar
+	bsr.w	uppads_pd
 	move.w	d1,d2
 	lsr.w	#8,d2
 	andi.w	#7,d2
@@ -716,7 +716,7 @@ QueuePadLabel						;from 92 uppads. queue the 3 character label of a pad object 
 .btn	move.b	(a4,d2.w),d2		;third char from ButtonLabelCharTable
 	moveq	#2,d0					;char slot 2
 
-RenderSmallFontChar					;from 92 uppads .pd. dma one small font tile to the object's chars.
+uppads_pd					;from 92 uppads .pd. dma one small font tile to the object's chars.
 									;d2 = ascii char, d0 = char slot, a0 = object (VRchar), a5 = dma list
 	movea.l	#smallfontmap,a3
 	adda.l	jimdata(a3),a3
@@ -945,7 +945,7 @@ updatesound							;move the crowd noise volume (psg noise channel) toward Crowdl
 	move.b	d0,(Asound).l
 	rts
 
-KillCrowd							;silence the crowd noise (psg). Called from Reset, SetupPauseScreen, ...
+KillCrowd							;silence the crowd noise (psg). Called from Reset, Pausemode_pall, ...
 	move.b	#$E7,(Asound).l			;noise: white, rate from tone 3
 	move.b	#$DF,(Asound).l			;tone 3 off
 	move.b	#$C8,(Asound).l			;tone 3 frequency (the noise rate)

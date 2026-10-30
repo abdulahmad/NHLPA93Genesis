@@ -5,7 +5,7 @@
 ;	PutTeamBlock (team name bitmap) and MenuWaitVblank (vblank wait for screen loops) are not menu code. They
 ;	sit here because they lie between the menu engine and stats93.asm in the ROM.
 
-InitMenuState						;from 92 Pausemode .top. start a menu. a0 = item list, a1 = screen draw
+Pausemode_top						;from 92 Pausemode .top. start a menu. a0 = item list, a1 = screen draw
 									;routine falls into DrawMenuScreen
 	move.l	a0,(menulist).w			;item list
 	move.l	a1,(menudraw).w			;draw routine
@@ -22,7 +22,7 @@ DrawMenuScreen						;from 92 Pausemode setup. call the draw routine, frame the m
 	moveq	#$16,d0					;22 wide
 	moveq	#6,d1					;6 high
 	bsr.w	Framer
-	bsr.w	UpdateMenuSelection
+	bsr.w	Pausemode_Pmenu
 	move.w	#$18,(palcount).w		;fade in
 	rts
 
@@ -40,11 +40,11 @@ HandleMenuInput						;from 92 Pausemode input. process one controller read (d1) 
 	btst	#dbut,d1				;dbut
 	beq.w	.up
 	addq.w	#1,(menuitem).w			;next lower menu item
-	bra.w	UpdateMenuSelection
+	bra.w	Pausemode_Pmenu
 .up	btst	#ubut,d1				;ubut
 	beq.w	.sel
 	subq.w	#1,(menuitem).w			;next higher menu item
-	bra.w	UpdateMenuSelection
+	bra.w	Pausemode_Pmenu
 .sel	btst	#cbut,d1			;cbut
 	beq.w	.flip					;nothing: Z set, flipped to ne
 	bsr.w	seta2
@@ -64,7 +64,7 @@ HandleMenuInput						;from 92 Pausemode input. process one controller read (d1) 
 .flip	eori	#4,ccr				;invert Z
 	rts
 
-UpdateMenuSelection					;from 92 Pausemode .Pmenu. clamp the selection, scroll the 4 visible rows,
+Pausemode_Pmenu					;from 92 Pausemode .Pmenu. clamp the selection, scroll the 4 visible rows,
 									;print the menu
 	move.w	(menuitem).w,d0
 	bpl.w	.0

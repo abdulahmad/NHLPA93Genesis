@@ -586,7 +586,7 @@ ClearPenaltyBuffer					;clear PenBuf (92 inlined this in PenGoalStuff).
 	rts
 
 updatepentime						;update the time remaining on all penalized players, once a second. Sets
-									;sflags3 bit 6 on that tick. Falls into ProcessPenaltyList for team 2
+									;sflags3 bit 6 on that tick. Falls into updatepentime_ut for team 2
 	bclr	#sf3icetime,(sflags3).w	;clear last second's tick flag
 	btst	#gmclock,(gmode).w
 	bne.w	rtss					;clock stopped: no time passes
@@ -596,10 +596,10 @@ updatepentime						;update the time remaining on all penalized players, once a s
 	bset	#sf3icetime,(sflags3).w	;tick for this second
 	bsr.w	chkatop					;attack time stat
 	movea.w	#(tmstruct-M68K_RAM),a2	;team 1, then fall through for team 2
-	bsr.w	ProcessPenaltyList
+	bsr.w	updatepentime_ut
 	adda.w	#tmsize,a2
 
-ProcessPenaltyList					;from 92 updatepentime .ut. a2 = team. Walks tmboxlist:
+updatepentime_ut					;from 92 updatepentime .ut. a2 = team. Walks tmboxlist:
 									;the first two players without a coincidental penalty count down one
 									;second and the rest wait. Beeps when the first served time gets to 5 or
 									;less and releases the player at 0. Coincidental penalties count down on
@@ -653,7 +653,7 @@ ProcessPenaltyList					;from 92 updatepentime .ut. a2 = team. Walks tmboxlist:
 
 RemovePlayerFromList				;remove the entry before a0 from a penalty box list by shifting the rest
 									;down (list ends with a negative byte). Return a0 = removed slot. Called
-									;from PenGoalStuff, ProcessPenaltyList
+									;from PenGoalStuff, updatepentime_ut
 	moveq	#-1,d2
 .shift	addq.w	#1,d2				;next byte
 	move.b	(a0,d2.w),-1(a0,d2.w)	;move each following byte down one, including the -1 terminator
@@ -679,7 +679,7 @@ chkatop								;attack time of possession stat update. Called once a second from
 	rts
 
 releasepl							;player's penalty time is up so let him out (if appropriate). a2 = team,
-									;d0 = player*2. Called from ProcessPenaltyList
+									;d0 = player*2. Called from updatepentime_ut
 	movem.l	d0-d3/a0-a3,-(sp)
 	movea.w	tmsort(a2),a3			;walk the team's sort objects
 	suba.w	#SCstruct,a3
@@ -858,7 +858,7 @@ SetHor								;switch graphics to horizontal ice rink graphics mode. Does not re
 
 printscores1						;draw scoreboard. Vertical rink: period box and the score box (team names
 									;and scores). Horizontal rink (.sbscreen): period and both team logos with
-									;big scores. Called from USBoard, Pausemode, lcfound2 and others
+									;big scores. Called from USBoard, Pausemode, lcfound_close and others
 	movem.l	d0-d2/a0-a3,-(sp)
 	btst	#sfhor,(sflags).w
 	bne.w	.sbscreen
@@ -884,11 +884,11 @@ printscores1						;draw scoreboard. Vertical rink: period box and the score box 
 	bsr.w	printz
 	String	$BF,$18,$1A				;home team on the lower row
 	movea.w	#(tmstruct-M68K_RAM),a2
-	bsr.w	PrintTeamNameAndScore
+	bsr.w	printscores1_ps
 	bsr.w	printz
 	String	$BF,$18,$18				;visitors on the row above
 	adda.w	#tmsize,a2
-	bsr.w	PrintTeamNameAndScore
+	bsr.w	printscores1_ps
 .ex	movem.l	(sp)+,d0-d2/a0-a3		;restore and return
 	rts
 .sbscreen	bsr.w	printz			;horizontal rink: score board screen
@@ -912,7 +912,7 @@ printscores1						;draw scoreboard. Vertical rink: period box and the score box 
 	bsr.w	PrintTeamLogoAndScore
 	bra.s	.ex
 
-PrintTeamNameAndScore				;from 92 printscores1 .ps. print the team name of team a2 at
+printscores1_ps				;from 92 printscores1 .ps. print the team name of team a2 at
 									;printx/printy, then its score as 2 digits at x $1C. Called twice from
 									;printscores1
 	movea.l	tmdata(a2),a1
@@ -1184,8 +1184,8 @@ Intermission						;end of period junk (zamboni/stats). Opens the pause menu scre
 	lea	.sslist(pc),a0
 	movea.l	(a0,d0.w),a0			;a0 = menu item list for this period
 	bset	#sfpz,(sflags).w		;pause mode
-	movea.l	#SetupPauseScreen,a1
-	jsr	(InitMenuState).w
+	movea.l	#Pausemode_pall,a1
+	jsr	(Pausemode_top).w
 	bsr.w	GetShifter				;d1 = highest game index
 	move.w	d1,(TickerNum).w		;ticker starts from the last game
 .top	tst.w	(TickerNum).w		;one ticker game per pass
@@ -1597,7 +1597,7 @@ StartHL2							;play hilite for game a0. Start skips it with a random result. A 
 	bsr.w	setplayercolors
 	bsr.w	SetHor					;back to the intermission screen
 	bsr.w	setvideo
-	jsr	(SetupPauseScreen).w		;pause menu screen
+	jsr	(Pausemode_pall).w		;pause menu screen
 	jsr	(DrawMenuScreen).w
 	move.w	#$18,(palcount).w		;24
 	move.w	#SngEOP,-(sp)			;song $36
