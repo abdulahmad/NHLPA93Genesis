@@ -467,7 +467,7 @@ ReplayMode							;this is instant replay play-back control and display code.
 	move.w	#$7FF,d2
 	bsr.w	DoFill					;clear map 3
 	bsr.w	printz
-	String	$BD,2,2
+	String	CC_Font3Pri,2,2
 	moveq	#$20,d0
 	moveq	#$55,d1
 	moveq	#8,d2
@@ -4063,14 +4063,14 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	bsr.w	setVram
 
 	bsr.w	printz
-	String	$FF,0,0					;(92 -$01,0,0)
+	String	CC_Font1,0,0					;(92 -$01,0,0)
 	move.l	#$80,d0					;128 x 28
 	moveq	#$1C,d1
 	move.w	#$7FF,d2				;(92 moveq #1,d2)
 	bsr.w	eraser
 
 	bsr.w	printz
-	String	$FD,0,0					;(92 -$03,0,0)
+	String	CC_Font3,0,0					;(92 -$03,0,0)
 	moveq	#$28,d0					;40 x 2
 	moveq	#2,d1
 	move.w	#$7FF,d2
@@ -4084,7 +4084,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	bsr.w	DecompressGraphicsPlain	;arrow tiles at ExtraChars
 
 	bsr.w	printz
-	String	$CE,0,0					;(92 -$01,60,4 before the Stanleymap bitmap)
+	String	CC_Font2Pal3,0,0					;(92 -$01,60,4 before the Stanleymap bitmap)
 	movea.l	#EASNBGMap,a0			;bitmap map data
 	movea.l	a0,a1
 	movea.l	a0,a2
@@ -4123,7 +4123,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	clr.w	d4
 	move.b	(a0)+,d4				;team count-1
 .top	bsr.w	printz				;per team block: set map 1 origin, then x/y from the tree table
-	String	$FF,0,0
+	String	CC_Font1,0,0
 	move.b	(a0)+,(printx+1).w
 	move.b	(a0)+,(printy+1).w
 	clr.w	d1
@@ -4135,7 +4135,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	clr.w	d4
 	move.b	(a0)+,d4				;arrow count-1
 .top2	bsr.w	printz				;per bracket arrow: x and arrow number from the tree table
-	String	$FF,0,2					;(92 move #2,printy)
+	String	CC_Font1,0,2					;(92 move #2,printy)
 	move.b	(a0)+,(printx+1).w
 	clr.w	d0
 	move.b	(a0)+,d0
@@ -4143,7 +4143,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	dbf	d4,.top2
 
 	bsr.w	printz
-	String	$EF,0,0					;(92 -$11,0,0)
+	String	CC_Font1Pal1,0,0					;(92 -$11,0,0)
 	cmpi.w	#7,(bosgames).w
 	beq.w	.noscr
 	clr.w	d4
@@ -4168,7 +4168,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	tst.w	(gamelevel).w
 	beq.w	.nopage					;one page only
 	bsr.w	printz
-	String	$CD,$A,1,'Press [ or ] to page'
+	String	CC_Font3Pal3,$A,1,'Press [ or ] to page'
 .nopage	move.w	#$18,(palcount).w	;24 frames per color flash
 	move.w	#SngEOP,-(sp)			;song $36 (92 used 4)
 	bsr.w	song
@@ -4377,7 +4377,7 @@ ScoutingReport						;pregame scouting report. Called from PeriodOver.
 	bsr.w	AddFramer
 
 	bsr.w	printz
-	String	$FE,0,0					;(92 -$02,0,0)
+	String	CC_Font2,0,0					;(92 -$02,0,0)
 	movea.l	#EASNBGMap,a0			;bitmap map data (same as PlayoffScreen)
 	movea.l	a0,a1
 	movea.l	a0,a2
@@ -4391,13 +4391,13 @@ ScoutingReport						;pregame scouting report. Called from PeriodOver.
 	bsr.w	dobitmap
 
 	bsr.w	printz
-	String	$FE,6,3
+	String	CC_Font2,6,3
 	moveq	#$21,d0					;33 x 9 frame
 	moveq	#9,d1
 	bsr.w	Framer
 
 	bsr.w	printz
-	String	$FF,1,1
+	String	CC_Font1,1,1
 	movea.l	#Ronbarrmap,a0			;Ron Barr picture: palette offset, then map header offset
 	movea.l	a0,a1
 	movea.l	a0,a2
@@ -4411,12 +4411,12 @@ ScoutingReport						;pregame scouting report. Called from PeriodOver.
 	bsr.w	dobitmap
 
 	bsr.w	printz
-	String	$FF,3,$D				;(92 -$01,3,6)
+	String	CC_Font1,3,$D				;(92 -$01,3,6)
 	move.w	(VisTeam).w,d1
 	bsr.w	dotb
 
 	bsr.w	printz
-	String	$FF,$18,$D				;(92 -$01,24,6)
+	String	CC_Font1,$18,$D				;(92 -$01,24,6)
 	move.w	(HomeTeam).w,d1
 	bsr.w	dotb
 
@@ -4627,7 +4627,7 @@ UpdateScoutingDisplay				;called every frame by ScoutingReport. When ScoutingRep
 	ble.w	.noscr
 	bsr.w	ScrollDisplayUp			;wrap to a new line
 .noscr	bsr.w	printz				;position the word: x 9 + column, y 4 + line
-	String	$FF,9,4
+	String	CC_Font1,9,4
 	move.w	(scoutcolumn).w,d0
 	add.w	d0,(printx).w			;x 9 + column
 	move.w	(VertLineScrolling).w,d0
@@ -4709,7 +4709,7 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 	bsr.w	setVram_0
 
 	bsr.w	printz
-	String	$FE,0,0					;(the lea in this string)
+	String	CC_Font2,0,0					;(the lea in this string)
 	IF REV=2
 	movea.l	#EASportsMap2,a2
 	movea.l	a2,a0					;a0 = palette (first long), a1 = map header (second long), a2 = tiles
@@ -4849,14 +4849,14 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 
 	;clear both title planes: map 1 ($FF) then map 2 ($FE), 128 x 32 cells of char $7FF
 	bsr.w	printz
-	String	$FF,0,0					;(92 -$01,0,0)
+	String	CC_Font1,0,0					;(92 -$01,0,0)
 	move.l	#$80,d0					;128 x 32
 	moveq	#$20,d1
 	move.l	#$7FF,d2				;(92 moveq #1,d2)
 	bsr.w	eraser
 
 	bsr.w	printz
-	String	$FE,0,0
+	String	CC_Font2,0,0
 	move.l	#$80,d0
 	moveq	#$20,d1
 	move.l	#$7FF,d2
@@ -4864,7 +4864,7 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 
 	clr.w	d4
 	bsr.w	printz
-	String	$FE,0,$16
+	String	CC_Font2,0,$16
 	movea.l	#Title1Map,a1			;rows $16 down of Titlemap, map only
 	adda.l	jimdata(a1),a1
 	movea.w	#null,a2				;a zero word: no tiles
@@ -4877,7 +4877,7 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	bsr.w	dobitmap
 
 	bsr.w	printz
-	String	$FD,0,0					;Title1Map
+	String	CC_Font3,0,0					;Title1Map
 	movea.l	#Title1Map,a0			;whole Titlemap with palettes (Rev 0; Rev A)
 	movea.l	a0,a1
 	movea.l	a0,a2
@@ -4902,7 +4902,7 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	dbf	d0,.tops0
 
 	bsr.w	printz
-	String	$FE,0,$A
+	String	CC_Font2,0,$A
 	movea.l	#Title2Map,a1			;bitmap
 	lea	jimtilecount(a1),a2
 	adda.l	jimdata(a1),a1
@@ -4927,7 +4927,7 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	dc.l	$08F04567,$89ABCDEF		;remap table (Rev 0; #$67 / or.l)
 
 	bsr.w	printz
-	String	$FF,0,0
+	String	CC_Font1,0,0
 	movea.l	#Credits,a1				;copyright lines
 	bsr.w	.top4
 	addi.w	#$20,(Vscroll).w
@@ -4948,7 +4948,7 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	dbf	d3,.tops
 
 	bsr.w	printz
-	String	$FF,0,0
+	String	CC_Font1,0,0
 	movea.l	#CreditsPages,a1		;credits pages after the copyright lines
 .top2	bsr.w	.top4				;one credits page: erase rows, print a1 strings
 	adda.w	(a1),a1
@@ -5226,14 +5226,14 @@ setoptions							;options screen display and input. Called from PeriodOver.
 	dc.l	$0FC04567,$89ABCDEF		;remap table (Rev 0; / or.l)
 
 	bsr.w	printz
-	String	$FF,0,0					;map 1 (92 -$02,0,0)
+	String	CC_Font1,0,0					;map 1 (92 -$02,0,0)
 	moveq	#$28,d0					;40 x 28 (#$28,d0)
 	moveq	#$1C,d1
 	move.w	#$7FF,d2				;blank char (92 moveq #1)
 	bsr.w	eraser
 
 	bsr.w	printz
-	String	$FE,0,0					;map 2 (92 -$01,0,0)
+	String	CC_Font2,0,0					;map 2 (92 -$01,0,0)
 	movea.l	#GameSetUpMap,a0		;game setup bitmap
 	movea.l	a0,a1
 	movea.l	a0,a2
@@ -5401,7 +5401,7 @@ setoptions							;options screen display and input. Called from PeriodOver.
 
 .psd								;print the choice for menu line d7
 	bsr.w	printz
-	String	$BE,$11,$D				;map 2 + priority (92 -$01,16,11)
+	String	CC_Font2Pri,$11,$D				;map 2 + priority (92 -$01,16,11)
 	add.w	d7,(printy).w			;row $D + d7 (2 rows per item)
 	moveq	#$14,d0					;erase 20 x 1
 	moveq	#1,d1
@@ -5458,7 +5458,7 @@ setoptions							;options screen display and input. Called from PeriodOver.
 
 .setrect							;set rectangle cords for framing line d3
 	bsr.w	printz
-	String	$FF,$10,$C				;map 1
+	String	CC_Font1,$10,$C				;map 1
 	add.w	d3,(printy).w			;(/ cmp.b hid this and the moveq)
 	moveq	#$16,d0					;22 x 3 (92 24)
 	moveq	#3,d1
@@ -5510,13 +5510,13 @@ setoptions							;options screen display and input. Called from PeriodOver.
 	String	'Off'
 
 .text								;static text
-	String	$FE,3,$D,'Play Mode'	;(92 -$01,2,11)
-	String	$FE,3,$F,'Players'
-	String	$FE,3,$11,'Team 1'
-	String	$FE,3,$13,'Team 2'
-	String	$FE,3,$15,'Per. Length'
-	String	$FE,3,$17,'Penalties'
-	String	$FE,3,$19,'Line Changes'
+	String	CC_Font2,3,$D,'Play Mode'	;(92 -$01,2,11)
+	String	CC_Font2,3,$F,'Players'
+	String	CC_Font2,3,$11,'Team 1'
+	String	CC_Font2,3,$13,'Team 2'
+	String	CC_Font2,3,$15,'Per. Length'
+	String	CC_Font2,3,$17,'Penalties'
+	String	CC_Font2,3,$19,'Line Changes'
 	dc.w	4,0						;empty string
 
 UpdatePlayoffLevel					;in new playoffs set playoffroundoffset = 7 - playofflevel.
@@ -5537,11 +5537,11 @@ TeamIcons							;draw team name bars and set colors. Branched to from setoptions
 	move.w	(Opt1team).w,(HomeTeam).w
 	move.w	(Opt2team).w,(VisTeam).w
 .0	bsr.w	printz					;TeamIcons: draw the visitor bar, then the home bar
-	String	$BE,2,1					;map 2 + priority (92 -$02,3,8)
+	String	CC_Font2Pri,2,1					;map 2 + priority (92 -$02,3,8)
 	move.w	(VisTeam).w,d1
 	bsr.w	dotb
 	bsr.w	printz
-	String	$BE,$1A,1				;(92 -$02,24,8)
+	String	CC_Font2Pri,$1A,1				;(92 -$02,24,8)
 	move.w	(HomeTeam).w,d1
 	bsr.w	dotb
 	bsr.w	setteams
@@ -5577,7 +5577,7 @@ setoptions_printpos2				;set the print position of team a2's player name: x 2 (v
 									;(home), y $A map 1 + priority. Called from ClearRosterName and
 									;UpdateRosterPlayer
 	bsr.w	printz
-	String	$BF,2,$A
+	String	CC_Font1Pri,2,$A
 	cmpa.w	#(tmstruct-M68K_RAM),a2	;(/ mulu.w)
 	bne.w	rtss
 	move.w	#$1A,(printx).w			;home team on the right
@@ -6547,12 +6547,12 @@ ShowThreeStars						;end of game "Stars of the Game" box. Called from UpdatePA w
 	bne.w	rtss					;already shown
 	movem.l	d0-d5/a0-a4,-(sp)
 	bsr.w	printz
-	String	$BF,2,$E
+	String	CC_Font1Pri,2,$E
 	moveq	#$1C,d0					;framer size
 	moveq	#9,d1
 	bsr.w	Framer
 	bsr.w	printz
-	String	$BF,9,$10,'Stars of the Game',$BF,3,$F
+	String	CC_Font1Pri,9,$10,'Stars of the Game',CC_Font1Pri,3,$F
 	movea.l	#IceRinkMap,a1			;in the string. map at IceRinkMap offset 4
 	movea.w	#null,a2
 	adda.l	jimdata(a1),a1
@@ -6701,18 +6701,18 @@ ShowInjuryBox						;injury box "Injury to:" player TempPlOffset (set by setInjur
 									;to (jmp abs.l) from CheckInjury when InjCntDown runs out, so global
 	movem.l	d0-d2/a0-a4,-(sp)
 	bsr.w	printz
-	String	$BF,$B,3
+	String	CC_Font1Pri,$B,3
 	moveq	#$12,d0					;framer size
 	moveq	#5,d1
 	bsr.w	Framer
 	bsr.w	printz
-	String	$BF,$C,4,'Injury to:',$BF,$C,6,'Out for period',$BF,$C,5
+	String	CC_Font1Pri,$C,4,'Injury to:',CC_Font1Pri,$C,6,'Out for period',CC_Font1Pri,$C,5
 	bsr.w	GetPlayerNumInitial		;in the string
 	bsr.w	print
 	btst	#pf2fight,(puckx+pflags2).w
 	beq.w	.ex
 	bsr.w	printz
-	String	$BF,$14,6,'the game'	;over "period"
+	String	CC_Font1Pri,$14,6,'the game'	;over "period"
 .ex	movem.l	(sp)+,d0-d2/a0-a4		;restore registers
 	rts
 
@@ -6728,7 +6728,7 @@ ShowGoalBox							;goal box. Closes both line change boxes, then printbig "GOAL!
 	movea.w	#(ChkCnt-M68K_RAM),a4	;+ ScoreSumbytes = last goal entry
 	adda.w	(ScoreSumbytes).w,a4
 	bsr.w	printz
-	String	$BF,$B,2
+	String	CC_Font1Pri,$B,2
 	moveq	#$13,d0					;in the string. framer size
 	moveq	#5,d1					;5 rows: no assist
 	tst.b	ssassist1(a4)
@@ -6758,28 +6758,28 @@ ShowGoalBox							;goal box. Closes both line change boxes, then printbig "GOAL!
 	move.b	ssassist1(a4),d0		;first assist
 	bmi.w	.ex
 	bsr.w	printz
-	String	$BF,$E,6,'Assist by:',$BF,$C,7
+	String	CC_Font1Pri,$E,6,'Assist by:',CC_Font1Pri,$C,7
 	bsr.w	FormatPlayerNumInitial	;in the string
 	bsr.w	print
 	clr.w	d0
 	move.b	ssassist2(a4),d0		;second assist
 	bmi.w	.ex
 	bsr.w	printz
-	String	$BF,$C,8
+	String	CC_Font1Pri,$C,8
 	bsr.w	FormatPlayerNumInitial	;and the next line in the string
 	bsr.w	print
 .ex	movem.l	(sp)+,d0-d2/a0-a4		;restore registers
 	rts
 
 GoalBoxText							;printbig strings for ShowGoalBox: GOAL!, then HAT TRICK!
-	String	$BF,$F,3,'GOAL!',$BF,$C,5
-	String	$BF,$C,3,'HAT TRICK!',$BF,$C,5
+	String	CC_Font1Pri,$F,3,'GOAL!',CC_Font1Pri,$C,5
+	String	CC_Font1Pri,$C,3,'HAT TRICK!',CC_Font1Pri,$C,5
 
 box									;fill a $13 x 8 rectangle at printz position
 									;$FF,$B,2 with char $7FF (eraser).
 									;Called from SetLCmode2 and banner
 	bsr.w	printz
-	String	$FF,$B,2
+	String	CC_Font1,$B,2
 	moveq	#$13,d0					;in the string
 	moveq	#8,d1
 	move.l	#$7FF,d2
@@ -6940,7 +6940,7 @@ ConvertByteToDigits					;from 92 .dispen digit code. two ascii digits of bcd byt
 AddError							;address error vector. The bus error vector also points here
 	move.w	#$2700,sr
 	bsr.w	printbigz
-	String	$BD,0,0,'Address Error'	;92 -$43
+	String	CC_Font3Pri,0,0,'Address Error'	;92 -$43
 	move.l	$A(sp),d0				;pc (exception frame)
 	move.l	2(sp),d1				;access address (exception frame)
 	bra.w	crash
@@ -6948,7 +6948,7 @@ AddError							;address error vector. The bus error vector also points here
 Illinst								;illegal instruction vector.
 	move.w	#$2700,sr
 	bsr.w	printbigz
-	String	$BD,0,0,'Illegal Instruction'
+	String	CC_Font3Pri,0,0,'Illegal Instruction'
 	move.l	2(sp),d0				;pc (exception frame)
 	move.l	d0,d1
 	bra.w	crash
@@ -6956,7 +6956,7 @@ Illinst								;illegal instruction vector.
 ZeroDiv								;divide by zero vector., falls into crash
 	move.w	#$2700,sr
 	bsr.w	printbigz
-	String	$BD,0,0,'Division by zero'
+	String	CC_Font3Pri,0,0,'Division by zero'
 	move.l	2(sp),d0				;and the next line in the string
 	move.l	d0,d1
 

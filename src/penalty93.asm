@@ -409,7 +409,7 @@ UpdatePA							;animate ref in ref window. Also runs ShowThreeStars for game ove
 	move.w	#$7FFF,(penmsgtimer).w	;timer ran out (horizontal mode): reprint the line again
 	bsr.w	ClearPenaltyMessage		;with the penalized player's name (TempPlOffset) at x $11, row $B
 	bsr.w	printz
-	String	$BF,$11,$B
+	String	CC_Font1Pri,$11,$B
 	bsr.w	GetPlayerName
 	move.w	(a1),d0
 	lsr.w	#1,d0
@@ -502,7 +502,7 @@ prefmes								;print message for penalty d0 (negative clears it). Vertical mode
 	tst.w	d0
 	bpl.w	.noblank
 	bsr.w	printz					;negative d0: erase the 13x3 message area at x 0, y $A
-	String	$BF,0,$A
+	String	CC_Font1Pri,0,$A
 	moveq	#$D,d0
 	moveq	#3,d1
 	move.w	#$7FF,d2				;blank tile (92 1)
@@ -510,7 +510,7 @@ prefmes								;print message for penalty d0 (negative clears it). Vertical mode
 	bra.w	.ex
 
 .noblank	bsr.w	printz			;print the framed message for penalty d0
-	String	$BF,5,$A				;x 5 (92 6)
+	String	CC_Font1Pri,5,$A				;x 5 (92 6)
 	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
 	addq.w	#2,a1					;a1 = message string (length word first)
@@ -536,7 +536,7 @@ prefmes								;print message for penalty d0 (negative clears it). Vertical mode
 	tst.w	d0
 	bmi.w	.ex
 	bsr.w	printz					;print the message centered on x $11, row $B
-	String	$BF,$11,$B
+	String	CC_Font1Pri,$11,$B
 	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
 	addq.w	#2,a1
@@ -550,7 +550,7 @@ prefmes								;print message for penalty d0 (negative clears it). Vertical mode
 ClearPenaltyMessage					;blank the horizontal mode penalty message line (22 spaces at x 5, y $B).
 									;Called from UpdatePA and prefmes
 	bsr.w	printz
-	String	$BF,5,$B,'                      ',0
+	String	CC_Font1Pri,5,$B,'                      ',0
 	rts
 
 PenGoalStuff						;do this stuff after a goal. a1 = scored on team, a2 = scoring team. If
@@ -766,7 +766,7 @@ updatepwrplay						;show graphic and time remaining for power plays. Plays song 
 	bsr.w	song
 .uppt	bsr.w	printz				;power play marker string at x 1, y $19, then the time left and the team
 									;name (92 drew the marker with DoSmallLogo; 93 prints tiles $16-$19)
-	String	$BF,1,$19,'   ',$16,$17,$18,$19,$BF,1,$1A,'  ',0
+	String	CC_Font1Pri,1,$19,'   ',$16,$17,$18,$19,CC_Font1Pri,1,$1A,'  ',0
 	bsr.w	GetLowestPen			;d0 = time left
 	bsr.w	PushTime				;a1 = m:ss string
 	bsr.w	print
@@ -774,7 +774,7 @@ updatepwrplay						;show graphic and time remaining for power plays. Plays song 
 	movea.w	#(mesarea-M68K_RAM),a3
 	move.w	#2,(a3)					;empty string in mesarea, then append the position string and name
 	bsr.w	appendz
-	String	$BF,1,$19
+	String	CC_Font1Pri,1,$19
 	adda.w	Teamname(a0),a0			;team name
 	adda.w	(a0),a0
 	movea.l	a0,a1
@@ -802,7 +802,7 @@ ClrHor								;revert the graphics back to vertical ice rink
 	btst	#sfpz,(sflags).w
 	bne.w	.0						;pause mode: leave the screen
 	bsr.w	printz
-	String	$FF,0,0
+	String	CC_Font1,0,0
 	moveq	#$20,d0					;32
 	moveq	#$1C,d1					;28
 	move.w	#$7FF,d2				;blank tile (92 1)
@@ -824,7 +824,7 @@ SetHor								;switch graphics to horizontal ice rink graphics mode. Does not re
 	bsr.w	SprSort
 
 	bsr.w	printz
-	String	$FE,0,0
+	String	CC_Font2,0,0
 	movea.l	#IceRinkMap,a1			;draw the horizontal rink map with dobitmap
 	adda.l	jimdata(a1),a1
 	movea.w	#null,a2				;tile pointer null: a zero word, so nothing to decompress
@@ -863,13 +863,13 @@ printscores1						;draw scoreboard. Vertical rink: period box and the score box 
 	btst	#sfhor,(sflags).w
 	bne.w	.sbscreen
 	bsr.w	printz
-	String	$BF,0,$17
+	String	CC_Font1Pri,0,$17
 	moveq	#9,d0					;period box: 9x5 frame at x 0, y $17
 	moveq	#5,d1
 	bsr.w	Framer
 	bset	#dfclock,(disflags).w	;clock needs update
 	bsr.w	printz
-	String	$BF,1,$18
+	String	CC_Font1Pri,1,$18
 	move.w	(gsp).w,d0				;period name (92 .pp)
 	movea.l	#PerLabels,a1
 	bsr.w	Fprintsmall				;print the period name in the box
@@ -877,22 +877,22 @@ printscores1						;draw scoreboard. Vertical rink: period box and the score box 
 	btst	#sf3llcs,(sflags3).w	;lower line change box is up
 	bne.w	.ex
 	bsr.w	printz
-	String	$BF,$17,$17
+	String	CC_Font1Pri,$17,$17
 	moveq	#8,d0					;score box: 8x5 frame at x $17, y $17
 	moveq	#5,d1
 	bsr.w	Framer
 	bsr.w	printz
-	String	$BF,$18,$1A				;home team on the lower row
+	String	CC_Font1Pri,$18,$1A				;home team on the lower row
 	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	printscores1_ps
 	bsr.w	printz
-	String	$BF,$18,$18				;visitors on the row above
+	String	CC_Font1Pri,$18,$18				;visitors on the row above
 	adda.w	#tmsize,a2
 	bsr.w	printscores1_ps
 .ex	movem.l	(sp)+,d0-d2/a0-a3		;restore and return
 	rts
 .sbscreen	bsr.w	printz			;horizontal rink: score board screen
-	String	$BE,$11,5
+	String	CC_Font2Pri,$11,5
 	move.w	(gsp).w,d0				;period name
 	movea.l	#PerLabels,a1
 	bsr.w	AdvanceStringPtr
@@ -901,12 +901,12 @@ printscores1						;draw scoreboard. Vertical rink: period box and the score box 
 	sub.w	d0,(printx).w
 	bsr.w	print
 	bsr.w	printz
-	String	$BE,$17,1				;home logo and score at x $17
+	String	CC_Font2Pri,$17,1				;home logo and score at x $17
 	movea.w	#(tmstruct-M68K_RAM),a2
 	clr.w	d0						;home logo data offset
 	bsr.w	PrintTeamLogoAndScore
 	bsr.w	printz
-	String	$BE,9,1					;visitors at x 9
+	String	CC_Font2Pri,9,1					;visitors at x 9
 	adda.w	#tmsize,a2
 	moveq	#$30,d0					;visitor logo data offset
 	bsr.w	PrintTeamLogoAndScore
@@ -946,7 +946,7 @@ EASNLogo							;Draw easn.map at x 1, y $19 on the vertical ice rink if no power
 	btst	#sf2pwrplay,(sflags2).w
 	bne.w	rtss
 	bsr.w	printz
-	String	$BF,1,$19
+	String	CC_Font1Pri,1,$19
 
 DrawEASNMap							;Draw the EASN logo map at the current printx/printy.
 									;Also called from ShowScores
@@ -967,11 +967,11 @@ USBoard								;update score board, including the players in the penalty box and
 	bset	#dfclock,(disflags).w	;clock needs update
 	bsr.w	printscores1
 	bsr.w	printz
-	String	$BE,$14,8				;team 1 penalty lines at x $14, row 8
+	String	CC_Font2Pri,$14,8				;team 1 penalty lines at x $14, row 8
 	movea.w	#(tmstruct-M68K_RAM),a2	;in the string
 	bsr.w	.dispen
 	bsr.w	printz
-	String	$BE,5,8					;team 2 penalty lines at x 5, row 8
+	String	CC_Font2Pri,5,8					;team 2 penalty lines at x 5, row 8
 	movea.w	#(awtmstruct-M68K_RAM),a2	;tmstruct+tmsize; in the string
 	bsr.w	.dispen
 	movem.l	(sp)+,d0-d7/a0-a3
@@ -1428,11 +1428,11 @@ SetTickerAreaPosition				;from 92 NewTicker3 position setup. set printx/printy/p
 									;ticker box (x 3, y $17; the $BD map in pause mode). Return d0 = $1A wide,
 									;d1 = 5 high. Called from NewTicker3 and ClearTickerArea
 	bsr.w	printz
-	String	$BD,3,$17
+	String	CC_Font3Pri,3,$17
 	btst	#sfpz,(sflags).w
 	bne.w	.1
 	bsr.w	printz
-	String	$BF,3,$17
+	String	CC_Font1Pri,3,$17
 .1	moveq	#$1A,d0					;box size 26x5
 	moveq	#5,d1
 	rts
