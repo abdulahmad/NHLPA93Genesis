@@ -284,7 +284,7 @@ lineinput							;process input for line changes
 	adda.w	#tmsize,a2
 .0	bclr	#tmflcc,tmflags(a2)		;Flag to start lc mode
 	beq.w	.1
-	bsr.w	lcfound2				;close the old box
+	bsr.w	lcfound_close				;close the old box
 	bsr.w	SetLCmode2				;start lc mode
 .1	move.w	(sp)+,d1				;New presses
 	;d2 = button 0-2 (a, b, c) newly pressed -> lcfound
@@ -319,7 +319,7 @@ lcfound								;d2 = choice made 0-2
 	bclr	#tmflcm,tmflags(a2)
 	move.w	d0,tmline(a2)
 	jsr	setpersonel
-lcfound2							;from 92 lcfound .close. close lc box. Also called from lineinput
+lcfound_close							;from 92 lcfound .close. close lc box. Also called from lineinput
 	bsr.w	setlccords
 	cmpi.w	#$F,(printy).w
 	blt.w	.nollcm
@@ -1580,9 +1580,9 @@ banner								;fight banner: close both line change boxes, frame a box with "<pl
 									;<team>" for both fighters and "vs"
 	movem.l	d0-d3/a0-a4,-(sp)
 	movea.w	#(tmstruct-M68K_RAM),a2
-	jsr	(lcfound2).l
+	jsr	(lcfound_close).l
 	adda.w	#tmsize,a2
-	jsr	(lcfound2).l
+	jsr	(lcfound_close).l
 	jsr	(box).l
 	movea.w	#(PenBuf-M68K_RAM),a0
 	clr.w	d2						;widest line

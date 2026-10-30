@@ -982,7 +982,7 @@ fmtune_title_loop					;looping body of the title song event stream
 	even
 	dc.l	fmtune_title_loop		;loop pointer
 fmtune_eop_cmdstream				;song event stream (SoundStreamTable)
-	incbin	..\Extracted\Sound\fmtune_eop_cmdstream.bin	;song $36: IntermissionStart, PlayoffScreen, StartHL2
+	incbin	..\Extracted\Sound\fmtune_eop_cmdstream.bin	;song $36: PeriodOver_sp, PlayoffScreen, StartHL2
 	even
 	dc.l	fmtune_eop_cmdstream+4	;loop pointer (past the first event)
 fmtune_scouting_cmdstream			;song event stream (SoundStreamTable)

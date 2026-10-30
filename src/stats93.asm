@@ -109,11 +109,11 @@ DisplayGameInfo						;from 92 NewTicker3. print game d3 of gstruct (2 team rows 
 	bne.w	rtss2
 	move.w	2(a0),d0				;first team / score
 	move.w	gss2(a0),d1
-	bsr.w	PrintGameInfo
+	bsr.w	NewTicker3_tn
 	addq.w	#1,(printy).w
 	move.w	(a0),d0					;second team / score
 	move.w	gss1(a0),d1
-	bsr.w	PrintGameInfo
+	bsr.w	NewTicker3_tn
 	move.w	8(a0),d0				;period, 1 based
 	subq.w	#1,d0
 	movea.l	#PerLabels,a1
@@ -122,7 +122,7 @@ DisplayGameInfo						;from 92 NewTicker3. print game d3 of gstruct (2 team rows 
 	addq.w	#2,(printy).w
 	rts
 
-PrintGameInfo						;from 92 NewTicker3 .tn. print team d0's name at x 6 and score d1 (2
+NewTicker3_tn						;from 92 NewTicker3 .tn. print team d0's name at x 6 and score d1 (2
 									;digits) at x $18
 	movea.w	#TeamList,a1			;team address table
 	asl.w	#2,d0
@@ -541,7 +541,7 @@ LineEditorExit						;line editor: start pressed. Run the exit menu (LineEditorMe
 	movea.l	#LineEditorMenuNoLoad,a0	;no load option for another team's data
 .0	bsr.w	printsmallz				;string $FF,2: probably selects the menu text mode
 	String	$FF,2
-	bsr.w	InitMenuState			;a0 = menu text, a1 = callback
+	bsr.w	Pausemode_top			;a0 = menu text, a1 = callback
 .loop	bsr.w	MenuWaitVblank		;menu loop, d1 = pressed buttons
 	bsr.w	getpzjoy
 	bsr.w	ProcessInputWithRepeat
@@ -1861,7 +1861,7 @@ StatsReport							;"Game Statistics": both teams' totals. Start
 	bsr.w	PutTeamBlock
 	bsr.w	DisplayStats			;the table of team totals
 	;wait for Start (d1 bit 7 = new press), then leave
-.loop	bsr.w	WaitVSyncAndReadInput	;wait for a new button press
+.loop	bsr.w	Pausemode_rjoy	;wait for a new button press
 	btst	#7,d1
 	bne.w	ExitStatsScreen
 	bra.s	.loop
@@ -1985,7 +1985,7 @@ CrowdMeterScreen					;"Crowd Meter": current, average
 	bsr.w	PutTeamBlock
 	bsr.w	PrintCrowdMeter			;the three level rows
 	;wait for Start (d1 bit 7 = new press), then leave
-.loop	bsr.w	WaitVSyncAndReadInput	;wait for a new button press
+.loop	bsr.w	Pausemode_rjoy	;wait for a new button press
 	btst	#7,d1
 	bne.w	ExitStatsScreen
 	bra.s	.loop
@@ -2168,7 +2168,7 @@ TimeoutMenu							;pause menu "Timeout" for team a2: uses the
 	moveq	#$78,d0					;wait $78 vblanks or until a button press; waitx returns to the caller
 	bra.w	waitx
 
-SelectGoalieMenu					;from 92 Pausemode .go. pick team a2's goalie from a
+Pausemode_go					;from 92 Pausemode .go. pick team a2's goalie from a
 									;list (0 = no goalie). Start/C confirms; a change is stored in
 									;tmgoalie(a2)
 									;and setpersonel is called
@@ -2193,8 +2193,8 @@ SelectGoalieMenu					;from 92 Pausemode .go. pick team a2's goalie from a
 .0	addq.w	#1,d0					;row = goalie index + 1 (0 = no goalie)
 	move.w	d0,(menuitem).w
 	;menu loop: redraw, wait for a new press (d1)
-.loop	bsr.w	DrawGoalieSelectList	;menu loop: redraw the list
-	bsr.w	WaitVSyncAndReadInput
+.loop	bsr.w	Pausemode_gnum	;menu loop: redraw the list
+	bsr.w	Pausemode_rjoy
 	btst	#7,d1
 	bne.w	.done					;Start confirms
 	btst	#5,d1
@@ -2224,7 +2224,7 @@ SelectGoalieMenu					;from 92 Pausemode .go. pick team a2's goalie from a
 	move.w	(sp)+,(menuitem).w
 	rts
 
-DrawGoalieSelectList				;from 92 Pausemode .gnum. draw the goalie list, row menuitem highlighted,
+Pausemode_gnum				;from 92 Pausemode .gnum. draw the goalie list, row menuitem highlighted,
 									;each goalie with his two digit number
 									;rows from y $D, d0 = row 0..count (row 0 = "no goalie"), d1 = loop
 									;counter (menuitem+2 + 1 rows)
@@ -2312,7 +2312,7 @@ loopthroughplayers					;one pass per record: advance by the record's length word
 	movem.l	(sp)+,a0
 	rts
 
-WaitVSyncAndReadInput				;from 92 Pausemode .rjoy. wait for Vcount to change and a new button press
+Pausemode_rjoy				;from 92 Pausemode .rjoy. wait for Vcount to change and a new button press
 									;(d1)
 	move.w	(Vcount).w,d1
 .wait	cmp.w	(Vcount).w,d1		;has Vcount changed?
@@ -2320,5 +2320,5 @@ WaitVSyncAndReadInput				;from 92 Pausemode .rjoy. wait for Vcount to change and
 	bsr.w	getpzjoy				;d1 = new presses, d3 = held
 	bsr.w	nodiag					;drop diagonal presses
 	tst.b	d1
-	beq.s	WaitVSyncAndReadInput	;nothing new pressed: wait again
+	beq.s	Pausemode_rjoy	;nothing new pressed: wait again
 	rts

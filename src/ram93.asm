@@ -99,7 +99,7 @@ SngLateGame		=	$32				;late game tune, once in the 3rd period
 SngPP		=	$33					;home team power play tune (fmtune_powerplay)
 SngFaceoff		=	$34				;face off tune, once per period (fmtune_faceoff)
 SngTitle		=	$35				;title screen song (92 SngTitle)
-SngEOP			=	$36				;plays at every period end and the end of the game (IntermissionStart), on
+SngEOP			=	$36				;plays at every period end and the end of the game (PeriodOver_sp), on
 									;the playoff screen and when the highlights start (fmtune_eop). 92 had
 									;SngEOP, SngEOG and SngPO for these
 SngScouting		=	$37				;scouting report

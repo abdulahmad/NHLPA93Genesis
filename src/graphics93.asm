@@ -93,7 +93,7 @@ EASportsMap							;EA Sports logo tiles and map (setupEASNmap, DrawEASNMap). Rev
 	even
 EASNmap	equ	EASportsMap
 	ENDIF
-Arrowsmap							;playoff tree arrow tiles (DrawTreeArrow in hockey93.asm)
+Arrowsmap							;playoff tree arrow tiles (PlayoffScreen_doarrow in hockey93.asm)
 	incbin	..\Extracted\Graphics\Arrows.map.jim
 	even
 	IF REV<2
