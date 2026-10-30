@@ -184,7 +184,7 @@ Verdicts from reading each routine body / variable usage. "ok" = name matches be
 | ClampYPosition | ok |
 | ClearMessageLine | renamed from ShowInjuryMsg |
 | ClearOffsidesIfAllPlayers | ok |
-| GoalieSaveList | ok |
+| assgoalie_list | ok |
 | ResetAndSelectPlayers | ok |
 | StopNA | ok |
 | UnpackNibbles | ok |
