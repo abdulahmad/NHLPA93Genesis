@@ -1,10 +1,15 @@
 ;	*** ANONYMIZED: the player names in this file are placeholders (P001___ ... P601). ***
+;
 ;	The real names are NHLPA licensed data and are not stored in this repository. Each Player row holds a
-;	placeholder of the same length as the real name (the PLAYER macro writes the length, so it must not change);
-;	the ratings after it are unchanged. This file does not assemble into the real game by itself and it is
-;	not included directly: it needs the original ROM.
+;	placeholder of the same length as the real name (the PLAYER macro writes the length, so it must not
+;	change); the ratings after it are unchanged.
+;
+;	This file does not assemble into the real game by itself and it is not included directly: it needs the
+;	original ROM.
+;
 ;	  - tools/extractAssets93.js reads the player names from your ROM into Extracted/PlayerNames.txt
 ;	    (one name per line, in the order of the Player rows below);
+;
 ;	  - tools/build.js (the 'names' step) copies this file to output/obj/teamdata93.asm with the real
 ;	    names put back, and hockey93.asm includes that copy.
 ;	Keep the placeholder lengths when editing a row's name or adding a player.

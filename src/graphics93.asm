@@ -108,7 +108,7 @@ ScoresMap							;bitmap under the title on the ShowScores "Scores" screen
 	incbin	..\Extracted\Graphics\Scores.map.jim
 	even
 	IF REV=2
-EASportsSplashMap						;the EA Sports picture of the Stanley Cup screen. Rev B has no five
+EASportsSplashMap					;the EA Sports picture of the Stanley Cup screen. Rev B has no five
 									;EASN bitmaps and no spinning EASN animation
 	incbin	..\Extracted\Graphics\EASportsSplash.map.jim
 	even

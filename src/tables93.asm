@@ -5,7 +5,7 @@
 ;	Menu item lists (Pausemode_top): two printsmall control Strings, then per item a String and the handler
 ;	address (dc.l). Item 0 leaves the menu (its handler is rtss). String $FF ends the list.
 
-updatecrowdf_cd0									;$fftt = frame/time for various levels of crowd excitement.
+updatecrowdf_cd0					;$fftt = frame/time for various levels of crowd excitement.
 									;Used by updatecrowdf, indexed by crowd level and Crowdstep
 									;4 blocks of 16 words, one per crowd level range ((Crowdlevel/2) and $60 =
 									;byte offset 0,$20,$40,$60) each step (Crowdstep 0-$1E, word index) gives
@@ -436,7 +436,7 @@ GAttribColumns						;goalie attribute columns, same format as PAttribColumns.
 	dc.w	$2000,6					;weight
 	dc.w	-1
 
-Pausemode_mlist							;from 92 Pausemode .mlist. pause menu item list (Pausemode)
+Pausemode_mlist						;from 92 Pausemode .mlist. pause menu item list (Pausemode)
 	String	CC_SetAttribute,5
 	String	CC_SetAttribute,4
 	String	'   Resume Game    '

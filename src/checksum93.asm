@@ -33,10 +33,10 @@ ContinueValidation	subq.l	#1,d1	;loop back until d1 longs have been counted
 	rts
 VDPErrorSetup	movea.l	#Vctrl,a4	;a4 = VDP control port; set up a plain red screen blank the VDP and flood
 									;all of colour RAM with red
-	move.w	#VDPR_AUTOINC+$02,(a4)				;auto increment 2
-	move.w	#VDPR_MODE1+$04,(a4)				;mode 1: h interrupt off
-	move.w	#VDPR_BGCOL,(a4)				;backdrop = colour 0
-	move.w	#VDPR_MODE2+$44,(a4)				;mode 2: display on, v interrupt off, dma off
+	move.w	#VDPR_AUTOINC+$02,(a4)	;auto increment 2
+	move.w	#VDPR_MODE1+$04,(a4)	;mode 1: h interrupt off
+	move.w	#VDPR_BGCOL,(a4)		;backdrop = colour 0
+	move.w	#VDPR_MODE2+$44,(a4)	;mode 2: display on, v interrupt off, dma off
 	move.w	#$C000,(a4)				;cram write, colour 0 (first command word only)
 	move.w	#$3F,d1					;64 colours
 VRAMWriteLoop	move.w	#$E,(Vdata).l	;colour = $00E, full red

@@ -64,7 +64,7 @@ HandleMenuInput						;from 92 Pausemode input. process one controller read (d1) 
 .flip	eori	#4,ccr				;invert Z
 	rts
 
-Pausemode_Pmenu					;from 92 Pausemode .Pmenu. clamp the selection, scroll the 4 visible rows,
+Pausemode_Pmenu						;from 92 Pausemode .Pmenu. clamp the selection, scroll the 4 visible rows,
 									;print the menu
 	move.w	(menuitem).w,d0
 	bpl.w	.0
