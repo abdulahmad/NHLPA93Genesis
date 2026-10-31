@@ -42,35 +42,35 @@
 ; =============================================================================
 
         .binfrom 0
-        .binto   Z80_DriverEnd-1       ; $28B bytes
+        .binto   Z80_DriverEnd-1	; $28B bytes
 
 ; -----------------------------------------------------------------------------
 ; Hardware (Z80 address space on the Genesis)
 ; -----------------------------------------------------------------------------
-YM2612_ADDR1        EQU $4000   ; YM2612 part I register select / status
-YM2612_DATA1        EQU $4001   ; YM2612 part I data
-BANK_REGISTER       EQU $6000   ; 68000 bank select: 9 serial writes of bit 0
-BANK_WINDOW         EQU $8000   ; 32 KB window onto 68000 memory
+YM2612_ADDR1        EQU $4000		; YM2612 part I register select / status
+YM2612_DATA1        EQU $4001		; YM2612 part I data
+BANK_REGISTER       EQU $6000		; 68000 bank select: 9 serial writes of bit 0
+BANK_WINDOW         EQU $8000		; 32 KB window onto 68000 memory
 
 ; IX points at YM2612_ADDR1 (part I) or, after SelectPart, at $4002 (part II):
 ; (ix+0) register select, (ix+1) data.
-YM_LFO              EQU $22     ; LFO enable and frequency
-YM_LFO_TIMER_KEY    EQU $28     ; Key on/off: bits 0-2 channel code, bits 4-7 operators
-YM_DAC_DATA         EQU $2A     ; DAC sample byte
-YM_DAC_ENABLE       EQU $2B     ; Bit 7: channel 6 plays the DAC
-YM_DT_MUL           EQU $30     ; First per-operator register (+ channel 0-2)
-YM_TL_OP1           EQU $40     ; Total level, operator 1 (+ channel 0-2)
-YM_TL_OP4           EQU $4C     ; Total level, operator 4 (+ channel 0-2)
-YM_FNUM_LOW         EQU $A0     ; Frequency number low 8 bits (+ channel 0-2)
-YM_FNUM_HIGH        EQU $A4     ; Block (octave) and frequency high bits (+ channel 0-2)
+YM_LFO              EQU $22			; LFO enable and frequency
+YM_LFO_TIMER_KEY    EQU $28			; Key on/off: bits 0-2 channel code, bits 4-7 operators
+YM_DAC_DATA         EQU $2A			; DAC sample byte
+YM_DAC_ENABLE       EQU $2B			; Bit 7: channel 6 plays the DAC
+YM_DT_MUL           EQU $30			; First per-operator register (+ channel 0-2)
+YM_TL_OP1           EQU $40			; Total level, operator 1 (+ channel 0-2)
+YM_TL_OP4           EQU $4C			; Total level, operator 4 (+ channel 0-2)
+YM_FNUM_LOW         EQU $A0			; Frequency number low 8 bits (+ channel 0-2)
+YM_FNUM_HIGH        EQU $A4			; Block (octave) and frequency high bits (+ channel 0-2)
 
-YM_KEY_ON_ALL_OPS   EQU $F0     ; Added to the channel code: all 4 operators on
-DAC_ENABLED         EQU $80     ; YM_DAC_ENABLE value: DAC on
-DAC_DISABLED        EQU $00     ; YM_DAC_ENABLE value: DAC off
-LFO_ON_4            EQU $0C     ; YM_LFO value: LFO on, frequency 4
+YM_KEY_ON_ALL_OPS   EQU $F0			; Added to the channel code: all 4 operators on
+DAC_ENABLED         EQU $80			; YM_DAC_ENABLE value: DAC on
+DAC_DISABLED        EQU $00			; YM_DAC_ENABLE value: DAC off
+LFO_ON_4            EQU $0C			; YM_LFO value: LFO on, frequency 4
 
-Z80_STACK_TOP       EQU $0295   ; = Z80ProgramLen; the stack grows down from here
-VOLUME_PAGE_FULL    EQU $1F     ; Loudest volume table (divisor 8, unchanged)
+Z80_STACK_TOP       EQU $0295		; = Z80ProgramLen; the stack grows down from here
+VOLUME_PAGE_FULL    EQU $1F			; Loudest volume table (divisor 8, unchanged)
 
 ; Command buffer layout (cb_* in sound93.asm, here as Z80 addresses)
 CB_KEYOFF           EQU z80_cmdbuf+0    ; bit per output channel: key off
@@ -82,13 +82,13 @@ CB_VOLUMES          EQU z80_cmdbuf+5    ; 7 bytes: attenuation per output channe
 CB_FREQS            EQU z80_cmdbuf+12   ; 7 words: block/frequency high byte, then low byte
 CB_PATCHES          EQU z80_cmdbuf+26   ; 7 bytes: patch number per output channel
 
-PATCH_FB_ALG        EQU $1C     ; Patch byte written to register $B0 (feedback/algorithm)
-PATCH_REG_BYTES     EQU $1E     ; Patch bytes written to the YM2612 (registers $30-$9C, $B0, $B4)
+PATCH_FB_ALG        EQU $1C			; Patch byte written to register $B0 (feedback/algorithm)
+PATCH_REG_BYTES     EQU $1E			; Patch bytes written to the YM2612 (registers $30-$9C, $B0, $B4)
 
 ; FM patch address, patched by sound93.asm (see LoadPatchAddress). The
 ; values here are the Rev 0 ones so the image matches that ROM.
-FM_PATCHES_WINDOW   EQU $830A   ; $8000 + (fm_instrument_patches & $7FFF)
-FM_PATCHES_BANK     EQU $05     ; fm_instrument_patches >> 15
+FM_PATCHES_WINDOW   EQU $830A		; $8000 + (fm_instrument_patches & $7FFF)
+FM_PATCHES_BANK     EQU $05			; fm_instrument_patches >> 15
 
 ; -----------------------------------------------------------------------------
 ; $0000: entry point
@@ -100,15 +100,15 @@ Z80_DriverStart:
 ; -----------------------------------------------------------------------------
 ; Shared data
 ; -----------------------------------------------------------------------------
-z80_cmdbuf:                     ; $0002: Z80_command_buffer and its tables (33 bytes)
-        db $00,$00,$00,$00,$00  ; key off, key on, volume, frequency, patch bits
-        db $FF,$FF,$FF,$FF,$FF,$FF,$FF                      ; volumes
+z80_cmdbuf:							; $0002: Z80_command_buffer and its tables (33 bytes)
+        db $00,$00,$00,$00,$00		; key off, key on, volume, frequency, patch bits
+        db $FF,$FF,$FF,$FF,$FF,$FF,$FF	; volumes
         db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF ; frequencies
-        db $FF,$FF,$FF,$FF,$FF,$FF,$FF                      ; patches
-z80_dac_start_addr:                   ; $0023: sample start, 24-bit, high byte first
+        db $FF,$FF,$FF,$FF,$FF,$FF,$FF	; patches
+z80_dac_start_addr:					; $0023: sample start, 24-bit, high byte first
         db $00,$00,$00
-z80_dac_next_addr:              ; $0026: read when a sample byte is 0 (the second long of the
-        db $00,$00,$00          ; pcm_sample_table entry, 0 in every entry). What playing on from
+z80_dac_next_addr:					; $0026: read when a sample byte is 0 (the second long of the
+        db $00,$00,$00				; pcm_sample_table entry, 0 in every entry). What playing on from
                                 ; there is meant to do is unclear.
 
 ; -----------------------------------------------------------------------------
@@ -119,7 +119,7 @@ Z80_Init:
         ld sp,Z80_STACK_TOP
         im 0
         ld hl,MainLoop
-        ld (z80_cmd),hl                 ; no command pending
+        ld (z80_cmd),hl				; no command pending
         ld ix,YM2612_ADDR1
 Start_Wait1:
         bit 7,(ix+0)
@@ -140,13 +140,13 @@ Start_Wait4:
         ld iy,z80_dac_start_addr
         jr DacStartSample
 
-DacSampleEnd:                           ; a 0 byte: carry on from z80_dac_next_addr
+DacSampleEnd:						; a 0 byte: carry on from z80_dac_next_addr
         ld iy,z80_dac_next_addr
-DacStartSample:                          ; HL = address & $FFFF, bank = address >> 15
+DacStartSample:						; HL = address & $FFFF, bank = address >> 15
         ld h,(iy+1)
         ld l,(iy+2)
         ld a,h
-        rla                             ; carry = address bit 15
+        rla							; carry = address bit 15
         ld a,(iy+0)
         rla
         ld (z80_dac_start_bank),a
@@ -157,39 +157,39 @@ DacStartSample:                          ; HL = address & $FFFF, bank = address 
 ; -----------------------------------------------------------------------------
 MainLoop:
         ld (ix+0),YM_DAC_DATA
-        ld e,(hl)                       ; sample byte
-        db $16                          ; ld d,n
-z80_dac_vol_page:                            ; $0083: volume table page, set by the 68000
+        ld e,(hl)					; sample byte
+        db $16						; ld d,n
+z80_dac_vol_page:					; $0083: volume table page, set by the 68000
         db VOLUME_PAGE_FULL
-        ld a,(de)                       ; byte through the volume table
+        ld a,(de)					; byte through the volume table
         or a
-        jp z,DacSampleEnd               ; 0 ends the sample data
+        jp z,DacSampleEnd			; 0 ends the sample data
         ld (YM2612_DATA1),a
         ld a,c
-        db $C6                          ; add a,n
-z80_dac_step:                           ; $008E: step, set by the 68000; the carry out of
-        db $00                          ; C advances HL by one byte (0: HL never moves)
+        db $C6						; add a,n
+z80_dac_step:						; $008E: step, set by the 68000; the carry out of
+        db $00						; C advances HL by one byte (0: HL never moves)
         ld c,a
         ld de,$0000
         adc hl,de
-        db $D2                          ; jp nc,nn
-z80_cmd:                                ; $0096: jump target. Low byte: Z80Idle ($7D, MainLoop) or a
-        dw MainLoop                      ; command from the 68000 ($D1 UpdateFmChannels, $29 Z80_Init)
-z80_cmd_high        EQU z80_cmd+1       ; $0097: jump target high byte, always 0
+        db $D2						; jp nc,nn
+z80_cmd:							; $0096: jump target. Low byte: Z80Idle ($7D, MainLoop) or a
+        dw MainLoop					; command from the 68000 ($D1 UpdateFmChannels, $29 Z80_Init)
+z80_cmd_high        EQU z80_cmd+1	; $0097: jump target high byte, always 0
 
-DacStartSample_load_bank:                             ; HL ran past $FFFF (or a new address): next bank
+DacStartSample_load_bank:			; HL ran past $FFFF (or a new address): next bank
         ld a,h
-        or $80                          ; back into the bank window
+        or $80						; back into the bank window
         ld h,a
-        db $3E                          ; ld a,n
-z80_dac_start_bank:                           ; $009D: bank of the sample data
+        db $3E						; ld a,n
+z80_dac_start_bank:					; $009D: bank of the sample data
         db $00
         call SetBank
         inc a
-        ld (z80_dac_start_bank),a             ; the bank to select when HL wraps again
+        ld (z80_dac_start_bank),a	; the bank to select when HL wraps again
         scf
-        ccf                             ; clear carry
-        jp z80_cmd-1                    ; to the jp nc in MainLoop
+        ccf							; clear carry
+        jp z80_cmd-1				; to the jp nc in MainLoop
 
 ; -----------------------------------------------------------------------------
 ; $00AA: SetBank. Select the 32 KB 68000 bank A for the window: nine writes
@@ -215,7 +215,7 @@ SetBank:
         ld (BANK_REGISTER),a
         rra
         ld (BANK_REGISTER),a
-        rra                             ; nine RRAs through a cleared carry: A restored
+        rra							; nine RRAs through a cleared carry: A restored
         ret
 
 ; -----------------------------------------------------------------------------
@@ -225,7 +225,7 @@ SetBank:
 UpdateFmChannels:
         push hl
         push bc
-        ld e,$FF                        ; key off
+        ld e,$FF					; key off
         ld a,(CB_KEYOFF)
 KeyOffChannel_next:
         inc e
@@ -238,22 +238,22 @@ KeyOffChannel_wait1:
 KeyOffChannel_wait2:
         bit 7,(ix+0)
         jr nz,KeyOffChannel_wait2
-        ld (ix+1),e                     ; channel E, no operators: key off
+        ld (ix+1),e					; channel E, no operators: key off
         or a
 KeyOffChannel_skip:
         jr nz,KeyOffChannel_next
 
-        ld e,$FF                        ; patch load
+        ld e,$FF					; patch load
         ld a,(CB_PATCH)
 LoadPatch_next:
         inc e
         srl a
         jr nc,LoadPatch_skip
         push af
-        call LoadPatchAddress           ; HL = patch in the bank window
+        call LoadPatchAddress		; HL = patch in the bank window
         call SelectPart
         add a,YM_DT_MUL
-        ld d,a                          ; register
+        ld d,a						; register
         ld b,PATCH_REG_BYTES
 LoadPatch_wait1:
         bit 7,(ix+0)
@@ -268,12 +268,12 @@ LoadPatch_wait2:
         inc d
         inc d
         inc d
-        inc d                           ; next operator / register group
+        inc d						; next operator / register group
         ld a,b
         cp 3
         jr nz,LoadPatch_no_gap
         ld a,d
-        add a,$10                       ; after $9C: skip to $B0, $B4
+        add a,$10					; after $9C: skip to $B0, $B4
         ld d,a
 LoadPatch_no_gap:
         djnz LoadPatch_wait1
@@ -282,7 +282,7 @@ LoadPatch_no_gap:
 LoadPatch_skip:
         jr nz,LoadPatch_next
 
-        ld e,$FF                        ; frequency
+        ld e,$FF					; frequency
         ld a,(CB_FREQ)
 SetChannelFrequency_next:
         inc e
@@ -293,7 +293,7 @@ SetChannelFrequency_next:
         ld a,e
         sla a
         add a,l
-        ld l,a                          ; HL = the channel's frequency word
+        ld l,a						; HL = the channel's frequency word
         call SelectPart
         add a,YM_FNUM_HIGH
 SetChannelFrequency_wait1:
@@ -321,7 +321,7 @@ SetChannelFrequency_wait4:
 SetChannelFrequency_skip:
         jr nz,SetChannelFrequency_next
 
-        ld e,$FF                        ; volume: the total level of every carrier
+        ld e,$FF					; volume: the total level of every carrier
         ld a,(CB_VOLUME)
 SetChannelVolume_next:
         inc e
@@ -336,24 +336,24 @@ SetChannelVolume_next:
         adc a,0
         ld h,a
         ld a,(hl)
-        and 7                           ; algorithm
-        ld c,1                          ; carriers: 1 for algorithms 0-3,
+        and 7						; algorithm
+        ld c,1						; carriers: 1 for algorithms 0-3,
         cp 4
         jr c,SetChannelVolume_count
-        inc c                           ; 2 for 4,
+        inc c						; 2 for 4,
         cp 5
         jr c,SetChannelVolume_count
-        inc c                           ; 3 for 5-6,
+        inc c						; 3 for 5-6,
         cp 7
         jr c,SetChannelVolume_count
-        inc c                           ; 4 for 7
+        inc c						; 4 for 7
 SetChannelVolume_count:
         ld hl,CB_VOLUMES
         ld a,e
         add a,l
         ld l,a
         call SelectPart
-        add a,YM_TL_OP4                 ; operator 4, then 3, 2, 1 (register -4 each)
+        add a,YM_TL_OP4				; operator 4, then 3, 2, 1 (register -4 each)
 SetChannelVolume_wait1:
         bit 7,(ix+0)
         jr nz,SetChannelVolume_wait1
@@ -402,10 +402,10 @@ SetChannelVolume_done:
 SetChannelVolume_skip:
         jp nz,SetChannelVolume_next
 
-        ld e,YM_KEY_ON_ALL_OPS-1        ; key on
+        ld e,YM_KEY_ON_ALL_OPS-1	; key on
         ld a,(CB_KEYON)
         bit 6,a
-        jr z,KeyOnChannel_next                 ; channel 6 key on: DAC off first
+        jr z,KeyOnChannel_next		; channel 6 key on: DAC off first
 KeyOnChannel_wait1:
         bit 7,(ix+0)
         jr nz,KeyOnChannel_wait1
@@ -425,16 +425,16 @@ KeyOnChannel_wait3:
 KeyOnChannel_wait4:
         bit 7,(ix+0)
         jr nz,KeyOnChannel_wait4
-        ld (ix+1),e                     ; channel E, all operators on
+        ld (ix+1),e					; channel E, all operators on
         or a
 KeyOnChannel_skip:
         jr nz,KeyOnChannel_next
 
-        ld a,(z80_dac_start_bank)             ; the patch loads moved the bank: select
-        dec a                           ; the sample's bank again
+        ld a,(z80_dac_start_bank)	; the patch loads moved the bank: select
+        dec a						; the sample's bank again
         ld (z80_dac_start_bank),a
         ld hl,MainLoop
-        ld (z80_cmd),hl                 ; command done
+        ld (z80_cmd),hl				; command done
         pop bc
         pop hl
         jp DacStartSample_load_bank
@@ -450,7 +450,7 @@ LoadPatchAddress:
         ld a,e
         add a,l
         ld l,a
-        ld a,(hl)                       ; patch number (H is 0)
+        ld a,(hl)					; patch number (H is 0)
         ld l,a
         sla l
         rl h
@@ -461,13 +461,13 @@ LoadPatchAddress:
         sla l
         rl h
         sla l
-        rl h                            ; * 32 bytes
-        db $01                          ; ld bc,nn
-z80_fm_patches_window:                  ; $0278 (68000: Z80_Program_Code+$278)
+        rl h						; * 32 bytes
+        db $01						; ld bc,nn
+z80_fm_patches_window:				; $0278 (68000: Z80_Program_Code+$278)
         dw FM_PATCHES_WINDOW
         add hl,bc
-        db $3E                          ; ld a,n
-z80_fm_patches_bank:                    ; $027C
+        db $3E						; ld a,n
+z80_fm_patches_bank:				; $027C
         db FM_PATCHES_BANK
         jp SetBank
 
