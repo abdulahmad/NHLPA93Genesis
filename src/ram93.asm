@@ -3,6 +3,7 @@
 ;
 ;	Hardware ports, sprite and ref map sizes, controller ports and the stack, button bits, song and sound
 ;	numbers, rink distances, the replay buffer and sort object sizes come first (92 ram.asm order), then the
+;
 ;	record offsets. Then the variables allocated with rs from varstart: video and print state, sort objects,
 ;	flags, team and game structures, menu and sound state. The rs order sets the addresses and is fixed.
 
@@ -45,17 +46,17 @@ VDPR_DMASRCM	=	$9600
 VDPR_DMASRCH	=	$9700
 
 ;hardware
-IO_CT1_CTRL	=	$A10008			;controller 1 control port
-IO_CT1_DATA	=	$A10002			;controller 1 data port (Joy1 is its odd byte)
+IO_CT1_CTRL	=	$A10008				;controller 1 control port
+IO_CT1_DATA	=	$A10002				;controller 1 data port (Joy1 is its odd byte)
 IO_CT2_CTRL	=	$A1000A
 IO_CT2_DATA	=	$A10004
 IO_Z80BUS		=	$A11100			;Z80 bus request port ($100 requests the bus, 0 releases it)
 IO_Z80RES		=	$A11200			;Z80 reset port (0 holds the Z80 in reset, $100 releases it)
 Z80_RAM			=	$A00000			;Z80 RAM as seen from the 68000 (Z80_RAM+$8E is the PCM rate byte)
 BackupRAM_Port	=	$200000			;serial backup RAM port: low byte bit 7 data, bit 6 clock
-Joy1			=	IO_CT1_DATA+1		;controller ports
-Joy2			=	IO_CT2_DATA+1		;controller port 2 data
-Z80_YM2612		=	$A04000			;YM2612 as seen from the Z80 bus (the Z80 driver uses it; unused by the 68000 code)
+Joy1			=	IO_CT1_DATA+1	;controller ports
+Joy2			=	IO_CT2_DATA+1	;controller port 2 data
+Z80_YM2612		=	$A04000			;YM2612 as seen from the Z80 bus (used by the Z80 driver only)
 Stack	=	$FFFFFFFE				;game stack (Begin, StartPer, Opening2)
 ;$FFFFFFFF: not used
 
@@ -229,8 +230,10 @@ CC_AddX				=	$FB			;-5: add next signed byte to printx
 CC_AddY				=	$FA			;-6: add next signed byte to printy
 CC_SetFont			=	$F9			;-7: next byte = char set index
 CC_SetMapAndPosition	=	$F8		;-8: next 4 bytes = attribute, map, x, y
-;print/printz/printbig/printbigz/appendz control byte (NOT printsmall: there $FF.. are the CC_Set* codes above).
-;One byte with bit 7 set, read as -$ab: bits 0-1 font (= map 1-3), bits 4-5 palette, bit 6 priority; then x, y.
+;print/printz/printbig/printbigz/appendz control byte (NOT printsmall: there $FF.. are the CC_Set* codes
+;above).
+;One byte with bit 7 set, read as -$ab: bits 0-1 font (= map 1-3), bits 4-5 palette, bit 6 priority;
+;then x, y.
 ;Names match 93S ram93s.asm
 CC_Font1			=	$FF			;-$01: map 1
 CC_Font2			=	$FE			;-$02: map 2
@@ -242,9 +245,10 @@ CC_Font1Pri			=	$BF			;-$41: map 1, priority
 CC_Font2Pri			=	$BE			;-$42: map 2, priority
 CC_Font3Pri			=	$BD			;-$43: map 3, priority
 CC_Font3Pal3Pri		=	$8D			;-$73: map 3, palette 3, priority
-;Whole-String markers that list / page readers test (tst.w strtext: a String of just $FF, word $FF00, is negative)
-CC_ListEnd			=	$FF			;String CC_ListEnd ends a menu item list (menu93.asm HandleMenuInput / Pausemode_Pmenu)
-CC_PageEnd			=	$FF			;String CC_PageEnd ends a credits page; two in a row end the credits (hockey93.asm TitleScreen)
+;Whole-String markers that list / page readers test (tst.w strtext: a String of just $FF, word $FF00,
+;is negative)
+CC_ListEnd			=	$FF			;String CC_ListEnd ends a menu list (HandleMenuInput, Pausemode_Pmenu)
+CC_PageEnd			=	$FF			;String CC_PageEnd ends a credits page; two in a row end the credits
 fodropx				rs.w	1		;face off drop spot x/y
 fodropy				rs.w	1		;face off drop spot y (see fodropx)
 recbpr				rs.l	1		;replay record buffer pointer: the frame being recorded (92 recbpr)

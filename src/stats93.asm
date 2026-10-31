@@ -1295,7 +1295,7 @@ DisplayPenaltyLineUp				;draw penalty entry (d0 high word) at the top of the win
 	move.w	d0,d3
 	asl.w	#2,d3					;d3 = byte offset into PenSum (4 per entry)
 	bsr.w	printz
-	String	CC_Font2Pri,0,0					;print on map 2 (scroll plane), priority on, x 0
+	String	CC_Font2Pri,0,0			;print on map 2 (scroll plane), priority on, x 0
 	move.w	(VertLineScrolling).w,d0
 	lsr.w	#3,d0					;scroll in 8 pixel cell rows
 	subq.w	#2,d0					;2 rows above the window top
@@ -1312,7 +1312,7 @@ DisplayPenaltyLineDown				;draw penalty entry (d0 high word) + 5 at the bottom
 	move.w	d0,d3
 	asl.w	#2,d3					;d3 = byte offset into PenSum (4 per entry)
 	bsr.w	printz
-	String	CC_Font2Pri,0,0					;print on map 2 (scroll plane), priority on, x 0
+	String	CC_Font2Pri,0,0			;print on map 2 (scroll plane), priority on, x 0
 	move.w	(VertLineScrolling).w,d0
 	lsr.w	#3,d0					;scroll in 8 pixel cell rows
 	addi.w	#$F,d0					;15 rows below the window top
@@ -1647,7 +1647,7 @@ DrawStatsRow						;stats screen row d3 of Satt: rank, name, then either the 5 st
 	movea.w	#(Satt-M68K_RAM),a4
 	adda.w	d3,a4
 	bsr.w	printz
-	String	CC_Font2Pri,0,0					;print on map 2 (scroll plane), priority on, x 0
+	String	CC_Font2Pri,0,0			;print on map 2 (scroll plane), priority on, x 0
 	add.w	d3,d3					;2 map rows per Satt row
 	andi.w	#$1F,d3					;wrap in the 32 row map
 	move.w	d3,(printy).w
@@ -1861,7 +1861,7 @@ StatsReport							;"Game Statistics": both teams' totals. Start
 	bsr.w	PutTeamBlock
 	bsr.w	DisplayStats			;the table of team totals
 	;wait for Start (d1 bit 7 = new press), then leave
-.loop	bsr.w	Pausemode_rjoy	;wait for a new button press
+.loop	bsr.w	Pausemode_rjoy		;wait for a new button press
 	btst	#7,d1
 	bne.w	ExitStatsScreen
 	bra.s	.loop
@@ -1878,7 +1878,7 @@ DisplayStats						;team logos, then each TeamStatTextTbl row
 	moveq	#0,d0
 	bsr.w	PutTeamBlock
 	bsr.w	printz
-	String	CC_Font2Pri,0,$C,0				;first table row at y $C
+	String	CC_Font2Pri,0,$C,0		;first table row at y $C
 	moveq	#7,d6					;8 table rows
 	lea	TeamStatTextTbl(pc),a1
 	;a1 = table entry: label string, then the two stat offsets
@@ -1985,7 +1985,7 @@ CrowdMeterScreen					;"Crowd Meter": current, average
 	bsr.w	PutTeamBlock
 	bsr.w	PrintCrowdMeter			;the three level rows
 	;wait for Start (d1 bit 7 = new press), then leave
-.loop	bsr.w	Pausemode_rjoy	;wait for a new button press
+.loop	bsr.w	Pausemode_rjoy		;wait for a new button press
 	btst	#7,d1
 	bne.w	ExitStatsScreen
 	bra.s	.loop
@@ -2028,10 +2028,10 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	move.w	(VSPRITES).w,d0
 	bsr.w	Vmaddr
 	move.l	#0,(a0)					;clear first sprite
-	move.w	#VDPR_MODE4+$81,4(a0)			;VDP reg 12: 40 cell mode
+	move.w	#VDPR_MODE4+$81,4(a0)	;VDP reg 12: 40 cell mode
 	move.w	#6,(Map3col).w			;map 3 is 64 cells wide in 40 cell mode
 	IF REV=2
-	move.w	#VDPR_HSCROLL,4(a0)			;Rev B: VDP reg 13 = 0 (horizontal scroll table at VRAM 0)
+	move.w	#VDPR_HSCROLL,4(a0)		;Rev B: VDP reg 13 = 0 (horizontal scroll table at VRAM 0)
 	clr.w	d0
 	bsr.w	Vmaddr
 	move.l	#0,(a0)
@@ -2066,7 +2066,7 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	;copy the rows d0 to d1 (from the caller's stack copy) of the EASNBGMap bitmap, 40 wide, to map 3 at row
 	;printy+d0
 	bsr.w	printz
-	String	CC_Font3,0,0					;map 3, attribute 0, x 0 y 0
+	String	CC_Font3,0,0			;map 3, attribute 0, x 0 y 0
 	movem.l	(sp),d0-d1/a2			;peek at the saved d0/d1/a2 without popping
 	add.w	d0,(printy).w
 	movea.l	#EASNBGMap,a0			;a0 = palette (first long), a1 = map (second long)
@@ -2092,7 +2092,7 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	dc.l	$D1234567,$89ABCDEF		;inline 8 byte color remap table (skipped on return, not code) blank map 2
 									;(64x32 cells of char $7FF) from 0,0
 	bsr.w	printz
-	String	CC_Font2,0,0					;map 2, attribute 0, x 0 y 0
+	String	CC_Font2,0,0			;map 2, attribute 0, x 0 y 0
 	moveq	#$40,d0
 	moveq	#$20,d1
 	move.w	#$7FF,d2
@@ -2118,7 +2118,7 @@ ExitStatsScreen						;leave a stats screen: back to 32 cell mode, reload the rin
 	ELSE
 	movea.l	#Vdata,a0
 	ENDIF
-	move.w	#VDPR_MODE4,4(a0)			;VDP reg 12: 32 cell mode
+	move.w	#VDPR_MODE4,4(a0)		;VDP reg 12: 32 cell mode
 	move.w	#5,(Map3col).w			;map 3 is 32 cells wide again
 	move.w	(sp)+,(disflags).w
 	bset	#df32c,(disflags).w		;32 cell mode on
@@ -2168,7 +2168,7 @@ TimeoutMenu							;pause menu "Timeout" for team a2: uses the
 	moveq	#$78,d0					;wait $78 vblanks or until a button press; waitx returns to the caller
 	bra.w	waitx
 
-Pausemode_go					;from 92 Pausemode .go. pick team a2's goalie from a
+Pausemode_go						;from 92 Pausemode .go. pick team a2's goalie from a
 									;list (0 = no goalie). Start/C confirms; a change is stored in
 									;tmgoalie(a2)
 									;and setpersonel is called
@@ -2193,7 +2193,7 @@ Pausemode_go					;from 92 Pausemode .go. pick team a2's goalie from a
 .0	addq.w	#1,d0					;row = goalie index + 1 (0 = no goalie)
 	move.w	d0,(menuitem).w
 	;menu loop: redraw, wait for a new press (d1)
-.loop	bsr.w	Pausemode_gnum	;menu loop: redraw the list
+.loop	bsr.w	Pausemode_gnum		;menu loop: redraw the list
 	bsr.w	Pausemode_rjoy
 	btst	#7,d1
 	bne.w	.done					;Start confirms
@@ -2224,7 +2224,7 @@ Pausemode_go					;from 92 Pausemode .go. pick team a2's goalie from a
 	move.w	(sp)+,(menuitem).w
 	rts
 
-Pausemode_gnum				;from 92 Pausemode .gnum. draw the goalie list, row menuitem highlighted,
+Pausemode_gnum						;from 92 Pausemode .gnum. draw the goalie list, row menuitem highlighted,
 									;each goalie with his two digit number
 									;rows from y $D, d0 = row 0..count (row 0 = "no goalie"), d1 = loop
 									;counter (menuitem+2 + 1 rows)
@@ -2312,7 +2312,7 @@ loopthroughplayers					;one pass per record: advance by the record's length word
 	movem.l	(sp)+,a0
 	rts
 
-Pausemode_rjoy				;from 92 Pausemode .rjoy. wait for Vcount to change and a new button press
+Pausemode_rjoy						;from 92 Pausemode .rjoy. wait for Vcount to change and a new button press
 									;(d1)
 	move.w	(Vcount).w,d1
 .wait	cmp.w	(Vcount).w,d1		;has Vcount changed?
@@ -2320,5 +2320,5 @@ Pausemode_rjoy				;from 92 Pausemode .rjoy. wait for Vcount to change and a new 
 	bsr.w	getpzjoy				;d1 = new presses, d3 = held
 	bsr.w	nodiag					;drop diagonal presses
 	tst.b	d1
-	beq.s	Pausemode_rjoy	;nothing new pressed: wait again
+	beq.s	Pausemode_rjoy			;nothing new pressed: wait again
 	rts

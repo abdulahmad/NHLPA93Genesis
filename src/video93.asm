@@ -716,7 +716,7 @@ QueuePadLabel						;from 92 uppads. queue the 3 character label of a pad object 
 .btn	move.b	(a4,d2.w),d2		;third char from ButtonLabelCharTable
 	moveq	#2,d0					;char slot 2
 
-uppads_pd					;from 92 uppads .pd. dma one small font tile to the object's chars.
+uppads_pd							;from 92 uppads .pd. dma one small font tile to the object's chars.
 									;d2 = ascii char, d0 = char slot, a0 = object (VRchar), a5 = dma list
 	movea.l	#smallfontmap,a3
 	adda.l	jimdata(a3),a3

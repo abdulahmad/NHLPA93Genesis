@@ -184,7 +184,7 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 	beq.w	.st
 	bset	#$C,d2					;keep bit 4 of an old penalty time as bit 12
 .st	move.w	d2,tmpdst(a2,d0.w)		;store the penalty time (seconds) for this player
-.coinsearch	andi.w	#$EFFF,d2				;drop bit 12 for the comparison below
+.coinsearch	andi.w	#$EFFF,d2		;drop bit 12 for the comparison below
 	moveq	#(maxros-1)*2+2,d1		;(MaxRos-1)*2+2
 .ctop	subq.w	#2,d1				;same time on the other team
 	bmi.w	.nocoin
@@ -227,7 +227,7 @@ InProgress							;ref in progress-- update graphics and stats and penalty inform
 .ex	movem.l	(sp)+,d0/a0-a3			;restore and return
 	rts
 
-InProgress_ap							;a2 = team. Clears tmpdst bit 5, counts players kept off the ice by
+InProgress_ap						;a2 = team. Clears tmpdst bit 5, counts players kept off the ice by
 									;penalties (coincidental and bit 4 times do not count, at most 2) and sets
 									;tmap. Called twice from InProgress
 	moveq	#6,d1					;d1 = players on ice, starts at 6
@@ -510,7 +510,7 @@ prefmes								;print message for penalty d0 (negative clears it). Vertical mode
 	bra.w	.ex
 
 .noblank	bsr.w	printz			;print the framed message for penalty d0
-	String	CC_Font1Pri,5,$A				;x 5 (92 6)
+	String	CC_Font1Pri,5,$A		;x 5 (92 6)
 	movea.l	#Penaltylist,a1
 	adda.w	(a1,d0.w),a1
 	addq.w	#2,a1					;a1 = message string (length word first)
@@ -882,11 +882,11 @@ printscores1						;draw scoreboard. Vertical rink: period box and the score box 
 	moveq	#5,d1
 	bsr.w	Framer
 	bsr.w	printz
-	String	CC_Font1Pri,$18,$1A				;home team on the lower row
+	String	CC_Font1Pri,$18,$1A		;home team on the lower row
 	movea.w	#(tmstruct-M68K_RAM),a2
 	bsr.w	printscores1_ps
 	bsr.w	printz
-	String	CC_Font1Pri,$18,$18				;visitors on the row above
+	String	CC_Font1Pri,$18,$18		;visitors on the row above
 	adda.w	#tmsize,a2
 	bsr.w	printscores1_ps
 .ex	movem.l	(sp)+,d0-d2/a0-a3		;restore and return
@@ -901,18 +901,18 @@ printscores1						;draw scoreboard. Vertical rink: period box and the score box 
 	sub.w	d0,(printx).w
 	bsr.w	print
 	bsr.w	printz
-	String	CC_Font2Pri,$17,1				;home logo and score at x $17
+	String	CC_Font2Pri,$17,1		;home logo and score at x $17
 	movea.w	#(tmstruct-M68K_RAM),a2
 	clr.w	d0						;home logo data offset
 	bsr.w	PrintTeamLogoAndScore
 	bsr.w	printz
-	String	CC_Font2Pri,9,1					;visitors at x 9
+	String	CC_Font2Pri,9,1			;visitors at x 9
 	adda.w	#tmsize,a2
 	moveq	#$30,d0					;visitor logo data offset
 	bsr.w	PrintTeamLogoAndScore
 	bra.s	.ex
 
-printscores1_ps				;from 92 printscores1 .ps. print the team name of team a2 at
+printscores1_ps						;from 92 printscores1 .ps. print the team name of team a2 at
 									;printx/printy, then its score as 2 digits at x $1C. Called twice from
 									;printscores1
 	movea.l	tmdata(a2),a1
@@ -967,11 +967,11 @@ USBoard								;update score board, including the players in the penalty box and
 	bset	#dfclock,(disflags).w	;clock needs update
 	bsr.w	printscores1
 	bsr.w	printz
-	String	CC_Font2Pri,$14,8				;team 1 penalty lines at x $14, row 8
+	String	CC_Font2Pri,$14,8		;team 1 penalty lines at x $14, row 8
 	movea.w	#(tmstruct-M68K_RAM),a2	;in the string
 	bsr.w	.dispen
 	bsr.w	printz
-	String	CC_Font2Pri,5,8					;team 2 penalty lines at x 5, row 8
+	String	CC_Font2Pri,5,8			;team 2 penalty lines at x 5, row 8
 	movea.w	#(awtmstruct-M68K_RAM),a2	;tmstruct+tmsize; in the string
 	bsr.w	.dispen
 	movem.l	(sp)+,d0-d7/a0-a3
@@ -1530,8 +1530,8 @@ StartHL2							;play hilite for game a0. Start skips it with a random result. A 
 	bsr.w	setupice_highlight
 	bsr.w	ClrHor					;vertical rink
 	movea.l	#Vdata,a0
-	move.w	#VDPR_WINX,4(a0)			;window H position 0
-	move.w	#VDPR_WINY,4(a0)			;window V position 0
+	move.w	#VDPR_WINX,4(a0)		;window H position 0
+	move.w	#VDPR_WINY,4(a0)		;window V position 0
 	move.w	(ExtraChars).w,d4		;ref cam chars
 	movea.l	#RefsMap+8,a2
 	bsr.w	DecompressGraphicsPlain
@@ -1597,7 +1597,7 @@ StartHL2							;play hilite for game a0. Start skips it with a random result. A 
 	bsr.w	setplayercolors
 	bsr.w	SetHor					;back to the intermission screen
 	bsr.w	setvideo
-	jsr	(Pausemode_pall).w		;pause menu screen
+	jsr	(Pausemode_pall).w			;pause menu screen
 	jsr	(DrawMenuScreen).w
 	move.w	#$18,(palcount).w		;24
 	move.w	#SngEOP,-(sp)			;song $36

@@ -9,7 +9,8 @@
 ;	and fixopcodes.js patches the encoding after assembly.
 
 	include	Main93.Asm				;EA provided code for startup and EA logo
-	;null, TeamList ... CreditsPages: src/teamdata93.asm with the real player names put back by tools/build.js (it has
+	;null, TeamList ... CreditsPages: src/teamdata93.asm with the real player names put back by
+	;tools/build.js (it has
 	;placeholders in git and needs the ROM, see its header)
 	;the copy in output/obj/ (explicit path, not the src/ placeholder file of the same name)
 	include	..\output\obj\teamdata93.asm
@@ -83,7 +84,7 @@ StartGame							;reset game state for a new game, then start the first period
 	bsr.w	restoreteams
 	jsr	(InitScores).l
 	jsr	setupice
-	jmp	(PeriodOver_sp).l		;on to period start
+	jmp	(PeriodOver_sp).l			;on to period start
 
 ClearShotData						;clear the 49 words of outputbuffer (the shot data)
 	moveq	#$30,d0
@@ -265,7 +266,7 @@ updatecrowdf						;this is called every game loop with d7 = elapsed frames this 
 	addq.w	#2,(Crowdstep).w
 	andi.w	#$1E,(Crowdstep).w		;%00011110
 	add.w	(Crowdstep).w,d0
-	movea.l	#updatecrowdf_cd0,a0					;$fftt frame/time table
+	movea.l	#updatecrowdf_cd0,a0	;$fftt frame/time table
 	move.b	0(a0,d0.w),(Crowdframe+1).w
 	clr.w	d1
 	move.b	1(a0,d0.w),d1
@@ -390,7 +391,7 @@ Pausemode							;game is in pause mode now
 	move.w	(sflags).w,-(sp)
 	bsr.w	forceblack				;fade screen to black
 	bsr.w	seta2					;a2 = team of pausing controller
-	movea.l	#Pausemode_mlist,a0			;menu item list
+	movea.l	#Pausemode_mlist,a0		;menu item list
 	lea	Pausemode_pall(pc),a1		;screen draw routine
 	btst	#tmftimeout,tmflags(a2)
 	beq.w	.0
@@ -423,10 +424,10 @@ PauseExit	equ	*					;92 PauseExit: restore graphics and return from pause mode (
 	move.w	(Vcount).w,(OldVcount).w
 	rts
 
-Pausemode_pall					;from 92 Pausemode .pall. draw routine for the pause menu
+Pausemode_pall						;from 92 Pausemode .pall. draw routine for the pause menu
 	movea.l	#Vdata,a0
-	move.w	#VDPR_WINX,4(a0)			;playfield 3 width
-	move.w	#VDPR_WINY+$1C,4(a0)			;playfield 3 height
+	move.w	#VDPR_WINX,4(a0)		;playfield 3 width
+	move.w	#VDPR_WINY+$1C,4(a0)	;playfield 3 height
 	jsr	(SetHor).l
 	jsr	(setvideo).l
 	jsr	KillCrowd
@@ -3774,7 +3775,7 @@ defaultsprites						;allocate vram and assign char area for graphic
 	dc.w	0,0,$FFFF,SPFreplay,$8000,7	;attribute 0, 12 chars
 	dc.w	0,0,$FFFF,SPFgloves,0,5
 
-defaultsprites_0						;from 92 defaultsprites .0 loop. objects which are tied to screen
+defaultsprites_0					;from 92 defaultsprites .0 loop. objects which are tied to screen
 									;scrolling and have velocity relative to icerink
 									;also set some variables in the structure to default settings.
 									;Jumped to from defaultsprites, also called from setoptions. d4 = vram
@@ -3990,7 +3991,7 @@ PeriodOver							;what to do if period over. Branched to from
 	move.w	#4,(gsp).w				;game over
 .0	bsr.w	forceblack				;fade the screen to black
 
-PeriodOver_sp					;from 92 PeriodOver .sp. PeriodOver tail: reset the clock, song $36,
+PeriodOver_sp						;from 92 PeriodOver .sp. PeriodOver tail: reset the clock, song $36,
 									;ticker scores playoff team stats at game over, then Intermission. Next
 									;period, or GameOver when gsp = 4.
 									;Also jumped to from StartGame (as _sp) for the pregame intermission
@@ -4063,14 +4064,14 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	bsr.w	setVram
 
 	bsr.w	printz
-	String	CC_Font1,0,0					;(92 -$01,0,0)
+	String	CC_Font1,0,0			;(92 -$01,0,0)
 	move.l	#$80,d0					;128 x 28
 	moveq	#$1C,d1
 	move.w	#$7FF,d2				;(92 moveq #1,d2)
 	bsr.w	eraser
 
 	bsr.w	printz
-	String	CC_Font3,0,0					;(92 -$03,0,0)
+	String	CC_Font3,0,0			;(92 -$03,0,0)
 	moveq	#$28,d0					;40 x 2
 	moveq	#2,d1
 	move.w	#$7FF,d2
@@ -4084,7 +4085,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	bsr.w	DecompressGraphicsPlain	;arrow tiles at ExtraChars
 
 	bsr.w	printz
-	String	CC_Font2Pal3,0,0					;(92 -$01,60,4 before the Stanleymap bitmap)
+	String	CC_Font2Pal3,0,0		;(92 -$01,60,4 before the Stanleymap bitmap)
 	movea.l	#EASNBGMap,a0			;bitmap map data
 	movea.l	a0,a1
 	movea.l	a0,a2
@@ -4113,7 +4114,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	move.w	#$110,(playoffspritey).w
 
 	movea.l	#Vctrl,a0
-	move.w	#VDPR_WINY+$02,(a0)				;window V position 2
+	move.w	#VDPR_WINY+$02,(a0)		;window V position 2
 
 	movea.w	#(potree-M68K_RAM),a1
 	movea.l	#PlayoffScreen_setup,a0	;tree layout tables by gamelevel
@@ -4129,21 +4130,21 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	clr.w	d1
 	move.b	(a1)+,d1				;team from potree
 	add.w	d1,d1
-	bsr.w	PlayoffScreen_doteam			;draw both team blocks
+	bsr.w	PlayoffScreen_doteam	;draw both team blocks
 	dbf	d4,.top
 
 	clr.w	d4
 	move.b	(a0)+,d4				;arrow count-1
 .top2	bsr.w	printz				;per bracket arrow: x and arrow number from the tree table
-	String	CC_Font1,0,2					;(92 move #2,printy)
+	String	CC_Font1,0,2			;(92 move #2,printy)
 	move.b	(a0)+,(printx+1).w
 	clr.w	d0
 	move.b	(a0)+,d0
-	bsr.w	PlayoffScreen_doarrow			;draw the bracket lines
+	bsr.w	PlayoffScreen_doarrow	;draw the bracket lines
 	dbf	d4,.top2
 
 	bsr.w	printz
-	String	CC_Font1Pal1,0,0					;(92 -$11,0,0)
+	String	CC_Font1Pal1,0,0		;(92 -$11,0,0)
 	cmpi.w	#7,(bosgames).w
 	beq.w	.noscr
 	clr.w	d4
@@ -4152,7 +4153,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	movea.w	#(gstruct-M68K_RAM),a2
 .top3	move.b	(a0)+,(printx+1).w	;per series score: x, y from the tree table
 	move.b	(a0)+,(printy+1).w
-	bsr.w	PlayoffScreen_doscores		;series scores
+	bsr.w	PlayoffScreen_doscores	;series scores
 	adda.w	#gssize,a2				;gssize
 	dbf	d4,.top3
 
@@ -4255,7 +4256,7 @@ waitxc1								;each time palcount runs out, eor the color
 	move.w	d0,(OldVcount).w
 	rts
 
-PlayoffScreen_doscores					;from 92 PlayoffScreen .doscores. print best of 7 wins "t-b" for game
+PlayoffScreen_doscores				;from 92 PlayoffScreen .doscores. print best of 7 wins "t-b" for game
 									;struct a2 at printx/printy (92 .doscores).
 									;Called from PlayoffScreen .top3
 	movea.w	#(mesarea-M68K_RAM),a1
@@ -4271,7 +4272,7 @@ PlayoffScreen_doscores					;from 92 PlayoffScreen .doscores. print best of 7 win
 	movea.w	#(mesarea-M68K_RAM),a1
 	bra.w	print
 
-PlayoffScreen_doarrow						;from 92 PlayoffScreen .doarrow. draw tree arrow d0 from Arrows.map at
+PlayoffScreen_doarrow				;from 92 PlayoffScreen .doarrow. draw tree arrow d0 from Arrows.map at
 									;printx/printy (92 .doarrow).
 									;Called from PlayoffScreen .top2
 	movem.l	d0-d7/a0-a3,-(sp)
@@ -4289,7 +4290,7 @@ PlayoffScreen_doarrow						;from 92 PlayoffScreen .doarrow. draw tree arrow d0 f
 	movem.l	(sp)+,d0-d7/a0-a3
 	rts
 
-PlayoffScreen_doteam						;from 92 PlayoffScreen .doteam. draw team block d1 (team*2) from
+PlayoffScreen_doteam				;from 92 PlayoffScreen .doteam. draw team block d1 (team*2) from
 									;TeamBlocks.map at printx/printy; the user's team (potree entry
 									;at potreeteam) gets printa $6000.doteam. Called from PlayoffScreen .top
 	movem.l	d0-d7/a0-a3,-(sp)
@@ -4377,7 +4378,7 @@ ScoutingReport						;pregame scouting report. Called from PeriodOver.
 	bsr.w	AddFramer
 
 	bsr.w	printz
-	String	CC_Font2,0,0					;(92 -$02,0,0)
+	String	CC_Font2,0,0			;(92 -$02,0,0)
 	movea.l	#EASNBGMap,a0			;bitmap map data (same as PlayoffScreen)
 	movea.l	a0,a1
 	movea.l	a0,a2
@@ -4411,12 +4412,12 @@ ScoutingReport						;pregame scouting report. Called from PeriodOver.
 	bsr.w	dobitmap
 
 	bsr.w	printz
-	String	CC_Font1,3,$D				;(92 -$01,3,6)
+	String	CC_Font1,3,$D			;(92 -$01,3,6)
 	move.w	(VisTeam).w,d1
 	bsr.w	dotb
 
 	bsr.w	printz
-	String	CC_Font1,$18,$D				;(92 -$01,24,6)
+	String	CC_Font1,$18,$D			;(92 -$01,24,6)
 	move.w	(HomeTeam).w,d1
 	bsr.w	dotb
 
@@ -4709,7 +4710,7 @@ SetupStanleyCupCelebrationScreen	;Stanley Cup screen. Five EASN bitmaps at Stanl
 	bsr.w	setVram_0
 
 	bsr.w	printz
-	String	CC_Font2,0,0					;(the lea in this string)
+	String	CC_Font2,0,0			;(the lea in this string)
 	IF REV=2
 	movea.l	#EASportsSplashMap,a2
 	movea.l	a2,a0					;a0 = palette (first long), a1 = map header (second long), a2 = tiles
@@ -4842,14 +4843,14 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	move.w	#0,d0					;fade to color
 	bsr.w	setVram
 	movea.l	#Vdata,a0
-	move.w	#VDPR_WINX,4(a0)			;window h position 0
-	move.w	#VDPR_WINY+$16,4(a0)			;window v position 22 (92 $9200+22)
-	move.w	#VDPR_MODE3+$03,4(a0)			;h scroll by line
+	move.w	#VDPR_WINX,4(a0)		;window h position 0
+	move.w	#VDPR_WINY+$16,4(a0)	;window v position 22 (92 $9200+22)
+	move.w	#VDPR_MODE3+$03,4(a0)	;h scroll by line
 	clr.w	(Vscroll).w
 
 	;clear both title planes: map 1 ($FF) then map 2 ($FE), 128 x 32 cells of char $7FF
 	bsr.w	printz
-	String	CC_Font1,0,0					;(92 -$01,0,0)
+	String	CC_Font1,0,0			;(92 -$01,0,0)
 	move.l	#$80,d0					;128 x 32
 	moveq	#$20,d1
 	move.l	#$7FF,d2				;(92 moveq #1,d2)
@@ -4877,7 +4878,7 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	bsr.w	dobitmap
 
 	bsr.w	printz
-	String	CC_Font3,0,0					;Title1Map
+	String	CC_Font3,0,0			;Title1Map
 	movea.l	#Title1Map,a0			;whole Titlemap with palettes (Rev 0; Rev A)
 	movea.l	a0,a1
 	movea.l	a0,a2
@@ -5226,14 +5227,14 @@ setoptions							;options screen display and input. Called from PeriodOver.
 	dc.l	$0FC04567,$89ABCDEF		;remap table (Rev 0; / or.l)
 
 	bsr.w	printz
-	String	CC_Font1,0,0					;map 1 (92 -$02,0,0)
+	String	CC_Font1,0,0			;map 1 (92 -$02,0,0)
 	moveq	#$28,d0					;40 x 28 (#$28,d0)
 	moveq	#$1C,d1
 	move.w	#$7FF,d2				;blank char (92 moveq #1)
 	bsr.w	eraser
 
 	bsr.w	printz
-	String	CC_Font2,0,0					;map 2 (92 -$01,0,0)
+	String	CC_Font2,0,0			;map 2 (92 -$01,0,0)
 	movea.l	#GameSetUpMap,a0		;game setup bitmap
 	movea.l	a0,a1
 	movea.l	a0,a2
@@ -5401,7 +5402,7 @@ setoptions							;options screen display and input. Called from PeriodOver.
 
 .psd								;print the choice for menu line d7
 	bsr.w	printz
-	String	CC_Font2Pri,$11,$D				;map 2 + priority (92 -$01,16,11)
+	String	CC_Font2Pri,$11,$D		;map 2 + priority (92 -$01,16,11)
 	add.w	d7,(printy).w			;row $D + d7 (2 rows per item)
 	moveq	#$14,d0					;erase 20 x 1
 	moveq	#1,d1
@@ -5458,7 +5459,7 @@ setoptions							;options screen display and input. Called from PeriodOver.
 
 .setrect							;set rectangle cords for framing line d3
 	bsr.w	printz
-	String	CC_Font1,$10,$C				;map 1
+	String	CC_Font1,$10,$C			;map 1
 	add.w	d3,(printy).w			;(/ cmp.b hid this and the moveq)
 	moveq	#$16,d0					;22 x 3 (92 24)
 	moveq	#3,d1
@@ -5537,11 +5538,11 @@ TeamIcons							;draw team name bars and set colors. Branched to from setoptions
 	move.w	(Opt1team).w,(HomeTeam).w
 	move.w	(Opt2team).w,(VisTeam).w
 .0	bsr.w	printz					;TeamIcons: draw the visitor bar, then the home bar
-	String	CC_Font2Pri,2,1					;map 2 + priority (92 -$02,3,8)
+	String	CC_Font2Pri,2,1			;map 2 + priority (92 -$02,3,8)
 	move.w	(VisTeam).w,d1
 	bsr.w	dotb
 	bsr.w	printz
-	String	CC_Font2Pri,$1A,1				;(92 -$02,24,8)
+	String	CC_Font2Pri,$1A,1		;(92 -$02,24,8)
 	move.w	(HomeTeam).w,d1
 	bsr.w	dotb
 	bsr.w	setteams
@@ -6722,7 +6723,7 @@ ShowGoalBox							;goal box. Closes both line change boxes, then printbig "GOAL!
 									;Called from SetPA for the goal penalty number
 	movem.l	d0-d2/a0-a4,-(sp)
 	movea.w	#(tmstruct-M68K_RAM),a2
-	jsr	(lcfound_close).l				;close lc box
+	jsr	(lcfound_close).l			;close lc box
 	adda.w	#tmsize,a2
 	jsr	(lcfound_close).l
 	movea.w	#(ChkCnt-M68K_RAM),a4	;+ ScoreSumbytes = last goal entry
@@ -7008,7 +7009,7 @@ crash								;printbig d1 then d0 as hex, set the vdp up, load a palette and han
 	include tables93.asm			;data tables (crowd frames, asstab, penalty list, playoff tree, menu item
 									;lists)
 	include sram93.asm				;BackupRAM_*, BackupRAM_Save, ClearRAMBuffer, ClearVRAM
-	include sound\sound93.asm				;sound driver (68k code, Z80 blob, sound data)
+	include sound\sound93.asm		;sound driver (68k code, Z80 blob, sound data)
 	include graphics93.asm			;graphics data (92 incbins after part 3)
 	include checksum93.asm			;SecurityCheck, ValidationRoutine
 	dcb.b	$80000-*,$FF

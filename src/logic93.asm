@@ -284,7 +284,7 @@ lineinput							;process input for line changes
 	adda.w	#tmsize,a2
 .0	bclr	#tmflcc,tmflags(a2)		;Flag to start lc mode
 	beq.w	.1
-	bsr.w	lcfound_close				;close the old box
+	bsr.w	lcfound_close			;close the old box
 	bsr.w	SetLCmode2				;start lc mode
 .1	move.w	(sp)+,d1				;New presses
 	;d2 = button 0-2 (a, b, c) newly pressed -> lcfound
@@ -319,7 +319,7 @@ lcfound								;d2 = choice made 0-2
 	bclr	#tmflcm,tmflags(a2)
 	move.w	d0,tmline(a2)
 	jsr	setpersonel
-lcfound_close							;from 92 lcfound .close. close lc box. Also called from lineinput
+lcfound_close						;from 92 lcfound .close. close lc box. Also called from lineinput
 	bsr.w	setlccords
 	cmpi.w	#$F,(printy).w
 	blt.w	.nollcm
@@ -3660,7 +3660,7 @@ puckfaceoff2						;face off control logic and general setup for action a3 = the 
 	movea.l	(sp)+,a3
 	bsr.w	ResetAndSelectPlayers
 	bsr.w	printz
-	String	CC_Font1,0,0					;inline string data: print the face off box (control codes)
+	String	CC_Font1,0,0			;inline string data: print the face off box (control codes)
 	moveq	#$36,d0					;8+46
 	tst.w	(fox).w
 	bpl.w	.fok

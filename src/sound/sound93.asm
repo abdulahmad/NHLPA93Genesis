@@ -66,9 +66,9 @@ CmdBufSize			=	33			;bytes copied to the Z80
 
 ;	Z80 memory map (offsets from Z80_RAM)
 z80_cmdbuf			=	$02			;where the command buffer is copied to
-z80_dac_start_addr		=	$23			;3 bytes: PCM sample start (high byte first)
+z80_dac_start_addr		=	$23		;3 bytes: PCM sample start (high byte first)
 z80_dac_next_addr	=	$26			;3 bytes: where the Z80 carries on after a 0 sample byte (high byte first)
-z80_dac_vol_page			=	$83			;volume table page ($03-$1F, $1F loudest)
+z80_dac_vol_page			=	$83	;volume table page ($03-$1F, $1F loudest)
 z80_dac_step		=	$8E			;sample step per DAC write; 0 holds the current byte (no advance)
 z80_cmd				=	$96			;low byte of the sample loop's jump target: Z80Idle when the Z80 can take
 									;a command
@@ -666,11 +666,13 @@ ClearAllTrackAndSFXSlots			;free the 8 track slots and reset the 6 channel struc
 	dbf	d0,.chan
 	rts
 
-Z80_Program_Code					;The Z80 sound driver, $28B bytes, built by asm80 from src/sound/z80_snd_drv93.asm
-									;(output/obj/z80_snd_drv93.bin). p_initialZ80 copies Z80ProgramLen ($295)
-									;bytes from here: the 10 bytes after the driver (the pad byte and the start of
-									;pcm_sample_table) land below the Z80 stack top and are never read as data.
-	incbin	..\output\obj\z80_snd_drv93.bin,0,$278	;Z80 $0000-$0277
+Z80_Program_Code					;The Z80 sound driver, $28B bytes, built by asm80 from
+									;src/sound/z80_snd_drv93.asm (output/obj/z80_snd_drv93.bin).
+									;p_initialZ80 copies Z80ProgramLen ($295) bytes from here: the 10 bytes
+									;after the driver (the pad byte and the start of pcm_sample_table) land
+									;below the Z80 stack top and are never read as data.
+	;Z80 $0000-$0277
+	incbin	..\output\obj\z80_snd_drv93.bin,0,$278
 	;Z80 $0278 (z80_fm_patches_window): ld bc operand, the bank window address of the FM patches
 	dc.b	fm_instrument_patches&$FF,((fm_instrument_patches>>8)&$7F)|$80
 	;Z80 $027A: add hl,bc / ld a,n; $027C (z80_fm_patches_bank): the 32K bank of the FM patches
