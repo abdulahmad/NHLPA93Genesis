@@ -35,7 +35,7 @@ Begin								;cold start, entered from Reset. Clear RAM, init menus and sound, g
 	blt.s	.0
 	IF REV>=1
 	move.w	(Vctrl).l,d0			;Rev A: VDP status bit 0 = PAL (50 Hz)
-	andi.w	#1,d0
+	andi.w	#1<<PAL_MODE,d0
 	move.w	d0,(PalMode).w
 	ENDIF
 
@@ -411,8 +411,8 @@ PauseExit	equ	*					;92 PauseExit: restore graphics and return from pause mode (
 	bne.w	.hor
 	jsr	(ClrHor).l
 .hor	movea.l	#Vdata,a0			;restore the plane size registers
-	move.w	#$9100,4(a0)
-	move.w	#$9200,4(a0)
+	move.w	#VDPR_WINX,4(a0)
+	move.w	#VDPR_WINY,4(a0)
 	bset	#dfclock,(disflags).w	;clock needs update
 	bclr	#sfpz,(sflags).w
 	jsr	(printscores1).l
@@ -425,8 +425,8 @@ PauseExit	equ	*					;92 PauseExit: restore graphics and return from pause mode (
 
 Pausemode_pall					;from 92 Pausemode .pall. draw routine for the pause menu
 	movea.l	#Vdata,a0
-	move.w	#$9100,4(a0)			;playfield 3 width
-	move.w	#$921C,4(a0)			;playfield 3 height
+	move.w	#VDPR_WINX,4(a0)			;playfield 3 width
+	move.w	#VDPR_WINY+$1C,4(a0)			;playfield 3 height
 	jsr	(SetHor).l
 	jsr	(setvideo).l
 	jsr	KillCrowd
@@ -4113,7 +4113,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	move.w	#$110,(playoffspritey).w
 
 	movea.l	#Vctrl,a0
-	move.w	#$9202,(a0)				;window V position 2
+	move.w	#VDPR_WINY+$02,(a0)				;window V position 2
 
 	movea.w	#(potree-M68K_RAM),a1
 	movea.l	#PlayoffScreen_setup,a0	;tree layout tables by gamelevel
@@ -4842,9 +4842,9 @@ TitleScreen							;bring up title screen and credits. Called from PeriodOver.
 	move.w	#0,d0					;fade to color
 	bsr.w	setVram
 	movea.l	#Vdata,a0
-	move.w	#$9100,4(a0)			;window h position 0
-	move.w	#$9216,4(a0)			;window v position 22 (92 $9200+22)
-	move.w	#$8B03,4(a0)			;h scroll by line
+	move.w	#VDPR_WINX,4(a0)			;window h position 0
+	move.w	#VDPR_WINY+$16,4(a0)			;window v position 22 (92 $9200+22)
+	move.w	#VDPR_MODE3+$03,4(a0)			;h scroll by line
 	clr.w	(Vscroll).w
 
 	;clear both title planes: map 1 ($FF) then map 2 ($FE), 128 x 32 cells of char $7FF
@@ -6981,9 +6981,9 @@ crash								;printbig d1 then d0 as hex, set the vdp up, load a palette and han
 	bsr.w	printbig
 
 	movea.l	#Vdata,a0
-	move.w	#$9100,4(a0)
-	move.w	#$9206,4(a0)
-	move.w	#$8F02,4(a0)
+	move.w	#VDPR_WINX,4(a0)
+	move.w	#VDPR_WINY+$06,4(a0)
+	move.w	#VDPR_AUTOINC+$02,4(a0)
 	move.l	#CRAM_W+($20<<16),4(a0)	;cram write $20 (92 $C0060000)
 	movea.l	#IceRinkMap,a1
 	adda.l	(a1),a1

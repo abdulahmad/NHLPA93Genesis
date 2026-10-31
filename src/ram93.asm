@@ -20,13 +20,42 @@ MaxSprites	=	64					;max sprites during game (64 because 32 col mode)
 refwidth	=	7					;width of ref.map frames
 refheight	=	8					;height of ref.map frames
 
+PAL_MODE	=	0					;VDP status bit 0 = PAL (50 Hz, Rev A Begin)
+;VDP register write words for the control port (register number in the high byte): move.w
+;#VDPR_MODE2+$64,(Vctrl)
+VDPR_MODE1	=	$8000
+VDPR_MODE2	=	$8100
+VDPR_PLANEA	=	$8200				;plane A name table address / $400
+VDPR_WINDOW	=	$8300				;window name table address / $400
+VDPR_PLANEB	=	$8400				;plane B name table address / $2000
+VDPR_SPRITE	=	$8500				;sprite table address / $200
+VDPR_BGCOL	=	$8700				;backdrop colour
+VDPR_HINT	=	$8A00				;h interrupt counter
+VDPR_MODE3	=	$8B00
+VDPR_MODE4	=	$8C00
+VDPR_HSCROLL	=	$8D00			;h scroll table address / $400
+VDPR_AUTOINC	=	$8F00			;auto increment
+VDPR_PLANESIZE	=	$9000
+VDPR_WINX	=	$9100				;window h position
+VDPR_WINY	=	$9200				;window v position
+VDPR_DMALENL	=	$9300
+VDPR_DMALENH	=	$9400
+VDPR_DMASRCL	=	$9500
+VDPR_DMASRCM	=	$9600
+VDPR_DMASRCH	=	$9700
+
 ;hardware
+IO_CT1_CTRL	=	$A10008			;controller 1 control port
+IO_CT1_DATA	=	$A10002			;controller 1 data port (Joy1 is its odd byte)
+IO_CT2_CTRL	=	$A1000A
+IO_CT2_DATA	=	$A10004
 IO_Z80BUS		=	$A11100			;Z80 bus request port ($100 requests the bus, 0 releases it)
 IO_Z80RES		=	$A11200			;Z80 reset port (0 holds the Z80 in reset, $100 releases it)
 Z80_RAM			=	$A00000			;Z80 RAM as seen from the 68000 (Z80_RAM+$8E is the PCM rate byte)
 BackupRAM_Port	=	$200000			;serial backup RAM port: low byte bit 7 data, bit 6 clock
-Joy1			=	$a10003			;controller ports
-Joy2			=	$a10005			;controller port 2 data
+Joy1			=	IO_CT1_DATA+1		;controller ports
+Joy2			=	IO_CT2_DATA+1		;controller port 2 data
+Z80_YM2612		=	$A04000			;YM2612 as seen from the Z80 bus (the Z80 driver uses it; unused by the 68000 code)
 Stack	=	$FFFFFFFE				;game stack (Begin, StartPer, Opening2)
 ;$FFFFFFFF: not used
 

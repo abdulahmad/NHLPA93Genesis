@@ -534,27 +534,27 @@ DoDMA								;initiate dma transfer (dma transfer bug is compensated for). d0 = 
 	movem.l	d2/a1,-(sp)				;entry for the first part (so its rts pops the same registers)
 	ENDIF
 .nd	lea	(Vctrl).l,a1				;set d0 = num of words
-	move.w	#$8154,(a1)				;$8100+%01010100
-	move.w	#$8F02,(a1)				;d1 = video address
-	move.w	#$9300,d2				;a0 = source address
+	move.w	#VDPR_MODE2+$54,(a1)				;$8100+%01010100
+	move.w	#VDPR_AUTOINC+$02,(a1)				;d1 = video address
+	move.w	#VDPR_DMALENL,d2				;a0 = source address
 	move.b	d0,d2					;reg 19: length low
 	move.w	d2,(a1)
-	move.w	#$9400,d2
+	move.w	#VDPR_DMALENH,d2
 	lsr.w	#8,d0
 	move.b	d0,d2					;reg 20: length high
 	move.w	d2,(a1)
 	move.l	a0,d0
 	lsr.l	#1,d0					;source in words
-	move.w	#$9500,d2
+	move.w	#VDPR_DMASRCL,d2
 	move.b	d0,d2					;reg 21: source low
 	move.w	d2,(a1)
 	lsr.l	#8,d0
-	move.w	#$9600,d2
+	move.w	#VDPR_DMASRCM,d2
 	move.b	d0,d2					;reg 22: source mid
 	move.w	d2,(a1)
 	lsr.l	#8,d0
 	andi.b	#$7F,d0
-	move.w	#$9700,d2
+	move.w	#VDPR_DMASRCH,d2
 	move.b	d0,d2					;reg 23: source high (dma mode bits 7-6 = 0: 68k to vram)
 	move.w	d2,(a1)
 
@@ -574,7 +574,7 @@ DoDMA								;initiate dma transfer (dma transfer bug is compensated for). d0 = 
 	move.w	(dmaram+2).w,(a1)
 	move.w	(dmaram).w,(a1)			;this write starts the dma
 	bsr.w	WaitDMA
-	move.w	#$8164,(a1)				;$8100+%01100100: vblank int back on, dma off
+	move.w	#VDPR_MODE2+$64,(a1)				;$8100+%01100100: vblank int back on, dma off
 	clr.w	(IO_Z80BUS).l			;turn on z80
 	cmpa.w	#0,a0
 	bge.w	.ok						;a source in ram: the first word is lost, so write it again by hand
@@ -594,7 +594,7 @@ DoDMA								;initiate dma transfer (dma transfer bug is compensated for). d0 = 
 	move.w	(dmaram).w,(a1)			;this write starts the dma
 
 	bsr.w	WaitDMA
-	move.w	#$8164,(a1)				;$8100+%01100100: vblank int back on, dma off (during the transfer $54 =
+	move.w	#VDPR_MODE2+$64,(a1)				;$8100+%01100100: vblank int back on, dma off (during the transfer $54 =
 									;vint off, dma on)
 	movem.l	(sp)+,d2/a1
 	rts
@@ -608,23 +608,23 @@ DoDMA_nd2							;vram to vram copy by dma (reg 23 = $C0), protected from vblank.
 	move.w	(disflags).w,-(sp)
 	bset	#dfng,(disflags).w
 	lea	(Vctrl).l,a1
-	move.w	#$8154,(a1)				;$8100+%01010100: vint off, dma on
-	move.w	#$8F01,(a1)				;auto inc 1
-	move.w	#$9300,d3				;length low
+	move.w	#VDPR_MODE2+$54,(a1)				;$8100+%01010100: vint off, dma on
+	move.w	#VDPR_AUTOINC+$01,(a1)				;auto inc 1
+	move.w	#VDPR_DMALENL,d3				;length low
 	move.b	d0,d3
 	move.w	d3,(a1)
-	move.w	#$9400,d3				;length high
+	move.w	#VDPR_DMALENH,d3				;length high
 	lsr.w	#8,d0
 	move.b	d0,d3
 	move.w	d3,(a1)
-	move.w	#$9500,d3				;source low
+	move.w	#VDPR_DMASRCL,d3				;source low
 	move.b	d2,d3
 	move.w	d3,(a1)
-	move.w	#$9600,d3				;source high
+	move.w	#VDPR_DMASRCM,d3				;source high
 	lsr.w	#8,d2
 	move.b	d2,d3
 	move.w	d3,(a1)
-	move.w	#$97C0,(a1)				;dma mode: vram copy
+	move.w	#VDPR_DMASRCH+$C0,(a1)				;dma mode: vram copy
 	clr.l	d0
 	move.w	d1,d0					;destination address -> vdp command (address bits 14-15 go to the second
 									;word)
@@ -640,14 +640,14 @@ DoDMA_nd2							;vram to vram copy by dma (reg 23 = $C0), protected from vblank.
 	move.w	(dmaram).w,(a1)
 	move.w	(dmaram+2).w,(a1)
 	bsr.w	WaitDMA
-	move.w	#$8164,(a1)
-	move.w	#$8F02,(a1)
+	move.w	#VDPR_MODE2+$64,(a1)
+	move.w	#VDPR_AUTOINC+$02,(a1)
 	clr.w	(IO_Z80BUS).l			;turn on z80
 	ELSE
 	move.l	d0,(a1)
 	bsr.w	WaitDMA
-	move.w	#$8164,(a1)				;$8100+%01100100
-	move.w	#$8F02,(a1)				;auto inc 2
+	move.w	#VDPR_MODE2+$64,(a1)				;$8100+%01100100
+	move.w	#VDPR_AUTOINC+$02,(a1)				;auto inc 2
 	ENDIF
 	move.w	(sp)+,(disflags).w
 	movem.l	(sp)+,d0-d3/a1
@@ -708,52 +708,52 @@ setVram_0							;from 92 setVram second half. second half of setVram without the
 .9	move.l	d1,(a0)					;clear vram
 	dbf	d0,.9
 
-	move.w	#$8C00,d0				;8 for shadow mode
+	move.w	#VDPR_MODE4,d0				;8 for shadow mode
 	btst	#df32c,(disflags).w
 	bne.w	.i32					;32 column flag set: leave bits 0 and 7 clear
 	ori.w	#$81,d0					;%10000001
 .i32	move.w	d0,4(a0)			;reg 12: 40 column mode (unless df32c), no interlace, normal brightness
 
-	move.w	#$8004,4(a0)			;512 color palette enable
-	move.w	#$8164,4(a0)			;$8100+%01100100
+	move.w	#VDPR_MODE1+$04,4(a0)			;512 color palette enable
+	move.w	#VDPR_MODE2+$64,4(a0)			;$8100+%01100100
 
-	move.w	#$9001,d0				;Playfield is 64x32
+	move.w	#VDPR_PLANESIZE+$01,d0				;Playfield is 64x32
 	cmpi.w	#6,(Map1col).w
 	beq.w	.i64					;Map1col 6 = 64 columns wide
-	move.w	#$9003,d0				;otherwise 128x32
+	move.w	#VDPR_PLANESIZE+$03,d0				;otherwise 128x32
 .i64	move.w	d0,4(a0)			;reg 16: scroll plane size
 
-	move.w	#$8200,d0
+	move.w	#VDPR_PLANEA,d0
 	move.b	(VmMAP1).w,d0
 	lsr.b	#2,d0
 	andi.b	#%00111000,d0
 	move.w	d0,4(a0)				;reg 2: plane A name table address from VmMAP1
 
-	move.w	#$8400,d0
+	move.w	#VDPR_PLANEB,d0
 	move.b	(VmMAP2).w,d0
 	lsr.b	#5,d0
 	move.w	d0,4(a0)				;reg 4: plane B name table address from VmMAP2
 
-	move.w	#$8300,d0
+	move.w	#VDPR_WINDOW,d0
 	move.b	(VmMAP3).w,d0
 	lsr.b	#2,d0
 	andi.b	#%00111110,d0
 	move.w	d0,4(a0)				;reg 3: window name table address from VmMAP3
 
-	move.w	#$8500,d0
+	move.w	#VDPR_SPRITE,d0
 	move.b	(VSPRITES).w,d0
 	lsr.b	#1,d0
 	move.w	d0,4(a0)				;reg 5: sprite attribute table address
 
-	move.w	#$8D00,d0
+	move.w	#VDPR_HSCROLL,d0
 	move.b	(VSCRLPM).w,d0
 	lsr.b	#2,d0
 	move.w	d0,4(a0)				;reg 13: horizontal scroll table address
 
-	move.w	#$9100,4(a0)			;disable plane 3 graphics
-	move.w	#$9200,4(a0)			;disable plane 3 graphics
-	move.w	#$8700,4(a0)			;Palette # 0 is border/transparent.
-	move.w	#$8B00,4(a0)			;Scroll mode. (entire scroll)
+	move.w	#VDPR_WINX,4(a0)			;disable plane 3 graphics
+	move.w	#VDPR_WINY,4(a0)			;disable plane 3 graphics
+	move.w	#VDPR_BGCOL,4(a0)			;Palette # 0 is border/transparent.
+	move.w	#VDPR_MODE3,4(a0)			;Scroll mode. (entire scroll)
 
 	move.l	#VSRAM_W,4(a0)			;vsram write 0
 	move.l	#0,(a0)					;vertical scroll 0 for playfield 1/2

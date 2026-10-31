@@ -2028,10 +2028,10 @@ SetupScreen							;common start for the stats screens: blank, 40 cell mode, load
 	move.w	(VSPRITES).w,d0
 	bsr.w	Vmaddr
 	move.l	#0,(a0)					;clear first sprite
-	move.w	#$8C81,4(a0)			;VDP reg 12: 40 cell mode
+	move.w	#VDPR_MODE4+$81,4(a0)			;VDP reg 12: 40 cell mode
 	move.w	#6,(Map3col).w			;map 3 is 64 cells wide in 40 cell mode
 	IF REV=2
-	move.w	#$8D00,4(a0)			;Rev B: VDP reg 13 = 0 (horizontal scroll table at VRAM 0)
+	move.w	#VDPR_HSCROLL,4(a0)			;Rev B: VDP reg 13 = 0 (horizontal scroll table at VRAM 0)
 	clr.w	d0
 	bsr.w	Vmaddr
 	move.l	#0,(a0)
@@ -2111,14 +2111,14 @@ ExitStatsScreen						;leave a stats screen: back to 32 cell mode, reload the rin
 	move.w	(VSCRLPM).w,d0			;Rev B: clear the first sprite and set VDP reg 13 (horizontal scroll
 	bsr.w	Vmaddr					;table) from VSCRLPM before going back to 32 cell mode
 	move.l	#0,(a0)
-	move.w	#$8D00,d0
+	move.w	#VDPR_HSCROLL,d0
 	move.b	(VSCRLPM).w,d0
 	lsr.b	#2,d0
 	move.w	d0,4(a0)
 	ELSE
 	movea.l	#Vdata,a0
 	ENDIF
-	move.w	#$8C00,4(a0)			;VDP reg 12: 32 cell mode
+	move.w	#VDPR_MODE4,4(a0)			;VDP reg 12: 32 cell mode
 	move.w	#5,(Map3col).w			;map 3 is 32 cells wide again
 	move.w	(sp)+,(disflags).w
 	bset	#df32c,(disflags).w		;32 cell mode on

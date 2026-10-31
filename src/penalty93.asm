@@ -1530,8 +1530,8 @@ StartHL2							;play hilite for game a0. Start skips it with a random result. A 
 	bsr.w	setupice_highlight
 	bsr.w	ClrHor					;vertical rink
 	movea.l	#Vdata,a0
-	move.w	#$9100,4(a0)			;window H position 0
-	move.w	#$9200,4(a0)			;window V position 0
+	move.w	#VDPR_WINX,4(a0)			;window H position 0
+	move.w	#VDPR_WINY,4(a0)			;window V position 0
 	move.w	(ExtraChars).w,d4		;ref cam chars
 	movea.l	#RefsMap+8,a2
 	bsr.w	DecompressGraphicsPlain

@@ -478,25 +478,25 @@ ClearRAMBuffer						;backup RAM status screen. Interrupts off, display off, back
 									;to from BackupRAM_Read (d0 = $F red, $F0 green)
 	move.w	#$2700,sr				;interrupts off
 	movea.l	#Vctrl,a0
-	move.w	#$8004,(a0)
-	move.w	#$8104,(a0)				;display off
-	move.w	#$8200,(a0)
-	move.w	#$8300,(a0)
-	move.w	#$8400,(a0)
-	move.w	#$8500,(a0)
+	move.w	#VDPR_MODE1+$04,(a0)
+	move.w	#VDPR_MODE2+$04,(a0)				;display off
+	move.w	#VDPR_PLANEA,(a0)
+	move.w	#VDPR_WINDOW,(a0)
+	move.w	#VDPR_PLANEB,(a0)
+	move.w	#VDPR_SPRITE,(a0)
 	move.w	#$8600,(a0)
-	move.w	#$8700,(a0)				;backdrop = colour 0
+	move.w	#VDPR_BGCOL,(a0)				;backdrop = colour 0
 	move.w	#$8800,(a0)
 	move.w	#$8900,(a0)
-	move.w	#$8AFF,(a0)
-	move.w	#$8B00,(a0)
-	move.w	#$8C00,(a0)
-	move.w	#$8D00,(a0)
+	move.w	#VDPR_HINT+$FF,(a0)
+	move.w	#VDPR_MODE3,(a0)
+	move.w	#VDPR_MODE4,(a0)
+	move.w	#VDPR_HSCROLL,(a0)
 	move.w	#$8E00,(a0)
-	move.w	#$8F02,(a0)				;auto increment 2
-	move.w	#$9000,(a0)
-	move.w	#$9100,(a0)
-	move.w	#$9200,(a0)
+	move.w	#VDPR_AUTOINC+$02,(a0)				;auto increment 2
+	move.w	#VDPR_PLANESIZE,(a0)
+	move.w	#VDPR_WINX,(a0)
+	move.w	#VDPR_WINY,(a0)
 	move.l	#CRAM_W,(Vctrl).l		;cram write, colour 0
 	move.w	d0,(Vdata).l
 	move.l	#VRAM_W,(Vctrl).l		;vram write, address 0
@@ -505,7 +505,7 @@ ClearRAMBuffer						;backup RAM status screen. Interrupts off, display off, back
 ClearVRAM							;clear loop of ClearRAMBuffer, then display on and hang
 	move.l	d0,(Vdata).l
 	dbf	d1,ClearVRAM
-	move.w	#$8144,(a0)				;display on
+	move.w	#VDPR_MODE2+$44,(a0)				;display on
 .hang	bra.s	.hang				;hang forever
 
 ReadPad1Held						;reads pad 1 (ReadJoy1). Return d0 = held buttons (bit 7 Start, 6 A, 5 C,
