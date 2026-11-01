@@ -991,12 +991,3 @@ fmtune_scouting_cmdstream			;song event stream (SoundStreamTable)
 	incbin	..\Extracted\Sound\fmtune_scouting_cmdstream.bin	;song $37: ScoutingReport
 	even
 	dc.l	fmtune_scouting_cmdstream+4	;loop pointer (past the first event)
-ScoutingReportText					;scouting report text
-	incbin	..\Extracted\Text\ScoutingReportText.bin	;ScoutingReportText: scouting report paragraphs
-	IF REV=0
-	dc.b	$72						;pad: Rev 0 leftover byte
-	ELSEIF REV=2
-	dc.b	$0D						;pad: Rev B byte
-	ELSE
-	dc.b	0
-	ENDIF
