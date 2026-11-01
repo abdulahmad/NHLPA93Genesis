@@ -129,7 +129,6 @@ goalline		=	176				;distance from blue line to goalline
 replaystart		=	$FFFF0000		;start of ram area for replay frames, also the start of RAM
 M68K_RAM		=	replaystart		;start of the 68000 work RAM, the same as replaystart
 varstart		=	$FFFFB000		;start of variable space (end of replay)
-GoalieStruct	=	$FFFFAFCA		;below varstart
 
 replaysize	=	98					;number of bytes per replay frame (92 84)
 replaynum	=	((varstart-replaystart)/replaysize)-1	;number of frames for replay
@@ -357,6 +356,8 @@ puckz	=	SortCords+(puckscnum*SCstruct)+Zpos	;puck height above the ice
 puckvz	=	SortCords+(puckscnum*SCstruct)+Zvel	;puck z velocity
 puckc	=	SortCords+(puckscnum*SCstruct)+newpos	;puck carrier: SCnum of the player with the puck (newpos
 													;slot of the puck object), negative = loose
+GoalieStruct	=	$FFFFAFCA		;below varstart: the sort object before SortCords
+								;(SortCords-SCstruct, as 94G writes it): GoalieStruct+SCstruct is player 0
 Ylist			rs.w	Sortobjs	;list of y cords for each sortobj
 OOlistpos		rs.w	Sortobjs	;objects pos in OOlist
 OOlist			rs.b	Sortobjs	;object order list for sort objs
