@@ -1,10 +1,20 @@
-;	Graphics data: the rink, sprites, fonts, screen maps and pictures, all incbin files from the extraction
-;	step. The equates below name the tables inside the sprite data. Each block's label comment names the code
-;	that uses it.
+;	Graphics and scouting text: the rink, sprites, fonts, screen maps and pictures, all incbin files
+;	from the extraction step. The equates below name the tables inside the sprite data. Each block's
+;	label comment names the code that uses it.
 ;
 ;	Files named .map.jim are tile maps: the longs at +0 and +4 are offsets to map data and the compressed
 ;	tiles start at +8 (DecompressGraphics*). Files named .anim are sprite frame sets (see video93.asm).
 ;	Each incbin is word aligned.
+
+ScoutingReportText					;scouting report text
+	incbin	..\Extracted\Text\ScoutingReportText.bin	;ScoutingReportText: scouting report paragraphs
+	IF REV=0
+	dc.b	$72						;pad: Rev 0 leftover byte
+	ELSEIF REV=2
+	dc.b	$0D						;pad: Rev B byte
+	ELSE
+	dc.b	0
+	ENDIF
 
 GameSetUpMap						;game setup bitmap (setoptions)
 	incbin	..\Extracted\Graphics\GameSetUp.map.jim	;game setup bitmap

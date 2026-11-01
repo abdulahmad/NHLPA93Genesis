@@ -5566,7 +5566,7 @@ UpdateTeamSprites					;sprite list for the two roster players. a5 = DMAList, a6 
 	bset	#dfok,(disflags).w
 	rts
 
-AddTeamSpriteFrame					;add player a3 (x = Xpos + rosxoff, y = Ypos) and a GameSetupMap frame 1
+AddTeamSpriteFrame					;add player a3 (x = Xpos + rosxoff, y = Ypos) and a GameSetUpMap frame 1
 									;sprite at y $80, x $80 + ($24/2 mod 48), +$C0 when pflags(a3) bit 6 is
 									;clear. Called from UpdateTeamSprites
 	move.w	(a3),d0
@@ -6714,6 +6714,6 @@ crash								;printbig d1 then d0 as hex, set the vdp up, load a palette and han
 									;lists)
 	include sram93.asm				;BackupRAM_*, BackupRAM_Save, ClearRAMBuffer, ClearVRAM
 	include sound\sound93.asm		;sound driver (68k code, Z80 blob, sound data)
-	include graphics93.asm			;graphics data (92 incbins after part 3)
+	include graphics93.asm			;graphics and scouting text (92 incbins after part 3)
 	include checksum93.asm			;SecurityCheck, ValidationRoutine
 	dcb.b	$80000-*,$FF
