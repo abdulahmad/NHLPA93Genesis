@@ -1,5 +1,13 @@
 # Handoff: NHLPA93 Genesis
 
+## Now
+
+- Stage / unit: see the shared plan (https://github.com/abdulahmad/nhl-disasm-report/blob/main/docs/ALIGNMENT.md); alignment work for 93G is on `claude/project-thread-ggw7zu`.
+- Branch: `claude/project-thread-ggw7zu`
+- Last check: (update when you stop)
+- Next: (update when you stop)
+- Open PRs: none
+
 ## Status (2026-10-20)
 
 - Everything is merged and `tools/verify_all.sh -q` prints ALL MATCH for retail, Rev A and Rev B.
