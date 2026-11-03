@@ -128,6 +128,7 @@ goalline		=	176				;distance from blue line to goalline
 
 replaystart		=	$FFFF0000		;start of ram area for replay frames, also the start of RAM
 M68K_RAM		=	replaystart		;start of the 68000 work RAM, the same as replaystart
+RAMStart		=	$FF0000			;start of work RAM, as a 24-bit address
 varstart		=	$FFFFB000		;start of variable space (end of replay)
 
 replaysize	=	98					;number of bytes per replay frame (92 84)
