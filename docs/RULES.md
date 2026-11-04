@@ -26,3 +26,4 @@ rule in the same commit as the fix that confirmed it, newest last: `- YYYY-MM-DD
 ## Learned
 
 - 2026-11-04 contributing: CONTRIBUTING.md must not contradict History: lineage lives only in the name history file, never in source comments. (CONTRIBUTING rewrite vs RULES History row)
+- 2026-11-04 name_map: a `from 92 Parent` split is not a rename row. `old,new` is this repo's previous name to its current name; recording Fprint→Fprintsmall or periodicevents→RestoreBenchEnergy made the pairing gate treat 93S Fprint and 95S periodicevents as renamed (counts 93S~93G, lineage, 95S~95G rose). Delete the comment; do not invent a rename.
