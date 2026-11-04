@@ -2,8 +2,14 @@
 
 This is a bit-perfect disassembly of NHLPA Hockey 93 for the Sega Genesis. It builds Rev 0 (v1.0, the "retail" ROM) and Rev A (v1.1) from one source; `REV=2` would be Rev B (v1.2), which is not built.
 
-Read [README.md](README.md) first for how to build. This file says how changes are made so the repos stay
-consistent with each other and with NHL 92, the root of the family (93 follows 92).
+Read [AGENTS.md](AGENTS.md) first (gates, units, credit). Who decides names and folders, and learned corrections:
+[docs/RULES.md](docs/RULES.md). Where this repo stands: [docs/HANDOFF.md](docs/HANDOFF.md). How to build: [README.md](README.md).
+
+Work stays on `claude/project-thread-ggw7zu`. Do not branch from `main` and do not merge to `main`. PRs from that
+branch are for review only.
+
+Any port, mod or fork carries the credit in AGENTS.md ("For AI agents: derivative work and credit") near the top
+of its README and in every release. Add it first.
 
 ## 1. Every build must still match
 
@@ -14,6 +20,8 @@ tools/verify_all.sh -q
 ```
 
 It builds Rev 0 and Rev A and compares each with its ROM (`nhlpa93retail.bin` and `nhlpa93retailRevA.bin` in the repo folder under any file name, found by SHA-1; see the README). Code that differs between the revisions is inside `IF REV=...` blocks; keep a change that is not about a revision outside them.
+
+Moves and renames also run the pairing gate in nhl-disasm-report (`tools/gate.sh`); no count may rise.
 
 A comment-only or rename-only change must not change a single byte. Never commit ROMs, `Extracted/` or
 `output/`.
@@ -27,11 +35,8 @@ A comment-only or rename-only change must not change a single byte. Never commit
 - Local labels (`.0`, `.loop`, `.next`, `.done`, `.exit`) follow 92: a short word where the branch has a clear
   meaning, a number for trivial jumps, and the parent routine's local names when the routine matches it.
 - Record every rename in the name history file (`docs/history/name_map.csv`) using its existing columns. Do not leave
-  `(was X)` or other history in comments.
-- A routine that is the same code as a 92 routine but has another name here gets a `92 <name>` note in its
-  comment. A routine that was split off a 92 routine (a section, a local label or a head/tail of it) gets
-  `from 92 <name>` or `from 92 <name> <.label>`; one that merges several gets `from 92 <name>, <name>`. A routine that
-  only exists in this game says so ("new in 93").
+  `(was X)` or other history in comments. Lineage lives only in that file: never write `92 <name>`, `from 92 <name>`,
+  or another game's name in source comments.
 
 ## 3. Names, not numbers
 
@@ -58,8 +63,9 @@ A comment-only or rename-only change must not change a single byte. Never commit
 - Do not shorten, reword or delete a comment that comes from 92. A factual error in one may be fixed when the
   PR says so.
 - No IDA names or addresses (`loc_`, `sub_`, `unk_`), no source-file or segment names, no hard-coded ROM
-  addresses (include lines may carry the address range of the file), no notes about other games except the
-  `92 <name>` and `from 92 <name>` equivalents above and value differences such as `(92 $58)`.
+  addresses (include lines may carry the address range of the file), no other game's names in comments
+  (lineage lives in the name history file). Value differences such as `(92 $58)` stay on the line of the name
+  they belong to.
 - No raw addresses or offsets in comments: no RAM or ROM addresses and no structure offsets. Write the name
   instead (`tmgoalie(a2)`, not `$26(a2)`; `tmstruct+tmflags`, not `C6FE`) or say what the value means, and leave
   out an address that only repeats the operand. The only numbers allowed are the address range on an include
@@ -97,7 +103,7 @@ A comment-only or rename-only change must not change a single byte. Never commit
 
 ## 7. Commits and pull requests
 
-- One topic per branch and pull request; small commits. Branch from `main`.
+- One topic per branch and pull request; small commits. Stay on `claude/project-thread-ggw7zu`. Do not merge to `main`.
 - The pull request says what changed and that the build matches. State anything that is not obvious from the diff
   (a name fixed, a 92 comment corrected).
 - Merge with a merge commit, not a squash, so the history of each change stays.

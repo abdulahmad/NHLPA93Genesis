@@ -599,7 +599,7 @@ updatepentime						;update the time remaining on all penalized players, once a s
 	bsr.w	updatepentime_ut
 	adda.w	#tmsize,a2
 
-updatepentime_ut					;from 92 updatepentime .ut. a2 = team. Walks tmboxlist:
+updatepentime_ut					;a2 = team. Walks tmboxlist:
 									;the first two players without a coincidental penalty count down one
 									;second and the rest wait. Beeps when the first served time gets to 5 or
 									;less and releases the player at 0. Coincidental penalties count down on
@@ -912,7 +912,7 @@ printscores1						;draw scoreboard. Vertical rink: period box and the score box 
 	bsr.w	PrintTeamLogoAndScore
 	bra.s	.ex
 
-printscores1_ps						;from 92 printscores1 .ps. print the team name of team a2 at
+printscores1_ps						;print the team name of team a2 at
 									;printx/printy, then its score as 2 digits at x $1C. Called twice from
 									;printscores1
 	movea.l	tmdata(a2),a1
@@ -925,7 +925,7 @@ printscores1_ps						;from 92 printscores1 .ps. print the team name of team a2 a
 	bsr.w	PushNumberWidth
 	bra.w	print					;print the score and return
 
-PrintTeamLogoAndScore				;from 92 printscores1 .sbscreen. draw the team logo map (PutTeamBlock, d0
+PrintTeamLogoAndScore				;draw the team logo map (PutTeamBlock, d0
 									;= offset) 6 columns left of printx, then the score of team a2 in big
 									;font, centered 2 rows lower. Called twice from printscores1.sbscreen
 	move.w	(printx).w,-(sp)		;keep the column
@@ -1120,7 +1120,7 @@ ChkShotStat							;add to shot stat if a shot was taken. Also raises the crowd a
 .ex	movem.l	(sp)+,d0-d1/a1-a3		;restore and return
 	rts
 
-loadTeamStruct						;from 92 AddStat team select. return a2 = team struct of player a3, a1 =
+loadTeamStruct						;return a2 = team struct of player a3, a1 =
 									;the other team's struct. Called from ChkShotStat and updateplayers
 	movea.w	#(tmstruct-M68K_RAM),a2
 	lea	tmsize(a2),a1
@@ -1340,7 +1340,7 @@ NewTicker2							;goto next ticker. Return d3 = game, or neg if none left (no Op
 	cmp.w	(gamenum).w,d3			;don't show current game as ticker
 	beq.s	NewTicker2
 
-CheckGameTickerStatus				;from 92 NewTicker3 head. d3 = game. Return a0 = its gstruct; skip to the
+CheckGameTickerStatus				;d3 = game. Return a0 = its gstruct; skip to the
 									;next ticker game if a highlight is coming up or the series is over.
 									;Called from StartHL2
 	moveq	#gssize,d0				;struct size
@@ -1424,7 +1424,7 @@ ClearTickerArea						;erase the ticker box. Called from Intermission and StartHL
 	move.w	#$7FF,d2				;blank char
 	bra.w	eraser
 
-SetTickerAreaPosition				;from 92 NewTicker3 position setup. set printx/printy/printm for the
+SetTickerAreaPosition				;set printx/printy/printm for the
 									;ticker box (x 3, y $17; the $BD map in pause mode). Return d0 = $1A wide,
 									;d1 = 5 high. Called from NewTicker3 and ClearTickerArea
 	bsr.w	printz
@@ -1437,7 +1437,7 @@ SetTickerAreaPosition				;from 92 NewTicker3 position setup. set printx/printy/p
 	moveq	#5,d1
 	rts
 
-Fprintsmall							;from 92 Fprint, but printing with printsmall (92 used print). Print
+Fprintsmall							;but printing with printsmall (92 used print). Print
 									;string d0 of the String list a1
 	bsr.w	AdvanceStringPtr
 	bra.w	printsmall

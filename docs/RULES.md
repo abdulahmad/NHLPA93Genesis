@@ -25,3 +25,4 @@ rule in the same commit as the fix that confirmed it, newest last: `- YYYY-MM-DD
 
 ## Learned
 
+- 2026-11-04 contributing: CONTRIBUTING.md must not contradict History: lineage lives only in the name history file, never in source comments. (CONTRIBUTING rewrite vs RULES History row)
