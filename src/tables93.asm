@@ -299,7 +299,7 @@ priolist	dc.b	0,1,2,4,3,5,6	;positions in order of importance. Used by
 	dc.b	PadByte
 	ENDIF
 
-PlayoffScreen_setup					;from 92 PlayoffScreen .setup. Playoff tree layout by gamelevel:
+PlayoffScreen_setup					;Playoff tree layout by gamelevel:
 									;one column per round. Used by PlayoffScreen
 	dc.w	.l0-PlayoffScreen_setup
 	dc.w	.l1-PlayoffScreen_setup
@@ -436,7 +436,7 @@ GAttribColumns						;goalie attribute columns, same format as PAttribColumns.
 	dc.w	$2000,6					;weight
 	dc.w	-1
 
-Pausemode_mlist						;from 92 Pausemode .mlist. pause menu item list (Pausemode)
+Pausemode_mlist						;pause menu item list (Pausemode)
 	String	CC_SetAttribute,5
 	String	CC_SetAttribute,4
 	String	'   Resume Game    '

@@ -1,0 +1,6 @@
+---
+description: Project rules
+alwaysApply: true
+---
+
+Read and follow AGENTS.md, then docs/RULES.md and the Now block of docs/HANDOFF.md. Models: Composer 2.5 for mechanical work (moves, folds, running checks, docs), Grok 4.6 medium for code that follows a sibling game's code, Grok 4.7 medium for new or unclear code and for naming, Grok 4.7 high only as the advisor at the three moments in AGENTS.md. No fast variants. Escalate one tier at a time.

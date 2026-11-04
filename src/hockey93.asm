@@ -121,7 +121,7 @@ ResetClock							;set period length and stop clock
 	bset	#gmclock,(gmode).w		;stop clock
 	rts
 
-GetPeriodTime						;from 92 ResetClock (period length lookup). return d0 = period length in
+GetPeriodTime						;return d0 = period length in
 									;seconds for the period length option
 	move.w	(Optperlen).w,d0
 	asl.w	#1,d0
@@ -201,7 +201,7 @@ CheckInjury							;called once per second. Count down InjCntDown, act on it at z
 	bne.w	rtss2
 	jmp	(ShowInjuryBox).l			;countdown expired
 
-RestoreBenchEnergy					;from 92 periodicevents tail (.notinprog). called once per second. Restore
+RestoreBenchEnergy					;called once per second. Restore
 									;energy for players on the bench
 	tst.w	(OptLine).w
 	bne.w	.x						;exit if line changes are off
@@ -295,7 +295,7 @@ clockcont							;monitor period clock and initiate various clock activated event
 	move.w	#SFXhorn,-(sp)			;horn (92 used 24)
 	bsr.w	sfx
 	bsr.w	freezewindow
-clockcont_0							;from 92 clockcont. end of period. Also entered from puckfaceoff
+clockcont_0							;end of period. Also entered from puckfaceoff
 	movea.w	#(puckx-M68K_RAM),a3	;puck
 	move.l	#$18,d0
 	bsr.w	assinsert
@@ -371,7 +371,7 @@ demoread							;monitor joystick if in demo mode (called every game loop)
 	bne.w	startpause2
 	;falls into EndDemoOnPress with pad 2 in d1
 
-EndDemoOnPress						;from 92 demoread. any button on the pad just read (d1) ends the demo
+EndDemoOnPress						;any button on the pad just read (d1) ends the demo
 									;falls in from demoread for pad 2
 	tst.w	d1
 	beq.w	rtss2					;nothing pressed
@@ -424,7 +424,7 @@ PauseExit	equ	*					;92 PauseExit: restore graphics and return from pause mode (
 	move.w	(Vcount).w,(OldVcount).w
 	rts
 
-Pausemode_pall						;from 92 Pausemode .pall. draw routine for the pause menu
+Pausemode_pall						;draw routine for the pause menu
 	movea.l	#Vdata,a0
 	move.w	#VDPR_WINX,4(a0)		;playfield 3 width
 	move.w	#VDPR_WINY+$1C,4(a0)	;playfield 3 height
@@ -713,7 +713,7 @@ UpdateCameraPos						;Camera struct a5 = object a3's x/y, Hpos/Vpos = that posit
 	movem.l	(sp)+,d0-d2
 	rts
 
-RestoreReplayFrame					;from 92 SetRCords + nonshift in one routine. a4 = current replay frame
+RestoreReplayFrame					;a4 = current replay frame
 									;address to convert into normal cordinates, then set the other replay
 									;variables. Returns d7 = frame delay. Hpos/Vpos come from the frame unless
 									;scrolling by hand (sfscrl), then from the camera or tracked object.
@@ -2499,7 +2499,7 @@ puckstick							;puck collides with stick
 	move.b	#8,nopuck(a2)
 	bra.s	.stdef
 
-puckglue							;from 92 .glue. Player a2 takes the puck 
+puckglue							;Player a2 takes the puck
 									;Global because puckgoalie .nopc also branches here. Plays sound effect
 									;SFXpuckget, or after a faceoff (sf3fo) SFXcrowdboo (SFXcrowdcheer for the
 									;home team), and counts a completed pass when a2 is passReceiverPlayerNum.
@@ -2947,7 +2947,7 @@ SetPlList							;create list (PlList) of players who we want on the ice now a2 =
 	beq.s	.try
 	bra.s	.next1
 
-TryAddPlayerToList					;from 92 SetPlList .s1/.s2. d0 = player number (1 based), d4 = PlList slot
+TryAddPlayerToList					;d0 = player number (1 based), d4 = PlList slot
 									;a2 = team struct, a4 = PlList. Return Z clear = added, Z set (d1 = 0) =
 									;not available
 	move.w	d0,d1
@@ -3377,7 +3377,7 @@ setupIceRinkPal						;copy the ice rink palettes (pal 0&1, 16 longs) to palfaden
 	dbf	d0,.ipal
 	rts
 
-setupEASNmap						;from 92 setupice EASN block. Decompress the easn logo tiles to vram at
+setupEASNmap						;Decompress the easn logo tiles to vram at
 									;EASNcset. Called from setupice and setupice_highlight.
 									;Return d4 = next free vram char
 	move.w	(EASNcset).w,d4
@@ -3479,7 +3479,7 @@ defaultsprites						;allocate vram and assign char area for graphic
 	dc.w	0,0,$FFFF,SPFreplay,$8000,7	;attribute 0, 12 chars
 	dc.w	0,0,$FFFF,SPFgloves,0,5
 
-defaultsprites_0					;from 92 defaultsprites .0 loop. objects which are tied to screen
+defaultsprites_0					;objects which are tied to screen
 									;scrolling and have velocity relative to icerink
 									;also set some variables in the structure to default settings.
 									;Jumped to from defaultsprites, also called from setoptions. d4 = vram
@@ -3609,7 +3609,7 @@ resetplstuff						;reset team variables/and players on both teams. Called from p
 	dbf	d2,.loop
 	rts
 
-clearTeamStats						;from 92 setteams clear loop. clear both team structs (2 x tmsize) but
+clearTeamStats						;clear both team structs (2 x tmsize) but
 									;keep tmgoalie of each team, and set the first tmboxlist byte of each.
 									;Falls into setteams.
 									;Called from StartGame, StartHL2 and ScoutingReport
@@ -3640,7 +3640,7 @@ setteams							;use hometeam/visteam to set team structures. Falls in from
 	movem.l	(sp)+,d0/a0-a2
 	rts
 
-InitTeamStructure					;from 92 setteams. Set up team struct a2 for team d0: store the team
+InitTeamStructure					;Set up team struct a2 for team d0: store the team
 									;number at tmteam, the team data address at tmdata ($1E, from the team
 									;address table TeamList), and copy 14 longs of line data (team data +6
 									;offset) to tmlines. Called from setteams
@@ -3695,7 +3695,7 @@ PeriodOver							;what to do if period over. Branched to from
 	move.w	#4,(gsp).w				;game over
 .0	bsr.w	forceblack				;fade the screen to black
 
-PeriodOver_sp						;from 92 PeriodOver .sp. PeriodOver tail: reset the clock, song $36,
+PeriodOver_sp						;PeriodOver tail: reset the clock, song $36,
 									;ticker scores playoff team stats at game over, then Intermission. Next
 									;period, or GameOver when gsp = 4.
 									;Also jumped to from StartGame (as _sp) for the pregame intermission
@@ -3890,7 +3890,7 @@ PlayoffScreen						;bring up playoff screen if in playoff mode. Called from Game
 	bsr.w	PlayoffScreen_jin		;page / exit input
 	bra.s	.input
 
-PlayoffScreen_jin					;from 92 PlayoffScreen .jin. read both pads: start leaves PlayoffScreen,
+PlayoffScreen_jin					;read both pads: start leaves PlayoffScreen,
 									;right/left set the scroll step, then falls into
 									;PlayoffScreen_scrup. Called from PlayoffScreen .input
 	bsr.w	ReadJoy1
@@ -3906,7 +3906,7 @@ PlayoffScreen_jin					;from 92 PlayoffScreen .jin. read both pads: start leaves 
 	beq.w	PlayoffScreen_scrup
 	move.w	#2,(PlayerScrollCtr).w	;step +2
 
-PlayoffScreen_scrup					;from 92 PlayoffScreen .scrup. move the tree one step (PlayerScrollCtr)
+PlayoffScreen_scrup					;move the tree one step (PlayerScrollCtr)
 									;and stop on a page boundary ($70). The position is limited to +/-
 									;min(gamelevel,3) pages; the vblank adds it to the hscroll. Falls in from
 									;PlayoffScreen_jin, also called from PlayoffScreen
@@ -3940,7 +3940,7 @@ PlayoffScreen_scrup					;from 92 PlayoffScreen .scrup. move the tree one step (P
 	clr.w	(PlayerScrollCtr).w		;stop
 	rts
 
-PlayoffScreen_exit					;from 92 PlayoffScreen .exit. drop PlayoffScreen_jin's return address and
+PlayoffScreen_exit					;drop PlayoffScreen_jin's return address and
 									;return from PlayoffScreen. Branched to from
 									;PlayoffScreen_jin on start, so it has to be global
 	addq.w	#4,sp
@@ -3960,7 +3960,7 @@ waitxc1								;each time palcount runs out, eor the color
 	move.w	d0,(OldVcount).w
 	rts
 
-PlayoffScreen_doscores				;from 92 PlayoffScreen .doscores. print best of 7 wins "t-b" for game
+PlayoffScreen_doscores				;print best of 7 wins "t-b" for game
 									;struct a2 at printx/printy (92 .doscores).
 									;Called from PlayoffScreen .top3
 	movea.w	#(mesarea-M68K_RAM),a1
@@ -3976,7 +3976,7 @@ PlayoffScreen_doscores				;from 92 PlayoffScreen .doscores. print best of 7 wins
 	movea.w	#(mesarea-M68K_RAM),a1
 	bra.w	print
 
-PlayoffScreen_doarrow				;from 92 PlayoffScreen .doarrow. draw tree arrow d0 from Arrows.map at
+PlayoffScreen_doarrow				;draw tree arrow d0 from Arrows.map at
 									;printx/printy (92 .doarrow).
 									;Called from PlayoffScreen .top2
 	movem.l	d0-d7/a0-a3,-(sp)
@@ -3994,7 +3994,7 @@ PlayoffScreen_doarrow				;from 92 PlayoffScreen .doarrow. draw tree arrow d0 fro
 	movem.l	(sp)+,d0-d7/a0-a3
 	rts
 
-PlayoffScreen_doteam				;from 92 PlayoffScreen .doteam. draw team block d1 (team*2) from
+PlayoffScreen_doteam				;draw team block d1 (team*2) from
 									;TeamBlocks.map at printx/printy; the user's team (potree entry
 									;at potreeteam) gets printa $6000.doteam. Called from PlayoffScreen .top
 	movem.l	d0-d7/a0-a3,-(sp)
@@ -6627,7 +6627,7 @@ GetPlayerNamePointer				;a0 = name string of player d0 on team a2. From tmdata a
 .cnt	dbf	d0,.next				;d0 entries to skip
 	rts
 
-ConvertByteToDigits					;from 92 .dispen digit code. two ascii digits of bcd byte d0 to (a1)+, a
+ConvertByteToDigits					;two ascii digits of bcd byte d0 to (a1)+, a
 									;leading 0 becomes a space.
 									;Called from getname, the FormatPlayerName routines, pplpen and others
 	move.w	d0,-(sp)

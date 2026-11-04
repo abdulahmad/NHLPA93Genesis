@@ -95,7 +95,7 @@ UpdateVertScrollReg					;write VSRAM word 1 = VertLineScrolling - $30
 	move.w	(sp)+,(disflags).w
 	rts
 
-DisplayGameInfo						;from 92 NewTicker3. print game d3 of gstruct (2 team rows and period
+DisplayGameInfo						;print game d3 of gstruct (2 team rows and period
 									;label). Skips the current game and games with gsflags bit 1 or 2 set
 	cmp.w	(gamenum).w,d3
 	beq.w	rtss2					;current game
@@ -122,7 +122,7 @@ DisplayGameInfo						;from 92 NewTicker3. print game d3 of gstruct (2 team rows 
 	addq.w	#2,(printy).w
 	rts
 
-PrintGameInfo						;from 92 NewTicker3 .tn. print team d0's name at x 6 and score d1 (2
+PrintGameInfo						;print team d0's name at x 6 and score d1 (2
 									;digits) at x $18
 	movea.w	#TeamList,a1			;team address table
 	asl.w	#2,d0
@@ -1900,7 +1900,7 @@ DisplayStats						;team logos, then each TeamStatTextTbl row
 	dbf	d6,.row
 	rts
 
-PrintStatValue						;from 92 DisplayStats .ss. print TeamStatTextTbl entry a0 for team a2
+PrintStatValue						;print TeamStatTextTbl entry a0 for team a2
 									;centred at printx:
 									;value (tmATOP is a time), "/second" if any, " (pct%)" for passing
 									;a3 = mesarea, an empty string (length word 2) the value text is appended
@@ -2168,7 +2168,7 @@ TimeoutMenu							;pause menu "Timeout" for team a2: uses the
 	moveq	#$78,d0					;wait $78 vblanks or until a button press; waitx returns to the caller
 	bra.w	waitx
 
-Pausemode_go						;from 92 Pausemode .go. pick team a2's goalie from a
+Pausemode_go						;pick team a2's goalie from a
 									;list (0 = no goalie). Start/C confirms; a change is stored in
 									;tmgoalie(a2)
 									;and setpersonel is called
@@ -2224,7 +2224,7 @@ Pausemode_go						;from 92 Pausemode .go. pick team a2's goalie from a
 	move.w	(sp)+,(menuitem).w
 	rts
 
-Pausemode_gnum						;from 92 Pausemode .gnum. draw the goalie list, row menuitem highlighted,
+Pausemode_gnum						;draw the goalie list, row menuitem highlighted,
 									;each goalie with his two digit number
 									;rows from y $D, d0 = row 0..count (row 0 = "no goalie"), d1 = loop
 									;counter (menuitem+2 + 1 rows)
@@ -2312,7 +2312,7 @@ loopthroughplayers					;one pass per record: advance by the record's length word
 	movem.l	(sp)+,a0
 	rts
 
-Pausemode_rjoy						;from 92 Pausemode .rjoy. wait for Vcount to change and a new button press
+Pausemode_rjoy						;wait for Vcount to change and a new button press
 									;(d1)
 	move.w	(Vcount).w,d1
 .wait	cmp.w	(Vcount).w,d1		;has Vcount changed?

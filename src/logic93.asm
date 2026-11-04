@@ -516,7 +516,7 @@ setlccords							;set printx/y to cords for lc box on team a2
 .ex	moveq	#9,d0					;d0 = 9 wide, d1 = 6 (3 rows) or 5 (2 rows) for Framer
 	rts
 
-getlchoice							;92 getlchoice2 (92 getlchoice only picked a2 from a3 and called it; the
+getlchoice							;(92 getlchoice only picked a2 from a3 and called it; the
 									;callers do that here). d0 = 0-2 (a2 = team)
 									;return d0 = possible line number or -1 for none in this position
 	movem.l	d1-d2,-(sp)
@@ -615,7 +615,7 @@ lcfound								;d2 = choice made 0-2
 	bclr	#tmflcm,tmflags(a2)
 	move.w	d0,tmline(a2)
 	jsr	setpersonel
-lcfound_close						;from 92 lcfound .close. close lc box. Also called from lineinput
+lcfound_close						;close lc box. Also called from lineinput
 	bsr.w	setlccords
 	cmpi.w	#$F,(printy).w
 	blt.w	.nollcm
@@ -657,7 +657,7 @@ Holdplayer							;abut press hold. a0 = the player this one is
 	move.w	impactp(a3),d0
 	asl.w	#7,d0
 	adda.w	d0,a0
-Acheck								;from 92 Holdplayer. start SPAHold, or SPAhook if a0 is ahead, on player
+Acheck								;start SPAHold, or SPAhook if a0 is ahead, on player
 									;a0. Also entered from check4check
 	bset	#pfalock,pflags(a3)
 	move.w	#SPAhook,d1
@@ -2854,7 +2854,7 @@ AdjustFacingDirection				;Turn facedir one step
 	move.w	d1,facedir(a3)
 	rts
 
-assgoalie_list						;92 assgoalie .list. goalie save choices
+assgoalie_list						;goalie save choices
 									;word table of 6 save animations: glove right/left, pad stack right/left,
 									;stick right/left
 	dc.w	SPAgglover
@@ -4045,7 +4045,7 @@ puckfaceoff2						;face off control logic and general setup for action a3 = the 
 	dc.w	50,-10
 	dc.w	0,-60
 
-ResetAndSelectPlayers				;from 92 puckfaceoff2 (inline). c1playernum/c2playernum = -1, then
+ResetAndSelectPlayers				;c1playernum/c2playernum = -1, then
 									;changeplayer for each human team. Called from puckfaceoff2
 	move.w	#-1,(c1playernum).w		;nobody controlled yet
 	move.w	#-1,(c2playernum).w
@@ -4265,7 +4265,7 @@ ChkOffsides							;check for offsides penalty. a3 = puck. Flags the whole team (
 	dbf	d2,.2
 	rts
 
-ClearOffsidesIfAllPlayers			;from 92 updateplayers pf3oside clear. a2 = team struct. Clears the team
+ClearOffsidesIfAllPlayers			;pf3oside clear. a2 = team struct. Clears the team
 									;offsides flag (tmflags bit 4) once no skater on ice is past the blue line
 									;($58, sign by pfgoal). Called twice from ChkOffsides
 	btst	#tmfoside,tmflags(a2)
@@ -4631,7 +4631,7 @@ avdgoal								;don't try to skate thru goal: if d0/d1 cords intersect thru goal
 	move.w	d3,(deltax).w			;deltax = net edge - crossing x
 	rts
 
-skatetopuckinit						;from 92 skatetopuck head. d0/d1 = puck x/y plus half the high byte of its
+skatetopuckinit						;d0/d1 = puck x/y plus half the high byte of its
 									;velocity. Called from skatetopuck and assnearest
 	move.b	(puckvx).w,d0			;high byte of the puck x velocity (signed)
 	asr.b	#1,d0					;halved
