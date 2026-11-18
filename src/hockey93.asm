@@ -4017,7 +4017,7 @@ PlayoffScreen_doteam				;draw team block d1 (team*2) from
 	movem.l	(sp)+,d0-d7/a0-a3
 	rts
 
-VBlank_Playoff						;(it undecoded): the PlayoffScreen vblank handler (VBint).
+VBlank_Playoff						;The PlayoffScreen vblank handler (VBint).
 									;If dfng is clear and Sattsize is set: clear Sattsize, DoDMA the sprite
 									;table (Satt) to VSPRITES, then Vmaddr(VSCRLPM) and write
 									;$FEA0+playoffscroll to the hscroll, then cramfade. Always Vcount+1,
