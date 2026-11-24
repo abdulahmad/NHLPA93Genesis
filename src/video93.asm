@@ -150,10 +150,10 @@ updatescroll						;using hpos and vpos set scroll cords; queue rink map rows on 
 	andi.w	#$1F,d0
 	asl.w	#7,d0					;chars per row screen format
 	add.w	(VmMAP2).w,d0
-	move.w	d0,6(a5)				;vram address
+	move.w	d0,dmavram(a5)			;vram address
 	move.w	#$1E,d0					;60-30
 	sub.w	d1,d0
-	move.w	(a0),4(a5)				;words = one map row
+	move.w	(a0),dmalen(a5)			;words = one map row
 	mulu.w	(a0),d0
 	add.w	d0,d0
 	lea	4(a0,d0.w),a1
@@ -169,10 +169,10 @@ updatescroll						;using hpos and vpos set scroll cords; queue rink map rows on 
 	andi.w	#$1F,d0
 	asl.w	#7,d0
 	add.w	(VmMAP2).w,d0
-	move.w	d0,6(a5)
+	move.w	d0,dmavram(a5)
 	move.w	#$3D,d0
 	sub.w	d1,d0
-	move.w	(a0),4(a5)
+	move.w	(a0),dmalen(a5)
 	mulu.w	(a0),d0
 	add.w	d0,d0
 	lea	4(a0,d0.w),a1
@@ -189,7 +189,7 @@ showref								;draw ref graphics. Called from setvideo.
 	beq.w	rtss
 	movea.w	#(RefRamMap-M68K_RAM),a0
 	movea.w	#(VmMAP1-M68K_RAM),a1
-	move.w	2(a1),d2
+	move.w	Map1col-VmMAP1(a1),d2
 	moveq	#2,d0					;refy
 	btst	#sfhor,(sflags).w
 	beq.w	.1
@@ -511,7 +511,7 @@ showclock							;put the game clock in the dma list. Called from setvideo; retur
 	movea.w	#(VmMAP2-M68K_RAM),a1
 	moveq	#4,d0					;.clocky2 = 4
 	moveq	#$D,d2					;.clockx2 = 13
-.cv	move.w	2(a1),d1				;map width shift (d0 = y, d2 = x of the clock)
+.cv	move.w	Map1col-VmMAP1(a1),d1	;map width shift (d0 = y, d2 = x of the clock)
 	asl.w	d1,d0
 	add.w	d2,d0
 	asl.w	#1,d0
@@ -632,7 +632,7 @@ setffo								;draw the 5 objects tied to icerink scrolling (pads ...). Called f
 	bsr.w	addframe
 	cmpa.w	a6,a0
 	beq.w	.next					;no sprites added
-	move.w	2(a3),d1				;x offset (set by QueuePadLabel)
+	move.w	padxoff(a3),d1			;x offset (set by QueuePadLabel)
 	add.w	d1,6(a0)				;sprite 1 x
 	add.w	d1,8+6(a0)				;sprite 2 x
 .next	adda.w	#ffosize,a3			;ffosize: next object
@@ -690,13 +690,13 @@ QueuePadLabel						;queue the 3 character label of a pad object (92 drew 2
 									;blank), bits 10-8 index ButtonLabelCharTable. a0 = pad object, a5 = dma
 									;list. Falls into uppads_pd for the last char
 	lea	ButtonLabelCharTable(pc),a4
-	clr.w	2(a0)					;x offset (setffo adds it to the sprites)
+	clr.w	padxoff(a0)				;x offset (setffo adds it to the sprites)
 	move.w	d1,d2
 	lsr.w	#4,d2
 	andi.w	#$F,d2
 	bne.w	.hi
 	move.w	#-$10,d2				;' '-'0': blank leading zero
-	subq.w	#4,2(a0)				;and move the label 4 left
+	subq.w	#4,padxoff(a0)			;and move the label 4 left
 .hi	addi.w	#$30,d2					;'0' (tens digit of the label, or blank)
 	clr.w	d0						;char slot 0
 	bsr.w	uppads_pd
@@ -712,7 +712,7 @@ QueuePadLabel						;queue the 3 character label of a pad object (92 drew 2
 	lsr.w	#8,d2
 	andi.w	#7,d2
 	bne.w	.btn
-	addq.w	#4,2(a0)				;index 0 (' '): move the label 4 right
+	addq.w	#4,padxoff(a0)			;index 0 (' '): move the label 4 right
 .btn	move.b	(a4,d2.w),d2		;third char from ButtonLabelCharTable
 	moveq	#2,d0					;char slot 2
 
