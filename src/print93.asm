@@ -12,7 +12,7 @@ xyVmMap								;use printx/y/m to set vram address. Returns a0 = Vdata.
 	move.w	(printy).w,d1
 	movea.w	#(VmMAP1-M68K_RAM),a0
 	adda.w	(printm).w,a0
-	move.w	2(a0),d2				;map width shift
+	move.w	Map1col-VmMAP1(a0),d2	;map width shift
 	asl.w	d2,d1
 	add.w	d1,d0
 	asl.w	#1,d0
@@ -540,7 +540,7 @@ printbig							;same as print, only use bigfont.map graphics. a1 = string macro,
 	move.w	d5,d0
 	movea.l	#VmMAP1,a0
 	adda.w	(printm).w,a0
-	move.w	2(a0),d1
+	move.w	Map1col-VmMAP1(a0),d1
 	asl.w	d1,d0
 	add.w	d4,d0
 	asl.w	#1,d0
