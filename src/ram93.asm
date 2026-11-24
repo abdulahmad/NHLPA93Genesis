@@ -179,6 +179,16 @@ foframe		=	0					;fofdata2, fofdata: 4 bytes per big faceoff sprite (2 centers, 
 foattr		=	2					;word attribute (bit 11 x flip)
 fosize		=	4
 plpos		=	6					;PlList: 6 wanted roster players, then their positions
+penmins		=	1					;Penaltylist record (word $ttmm: tt slow down time, mm minutes;
+									;92 format comment), then the name String: minutes
+penname		=	2					;Penaltylist record: the penalty name String
+padxoff		=	2					;pads: label x offset (QueuePadLabel sets it, setffo adds it)
+dmalen		=	4					;DMAList entry (source long, then words): length (93S name)
+dmavram		=	6					;DMAList entry: vram address (93S name)
+lipy		=	2					;LineIconPosTable entry (x, y, slot count - 1): y
+lipslots	=	4					;LineIconPosTable entry: slot count - 1
+tsoff2		=	2					;TeamStatTextTbl entry, after its label: second offset ($FFFF none)
+tssize		=	4					;TeamStatTextTbl entry: size of its two offset words
 pldnum		=	0					;.pld player ratings, 8 bytes after the name String (92 setplayer field
 									;names): jersey number, 2 BCD digits -> rostnum
 pldweight	=	1					;high nibble weight, low nibble leg power legstr

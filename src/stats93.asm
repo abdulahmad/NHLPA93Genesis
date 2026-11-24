@@ -404,7 +404,7 @@ DrawLineIcon						;line editor: draw line d5 (name from linelist, then its playe
 	beq.w	.0
 	subq.w	#6,a0					;OptLine set: use the entry before
 .0	move.w	(a0),(printx).w			;x, y of the entry
-	move.w	2(a0),(printy).w
+	move.w	lipy(a0),(printy).w
 	move.w	d5,d0					;line name string index
 	movea.l	#linelist,a1
 	move.w	#$8000,(printa).w
@@ -415,8 +415,8 @@ DrawLineIcon						;line editor: draw line d5 (name from linelist, then its playe
 	move.w	d5,d4
 	asl.w	#3,d4					;8 slots per line
 	addq.w	#1,d4					;slots are 1-5 (LD RD LW C RW)
-	move.w	2(a0),(printy).w
-	move.w	4(a0),d3				;slot count - 1
+	move.w	lipy(a0),(printy).w
+	move.w	lipslots(a0),d3			;slot count - 1
 	lea	tmlines(a2),a3				;team line table
 .slot	move.w	(a0),(printx).w		;loop over the line's slots
 	bsr.w	printsmallz
@@ -444,7 +444,7 @@ ClearLineArea						;line editor: erase the line area and print the
 	moveq	#$12,d1
 	move.w	#$7FF,d2
 	bsr.w	eraser
-	move.w	(LineIconPosTable+2).l,(printy).l
+	move.w	(LineIconPosTable+lipy).l,(printy).l
 	move.w	(LineIconPosTable).l,(printx).l
 	tst.w	(OptLine).w
 	beq.w	.0
@@ -1354,7 +1354,7 @@ DisplayPenaltyEntry					;print penalty entry at offset d3: time, team (bit 7 of 
 	movea.l	#Penaltylist,a3
 	adda.w	(a3,d0.w),a3
 	clr.w	d0
-	move.b	1(a3),d0				;penalty minutes
+	move.b	penmins(a3),d0			;penalty minutes
 	bsr.w	PushNumber
 	move.w	#$23,(printx).w
 	bsr.w	print					;minutes at x $23
@@ -1367,7 +1367,7 @@ DisplayPenaltyEntry					;print penalty entry at offset d3: time, team (bit 7 of 
 	addq.w	#1,(printy).w
 	move.w	#$13,(printx).w
 	move.w	#$E000,(printa).w
-	lea	2(a3),a1					;penalty name string
+	lea	penname(a3),a1				;penalty name string
 	bra.w	print					;print it and return
 
 DrawScrollArrowsPenalty				;summary screen up/down arrows. Saves d0-d1/a1
@@ -1895,7 +1895,7 @@ DisplayStats						;team logos, then each TeamStatTextTbl row
 	move.w	#9,(printx).w
 	lea	tmsize(a2),a2
 	bsr.w	PrintStatValue			;away team value, centred at x 9
-	lea	4(a0),a1					;next table entry
+	lea	tssize(a0),a1				;next table entry
 	addq.w	#2,(printy).w			;2 map rows per table row
 	dbf	d6,.row
 	rts
@@ -1916,7 +1916,7 @@ PrintStatValue						;print TeamStatTextTbl entry a0 for team a2
 	bne.w	.1
 	bsr.w	PushTime
 .1	bsr.w	appstring				;append the value text
-	move.w	2(a0),d0				;second offset, negative = none
+	move.w	tsoff2(a0),d0			;second offset, negative = none
 	bmi.w	.x
 	bsr.w	appendz
 	String	$2F						;'/'
@@ -1930,7 +1930,7 @@ PrintStatValue						;print TeamStatTextTbl entry a0 for team a2
 	move.w	(a0),d0
 	move.w	(a2,d0.w),d0
 	mulu.w	#$64,d0					;first * 100 / second
-	move.w	2(a0),d1
+	move.w	tsoff2(a0),d1
 	move.w	(a2,d1.w),d1
 	beq.w	.2						;second is 0: no divide
 	divu.w	d1,d0
