@@ -1758,7 +1758,7 @@ ReadStatColumn						;d2 = stat column d1 for player d0. d7 = 0: team struct byte
 	add.w	d0,d1
 	clr.w	d2
 	move.b	(a2,d1.w),d2
-	move.w	2(a1),d1				;second array offset, negative = none
+	move.w	scoloff2(a1),d1			;second array offset, negative = none
 	bmi.w	rtss2
 	add.w	d0,d1
 	clr.w	d3

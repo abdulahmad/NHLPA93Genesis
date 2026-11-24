@@ -189,6 +189,7 @@ lipy		=	2					;LineIconPosTable entry (x, y, slot count - 1): y
 lipslots	=	4					;LineIconPosTable entry: slot count - 1
 tsoff2		=	2					;TeamStatTextTbl entry, after its label: second offset ($FFFF none)
 tssize		=	4					;TeamStatTextTbl entry: size of its two offset words
+scoloff2	=	2					;StatColumnOffsets entry (ReadStatColumn): second offset ($FFFF none)
 pldnum		=	0					;.pld player ratings, 8 bytes after the name String (92 setplayer field
 									;names): jersey number, 2 BCD digits -> rostnum
 pldweight	=	1					;high nibble weight, low nibble leg power legstr

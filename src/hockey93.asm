@@ -2894,7 +2894,7 @@ SetPlList							;create list (PlList) of players who we want on the ice now a2 =
 									;every roster player when sublist has no free player
 	movea.w	#(PlList-M68K_RAM),a4
 	clr.l	(a4)
-	clr.w	4(a4)
+	clr.w	plpos-2(a4)				;and the last 2 of the 6 player slots
 	movea.l	#priolist,a0
 	tst.w	tmgoalie(a2)
 	bpl.w	.gin
@@ -5380,13 +5380,13 @@ UpdateRosterPlayer					;roster player of team a2 (sprite struct a3 = tmsort(a2))
 	bsr.w	GetRosterEntry
 	bsr.w	setoptions_printpos2
 	movea.w	#(mesarea-M68K_RAM),a3
-	lea	2(a3),a1
+	lea	strtext(a3),a1
 	move.w	#6,(a3)					;string length: 2 digits and a space
 	move.l	a0,-(sp)
 	adda.w	(a0),a0
 	move.b	(a0),d0					;player number (BCD)
 	bsr.w	ConvertByteToDigits
-	move.w	#$2000,4(a3)			;space, end
+	move.w	#$2000,strtext+2(a3)	;space, end
 	movea.l	(sp)+,a1
 	bsr.w	appstring				;"NN " + name
 	movea.w	a3,a0
@@ -5688,7 +5688,7 @@ MakeTree							;make playoff tree from playoffseats/winbits.
 	move.l	4(a1),4(a0)
 	move.l	8(a1),8(a0)
 	move.l	$C(a1),$C(a0)
-	lea	$10(a0),a1
+	lea	PlayoffRowTeams(a0),a1
 	moveq	#$E,d2					;15 winners
 	move.w	(WinBits).w,d0
 .0	move.w	d0,d1					;d1 = lowest WinBits bit: pick the pair member
@@ -6510,7 +6510,7 @@ getname								;a1 = mesarea string "NN First Last" for player d0 of team a2. Th
 	move.l	a0,-(sp)
 	movea.w	#(mesarea-M68K_RAM),a3
 	move.w	#4,(a3)					;length word + 2 digits
-	lea	2(a3),a1
+	lea	strtext(a3),a1
 	adda.w	(a0),a0					;byte after the name: number
 	move.b	(a0),d0
 	bsr.w	ConvertByteToDigits
