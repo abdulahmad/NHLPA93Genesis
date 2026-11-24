@@ -477,7 +477,7 @@ SetLCmode2							;a2 = team struct for lc. Draw the lc box with
 	move.w	tmline(a2),d0
 .pr	movea.w	#(mesarea-M68K_RAM),a1	;a1 = message area; row letter string
 	move.l	#$44120,(a1)			;String 'A '
-	add.b	d4,2(a1)				;'A'-'C'
+	add.b	d4,strtext(a1)			;'A'-'C'
 	bsr.w	print
 	move.w	d0,-(sp)
 	movea.l	#linelist,a1
@@ -2685,13 +2685,13 @@ assgoalie							;Player a3 is goalie. Also entered from assnearest
 .de4	add.w	d3,d1				;absolute target y
 	move.w	d1,d2
 	;crossing soon and in reach: pick a save animation from assgoalie_list
-	cmpi.w	#$22,2(a0)				;frames til crossing
+	cmpi.w	#$22,pcframes(a0)		;frames til crossing
 	bhi.w	.de5
 	cmpi.w	#$18,(a0)
 	bgt.w	.rush
 	cmpi.w	#$FFE8,(a0)
 	blt.w	.rush
-	cmpi.w	#$C,2(a0)
+	cmpi.w	#$C,pcframes(a0)
 	bhi.w	.de8
 	cmpi.w	#$108,(pucky).w
 	bgt.w	.de8
@@ -2716,7 +2716,7 @@ assgoalie							;Player a3 is goalie. Also entered from assnearest
 	cmpi.w	#$800,(puckvz).w
 	bgt.w	.de7
 	addq.w	#4,d0					;stick
-	cmpi.w	#8,2(a0)
+	cmpi.w	#8,pcframes(a0)
 	bls.w	.de7
 	cmpi.w	#2,facedir(a3)
 	beq.w	.de7

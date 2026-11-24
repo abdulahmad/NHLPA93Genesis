@@ -1493,7 +1493,7 @@ StartHL2							;play hilite for game a0. Start skips it with a random result. A 
 	st	(Zamx).w					;zamboni off
 	clr.w	(CwdExciteLvl).w
 	move.w	(a0),(HomeTeam).w		;set up teams for game in a0
-	move.w	2(a0),(VisTeam).w
+	move.w	gst2(a0),(VisTeam).w
 	move.l	a0,-(sp)				;keep the gstruct pointer
 	clr.w	(tmstruct+tmgoalie).w
 	clr.w	(awtmstruct+tmgoalie).w

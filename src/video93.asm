@@ -633,8 +633,8 @@ setffo								;draw the 5 objects tied to icerink scrolling (pads ...). Called f
 	cmpa.w	a6,a0
 	beq.w	.next					;no sprites added
 	move.w	padxoff(a3),d1			;x offset (set by QueuePadLabel)
-	add.w	d1,6(a0)				;sprite 1 x
-	add.w	d1,8+6(a0)				;sprite 2 x
+	add.w	d1,satX(a0)				;sprite 1 x
+	add.w	d1,satLen+satX(a0)		;sprite 2 x
 .next	adda.w	#ffosize,a3			;ffosize: next object
 	dbf	d0,.top
 	rts
