@@ -15,7 +15,7 @@ rule in the same commit as the fix that confirmed it, newest last: `- YYYY-MM-DD
 | RAM order | the merged order (92G, 93G, 94G, 93S, 94S, then 95G, 96G) |
 | Data, assets, banks | the earlier repo on the same platform |
 | Order inside a file | ROM order (the report re-sorts for display) |
-| History | `docs/name_map.csv` only, never source comments |
+| History | `docs/history/name_map.csv` only, never source comments |
 
 ## This repo
 

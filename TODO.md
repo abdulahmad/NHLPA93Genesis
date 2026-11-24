@@ -11,4 +11,3 @@ Open items for this repo. Cross-repo items are repeated in each repo they touch.
   - Any further 93G comments: only where they add information (why, named fields/flags), not restating code.
   - Downstream carry not started.
 - [ ] Build: auto-size the ROM (pad to the next valid cartridge size, write the header ROM end and the checksum), as NHL94Genesis `tools/fixrom.js` does.
-- [ ] README: add a Credits section thanking chaos, StaticEck and McMarkis (README currently mentions: chaos, McMarkis; StaticEck missing).

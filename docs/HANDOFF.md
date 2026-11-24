@@ -2,11 +2,11 @@
 
 ## Now
 
-- Stage / unit: CONTRIBUTING.md rewrite; `from 92 <name>` comments moved into `docs/history/name_map.csv` and deleted.
-- Branch: `claude/project-thread-ggw7zu`
-- Last check: comment-only 93G pass pending MATCH (`tools/verify_all.sh -q`)
-- Next: pairing/MATCH as needed; do not merge to main
-- Open PRs: (this unit)
+- Stage / unit: none open. The last unit (CONTRIBUTING.md rewrite; `from 92 <name>` comments moved into
+  `docs/history/name_map.csv`) is merged on `main` (#145).
+- Branch: none. New work is a short branch off the current `main` and one PR into `main`.
+- Last check: `tools/verify_all.sh -q`
+- Next: not set; see `TODO.md`.
 
 ## Status (2026-10-20)
 
