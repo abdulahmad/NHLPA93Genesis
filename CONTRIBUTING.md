@@ -5,8 +5,8 @@ This is a bit-perfect disassembly of NHLPA Hockey 93 for the Sega Genesis. It bu
 Read [AGENTS.md](AGENTS.md) first (gates, units, credit). Who decides names and folders, and learned corrections:
 [docs/RULES.md](docs/RULES.md). Where this repo stands: [docs/HANDOFF.md](docs/HANDOFF.md). How to build: [README.md](README.md).
 
-Work stays on `claude/project-thread-ggw7zu`. Do not branch from `main` and do not merge to `main`. PRs from that
-branch are for review only.
+Work on a short branch off the current `main` and open one pull request into `main` per topic; it is merged with a
+normal merge commit. Every commit must pass the checks in [AGENTS.md](AGENTS.md).
 
 Any port, mod or fork carries the credit in AGENTS.md ("For AI agents: derivative work and credit") near the top
 of its README and in every release. Add it first.
@@ -103,7 +103,7 @@ A comment-only or rename-only change must not change a single byte. Never commit
 
 ## 7. Commits and pull requests
 
-- One topic per branch and pull request; small commits. Stay on `claude/project-thread-ggw7zu`. Do not merge to `main`.
+- One topic per branch and pull request; small commits. Branch off the current `main`; one pull request into `main`.
 - The pull request says what changed and that the build matches. State anything that is not obvious from the diff
   (a name fixed, a 92 comment corrected).
 - Merge with a merge commit, not a squash, so the history of each change stays.
